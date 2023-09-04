@@ -27,11 +27,11 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { Observable, finalize, of } from 'rxjs';
+import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
@@ -40,6 +40,7 @@ import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases5(getTestBed) {
@@ -611,6 +612,76 @@ export function TestCases5(getTestBed) {
       expect(component.isExpandedView).toBeTrue();
       expect(trackingService.showMoreClicked).toHaveBeenCalledOnceWith({
         source: 'Add Edit Per Diem page',
+      });
+    });
+
+    it('getPolicyDetails(): should call getSpenderExpensePolicyViolations and update policyDetails', () => {
+      activatedRoute.snapshot.params = {
+        id: 'tx5n59fvxk4z',
+      };
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(of([individualExpPolicyStateData1]));
+      component.getPolicyDetails();
+      expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+      expect(component.policyDetails).toEqual([individualExpPolicyStateData1]);
+    });
+
+    describe('ionViewWillLeave():', () => {
+      it('should unsubscribe and complete observable as component leaves', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
+
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        component.hardwareBackButtonAction = new Subscription();
+        component.onPageExit$ = new Subject();
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        component.ionViewWillLeave();
+
+        expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+
+      it('should unsubscribe remaining observables as dependent fields are not present', () => {
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+        component.hardwareBackButtonAction = new Subscription();
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        component.onPageExit$ = new Subject();
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        component.ionViewWillLeave();
+
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should return null when the date is within the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date();
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toBeNull();
+      });
+
+      it('should return an error object when the date is after the upper bound of the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date('2023-06-15');
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toEqual({ invalidDateSelection: true });
       });
     });
   });

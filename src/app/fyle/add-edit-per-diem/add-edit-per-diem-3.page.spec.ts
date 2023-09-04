@@ -191,6 +191,18 @@ export function TestCases3(getTestBed) {
         });
       });
 
+      it('should return true if tentative_balance_amount is lesser than currencyObj.amount if etxn is undefined', (done) => {
+        component.etxn$ = of(undefined);
+        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
+        mockPaymentMode.acc.tentative_balance_amount = 0;
+        component.fg.value.paymentMode = mockPaymentMode;
+        component.fg.value.currencyObj = currencyObjData5;
+        component.isPaymentModeValid().subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
       it('should return true if acc_id equals to source_account_id and tentative_balance_amount + tx_amount is lesser than currencyObj.amount', (done) => {
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.source_account_id = unflattenedAccount2Data.acc.id;
@@ -597,6 +609,96 @@ export function TestCases3(getTestBed) {
               type: 'policyViolations',
               policyViolations: ['The expense will be flagged'],
               policyAction: expensePolicyData.data.final_desired_state,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(authService.getEou).toHaveBeenCalledTimes(1);
+            expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx,
+              undefined,
+              ['comment'],
+              'rp5eUkeNm9wB',
+            );
+            expect(res).toEqual(outboxQueueData1[0]);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the expense in transactionOutbox if policyViolations.data is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        const mockExpensePolicyData = cloneDeep(expensePolicyData);
+        mockExpensePolicyData.data = undefined;
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(mockExpensePolicyData));
+        component
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(mockExpensePolicyData);
+            expect(component.criticalPolicyViolationErrorHandler).not.toHaveBeenCalled();
+            expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(authService.getEou).toHaveBeenCalledTimes(1);
+            expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx,
+              undefined,
+              ['comment'],
+              'rp5eUkeNm9wB',
+            );
+            expect(res).toEqual(outboxQueueData1[0]);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the expense in transactionOutbox if policyViolations is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(undefined));
+        component
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(undefined);
+            expect(component.criticalPolicyViolationErrorHandler).not.toHaveBeenCalled();
+            expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
               etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
             });
             expect(authService.getEou).toHaveBeenCalledTimes(1);
