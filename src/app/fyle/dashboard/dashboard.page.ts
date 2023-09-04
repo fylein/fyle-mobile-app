@@ -235,13 +235,15 @@ export class DashboardPage implements OnInit {
             source: 'DOCUMENT_SCANNER',
             base64Image: encodedImage,
           }));
-          await that.modalController.create({
+          const modal = await that.modalController.create({
             component: ReceiptPreviewComponent,
             componentProps: {
               base64ImagesWithSource: formattedScannedImages,
               mode: formattedScannedImages.length > 1 ? 'camera' : 'gallery',
             },
           });
+
+          await modal.present();
         },
       },
       {
