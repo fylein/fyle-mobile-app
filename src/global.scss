@@ -1020,25 +1020,30 @@ ion-modal.payment-mode-modal {
   }
 }
 
-.mat-chip.mat-standard-chip {
+.mat-mdc-chip.mat-mdc-standard-chip {
   background-color: $pure-white;
   border: 1px solid $grey-lighter;
+  --mdc-chip-container-height: 0;
 }
 
-.mat-standard-chip {
+.mat-mdc-standard-chip {
   min-height: 20px !important;
   font-size: 12px;
   color: $black-light !important;
+  background-color: $pure-white !important;
 }
 
-.mat-chip.mat-standard-chip .mat-chip-remove {
+.mat-mdc-chip.mat-mdc-standard-chip .mat-mdc-chip-remove {
   color: $grey-lighter !important;
   font-size: 16px;
   opacity: 1;
-  margin: 4px 3px 3px 4px;
 }
 
-.mat-standard-chip .mat-chip-remove.mat-icon {
+.mat-mdc-chip.mdc-evolution-chip--with-trailing-action .mat-mdc-chip-action-label {
+  font-size: 12px;
+}
+
+.mat-mdc-standard-chip .mat-mdc-chip-remove.mat-icon {
   width: 8px !important;
 }
 
