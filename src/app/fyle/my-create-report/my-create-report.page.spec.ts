@@ -270,14 +270,4 @@ describe('MyCreateReportPage', () => {
       expect(component.isSelectedAll).toBeFalse();
     });
   });
-
-  xit('toggleSelectAll', () => {});
-
-  xit('getVendorDetails', () => {});
-
-  xit('getReportTitle', () => {});
-
-  xit('toggleTransaction', () => {});
-
-  xit('ionViewWillEnter', () => {});
 });
