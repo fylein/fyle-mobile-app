@@ -102,6 +102,7 @@ import { RouteSelectorComponent } from 'src/app/shared/components/route-selector
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { MileageRatesOptions } from 'src/app/core/models/mileage-rates-options.data';
 
 type FormValue = {
   route: {
@@ -198,7 +199,7 @@ export class AddEditMileagePage implements OnInit {
 
   mileageRates$: Observable<PlatformMileageRates[]>;
 
-  mileageRatesOptions$: Observable<{ label: string; value: PlatformMileageRates }[]>;
+  mileageRatesOptions$: Observable<MileageRatesOptions[]>;
 
   rate$: Observable<number>;
 
