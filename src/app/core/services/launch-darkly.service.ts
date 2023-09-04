@@ -68,6 +68,10 @@ export class LaunchDarklyService {
     return this.getVariation('numeric-keypad', false);
   }
 
+  checkIfAndroidNegativeExpensePluginIsEnabled(): Observable<boolean> {
+    return this.getVariation('android-numeric-keypad', false);
+  }
+
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)
   private isTheSameUser(newUser: LDClient.LDUser): boolean {
     const previousUser = this.ldClient?.getUser();
