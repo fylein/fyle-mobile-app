@@ -191,6 +191,18 @@ export function TestCases3(getTestBed) {
         });
       });
 
+      it('should return true if tentative_balance_amount is lesser than currencyObj.amount if etxn is undefined', (done) => {
+        component.etxn$ = of(undefined);
+        const mockPaymentMode = cloneDeep(unflattenedAccount2Data);
+        mockPaymentMode.acc.tentative_balance_amount = 0;
+        component.fg.value.paymentMode = mockPaymentMode;
+        component.fg.value.currencyObj = currencyObjData5;
+        component.isPaymentModeValid().subscribe((res) => {
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
       it('should return true if acc_id equals to source_account_id and tentative_balance_amount + tx_amount is lesser than currencyObj.amount', (done) => {
         const mockTxnData = cloneDeep(unflattenedTxnData);
         mockTxnData.tx.source_account_id = unflattenedAccount2Data.acc.id;
@@ -240,7 +252,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -264,7 +276,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z')
+          new Date('2023-08-03T17:00:00.000Z'),
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -296,7 +308,7 @@ export function TestCases3(getTestBed) {
               value: null,
             },
           ],
-          expenseFieldResponse
+          expenseFieldResponse,
         );
         expect(res).toEqual(txnCustomProperties4);
         done();
@@ -321,7 +333,7 @@ export function TestCases3(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
         'fyCriticalPolicyViolationPopOver',
-        ['present', 'onWillDismiss']
+        ['present', 'onWillDismiss'],
       );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -367,7 +379,7 @@ export function TestCases3(getTestBed) {
 
       const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state
+        splitPolicyExp4.data.final_desired_state,
       );
       tick(100);
 
@@ -447,7 +459,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -472,7 +484,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explaination provided' });
             done();
@@ -513,7 +525,7 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' })
+          of({ etxn: unflattenedTxnData, comment: 'comment' }),
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -535,7 +547,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -562,7 +574,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               [],
-              'rp5eUkeNm9wB'
+              'rp5eUkeNm9wB',
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -578,7 +590,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -605,7 +617,97 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB'
+              'rp5eUkeNm9wB',
+            );
+            expect(res).toEqual(outboxQueueData1[0]);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the expense in transactionOutbox if policyViolations.data is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        const mockExpensePolicyData = cloneDeep(expensePolicyData);
+        mockExpensePolicyData.data = undefined;
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(mockExpensePolicyData));
+        component
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(mockExpensePolicyData);
+            expect(component.criticalPolicyViolationErrorHandler).not.toHaveBeenCalled();
+            expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(authService.getEou).toHaveBeenCalledTimes(1);
+            expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx,
+              undefined,
+              ['comment'],
+              'rp5eUkeNm9wB',
+            );
+            expect(res).toEqual(outboxQueueData1[0]);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the expense in transactionOutbox if policyViolations is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(undefined));
+        component
+          .addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(undefined);
+            expect(component.criticalPolicyViolationErrorHandler).not.toHaveBeenCalled();
+            expect(component.policyViolationErrorHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(authService.getEou).toHaveBeenCalledTimes(1);
+            expect(trackingService.createExpense).toHaveBeenCalledOnceWith(createExpenseProperties3);
+            expect(transactionOutboxService.addEntryAndSync).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx,
+              undefined,
+              ['comment'],
+              'rp5eUkeNm9wB',
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -622,7 +724,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe({
             next: (res) => {
@@ -645,7 +747,7 @@ export function TestCases3(getTestBed) {
                 unflattenedTxnData.tx,
                 undefined,
                 ['comment'],
-                'rp5eUkeNm9wB'
+                'rp5eUkeNm9wB',
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -667,7 +769,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -690,7 +792,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rp5eUkeNm9wB',
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -706,7 +808,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -725,7 +827,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rp5eUkeNm9wB',
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -747,7 +849,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            })
+            }),
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -770,7 +872,7 @@ export function TestCases3(getTestBed) {
               mockTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rp5eUkeNm9wB',
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();

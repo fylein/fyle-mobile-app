@@ -200,7 +200,7 @@ export class SplitExpensePage {
   getTotalSplitAmount(): void {
     if ((this.splitExpensesFormArray.value as SplitExpense[]).length > 1) {
       const amounts = (this.splitExpensesFormArray.value as SplitExpense[]).map(
-        (obj: { amount: number }) => obj.amount
+        (obj: { amount: number }) => obj.amount,
       );
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
@@ -437,7 +437,7 @@ export class SplitExpensePage {
             }
             return defaultValue;
           },
-          true
+          true,
         );
 
         if (!canCreateNegativeExpense) {
@@ -452,7 +452,7 @@ export class SplitExpensePage {
         this.saveSplitExpenseLoading = true;
 
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue)
+          this.generateSplitEtxnFromFg(splitExpenseValue),
         );
 
         forkJoin({
@@ -520,7 +520,7 @@ export class SplitExpensePage {
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
-      this.activatedRoute.snapshot.params.selectedCCCTransaction as string
+      this.activatedRoute.snapshot.params.selectedCCCTransaction as string,
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
@@ -535,8 +535,8 @@ export class SplitExpensePage {
                 .pipe(
                   map(
                     (project) =>
-                      this.projectsService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[]
-                  )
+                      this.projectsService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[],
+                  ),
                 );
             }
 
@@ -560,9 +560,9 @@ export class SplitExpensePage {
       () => !!parentFieldId,
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
         this.transaction.custom_properties,
-        parentFieldId
+        parentFieldId,
       ),
-      of(null)
+      of(null),
     );
 
     if (this.splitType === 'cost centers') {
@@ -680,7 +680,7 @@ export class SplitExpensePage {
 
       const percentage = Math.min(
         100,
-        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage)
+        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage),
       );
 
       const rawAmount = (this.amount * percentage) / 100;
@@ -718,7 +718,7 @@ export class SplitExpensePage {
     evenAmount: number,
     evenPercentage: number,
     lastSplitAmount: number,
-    lastSplitPercentage: number
+    lastSplitPercentage: number,
   ): void {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
