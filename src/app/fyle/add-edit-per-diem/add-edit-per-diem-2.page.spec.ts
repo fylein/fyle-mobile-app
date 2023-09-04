@@ -761,7 +761,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account.acc is undefined', (done) => {
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account.acc is undefined', (done) => {
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
         const mockAccountsData = cloneDeep(accountsData);
         mockAccountsData[0].acc = undefined;
@@ -774,7 +774,7 @@ export function TestCases2(getTestBed) {
         });
       });
 
-      it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account is undefined', (done) => {
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account is undefined', (done) => {
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
         const mockAccountsData = cloneDeep(accountsData);
         mockAccountsData[0] = undefined;
