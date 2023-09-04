@@ -152,20 +152,4 @@ describe('MyCreateReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     });
   });
-
-  xit('sendFirstReportCreated', () => {});
-
-  xit('ctaClickedEvent', () => {});
-
-  xit('selectExpense', () => {});
-
-  xit('toggleSelectAll', () => {});
-
-  xit('getVendorDetails', () => {});
-
-  xit('getReportTitle', () => {});
-
-  xit('toggleTransaction', () => {});
-
-  xit('ionViewWillEnter', () => {});
 });
