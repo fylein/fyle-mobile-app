@@ -43,7 +43,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
   // This variable tracks if comma was clicked by the user.
   commaClicked = false;
 
-  innerValue: string | number;
+  innerValue: number;
 
   isNegativeExpensePluginEnabled = false;
 
@@ -53,7 +53,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: string | number) => void = noop;
+  onChangeCallback: (_: number) => void = noop;
 
   keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
@@ -65,11 +65,11 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     private injector: Injector,
   ) {}
 
-  get value(): string | number {
+  get value(): number {
     return this.innerValue;
   }
 
-  set value(v: string | number) {
+  set value(v: number) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       this.onChangeCallback(v);
@@ -84,7 +84,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     }
   }
 
-  registerOnChange(fn: (_: string | number) => void): void {
+  registerOnChange(fn: (_: number) => void): void {
     this.onChangeCallback = fn;
   }
 
