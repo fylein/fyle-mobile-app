@@ -1,8 +1,6 @@
 @import '../../../../theme/colors.scss';
 
 .card-stats {
-  margin-bottom: calc(138px + env(safe-area-inset-bottom));
-
   &__header {
     font-size: 14px;
     line-height: 18px;
