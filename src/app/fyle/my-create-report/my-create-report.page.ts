@@ -1,15 +1,12 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
 import { Observable, Subscription, from, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -57,12 +54,9 @@ export class MyCreateReportPage implements OnInit {
     private currencyService: CurrencyService,
     private loaderService: LoaderService,
     private router: Router,
-    private popoverController: PopoverController,
-    private orgUserSettingsService: OrgUserSettingsService,
     private trackingService: TrackingService,
     private storageService: StorageService,
     private refinerService: RefinerService,
-    private orgSettingsService: OrgSettingsService,
   ) {}
 
   detectTitleChange(): void {
