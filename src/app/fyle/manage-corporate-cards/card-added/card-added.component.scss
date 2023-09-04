@@ -49,6 +49,7 @@
 
   &__expenses-info-content {
     color: $blue-black;
+    font-size: 14px;
   }
 
   &__debit-card-info {
@@ -58,6 +59,7 @@
     border: 1px solid $grey;
     line-height: 1.5;
     color: $black-light;
+    font-size: 10px;
   }
 
   &__footer {
