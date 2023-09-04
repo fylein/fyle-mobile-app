@@ -1,10 +1,14 @@
 import { CurrencyPipe } from '@angular/common';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { FormsModule } from '@angular/forms';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
 import { of } from 'rxjs';
+import { apiExpenseRes, selectedExpenses } from 'src/app/core/mock-data/expense.data';
+import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -41,13 +45,13 @@ describe('MyCreateReportPage', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['createFirstReport']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['createFirstReport', 'createReport']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
 
     TestBed.configureTestingModule({
       declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
-      imports: [IonicModule.forRoot(), RouterTestingModule, ReactiveFormsModule, FormsModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
       providers: [
         FyCurrencyPipe,
         CurrencyPipe,
@@ -94,6 +98,7 @@ describe('MyCreateReportPage', () => {
           useValue: refinerServiceSpy,
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
     fixture = TestBed.createComponent(MyCreateReportPage);
     component = fixture.componentInstance;
@@ -153,11 +158,118 @@ describe('MyCreateReportPage', () => {
     });
   });
 
-  xit('sendFirstReportCreated', () => {});
+  it('sendFirstReportCreated(): should set a new report if first report not created', fakeAsync(() => {
+    storageService.get.and.resolveTo(false);
+    reportService.getMyReportsCount.and.returnValue(of(0));
+    component.readyToReportEtxns = selectedExpenses;
+    fixture.detectChanges();
 
-  xit('ctaClickedEvent', () => {});
+    component.sendFirstReportCreated();
+    tick(500);
 
-  xit('selectExpense', () => {});
+    expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith({});
+    expect(storageService.get).toHaveBeenCalledOnceWith('isFirstReportCreated');
+    expect(storageService.set).toHaveBeenCalledOnceWith('isFirstReportCreated', true);
+  }));
+
+  describe('ctaClickedEvent():', () => {
+    it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
+      spyOn(component, 'sendFirstReportCreated');
+      reportService.createDraft.and.returnValue(of(reportUnflattenedData));
+      reportService.addTransactions.and.returnValue(of(null));
+      component.selectedElements = selectedExpenses;
+      fixture.detectChanges();
+
+      component.ctaClickedEvent('create_draft_report');
+
+      expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith({
+        purpose: component.reportTitle,
+        source: 'MOBILE',
+      });
+      expect(trackingService.createReport).toHaveBeenCalledOnceWith({
+        Expense_Count: selectedExpenses.length,
+        Report_Value: component.selectedTotalAmount,
+      });
+      expect(reportService.addTransactions).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
+        selectedExpenses[0].tx_id,
+        selectedExpenses[1].tx_id,
+      ]);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    });
+
+    it('should create a draft report', () => {
+      spyOn(component, 'sendFirstReportCreated');
+      reportService.createDraft.and.returnValue(of(reportUnflattenedData));
+      component.selectedElements = [];
+      fixture.detectChanges();
+
+      component.ctaClickedEvent('create_draft_report');
+
+      expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
+      expect(reportService.createDraft).toHaveBeenCalledOnceWith({
+        purpose: component.reportTitle,
+        source: 'MOBILE',
+      });
+      expect(trackingService.createReport).toHaveBeenCalledOnceWith({
+        Expense_Count: 0,
+        Report_Value: component.selectedTotalAmount,
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+    });
+
+    it('should create report', () => {
+      spyOn(component, 'sendFirstReportCreated');
+      reportService.create.and.returnValue(of(reportUnflattenedData));
+      component.selectedElements = selectedExpenses;
+      fixture.detectChanges();
+
+      component.ctaClickedEvent('create_report');
+
+      expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
+      expect(reportService.create).toHaveBeenCalledOnceWith(
+        {
+          purpose: component.reportTitle,
+          source: 'MOBILE',
+        },
+        [selectedExpenses[0].tx_id, selectedExpenses[1].tx_id],
+      );
+      expect(trackingService.createReport).toHaveBeenCalledOnceWith({
+        Expense_Count: 2,
+        Report_Value: component.selectedTotalAmount,
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
+      expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Submit Newly Created Report' });
+    });
+  });
+
+  describe('selectExpense():', () => {
+    it('should add the expense in selected list', () => {
+      spyOn(component, 'getReportTitle');
+      component.selectedElements = selectedExpenses;
+      component.readyToReportEtxns = [];
+      fixture.detectChanges();
+
+      component.selectExpense(apiExpenseRes[0]);
+
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+      expect(component.selectedElements.length).toEqual(3);
+      expect(component.isSelectedAll).toBeFalse();
+    });
+
+    it('should remove an expense from the selected list', () => {
+      spyOn(component, 'getReportTitle');
+      component.selectedElements = selectedExpenses;
+      component.readyToReportEtxns = [];
+      fixture.detectChanges();
+
+      component.selectExpense(selectedExpenses[0]);
+
+      expect(component.getReportTitle).toHaveBeenCalledTimes(1);
+      expect(component.selectedElements.length).toEqual(1);
+      expect(component.isSelectedAll).toBeFalse();
+    });
+  });
 
   xit('toggleSelectAll', () => {});
 

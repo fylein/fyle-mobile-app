@@ -5603,3 +5603,16 @@ export const policyExpense2: Expense = {
   ...apiExpenseRes[0],
   tx_policy_amount: 0,
 };
+
+export const selectedExpenses: Expense[] = [
+  {
+    ...expenseList[0],
+    isSelected: true,
+    tx_skip_reimbursement: true,
+  },
+  {
+    ...expenseList[1],
+    isSelected: true,
+    tx_skip_reimbursement: false,
+  },
+];
