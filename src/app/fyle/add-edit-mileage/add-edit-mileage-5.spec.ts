@@ -235,7 +235,7 @@ export function TestCases5(getTestBed) {
         tokenService.getClusterDomain.and.resolveTo('domain');
         activatedRoute.snapshot.params.navigate_back = true;
         activatedRoute.snapshot.params.activeIndex = 0;
-        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53', 'tx053DOHz9pU']);
         reportService.getAutoSubmissionReportName.and.returnValue(of('purpose'));
         spyOn(component, 'setupSelectedProjects');
         spyOn(component, 'setupSelectedCostCenters');
