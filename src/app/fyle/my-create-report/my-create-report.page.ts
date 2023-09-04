@@ -102,7 +102,7 @@ export class MyCreateReportPage implements OnInit {
 
   ctaClickedEvent(reportActionType): Subscription {
     this.showReportNameError = false;
-    if (this.reportTitle && this.reportTitle?.trim().length <= 0 && this.emptyInput) {
+    if (!this.reportTitle && this.reportTitle?.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
       return;
     }
