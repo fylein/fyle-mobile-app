@@ -32,7 +32,7 @@ import { ModalController, NavController, Platform, PopoverController } from '@io
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
-import { BehaviorSubject, finalize, of, take, tap } from 'rxjs';
+import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedExpWoCostCenter, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
@@ -80,6 +80,7 @@ import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import {
   perDiemFormValuesData1,
+  perDiemFormValuesData10,
   perDiemFormValuesData2,
   perDiemFormValuesData3,
   perDiemFormValuesData4,
@@ -308,6 +309,57 @@ export function TestCases2(getTestBed) {
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithoutControl);
           const controlValues = res.map(({ control }) => control.value);
+          expect(controlValues).toEqual(expectedControlValues);
+        });
+      });
+
+      it('should return custom inputs if initialFetch is false', () => {
+        component.fg.value.custom_inputs = dependentCustomProperties;
+        const getCustomInputs$ = component.getCustomInputs();
+        component.initialFetch = false;
+        getCustomInputs$.subscribe((res) => {
+          expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+          expect(categoriesService.getAll).not.toHaveBeenCalled();
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+            dependentCustomProperties,
+            expenseFieldResponse,
+          );
+          expect(component.getPerDiemCategories).not.toHaveBeenCalled();
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
+          const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
+          const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
+            ...otherProps,
+          })) as TxnCustomProperties[];
+          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          // We just want to check the value and not the methods like pendingChange etc
+          const controlValues = res.map(({ control }) => control.value);
+          const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
+          expect(controlValues).toEqual(expectedControlValues);
+        });
+      });
+
+      it('should return custom inputs if initialFetch is false and sub_category is undefined', () => {
+        component.fg.value.custom_inputs = dependentCustomProperties;
+        component.fg.value.sub_category = undefined;
+        const getCustomInputs$ = component.getCustomInputs();
+        component.initialFetch = false;
+        getCustomInputs$.subscribe((res) => {
+          expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+          expect(categoriesService.getAll).not.toHaveBeenCalled();
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+            dependentCustomProperties,
+            expenseFieldResponse,
+          );
+          expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
+          const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
+          const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
+            ...otherProps,
+          })) as TxnCustomProperties[];
+          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          // We just want to check the value and not the methods like pendingChange etc
+          const controlValues = res.map(({ control }) => control.value);
+          const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
           expect(controlValues).toEqual(expectedControlValues);
         });
       });

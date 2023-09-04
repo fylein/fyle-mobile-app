@@ -702,7 +702,7 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap(() => {
-        const category = this.fg.controls.sub_category.value as OrgCategory;
+        const category = this.getFormValues().sub_category;
         if (this.initialFetch) {
           return this.etxn$.pipe(
             switchMap((etxn) =>
@@ -1633,7 +1633,7 @@ export class AddEditPerDiemPage implements OnInit {
           name: dependentField.label,
           value: dependentField.value,
         }));
-        return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
+        return this.customFieldsService.standardizeCustomFields(mappedDependentFields, customFields);
       }),
     );
 

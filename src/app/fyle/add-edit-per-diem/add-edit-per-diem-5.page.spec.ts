@@ -27,7 +27,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -659,6 +659,29 @@ export function TestCases5(getTestBed) {
         expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
         expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
         expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should return null when the date is within the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date();
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toBeNull();
+      });
+
+      it('should return an error object when the date is after the upper bound of the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date('2023-06-15');
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toEqual({ invalidDateSelection: true });
       });
     });
   });
