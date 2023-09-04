@@ -36,7 +36,7 @@
   >
     <ng-template *ngFor="let base64ImageWithSource of base64ImagesWithSource; index as i" swiperSlide>
       <pinch-zoom class="receipt-preview__image-container">
-        <img #imgElement (load)="onImageLoad($event)" [src]="base64ImageWithSource.base64Image" />
+        <img #imgElement (load)="onImageLoad()" [src]="base64ImageWithSource.base64Image" />
       </pinch-zoom>
     </ng-template>
   </swiper>
