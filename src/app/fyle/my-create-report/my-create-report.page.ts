@@ -218,10 +218,16 @@ export class MyCreateReportPage implements OnInit {
     this.getReportTitle();
   }
 
-  ionViewWillEnter(): void {
-    this.isSelectedAll = true;
+  checkTxnIds(): void {
     const txn_ids = this.activatedRoute.snapshot.params.txn_ids as string;
     this.selectedTxnIds = (txn_ids ? JSON.parse(txn_ids) : []) as string[];
+  }
+
+  ionViewWillEnter(): void {
+    this.isSelectedAll = true;
+
+    this.checkTxnIds();
+
     const queryParams = {
       tx_report_id: 'is.null',
       tx_state: 'in.(COMPLETE)',

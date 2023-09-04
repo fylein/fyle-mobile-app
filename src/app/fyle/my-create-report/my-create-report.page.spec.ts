@@ -366,13 +366,34 @@ describe('MyCreateReportPage', () => {
     expect(component.getReportTitle).toHaveBeenCalledTimes(1);
   });
 
+  describe('checkTxnIds():', () => {
+    it('should set selected txn IDs from route', () => {
+      activatedRoute.snapshot.params.txn_ids = JSON.stringify([selectedExpenses[0].tx_id, selectedExpenses[1].tx_id]);
+      fixture.detectChanges();
+
+      component.checkTxnIds();
+
+      expect(component.selectedTxnIds).toEqual([selectedExpenses[0].tx_id, null]);
+    });
+
+    it('should set selected txn IDs as empty array if not found in route', () => {
+      activatedRoute.snapshot.params.txn_ids = null;
+      fixture.detectChanges();
+
+      component.checkTxnIds();
+
+      expect(component.selectedTxnIds).toEqual([]);
+    });
+  });
+
   it('ionViewWillEnter(): should setup expenses', fakeAsync(() => {
-    activatedRoute.snapshot.params.txn_ids = JSON.stringify([selectedExpenses[0].tx_id, selectedExpenses[1].tx_id]);
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
     spyOn(component, 'getVendorDetails').and.returnValue('vendor');
     spyOn(component, 'getReportTitle').and.returnValue(null);
+    spyOn(component, 'checkTxnIds');
+    component.selectedTxnIds = [selectedExpenses[0].tx_id];
     fixture.detectChanges();
 
     component.ionViewWillEnter();
@@ -389,5 +410,6 @@ describe('MyCreateReportPage', () => {
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.getReportTitle).toHaveBeenCalledTimes(1);
     expect(component.getVendorDetails).toHaveBeenCalledTimes(2);
+    expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
 });
