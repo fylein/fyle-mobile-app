@@ -141,7 +141,7 @@ describe('ViewPerDiemPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('get ExpenseView(): should return the current expense view', () => {
+  it('get ExpenseView(): should return the expense view enum', () => {
     expect(component.ExpenseView).toEqual(ExpenseView);
   });
 
