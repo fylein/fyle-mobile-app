@@ -105,7 +105,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 type FormValue = {
   route: {
     roundTrip: boolean;
-    mileageLocations: Location[];
+    mileageLocations?: Location[];
     distance?: number;
   };
   category: OrgCategory;
@@ -357,7 +357,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getFormValues(): Partial<FormValue> {
-    return this.fg.value as FormValue;
+    return this.fg.value as Partial<FormValue>;
   }
 
   getFormControl(name: string): AbstractControl {
@@ -632,24 +632,30 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  setupDependentFields(customExpenseFields$: Observable<ExpenseField[]>): void {
+    this.dependentFields$ = customExpenseFields$.pipe(
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+    );
+  }
+
+  checkMileageCategories(category: OrgCategory): Observable<OrgCategory> {
+    if (category && !isEmpty(category)) {
+      return of(category);
+    } else {
+      return this.getMileageCategories().pipe(map((mileageContainer) => mileageContainer.defaultMileageCategory));
+    }
+  }
+
   getCustomInputs(): Observable<TxnCustomProperties[]> {
     this.initialFetch = true;
 
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
-    this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
-    );
+    this.setupDependentFields(customExpenseFields$);
 
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
-      switchMap((category) => {
-        if (category && !isEmpty(category)) {
-          return of(category);
-        } else {
-          return this.getMileageCategories().pipe(map((mileageContainer) => mileageContainer.defaultMileageCategory));
-        }
-      }),
+      switchMap((category: OrgCategory) => this.checkMileageCategories(category)),
       switchMap((category: OrgCategory) => {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
@@ -1043,7 +1049,7 @@ export class AddEditMileagePage implements OnInit {
 
   checkNewReportsFlow(orgSettings$: Observable<OrgSettings>): void {
     orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings.enabled || false;
     });
   }
 
@@ -2033,7 +2039,7 @@ export class AddEditMileagePage implements OnInit {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
-        customProperties = customProperties.map((customProperty) => {
+        customProperties = customProperties?.map((customProperty) => {
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -2041,6 +2047,7 @@ export class AddEditMileagePage implements OnInit {
           return customProperty;
         });
         const calculatedDistance = +res.calculatedDistance;
+
         const amount = res.amount;
         const skipReimbursement =
           formValue.paymentMode.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
