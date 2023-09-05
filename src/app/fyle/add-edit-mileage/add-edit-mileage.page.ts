@@ -105,7 +105,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 type FormValue = {
   route: {
     roundTrip: boolean;
-    mileageLocations: Location[];
+    mileageLocations?: Location[];
     distance?: number;
   };
   category: OrgCategory;
@@ -357,7 +357,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   getFormValues(): Partial<FormValue> {
-    return this.fg.value as FormValue;
+    return this.fg.value as Partial<FormValue>;
   }
 
   getFormControl(name: string): AbstractControl {
@@ -2039,7 +2039,7 @@ export class AddEditMileagePage implements OnInit {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
         const formValue = this.getFormValues();
         let customProperties = res.customProperties;
-        customProperties = customProperties.map((customProperty) => {
+        customProperties = customProperties?.map((customProperty) => {
           if (customProperty.type === 'DATE') {
             customProperty.value =
               customProperty.value && this.dateService.getUTCDate(new Date(customProperty.value as string));
@@ -2047,6 +2047,7 @@ export class AddEditMileagePage implements OnInit {
           return customProperty;
         });
         const calculatedDistance = +res.calculatedDistance;
+
         const amount = res.amount;
         const skipReimbursement =
           formValue.paymentMode.acc.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;

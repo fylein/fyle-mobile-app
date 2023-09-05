@@ -19,3 +19,18 @@ export const formValue1 = {
   purpose: 'travel',
   costCenter: costCentersData[0],
 };
+
+export const formValue2 = {
+  mileage_rate_name: null,
+  route: {
+    mileageLocations: null,
+    roundTrip: true,
+    distance: 10,
+  },
+  paymentMode: paymentModeDataPersonal,
+  sub_category: null,
+  dateOfSpend: new Date('2022-08-12T00:00:00'),
+  project: expectedProjectsResponse[0],
+  purpose: 'travel',
+  costCenter: costCentersData[0],
+};
