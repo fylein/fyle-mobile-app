@@ -1,8 +1,8 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
-import { from, Subscription } from 'rxjs';
+import { filter, from, Subscription } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddMorePopupComponent } from '../add-more-popup/add-more-popup.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -10,6 +10,202 @@ import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { NgxOpenCVService, OpenCVState } from 'ngx-opencv';
+import { C } from '@angular/cdk/keycodes';
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+declare const cv: any;
+
+function distance(p1, p2) {
+  return Math.hypot(p1.x - p2.x, p1.y - p2.y);
+}
+
+class jscanify {
+  constructor() {}
+
+  /**
+   * Finds the contour of the paper within the image
+   * @param {*} img image to process (cv.Mat)
+   * @returns the biggest contour inside the image
+   */
+  findPaperContour(img) {
+    const imgGray = new cv.Mat();
+    cv.cvtColor(img, imgGray, cv.COLOR_RGBA2GRAY);
+
+    const imgBlur = new cv.Mat();
+    cv.GaussianBlur(imgGray, imgBlur, new cv.Size(5, 5), 0, 0, cv.BORDER_DEFAULT);
+
+    const imgThresh = new cv.Mat();
+    cv.threshold(imgBlur, imgThresh, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU);
+
+    let contours = new cv.MatVector();
+    let hierarchy = new cv.Mat();
+
+    cv.findContours(imgThresh, contours, hierarchy, cv.RETR_CCOMP, cv.CHAIN_APPROX_SIMPLE);
+    let maxArea = 0;
+    let maxContourIndex = -1;
+    for (let i = 0; i < contours.size(); ++i) {
+      let contourArea = cv.contourArea(contours.get(i));
+      if (contourArea > maxArea) {
+        maxArea = contourArea;
+        maxContourIndex = i;
+      }
+    }
+
+    const maxContour = contours.get(maxContourIndex);
+
+    imgGray.delete();
+    imgBlur.delete();
+    imgThresh.delete();
+    contours.delete();
+    hierarchy.delete();
+    return maxContour;
+  }
+
+  /**
+   * Highlights the paper detected inside the image.
+   * @param {*} image image to process
+   * @param {*} options options for highlighting. Accepts `color` and `thickness` parameter
+   * @returns `HTMLCanvasElement` with original image and paper highlighted
+   */
+  highlightPaper(
+    image,
+    options = {
+      thickness: 10,
+      color: 'orange',
+    },
+  ) {
+    console.log(image);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = cv.imread(image);
+
+    const maxContour = this.findPaperContour(img);
+    cv.imshow(canvas, img);
+    if (maxContour) {
+      const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(maxContour);
+      console.log(topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner);
+      if (topLeftCorner && topRightCorner && bottomLeftCorner && bottomRightCorner) {
+        ctx.strokeStyle = options.color;
+        ctx.lineWidth = options.thickness;
+        console.log(ctx);
+        console.log(topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner);
+        ctx.beginPath();
+        ctx.moveTo(topLeftCorner.x, topLeftCorner.y);
+        ctx.lineTo(topRightCorner.x, topRightCorner.y);
+        ctx.lineTo(bottomRightCorner.x, bottomRightCorner.y);
+        ctx.lineTo(bottomLeftCorner.x, bottomLeftCorner.y);
+        ctx.lineTo(topLeftCorner.x, topLeftCorner.y);
+
+        ctx.stroke();
+        console.log(ctx);
+      }
+    }
+
+    img.delete();
+    return canvas;
+  }
+
+  /**
+   * Extracts and undistorts the image detected within the frame.
+   * @param {*} image image to process
+   * @param {*} resultWidth desired result paper width
+   * @param {*} resultHeight desired result paper height
+   * @returns `HTMLCanvasElement` containing undistorted image
+   */
+  extractPaper(image, resultWidth, resultHeight, buffer) {
+    const canvas = document.createElement('canvas');
+
+    const img = cv.imread(image);
+
+    const maxContour = this.findPaperContour(img);
+
+    const { topLeftCorner, topRightCorner, bottomLeftCorner, bottomRightCorner } = this.getCornerPoints(maxContour);
+    let warpedDst = new cv.Mat();
+
+    let dsize = new cv.Size(resultWidth, resultHeight);
+    let srcTri = cv.matFromArray(4, 1, cv.CV_32FC2, [
+      topLeftCorner.x,
+      topLeftCorner.y,
+      topRightCorner.x,
+      topRightCorner.y,
+      bottomLeftCorner.x,
+      bottomLeftCorner.y,
+      bottomRightCorner.x,
+      bottomRightCorner.y,
+    ]);
+
+    let dstTri = cv.matFromArray(4, 1, cv.CV_32FC2, [0, 0, resultWidth, 0, 0, resultHeight, resultWidth, resultHeight]);
+
+    let M = cv.getPerspectiveTransform(srcTri, dstTri);
+    cv.warpPerspective(img, warpedDst, M, dsize, cv.INTER_LINEAR, cv.BORDER_CONSTANT, new cv.Scalar());
+
+    cv.imshow(canvas, warpedDst);
+
+    img.delete();
+    warpedDst.delete();
+    return canvas;
+  }
+
+  /**
+   * Calculates the corner points of a contour.
+   * @param {*} contour contour from {@link findPaperContour}
+   * @returns object with properties `topLeftCorner`, `topRightCorner`, `bottomLeftCorner`, `bottomRightCorner`, each with `x` and `y` property
+   */
+  getCornerPoints(contour) {
+    let rect = cv.minAreaRect(contour);
+    const center = rect.center;
+
+    let topLeftCorner;
+    let topLeftCornerDist = 0;
+
+    let topRightCorner;
+    let topRightCornerDist = 0;
+
+    let bottomLeftCorner;
+    let bottomLeftCornerDist = 0;
+
+    let bottomRightCorner;
+    let bottomRightCornerDist = 0;
+
+    for (let i = 0; i < contour.data32S.length; i += 2) {
+      const point = { x: contour.data32S[i], y: contour.data32S[i + 1] };
+      const dist = distance(point, center);
+      if (point.x < center.x && point.y < center.y) {
+        // top left
+        if (dist > topLeftCornerDist) {
+          topLeftCorner = point;
+          topLeftCornerDist = dist;
+        }
+      } else if (point.x > center.x && point.y < center.y) {
+        // top right
+        if (dist > topRightCornerDist) {
+          topRightCorner = point;
+          topRightCornerDist = dist;
+        }
+      } else if (point.x < center.x && point.y > center.y) {
+        // bottom left
+        if (dist > bottomLeftCornerDist) {
+          bottomLeftCorner = point;
+          bottomLeftCornerDist = dist;
+        }
+      } else if (point.x > center.x && point.y > center.y) {
+        // bottom right
+        if (dist > bottomRightCornerDist) {
+          bottomRightCorner = point;
+          bottomRightCornerDist = dist;
+        }
+      }
+    }
+
+    return {
+      topLeftCorner,
+      topRightCorner,
+      bottomLeftCorner,
+      bottomRightCorner,
+    };
+  }
+}
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -25,6 +221,8 @@ type Image = Partial<{
 })
 export class ReceiptPreviewComponent implements OnInit {
   @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
+
+  @ViewChild('imgElement') currentImage: ElementRef<HTMLImageElement>;
 
   @Input() base64ImagesWithSource: Image[];
 
@@ -44,25 +242,57 @@ export class ReceiptPreviewComponent implements OnInit {
     private popoverController: PopoverController,
     private matBottomSheet: MatBottomSheet,
     private imagePicker: ImagePicker,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private ngxOpenCv: NgxOpenCVService,
   ) {}
 
-  async openCropReceiptModal() {
-    const cropReceiptModal = await this.modalController.create({
-      component: CropReceiptComponent,
-      componentProps: {
-        base64ImageWithSource: this.base64ImagesWithSource[this.activeIndex],
-      },
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
+  onImageLoad(event) {
+    console.log(event);
+    console.log();
+    this.ngxOpenCv.cvState.pipe(filter((state) => state.ready)).subscribe(() => {
+      const scan = new jscanify();
+      // const highlightedImage = scan.extractPaper(this.currentImage.nativeElement, this.currentImage.nativeElement.width, this.currentImage.nativeElement.height, undefined);
+      const highlightedImage = scan.highlightPaper(this.currentImage.nativeElement);
+      this.currentImage.nativeElement.style.display = 'none';
+      this.currentImage.nativeElement.parentElement.appendChild(highlightedImage);
     });
-    await cropReceiptModal.present();
-    this.isCropModalOpen = true;
-    const { data } = await cropReceiptModal.onWillDismiss();
-    this.isCropModalOpen = false;
+  }
 
-    if (data && data.base64ImageWithSource) {
-      this.base64ImagesWithSource[this.activeIndex] = data.base64ImageWithSource;
-      await this.swiper.swiperRef.update();
-      this.trackingService.cropReceipt();
+  async openCropReceiptModal() {
+    // const cropReceiptModal = await this.modalController.create({
+    //   component: CropReceiptComponent,
+    //   componentProps: {
+    //     base64ImageWithSource: this.base64ImagesWithSource[this.activeIndex],
+    //   },
+    // });
+    // await cropReceiptModal.present();
+    // this.isCropModalOpen = true;
+    // const { data } = await cropReceiptModal.onWillDismiss();
+    // this.isCropModalOpen = false;
+
+    // if (data && data.base64ImageWithSource) {
+    //
+    //   await this.swiper.swiperRef.update();
+    //   this.trackingService.cropReceipt();
+    // }
+    try {
+      const scan = new jscanify();
+      // const highlightedImage = scan.extractPaper(this.currentImage.nativeElement, this.currentImage.nativeElement.width, this.currentImage.nativeElement.height, undefined);
+      const extractedImage = scan.extractPaper(this.currentImage.nativeElement, 467, 622, undefined);
+      // const childNodes = this.currentImage.nativeElement.parentElement.childNodes;
+      for (let index = 0; index < this.currentImage.nativeElement.parentNode.childElementCount; index++) {
+        const childNode = this.currentImage.nativeElement.parentNode.children.item(index) as HTMLElement;
+        // console.log(childNode);
+        childNode.style.display = 'none';
+      }
+      this.currentImage.nativeElement.parentElement.appendChild(extractedImage);
+      this.base64ImagesWithSource[this.activeIndex] = {
+        ...this.base64ImagesWithSource[this.activeIndex],
+        base64Image: extractedImage.toDataURL('image/jpeg').split(';base64,')[1],
+      };
+    } catch (error) {
+      console.log(error);
     }
   }
 
@@ -80,7 +310,7 @@ export class ReceiptPreviewComponent implements OnInit {
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
-      }
+      },
     );
     this.swiper.swiperRef.update();
   }

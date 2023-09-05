@@ -21,6 +21,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
+import { NgxOpenCVModule, OpenCVConfig } from 'ngx-opencv';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -28,6 +29,10 @@ export class MyHammerConfig extends HammerGestureConfig {
     rotate: { enable: false },
   };
 }
+
+const openCVConfig: OpenCVConfig = {
+  openCVDirPath: '/assets/opencv',
+};
 
 export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
   'Minimum screen width to act as breakpoint between regular and small devices',
@@ -46,6 +51,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HttpClientJsonpModule,
     SharedModule,
     HammerModule,
+    NgxOpenCVModule.forRoot(openCVConfig),
   ],
   providers: [
     GooglePlus,
