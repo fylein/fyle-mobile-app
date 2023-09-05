@@ -135,7 +135,7 @@
 
   <ng-container *ngIf="txnFields?.distance">
     <div
-      class="route-selector--text route-selector--internal-block"
+      class="route-selector--text route-selector--internal-distance-block"
       [ngClass]="{ 'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid }"
     >
       <div class="route-selector--text-label">
@@ -162,7 +162,7 @@
       *ngIf="
         form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
       "
-      class="route-selector--error route-selector--text-error"
+      class="route-selector--error"
     >
       Please enter valid distance
     </div>
