@@ -46,10 +46,6 @@
         align-items: center;
       }
 
-      .d-flex {
-        flex: 1;
-      }
-
       ::ng-deep .mdc-notched-outline > * {
         border-color: $black-light !important;
       }
