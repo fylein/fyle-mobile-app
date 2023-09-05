@@ -1,32 +1,33 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ViewChild, ElementRef } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, NgZone, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject } from 'rxjs';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
+import { InfiniteScrollCustomEvent, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { BehaviorSubject, Observable, concat, from, fromEvent, noop, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ModalController, Platform } from '@ionic/angular';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { DateService } from 'src/app/core/services/date.service';
-import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { Expense } from 'src/app/core/models/expense.model';
+import { TxnDetail } from 'src/app/core/models/v2/txn-detail.model';
 
 type Filters = Partial<{
   amount: number;
@@ -49,7 +50,7 @@ type Filters = Partial<{
   styleUrls: ['./personal-cards.page.scss'],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
 
@@ -59,12 +60,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadCardData$: BehaviorSubject<any>;
+  loadCardData$: BehaviorSubject<{}>;
 
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Record<string, string | string[]>;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -87,7 +88,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isLoadingDataInfiniteScroll = false;
 
-  acc = [];
+  acc: PersonalCardTxn[] = [];
 
   currentPageNumber = 1;
 
@@ -101,7 +102,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectionMode = false;
 
-  selectedElements: any[];
+  selectedElements: string[];
 
   selectAll = false;
 
@@ -141,10 +142,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
     const isIos = this.platform.is('ios');
     if (isIos) {
@@ -154,7 +155,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     if (this.isCardsLoaded) {
       const currentParams = this.loadData$.getValue();
       this.loadData$.next(currentParams);
@@ -162,7 +163,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.personalCardsViewed();
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 
     this.loadCardData$ = new BehaviorSubject({});
@@ -173,21 +174,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           this.clearFilters();
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
         this.personalCardsService.getLinkedAccounts().pipe(
-          tap((bankAccounts) => {
+          tap(() => {
             this.isCardsLoaded = true;
           }),
           finalize(() => {
             this.isLoading = false;
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.loadData$ = new BehaviorSubject({});
@@ -196,7 +197,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       switchMap((params) => {
         let queryParams;
         if (this.activatedRoute.snapshot.queryParams.filters) {
-          this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+          const route_filters = JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Record<
+            string,
+            string | string[]
+          >;
+          this.filters = Object.assign({}, this.filters, route_filters);
           this.currentPageNumber = 1;
           queryParams = this.addNewFiltersToParams();
         } else {
@@ -216,7 +221,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                   finalize(() => {
                     this.isTrasactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  })
+                  }),
                 );
             } else {
               this.isTrasactionsLoading = false;
@@ -224,7 +229,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 data: [],
               });
             }
-          })
+          }),
         );
       }),
       map((res) => {
@@ -235,7 +240,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      })
+      }),
     );
 
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
@@ -247,19 +252,19 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
     const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
     );
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400)
+        debounceTime(400),
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -270,7 +275,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
@@ -282,20 +287,20 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  linkAccount() {
+  linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
       });
   }
 
-  openYoodle(url, access_token) {
+  openYoodle(url: string, access_token: string): void {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
     const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
@@ -325,13 +330,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  postAccounts(requestIds) {
+  postAccounts(requestIds): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        })
+        }),
       )
       .subscribe((data) => {
         const message =
@@ -345,12 +350,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  onDeleted() {
+  onDeleted(): void {
     this.loadCardData$.next({});
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(event) {
+  onCardChanged(event: string): void {
     this.selectedAccount = event;
     this.acc = [];
     const params = this.loadData$.getValue();
@@ -365,7 +370,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: InfiniteScrollCustomEvent): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     this.isLoadingDataInfiniteScroll = true;
 
@@ -378,7 +383,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 1000);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -389,14 +394,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -407,11 +412,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     ]);
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: SegmentCustomEvent): void {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value;
+    this.selectedTrasactionType = event.detail.value as string;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
@@ -424,7 +429,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  fetchNewTransactions() {
+  fetchNewTransactions(): void {
     this.isfetching = true;
     this.isTrasactionsLoading = true;
     if (this.selectionMode) {
@@ -440,17 +445,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           params.pageNumber = 1;
           this.loadData$.next(params);
           this.trackingService.transactionsFetchedOnPersonalCards();
-        })
+        }),
       )
       .subscribe(noop);
   }
 
-  hideSelectedTransactions() {
+  hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
       .hideTransactions(this.selectedElements)
       .pipe(
-        tap((data: any) => {
+        tap((data: Expense[]) => {
           const message =
             data.length === 1
               ? '1 Transaction successfully hidden!'
@@ -470,12 +475,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        })
+        }),
       )
       .subscribe(noop);
   }
 
-  switchSelectionMode(txnId?) {
+  switchSelectionMode(txnId?: string): void {
     if (this.selectedTrasactionType === 'INITIALIZED') {
       this.selectionMode = !this.selectionMode;
       this.selectedElements = [];
@@ -485,7 +490,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  selectExpense(txnId: string) {
+  selectExpense(txnId: string): void {
     const itemIndex = this.selectedElements.indexOf(txnId);
     if (itemIndex >= 0) {
       this.selectedElements.splice(itemIndex, 1);
@@ -494,7 +499,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  onSelectAll(event) {
+  onSelectAll(event): void {
     this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
@@ -502,7 +507,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -582,7 +587,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as {
+      data: SelectedFilters<string>[];
+    };
     if (data) {
       this.currentPageNumber = 1;
       this.filters = this.personalCardsService.convertFilters(data);
@@ -594,7 +601,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async setState(state: string) {
+  async setState(): Promise<void> {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -604,11 +611,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 500);
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<{
+    pageNumber: number;
+    queryParams: Record<string, string | string[]>;
+    sortParam: string;
+    sortDir: string;
+    searchString: string;
+  }> {
     const currentParams = this.loadData$.getValue();
 
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: Record<string, string | string[]> = {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
@@ -622,32 +635,32 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     return currentParams;
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterLabel: string) {
+  async onFilterClick(filterLabel: string): Promise<void> {
     await this.openFilters(filterLabel);
   }
 
-  onFilterClose(filterLabel: string) {
+  onFilterClose(filterLabel: string): void {
     if (filterLabel === 'Created On') {
       delete this.filters.createdOn;
     }
@@ -665,9 +678,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -677,7 +690,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -685,7 +698,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  createExpense(txnDetails) {
+  createExpense(txnDetails: PersonalCardTxn): void {
     if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
@@ -714,11 +727,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  async openExpensePreview(txnDetails) {
+  async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
+    const txn_details = txnDetails.txn_details as TxnDetail[];
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txnDetails.txn_details[0].id,
+        expenseId: txn_details[0].id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'unmatch',
@@ -728,13 +742,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await expenseDetailsModal.present();
 
-    const { data } = await expenseDetailsModal.onWillDismiss();
-
     const currentParams = this.loadData$.getValue();
     this.loadData$.next(currentParams);
   }
 
-  async openDateRangeModal() {
+  async openDateRangeModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: DateRangeModalComponent,
       mode: 'ios',
@@ -743,7 +755,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = (await selectionModal.onWillDismiss()) as {
+      data: {
+        range: string;
+        startDate: string;
+        endDate: string;
+      };
+    };
 
     if (data) {
       this.zone.run(() => {
@@ -761,7 +779,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: InfiniteScrollCustomEvent): void {
     const currentParams = this.loadData$.getValue();
     this.currentPageNumber = 1;
     currentParams.pageNumber = this.currentPageNumber;

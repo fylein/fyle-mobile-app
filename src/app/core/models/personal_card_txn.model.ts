@@ -1,3 +1,5 @@
+import { TxnDetail } from './v2/txn-detail.model';
+
 export interface PersonalCardTxn {
   _search_document?: string;
   ba_account_number: string;
@@ -19,6 +21,6 @@ export interface PersonalCardTxn {
   btxn_updated_at?: Date;
   tx_matched_at?: string;
   btxn_vendor: string;
-  txn_details?: string;
+  txn_details?: string | TxnDetail[];
   tx_split_group_id: string;
 }
