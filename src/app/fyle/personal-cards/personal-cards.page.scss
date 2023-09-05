@@ -297,6 +297,10 @@
         padding-right: 6px;
       }
 
+      ::ng-deep .d-flex {
+        flex: 1;
+      }
+
       ::ng-deep .mat-icon {
         display: flex;
         align-items: center;
