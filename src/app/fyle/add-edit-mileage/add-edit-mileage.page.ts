@@ -322,7 +322,7 @@ export class AddEditMileagePage implements OnInit {
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService
+    private storageService: StorageService,
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -436,7 +436,7 @@ export class AddEditMileagePage implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
     this.connectionStatus$ = this.isConnected$.pipe(map((isConnected) => ({ connected: isConnected })));
   }
@@ -455,13 +455,13 @@ export class AddEditMileagePage implements OnInit {
       concatMap((project: ExtendedProject) =>
         activeCategories$.pipe(
           map((activeCategories: OrgCategory[]) =>
-            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
-          )
-        )
+            this.projectService.getAllowedOrgCategoryIds(project, activeCategories),
+          ),
+        ),
       ),
       map((categories) =>
-        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category }))
-      )
+        categories.map((category: OrgCategory) => ({ label: category.sub_category, value: category })),
+      ),
     );
 
     this.filteredCategories$.subscribe((categories) => {
@@ -483,7 +483,7 @@ export class AddEditMileagePage implements OnInit {
           .map((category) => category?.id?.toString());
 
         return mileageCategories;
-      })
+      }),
     );
   }
 
@@ -493,7 +493,7 @@ export class AddEditMileagePage implements OnInit {
         const orgCategoryName = 'mileage';
 
         const defaultMileageCategory = categories.find(
-          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase()
+          (category) => category.name.toLowerCase() === orgCategoryName.toLowerCase(),
         );
 
         const mileageCategories = categories.filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1);
@@ -502,7 +502,7 @@ export class AddEditMileagePage implements OnInit {
           defaultMileageCategory,
           mileageCategories,
         };
-      })
+      }),
     );
   }
 
@@ -521,10 +521,10 @@ export class AddEditMileagePage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
       map((expenseFieldsMap: Partial<ExpenseFieldsObj>) => {
         if (expenseFieldsMap) {
@@ -543,7 +543,7 @@ export class AddEditMileagePage implements OnInit {
 
         return expenseFieldsMap;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -562,12 +562,12 @@ export class AddEditMileagePage implements OnInit {
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
               fields,
-              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory
+              formValue.sub_category || mileageCategoriesContainer.defaultMileageCategory,
             );
-          })
-        )
+          }),
+        ),
       ),
-      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc))
+      map((tfc) => this.expenseFieldsService.getDefaultTxnFieldValues(tfc)),
     );
 
     tfcValues$.subscribe((defaultValues) => {
@@ -614,7 +614,7 @@ export class AddEditMileagePage implements OnInit {
         };
         return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -625,16 +625,16 @@ export class AddEditMileagePage implements OnInit {
         return categories.filter(
           (orgCategory) =>
             parentCategoryName.toLowerCase() === orgCategory.name?.toLowerCase() &&
-            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase()
+            parentCategoryName.toLowerCase() !== orgCategory.sub_category?.toLowerCase(),
         );
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
   setupDependentFields(customExpenseFields$: Observable<ExpenseField[]>): void {
     this.dependentFields$ = customExpenseFields$.pipe(
-      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT'))
+      map((customFields) => customFields.filter((customField) => customField.type === 'DEPENDENT_SELECT')),
     );
   }
 
@@ -663,9 +663,9 @@ export class AddEditMileagePage implements OnInit {
           map((customFields) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
-          )
+              this.customInputsService.filterByCategory(customFields, category && category.id),
+            ),
+          ),
         );
       }),
       map((customFields) =>
@@ -676,7 +676,7 @@ export class AddEditMileagePage implements OnInit {
             customField.options = newOptions;
           }
           return customField;
-        })
+        }),
       ),
       switchMap((customFields: TxnCustomProperties[]) =>
         this.isConnected$.pipe(
@@ -698,15 +698,15 @@ export class AddEditMileagePage implements OnInit {
                       customField.mandatory &&
                       Validators.required,
                   ],
-                })
+                }),
               );
             }
             customFieldsFormArray.updateValueAndValidity();
             return customFields.map((customField, i) => ({ ...customField, control: customFieldsFormArray.at(i) }));
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -781,8 +781,8 @@ export class AddEditMileagePage implements OnInit {
           }
 
           return vehicleType;
-        }
-      )
+        },
+      ),
     );
 
     const defaultMileage$ = forkJoin({
@@ -825,7 +825,7 @@ export class AddEditMileagePage implements OnInit {
           return this.locationService.getAutocompletePredictions(
             info.recentStartLocation,
             info.eou.us.id,
-            `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`
+            `${info.currentLocation.coords.latitude},${info.currentLocation.coords.longitude}`,
           );
         } else {
           return of(null);
@@ -842,12 +842,12 @@ export class AddEditMileagePage implements OnInit {
                 } else {
                   return of(null);
                 }
-              })
+              }),
             );
         } else {
           return of(null);
         }
-      })
+      }),
     );
 
     return forkJoin({
@@ -900,9 +900,9 @@ export class AddEditMileagePage implements OnInit {
               custom_properties: [],
             },
           };
-        }
+        },
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -933,8 +933,8 @@ export class AddEditMileagePage implements OnInit {
         map((subCategories) =>
           subCategories
             .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
-            .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
-        )
+            .find((subCategory) => subCategory?.id === etxn.tx.org_category_id),
+        ),
       );
   }
 
@@ -950,7 +950,7 @@ export class AddEditMileagePage implements OnInit {
       BackButtonActionPriority.MEDIUM,
       () => {
         this.showClosePopup();
-      }
+      },
     );
   }
 
@@ -973,9 +973,9 @@ export class AddEditMileagePage implements OnInit {
               costCenters,
               isIndividualProjectsEnabled,
               individualProjectIds,
-            }))
-          )
-        )
+            })),
+          ),
+        ),
       )
       .subscribe(
         ({ isConnected, txnFields, costCenters, orgSettings, individualProjectIds, isIndividualProjectsEnabled }) => {
@@ -1004,17 +1004,17 @@ export class AddEditMileagePage implements OnInit {
             if (field.is_mandatory) {
               if (txnFieldKey === 'txn_dt') {
                 control.setValidators(
-                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null
+                  isConnected ? Validators.compose([Validators.required, this.customDateValidator]) : null,
                 );
               } else if (txnFieldKey === 'cost_center_id') {
                 control.setValidators(
-                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null
+                  isConnected && costCenters && costCenters.length > 0 ? Validators.required : null,
                 );
               } else if (txnFieldKey === 'project_id') {
                 control.setValidators(
                   orgSettings.projects.enabled && isIndividualProjectsEnabled && individualProjectIds.length === 0
                     ? null
-                    : Validators.required
+                    : Validators.required,
                 );
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
@@ -1031,7 +1031,7 @@ export class AddEditMileagePage implements OnInit {
           this.fg.updateValueAndValidity({
             emitEvent: false,
           });
-        }
+        },
       );
   }
 
@@ -1058,8 +1058,8 @@ export class AddEditMileagePage implements OnInit {
       map(
         (orgSettings) =>
           (orgSettings.advances && orgSettings.advances.enabled) ||
-          (orgSettings.advance_requests && orgSettings.advance_requests.enabled)
-      )
+          (orgSettings.advance_requests && orgSettings.advance_requests.enabled),
+      ),
     );
   }
 
@@ -1072,13 +1072,13 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
   checkIndividualMileageEnabled(orgSettings$: Observable<OrgSettings>): void {
     this.individualMileageRatesEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates)
+      map((orgSettings) => orgSettings.mileage?.enable_individual_mileage_rates),
     );
   }
 
@@ -1089,7 +1089,7 @@ export class AddEditMileagePage implements OnInit {
         const distance = value.route?.distance || 0;
         return distance * mileageRate;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1105,13 +1105,13 @@ export class AddEditMileagePage implements OnInit {
                 (accounts) =>
                   accounts.filter(
                     (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0
-                  ).length > 0
-              )
+                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0,
+                  ).length > 0,
+              ),
             );
         }
         return of(false);
-      })
+      }),
     );
   }
 
@@ -1129,7 +1129,7 @@ export class AddEditMileagePage implements OnInit {
               if (orgSettings.projects.enabled) {
                 return orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id;
               }
-            })
+            }),
           );
         }
       }),
@@ -1139,7 +1139,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -1161,13 +1161,13 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return null;
         }
-      })
+      }),
     );
   }
 
   getCostCenters(
     orgSettings$: Observable<OrgSettings>,
-    orgUserSettings$: Observable<OrgUserSettings>
+    orgUserSettings$: Observable<OrgUserSettings>,
   ): Observable<CostCenterOptions[]> {
     return forkJoin({
       orgSettings: orgSettings$,
@@ -1184,8 +1184,8 @@ export class AddEditMileagePage implements OnInit {
         costCenters.map((costCenter: CostCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        }))
-      )
+        })),
+      ),
     );
   }
 
@@ -1205,10 +1205,10 @@ export class AddEditMileagePage implements OnInit {
                 return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
               }
             }
-          })
-        )
+          }),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1217,10 +1217,10 @@ export class AddEditMileagePage implements OnInit {
       map((formValue: FormValue) => formValue.mileage_rate_name),
       switchMap((formValue) =>
         this.mileageRates$.pipe(
-          map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type))
-        )
+          map((mileageRates) => this.getRateByVehicleType(mileageRates, formValue && formValue.vehicle_type)),
+        ),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -1240,7 +1240,7 @@ export class AddEditMileagePage implements OnInit {
                   return costCenters[0].value.id;
                 }
               }
-            })
+            }),
           );
         }
       }),
@@ -1248,13 +1248,13 @@ export class AddEditMileagePage implements OnInit {
         if (costCenterId) {
           return this.costCenters$.pipe(
             map((costCenters) =>
-              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId)
-            )
+              costCenters.map((res) => res.value).find((costCenter) => costCenter.id === costCenterId),
+            ),
           );
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -1327,7 +1327,7 @@ export class AddEditMileagePage implements OnInit {
         recent_start_locations: recentlyUsedValues?.recent_start_locations || [],
         recent_end_locations: recentlyUsedValues?.recent_end_locations || [],
         recent_locations: recentlyUsedValues?.recent_locations || [],
-      }))
+      })),
     );
 
     this.txnFields$ = this.getTransactionFields();
@@ -1337,7 +1337,7 @@ export class AddEditMileagePage implements OnInit {
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
-      map((projectCount) => projectCount > 0)
+      map((projectCount) => projectCount > 0),
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
 
@@ -1365,7 +1365,7 @@ export class AddEditMileagePage implements OnInit {
           enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
         return enabledMileageRates;
-      })
+      }),
     );
 
     this.mileageRatesOptions$ = forkJoin({
@@ -1379,8 +1379,8 @@ export class AddEditMileagePage implements OnInit {
             label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
             value: rate,
           };
-        })
-      )
+        }),
+      ),
     );
 
     this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
@@ -1390,11 +1390,11 @@ export class AddEditMileagePage implements OnInit {
     this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isIndividualProjectsEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects)
+      map((orgSettings) => !!orgSettings.advanced_projects?.enable_individual_projects),
     );
 
     this.individualProjectIds$ = orgUserSettings$.pipe(
-      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])
+      map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || []),
     );
 
     this.isProjectsEnabled$ = orgSettings$.pipe(map((orgSettings) => !!orgSettings.projects?.enabled));
@@ -1412,26 +1412,26 @@ export class AddEditMileagePage implements OnInit {
       recentValue: this.recentlyUsedValues$,
     }).pipe(
       concatMap(({ costCenters, recentValue }) =>
-        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue)
-      )
+        this.recentlyUsedItemsService.getRecentCostCenters(costCenters, recentValue),
+      ),
     );
 
     this.reports$ = this.reportService
       .getFilteredPendingReports({ state: 'edit' })
       .pipe(
-        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report })))
+        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report }))),
       );
 
     this.setupTxnFields();
 
     this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
+      map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount)),
     );
 
     this.isAmountDisabled$ = this.etxn$.pipe(map((etxn) => !!etxn.tx.admin_amount));
 
     this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001)
+      map((etxn) => isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001),
     );
 
     this.getPolicyDetails();
@@ -1456,8 +1456,8 @@ export class AddEditMileagePage implements OnInit {
           .find((paymentMode) => {
             const accountType = this.accountsService.getAccountTypeFromPaymentMode(paymentMode);
             return accountType === AccountType.PERSONAL;
-          })
-      )
+          }),
+      ),
     );
 
     this.recentlyUsedProjects$ = forkJoin({
@@ -1470,14 +1470,14 @@ export class AddEditMileagePage implements OnInit {
           recentValues,
           eou,
           categoryIds: mileageCategoryIds,
-        })
-      )
+        }),
+      ),
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
       switchMap((etxn: UnflattenedTransaction) =>
-        iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null))
-      )
+        iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null)),
+      ),
     );
 
     const selectedReport$ = this.getReports();
@@ -1504,10 +1504,10 @@ export class AddEditMileagePage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
-          })
+          }),
         ),
         take(1),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(
         ({
@@ -1536,7 +1536,7 @@ export class AddEditMileagePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id),
           );
 
           const customInputValues = customInputs
@@ -1646,7 +1646,7 @@ export class AddEditMileagePage implements OnInit {
             mileage_rate_name.readableRate = this.mileageRatesService.getReadableRate(
               etxn.tx.mileage_rate,
               etxn.tx.currency,
-              etxn.tx.distance_unit
+              etxn.tx.distance_unit,
             );
           }
           this.fg.patchValue({
@@ -1674,7 +1674,7 @@ export class AddEditMileagePage implements OnInit {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
             this.formInitializedFlag = true;
           }, 1000);
-        }
+        },
       );
   }
 
@@ -1756,7 +1756,7 @@ export class AddEditMileagePage implements OnInit {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
         return isPaymentModeInvalid;
-      })
+      }),
     );
   }
 
@@ -1929,7 +1929,7 @@ export class AddEditMileagePage implements OnInit {
           value: dependentField.value,
         }));
         return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
-      })
+      }),
     );
 
     return forkJoin({
@@ -1955,13 +1955,13 @@ export class AddEditMileagePage implements OnInit {
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
           return [...customInpustWithValue, ...dependentFieldsWithValue];
-        }
-      )
+        },
+      ),
     );
   }
 
   checkPolicyViolation(
-    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] } | Partial<UnflattenedTransaction>
+    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] } | Partial<UnflattenedTransaction>,
   ): Observable<ExpensePolicy> {
     return from(this.mileageRates$).pipe(
       switchMap((rates) => {
@@ -1976,7 +1976,7 @@ export class AddEditMileagePage implements OnInit {
          */
         const policyExpense = this.policyService.transformTo(transactionCopy);
         return this.transactionService.checkPolicy(policyExpense);
-      })
+      }),
     );
   }
 
@@ -2001,7 +2001,7 @@ export class AddEditMileagePage implements OnInit {
 
   async continueWithPolicyViolations(
     policyViolations: string[],
-    policyAction: FinalExpensePolicyState
+    policyAction: FinalExpensePolicyState,
   ): Promise<{ comment: string }> {
     const currencyModal = await this.modalController.create({
       component: FyPolicyViolationComponent,
@@ -2024,7 +2024,7 @@ export class AddEditMileagePage implements OnInit {
   generateEtxnFromFg(
     etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
-    calculatedDistance$: Observable<number | string>
+    calculatedDistance$: Observable<number | string>,
   ): Observable<Partial<UnflattenedTransaction>> {
     return forkJoin({
       etxn: etxn$.pipe(take(1)),
@@ -2089,7 +2089,7 @@ export class AddEditMileagePage implements OnInit {
           dataUrls: [],
           ou: etxn.ou,
         };
-      })
+      }),
     );
   }
 
@@ -2109,7 +2109,7 @@ export class AddEditMileagePage implements OnInit {
     this.comments$
       .pipe(
         map((estatuses) => estatuses.filter((estatus) => estatus.st_org_user_id === 'POLICY')),
-        map((policyViolationComments) => policyViolationComments.length > 0)
+        map((policyViolationComments) => policyViolationComments.length > 0),
       )
       .subscribe((policyViolated) => {
         if (policyViolated && this.fg.dirty) {
@@ -2157,8 +2157,8 @@ export class AddEditMileagePage implements OnInit {
             const distanceInKm = distance / 1000;
             const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
             return finalDistance;
-          })
-        )
+          }),
+        ),
       ),
       map((finalDistance) => {
         if (this.getFormValues()?.route?.roundTrip) {
@@ -2167,7 +2167,7 @@ export class AddEditMileagePage implements OnInit {
           return finalDistance.toFixed(2);
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -2219,13 +2219,13 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn, comment: null });
             }
-          })
-        )
+          }),
+        ),
       ),
       catchError(
         (err: {
@@ -2237,7 +2237,7 @@ export class AddEditMileagePage implements OnInit {
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
-              map((etxn) => ({ etxn }))
+              map((etxn) => ({ etxn })),
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2247,7 +2247,7 @@ export class AddEditMileagePage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         forkJoin({
@@ -2275,7 +2275,7 @@ export class AddEditMileagePage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
@@ -2283,14 +2283,14 @@ export class AddEditMileagePage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      map(() => tx),
                     );
                   }
                 }
@@ -2304,7 +2304,7 @@ export class AddEditMileagePage implements OnInit {
                 }
 
                 return of(null).pipe(map(() => tx));
-              })
+              }),
             );
           }),
           switchMap((txn) => {
@@ -2316,20 +2316,20 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of(txn);
                   }
-                })
+                }),
               );
             } else {
               return of(txn);
             }
-          })
-        )
+          }),
+        ),
       ),
       finalize(() => {
         this.saveMileageLoader = false;
         this.saveAndNewMileageLoader = false;
         this.saveAndNextMileageLoader = false;
         this.saveAndPrevMileageLoader = false;
-      })
+      }),
     );
   }
 
@@ -2347,7 +2347,7 @@ export class AddEditMileagePage implements OnInit {
                     const distanceInKm = distance / 1000;
                     const finalDistance = etxn.tx.distance_unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
                     return finalDistance;
-                  })
+                  }),
                 );
               } else {
                 return of(null);
@@ -2363,13 +2363,13 @@ export class AddEditMileagePage implements OnInit {
               } else {
                 return null;
               }
-            })
+            }),
           );
         } else {
           return of(null);
         }
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -2410,7 +2410,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -2427,12 +2427,12 @@ export class AddEditMileagePage implements OnInit {
             continueWithTransaction.comment = 'No policy violation explaination provided';
           }
           return from(this.loaderService.showLoader()).pipe(
-            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
+            switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment })),
           );
         } else {
           return throwError('unhandledError');
         }
-      })
+      }),
     );
   }
 
@@ -2481,13 +2481,13 @@ export class AddEditMileagePage implements OnInit {
                   } else {
                     return of({ etxn, comment: null });
                   }
-                })
+                }),
               );
             } else {
               return of({ etxn });
             }
-          })
-        )
+          }),
+        ),
       ),
       catchError(
         (err: {
@@ -2499,7 +2499,7 @@ export class AddEditMileagePage implements OnInit {
         }) => {
           if (err.status === 500) {
             return this.generateEtxnFromFg(this.etxn$, customFields$, calculatedDistance$).pipe(
-              map((etxn) => ({ etxn }))
+              map((etxn) => ({ etxn })),
             );
           }
           if (err.type === 'criticalPolicyViolations') {
@@ -2509,7 +2509,7 @@ export class AddEditMileagePage implements OnInit {
           } else {
             return throwError(err);
           }
-        }
+        },
       ),
       switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
         from(this.authService.getEou()).pipe(
@@ -2536,14 +2536,14 @@ export class AddEditMileagePage implements OnInit {
                 etxn.tx,
                 etxn.dataUrls as { url: string; type: string }[],
                 comments,
-                reportId
-              )
+                reportId,
+              ),
             ).pipe(
               switchMap((txnData: Promise<unknown>) => from(txnData)),
-              map(() => etxn)
+              map(() => etxn),
             );
-          })
-        )
+          }),
+        ),
       ),
 
       finalize(() => {
@@ -2551,7 +2551,7 @@ export class AddEditMileagePage implements OnInit {
         this.saveAndNewMileageLoader = false;
         this.saveAndNextMileageLoader = false;
         this.saveAndPrevMileageLoader = false;
-      })
+      }),
     );
   }
 

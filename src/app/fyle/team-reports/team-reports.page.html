@@ -21,8 +21,12 @@
   </ng-container>
 
   <ng-container simpleSearch>
-    <div class="expense-report-search reports--simple-search-container">
-      <mat-form-field appearance="outline" class="mat-form-field-no-padding reports--simple-search">
+    <div class="expense-report-search reports--simple-search-container mat-form-field-container">
+      <mat-form-field
+        subscriptSizing="dynamic"
+        appearance="outline"
+        class="mat-form-field-no-padding reports--simple-search"
+      >
         <div class="reports--simple-search-block">
           <mat-icon class="reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
           <input

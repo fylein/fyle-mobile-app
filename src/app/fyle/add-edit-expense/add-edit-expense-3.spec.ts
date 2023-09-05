@@ -185,11 +185,11 @@ export function TestCases3(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -689,7 +689,7 @@ export function TestCases3(getTestBed) {
             expect(res).toEqual(newExpFromFg4);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
               component.mode,
-              draftUnflattendedTxn.tx.id
+              draftUnflattendedTxn.tx.id,
             );
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
@@ -880,7 +880,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -902,7 +902,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -928,14 +928,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             done();
@@ -954,7 +954,7 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2)
+            of(customFieldData2),
           )
           .subscribe({
             next: () => {},
@@ -1062,7 +1062,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should get autofill category for draft expense', (done) => {
+      it('should get autofill category for draft expense when category is unspecified', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -1129,7 +1129,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return null in case the expense does not have an expense and auto-fill category is not found', (done) => {
+      it('should return null in case the expense does not have a category and auto-fill category is not found', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);

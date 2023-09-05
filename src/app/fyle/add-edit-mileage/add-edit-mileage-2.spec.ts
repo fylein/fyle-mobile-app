@@ -163,11 +163,11 @@ export function TestCases2(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -381,7 +381,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
@@ -418,7 +418,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          })
+          }),
         );
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
@@ -436,11 +436,11 @@ export function TestCases2(getTestBed) {
           expect(locationService.getAutocompletePredictions).toHaveBeenCalledOnceWith(
             'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
             'usvKA4X8Ugcr',
-            '10.12,89.67'
+            '10.12,89.67',
           );
           expect(locationService.getGeocode).toHaveBeenCalledOnceWith(
             'ChIJbU60yXAWrjsR4E9-UejD3_g',
-            'Bengaluru, Karnataka, India'
+            'Bengaluru, Karnataka, India',
           );
           done();
         });
@@ -643,7 +643,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             done();
           });
@@ -669,7 +669,7 @@ export function TestCases2(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             done();
           });
@@ -688,7 +688,7 @@ export function TestCases2(getTestBed) {
             next: () => {
               expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
                 criticalPolicyViolation1,
-                policyViolation1.data.final_desired_state
+                policyViolation1.data.final_desired_state,
               );
             },
             error: (err) => {
@@ -709,7 +709,7 @@ export function TestCases2(getTestBed) {
         expect(res).toEqual(expensePolicyData);
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(
           mileageRateApiRes1,
-          unflattenedTxnData.tx.mileage_vehicle_type
+          unflattenedTxnData.tx.mileage_vehicle_type,
         );
         expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
         expect(policyService.transformTo).toHaveBeenCalledTimes(1);

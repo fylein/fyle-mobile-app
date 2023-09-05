@@ -42,6 +42,27 @@ $password-icon: #b9beba;
 
   &--form-field {
     width: 100%;
+
+    ::ng-deep .mat-mdc-text-field-wrapper {
+      padding-left: 24px;
+    }
+
+    ::ng-deep .mat-icon {
+      display: flex;
+      align-items: center;
+    }
+
+    ::ng-deep .mdc-notched-outline > * {
+      border-color: $transparent-black !important;
+    }
+
+    ::ng-deep .mdc-text-field--focused .mdc-notched-outline > * {
+      border-color: $red !important;
+    }
+
+    ::ng-deep .mdc-text-field--invalid .mdc-notched-outline > * {
+      border-color: $red !important;
+    }
   }
 
   &--form-header {
@@ -61,7 +82,7 @@ $password-icon: #b9beba;
 
   &--primary-cta {
     margin-top: 12px;
-    .mat-button-base {
+    .mat-mdc-button-base {
       width: 100%;
       font-weight: 700;
       min-height: 47px;
@@ -73,7 +94,7 @@ $password-icon: #b9beba;
   }
 
   &--secondary-cta {
-    .mat-button-base {
+    .mat-mdc-button-base {
       width: 100%;
       font-weight: 700;
       min-height: 47px;

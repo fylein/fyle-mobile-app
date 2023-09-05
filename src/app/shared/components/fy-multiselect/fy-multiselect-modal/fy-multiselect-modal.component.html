@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
@@ -17,11 +17,12 @@
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': currentSelections?.length > 0 }">
     <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
       class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
+      <mat-chip-grid #chipList aria-label="Multi select">
         <mat-chip
           data-testid="chips"
           *ngFor="let item of currentSelections"
@@ -49,7 +50,7 @@
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(currentSelections?.length > 0) ? 'Search' : ''"
         />
-      </mat-chip-list>
+      </mat-chip-grid>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
       {{ currentSelections.length }} selected
