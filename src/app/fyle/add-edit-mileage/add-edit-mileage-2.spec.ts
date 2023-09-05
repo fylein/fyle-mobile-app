@@ -478,6 +478,50 @@ export function TestCases2(getTestBed) {
       });
     });
 
+    describe('getCalculateDistance():', () => {
+      it('should calculate distance for a round trip in KMs', (done) => {
+        const control = component.fg.controls.route;
+        spyOn(component, 'getFormControl').and.returnValue(control);
+        control.setValue({ mileageLocations: mileageLocationData1 });
+        component.etxn$ = of(unflattenedTxnData);
+        mileageService.getDistance.and.returnValue(of(5));
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            mileageLocations: mileageLocationData1,
+            roundTrip: true,
+          },
+        });
+        fixture.detectChanges();
+
+        component.getCalculateDistance().subscribe((res) => {
+          expect(res).toEqual('0.01');
+          expect(mileageService.getDistance).toHaveBeenCalledOnceWith(mileageLocationData1);
+          done();
+        });
+      });
+
+      it('should calculate distance for a single trip in Miles', (done) => {
+        const control = component.fg.controls.route;
+        spyOn(component, 'getFormControl').and.returnValue(control);
+        control.setValue({ mileageLocations: mileageLocationData1 });
+        component.etxn$ = of(newExpenseMileageData2);
+        mileageService.getDistance.and.returnValue(of(10));
+        spyOn(component, 'getFormValues').and.returnValue({
+          route: {
+            mileageLocations: mileageLocationData1,
+            roundTrip: false,
+          },
+        });
+        fixture.detectChanges();
+
+        component.getCalculateDistance().subscribe((res) => {
+          expect(res).toEqual('0.01');
+          expect(mileageService.getDistance).toHaveBeenCalledOnceWith(mileageLocationData1);
+          done();
+        });
+      });
+    });
+
     describe('showClosePopup():', () => {
       it('should show popup and if the user continues navigate to my expenses page', fakeAsync(() => {
         Object.defineProperty(component.fg, 'touched', {

@@ -1,5 +1,3 @@
-import { AbstractControl } from '@angular/forms';
-
 export interface TxnCustomProperties {
   id?: number;
   mandatory?: boolean;
@@ -11,7 +9,6 @@ export interface TxnCustomProperties {
   value: string | string[] | boolean | Date | number | { display: string };
   parent_field_id?: number;
   label?: string;
-  control?: AbstractControl;
 }
 
 export interface CustomInputsOption {
