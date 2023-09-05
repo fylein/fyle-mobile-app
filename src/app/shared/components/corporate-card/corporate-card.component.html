@@ -6,6 +6,7 @@
           [src]="'../../../../assets/svg/card.svg'"
           class="corporate-card__logo--default__icon"
           data-testid="default-icon"
+          slot="icon-only"
         ></ion-icon>
       </div>
 
@@ -15,6 +16,7 @@
             [src]="'../../../../assets/svg/visa-logo.svg'"
             class="corporate-card__logo--visa__icon"
             data-testid="visa-icon"
+            slot="icon-only"
           ></ion-icon>
         </ng-container>
         <ng-container *ngIf="card.is_mastercard_enrolled">
@@ -22,6 +24,7 @@
             [src]="'../../../../assets/svg/mastercard-logo.svg'"
             class="corporate-card__logo--mastercard__icon"
             data-testid="mastercard-icon"
+            slot="icon-only"
           ></ion-icon>
         </ng-container>
       </ng-container>
