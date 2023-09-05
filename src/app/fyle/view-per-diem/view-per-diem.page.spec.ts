@@ -355,7 +355,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
       expect(component.projectFieldName).toEqual('Project ID');
-      expect(component.isProjectShown).toEqual(true);
+      expect(component.isProjectShown).toBeTrue();
     }));
 
     it('should set isProjectShown to false if project name and is empty string and project is not mandatory', fakeAsync(() => {
@@ -367,7 +367,7 @@ describe('ViewPerDiemPage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseField));
       component.ionViewWillEnter();
       tick(100);
-      expect(component.isProjectShown).toEqual(false);
+      expect(component.isProjectShown).toBeFalse();
     }));
 
     it('should set orgSettings and isNewReportsFlowEnabled', fakeAsync(() => {
@@ -375,7 +375,7 @@ describe('ViewPerDiemPage', () => {
       tick(100);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.orgSettings).toEqual(orgSettingsData);
-      expect(component.isNewReportsFlowEnabled).toEqual(false);
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
     }));
 
     it('should set perDiemCustomFields$ and perDiemRate$', (done) => {
@@ -410,7 +410,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       expect(component.view).toEqual(ExpenseView.team);
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toEqual(true);
+        expect(canFlagOrUnflag).toBeTrue();
         done();
       });
     });
@@ -422,7 +422,7 @@ describe('ViewPerDiemPage', () => {
       transactionService.getExpenseV2.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
-        expect(canFlagOrUnflag).toEqual(false);
+        expect(canFlagOrUnflag).toBeFalse();
         done();
       });
     });
@@ -433,7 +433,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
         expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
-        expect(canDelete).toEqual(false);
+        expect(canDelete).toBeFalse();
         done();
       });
     });
@@ -447,7 +447,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
         expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
-        expect(canDelete).toEqual(true);
+        expect(canDelete).toBeTrue();
         done();
       });
     });
