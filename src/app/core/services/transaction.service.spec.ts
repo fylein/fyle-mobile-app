@@ -54,7 +54,7 @@ import { currencySummaryData } from '../mock-data/currency-summary.data';
 import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense.data';
 import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
-import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
+import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 
 describe('TransactionService', () => {
@@ -1471,7 +1471,7 @@ describe('TransactionService', () => {
       expect(res).toEqual(txnData4);
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
+      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);

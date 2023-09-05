@@ -1,6 +1,6 @@
 import { CustomProperty } from '../models/custom-properties.model';
 
-export const customPropertiesData: CustomProperty<string | string[]>[] = [
+export const customPropertiesData: CustomProperty<any>[] = [
   {
     name: 'userlist',
     value: [],
