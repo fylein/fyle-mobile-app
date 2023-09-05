@@ -480,7 +480,7 @@ describe('ViewPerDiemPage', () => {
       component.policyViolations$.subscribe((policyViolations) => {
         expect(policyService.getApproverExpensePolicyViolations).not.toHaveBeenCalled();
         expect(policyService.getSpenderExpensePolicyViolations).not.toHaveBeenCalled();
-        expect(policyViolations).toEqual(null);
+        expect(policyViolations).toBeNull();
         done();
       });
     });
@@ -504,7 +504,7 @@ describe('ViewPerDiemPage', () => {
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
         expect(component.isNumber).toHaveBeenCalledOnceWith(0);
-        expect(isCriticalPolicyViolated).toEqual(true);
+        expect(isCriticalPolicyViolated).toBeTrue();
         done();
       });
     });
@@ -518,7 +518,7 @@ describe('ViewPerDiemPage', () => {
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
         expect(component.isNumber).toHaveBeenCalledOnceWith(null);
-        expect(isCriticalPolicyViolated).toEqual(false);
+        expect(isCriticalPolicyViolated).toBeFalse();
         done();
       });
     });
@@ -532,7 +532,7 @@ describe('ViewPerDiemPage', () => {
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
         expect(component.isNumber).toHaveBeenCalledOnceWith(0);
-        expect(isAmountCapped).toEqual(true);
+        expect(isAmountCapped).toBeTrue();
         done();
       });
     });
@@ -549,7 +549,7 @@ describe('ViewPerDiemPage', () => {
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         expect(component.isNumber).toHaveBeenCalledWith(null);
         expect(component.isNumber).toHaveBeenCalledWith(0);
-        expect(isAmountCapped).toEqual(true);
+        expect(isAmountCapped).toBeTrue();
         done();
       });
     });
@@ -566,7 +566,7 @@ describe('ViewPerDiemPage', () => {
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         expect(component.isNumber).toHaveBeenCalledWith(null);
         expect(component.isNumber).toHaveBeenCalledWith(null);
-        expect(isAmountCapped).toEqual(false);
+        expect(isAmountCapped).toBeFalse();
         done();
       });
     });
@@ -575,9 +575,9 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.isExpenseFlagged).toEqual(false);
+      expect(component.isExpenseFlagged).toBeFalse();
       component.updateFlag$.subscribe((updateFlag) => {
-        expect(updateFlag).toEqual(null);
+        expect(updateFlag).toBeNull();
       });
     }));
 
