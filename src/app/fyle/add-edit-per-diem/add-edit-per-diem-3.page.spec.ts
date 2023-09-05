@@ -41,7 +41,11 @@ import {
   perDiemFormValuesData8,
   perDiemFormValuesData9,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
-import { expectedTxnCustomProperties, txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import {
+  expectedTxnCustomProperties,
+  txnCustomProperties4,
+  txnCustomPropertiesData5,
+} from 'src/app/core/mock-data/txn-custom-properties.data';
 import { perDiemTransaction } from 'src/app/core/mock-data/transaction.data';
 import { perDiemCustomInputsData2 } from 'src/app/core/mock-data/per-diem-custom-inputs.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
@@ -297,7 +301,8 @@ export function TestCases3(getTestBed) {
           ],
           expenseFieldResponse
         );
-        expect(res).toEqual(txnCustomProperties4);
+
+        expect(res).toEqual(txnCustomPropertiesData5);
         done();
       });
     });
