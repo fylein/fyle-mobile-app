@@ -451,5 +451,142 @@ describe('ViewPerDiemPage', () => {
         done();
       });
     });
+
+    it('should set policyViolations$ to approver policy state if view is set to team and id exists', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('tx3qwe4ty');
+        expect(policyService.getSpenderExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toEqual(individualExpPolicyStateData2);
+        done();
+      });
+    });
+
+    it('should set policyViolations$ to spender policy state if view is set to individual and id exists', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.individual;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('tx3qwe4ty');
+        expect(policyService.getApproverExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toEqual(individualExpPolicyStateData3);
+        done();
+      });
+    });
+
+    it('should set policyViolations$ to null if id does not exist', (done) => {
+      activatedRoute.snapshot.params.id = undefined;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getApproverExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyService.getSpenderExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toEqual(null);
+        done();
+      });
+    });
+
+    it('should set comments$ and call getPolicyDetails once', (done) => {
+      component.ionViewWillEnter();
+      expect(component.getPolicyDetails).toHaveBeenCalledOnceWith('tx3qwe4ty');
+      component.comments$.subscribe((comments) => {
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx3qwe4ty');
+        expect(comments).toEqual(estatusData1);
+        done();
+      });
+    });
+
+    it('should set isCriticalPolicyViolated$ to true if policy amount is number and less than 0.0001', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_policy_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(0);
+        expect(isCriticalPolicyViolated).toEqual(true);
+        done();
+      });
+    });
+
+    it('should set isCriticalPolicyViolated$ to false if policy amount is not a number', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(false);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_policy_amount = null;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(null);
+        expect(isCriticalPolicyViolated).toEqual(false);
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to true if admin amount is number', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(0);
+        expect(isAmountCapped).toEqual(true);
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to true if policy amount is number', (done) => {
+      spyOn(component, 'isNumber').and.returnValues(false, true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = null;
+      mockExpense.tx_policy_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(component.isNumber).toHaveBeenCalledWith(0);
+        expect(isAmountCapped).toEqual(true);
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to false if policy amount and admin amount are not a number', (done) => {
+      spyOn(component, 'isNumber').and.returnValues(false, false);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = null;
+      mockExpense.tx_policy_amount = null;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(isAmountCapped).toEqual(false);
+        done();
+      });
+    });
+
+    it('should set isExpenseFlagged to expense manual flag and updateFlag$ to null', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      expect(component.isExpenseFlagged).toEqual(false);
+      component.updateFlag$.subscribe((updateFlag) => {
+        expect(updateFlag).toEqual(null);
+      });
+    }));
+
+    it('should set numEtxnsInReport and activeEtxnIndex', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.activeEtxnIndex).toEqual(0);
+    }));
   });
 });
