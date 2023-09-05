@@ -28,6 +28,7 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { Expense } from 'src/app/core/models/expense.model';
 import { TxnDetail } from 'src/app/core/models/v2/txn-detail.model';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 
 type Filters = Partial<{
   amount: number;
@@ -195,7 +196,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams;
+        let queryParams: Record<string, string>;
         if (this.activatedRoute.snapshot.queryParams.filters) {
           const route_filters = JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Record<
             string,
@@ -203,11 +204,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           >;
           this.filters = Object.assign({}, this.filters, route_filters);
           this.currentPageNumber = 1;
-          queryParams = this.addNewFiltersToParams();
+          queryParams = this.addNewFiltersToParams() as Record<string, string>;
         } else {
-          queryParams = params.queryParams;
+          queryParams = params.queryParams as Record<string, string>;
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -321,7 +322,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {
-          const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
+          const uri = decodeURIComponent(event.url.slice(43));
+          const decodedData = JSON.parse(uri) as {
+            requestId: string;
+          }[];
           if (decodedData && decodedData[0]) {
             this.postAccounts([decodedData[0].requestId]);
           }
@@ -330,7 +334,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  postAccounts(requestIds): void {
+  postAccounts(requestIds: string[]): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
@@ -499,8 +503,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  onSelectAll(event): void {
-    this.selectAll = event;
+  onSelectAll(event: MatCheckboxChange | boolean): void {
+    this.selectAll = event as boolean;
     this.selectedElements = [];
     if (this.selectAll) {
       this.selectedElements = this.acc.map((txn) => txn.btxn_id);
