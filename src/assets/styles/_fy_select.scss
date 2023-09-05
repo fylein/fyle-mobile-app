@@ -54,7 +54,7 @@ $sub-title: #ababab;
   height: 100%;
   line-height: 26px;
   color: $black;
-  margin-left: -15%;
+  margin-left: -10%;
   text-align: center;
 }
 
@@ -62,7 +62,6 @@ $sub-title: #ababab;
   padding: 0 12px;
   font-size: 14px;
   line-height: 18px;
-  margin-top: -4px;
 }
 
 %fy-select-header {
@@ -77,6 +76,67 @@ $sub-title: #ababab;
   font-size: 11px;
   width: 94%;
   padding: 4px;
+
+  ::ng-deep .mat-mdc-form-field-input-control {
+    height: 40px !important;
+  }
+
+  ::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-infix {
+    min-height: 40px;
+  }
+
+  ::ng-deep .mat-icon {
+    display: flex;
+    align-items: center;
+    padding: 0px;
+  }
+
+  ::ng-deep .mdc-notched-outline > * {
+    border-width: 1px;
+    border-color: $transparent-black !important;
+  }
+}
+
+%fy-select-mat-form-field-chip {
+  font-size: 11px;
+  display: flex;
+  border: 1px solid $grey-lighter;
+  border-radius: 4px;
+  margin: 8px 16px;
+  font-size: 12px;
+
+  .mat-form-field-wrapper {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px !important;
+  }
+
+  ::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--outlined {
+    padding-left: 8px;
+    padding-right: 8px;
+    --mdc-outlined-text-field-outline-width: 0px !important;
+    --mdc-outlined-text-field-focus-outline-width: 0px !important;
+    --mdc-outlined-text-field-container-shape: 0px !important;
+
+    .mat-mdc-form-field-infix {
+      padding-top: 0;
+      padding-bottom: 0;
+      display: flex;
+      align-items: center;
+
+      .mdc-evolution-chip-set {
+        width: 100%;
+
+        .mdc-evolution-chip-set__chips {
+          display: flex;
+          align-items: center;
+        }
+      }
+    }
+  }
+
+  ::ng-deep .mdc-notched-outline > * {
+    border-width: 1px;
+    border-color: $transparent-black !important;
+  }
 }
 
 %fy-select-check {

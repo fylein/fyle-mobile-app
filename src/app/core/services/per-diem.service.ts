@@ -19,7 +19,7 @@ export class PerDiemService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
   ) {}
 
   @Cacheable({
@@ -32,7 +32,7 @@ export class PerDiemService {
         return range(0, count);
       }),
       concatMap((page) => this.getPerDiemRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as PerDiemRates[])
+      reduce((acc, curr) => acc.concat(curr), [] as PerDiemRates[]),
     );
   }
 
@@ -54,7 +54,7 @@ export class PerDiemService {
         }
 
         return allowedPerDiems;
-      })
+      }),
     );
   }
 
@@ -68,7 +68,7 @@ export class PerDiemService {
       .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
       .pipe(
         map((res) => this.transformFrom(res.data)),
-        map((res) => res[0])
+        map((res) => res[0]),
       );
   }
 

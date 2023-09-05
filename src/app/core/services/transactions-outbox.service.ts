@@ -48,7 +48,7 @@ export class TransactionsOutboxService {
     private reportService: ReportService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -76,7 +76,7 @@ export class TransactionsOutboxService {
 
   async removeDataExtractionEntry(
     expense: Partial<Transaction>,
-    dataUrls: { url: string; type: string }[]
+    dataUrls: { url: string; type: string }[],
   ): Promise<void> {
     const entry = {
       transaction: expense,
@@ -117,7 +117,7 @@ export class TransactionsOutboxService {
 
   async addDataExtractionEntry(
     transaction: Partial<Transaction>,
-    dataUrls: { url: string; type: string }[]
+    dataUrls: { url: string; type: string }[],
   ): Promise<void> {
     this.dataExtractionQueue.push({
       transaction,
@@ -180,7 +180,7 @@ export class TransactionsOutboxService {
             },
             () => {
               this.removeDataExtractionEntry(entry.transaction, entry.dataUrls);
-            }
+            },
           )
           .finally(() => {
             // iterating to next item on list.
@@ -234,7 +234,7 @@ export class TransactionsOutboxService {
                       reject(err);
                     });
                 });
-            })
+            }),
         )
         .catch((err) => {
           reject(err);
@@ -255,7 +255,7 @@ export class TransactionsOutboxService {
     dataUrls: { url: string; type: string }[],
     comments?: string[],
     reportId?: string,
-    applyMagic = false
+    applyMagic = false,
   ): Promise<void> {
     this.queue.push({
       transaction,
@@ -275,7 +275,7 @@ export class TransactionsOutboxService {
     dataUrls: { url: string; type: string }[],
     comments: string[],
     reportId: string,
-    applyMagic = false
+    applyMagic = false,
   ): Promise<OutboxQueue> {
     this.addEntry(transaction, dataUrls, comments, reportId, applyMagic);
     return this.syncEntry(this.queue.pop());
@@ -381,8 +381,8 @@ export class TransactionsOutboxService {
               .pipe(
                 map(
                   (orgUserSettings) =>
-                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
-                )
+                    orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled,
+                ),
               );
 
             isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
@@ -500,7 +500,7 @@ export class TransactionsOutboxService {
             suggested_currency: suggestedCurrency,
           })
           .toPromise()
-          .then((res) => res as ParsedReceipt)
+          .then((res) => res as ParsedReceipt),
       );
   }
 

@@ -187,11 +187,11 @@ export function TestCases5(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -270,7 +270,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            true
+            true,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -295,7 +295,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -320,7 +320,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -345,7 +345,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false
+            false,
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -644,7 +644,7 @@ export function TestCases5(getTestBed) {
         expect(res).toEqual(unflattenedAccount1Data);
         expect(accountsService.getEtxnSelectedPaymentMode).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
-          accountOptionData1
+          accountOptionData1,
         );
         done();
       });
