@@ -1301,3 +1301,15 @@ export const orgSettingsProjectDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};
+
+export const orgSettingsCCDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  cost_centers: {
+    enabled: false,
+  },
+};
