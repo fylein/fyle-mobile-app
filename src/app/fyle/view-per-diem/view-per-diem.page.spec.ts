@@ -16,15 +16,27 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { of } from 'rxjs';
+import { Subject, finalize, of } from 'rxjs';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import {
+  individualExpPolicyStateData2,
+  individualExpPolicyStateData3,
+} from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { customFields } from 'src/app/core/mock-data/custom-field.data';
+import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
+import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { cloneDeep } from 'lodash';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -256,5 +268,188 @@ describe('ViewPerDiemPage', () => {
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
     }));
+  });
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      transactionService.getExpenseV2.and.returnValue(of(expenseData1));
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      customInputsService.fillCustomProperties.and.returnValue(of(customFields));
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
+      perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
+      reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
+      policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
+      statusService.find.and.returnValue(of(estatusData1));
+      spyOn(component, 'getPolicyDetails');
+    });
+
+    it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
+      component.ionViewWillEnter();
+      component.extendedPerDiem$
+        .pipe(
+          finalize(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          }),
+        )
+        .subscribe((extendedPerDiem) => {
+          expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith('tx3qwe4ty');
+          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+          expect(extendedPerDiem).toEqual(expenseData1);
+        });
+
+      component.txnFields$.subscribe((txnFields) => {
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+        expect(txnFields).toEqual(expenseFieldsMapResponse4);
+        done();
+      });
+    });
+
+    it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ correctly', (done) => {
+      component.ionViewWillEnter();
+
+      component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledTimes(1);
+        expect(projectDependentCustomProperties).toEqual(customInputData1);
+      });
+
+      component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledTimes(2);
+        expect(costCenterDependentCustomProperties).toEqual(customInputData1);
+        done();
+      });
+    });
+
+    it('should set paymentMode and paymentMode icon correctly if account type is ADVANCE', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.source_account_type = AccountType.ADVANCE;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid from Advance');
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    }));
+
+    it('should set paymentMode and paymentMode icon correctly if tx_skip_reimbursement is true', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_skip_reimbursement = true;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid by Company');
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    }));
+
+    it('should set paymentMode and paymentMode icon correctly if no condition matches', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid by Employee');
+      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+    }));
+
+    it('should set projectFieldName and isProjectShown correctly', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.projectFieldName).toEqual('Project ID');
+      expect(component.isProjectShown).toEqual(true);
+    }));
+
+    it('should set isProjectShown to false if project name and is empty string and project is not mandatory', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_project_name = '';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      const mockExpenseField = cloneDeep(expenseFieldsMapResponse4);
+      mockExpenseField.project_id[0].is_mandatory = false;
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseField));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.isProjectShown).toEqual(false);
+    }));
+
+    it('should set orgSettings and isNewReportsFlowEnabled', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.orgSettings).toEqual(orgSettingsData);
+      expect(component.isNewReportsFlowEnabled).toEqual(false);
+    }));
+
+    it('should set perDiemCustomFields$ and perDiemRate$', (done) => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_per_diem_rate_id = '508';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          expenseData1.tx_org_category_id,
+          expenseData1.tx_custom_properties,
+          true,
+        );
+        // Called twice because of the two custom fields
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[0]);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[1]);
+        expect(perDiemCustomFields).toEqual(customFields);
+      });
+
+      component.perDiemRate$.subscribe((perDiemRate) => {
+        expect(perDiemService.getRate).toHaveBeenCalledOnceWith(508);
+        expect(perDiemRate).toEqual(perDiemRatesData1);
+        done();
+      });
+    });
+
+    it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      expect(component.view).toEqual(ExpenseView.team);
+      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
+        expect(canFlagOrUnflag).toEqual(true);
+        done();
+      });
+    });
+
+    it('should set canFlagOrUnflag$ to false if state is PAID', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_state = 'PAID';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
+        expect(canFlagOrUnflag).toEqual(false);
+        done();
+      });
+    });
+
+    it('should set canDelete$ to false if report transaction equals 1', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((canDelete) => {
+        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
+        expect(canDelete).toEqual(false);
+        done();
+      });
+    });
+
+    it('should set canDelete$ to true if expense state is APPROVER_PENDING', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      const mockReport = cloneDeep(apiExtendedReportRes[0]);
+      mockReport.rp_num_transactions = 2;
+      reportService.getTeamReport.and.returnValue(of(mockReport));
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((canDelete) => {
+        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
+        expect(canDelete).toEqual(true);
+        done();
+      });
+    });
   });
 });
