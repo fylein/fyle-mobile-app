@@ -1062,7 +1062,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should get autofill category for draft expense', (done) => {
+      it('should get autofill category for draft expense when category is unspecified', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
@@ -1129,7 +1129,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should return null in case the expense does not have an expense and auto-fill category is not found', (done) => {
+      it('should return null in case the expense does not have a category and auto-fill category is not found', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
