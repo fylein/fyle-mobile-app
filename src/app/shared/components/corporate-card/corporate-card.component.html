@@ -2,26 +2,26 @@
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
       <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
-        <ion-icon
+        <img
           src="../../../../assets/svg/card.svg"
           class="corporate-card__logo--default__icon"
           data-testid="default-icon"
-        ></ion-icon>
+        />
       </div>
 
       <ng-container *ngIf="isCardConnectedToRTF">
-        <ion-icon
+        <img
           *ngIf="card.is_visa_enrolled"
           src="../../../../assets/svg/visa-logo.svg"
           class="corporate-card__logo--visa__icon"
           data-testid="visa-icon"
-        ></ion-icon>
-        <ion-icon
+        />
+        <img
           *ngIf="card.is_mastercard_enrolled"
           src="../../../../assets/svg/mastercard-logo.svg"
           class="corporate-card__logo--mastercard__icon"
           data-testid="mastercard-icon"
-        ></ion-icon>
+        />
       </ng-container>
     </ion-col>
 
@@ -53,7 +53,7 @@
     <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.YODLEE">
       <span class="corporate-card__feed-label">Last Synced</span>
       <span class="corporate-card__feed-value" data-testid="feed-info">{{
-        card.last_synced_at | date : 'MMM dd, YYYY'
+        card.last_synced_at | date: 'MMM dd, YYYY'
       }}</span>
     </ng-container>
 
