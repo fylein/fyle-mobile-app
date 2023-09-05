@@ -174,9 +174,12 @@ describe('MyCreateReportPage', () => {
   }));
 
   describe('ctaClickedEvent():', () => {
-    it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
+    beforeEach(() => {
       spyOn(component, 'sendFirstReportCreated');
       reportService.createDraft.and.returnValue(of(reportUnflattenedData));
+    });
+
+    it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
       reportService.addTransactions.and.returnValue(of(null));
       component.selectedElements = cloneDeep(selectedExpenses);
       fixture.detectChanges();
@@ -200,8 +203,6 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create a draft report', () => {
-      spyOn(component, 'sendFirstReportCreated');
-      reportService.createDraft.and.returnValue(of(reportUnflattenedData));
       component.selectedElements = [];
       fixture.detectChanges();
 
@@ -220,7 +221,6 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      spyOn(component, 'sendFirstReportCreated');
       reportService.create.and.returnValue(of(reportUnflattenedData));
       component.selectedElements = cloneDeep(selectedExpenses);
       fixture.detectChanges();
@@ -245,12 +245,13 @@ describe('MyCreateReportPage', () => {
   });
 
   describe('selectExpense():', () => {
-    it('should add the expense in selected list', () => {
+    beforeEach(() => {
       spyOn(component, 'getReportTitle');
       component.selectedElements = cloneDeep(selectedExpenses);
       component.readyToReportEtxns = [];
-      fixture.detectChanges();
+    });
 
+    it('should add the expense in selected list', () => {
       component.selectExpense(apiExpenseRes[0]);
 
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
@@ -259,11 +260,6 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should remove an expense from the selected list', () => {
-      spyOn(component, 'getReportTitle');
-      component.selectedElements = cloneDeep(selectedExpenses);
-      component.readyToReportEtxns = [];
-      fixture.detectChanges();
-
       component.selectExpense(selectedExpenses[0]);
 
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
