@@ -2,11 +2,11 @@
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
       <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
-        <ion-icon
+        <img
           src="../../../../assets/svg/card.svg"
           class="corporate-card__logo--default__icon"
           data-testid="default-icon"
-        ></ion-icon>
+        />
       </div>
 
       <ng-container *ngIf="isCardConnectedToRTF">
