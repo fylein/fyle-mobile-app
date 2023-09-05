@@ -86,12 +86,12 @@ $sub-title: #ababab;
   }
 
   ::ng-deep .mat-mdc-text-field-wrapper.mdc-text-field--outlined .mat-mdc-form-field-icon-prefix {
-    min-height: 40px;
+    height: 40px;
     display: flex;
     align-items: center;
 
     button {
-      min-height: 40px;
+      height: 40px;
     }
   }
 
