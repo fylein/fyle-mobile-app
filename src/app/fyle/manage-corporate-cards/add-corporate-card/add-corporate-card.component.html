@@ -35,12 +35,12 @@
 
         <!-- Don't show the card network icon in error states -->
         <ng-container *ngIf="!(cardForm.touched && cardForm.invalid)">
-          <img
+          <ion-icon
             *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
             src="../../../../assets/svg/card.svg"
             class="add-corporate-card__input-default-icon"
             data-testid="default-icon"
-          />
+          ></ion-icon>
 
           <img
             *ngIf="cardType === cardNetworkTypes.VISA"
