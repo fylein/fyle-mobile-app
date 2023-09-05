@@ -13,10 +13,7 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
 export class LaunchDarklyService {
   private ldClient: LDClient.LDClient;
 
-  constructor(
-    private userEventService: UserEventService,
-    private storageService: StorageService,
-  ) {
+  constructor(private userEventService: UserEventService, private storageService: StorageService) {
     this.userEventService.onLogout(() => this.shutDownClient());
   }
 
@@ -32,7 +29,7 @@ export class LaunchDarklyService {
         } else {
           return defaultValue;
         }
-      }),
+      })
     );
   }
 
