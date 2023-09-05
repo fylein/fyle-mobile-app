@@ -1062,7 +1062,7 @@ export function TestCases3(getTestBed) {
         });
       });
 
-      it('should get autofill category for draft expense', (done) => {
+      it('should get autofill category for draft expense when category is unspecified', (done) => {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.recentlyUsedValues$ = of(recentlyUsedRes);
