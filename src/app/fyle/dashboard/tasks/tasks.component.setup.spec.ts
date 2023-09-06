@@ -18,6 +18,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './tasks-1.component.spec';
 import { TestCases2 } from './tasks-2.component.spec';
+import { TestCases3 } from './tasks-3.component.spec';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -95,4 +96,5 @@ describe('TasksComponent', () => {
 
   TestCases1(getTestBed);
   TestCases2(getTestBed);
+  TestCases3(getTestBed);
 });
