@@ -89,6 +89,15 @@ $sub-title: #ababab;
     height: 40px;
     display: flex;
     align-items: center;
+
+    ::ng-deep .mat-mdc-icon-button.mat-mdc-button-base {
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    ::ng-deep .mat-mdc-button > .mat-icon {
+      margin-right: 8px;
+    }
   }
 
   ::ng-deep .mat-icon {
