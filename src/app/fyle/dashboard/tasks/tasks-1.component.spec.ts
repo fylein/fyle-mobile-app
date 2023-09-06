@@ -38,6 +38,7 @@ import {
   taskCtaData6,
   taskCtaData7,
   taskCtaData8,
+  taskCtaData9,
 } from 'src/app/core/mock-data/task-cta.data';
 
 export function TestCases1(getTestBed) {
@@ -326,6 +327,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'onTeamReportsTaskClick');
         spyOn(component, 'onPotentialDuplicatesTaskClick');
         spyOn(component, 'onSentBackAdvanceTaskClick');
+        spyOn(component, 'onMobileNumberVerificationTaskClick');
       });
 
       it('should call onExpensesToReportTaskClick if clicked on expensesAddToReport', () => {
@@ -431,6 +433,22 @@ export function TestCases1(getTestBed) {
         expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
         expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackAdvanceTaskClick).toHaveBeenCalledOnceWith(taskCtaData7, dashboardTasksData[0]);
+      });
+
+      it('should call onMobileNumberVerificationTaskClick if clicked on mobileNumberVerification', () => {
+        component.onTaskClicked(taskCtaData9, dashboardTasksData[0]);
+        expect(trackingService.tasksClicked).toHaveBeenCalledOnceWith({
+          Asset: 'Mobile',
+          header: dashboardTasksData[0].header,
+        });
+        expect(component.onExpensesToReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
+        expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
+        expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
+        expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
+        expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
+        expect(component.onMobileNumberVerificationTaskClick).toHaveBeenCalledOnceWith(taskCtaData9);
       });
 
       it('should only call trackingService.tasksClicked if none of them matches', () => {
