@@ -29,6 +29,8 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { Expense } from 'src/app/core/models/expense.model';
 import { TxnDetail } from 'src/app/core/models/v2/txn-detail.model';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 
 type Filters = Partial<{
   amount: number;
@@ -105,7 +107,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectedElements: string[];
 
-  selectAll = false;
+  selectAll;
 
   filters: Filters;
 
@@ -503,8 +505,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  onSelectAll(event: MatCheckboxChange | boolean): void {
-    this.selectAll = event as boolean;
+  onSelectAll(event: MatCheckboxChange): void {
+    this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
       this.selectedElements = this.acc.map((txn) => txn.btxn_id);
@@ -591,9 +593,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await filterPopover.present();
 
-    const { data } = (await filterPopover.onWillDismiss()) as {
-      data: SelectedFilters<string>[];
-    };
+    const { data } = (await filterPopover.onWillDismiss()) as OverlayResponse<SelectedFilters<string>[]>;
+
     if (data) {
       this.currentPageNumber = 1;
       this.filters = this.personalCardsService.convertFilters(data);
@@ -615,13 +616,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 500);
   }
 
-  addNewFiltersToParams(): Partial<{
-    pageNumber: number;
-    queryParams: Record<string, string | string[]>;
-    sortParam: string;
-    sortDir: string;
-    searchString: string;
-  }> {
+  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
 
     currentParams.pageNumber = 1;
@@ -759,14 +754,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await selectionModal.present();
 
-    const { data } = (await selectionModal.onWillDismiss()) as {
-      data: {
-        range: string;
-        startDate: string;
-        endDate: string;
-      };
-    };
-
+    const { data } = (await selectionModal.onWillDismiss()) as OverlayResponse<{
+      range: string;
+      startDate: string;
+      endDate: string;
+    }>;
     if (data) {
       this.zone.run(() => {
         this.txnDateRange = data.range;

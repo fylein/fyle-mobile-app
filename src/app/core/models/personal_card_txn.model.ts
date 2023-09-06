@@ -21,6 +21,6 @@ export interface PersonalCardTxn {
   btxn_updated_at?: Date;
   tx_matched_at?: string;
   btxn_vendor: string;
-  txn_details?: string | TxnDetail[];
+  txn_details?: TxnDetail[];
   tx_split_group_id: string;
 }
