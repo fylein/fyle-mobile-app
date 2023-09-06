@@ -592,7 +592,7 @@ describe('ViewPerDiemPage', () => {
     }));
   });
 
-  it('getDeleteDialogProps(): should return the props', () => {
+  it('getDeleteDialogProps(): should return modal params', () => {
     const props = component.getDeleteDialogProps(expenseData1);
     props.componentProps.deleteMethod();
     expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
