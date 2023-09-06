@@ -14,6 +14,7 @@ import {
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { cloneDeep } from 'lodash';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
@@ -43,7 +44,7 @@ describe('MileageRatesService', () => {
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
@@ -98,8 +99,8 @@ describe('MileageRatesService', () => {
     });
   });
 
-  it('filterEnabledMileageRates(): should retutn enabled mileage rates', () => {
-    const result = mileageRatesService.filterEnabledMileageRates(unfilteredMileageRatesData);
+  it('filterEnabledMileageRates(): should return enabled mileage rates', () => {
+    const result = mileageRatesService.filterEnabledMileageRates(cloneDeep(unfilteredMileageRatesData));
     expect(result.length).toEqual(filterEnabledMileageRatesData.length);
     expect(result).toEqual(filterEnabledMileageRatesData);
   });
