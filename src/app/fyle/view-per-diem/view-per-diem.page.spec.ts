@@ -273,6 +273,7 @@ describe('ViewPerDiemPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
+    const mockCustomFields = cloneDeep(customFields);
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
@@ -280,7 +281,7 @@ describe('ViewPerDiemPage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      customInputsService.fillCustomProperties.and.returnValue(of(customFields));
+      customInputsService.fillCustomProperties.and.returnValue(of(mockCustomFields));
       customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
       perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
       reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
@@ -394,9 +395,9 @@ describe('ViewPerDiemPage', () => {
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[0]);
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[1]);
-        expect(perDiemCustomFields).toEqual(customFields);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[0]);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[1]);
+        expect(perDiemCustomFields).toEqual(mockCustomFields);
       });
 
       component.perDiemRate$.subscribe((perDiemRate) => {
