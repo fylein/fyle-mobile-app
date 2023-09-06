@@ -31,12 +31,26 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { of } from 'rxjs';
+import { Observable, finalize, of } from 'rxjs';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { unflattenedTxnData, unflattenedTxnData2 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { criticalPolicyViolation1 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { policyViolation1 } from 'src/app/core/mock-data/policy-violation.data';
 import { unflattenedExpData } from 'src/app/core/mock-data/unflattened-expense.data';
+import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
+import { txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { extendedReportParam } from 'src/app/core/mock-data/report-unflattened.data';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { createExpenseProperties3, editExpenseProperties } from 'src/app/core/mock-data/track-expense-properties.data';
+import { cloneDeep } from 'lodash';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases4(getTestBed) {
   return describe('add-edit-per-diem test cases set 4', () => {
@@ -209,7 +223,7 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -232,7 +246,7 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state
+              policyViolation1.data.final_desired_state,
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explaination provided' });
             done();
@@ -258,6 +272,632 @@ export function TestCases4(getTestBed) {
             },
           });
       });
+    });
+
+    describe('editExpense():', () => {
+      const etxn$ = of({ tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] });
+      const customFields$ = of(txnCustomProperties4);
+      beforeEach(() => {
+        spyOn(component, 'trackPolicyCorrections');
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(etxn$);
+        spyOn(component, 'getCustomFields').and.returnValue(customFields$);
+        component.isConnected$ = of(true);
+        spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
+        policyService.getCriticalPolicyRules.and.returnValue(['The expense will be flagged']);
+        policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
+        spyOn(component, 'editExpenseCriticalPolicyViolationHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
+        spyOn(component, 'editExpensePolicyViolationHandler').and.returnValue(
+          of({ etxn: unflattenedTxnData, comment: 'comment' }),
+        );
+        authService.getEou.and.resolveTo(apiEouRes);
+        spyOn(component, 'getFormValues').and.returnValue({
+          ...perDiemFormValuesData10,
+          report: extendedReportParam[0],
+        });
+        transactionService.upsert.and.returnValue(of(unflattenedTxnData.tx));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        reportService.addTransactions.and.returnValue(of(undefined));
+        reportService.removeTransaction.and.returnValue(of(undefined));
+        transactionService.review.and.returnValue(of(null));
+        statusService.findLatestComment.and.returnValue(of('comment1'));
+        statusService.post.and.returnValue(of(txnStatusData));
+        component.etxn$ = of(unflattenedTxnData);
+        spyOn(component, 'getTimeSpentOnPage').and.returnValue(180);
+        component.presetProjectId = 316443;
+        component.presetCostCenterId = 13795;
+      });
+
+      it('should throw criticalPolicyViolations error and save the edited expense', (done) => {
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).not.toHaveBeenCalled();
+            expect(component.editExpenseCriticalPolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'criticalPolicyViolations',
+              policyViolations: ['The expense will be flagged'],
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(component.editExpensePolicyViolationHandler).not.toHaveBeenCalled();
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw criticalPolicyViolations error and save the edited expense in new report and remove the expense from previous report if reportId is different', (done) => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.report_id = 'rp8eUleN29dc';
+        component.etxn$ = of(mockTxnData);
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).not.toHaveBeenCalled();
+            expect(component.editExpenseCriticalPolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'criticalPolicyViolations',
+              policyViolations: ['The expense will be flagged'],
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(component.editExpensePolicyViolationHandler).not.toHaveBeenCalled();
+            expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties);
+            expect(trackingService.viewExpense).not.toHaveBeenCalled();
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'tx3qHxFNgRcZ');
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw criticalPolicyViolations error and save the edited expense and remove the expense from previous report if reportId field is empty in form', (done) => {
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.report_id = 'rp8eUleN29dc';
+        component.etxn$ = of(mockTxnData);
+        component.getFormValues = jasmine.createSpy().and.returnValue(perDiemFormValuesData10);
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).not.toHaveBeenCalled();
+            expect(component.editExpenseCriticalPolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'criticalPolicyViolations',
+              policyViolations: ['The expense will be flagged'],
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(component.editExpensePolicyViolationHandler).not.toHaveBeenCalled();
+            expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties);
+            expect(trackingService.viewExpense).not.toHaveBeenCalled();
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).not.toHaveBeenCalled();
+            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'tx3qHxFNgRcZ');
+            expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
+            expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: expensePolicyData.data.final_desired_state,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id,
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true,
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense if policyViolations.data is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        const mockExpensePolicyData = cloneDeep(expensePolicyData);
+        mockExpensePolicyData.data = undefined;
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(mockExpensePolicyData));
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id,
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true,
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense if policyViolations is undefined', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        component.checkPolicyViolation = jasmine.createSpy().and.returnValue(of(undefined));
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: undefined,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id,
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true,
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense and should not call statusService.post if err.comment is equal to latest comment', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        statusService.findLatestComment.and.returnValue(of('comment'));
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: expensePolicyData.data.final_desired_state,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id,
+            );
+            expect(statusService.post).not.toHaveBeenCalled();
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw policyViolations error and save the edited expense and should not call transactionService.review if critical policy is violated', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        const mockTxnData = cloneDeep(unflattenedTxnData);
+        mockTxnData.tx.policy_amount = 0.00009;
+        component.editExpensePolicyViolationHandler = jasmine
+          .createSpy()
+          .and.returnValue(of({ etxn: mockTxnData, comment: 'comment' }));
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).toHaveBeenCalledOnceWith({
+              type: 'policyViolations',
+              policyViolations: ['The expense will be flagged'],
+              policyAction: expensePolicyData.data.final_desired_state,
+              etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+            });
+            expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties);
+            expect(trackingService.viewExpense).not.toHaveBeenCalled();
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(mockTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).not.toHaveBeenCalled();
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).not.toHaveBeenCalled();
+            expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+              unflattenedTxnData.tx.id,
+              'transactions',
+              unflattenedTxnData.tx.org_user_id,
+            );
+            expect(statusService.post).toHaveBeenCalledOnceWith(
+              'transactions',
+              unflattenedTxnData.tx.id,
+              { comment: 'comment' },
+              true,
+            );
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should return etxn object and save the edited expense if policyRules is empty array', (done) => {
+        policyService.getCriticalPolicyRules.and.returnValue([]);
+        policyService.getPolicyRules.and.returnValue([]);
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe((res) => {
+            expect(component.savePerDiemLoader).toBeTrue();
+            expect(component.saveAndNextPerDiemLoader).toBeFalse();
+            expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+            expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+              tx: unflattenedTxnData.tx,
+              ou: unflattenedTxnData.ou,
+              dataUrls: [],
+            });
+            expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+            expect(policyService.getPolicyRules).toHaveBeenCalledTimes(1);
+            expect(component.editExpenseCriticalPolicyViolationHandler).not.toHaveBeenCalled();
+            expect(component.editExpensePolicyViolationHandler).not.toHaveBeenCalled();
+            expect(trackingService.editExpense).not.toHaveBeenCalled();
+            expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+            expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+            expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+            expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+            expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+            expect(res).toEqual(unflattenedTxnData.tx);
+            done();
+          });
+      });
+
+      it('should throw error and save the expense if any call fails', (done) => {
+        const error = new Error('unhandledError');
+        policyService.getCriticalPolicyRules.and.throwError(error);
+        component
+          .editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM)
+          .pipe(
+            finalize(() => {
+              expect(component.savePerDiemLoader).toBeFalse();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+            }),
+          )
+          .subscribe({
+            next: (res) => {
+              expect(component.savePerDiemLoader).toBeTrue();
+              expect(component.saveAndNextPerDiemLoader).toBeFalse();
+              expect(component.saveAndPrevPerDiemLoader).toBeFalse();
+              expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$);
+              expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith({
+                tx: unflattenedTxnData.tx,
+                ou: unflattenedTxnData.ou,
+                dataUrls: [],
+              });
+              expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(1);
+              expect(policyService.getPolicyRules).not.toHaveBeenCalled();
+              expect(component.editExpenseCriticalPolicyViolationHandler).toHaveBeenCalledOnceWith({
+                type: 'criticalPolicyViolations',
+                policyViolations: ['The expense will be flagged'],
+                etxn: { tx: unflattenedTxnData.tx, ou: unflattenedTxnData.ou, dataUrls: [] },
+              });
+              expect(component.editExpensePolicyViolationHandler).not.toHaveBeenCalled();
+              expect(trackingService.editExpense).not.toHaveBeenCalled();
+              expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+              expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
+              expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+              expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+              expect(reportService.removeTransaction).not.toHaveBeenCalled();
+              expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
+              expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
+              expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+              expect(res).toEqual(unflattenedTxnData.tx);
+            },
+            error: (err) => {
+              expect(err).toBeTruthy();
+              expect(err).toEqual(error);
+              done();
+            },
+          });
+      });
+    });
+
+    it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
+      const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+      modalSpy.onAction.and.returnValue(of(true));
+      matSnackBar.openFromComponent.and.returnValue(modalSpy);
+      snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
+
+      component.showAddToReportSuccessToast('rpFE5X1Pqi9P');
+      expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+        ...snackbarPropertiesRes2,
+        panelClass: ['msb-success-with-camera-icon'],
+      });
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(ToastType.SUCCESS, {
+        message: 'Per diem expense added to report successfully',
+        redirectionText: 'View Report',
+      });
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Per diem expense added to report successfully',
+      });
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpFE5X1Pqi9P', navigateBack: true },
+      ]);
+    });
+
+    it('showFormValidationErrors(): should show form validation errors', () => {
+      component.fg = formBuilder.group({
+        ...perDiemFormValuesData10,
+      });
+      Object.defineProperty(component.fg, 'valid', {
+        get: () => false,
+      });
+      spyOn(component.fg, 'markAllAsTouched');
+
+      fixture.detectChanges();
+
+      component.showFormValidationErrors();
+      expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
+    });
+
+    describe('savePerDiem():', () => {
+      beforeEach(() => {
+        spyOn(component, 'addExpense').and.returnValue(of(outboxQueueData1[0]));
+        spyOn(component, 'editExpense').and.returnValue(of(unflattenedTxnData.tx));
+        component.fg = formBuilder.group({
+          ...perDiemFormValuesData10,
+        });
+        spyOn(component, 'goBack');
+      });
+
+      it('should add expense and go back if form and payment mode is valid', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        component.savePerDiem();
+        expect(component.addExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      });
+
+      it('should add expense and go back if form and payment mode is valid and user is in edit mode', () => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        component.mode = 'edit';
+        component.savePerDiem();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).toHaveBeenCalledOnceWith(PerDiemRedirectedFrom.SAVE_PER_DIEM);
+        expect(component.goBack).toHaveBeenCalledTimes(1);
+      });
+
+      it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
+        spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        Object.defineProperty(component.fg, 'valid', {
+          get: () => false,
+        });
+        spyOn(component, 'showFormValidationErrors');
+        spyOn(component.fg, 'markAllAsTouched');
+        component.savePerDiem();
+        expect(component.addExpense).not.toHaveBeenCalled();
+        expect(component.editExpense).not.toHaveBeenCalled();
+        expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+        expect(component.invalidPaymentMode).toBeTrue();
+        tick(3000);
+        expect(component.invalidPaymentMode).toBeFalse();
+      }));
     });
   });
 }

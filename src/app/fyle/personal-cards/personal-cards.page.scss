@@ -254,7 +254,6 @@
       color: $blue-black;
       font-size: 3.2vw;
       font-weight: 500;
-      width: 150px;
       text-transform: none;
     }
 
@@ -293,8 +292,17 @@
     height: 62px;
     padding-left: 12px;
     mat-form-field {
-      ::ng-deep .mat-form-field-outline {
-        color: $black-light !important;
+      ::ng-deep .mat-mdc-text-field-wrapper {
+        padding-left: 6px;
+      }
+
+      ::ng-deep .mat-icon {
+        display: flex;
+        align-items: center;
+      }
+
+      ::ng-deep .mdc-notched-outline > * {
+        border-color: $black-light !important;
       }
     }
   }
@@ -311,7 +319,6 @@
     }
 
     &-close {
-      margin: -10px;
       font-size: 18px;
       background-color: transparent;
       color: $black-light;

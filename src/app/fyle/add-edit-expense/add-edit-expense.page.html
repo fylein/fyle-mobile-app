@@ -1,4 +1,4 @@
-<ion-header [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
+<ion-header class="ion-no-border" [ngClass]="{'d-none': isCameraPreviewStarted}" mode="md">
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
@@ -497,14 +497,20 @@
                   >
                     Please select a valid tax group.
                   </div>
-                  <div class="add-edit-expense--text add-edit-expense--internal-block">
-                    <div class="add-edit-expense--text-label">
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                    class="add-edit-expense--internal-block add-edit-expense--text"
+                  >
+                    <div
+                      [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                      class="add-edit-expense--text-label"
+                    >
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
                     <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
-                    *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
+                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))"
                     class="add-edit-expense--error"
                   >
                     Please enter a valid tax amount.
@@ -791,11 +797,11 @@
 
                 <ng-container *ngIf="txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi'">
                   <div
-                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
                     class="add-edit-expense--internal-block add-edit-expense--text"
                   >
                     <div
-                      [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                      [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
                       class="add-edit-expense--text-label"
                     >
                       {{txnFields.distance?.field_name}}
@@ -803,11 +809,12 @@
                     </div>
                     <app-fy-number
                       formControlName="distance"
+                      [isDistance]="true"
                       [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
                     ></app-fy-number>
                   </div>
                   <div
-                    *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
+                    *ngIf="(fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))"
                     class="add-edit-expense--distance-error"
                   >
                     Please enter {{ txnFields.distance?.field_name }}.

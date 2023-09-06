@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
@@ -15,11 +15,12 @@
   </ion-toolbar>
   <ion-toolbar class="text-center" [ngClass]="{ 'selection-modal--toolbar': selectedApproversList?.length > 0 }">
     <mat-form-field
+      appearance="outline"
+      subscriptSizing="dynamic"
       class="selection-modal--form-container mat-form-field-no-padding"
-      appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
+      <mat-chip-grid #chipList aria-label="Multi select">
         <mat-chip
           *ngFor="let approver of selectedApproversList"
           data-testid="approvers"
@@ -47,7 +48,7 @@
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(selectedApproversList?.length > 0) ? 'Search' : ''"
         />
-      </mat-chip-list>
+      </mat-chip-grid>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
       {{ selectedApproversList.length }} selected

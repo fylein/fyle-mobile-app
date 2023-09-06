@@ -17,7 +17,7 @@ export class MileageRatesService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private currencyPipe: CurrencyPipe
+    private currencyPipe: CurrencyPipe,
   ) {}
 
   @Cacheable({
@@ -30,7 +30,7 @@ export class MileageRatesService {
         return range(0, count);
       }),
       concatMap((page) => this.getMileageRates({ offset: this.paginationSize * page, limit: this.paginationSize })),
-      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[])
+      reduce((acc, curr) => acc.concat(curr), [] as PlatformMileageRates[]),
     );
   }
 
