@@ -42,7 +42,6 @@
     }
 
     &-close {
-      margin: -12px;
       font-size: 18px;
       height: auto;
     }
@@ -114,7 +113,6 @@
     mat-form-field {
       ::ng-deep .mat-mdc-text-field-wrapper {
         padding-left: 10px;
-        padding-right: 10px;
       }
 
       ::ng-deep .mat-icon {
