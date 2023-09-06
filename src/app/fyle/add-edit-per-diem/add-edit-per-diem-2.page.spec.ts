@@ -32,7 +32,7 @@ import { ModalController, NavController, Platform, PopoverController } from '@io
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
-import { BehaviorSubject, finalize, of, take, tap } from 'rxjs';
+import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedExpWoCostCenter, unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
@@ -80,6 +80,7 @@ import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import {
   perDiemFormValuesData1,
+  perDiemFormValuesData10,
   perDiemFormValuesData2,
   perDiemFormValuesData3,
   perDiemFormValuesData4,
@@ -196,7 +197,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        })
+        }),
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -256,7 +257,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getAll.and.returnValue(of([mockCategoryData]));
@@ -279,7 +280,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse
+            expenseFieldResponse,
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -308,6 +309,57 @@ export function TestCases2(getTestBed) {
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithoutControl);
           const controlValues = res.map(({ control }) => control.value);
+          expect(controlValues).toEqual(expectedControlValues);
+        });
+      });
+
+      it('should return custom inputs if initialFetch is false', () => {
+        component.fg.value.custom_inputs = dependentCustomProperties;
+        const getCustomInputs$ = component.getCustomInputs();
+        component.initialFetch = false;
+        getCustomInputs$.subscribe((res) => {
+          expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+          expect(categoriesService.getAll).not.toHaveBeenCalled();
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+            dependentCustomProperties,
+            expenseFieldResponse,
+          );
+          expect(component.getPerDiemCategories).not.toHaveBeenCalled();
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
+          const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
+          const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
+            ...otherProps,
+          })) as TxnCustomProperties[];
+          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          // We just want to check the value and not the methods like pendingChange etc
+          const controlValues = res.map(({ control }) => control.value);
+          const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
+          expect(controlValues).toEqual(expectedControlValues);
+        });
+      });
+
+      it('should return custom inputs if initialFetch is false and sub_category is undefined', () => {
+        component.fg.value.custom_inputs = dependentCustomProperties;
+        component.fg.value.sub_category = undefined;
+        const getCustomInputs$ = component.getCustomInputs();
+        component.initialFetch = false;
+        getCustomInputs$.subscribe((res) => {
+          expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+          expect(categoriesService.getAll).not.toHaveBeenCalled();
+          expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
+            dependentCustomProperties,
+            expenseFieldResponse,
+          );
+          expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
+          const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
+          const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
+            ...otherProps,
+          })) as TxnCustomProperties[];
+          expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithControl);
+          // We just want to check the value and not the methods like pendingChange etc
+          const controlValues = res.map(({ control }) => control.value);
+          const expectedControlValues = perDiemCustomInputsData1.map(({ control }) => control.value);
           expect(controlValues).toEqual(expectedControlValues);
         });
       });
@@ -363,7 +415,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          })
+          }),
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -393,7 +445,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -467,7 +519,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
@@ -486,7 +538,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -505,7 +557,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -526,7 +578,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            })
+            }),
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -592,6 +644,19 @@ export function TestCases2(getTestBed) {
         done();
       });
 
+      it('should set individualProjectIds$ to empty array if orgUserSettings.project_ids are undefined', (done) => {
+        const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettings.project_ids = undefined;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettings));
+        component.ionViewWillEnter();
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([]);
+        });
+
+        done();
+      });
+
       it('should update isProjectsEnabled$, customInputs$, isCostCentersEnabled$ and paymentModes$', (done) => {
         component.ionViewWillEnter();
         component.isProjectsEnabled$.subscribe((res) => {
@@ -623,7 +688,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes
+            recentlyUsedRes,
           );
           expect(res).toEqual(expectedCCdata2);
         });
@@ -740,6 +805,32 @@ export function TestCases2(getTestBed) {
       it('should set isBalanceAvailableInAnyAdvanceAccount$ correctly if paymentMode changed and paymentMode.acc.type equals PERSONAL account', (done) => {
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account.acc is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        const mockAccountsData = cloneDeep(accountsData);
+        mockAccountsData[0].acc = undefined;
+        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
+        component.ionViewWillEnter();
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set isBalanceAvailableInAnyAdvanceAccount$ to true if paymentMode changed and paymentMode.acc.type equals PERSONAL account and account is undefined', (done) => {
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(accountsData[0]);
+        const mockAccountsData = cloneDeep(accountsData);
+        mockAccountsData[0] = undefined;
+        accountsService.getEMyAccounts.and.returnValue(of(mockAccountsData));
         component.ionViewWillEnter();
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);

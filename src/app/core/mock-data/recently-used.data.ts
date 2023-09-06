@@ -188,7 +188,10 @@ export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCen
   },
 ];
 
-export const recentlyUsedMileages = {
+export const recentlyUsedMileages: Pick<
+  RecentlyUsed,
+  'recent_start_locations' | 'recent_end_locations' | 'recent_locations'
+> = {
   recent_start_locations: [
     'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
     'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',

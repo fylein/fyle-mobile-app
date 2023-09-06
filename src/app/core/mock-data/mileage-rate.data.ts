@@ -1,3 +1,4 @@
+import { MileageRatesOptions } from '../models/mileage-rates-options.data';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
 export const unfilteredMileageRatesData: PlatformMileageRates[] = [
@@ -320,7 +321,7 @@ export const mileageRateApiRes2: PlatformMileageRates[] = [
   },
 ];
 
-export const mileageRateOptions: { label: string; value: PlatformMileageRates }[] = [
+export const mileageRateOptions: MileageRatesOptions[] = [
   {
     label: 'Electric Car ($10/mi)',
     value: {

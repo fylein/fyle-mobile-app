@@ -40,7 +40,10 @@ import { forkJoin, from } from 'rxjs';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(private authService: AuthService, private deviceService: DeviceService) {}
+  constructor(
+    private authService: AuthService,
+    private deviceService: DeviceService,
+  ) {}
 
   get tracking(): TrackingMethods {
     return (window as typeof window & { analytics: TrackingMethods }).analytics;
