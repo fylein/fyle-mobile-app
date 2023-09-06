@@ -33,29 +33,26 @@
           required
         />
 
-        <!-- Don't show the card network icon in error states -->
-        <ng-container *ngIf="!(cardForm.touched && cardForm.invalid)">
-          <ion-icon
-            *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
-            src="../../../../assets/svg/card.svg"
-            class="add-corporate-card__input-default-icon"
-            data-testid="default-icon"
-          ></ion-icon>
+        <ion-icon
+          *ngIf="!cardType || cardType === cardNetworkTypes.OTHERS"
+          src="../../../../assets/svg/card.svg"
+          class="add-corporate-card__input-default-icon"
+          data-testid="default-icon"
+        ></ion-icon>
 
-          <img
-            *ngIf="cardType === cardNetworkTypes.VISA"
-            src="../../../../assets/images/visa-logo.png"
-            class="add-corporate-card__input-visa-icon"
-            data-testid="visa-icon"
-          />
+        <img
+          *ngIf="cardType === cardNetworkTypes.VISA"
+          src="../../../../assets/images/visa-logo.png"
+          class="add-corporate-card__input-visa-icon"
+          data-testid="visa-icon"
+        />
 
-          <img
-            *ngIf="cardType === cardNetworkTypes.MASTERCARD"
-            src="../../../../assets/images/mastercard-logo.png"
-            class="add-corporate-card__input-mastercard-icon"
-            data-testid="mastercard-icon"
-          />
-        </ng-container>
+        <img
+          *ngIf="cardType === cardNetworkTypes.MASTERCARD"
+          src="../../../../assets/images/mastercard-logo.png"
+          class="add-corporate-card__input-mastercard-icon"
+          data-testid="mastercard-icon"
+        />
       </div>
 
       <div class="add-corporate-card__input-error-space"></div>

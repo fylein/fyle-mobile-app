@@ -210,7 +210,7 @@ export class MyProfilePage {
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
             isUnifiedCardEnrollmentFlowEnabled: this.launchDarklyService.getVariation(
-              'is_unified_card_enrollment_flow_enabled',
+              'unified_card_enrollment_flow_enabled',
               false,
             ),
           }),
