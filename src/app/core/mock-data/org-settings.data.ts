@@ -1293,3 +1293,23 @@ export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
     enabled: true,
   },
 };
+
+export const orgSettingsProjectDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  projects: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};
+
+export const orgSettingsCCDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  cost_centers: {
+    enabled: false,
+  },
+};

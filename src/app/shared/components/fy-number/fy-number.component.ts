@@ -1,5 +1,5 @@
-import { Component, forwardRef, Input, OnInit } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
+import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
@@ -16,7 +16,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
     },
   ],
 })
-export class FyNumberComponent implements ControlValueAccessor, OnInit {
+export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterViewInit {
   @Input() placeholder: string;
 
   @Input() disabled: boolean;
@@ -25,11 +25,15 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
 
   @Input() isAmount: boolean;
 
+  @Input() isDistance = false;
+
   isDisabled = false;
 
   fc: FormControl;
 
   isIos = false;
+
+  isAndroid = true;
 
   isKeyboardPluginEnabled = true;
 
@@ -39,25 +43,33 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
   // This variable tracks if comma was clicked by the user.
   commaClicked = false;
 
-  innerValue: string | number;
+  innerValue: number;
 
   isNegativeExpensePluginEnabled = false;
+
+  isAndroidNegativeExpensePluginEnabled = false;
 
   negativeExpense: string;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: string | number) => void = noop;
+  onChangeCallback: (_: number) => void = noop;
 
   keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
-  constructor(private platform: Platform, private launchDarklyService: LaunchDarklyService) {}
+  private control: FormControl;
 
-  get value(): string | number {
+  constructor(
+    private platform: Platform,
+    private launchDarklyService: LaunchDarklyService,
+    private injector: Injector,
+  ) {}
+
+  get value(): number {
     return this.innerValue;
   }
 
-  set value(v: string | number) {
+  set value(v: number) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       this.onChangeCallback(v);
@@ -72,7 +84,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  registerOnChange(fn: (_: string | number) => void): void {
+  registerOnChange(fn: (_: number) => void): void {
     this.onChangeCallback = fn;
   }
 
@@ -90,6 +102,9 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
 
   ngOnInit(): void {
     this.isIos = this.platform.is('ios');
+
+    this.isAndroid = this.platform.is('android');
+
     this.launchDarklyService
       .checkIfKeyboardPluginIsEnabled()
       .subscribe((isKeyboardPluginEnabled) => (this.isKeyboardPluginEnabled = isKeyboardPluginEnabled));
@@ -97,19 +112,41 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit {
     this.launchDarklyService
       .checkIfNegativeExpensePluginIsEnabled()
       .subscribe(
-        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled)
+        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled),
       );
 
-    this.fc = new FormControl();
+    this.launchDarklyService
+      .checkIfAndroidNegativeExpensePluginIsEnabled()
+      .subscribe((isAndroidNegativeExpensePluginEnabled) => {
+        this.isAndroidNegativeExpensePluginEnabled = isAndroidNegativeExpensePluginEnabled;
+      });
+
+    if (!this.isDistance) {
+      // If the input is for amount, allow negative values
+      this.fc = new FormControl(null, Validators.pattern(/^-?(?:\d*\.\d+|\d+\.?)$/));
+    } else {
+      // If the input is for distance, do not allow negative values
+      this.fc = new FormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
+    }
+
     this.fc.valueChanges.subscribe((value) => {
-      if (typeof value === 'string') {
+      if (typeof value === 'string' && this.fc.valid) {
         this.value = value && parseFloat(value);
-      } else if (typeof value === 'number') {
+      } else if (typeof value === 'number' && this.fc.valid) {
         this.value = value;
       } else {
         this.value = null;
+        // Errors are propagated to the parent component, where we can show the error message
+        this.control?.setErrors({ invalid: true });
       }
     });
+  }
+
+  ngAfterViewInit(): void {
+    // This is a way to get reference of parent component's form control, we can propagate errors to the parent component
+    const ngControl: NgControl = this.injector.get(NgControl, null);
+
+    this.control = ngControl.control as FormControl;
   }
 
   // This is a hack to handle the comma key on ios devices in regions where the decimal separator is a comma
