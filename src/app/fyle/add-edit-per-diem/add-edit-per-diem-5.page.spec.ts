@@ -27,14 +27,20 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { Observable, finalize, of } from 'rxjs';
+import { Observable, Subject, Subscription, finalize, of } from 'rxjs';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { getElementRef } from 'src/app/core/dom-helpers';
+import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases5(getTestBed) {
@@ -186,7 +192,6 @@ export function TestCases5(getTestBed) {
 
       it('should mark all fields as touched and scroll to invalid element if form is invalid', fakeAsync(() => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-
         spyOn(component, 'showFormValidationErrors');
         spyOn(component.fg, 'markAllAsTouched');
         component.saveAndNewExpense();
@@ -329,6 +334,354 @@ export function TestCases5(getTestBed) {
         expect(component.close).not.toHaveBeenCalled();
         expect(component.goToNext).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('close(): should navigate to my expenses page', () => {
+      component.close();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+    });
+
+    describe('getDeleteReportParams():', () => {
+      it('should return modal params and method to remove expense from report if removePerDiemFromReport is true', () => {
+        reportService.removeTransaction.and.returnValue(of());
+
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P',
+          )
+          .componentProps.deleteMethod();
+        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
+        expect(transactionService.delete).not.toHaveBeenCalled();
+      });
+
+      it('should return modal params and method to delete expense if removePerDiemFromReport is false', () => {
+        transactionService.delete.and.returnValue(of(expenseData1));
+        component
+          .getDeleteReportParams(
+            { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
+            false,
+            'tx5n59fvxk4z',
+          )
+          .componentProps.deleteMethod();
+        expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+        expect(reportService.removeTransaction).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('deleteExpense():', () => {
+      beforeEach(() => {
+        activatedRoute.snapshot.params = {
+          id: 'tx5n59fvxk4z',
+        };
+      });
+
+      it('should delete expense and navigate to my_view_report if deleting directly from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Remove Per Diem';
+        const body = 'Are you sure you want to remove this Per Diem expense from this report?';
+        const ctaText = 'Remove';
+        const ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(100);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpFE5X1Pqi9P' }]);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          true,
+          'tx5n59fvxk4z',
+          'rpFE5X1Pqi9P',
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P',
+          ),
+        );
+      }));
+
+      it('should delete expense and navigate to my expenses page if not redirected from report', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = false;
+
+        const header = 'Delete Per Diem';
+        const body = 'Are you sure you want to delete this Per Diem expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(100);
+
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          'tx5n59fvxk4z',
+          undefined,
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            undefined,
+            'tx5n59fvxk4z',
+            undefined,
+          ),
+        );
+      }));
+
+      it('should go to next expense if delete is successful and expense is not the last one in list', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        spyOn(component, 'goToTransaction');
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        component.activeIndex = 0;
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'success',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Delete Per Diem';
+        const body = 'Are you sure you want to delete this Per Diem expense?';
+        const ctaText = 'Delete';
+        const ctaLoadingText = 'Deleting';
+
+        component.deleteExpense();
+        tick(100);
+
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          undefined,
+          'tx5n59fvxk4z',
+          undefined,
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            undefined,
+            'tx5n59fvxk4z',
+            undefined,
+          ),
+        );
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
+          component.reviewList[+component.activeIndex],
+        );
+        expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+          unflattenedTxnData,
+          component.reviewList,
+          +component.activeIndex,
+        );
+      }));
+
+      it('should track clickDeleteExpense if popover fails and user is in add mode', fakeAsync(() => {
+        spyOn(component, 'getDeleteReportParams');
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+
+        deletePopoverSpy.onDidDismiss.and.resolveTo({
+          data: {
+            status: 'failure',
+          },
+        });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+        component.isRedirectedFromReport = true;
+
+        const header = 'Remove Per Diem';
+        const body = 'Are you sure you want to remove this Per Diem expense from this report?';
+        const ctaText = 'Remove';
+        const ctaLoadingText = 'Removing';
+
+        component.deleteExpense('rpFE5X1Pqi9P');
+        tick(100);
+
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
+          { header, body, ctaText, ctaLoadingText },
+          true,
+          'tx5n59fvxk4z',
+          'rpFE5X1Pqi9P',
+        );
+        expect(popoverController.create).toHaveBeenCalledOnceWith(
+          component.getDeleteReportParams(
+            { header, body, ctaText, ctaLoadingText },
+            true,
+            'tx5n59fvxk4z',
+            'rpFE5X1Pqi9P',
+          ),
+        );
+        expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
+      }));
+    });
+
+    describe('openCommentsModal():', () => {
+      it('should add comment if data.updated is defined', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+        modalSpy.onDidDismiss.and.resolveTo({ data: { updated: 'comment' } });
+
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).not.toHaveBeenCalled();
+      }));
+
+      it('should view comment if data.updated is undefined', fakeAsync(() => {
+        component.etxn$ = of(unflattenedTxnData);
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        const modalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+
+        modalSpy.onDidDismiss.and.resolveTo({ data: {} });
+
+        modalController.create.and.resolveTo(modalSpy);
+
+        component.openCommentsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: ViewCommentComponent,
+          componentProps: {
+            objectType: 'transactions',
+            objectId: unflattenedTxnData.tx.id,
+          },
+          ...properties,
+        });
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).not.toHaveBeenCalled();
+      }));
+    });
+
+    it('hideFields(): should track hideMoreClicked and set isExpandedView to false', () => {
+      component.isExpandedView = true;
+      component.hideFields();
+      expect(component.isExpandedView).toBeFalse();
+      expect(trackingService.hideMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Edit Per Diem page',
+      });
+    });
+
+    it('showFields(): should track showMoreClicked and set isExpandedView to true', () => {
+      component.isExpandedView = false;
+      component.showFields();
+      expect(component.isExpandedView).toBeTrue();
+      expect(trackingService.showMoreClicked).toHaveBeenCalledOnceWith({
+        source: 'Add Edit Per Diem page',
+      });
+    });
+
+    it('getPolicyDetails(): should call getSpenderExpensePolicyViolations and update policyDetails', () => {
+      activatedRoute.snapshot.params = {
+        id: 'tx5n59fvxk4z',
+      };
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(of([individualExpPolicyStateData1]));
+      component.getPolicyDetails();
+      expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
+      expect(component.policyDetails).toEqual([individualExpPolicyStateData1]);
+    });
+
+    describe('ionViewWillLeave():', () => {
+      it('should unsubscribe and complete observable as component leaves', () => {
+        const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
+
+        component.projectDependentFieldsRef = dependentFieldSpy;
+        component.costCenterDependentFieldsRef = dependentFieldSpy;
+        component.hardwareBackButtonAction = new Subscription();
+        component.onPageExit$ = new Subject();
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        component.ionViewWillLeave();
+
+        expect(dependentFieldSpy.ngOnDestroy).toHaveBeenCalledTimes(2);
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+
+      it('should unsubscribe remaining observables as dependent fields are not present', () => {
+        component.projectDependentFieldsRef = null;
+        component.costCenterDependentFieldsRef = null;
+        component.hardwareBackButtonAction = new Subscription();
+        spyOn(component.hardwareBackButtonAction, 'unsubscribe');
+        component.onPageExit$ = new Subject();
+        spyOn(component.onPageExit$, 'next');
+        spyOn(component.onPageExit$, 'complete');
+
+        component.ionViewWillLeave();
+
+        expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+        expect(component.onPageExit$.next).toHaveBeenCalledOnceWith(null);
+        expect(component.onPageExit$.complete).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('customDateValidator():', () => {
+      it('should return null when the date is within the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date();
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toBeNull();
+      });
+
+      it('should return an error object when the date is after the upper bound of the valid range', () => {
+        component.fg.patchValue({
+          from_dt: '2023-06-27',
+        });
+        const tomorrow = new Date('2023-06-15');
+        tomorrow.setDate(tomorrow.getDate() + 2);
+        const control = new FormControl(tomorrow.toDateString());
+        const result = component.customDateValidator(control);
+        expect(result).toEqual({ invalidDateSelection: true });
       });
     });
   });
