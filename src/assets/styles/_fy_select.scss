@@ -85,21 +85,6 @@ $sub-title: #ababab;
     min-height: 40px;
   }
 
-  .mat-mdc-form-field-icon-suffix {
-    height: 40px;
-    display: flex;
-    align-items: center;
-
-    .mat-mdc-icon-button.mat-mdc-button-base {
-      display: flex;
-      justify-content: flex-end;
-    }
-
-    .mat-mdc-button > .mat-icon {
-      margin-right: 0px;
-    }
-  }
-
   ::ng-deep .mat-icon {
     display: flex;
     align-items: center;
