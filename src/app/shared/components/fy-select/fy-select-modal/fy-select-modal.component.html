@@ -23,11 +23,11 @@
         #searchBar
         [(ngModel)]="value"
         class="selection-modal--search-input smartlook-show"
-        id="election-modal--search-input"
+        id="selection-modal--search-input"
         matInput
         placeholder="{{ placeholder || 'Search' }}"
       />
-      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-button mat-icon-button matSuffix>
+      <button (click)="clearValue()" *ngIf="value" aria-label="Clear" mat-icon-button matSuffix>
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>
