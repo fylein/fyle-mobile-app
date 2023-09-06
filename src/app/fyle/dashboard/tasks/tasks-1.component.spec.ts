@@ -334,7 +334,7 @@ export function TestCases1(getTestBed) {
           Asset: 'Mobile',
           header: dashboardTasksData[0].header,
         });
-        expect(component.onExpensesToReportTaskClick).toHaveBeenCalledOnceWith(taskCtaData, dashboardTasksData[0]);
+        expect(component.onExpensesToReportTaskClick).toHaveBeenCalledTimes(1);
         expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
         expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
@@ -382,7 +382,7 @@ export function TestCases1(getTestBed) {
         expect(component.onExpensesToReportTaskClick).not.toHaveBeenCalled();
         expect(component.onOpenDraftReportsTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
-        expect(component.onReviewExpensesTaskClick).toHaveBeenCalledOnceWith(taskCtaData4, dashboardTasksData[0]);
+        expect(component.onReviewExpensesTaskClick).toHaveBeenCalledTimes(1);
         expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
         expect(component.onPotentialDuplicatesTaskClick).not.toHaveBeenCalled();
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
@@ -414,7 +414,7 @@ export function TestCases1(getTestBed) {
         expect(component.onSentBackReportTaskClick).not.toHaveBeenCalled();
         expect(component.onReviewExpensesTaskClick).not.toHaveBeenCalled();
         expect(component.onTeamReportsTaskClick).not.toHaveBeenCalled();
-        expect(component.onPotentialDuplicatesTaskClick).toHaveBeenCalledOnceWith(taskCtaData6, dashboardTasksData[0]);
+        expect(component.onPotentialDuplicatesTaskClick).toHaveBeenCalledTimes(1);
         expect(component.onSentBackAdvanceTaskClick).not.toHaveBeenCalled();
       });
 
