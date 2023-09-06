@@ -232,7 +232,6 @@ export function TestCases5(getTestBed) {
     }
 
     function getClassValues() {
-      spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
       spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
       spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
       spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
@@ -334,6 +333,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should setup class variables', fakeAsync(() => {
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
         activatedRoute.snapshot.params.navigate_back = true;
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53', 'tx053DOHz9pU']);
@@ -436,6 +436,7 @@ export function TestCases5(getTestBed) {
 
       it('should setup class variables with autofill enabled and no recent values available', fakeAsync(() => {
         activatedRoute.snapshot.params.navigate_back = true;
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
         activatedRoute.snapshot.params.activeIndex = 3;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53']);
         component.mode = 'edit';
@@ -532,81 +533,24 @@ export function TestCases5(getTestBed) {
       }));
 
       it('should setup class variables without mileage rates and payment modes', fakeAsync(() => {
-        spyOn(component, 'initClassObservables');
         component.mode = 'add';
-        component.filteredCategories$ = of(categorieListRes);
-        tokenService.getClusterDomain.and.resolveTo('domain');
         activatedRoute.snapshot.params.navigate_back = true;
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
-        reportService.getAutoSubmissionReportName.and.returnValue(of('purpose'));
-        spyOn(component, 'setupSelectedProjects');
-        spyOn(component, 'setupSelectedCostCenters');
-        storageService.get.and.resolveTo(true);
-        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        spyOn(component, 'checkAdvanceEnabled').and.returnValue(of(true));
-        spyOn(component, 'checkNewReportsFlow');
-        spyOn(component, 'setupNetworkWatcher');
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
-        spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
-        spyOn(component, 'setupFilteredCategories');
-        currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
-        spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
-        projectsService.getProjectCount.and.returnValue(of(2));
         statusService.find.and.returnValue(of(getEstatusApiResponse));
-        spyOn(component, 'checkIndividualMileageEnabled');
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
         mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
-        mileageRatesService.getReadableRate.and.returnValue('10');
-        mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
-        spyOn(component, 'getNewExpense').and.returnValue(of(newExpenseMileageData1));
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
-        spyOn(component, 'setupTfcDefaultValues');
-        spyOn(component, 'getCustomInputs').and.returnValue(of(null));
-        spyOn(component, 'getPaymentModes').and.returnValue(of(accountOptionData1));
-        spyOn(component, 'getCostCenters').and.returnValue(of(costCenterOptions2));
-        recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
-        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
-        spyOn(component, 'getMileageRatesOptions');
-        spyOn(component, 'setupTxnFields');
-        spyOn(component, 'getPolicyDetails');
-        spyOn(component, 'checkAvailableAdvance');
-        spyOn(component, 'getEditRates').and.returnValue(of(10));
-        spyOn(component, 'getAddRates').and.returnValue(of(10));
-        spyOn(component, 'getCategories').and.returnValue(of(unsortedCategories1[2]));
-        spyOn(component, 'getExpenseAmount').and.returnValue(of(100));
-        spyOn(component, 'getProjects').and.returnValue(of(expectedProjectsResponse[0]));
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
-        accountsService.getAccountTypeFromPaymentMode.and.returnValue(AccountType.PERSONAL);
-        authService.getEou.and.resolveTo(apiEouRes);
-        recentlyUsedItemsService.getRecentlyUsedProjects.and.returnValue(of(recentlyUsedProjectRes));
-        spyOn(component, 'getReports').and.returnValue(of(expectedErpt[0]));
-        spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
-        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
-        loaderService.showLoader.and.resolveTo();
-        loaderService.hideLoader.and.resolveTo();
-        customInputsService.filterByCategory.and.returnValue(transformedResponse);
-        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties4);
-        spyOn(component, 'getMileageByVehicleType').and.returnValue(unfilteredMileageRatesData[0]);
         fixture.detectChanges();
 
         component.ionViewWillEnter();
         tick(3000);
         fixture.detectChanges();
 
-        expect(component.initClassObservables).toHaveBeenCalledTimes(1);
-        expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
-        expect(component.navigateBack).toBeTrue();
-        expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
-        expect(reportService.getAutoSubmissionReportName).toHaveBeenCalledTimes(1);
-        expect(component.setupSelectedCostCenters).toHaveBeenCalledTimes(1);
-        expect(component.setupSelectedProjects).toHaveBeenCalledTimes(1);
-        expect(storageService.get).toHaveBeenCalledOnceWith('isExpandedViewMileage');
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        setupMatchers();
 
         component.mileageConfig$.subscribe((res) => {
           expect(res).toEqual(orgSettingsRes.mileage);
@@ -615,9 +559,6 @@ export function TestCases5(getTestBed) {
         component.isAdvancesEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
         });
-        expect(component.checkAdvanceEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-        expect(component.checkNewReportsFlow).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
         component.recentlyUsedValues$.subscribe((res) => {
           expect(res).toBeNull();
@@ -629,19 +570,9 @@ export function TestCases5(getTestBed) {
           expect(res).toEqual({ recent_start_locations: [], recent_end_locations: [], recent_locations: [] });
         });
 
-        expect(component.getTransactionFields).toHaveBeenCalledTimes(1);
-        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(component.getSubCategories).toHaveBeenCalledTimes(1);
-        expect(component.getProjectCategoryIds).toHaveBeenCalledTimes(1);
-
         component.isProjectVisible$.subscribe((res) => {
           expect(res).toBeTrue();
         });
-        expect(projectsService.getProjectCount).toHaveBeenCalledTimes(1);
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', activatedRoute.snapshot.params.id);
-        expect(component.checkIndividualMileageEnabled).toHaveBeenCalledOnceWith(jasmine.any(Observable));
-        expect(mileageRatesService.getAllMileageRates).toHaveBeenCalledTimes(2);
-        expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
 
         component.mileageRates$.subscribe((res) => {
           expect(res).toEqual([]);
@@ -652,10 +583,6 @@ export function TestCases5(getTestBed) {
         component.etxn$.subscribe((res) => {
           expect(res).toEqual(unflattenedTxnData);
         });
-
-        expect(component.getNewExpense).toHaveBeenCalledTimes(1);
-        expect(component.getEditExpense).toHaveBeenCalledTimes(1);
-        expect(component.setupTfcDefaultValues).toHaveBeenCalledTimes(1);
 
         component.isAmountDisabled$.subscribe((res) => {
           expect(res).toBeFalse();
@@ -679,10 +606,6 @@ export function TestCases5(getTestBed) {
           expect(res).toBeTrue();
         });
 
-        expect(component.getPaymentModes).toHaveBeenCalledTimes(1);
-        expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable), jasmine.any(Observable));
-        expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledTimes(1);
-
         component.reports$.subscribe((res) => {
           expect(res).toEqual(reportOptionsData4);
         });
@@ -698,31 +621,14 @@ export function TestCases5(getTestBed) {
           expect(res).toBeFalse();
         });
 
-        expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
-        expect(component.checkAvailableAdvance).toHaveBeenCalledTimes(1);
-
         component.rate$.subscribe((res) => {
           expect(res).toEqual(10);
         });
-
-        expect(component.getEditRates).toHaveBeenCalledTimes(1);
-        expect(component.getAddRates).toHaveBeenCalledTimes(1);
-        expect(component.getExpenseAmount).toHaveBeenCalledTimes(1);
-        expect(component.getProjects).toHaveBeenCalledTimes(1);
-        expect(accountsService.getEtxnSelectedPaymentMode).toHaveBeenCalledTimes(1);
-        expect(accountsService.getAccountTypeFromPaymentMode).toHaveBeenCalledTimes(1);
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
 
         component.recentlyUsedProjects$.subscribe((res) => {
           expect(res).toEqual(recentlyUsedProjectRes);
         });
 
-        expect(component.getCategories).toHaveBeenCalledTimes(1);
-        expect(component.getReports).toHaveBeenCalledTimes(1);
-        expect(component.getSelectedCostCenters).toHaveBeenCalledTimes(1);
-        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
-        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith([], null);

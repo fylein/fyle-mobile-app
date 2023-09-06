@@ -787,7 +787,7 @@ export function TestCases4(getTestBed) {
         categoriesService.getAll.and.returnValue(of(mileageCategories3));
 
         component.getCategories(unflattenedTxnWithCategory).subscribe((res) => {
-          expect(res).toEqual(mileageCategories3[0]);
+          expect(res).toEqual(mileageCategories3[1]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });

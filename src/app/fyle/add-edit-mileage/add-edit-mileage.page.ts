@@ -513,7 +513,7 @@ export class AddEditMileagePage implements OnInit {
           mileageCategoriesContainer: this.getMileageCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
-            // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
+            // skipped distance unit, location 1 and location 2 - confirm this these are not used at all
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'];
 
             return this.expenseFieldsService.filterByOrgCategoryId(
@@ -554,7 +554,7 @@ export class AddEditMileagePage implements OnInit {
           mileageCategoriesContainer: this.getMileageCategories(),
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
-            // skipped distance unit, location 1 and location 2 - confirm that these are not used at all
+            // skipped distance unit, location 1 and location 2 - confirm this these are not used at all
             const fields = ['purpose', 'txn_dt', 'cost_center_id', 'distance', 'billable'];
 
             return this.expenseFieldsService.filterByOrgCategoryId(
@@ -930,7 +930,7 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         map((subCategories) =>
           subCategories
-            .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name.toLowerCase())
+            .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name?.toLowerCase())
             .find((subCategory) => subCategory?.id === etxn.tx.org_category_id),
         ),
       );
@@ -1683,7 +1683,7 @@ export class AddEditMileagePage implements OnInit {
         component: PopupAlertComponent,
         componentProps: {
           title: 'Unsaved Changes',
-          message: 'You have unsaved information that will be lost if you discard this expense.',
+          message: 'You have unsaved information this will be lost if you discard this expense.',
           primaryCta: {
             text: 'Discard',
             action: 'continue',
@@ -1787,25 +1787,22 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveExpense(): void {
-    const that = this;
-
-    that
-      .checkIfInvalidPaymentMode()
+    this.checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
-          if (that.mode === 'add') {
-            that.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
+        if (this.fg.valid && !invalidPaymentMode) {
+          if (this.mode === 'add') {
+            this.addExpense('SAVE_MILEAGE').subscribe(() => this.close());
           } else {
             // to do edit
-            that.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
+            this.editExpense('SAVE_MILEAGE').subscribe(() => this.close());
           }
         } else {
           this.showFormValidationErrors();
           if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
+            this.invalidPaymentMode = true;
             setTimeout(() => {
-              that.invalidPaymentMode = false;
+              this.invalidPaymentMode = false;
             }, 3000);
           }
         }
@@ -1818,30 +1815,27 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveAndNewExpense(): void {
-    const that = this;
-
-    that
-      .checkIfInvalidPaymentMode()
+    this.checkIfInvalidPaymentMode()
       .pipe(take(1))
       .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
-          if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+        if (this.fg.valid && !invalidPaymentMode) {
+          if (this.mode === 'add') {
+            this.addExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
               this.trackingService.clickSaveAddNew();
               this.reloadCurrentRoute();
             });
           } else {
             // to do edit
-            that.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
-              that.close();
+            this.editExpense('SAVE_AND_NEW_MILEAGE').subscribe(() => {
+              this.close();
             });
           }
         } else {
           this.showFormValidationErrors();
           if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
+            this.invalidPaymentMode = true;
             setTimeout(() => {
-              that.invalidPaymentMode = false;
+              this.invalidPaymentMode = false;
             }, 3000);
           }
         }
@@ -1849,23 +1843,22 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveExpenseAndGotoPrev(): void {
-    const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
           if (+this.activeIndex === 0) {
-            that.close();
+            this.close();
           } else {
-            that.goToPrev();
+            this.goToPrev();
           }
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
+        this.editExpense('SAVE_AND_PREV_MILEAGE').subscribe(() => {
           if (+this.activeIndex === 0) {
-            that.close();
+            this.close();
           } else {
-            that.goToPrev();
+            this.goToPrev();
           }
         });
       }
@@ -1875,23 +1868,22 @@ export class AddEditMileagePage implements OnInit {
   }
 
   saveExpenseAndGotoNext(): void {
-    const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
+    if (this.fg.valid) {
+      if (this.mode === 'add') {
+        this.addExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
-            that.close();
+            this.close();
           } else {
-            that.goToNext();
+            this.goToNext();
           }
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
+        this.editExpense('SAVE_AND_NEXT_MILEAGE').subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
-            that.close();
+            this.close();
           } else {
-            that.goToNext();
+            this.goToNext();
           }
         });
       }
