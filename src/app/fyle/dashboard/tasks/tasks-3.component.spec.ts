@@ -8,7 +8,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -16,10 +16,17 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { finalize, of, tap } from 'rxjs';
 import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
-import { noop } from 'lodash';
+import { cloneDeep, noop } from 'lodash';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
+import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
+import { ComponentType } from '@angular/cdk/portal';
+import { TemplateRef } from '@angular/core';
+import { etxnParamsData1 } from 'src/app/core/mock-data/etxn-params.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -116,6 +123,148 @@ export function TestCases3(getTestBed) {
         'my_view_report',
         { id: 'rprAfNrce73O', navigateBack: true },
       ]);
+    });
+
+    describe('showOldReportsMatBottomSheet(): ', () => {
+      beforeEach(() => {
+        authService.getEou.and.resolveTo(extendedOrgUserResponse);
+        reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
+        transactionService.getAllETxnc.and.returnValue(of(apiExpenseRes));
+        spyOn(component, 'showAddToReportSuccessToast');
+      });
+
+      it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', fakeAsync(() => {
+        spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: apiExtendedReportRes[0],
+            }),
+        } as MatBottomSheetRef<ExtendedReport>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: apiExtendedReportRes },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
+          queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
+        });
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], ['tx3nHShG60zq']);
+        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+          message: 'Expenses added to report successfully',
+          report: apiExtendedReportRes[0],
+        });
+      }));
+
+      it('should call matBottomSheet.open and call showAddToReportSuccessToast if report_approvals is defined and report is pending', fakeAsync(() => {
+        const mockReport = cloneDeep(apiExtendedReportRes);
+        mockReport[0].report_approvals = {
+          out3t2X258rd: {
+            rank: 0,
+            state: 'APPROVAL_PENDING',
+          },
+        };
+        reportService.getAllExtendedReports.and.returnValue(of(mockReport));
+        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReport[0]));
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: mockReport[0],
+            }),
+        } as MatBottomSheetRef<ExtendedReport>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: mockReport },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
+          queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
+        });
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReport[0], ['tx3nHShG60zq']);
+        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+          message: 'Expenses added to report successfully',
+          report: mockReport[0],
+        });
+      }));
+
+      it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', fakeAsync(() => {
+        const mockExtendedReportRes = cloneDeep(apiExtendedReportRes);
+        mockExtendedReportRes[0].rp_state = 'DRAFT';
+        reportService.getAllExtendedReports.and.returnValue(of(mockExtendedReportRes));
+        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockExtendedReportRes[0]));
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: mockExtendedReportRes[0],
+            }),
+        } as MatBottomSheetRef<ExtendedReport>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: mockExtendedReportRes },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
+          queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
+        });
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockExtendedReportRes[0], ['tx3nHShG60zq']);
+        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+          message: 'Expenses added to an existing draft report',
+          report: mockExtendedReportRes[0],
+        });
+      }));
+
+      it('should call matBottomSheet.open and should not call showAddToReportSuccessToast if data.report is null', fakeAsync(() => {
+        spyOn(component, 'addTransactionsToReport');
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: null,
+            }),
+        } as MatBottomSheetRef<ExtendedReport>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: apiExtendedReportRes },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(transactionService.getAllETxnc).not.toHaveBeenCalled();
+        expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
+          queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
+        });
+        expect(component.addTransactionsToReport).not.toHaveBeenCalled();
+        expect(component.showAddToReportSuccessToast).not.toHaveBeenCalled();
+      }));
+    });
+
+    it('onExpensesToReportTaskClick(): should call showOldReportsMatBottomSheet once', () => {
+      spyOn(component, 'showOldReportsMatBottomSheet');
+      component.onExpensesToReportTaskClick();
+      expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledTimes(1);
+    });
+
+    it('autoSubmissionInfoCardClicked(): should call trackingService.autoSubmissionInfoCardClicked once', () => {
+      component.autoSubmissionInfoCardClicked(true);
+      expect(trackingService.autoSubmissionInfoCardClicked).toHaveBeenCalledOnceWith({
+        isSeparateCard: true,
+      });
     });
   });
 }
