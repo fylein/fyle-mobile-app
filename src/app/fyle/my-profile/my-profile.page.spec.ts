@@ -422,13 +422,14 @@ describe('MyProfilePage', () => {
     }));
 
     it('should should show success toast message if there are no more attempts left', fakeAsync(() => {
+      component.eou$ = of(eouWithNoAttempts);
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
       popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      fixture.detectChanges();
 
       component.updateMobileNumber(eouWithNoAttempts);
       tick(500);
-      fixture.detectChanges();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: UpdateMobileNumberComponent,
@@ -444,7 +445,7 @@ describe('MyProfilePage', () => {
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.showToastMessage).not.toHaveBeenCalled();
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Updated Successfully', 'success');
     }));
 
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
