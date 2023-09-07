@@ -1,4 +1,5 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, NgZone, OnInit, ViewChild } from '@angular/core';
+import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
@@ -7,6 +8,9 @@ import { InfiniteScrollCustomEvent, ModalController, Platform, SegmentCustomEven
 import * as dayjs from 'dayjs';
 import { BehaviorSubject, Observable, concat, from, fromEvent, noop, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { Expense } from 'src/app/core/models/expense.model';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -20,17 +24,12 @@ import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.e
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { Expense } from 'src/app/core/models/expense.model';
-import { TxnDetail } from 'src/app/core/models/v2/txn-detail.model';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
-import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 
 type Filters = Partial<{
   amount: number;
@@ -727,7 +726,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details as TxnDetail[];
+    const txn_details = txnDetails.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
