@@ -42,7 +42,7 @@ export class PushNotificationService {
     PushNotifications.removeAllListeners();
     PushNotifications.checkPermissions().then((result) => {
       if (result.receive === 'prompt') {
-        // Permissions not granted, request permissions
+        // Request permission from the user
         PushNotifications.requestPermissions().then((result) => {
           if (result.receive === 'granted') {
             // Permissions granted, register for push notifications
