@@ -21,7 +21,7 @@ export class PushNotificationService {
     private userService: UserService,
     private deviceService: DeviceService,
     private httpClient: HttpClient,
-    private deepLinkService: DeepLinkService
+    private deepLinkService: DeepLinkService,
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
@@ -40,8 +40,17 @@ export class PushNotificationService {
     const that = this;
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners();
-    PushNotifications.requestPermissions().then((result) => {
-      if (result.receive === 'granted') {
+    PushNotifications.checkPermissions().then((result) => {
+      if (!result.receive) {
+        // Permissions not granted, request permissions
+        PushNotifications.requestPermissions().then((result) => {
+          if (result.receive === 'granted') {
+            // Permissions granted, register for push notifications
+            PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
+          }
+        });
+      } else {
+        // Permissions already granted, register for push notifications
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
     });
@@ -86,36 +95,36 @@ export class PushNotificationService {
         userProperties.devices = userProperties.devices.concat(currenctDevice);
         return userProperties;
       }),
-      switchMap((userProperties) => this.userService.upsertProperties(userProperties))
+      switchMap((userProperties) => this.userService.upsertProperties(userProperties)),
     );
   }
 
   updateDeliveryStatus(notification_id: number): Observable<PushNotificationData> {
     return this.httpClient.post<PushNotificationData>(
       this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/delivered',
-      ''
+      '',
     );
   }
 
   updateReadStatus(notification_id: number): Observable<PushNotificationData> {
     return this.httpClient.post<PushNotificationData>(
       this.ROOT_ENDPOINT + '/notif' + '/notifications/' + notification_id + '/read',
-      ''
+      '',
     );
   }
 
   updateNotificationStatusAndRedirect(
     notificationData: PushNotificationData,
-    wasTapped?: boolean
+    wasTapped?: boolean,
   ): Observable<PushNotificationData> {
     return this.updateDeliveryStatus(notificationData.notification_id).pipe(
       concatMap(() =>
         iif(
           () => wasTapped,
           this.updateReadStatus(notificationData.notification_id),
-          of(null).pipe(map(() => notificationData))
-        )
-      )
+          of(null).pipe(map(() => notificationData)),
+        ),
+      ),
     );
   }
 }
