@@ -2,11 +2,11 @@ apply plugin: 'com.android.application'
 
 android {
     namespace "com.ionicframework.fyle595781"
-    compileSdkVersion rootProject.ext.compileSdkVersion
+    compileSdkVersion project.hasProperty('compileSdkVersion') ? rootProject.ext.compileSdkVersion : 33
     defaultConfig {
         applicationId "com.ionicframework.fyle595781"
         minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.targetSdkVersion
+        targetSdkVersion project.hasProperty('targetSdkVersion') ? rootProject.ext.targetSdkVersion : 33
         versionCode 51000
         versionName "5.10.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
