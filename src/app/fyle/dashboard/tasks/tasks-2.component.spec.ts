@@ -99,13 +99,13 @@ export function TestCases2(getTestBed) {
         expect(component.showReportAutoSubmissionInfoCard).toBeTrue();
       });
 
-      it('should set showReportAutoSubmissionInfoCard to false if autoSubmissionReportDate is filter is equal to team_reports', () => {
+      it('should set showReportAutoSubmissionInfoCard to false if autoSubmissionReportDate is defined, no expenses are incomplete and filter is equal to team_reports', () => {
         activatedRoute.snapshot.queryParams = { tasksFilters: 'team_reports' };
         component.init();
         expect(component.showReportAutoSubmissionInfoCard).toBeFalse();
       });
 
-      it('should set loadData and filterPills accordingly if filter applied is none', () => {
+      it('should set all parameters to false in loadData and call generateFilterPills if filter is none', () => {
         component.init();
         const loadDataValue = component.loadData$.getValue();
         expect(loadDataValue).toEqual(taskFiltersData2);
@@ -113,7 +113,7 @@ export function TestCases2(getTestBed) {
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
 
-      it('should set loadData and filterPills accordingly if filter is expenses', () => {
+      it('should set draftExpenses, unreportedExpenses and potentialDuplicates to true in loadData and call generateFilterPills if filter is expenses', () => {
         activatedRoute.snapshot.queryParams = { tasksFilters: 'expenses' };
         component.init();
         const loadDataValue = component.loadData$.getValue();
@@ -122,7 +122,7 @@ export function TestCases2(getTestBed) {
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
 
-      it('should set loadData and filterPills accordingly if filter is reports', () => {
+      it('should set draftReports and sentBackReports to true in loadData and call generateFilterPills if filter is reports', () => {
         activatedRoute.snapshot.queryParams = { tasksFilters: 'reports' };
         component.init();
         const loadDataValue = component.loadData$.getValue();
@@ -131,7 +131,7 @@ export function TestCases2(getTestBed) {
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
 
-      it('should set loadData and filterPills accordingly if filter is team_reports', () => {
+      it('should set teamReports to true in loadData and call generateFilterPills if filter is team_reports', () => {
         activatedRoute.snapshot.queryParams = { tasksFilters: 'team_reports' };
         component.init();
         const loadDataValue = component.loadData$.getValue();
@@ -140,7 +140,7 @@ export function TestCases2(getTestBed) {
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
 
-      it('should set loadData and filterPills accordingly if filter is advances', () => {
+      it('should set sentBackAdvances to true in loadData and call generateFilterPills if filter is advances', () => {
         activatedRoute.snapshot.queryParams = { tasksFilters: 'advances' };
         component.init();
         const loadDataValue = component.loadData$.getValue();
