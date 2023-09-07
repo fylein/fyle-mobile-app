@@ -1,12 +1,14 @@
 import { CurrencyPipe } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA, DebugElement } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
+import { getElementBySelector } from 'src/app/core/dom-helpers';
 import {
   apiExpenseRes,
   etxncListData,
@@ -25,11 +27,8 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
-import { cloneDeep } from 'lodash';
-import { By } from '@angular/platform-browser';
-import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
 
-fdescribe('MyCreateReportPage', () => {
+describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -253,7 +252,7 @@ fdescribe('MyCreateReportPage', () => {
     });
 
     it('show report name error if there is no name', fakeAsync(() => {
-      const el = fixture.debugElement.query(By.css("[data-testid='report-name'")).nativeElement;
+      const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
       el.value = '';
       el.dispatchEvent(new Event('input'));
 
@@ -295,11 +294,13 @@ fdescribe('MyCreateReportPage', () => {
   });
 
   describe('toggleSelectAll():', () => {
-    it('should select all ready expenses', () => {
+    beforeEach(() => {
       component.readyToReportEtxns = cloneDeep(apiExpenseRes);
       spyOn(component, 'getReportTitle');
       fixture.detectChanges();
+    });
 
+    it('should select all ready expenses', () => {
       component.toggleSelectAll(true);
 
       expect(component.selectedElements).toEqual(apiExpenseRes);
@@ -307,10 +308,6 @@ fdescribe('MyCreateReportPage', () => {
     });
 
     it('should unselect any expense in the selected expenses list', () => {
-      component.readyToReportEtxns = cloneDeep(apiExpenseRes);
-      spyOn(component, 'getReportTitle');
-      fixture.detectChanges();
-
       component.toggleSelectAll(false);
 
       expect(component.selectedElements).toEqual([]);
@@ -319,13 +316,13 @@ fdescribe('MyCreateReportPage', () => {
   });
 
   describe('getVendorDetails():', () => {
-    it('should return vendor name if expense is of type mileage', () => {
+    it('should return distance with units if expense is of type mileage', () => {
       const result = component.getVendorDetails(etxncListData.data[0]);
 
       expect(result).toEqual('13.17 KM');
     });
 
-    it('should return vendor name if expense if of type per diem', () => {
+    it('should return number of days if expense is of type per diem', () => {
       const result = component.getVendorDetails(perDiemExpenseSingleNumDays);
 
       expect(result).toEqual('1 Days');
@@ -335,7 +332,7 @@ fdescribe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(selectedExpenses);
     reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
-    const el = fixture.debugElement.query(By.css("[data-testid='report-name'")).nativeElement;
+    const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
 
