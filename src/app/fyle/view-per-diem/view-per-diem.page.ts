@@ -29,6 +29,7 @@ import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
+import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -324,10 +325,8 @@ export class ViewPerDiemPage {
     this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
-  async removeExpenseFromReport(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(etxn: Expense): ExpenseDeletePopoverParams {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -339,7 +338,13 @@ export class ViewPerDiemPage {
         ctaLoadingText: 'Removing',
         deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
       },
-    });
+    };
+  }
+
+  async removeExpenseFromReport(): Promise<void> {
+    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
+
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };

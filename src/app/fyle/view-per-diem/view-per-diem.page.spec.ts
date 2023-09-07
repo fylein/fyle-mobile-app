@@ -31,12 +31,14 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { customFields } from 'src/app/core/mock-data/custom-field.data';
+import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-field.data';
 import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -271,6 +273,7 @@ describe('ViewPerDiemPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
+    const mockCustomFields = cloneDeep(customFields);
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
@@ -278,7 +281,7 @@ describe('ViewPerDiemPage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      customInputsService.fillCustomProperties.and.returnValue(of(customFields));
+      customInputsService.fillCustomProperties.and.returnValue(of(mockCustomFields));
       customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
       perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
       reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
@@ -392,9 +395,9 @@ describe('ViewPerDiemPage', () => {
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[0]);
-        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(customFields[1]);
-        expect(perDiemCustomFields).toEqual(customFields);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[0]);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[1]);
+        expect(perDiemCustomFields).toEqual(mockCustomFields);
       });
 
       component.perDiemRate$.subscribe((perDiemRate) => {
@@ -588,5 +591,133 @@ describe('ViewPerDiemPage', () => {
       expect(component.numEtxnsInReport).toEqual(3);
       expect(component.activeEtxnIndex).toEqual(0);
     }));
+  });
+
+  it('getDeleteDialogProps(): should return modal params', () => {
+    const props = component.getDeleteDialogProps(expenseData1);
+    props.componentProps.deleteMethod();
+    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+  });
+
+  it('removeExpenseFromReport(): should remove the expense from report', fakeAsync(() => {
+    transactionService.getEtxn.and.returnValue(of(expenseData1));
+
+    spyOn(component, 'getDeleteDialogProps');
+    const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+    popoverController.create.and.returnValue(deletePopoverSpy);
+    deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+    component.removeExpenseFromReport();
+    tick(100);
+    expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps(expenseData1));
+    expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
+    expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+    expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'view_team_report',
+      { id: expenseData1.tx_report_id, navigate_back: true },
+    ]);
+  }));
+
+  describe('flagUnflagExpense', () => {
+    it('should flag unflagged expense', fakeAsync(() => {
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+
+      const title = 'Flag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
+      statusService.post.and.returnValue(of(txnStatusData));
+      transactionService.manualFlag.and.returnValue(of(expenseData2));
+
+      component.flagUnflagExpense();
+      tick(100);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for flaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id, data, true);
+      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+      expect(transactionService.manualUnflag).not.toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+      expect(component.isExpenseFlagged).toBeFalse();
+    }));
+
+    it('should unflag flagged expense', fakeAsync(() => {
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_manual_flag: true,
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      component.isExpenseFlagged = true;
+
+      const title = 'Unflag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
+      statusService.post.and.returnValue(of(txnStatusData));
+      transactionService.manualUnflag.and.returnValue(of(expenseData1));
+
+      component.flagUnflagExpense();
+      tick(100);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for unflaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', mockExpenseData.tx_id, data, true);
+      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
+      expect(transactionService.manualFlag).not.toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+      expect(component.isExpenseFlagged).toBeTrue();
+    }));
+  });
+
+  describe('getDisplayValue():', () => {
+    it('should get the correct display value', () => {
+      const expectedProperty = 'record1, record2';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(customFieldData1[0]);
+      expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledOnceWith(customFieldData1[0]);
+      expect(result).toEqual(expectedProperty);
+    });
+
+    it('should display Not Added if no value is added', () => {
+      const expectedProperty = '-';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(customFieldData1[0]);
+      expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledOnceWith(customFieldData1[0]);
+      expect(result).toEqual('Not Added');
+    });
   });
 });
