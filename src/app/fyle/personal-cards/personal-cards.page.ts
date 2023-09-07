@@ -1,8 +1,16 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, NgZone, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Params, Router } from '@angular/router';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { InfiniteScrollCustomEvent, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import * as dayjs from 'dayjs';
@@ -14,7 +22,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { DateService } from 'src/app/core/services/date.service';
+import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
@@ -133,18 +141,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private networkService: NetworkService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private inAppBrowser: InAppBrowser,
+    private inAppBrowserService: InAppBrowserService,
     private loaderService: LoaderService,
     private zone: NgZone,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
-    private dateService: DateService,
     private apiV2Service: ApiV2Service,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
+    private cdr: ChangeDetectorRef,
   ) {}
 
   ngOnInit(): void {
@@ -158,17 +166,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   ionViewWillEnter(): void {
-    if (this.isCardsLoaded) {
-      const currentParams = this.loadData$.getValue();
-      this.loadData$.next(currentParams);
-    }
-    this.trackingService.personalCardsViewed();
-  }
-
-  ngAfterViewInit(): void {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-
     this.loadCardData$ = new BehaviorSubject({});
+    this.loadData$ = new BehaviorSubject({});
+
     this.linkedAccountsCount$ = this.loadCardData$.pipe(
       switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
       tap((count) => {
@@ -192,8 +193,6 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       ),
       shareReplay(1),
     );
-
-    this.loadData$ = new BehaviorSubject({});
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
@@ -261,6 +260,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
+    if (this.isCardsLoaded) {
+      const currentParams = this.loadData$.getValue();
+      this.loadData$.next(currentParams);
+    }
+    this.trackingService.personalCardsViewed();
+  }
+
+  ngAfterViewInit(): void {
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
@@ -275,6 +282,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         currentParams.pageNumber = this.currentPageNumber;
         this.loadData$.next(currentParams);
       });
+    this.cdr.detectChanges();
   }
 
   setupNetworkWatcher(): void {
@@ -304,7 +312,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   openYoodle(url: string, access_token: string): void {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
+    const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
     setTimeout(() => {
