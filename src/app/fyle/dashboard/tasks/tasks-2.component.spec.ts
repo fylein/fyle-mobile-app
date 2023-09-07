@@ -25,6 +25,15 @@ import {
   taskFiltersParams6,
   taskFiltersParams7,
 } from 'src/app/core/mock-data/task-filters.data';
+import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data';
+import { expenseList } from 'src/app/core/mock-data/expense.data';
+import { cloneDeep } from 'lodash';
+import {
+  mileageCategoryUnflattenedExpense,
+  perDiemCategoryUnflattenedExpense,
+  unflattenedTxnData,
+} from 'src/app/core/mock-data/unflattened-txn.data';
+import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -148,6 +157,141 @@ export function TestCases2(getTestBed) {
         expect(tasksService.generateFilterPills).toHaveBeenCalledOnceWith(loadDataValue);
         expect(component.filterPills).toEqual([typeFilterPill]);
       });
+    });
+
+    describe('onMobileNumberVerificationTaskClick():', () => {
+      it('should navigate to my profile page with verify_mobile_number popover if content is not equal to Add', () => {
+        component.onMobileNumberVerificationTaskClick(taskCtaData9);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'my_profile',
+          { openPopover: 'verify_mobile_number' },
+        ]);
+      });
+
+      it('should navigate to my profile page with add_mobile_number popover if content is Add', () => {
+        component.onMobileNumberVerificationTaskClick({ ...taskCtaData9, content: 'Add' });
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'my_profile',
+          { openPopover: 'add_mobile_number' },
+        ]);
+      });
+    });
+
+    describe('onReviewExpensesTaskClick():', () => {
+      beforeEach(() => {
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList)));
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      });
+
+      it('should get all expenses and navigate to add_edit_mileage if category is of type mileage', fakeAsync(() => {
+        transactionService.getETxnUnflattened.and.returnValue(of(mileageCategoryUnflattenedExpense));
+        component.onReviewExpensesTaskClick();
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
+        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+          queryParams: {
+            tx_state: 'in.(DRAFT)',
+            tx_report_id: 'is.null',
+          },
+        });
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_mileage',
+          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+        ]);
+      }));
+
+      it('should get all expenses and navigate to add_edit_per_diem if category is of type per diem', fakeAsync(() => {
+        transactionService.getETxnUnflattened.and.returnValue(of(perDiemCategoryUnflattenedExpense));
+        component.onReviewExpensesTaskClick();
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
+        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+          queryParams: {
+            tx_state: 'in.(DRAFT)',
+            tx_report_id: 'is.null',
+          },
+        });
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_per_diem',
+          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+        ]);
+      }));
+
+      it('should get all expenses and navigate to add_edit_expense if category is other than mileage or per diem', fakeAsync(() => {
+        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        component.onReviewExpensesTaskClick();
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
+        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+          queryParams: {
+            tx_state: 'in.(DRAFT)',
+            tx_report_id: 'is.null',
+          },
+        });
+        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+        ]);
+      }));
+    });
+
+    describe('onSentBackReportTaskClick():', () => {
+      beforeEach(() => {
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        reportService.getMyReports.and.returnValue(of(apiReportRes));
+      });
+
+      it('should get all reports and navigate to my view report page if task count is 1', fakeAsync(() => {
+        const mockDashboardTasksData = cloneDeep(dashboardTasksData);
+        mockDashboardTasksData[0].count = 1;
+        component.onSentBackReportTaskClick(taskCtaData3, mockDashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
+        expect(reportService.getMyReports).toHaveBeenCalledOnceWith({
+          queryParams: {
+            rp_state: 'in.(APPROVER_INQUIRY)',
+          },
+          offset: 0,
+          limit: 1,
+        });
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: apiReportRes.data[0].rp_id },
+        ]);
+      }));
+
+      it('should navigate to my reports page if task count is greater than 1', fakeAsync(() => {
+        component.onSentBackReportTaskClick(taskCtaData3, dashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).not.toHaveBeenCalled();
+        expect(reportService.getMyReports).not.toHaveBeenCalled();
+        expect(loaderService.hideLoader).not.toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+          queryParams: { filters: '{"state":["APPROVER_INQUIRY"]}' },
+        });
+      }));
     });
   });
 }
