@@ -1,35 +1,32 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
-import { IonicModule } from '@ionic/angular';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { IonicModule, PopoverController } from '@ionic/angular';
+import { cloneDeep } from 'lodash';
+import { BehaviorSubject, of } from 'rxjs';
+import { apiEouRes, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
+import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
 import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
-import { StorageService } from 'src/app/core/services/storage.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { OrgService } from 'src/app/core/services/org.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PopoverController } from '@ionic/angular';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgService } from 'src/app/core/services/org.service';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { MyProfilePage } from './my-profile.page';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { apiEouRes, eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
-import { postOrgUser } from 'src/app/core/test-data/org-user.service.spec.data';
-import { BehaviorSubject, of } from 'rxjs';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ActivatedRoute } from '@angular/router';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
-import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
-import { cloneDeep } from 'lodash';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { TrackingService } from '../../core/services/tracking.service';
+import { MyProfilePage } from './my-profile.page';
+import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
+import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 
-xdescribe('MyProfilePage', () => {
+describe('MyProfilePage', () => {
   let component: MyProfilePage;
   let fixture: ComponentFixture<MyProfilePage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -45,65 +42,106 @@ xdescribe('MyProfilePage', () => {
   let networkService: jasmine.SpyObj<NetworkService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let orgUserService: jasmine.SpyObj<OrgUserService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
-  let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
-
-  const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'refreshEou', 'logout']);
-  const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get', 'post']);
-  const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
-  const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
-  const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
-  const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
-  const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-  const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
-  const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
-    'onSettingsToggle',
-    'showToastMessage',
-    'updateMobileNumber',
-    'verifyMobileNumber',
-    'mobileNumberVerified',
-  ]);
-  const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
-  const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-  const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-  const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-  const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['postOrgUser']);
-  const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
-  const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-  const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-  const activatedRouteSpy = {
-    snapshot: {
-      params: {},
-    },
-  };
+  let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
   beforeEach(waitForAsync(() => {
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post', 'get']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['logout']);
+    const secureStorageServiceSpy = jasmine.createSpyObj('SecureStorageService', ['clearAll']);
+    const storageServiceSpy = jasmine.createSpyObj('StorageService', ['clearAll']);
+    const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'onSettingsToggle',
+      'showToastMessage',
+      'mobileNumberVerified',
+      'updateMobileNumber',
+      'verifyMobileNumber',
+    ]);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg']);
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
-      imports: [IonicModule.forRoot()],
+      imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
-        { provide: AuthService, useValue: authServiceSpy },
-        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
-        { provide: UserEventService, useValue: userEventServiceSpy },
-        { provide: SecureStorageService, useValue: secureStorageServiceSpy },
-        { provide: StorageService, useValue: storageServiceSpy },
-        { provide: DeviceService, useValue: deviceServiceSpy },
-        { provide: LoaderService, useValue: loaderServiceSpy },
-        { provide: TokenService, useValue: tokenServiceSpy },
-        { provide: TrackingService, useValue: trackingServiceSpy },
-        { provide: OrgService, useValue: orgServiceSpy },
-        { provide: NetworkService, useValue: networkServiceSpy },
-        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
-        { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: OrgUserService, useValue: orgUserServiceSpy },
-        { provide: MatSnackBar, useValue: matSnackBarSpy },
-        { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
-        { provide: CurrencyService, useValue: currencyServiceSpy },
-        { provide: ActivatedRoute, useValue: activatedRouteSpy },
+        {
+          provide: AuthService,
+          useValue: authServiceSpy,
+        },
+        {
+          provide: OrgUserSettingsService,
+          useValue: orgUserSettingsServiceSpy,
+        },
+        {
+          provide: UserEventService,
+          useValue: userEventServiceSpy,
+        },
+        {
+          provide: SecureStorageService,
+          useValue: secureStorageServiceSpy,
+        },
+        {
+          provide: StorageService,
+          useValue: storageServiceSpy,
+        },
+        {
+          provide: DeviceService,
+          useValue: deviceServiceSpy,
+        },
+        {
+          provide: LoaderService,
+          useValue: loaderServiceSpy,
+        },
+        {
+          provide: TokenService,
+          useValue: tokenServiceSpy,
+        },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
+          provide: OrgService,
+          useValue: orgServiceSpy,
+        },
+        {
+          provide: NetworkService,
+          useValue: networkServiceSpy,
+        },
+        {
+          provide: OrgUserSettingsService,
+          useValue: orgUserSettingsServiceSpy,
+        },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+        {
+          provide: PopoverController,
+          useValue: popoverControllerSpy,
+        },
+        {
+          provide: MatSnackBar,
+          useValue: matSnackBarSpy,
+        },
+        {
+          provide: SnackbarPropertiesService,
+          useValue: snackbarPropertiesSpy,
+        },
       ],
-      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
+
+    fixture = TestBed.createComponent(MyProfilePage);
+    component = fixture.componentInstance;
 
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -116,18 +154,14 @@ xdescribe('MyProfilePage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
+    orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
-    orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
-    snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
 
-    fixture = TestBed.createComponent(MyProfilePage);
-    component = fixture.componentInstance;
-
-    component.eou$ = of(apiEouRes);
     component.loadEou$ = new BehaviorSubject(null);
-    spyOn(component.loadEou$, 'next');
+    component.eou$ = of(apiEouRes);
 
     fixture.detectChanges();
   }));
@@ -136,29 +170,7 @@ xdescribe('MyProfilePage', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('setupNetworkWatcher', () => {});
-
-  xit('signOut', () => {});
-
-  xit('ionViewWillEnter', () => {});
-
-  xit('reset', () => {});
-
-  describe('setInfoCardsData(): ', () => {
-    it('should show only email card for non USD orgs', () => {
-      component.setInfoCardsData(eouRes3);
-      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
-    });
-
-    it('should show both email and mobile number cards for USD orgs', () => {
-      const eou = cloneDeep(apiEouRes);
-      eou.ou.mobile_verified = true;
-      component.setInfoCardsData(eou);
-      expect(component.infoCardsData).toEqual(allInfoCardsData);
-    });
-  });
-
-  xdescribe('showToastMessage(): ', () => {
+  describe('showToastMessage(): ', () => {
     it('should show success snackbar with message', () => {
       const message = 'Profile saved successfully';
       const successToastProperties = {
@@ -170,18 +182,14 @@ xdescribe('MyProfilePage', () => {
         duration: 3000,
       };
 
-      snackbarPropertiesService.setSnackbarProperties.and.returnValue(successToastProperties);
+      snackbarProperties.setSnackbarProperties.and.returnValue(successToastProperties);
       component.showToastMessage(message, 'success');
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
-        'success',
-        { message },
-        undefined
-      );
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message }, undefined);
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -198,18 +206,14 @@ xdescribe('MyProfilePage', () => {
         duration: 3000,
       };
 
-      snackbarPropertiesService.setSnackbarProperties.and.returnValue(failureToastProperties);
+      snackbarProperties.setSnackbarProperties.and.returnValue(failureToastProperties);
       component.showToastMessage(message, 'failure');
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...failureToastProperties,
         panelClass: 'msb-failure',
       });
-      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
-        'failure',
-        { message },
-        undefined
-      );
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message }, undefined);
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
       });
@@ -226,17 +230,17 @@ xdescribe('MyProfilePage', () => {
         duration: 3000,
       };
 
-      snackbarPropertiesService.setSnackbarProperties.and.returnValue(successToastProperties);
+      snackbarProperties.setSnackbarProperties.and.returnValue(successToastProperties);
       component.showToastMessage(message, 'success');
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...successToastProperties,
         panelClass: 'msb-success',
       });
-      expect(snackbarPropertiesService.setSnackbarProperties).toHaveBeenCalledOnceWith(
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'tick-circle-outline'
+        'tick-circle-outline',
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
@@ -244,10 +248,24 @@ xdescribe('MyProfilePage', () => {
     });
   });
 
+  describe('setInfoCardsData(): ', () => {
+    it('should show only email card for non USD orgs', () => {
+      component.setInfoCardsData(eouRes3);
+      expect(component.infoCardsData).toEqual([allInfoCardsData[1]]);
+    });
+
+    it('should show both email and mobile number cards for USD orgs', () => {
+      const eou = cloneDeep(apiEouRes);
+      eou.ou.mobile_verified = true;
+      component.setInfoCardsData(eou);
+      expect(component.infoCardsData).toEqual(allInfoCardsData);
+    });
+  });
+
   it('showSuccessPopover(): should show success popover', fakeAsync(() => {
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-    popoverController.create.and.resolveTo(popoverSpy);
+    const popoverSpy = jasmine.createSpyObj('verificationSuccessfulPopover', ['present', 'onWillDismiss']);
     popoverSpy.onWillDismiss.and.resolveTo();
+    popoverController.create.and.resolveTo(popoverSpy);
 
     component.showSuccessPopover();
     tick(200);
@@ -277,60 +295,99 @@ xdescribe('MyProfilePage', () => {
     expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
   }));
 
-  describe('verifyMobileNumber(): ', () => {
-    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
-    beforeEach(() => {
-      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+  describe('verifyMobileNumber():', () => {
+    it('should open update mobile number modal if user selects BACK', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'BACK',
+        },
+      });
+
       popoverController.create.and.resolveTo(popoverSpy);
-      spyOn(component.loadEou$, 'next');
-      spyOn(component, 'showSuccessPopover');
-      spyOn(component, 'showToastMessage');
       spyOn(component, 'updateMobileNumber');
       authService.refreshEou.and.returnValue(of(apiEouRes));
-    });
-
-    it('should show success popover if mobile number is verified', fakeAsync(() => {
-      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS', homeCurrency: 'USD' } });
+      spyOn(component.loadEou$, 'next');
 
       component.verifyMobileNumber(apiEouRes);
-      tick(200);
+      tick(500);
 
-      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
-      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: VerifyNumberPopoverComponent,
+        componentProps: {
+          extendedOrgUser: apiEouRes,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(component.updateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
       expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.showSuccessPopover).toHaveBeenCalledOnceWith();
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
     }));
 
-    it('should show success toast message if mobile number is verified for non-USD org', fakeAsync(() => {
-      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS', homeCurrency: 'INR' } });
+    it('should show success popover if action is successful and home currency is USD', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'SUCCESS',
+          homeCurrency: 'USD',
+        },
+      });
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      spyOn(component.loadEou$, 'next');
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      spyOn(component, 'showSuccessPopover');
 
       component.verifyMobileNumber(apiEouRes);
-      tick(200);
+      tick(500);
 
-      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
-      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: VerifyNumberPopoverComponent,
+        componentProps: {
+          extendedOrgUser: apiEouRes,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(component.showSuccessPopover).toHaveBeenCalledTimes(1);
       expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should show toast is home currency is not USD', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('verifyNumberPopoverComponent', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'SUCCESS',
+          homeCurrency: 'INR',
+        },
+      });
+      authService.refreshEou.and.returnValue(of(apiEouRes));
+      spyOn(component.loadEou$, 'next');
+
+      popoverController.create.and.resolveTo(popoverSpy);
+      spyOn(component, 'showToastMessage');
+
+      component.verifyMobileNumber(apiEouRes);
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: VerifyNumberPopoverComponent,
+        componentProps: {
+          extendedOrgUser: apiEouRes,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
       expect(component.showToastMessage).toHaveBeenCalledOnceWith('Mobile Number Verified Successfully', 'success');
-    }));
-
-    it('should show mobile number popover if user clicks on back button', fakeAsync(() => {
-      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'BACK' } });
-
-      component.verifyMobileNumber(apiEouRes);
-      tick(200);
-
-      expect(popoverSpy.present).toHaveBeenCalledOnceWith();
-      expect(popoverSpy.onWillDismiss).toHaveBeenCalledOnceWith();
-      expect(component.updateMobileNumber).toHaveBeenCalled();
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
+      expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
     }));
   });
 
   describe('updateMobileNumber(): ', () => {
-    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
     beforeEach(() => {
-      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
-
       authService.refreshEou.and.returnValue(of(apiEouRes));
       spyOn(component, 'showToastMessage');
       spyOn(component, 'verifyMobileNumber').and.resolveTo();
@@ -338,8 +395,9 @@ xdescribe('MyProfilePage', () => {
     });
 
     it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-      orgUserService.postOrgUser.and.returnValue(of(postOrgUser));
+      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
 
       component.updateMobileNumber(apiEouRes);
       tick(500);
@@ -363,8 +421,36 @@ xdescribe('MyProfilePage', () => {
       expect(component.showToastMessage).not.toHaveBeenCalled();
     }));
 
+    it('should should show success toast message if there are no more attempts left', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
+      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+
+      component.updateMobileNumber(eouWithNoAttempts);
+      tick(500);
+      fixture.detectChanges();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: UpdateMobileNumberComponent,
+        componentProps: {
+          title: 'Edit Mobile Number',
+          ctaText: 'Save',
+          inputLabel: 'Mobile Number',
+          extendedOrgUser: eouWithNoAttempts,
+          placeholder: 'Enter mobile number e.g. +129586736556',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(component.loadEou$.next).toHaveBeenCalledOnceWith(null);
+      expect(component.showToastMessage).not.toHaveBeenCalled();
+    }));
+
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'ERROR' } });
+      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
 
       const eouWithoutMobileNumber = {
         ...apiEouRes,
@@ -391,10 +477,10 @@ xdescribe('MyProfilePage', () => {
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-      expect(orgUserService.postOrgUser).not.toHaveBeenCalled();
+
       expect(component.showToastMessage).toHaveBeenCalledOnceWith(
         'Something went wrong. Please try again later.',
-        'failure'
+        'failure',
       );
     }));
   });
