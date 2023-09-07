@@ -11,10 +11,7 @@
 		},
 		"Keyboard": {
 			"style": "LIGHT"
-		},
-		"PushNotifications": {
-            "presentationOptions": ["badge", "sound", "alert"]
-        }
+		}
 	},
 	"cordova": {
 		"accessOrigins": [
