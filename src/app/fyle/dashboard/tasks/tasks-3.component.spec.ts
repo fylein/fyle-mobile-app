@@ -66,7 +66,7 @@ export function TestCases3(getTestBed) {
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'potential-duplicates']);
     });
 
-    it('addTransactionsToReport(): should show loader call reportService and hide the loader', (done) => {
+    it('addTransactionsToReport(): should show loader, call reportService.addTransactions and hide the loader', (done) => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo(true);
 
