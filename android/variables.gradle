@@ -18,5 +18,4 @@ ext {
     androidxFragmentVersion = '1.5.6'
     coreSplashScreenVersion = '1.0.0'
     androidxWebkitVersion = '1.6.1'
-    kotlinVersion = "1.8.20"
 }
