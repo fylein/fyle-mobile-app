@@ -140,7 +140,7 @@ export function TestCases3(getTestBed) {
             of({
               report: apiExtendedReportRes[0],
             }),
-        } as MatBottomSheetRef<ExtendedReport>);
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
 
         component.showOldReportsMatBottomSheet();
         tick(100);
@@ -176,7 +176,7 @@ export function TestCases3(getTestBed) {
             of({
               report: mockReport[0],
             }),
-        } as MatBottomSheetRef<ExtendedReport>);
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
 
         component.showOldReportsMatBottomSheet();
         tick(100);
@@ -207,7 +207,7 @@ export function TestCases3(getTestBed) {
             of({
               report: mockExtendedReportRes[0],
             }),
-        } as MatBottomSheetRef<ExtendedReport>);
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
 
         component.showOldReportsMatBottomSheet();
         tick(100);
@@ -235,7 +235,7 @@ export function TestCases3(getTestBed) {
             of({
               report: null,
             }),
-        } as MatBottomSheetRef<ExtendedReport>);
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
 
         component.showOldReportsMatBottomSheet();
         tick(100);
