@@ -87,7 +87,7 @@
   </ng-container>
 </app-fy-header>
 <ng-container *ngIf="((linkedAccountsCount$ | async) > 0) && (isConnected$|async)">
-  <ng-container *ngIf="linkedAccounts$ | async as linkedAccounts">
+  <!-- <ng-container *ngIf="linkedAccounts$ | async as linkedAccounts">
     <app-bank-account-cards
       *ngIf="!isLoading && scrollingDirection !== 'down'"
       [linkedAccounts]="linkedAccounts"
@@ -95,7 +95,7 @@
       (deleted)="onDeleted()"
       (changed)="onCardChanged($event)"
     ></app-bank-account-cards>
-  </ng-container>
+  </ng-container> -->
   <div class="personal-cards--actions-header" *ngIf="scrollingDirection === 'up' || !scrolled">
     <button
       type="submit"
