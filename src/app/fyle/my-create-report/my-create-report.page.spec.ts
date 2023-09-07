@@ -1,5 +1,5 @@
 import { CurrencyPipe } from '@angular/common';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -27,8 +27,9 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { cloneDeep } from 'lodash';
 import { By } from '@angular/platform-browser';
+import { getElementBySelector, getElementRef } from 'src/app/core/dom-helpers';
 
-describe('MyCreateReportPage', () => {
+fdescribe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -252,7 +253,7 @@ describe('MyCreateReportPage', () => {
     });
 
     it('show report name error if there is no name', fakeAsync(() => {
-      const el = fixture.debugElement.query(By.css('input')).nativeElement;
+      const el = fixture.debugElement.query(By.css("[data-testid='report-name'")).nativeElement;
       el.value = '';
       el.dispatchEvent(new Event('input'));
 
@@ -338,7 +339,7 @@ describe('MyCreateReportPage', () => {
   it('getReportTitle(): get report title', fakeAsync(() => {
     component.selectedElements = cloneDeep(selectedExpenses);
     reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
-    const el = fixture.debugElement.query(By.css('input')).nativeElement;
+    const el = fixture.debugElement.query(By.css("[data-testid='report-name'")).nativeElement;
     el.value = 'New Report';
     el.dispatchEvent(new Event('input'));
 
