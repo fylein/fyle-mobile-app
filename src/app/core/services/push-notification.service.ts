@@ -41,7 +41,7 @@ export class PushNotificationService {
     // If we don't call removeAllListeners() then PushNotifications will start add listeners every time user open the app
     PushNotifications.removeAllListeners();
     PushNotifications.checkPermissions().then((result) => {
-      if (!result.receive) {
+      if (result.receive === 'prompt') {
         // Permissions not granted, request permissions
         PushNotifications.requestPermissions().then((result) => {
           if (result.receive === 'granted') {
@@ -49,7 +49,7 @@ export class PushNotificationService {
             PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
           }
         });
-      } else {
+      } else if (result.receive === 'granted') {
         // Permissions already granted, register for push notifications
         PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
