@@ -20,11 +20,6 @@ android {
           'proguard-rules.pro'
         }
     }
-
-    configurations {
-        all*.exclude group: 'com.google.guava', module: 'listenablefuture'
-    }
-
 }
 
 repositories {
