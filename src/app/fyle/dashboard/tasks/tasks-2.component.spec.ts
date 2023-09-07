@@ -160,7 +160,7 @@ export function TestCases2(getTestBed) {
     });
 
     describe('onMobileNumberVerificationTaskClick():', () => {
-      it('should navigate to my profile page', () => {
+      it('should navigate to my profile page with verify_mobile_number popover if content is not equal to Add', () => {
         component.onMobileNumberVerificationTaskClick(taskCtaData9);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
