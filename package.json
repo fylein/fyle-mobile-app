@@ -12,7 +12,6 @@
     "test-basic": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-    "postinstall": "npx jetify",
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
     "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB $GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")"
@@ -78,7 +77,6 @@
     "dotenv": "^16.3.1",
     "hammerjs": "^2.0.8",
     "heic2any": "^0.0.4",
-    "jetifier": "^2.0.0",
     "launchdarkly-js-client-sdk": "^2.22.1",
     "lodash": "^4.17.21",
     "ng2-pdf-viewer": "^9.1.5",
