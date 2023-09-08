@@ -14,6 +14,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state';
 import { Subject, Subscription } from 'rxjs';
+import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -125,9 +126,9 @@ describe('DashboardPage', () => {
   });
 
   it('get filterPills(): should return filterPills from tasksComponent', () => {
-    const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', [], { filterPills: [] });
+    const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', [], { filterPills: creditTxnFilterPill });
     component.tasksComponent = tasksComponentSpy;
-    expect(component.filterPills).toEqual([]);
+    expect(component.filterPills).toEqual(creditTxnFilterPill);
   });
 
   it('ionViewWillLeave(): should call unsubscribe hardware back button and set onPageExit to null', () => {
