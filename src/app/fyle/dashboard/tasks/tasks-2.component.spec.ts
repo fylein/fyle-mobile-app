@@ -332,7 +332,7 @@ export function TestCases2(getTestBed) {
         expect(advanceRequestService.getMyadvanceRequests).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances'], {
-          queryParams: { filters: '{"state":["SENT_BACK"]}' },
+          queryParams: { filters: JSON.stringify({ state: ['SENT_BACK'] }) },
         });
       }));
     });
@@ -375,7 +375,7 @@ export function TestCases2(getTestBed) {
         expect(reportService.getTeamReports).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
-          queryParams: { filters: '{"state":["APPROVER_PENDING"]}' },
+          queryParams: { filters: JSON.stringify({ state: ['APPROVER_PENDING'] }) },
         });
       }));
     });
@@ -416,7 +416,7 @@ export function TestCases2(getTestBed) {
         expect(reportService.getMyReports).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
-          queryParams: { filters: '{"state":["DRAFT"]}' },
+          queryParams: { filters: JSON.stringify({ state: ['DRAFT'] }) },
         });
       }));
     });
