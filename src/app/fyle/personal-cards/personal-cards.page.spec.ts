@@ -1,5 +1,5 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, EventEmitter, NO_ERRORS_SCHEMA, NgZone } from '@angular/core';
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -8,6 +8,9 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
 import { IonicModule, ModalController, Platform } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
+import { getElementRef } from 'src/app/core/dom-helpers';
+import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -17,7 +20,9 @@ import { PersonalCardsService } from 'src/app/core/services/personal-cards.servi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { PersonalCardsPage } from './personal-cards.page';
-import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { C, L } from '@angular/cdk/keycodes';
 
 fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -175,29 +180,119 @@ fdescribe('PersonalCardsPage', () => {
     component.loadCardData$ = new BehaviorSubject(null);
     component.linkedAccountsCount$ = of(1);
     component.isConnected$ = of(true);
-    fixture.detectChanges();
+    component.linkedAccounts$ = of(linkedAccountsRes);
+    component.transactionsCount$ = of(2);
+    component.transactions$ = of([apiPersonalCardTxnsRes.data[0]]);
+    component.isInfiniteScrollRequired$ = of(true);
+    component.simpleSearchInput = getElementRef(fixture, '.personal-cards--simple-search-input');
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  // it('ngOnInit(): should set mode to ios', () => {
-  //   platform.is.and.returnValue(true);
+  describe('mocked lifecycle', () => {
+    beforeEach(() => {
+      spyOn(component, 'ngOnInit');
+      spyOn(component, 'ionViewWillEnter');
+      spyOn(component, 'ngAfterViewInit');
+    });
 
-  //   component.ngOnInit();
+    it('setupNetworkWatcher(): should setup network watcher', () => {
+      networkService.isOnline.and.returnValue(of(false));
 
-  //   expect(component.mode).toEqual('ios');
-  // });
+      component.setupNetworkWatcher();
 
-  // it('setupNetworkWatcher(): should setup network watcher and navigate to dashboard if offline', () => {
-  //   networkService.connectivityWatcher.and.returnValue(new EventEmitter());
-  //   networkService.isOnline.and.returnValue(of(false));
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    });
 
-  //   component.setupNetworkWatcher();
+    it('linkAccount(): should link account', fakeAsync(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      personalCardsService.getToken.and.returnValue(of(apiToken));
+      spyOn(component, 'openYoodle');
 
-  //   expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
-  //   expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-  //   expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
-  // });
+      component.linkAccount();
+      tick(500);
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.getToken).toHaveBeenCalledTimes(1);
+      expect(component.openYoodle).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+    }));
+
+    describe('postAccounts():', () => {
+      it('should post account data with 1 card', fakeAsync(() => {
+        const message = '1 card successfully added to Fyle!';
+        const props = {
+          data: {
+            icon: 'tick-square-filled',
+            showCloseButton: false,
+            message: message,
+          },
+          duration: 3000,
+        };
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        personalCardsService.postBankAccounts.and.returnValue(of(['card123']));
+        spyOn(component.loadCardData$, 'next');
+        snackbarProperties.setSnackbarProperties.and.returnValue(props);
+
+        component.postAccounts(['id123']);
+        tick(500);
+
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123']);
+        expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...props,
+          panelClass: ['msb-success'],
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.newCardLinkedOnPersonalCards).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should post account data for multiple cards', fakeAsync(() => {
+        const message = '2 cards successfully added to Fyle!';
+        const props = {
+          data: {
+            icon: 'tick-square-filled',
+            showCloseButton: false,
+            message: message,
+          },
+          duration: 3000,
+        };
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        personalCardsService.postBankAccounts.and.returnValue(of(['card123', 'card456']));
+        spyOn(component.loadCardData$, 'next');
+        snackbarProperties.setSnackbarProperties.and.returnValue(props);
+
+        component.postAccounts(['id123']);
+        tick(500);
+
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.postBankAccounts).toHaveBeenCalledOnceWith(['id123']);
+        expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...props,
+          panelClass: ['msb-success'],
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.newCardLinkedOnPersonalCards).toHaveBeenCalledTimes(1);
+      }));
+    });
+
+    it('onDeleted(): should track delete card event', () => {
+      spyOn(component.loadCardData$, 'next');
+
+      component.onDeleted();
+      expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
+      expect(trackingService.cardDeletedOnPersonalCards).toHaveBeenCalledTimes(1);
+    });
+  });
 });
