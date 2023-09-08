@@ -3418,8 +3418,8 @@ export class AddEditExpensePage implements OnInit {
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
           return [...customInpustWithValue, ...dependentFieldsWithValue];
-        }
-      )
+        },
+      ),
     );
   }
 

@@ -25,7 +25,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
   const data: Navigation = {
     extras: { state: { txnDetails: apiPersonalCardTxnsRes.data[0] } },
     id: 0,
-    initialUrl: new UrlTree(),
+    initialUrl: '',
     extractedUrl: new UrlTree(),
     trigger: 'imperative',
     previousNavigation: undefined,
@@ -36,7 +36,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     TestBed.configureTestingModule({
-      declarations: [PersonalCardsMatchedExpensesPage, CurrencySymbolPipe],
+      declarations: [PersonalCardsMatchedExpensesPage, CurrencyPipe, DatePipe, CurrencySymbolPipe],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
         UrlSerializer,

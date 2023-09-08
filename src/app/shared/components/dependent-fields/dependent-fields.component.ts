@@ -164,7 +164,7 @@ export class DependentFieldsComponent implements OnInit, OnDestroy, OnChanges {
     //TODO: Fix Types Here
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     const updatedFieldIndex = this.dependentFieldsFormArray.value.findIndex(
-      (depField: { label: string }) => depField.label === data.label
+      (depField: { label: string }) => depField.label === data.label,
     ) as number;
 
     //If this is not the last dependent field then remove all fields after this one and create new field based on this field.

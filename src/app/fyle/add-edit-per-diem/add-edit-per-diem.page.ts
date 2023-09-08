@@ -819,7 +819,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return false;
         }
-      })
+      }),
     );
   }
 
@@ -1052,9 +1052,9 @@ export class AddEditPerDiemPage implements OnInit {
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        }))
+        })),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
