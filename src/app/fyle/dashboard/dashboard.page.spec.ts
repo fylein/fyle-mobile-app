@@ -298,4 +298,48 @@ describe('DashboardPage', () => {
       backButtonActionHandlerSpy,
     );
   });
+
+  it('onTaskClicked(): should set currentStateIndex to 1, navigate to tasks page with queryParams.state as tasks and track tasksPageOpened event', () => {
+    component.onTaskClicked();
+    expect(component.currentStateIndex).toEqual(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([], {
+      relativeTo: activatedRoute,
+      queryParams: { state: 'tasks' },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+  });
+
+  it('openFilters(): should call tasksComponent.openFilters once', () => {
+    const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['openFilters']);
+    component.tasksComponent = tasksComponentSpy;
+    component.openFilters();
+    expect(tasksComponentSpy.openFilters).toHaveBeenCalledTimes(1);
+  });
+
+  it('onCameraClicked(): should navigate to camera_overlay page', () => {
+    component.onCameraClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onHomeClicked(): should set currentStateIndex to 0, navigate to my_dashboard page with queryParams.state as home and track footerHomeTabClicked event', () => {
+    component.onHomeClicked();
+    expect(component.currentStateIndex).toEqual(0);
+    expect(router.navigate).toHaveBeenCalledOnceWith([], {
+      relativeTo: activatedRoute,
+      queryParams: { state: 'home' },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+      page: 'Dashboard',
+    });
+  });
 });
