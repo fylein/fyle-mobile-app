@@ -1,15 +1,6 @@
 @import '../../../../../../theme/colors.scss';
 @import '../../../../../../assets/styles/fy_select';
 
-ion-toolbar {
-  padding-left: 0 !important;
-  padding-right: 0 !important;
-
-  mat-form-field {
-    @extend %fy-select-mat-form-field-chip;
-  }
-}
-
 .selection-modal {
   &--title {
     @extend %fy-select-title;
@@ -26,14 +17,31 @@ ion-toolbar {
     box-shadow: 0px 4px 4px rgba(215, 215, 215, 0.2);
   }
 
+  &--form-container {
+    display: flex;
+    border: 1px solid $grey-lighter;
+    border-radius: 4px;
+    margin: 8px 16px;
+    font-size: 12px;
+    padding: 4px;
+
+    &__chips {
+      padding: 3px 4px 3px 8px;
+    }
+  }
+
   &--form-input {
+    margin-top: -4px !important;
     font-size: 14px;
     color: $black-2;
     margin-left: 6px !important;
+
+    &__chips {
+      margin-top: 4px !important;
+    }
   }
 
   &--selected-count {
-    font-size: 14px;
     color: $grey-light;
     text-align: left;
     margin: 0 16px 10px;
@@ -41,11 +49,7 @@ ion-toolbar {
 
   &--search-icon {
     @extend %fy-select-search-icon;
-    display: flex;
-    align-items: center;
-    height: 16px;
-    width: 16px;
-    margin-left: 8px;
+    margin-top: -12px;
   }
 
   &--container {

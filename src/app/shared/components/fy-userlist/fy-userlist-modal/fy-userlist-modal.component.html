@@ -20,7 +20,7 @@
       class="selection-modal--form-container mat-form-field-no-padding"
       [ngClass]="{ 'selection-modal--form-container__chips': currentSelections?.length > 0 }"
     >
-      <mat-chip-grid #chipList aria-label="Multi select">
+      <mat-chip-list #chipList aria-label="Multi select">
         <mat-chip
           *ngFor="let item of currentSelections"
           [selectable]="selectable"
@@ -54,7 +54,7 @@
           svgIcon="fy-spinner-circle"
           matSuffix
         ></mat-icon>
-      </mat-chip-grid>
+      </mat-chip-list>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="currentSelections?.length > 0">
       {{ currentSelections.length }} selected
