@@ -16,6 +16,7 @@ import { FooterState } from 'src/app/shared/components/footer/footer-state';
 import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -99,6 +100,12 @@ describe('DashboardPage', () => {
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     fixture.detectChanges();
   }));
+
+  function setRouterUrl(url: string) {
+    Object.defineProperty(router, 'url', {
+      get: () => url,
+    });
+  }
 
   it('should create', () => {
     expect(component).toBeTruthy();
@@ -249,5 +256,46 @@ describe('DashboardPage', () => {
         },
       ]);
     });
+  });
+
+  describe('backButtonActionHandler():', () => {
+    beforeEach(() => {
+      setRouterUrl('/enterprise/my_dashboard');
+      spyOn(component, 'onHomeClicked');
+    });
+
+    it('should call backButtonService.showAppCloseAlert once if url does not contain tasks', () => {
+      component.backButtonActionHandler();
+      expect(backButtonService.showAppCloseAlert).toHaveBeenCalledTimes(1);
+      expect(component.onHomeClicked).not.toHaveBeenCalled();
+      expect(navController.back).not.toHaveBeenCalled();
+    });
+
+    it('should call onHomeClicked once if url contains tasks and queryParams.tasksFilters is not present', () => {
+      setRouterUrl('/enterprise/my_dashboard?state=tasks');
+      component.backButtonActionHandler();
+      expect(component.onHomeClicked).toHaveBeenCalledTimes(1);
+      expect(backButtonService.showAppCloseAlert).not.toHaveBeenCalled();
+      expect(navController.back).not.toHaveBeenCalled();
+    });
+
+    it('should call navController.back once if url contains tasks and queryParams.tasksFilters is present', () => {
+      setRouterUrl('/enterprise/my_dashboard?state=tasks');
+      activatedRoute.snapshot.queryParams.tasksFilters = 'expenses';
+      component.backButtonActionHandler();
+      expect(navController.back).toHaveBeenCalledTimes(1);
+      expect(component.onHomeClicked).not.toHaveBeenCalled();
+      expect(backButtonService.showAppCloseAlert).not.toHaveBeenCalled();
+    });
+  });
+
+  it('registerBackButtonAction(): should call platform.backButton.subscribeWithPriority once with BackButtonActionPriority.LOW and backButtonActionHandler', () => {
+    const backButtonActionHandlerSpy = spyOn(component, 'backButtonActionHandler');
+    spyOn(platform.backButton, 'subscribeWithPriority').and.stub();
+    component.registerBackButtonAction();
+    expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
+      BackButtonActionPriority.LOW,
+      backButtonActionHandlerSpy,
+    );
   });
 });

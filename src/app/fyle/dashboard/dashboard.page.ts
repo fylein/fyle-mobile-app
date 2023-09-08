@@ -142,24 +142,29 @@ export class DashboardPage {
     });
   }
 
+  backButtonActionHandler(): void {
+    //If the user is on home page, show app close popup
+    if (!this.router.url.includes('tasks')) {
+      this.backButtonService.showAppCloseAlert();
+    }
+
+    // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
+    else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
+      //Calling onHomeClicked() because angular does not reload the page if the query params changes.
+      this.onHomeClicked();
+    }
+
+    //Else take the user back to the previous page
+    else {
+      this.navController.back();
+    }
+  }
+
   registerBackButtonAction(): void {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
-      //If the user is on home page, show app close popup
-      if (!this.router.url.includes('tasks')) {
-        this.backButtonService.showAppCloseAlert();
-      }
-
-      // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
-      else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
-        //Calling onHomeClicked() because angular does not reload the page if the query params changes.
-        this.onHomeClicked();
-      }
-
-      //Else take the user back to the previous page
-      else {
-        this.navController.back();
-      }
-    });
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.LOW,
+      this.backButtonActionHandler,
+    );
   }
 
   onTaskClicked(): void {
