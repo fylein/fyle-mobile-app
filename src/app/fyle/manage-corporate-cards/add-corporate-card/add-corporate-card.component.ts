@@ -48,7 +48,7 @@ export class AddCorporateCardComponent implements OnInit {
       this.cardType = this.realTimeFeedService.getCardTypeFromNumber(value);
       this.cardNetworks = this.getCardNetworks();
 
-      this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS;
+      this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS && this.cardForm.valid;
     });
   }
 
