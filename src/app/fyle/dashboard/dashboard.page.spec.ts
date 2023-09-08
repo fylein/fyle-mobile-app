@@ -11,9 +11,11 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { SmartlookService } from 'src/app/core/services/smartlook.service';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FooterState } from 'src/app/shared/components/footer/footer-state';
-import { Subject, Subscription } from 'rxjs';
+import { Subject, Subscription, of } from 'rxjs';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -137,5 +139,115 @@ describe('DashboardPage', () => {
     component.ionViewWillLeave();
     expect(component.onPageExit$.next).toHaveBeenCalledWith(null);
     expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
+  });
+
+  it('setupNetworkWatcher(): should setup network watching', (done) => {
+    networkService.connectivityWatcher.and.returnValue(null);
+    networkService.isOnline.and.returnValue(of(true));
+
+    component.setupNetworkWatcher();
+    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+    component.isConnected$.subscribe((res) => {
+      expect(res).toBeTrue();
+      done();
+    });
+  });
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'registerBackButtonAction');
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      currencyService.getHomeCurrency.and.returnValue(of('USD'));
+      spyOn(component, 'setupActionSheet');
+      const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
+      const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init']);
+      component.statsComponent = statsComponentSpy;
+      component.tasksComponent = tasksComponentSpy;
+      tasksService.getTotalTaskCount.and.returnValue(of(4));
+      component.isConnected$ = of(true);
+    });
+
+    it('should call setupNetworkWatcher, registerBackButtonAction and smartlookService.init once', () => {
+      component.ionViewWillEnter();
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.registerBackButtonAction).toHaveBeenCalledTimes(1);
+      expect(smartlookService.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set currentStateIndex to 1 if queryParams.state is tasks', () => {
+      activatedRoute.snapshot.queryParams.state = 'tasks';
+      component.ionViewWillEnter();
+      expect(component.currentStateIndex).toEqual(1);
+    });
+
+    it('should set currentStateIndex to 0 if queryParams.state is not tasks', () => {
+      activatedRoute.snapshot.queryParams.state = 'notTasks';
+      component.ionViewWillEnter();
+      expect(component.currentStateIndex).toEqual(0);
+    });
+
+    it('should set orgSettings$ equal to orgSettingsRes', () => {
+      component.ionViewWillEnter();
+      component.orgSettings$.subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(orgSettingsRes);
+      });
+    });
+
+    it('should set orgUserSettings$ equal to orgUserSettingsData', () => {
+      component.ionViewWillEnter();
+      component.orgUserSettings$.subscribe((res) => {
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(orgUserSettingsData);
+      });
+    });
+
+    it('should set homeCurrency$ equal to USD', () => {
+      component.ionViewWillEnter();
+      component.homeCurrency$.subscribe((res) => {
+        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+        expect(res).toEqual('USD');
+      });
+    });
+
+    it('should call setupActionSheet once with orgSettings data', () => {
+      component.ionViewWillEnter();
+      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
+    });
+
+    it('should call init method of statsComponent and tasksComponent', () => {
+      component.ionViewWillEnter();
+      expect(component.statsComponent.init).toHaveBeenCalledTimes(1);
+      expect(component.tasksComponent.init).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set taskCount equal to 4 if device is online', () => {
+      component.ionViewWillEnter();
+      expect(tasksService.getTotalTaskCount).toHaveBeenCalledTimes(1);
+      expect(component.taskCount).toEqual(4);
+    });
+
+    it('should set taskCount equal to 0 if device is offline', () => {
+      component.isConnected$ = of(false);
+      component.ionViewWillEnter();
+      expect(tasksService.getTotalTaskCount).not.toHaveBeenCalled();
+      expect(component.taskCount).toEqual(0);
+    });
+
+    it('should navigate to my_dashboard page with queryParams.state as home if device is offline', () => {
+      component.isConnected$ = of(false);
+      component.ionViewWillEnter();
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_dashboard',
+        {
+          queryParams: { state: 'home' },
+        },
+      ]);
+    });
   });
 });
