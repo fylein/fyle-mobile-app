@@ -13,11 +13,7 @@
         <div class="send-email__form__content">{{ content }}</div>
         <div *ngIf="subcontent" class="send-email__form__content">{{ subcontent }}</div>
         <form [formGroup]="fg">
-          <mat-form-field
-            subscriptSizing="dynamic"
-            class="full-width mat-form-field-no-padding mat-form-field-container"
-            appearance="outline"
-          >
+          <mat-form-field class="full-width mat-form-field-no-padding" appearance="outline">
             <input class="smartlook-show" formControlName="email" type="email" matInput placeholder="Work Email" />
           </mat-form-field>
           <div class="send-email__error-message" *ngIf="fg.controls.email.touched && !fg.controls.email.valid">

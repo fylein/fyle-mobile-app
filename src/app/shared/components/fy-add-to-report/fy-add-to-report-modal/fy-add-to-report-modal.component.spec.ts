@@ -26,7 +26,13 @@ describe('FyAddToReportModalComponent', () => {
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+      declarations: [
+        FyAddToReportModalComponent,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        TitleCasePipe,
+      ],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         FyCurrencyPipe,

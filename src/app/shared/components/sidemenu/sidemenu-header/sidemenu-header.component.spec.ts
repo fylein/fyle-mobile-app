@@ -15,7 +15,7 @@ describe('SidemenuHeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [SidemenuHeaderComponent, InitialsPipe],
+      declarations: [SidemenuHeaderComponent, InitialsPipe, UpperCasePipe, TitleCasePipe],
       imports: [IonicModule.forRoot(), MatRippleModule],
     }).compileComponents();
   });
