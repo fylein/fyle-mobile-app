@@ -5,16 +5,16 @@ export const environment = {
   production: true,
   NAME: '',
   CLUSTER_DOMAIN: '',
-  ROOT_URL: '${process.env.FYLE_MOBILE_ROOT_URL}',
-  ROUTER_API_ENDPOINT: '${process.env.FYLE_MOBILE_ROUTER_API_ENDPOINT}',
-  ANDROID_CLIENT_ID: '${process.env.FYLE_MOBILE_ANDROID_CLIENT_ID}',
-  IP_FIND_KEY: '${process.env.FYLE_MOBILE_IP_FIND_KEY}',
-  GOOGLE_MAPS_API_KEY: '${process.env.FYLE_MOBILE_GOOGLE_MAPS_API_KEY}',
-  FRESHCHAT_TOKEN: '${process.env.FYLE_MOBILE_FRESHCHAT_TOKEN}',
-  SENTRY_DSN: '${process.env.FYLE_MOBILE_SENTRY_DSN}',
-  REFINER_NPS_FORM_ID: '${process.env.REFINER_NPS_FORM_ID}',
-  LAUNCH_DARKLY_CLIENT_ID: '${process.env.LAUNCH_DARKLY_CLIENT_ID}',
-  LIVE_UPDATE_APP_VERSION: '${process.env.LIVE_UPDATE_APP_VERSION}',
-  SMARTLOOK_API_KEY: '${process.env.SMARTLOOK_API_KEY}'
+  ROOT_URL: 'https://app.fyle.tech',
+  ROUTER_API_ENDPOINT: 'https://accounts.fyle.tech',
+  ANDROID_CLIENT_ID: '62198175306-i1714tcls0237jubfpkn5s10gnvhb5pa.apps.googleusercontent.com',
+  IP_FIND_KEY: '025d2a8e-001b-4ece-9f2c-deb4db8c76bd',
+  GOOGLE_MAPS_API_KEY: 'AIzaSyCb7vB5EUfVz7WrxrRvFKk1W45IQV_bvXQ',
+  FRESHCHAT_TOKEN: '6ece090a-e7db-44a8-87ff-fec60f06b3da',
+  SENTRY_DSN: 'https://50fc8c018ff642fa9137a985f555382d@o341960.ingest.sentry.io/5944068',
+  REFINER_NPS_FORM_ID: '56ed8380-0c7f-11ec-89c5-effca223424b',
+  LAUNCH_DARKLY_CLIENT_ID: '61fb848da00c1016c73fbe54',
+  LIVE_UPDATE_APP_VERSION: '5.45.0',
+  SMARTLOOK_API_KEY: '5ff95a96c307f837166d53d2294198a912ab462d'
 };
 `

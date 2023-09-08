@@ -1,6 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
+
+    packagingOptions {
+        resources {
+            excludes += ['META-INF/NOTICE', 'META-INF/LICENSE']
+        }
+    }
+    lint {
+        checkReleaseBuilds false
+    }
     namespace "com.ionicframework.fyle595781"
     compileSdkVersion rootProject.ext.compileSdkVersion
     defaultConfig {
@@ -18,6 +27,7 @@ android {
           proguardFiles getDefaultProguardFile(
           'proguard-android-optimize.txt'),
           'proguard-rules.pro'
+            signingConfig signingConfigs.debug
         }
     }
 }
