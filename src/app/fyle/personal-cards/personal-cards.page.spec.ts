@@ -1,4 +1,4 @@
-import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
@@ -11,6 +11,7 @@ import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -18,13 +19,11 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { PersonalCardsPage } from './personal-cards.page';
-import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { C, L } from '@angular/cdk/keycodes';
 
-fdescribe('PersonalCardsPage', () => {
+describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
