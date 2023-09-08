@@ -1,16 +1,16 @@
-<div class="add-corporate-card">
-  <ion-header mode="md" class="ion-no-border">
-    <ion-toolbar mode="md" class="fy-modal-toolbar add-corporate-card__toolbar">
-      <ion-title class="text-center add-corporate-card__toolbar-title">Add Corporate Card</ion-title>
-      <ion-buttons slot="start">
-        <ion-button class="add-corporate-card__toolbar-close-btn" (click)="closePopover()" data-testid="close-btn">
-          <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
-        </ion-button>
-      </ion-buttons>
-    </ion-toolbar>
-  </ion-header>
+<ion-header mode="md" class="ion-no-border">
+  <ion-toolbar mode="md" class="fy-modal-toolbar add-corporate-card__toolbar">
+    <ion-title class="text-center add-corporate-card__toolbar-title">Add Corporate Card</ion-title>
+    <ion-buttons slot="start">
+      <ion-button class="add-corporate-card__toolbar-close-btn" (click)="closePopover()" data-testid="close-btn">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
 
-  <div class="add-corporate-card__content">
+<ion-content class="add-corporate-card__content">
+  <div class="add-corporate-card__body">
     <div class="add-corporate-card__input-container">
       <div class="add-corporate-card__input-label">
         <span>Enter Card Number</span>
@@ -159,21 +159,21 @@
       </ion-accordion-group>
     </ng-template>
   </div>
+</ion-content>
 
-  <ion-footer>
-    <ion-toolbar mode="md">
-      <div class="add-corporate-card__footer-toolbar">
-        <ion-button
-          appFormButtonValidation
-          [loading]="isEnrollingCard"
-          loadingText="Adding"
-          (click)="enrollCard()"
-          [disabled]="isAddingNonRTFCard && isYodleeEnabled"
-          class="fy-footer-cta fy-footer-cta--primary"
-          data-testid="add-btn"
-          >Add</ion-button
-        >
-      </div>
-    </ion-toolbar>
-  </ion-footer>
-</div>
+<ion-footer>
+  <ion-toolbar mode="md">
+    <div class="add-corporate-card__footer-toolbar">
+      <ion-button
+        appFormButtonValidation
+        [loading]="isEnrollingCard"
+        loadingText="Adding"
+        (click)="enrollCard()"
+        [disabled]="isAddingNonRTFCard && isYodleeEnabled"
+        class="fy-footer-cta fy-footer-cta--primary"
+        data-testid="add-btn"
+        >Add</ion-button
+      >
+    </div>
+  </ion-toolbar>
+</ion-footer>
