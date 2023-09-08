@@ -1,5 +1,5 @@
 ext {
-    minSdkVersion = 24
+    minSdkVersion = 22
     compileSdkVersion = 33
     targetSdkVersion = 33
     androidxAppCompatVersion = '1.6.1'
@@ -16,6 +16,6 @@ ext {
     androidxActivityVersion = '1.7.0'
     androidxCoordinatorLayoutVersion = '1.2.0'
     androidxFragmentVersion = '1.5.6'
-    coreSplashScreenVersion = '1.0.0-rc01'
+    coreSplashScreenVersion = '1.0.0'
     androidxWebkitVersion = '1.6.1'
 }
