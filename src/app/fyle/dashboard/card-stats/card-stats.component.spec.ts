@@ -46,7 +46,7 @@ class MockAddCardComponent {
   @Input() showZeroStateMessage: boolean;
 }
 
-fdescribe('CardStatsComponent', () => {
+describe('CardStatsComponent', () => {
   const cards = [mastercardRTFCard];
   const cardStats = mastercardRTFCCCStats;
   const cardDetails = [cardDetailsRes[1]];
