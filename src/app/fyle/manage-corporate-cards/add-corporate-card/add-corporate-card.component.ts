@@ -34,7 +34,10 @@ export class AddCorporateCardComponent implements OnInit {
 
   cardNetworkTypes: typeof CardNetworkType = CardNetworkType;
 
-  constructor(private popoverController: PopoverController, private realTimeFeedService: RealTimeFeedService) {}
+  constructor(
+    private popoverController: PopoverController,
+    private realTimeFeedService: RealTimeFeedService,
+  ) {}
 
   ngOnInit(): void {
     this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardNetworkValidator.bind(this)]);
@@ -72,7 +75,7 @@ export class AddCorporateCardComponent implements OnInit {
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        })
+        }),
       )
       .subscribe((res) => {
         if (res) {
