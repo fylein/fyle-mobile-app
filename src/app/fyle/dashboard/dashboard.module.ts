@@ -34,7 +34,9 @@ import { NgxMaskModule } from 'ngx-mask';
     MatBottomSheetModule,
     MatSnackBarModule,
     SwiperModule,
-    NgxMaskModule.forRoot(),
+    NgxMaskModule.forRoot({
+      validation: false,
+    }),
   ],
   declarations: [
     DashboardPage,

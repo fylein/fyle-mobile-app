@@ -14,11 +14,18 @@
     position: absolute;
   }
 
-  &__content {
-    padding: 16px 16px 0 16px;
+  &__body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+  }
+
+  &__content {
+    --padding-start: 16px;
+    --padding-end: 16px;
+    --padding-top: 16px;
+
+    max-height: 50vh;
   }
 
   &__input-container {

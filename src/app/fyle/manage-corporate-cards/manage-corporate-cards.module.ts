@@ -20,7 +20,9 @@ import { NgxMaskModule } from 'ngx-mask';
     IonicModule,
     SharedModule,
     ManageCorporateCardsPageRoutingModule,
-    NgxMaskModule.forRoot(),
+    NgxMaskModule.forRoot({
+      validation: false,
+    }),
   ],
   declarations: [ManageCorporateCardsPage, AddCorporateCardComponent, CardAddedComponent],
 })

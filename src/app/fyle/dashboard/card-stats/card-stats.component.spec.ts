@@ -23,6 +23,7 @@ import { By } from '@angular/platform-browser';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-spent-cards',
@@ -61,6 +62,7 @@ describe('CardStatsComponent', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -74,6 +76,7 @@ describe('CardStatsComponent', () => {
       'clearCache',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
@@ -107,6 +110,10 @@ describe('CardStatsComponent', () => {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -122,6 +129,7 @@ describe('CardStatsComponent', () => {
       CorporateCreditCardExpenseService,
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     // Default return values
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
@@ -132,6 +140,7 @@ describe('CardStatsComponent', () => {
     corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue(cardDetails);
     networkService.isOnline.and.returnValue(of(true));
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
+    launchDarklyService.getVariation.and.returnValue(of(true));
 
     spyOn(component.loadCardDetails$, 'next').and.callThrough();
 

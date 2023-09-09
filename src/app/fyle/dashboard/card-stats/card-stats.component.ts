@@ -12,6 +12,7 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-card-stats',
@@ -46,7 +47,8 @@ export class CardStatsComponent implements OnInit {
     private networkService: NetworkService,
     private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private launchDarklyService: LaunchDarklyService,
   ) {}
 
   ngOnInit(): void {
@@ -57,7 +59,7 @@ export class CardStatsComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -72,19 +74,21 @@ export class CardStatsComponent implements OnInit {
     this.isCCCEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled
-      )
+          orgSettings.corporate_credit_card_settings.allowed && orgSettings.corporate_credit_card_settings.enabled,
+      ),
     );
 
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
@@ -92,12 +96,24 @@ export class CardStatsComponent implements OnInit {
         ([orgSettings, orgUserSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
           orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
-      )
+          orgUserSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
 
-    this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
-      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
+    const isUnifiedCardEnrollmentFlowEnabled$ = this.launchDarklyService.getVariation(
+      'unified_card_enrollment_flow_enabled',
+      false,
+    );
+
+    this.canAddCorporateCards$ = forkJoin([
+      isUnifiedCardEnrollmentFlowEnabled$,
+      this.isVisaRTFEnabled$,
+      this.isMastercardRTFEnabled$,
+    ]).pipe(
+      map(
+        ([isUnifiedCardEnrollmentFlowEnabled, isVisaRTFEnabled, isMastercardRTFEnabled]) =>
+          isUnifiedCardEnrollmentFlowEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled),
+      ),
     );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
@@ -107,10 +123,10 @@ export class CardStatsComponent implements OnInit {
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
         ]).pipe(
           map(([corporateCards, corporateCardStats]) =>
-            this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
-          )
-        )
-      )
+            this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats),
+          ),
+        ),
+      ),
     );
   }
 
@@ -133,7 +149,7 @@ export class CardStatsComponent implements OnInit {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 

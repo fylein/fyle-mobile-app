@@ -46,7 +46,9 @@
         ></ion-icon>
       </div>
 
-      <ng-container *ngIf="isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled)">
+      <ng-container
+        *ngIf="isCCCEnabled && isUnifiedCardEnrollmentFlowEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled)"
+      >
         <div class="my-profile__section-header">Corporate Cards</div>
         <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'manage_corporate_cards' ]" matRipple>
           <div class="my-profile__card__title">Manage Corporate Cards</div>

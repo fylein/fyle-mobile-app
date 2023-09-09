@@ -26,12 +26,12 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
-import { CurrencyService } from 'src/app/core/services/currency.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { cloneDeep } from 'lodash';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type EventData = {
   key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
@@ -96,6 +96,8 @@ export class MyProfilePage {
 
   isYodleeEnabled: boolean;
 
+  isUnifiedCardEnrollmentFlowEnabled: boolean;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -112,15 +114,15 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private currencyService: CurrencyService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private launchDarklyService: LaunchDarklyService,
   ) {}
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -135,14 +137,14 @@ export class MyProfilePage {
             this.authService.logout({
               device_id: device.uuid,
               user_id: eou.us.id,
-            })
+            }),
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          })
+          }),
         )
         .subscribe(noop);
     } catch (e) {
@@ -207,13 +209,18 @@ export class MyProfilePage {
           forkJoin({
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
-          })
+            isUnifiedCardEnrollmentFlowEnabled: this.launchDarklyService.getVariation(
+              'unified_card_enrollment_flow_enabled',
+              false,
+            ),
+          }),
         ),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe(async (res) => {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
+        this.isUnifiedCardEnrollmentFlowEnabled = res.isUnifiedCardEnrollmentFlowEnabled;
 
         this.setCCCFlags();
         this.setPreferenceSettings();

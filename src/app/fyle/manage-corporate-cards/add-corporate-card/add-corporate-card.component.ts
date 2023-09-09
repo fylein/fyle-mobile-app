@@ -104,11 +104,13 @@ export class AddCorporateCardComponent implements OnInit {
     const cardNetworks: CardNetworkType[] = [];
 
     const cardNetwork = this.cardType;
+    const allowedCardNetworks = this.getAllowedCardNetworks();
+    const isCardNetworkSupported = allowedCardNetworks.includes(cardNetwork);
 
-    if (cardNetwork && cardNetwork !== CardNetworkType.OTHERS) {
+    if (cardNetwork && cardNetwork !== CardNetworkType.OTHERS && isCardNetworkSupported) {
       cardNetworks.push(cardNetwork);
     } else {
-      cardNetworks.push(...this.getAllowedCardNetworks());
+      cardNetworks.push(...allowedCardNetworks);
     }
 
     return cardNetworks;
