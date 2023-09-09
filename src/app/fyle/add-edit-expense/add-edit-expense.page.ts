@@ -1964,9 +1964,8 @@ export class AddEditExpensePage implements OnInit {
           recentCategories: OrgCategoryListItem[];
           etxn: UnflattenedTransaction;
         }) => {
-          const isExpenseDraft = etxn.tx.state === 'DRAFT';
           const isExpenseCategoryUnspecified = etxn.tx?.fyle_category?.toLowerCase() === 'unspecified';
-          if (this.initialFetch && etxn.tx.org_category_id && !isExpenseDraft && !isExpenseCategoryUnspecified) {
+          if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
             return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
               map((selectedCategory) => ({
                 orgUserSettings,
@@ -3419,8 +3418,8 @@ export class AddEditExpensePage implements OnInit {
             value: this.getFormValues()?.custom_inputs[i]?.value,
           }));
           return [...customInpustWithValue, ...dependentFieldsWithValue];
-        }
-      )
+        },
+      ),
     );
   }
 
