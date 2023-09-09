@@ -2,7 +2,7 @@ import { TestBed, waitForAsync } from '@angular/core/testing';
 
 import { RealTimeFeedService } from './real-time-feed.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { mastercardRTFCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard, visaRTFCard } from '../mock-data/platform-corporate-card.data';
 import { catchError, of, throwError } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CardNetworkType } from '../enums/card-network-type';
@@ -26,7 +26,7 @@ describe('RealTimeFeedService', () => {
 
     realTimeFeedService = TestBed.inject(RealTimeFeedService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
@@ -49,6 +49,20 @@ describe('RealTimeFeedService', () => {
 
     it('should return card type others if the input card number does not start with 4 or 5', () => {
       expect(realTimeFeedService.getCardTypeFromNumber('6111111111111111')).toBe(CardNetworkType.OTHERS);
+    });
+  });
+
+  describe('getCardType()', () => {
+    it('should return visa if the card is visa enrolled', () => {
+      expect(realTimeFeedService.getCardType(visaRTFCard)).toBe(CardNetworkType.VISA);
+    });
+
+    it('should return mastercard if the card is mastercard enrolled', () => {
+      expect(realTimeFeedService.getCardType(mastercardRTFCard)).toBe(CardNetworkType.MASTERCARD);
+    });
+
+    it('should return card type others if the card is not visa or mastercard enrolled', () => {
+      expect(realTimeFeedService.getCardType(statementUploadedCard)).toBe(CardNetworkType.OTHERS);
     });
   });
 
@@ -91,7 +105,7 @@ describe('RealTimeFeedService', () => {
       spyOn(realTimeFeedService, 'getCardTypeFromNumber').and.returnValue(CardNetworkType.OTHERS);
 
       expect(() => realTimeFeedService.enroll('6111111111111111')).toThrowError(
-        `Invalid card type ${CardNetworkType.OTHERS}`
+        `Invalid card type ${CardNetworkType.OTHERS}`,
       );
 
       expect(realTimeFeedService.getCardTypeFromNumber).toHaveBeenCalledOnceWith('6111111111111111');
@@ -106,8 +120,8 @@ describe('RealTimeFeedService', () => {
               error: {
                 message: 'This card already exists in the system',
               },
-            })
-        )
+            }),
+        ),
       );
 
       realTimeFeedService
@@ -116,7 +130,7 @@ describe('RealTimeFeedService', () => {
           catchError((error: Error) => {
             expect(error.message).toEqual('This card already exists in the system');
             return of(null);
-          })
+          }),
         )
         .subscribe();
     }));
@@ -138,6 +152,48 @@ describe('RealTimeFeedService', () => {
         });
       });
     }));
+  });
+
+  describe('unenroll()', () => {
+    it('should handle unenrollment of visa rtf cards', () => {
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
+      spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+      realTimeFeedService.unenroll(visaRTFCard).subscribe(() => {
+        expect(realTimeFeedService.getCardType).toHaveBeenCalledOnceWith(visaRTFCard);
+
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_cards/visa_unenroll', {
+          data: {
+            id: visaRTFCard.id,
+          },
+        });
+      });
+    });
+
+    it('should handle unenrollment of mastercard rtf cards', () => {
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.MASTERCARD);
+      spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+      realTimeFeedService.unenroll(mastercardRTFCard).subscribe(() => {
+        expect(realTimeFeedService.getCardType).toHaveBeenCalledOnceWith(mastercardRTFCard);
+
+        expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_cards/mastercard_unenroll', {
+          data: {
+            id: mastercardRTFCard.id,
+          },
+        });
+      });
+    });
+
+    it('should throw an error if the card passed is not enrolled to rtf', () => {
+      spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.OTHERS);
+
+      expect(() => realTimeFeedService.unenroll(statementUploadedCard)).toThrowError(
+        `Invalid card type ${CardNetworkType.OTHERS}`,
+      );
+
+      expect(realTimeFeedService.getCardType).toHaveBeenCalledOnceWith(statementUploadedCard);
+    });
   });
 
   describe('isCardNumberValid()', () => {

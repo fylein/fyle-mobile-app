@@ -356,7 +356,7 @@ describe('ManageCorporateCardsPage', () => {
       });
 
       expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
-      expect(realTimeFeedService.unenroll).toHaveBeenCalledOnceWith(CardNetworkType.VISA, visaRTFCard.id);
+      expect(realTimeFeedService.unenroll).toHaveBeenCalledOnceWith(visaRTFCard);
       expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
       expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
     }));

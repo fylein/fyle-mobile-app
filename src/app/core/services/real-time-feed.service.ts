@@ -52,13 +52,14 @@ export class RealTimeFeedService {
     return checksum % 10 === 0;
   }
 
-  unenroll(cardType: CardNetworkType, cardId: string): Observable<void> {
-    const card: PlatformApiPayload<UnenrollCardPayload> = {
+  unenroll(card: PlatformCorporateCard): Observable<void> {
+    const cardToUnenroll: PlatformApiPayload<UnenrollCardPayload> = {
       data: {
-        id: cardId,
+        id: card.id,
       },
     };
 
+    const cardType = this.getCardType(card);
     let endpoint: string;
 
     switch (cardType) {
@@ -74,7 +75,7 @@ export class RealTimeFeedService {
         throw new Error(`Invalid card type ${cardType}`);
     }
 
-    return this.spenderPlatformV1ApiService.post<void>(endpoint, card);
+    return this.spenderPlatformV1ApiService.post<void>(endpoint, cardToUnenroll);
   }
 
   enroll(cardNumber: string, cardId?: string): Observable<PlatformCorporateCard> {
@@ -109,7 +110,7 @@ export class RealTimeFeedService {
       catchError((err: HttpErrorResponse) => {
         const error = err.error as PlatformApiError;
         return throwError(() => Error(error.message));
-      })
+      }),
     );
   }
 
