@@ -151,83 +151,85 @@ describe('CardStatsComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should not display anything if CCC is disabled', () => {
-    orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
-
-    component.ngOnInit();
-    component.init();
-
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.children.length).toEqual(0);
-  });
-
-  it('should not display anything if the user is offline', () => {
-    networkService.isOnline.and.returnValue(of(false));
-
-    component.ngOnInit();
-    component.init();
-
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.children.length).toEqual(0);
-  });
-
-  it('should display the cards swiper when cards are present for the user', () => {
-    component.ngOnInit();
-    component.init();
-
-    fixture.detectChanges();
-
-    const spentCardsComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
-    expect(spentCardsComponent).toBeTruthy();
-
-    const spentCardsComponentInstance = spentCardsComponent.componentInstance as MockSpentCardsComponent;
-    expect(spentCardsComponentInstance.cardDetails).toEqual(cardDetails);
-    expect(spentCardsComponentInstance.homeCurrency).toEqual('USD');
-    expect(spentCardsComponentInstance.currencySymbol).toEqual('$');
-    expect(spentCardsComponentInstance.showAddCardSlide).toEqual(true);
-
-    expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
-    expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
-      cards,
-      cardStats.cardDetails,
-    );
-  });
-
-  describe('add card zero state', () => {
-    beforeEach(() => {
-      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
-      dashboardService.getCCCDetails.and.returnValue(of(emptyCCCStats));
-      corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue([]);
-    });
-
-    it('should be visible if RTF enrollment is enabled', () => {
-      component.ngOnInit();
-      component.init();
-
-      fixture.detectChanges();
-
-      const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
-      expect(addCardComponent).toBeTruthy();
-
-      const addCardComponentInstance = addCardComponent.componentInstance as MockAddCardComponent;
-      expect(addCardComponentInstance.showZeroStateMessage).toEqual(true);
-    });
-
-    it('should not be visible if RTF enrollment is disabled', fakeAsync(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsRTFDisabled));
-
-      fixture.detectChanges();
+  describe('template', () => {
+    it('should not display anything if CCC is disabled', () => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
 
       component.ngOnInit();
       component.init();
 
       fixture.detectChanges();
 
-      const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
-      expect(addCardComponent).toBeFalsy();
-    }));
+      expect(fixture.nativeElement.children.length).toEqual(0);
+    });
+
+    it('should not display anything if the user is offline', () => {
+      networkService.isOnline.and.returnValue(of(false));
+
+      component.ngOnInit();
+      component.init();
+
+      fixture.detectChanges();
+
+      expect(fixture.nativeElement.children.length).toEqual(0);
+    });
+
+    it('should display the cards swiper when cards are present for the user', () => {
+      component.ngOnInit();
+      component.init();
+
+      fixture.detectChanges();
+
+      const spentCardsComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
+      expect(spentCardsComponent).toBeTruthy();
+
+      const spentCardsComponentInstance = spentCardsComponent.componentInstance as MockSpentCardsComponent;
+      expect(spentCardsComponentInstance.cardDetails).toEqual(cardDetails);
+      expect(spentCardsComponentInstance.homeCurrency).toEqual('USD');
+      expect(spentCardsComponentInstance.currencySymbol).toEqual('$');
+      expect(spentCardsComponentInstance.showAddCardSlide).toEqual(true);
+
+      expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledTimes(1);
+      expect(corporateCreditCardExpenseService.getPlatformCorporateCardDetails).toHaveBeenCalledOnceWith(
+        cards,
+        cardStats.cardDetails,
+      );
+    });
+
+    describe('add card zero state', () => {
+      beforeEach(() => {
+        corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
+        dashboardService.getCCCDetails.and.returnValue(of(emptyCCCStats));
+        corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue([]);
+      });
+
+      it('should be visible if RTF enrollment is enabled', () => {
+        component.ngOnInit();
+        component.init();
+
+        fixture.detectChanges();
+
+        const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
+        expect(addCardComponent).toBeTruthy();
+
+        const addCardComponentInstance = addCardComponent.componentInstance as MockAddCardComponent;
+        expect(addCardComponentInstance.showZeroStateMessage).toEqual(true);
+      });
+
+      it('should not be visible if RTF enrollment is disabled', fakeAsync(() => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsRTFDisabled));
+
+        fixture.detectChanges();
+
+        component.ngOnInit();
+        component.init();
+
+        fixture.detectChanges();
+
+        const addCardComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
+        expect(addCardComponent).toBeFalsy();
+      }));
+    });
   });
 
   describe('add card flow from zero state', () => {
