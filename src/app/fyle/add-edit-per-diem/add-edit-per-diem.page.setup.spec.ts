@@ -99,6 +99,11 @@ describe('AddEditPerDiemPage', () => {
       'addToExistingReportAddEditExpense',
       'removeFromExistingReportEditExpense',
       'showToastMessage',
+      'clickDeleteExpense',
+      'addComment',
+      'viewComment',
+      'hideMoreClicked',
+      'showMoreClicked',
     ]);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
       'getRecentlyUsed',

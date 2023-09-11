@@ -399,3 +399,11 @@ export const eouFlattended: EouApiResponse = {
   dwolla_bank_account_added: true,
   ou_cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
 };
+
+export const eouWithNoAttempts: ExtendedOrgUser = {
+  ...apiEouRes,
+  ou: {
+    ...apiEouRes.ou,
+    mobile_verification_attempts_left: 0,
+  },
+};
