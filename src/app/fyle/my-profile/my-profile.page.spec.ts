@@ -397,7 +397,7 @@ describe('MyProfilePage', () => {
     it('should open edit number popover and show success toast message if update is successful', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      popoverController.create.and.resolveTo(popoverSpy);
 
       component.updateMobileNumber(apiEouRes);
       tick(500);
@@ -425,7 +425,7 @@ describe('MyProfilePage', () => {
       component.eou$ = of(eouWithNoAttempts);
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'SUCCESS' } });
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      popoverController.create.and.resolveTo(popoverSpy);
       fixture.detectChanges();
 
       component.updateMobileNumber(eouWithNoAttempts);
@@ -451,7 +451,7 @@ describe('MyProfilePage', () => {
     it('should open add number popover and show error toast message if api returns error', fakeAsync(() => {
       const popoverSpy = jasmine.createSpyObj('updateMobileNumberPopover', ['present', 'onWillDismiss']);
       popoverSpy.onWillDismiss.and.resolveTo({ data: { action: 'ERROR' } });
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      popoverController.create.and.resolveTo(popoverSpy);
 
       const eouWithoutMobileNumber = {
         ...apiEouRes,
