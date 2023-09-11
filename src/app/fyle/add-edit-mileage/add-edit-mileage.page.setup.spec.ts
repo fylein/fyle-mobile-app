@@ -225,6 +225,8 @@ describe('AddEditMileagePage', () => {
       'getGeocode',
     ]);
 
+    const platformHandlerService = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+
     TestBed.configureTestingModule({
       declarations: [
         AddEditMileagePage,
@@ -432,6 +434,10 @@ describe('AddEditMileagePage', () => {
         {
           provide: LocationService,
           useValue: locationServiceSpy,
+        },
+        {
+          provide: PlatformHandlerService,
+          useValue: platformHandlerServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

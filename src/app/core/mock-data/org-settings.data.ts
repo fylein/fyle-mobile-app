@@ -1313,3 +1313,24 @@ export const orgSettingsCCDisabled: OrgSettings = {
     enabled: false,
   },
 };
+
+export const orgSettingsOrgAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    enabled: true,
+    allowed: true,
+  },
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoProjects: OrgSettings = {
+  ...orgSettingsRes,
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoMileage: OrgSettings = {
+  ...orgSettingsParams2,
+  mileage: null,
+};
