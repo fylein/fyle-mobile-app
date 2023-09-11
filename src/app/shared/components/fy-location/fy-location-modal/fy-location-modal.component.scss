@@ -19,10 +19,6 @@
     }
   }
 
-  &--header {
-    padding: 0px;
-  }
-
   &--current-location-getter,
   &--error-lookup {
     margin: 16px;
@@ -109,21 +105,9 @@
     margin-bottom: 0;
     border-bottom: 1px solid $border-grey;
     margin-top: calc(env(safe-area-inset-top));
-    padding-left: 0;
-    padding-right: 0;
     mat-form-field {
-      ::ng-deep .mat-mdc-text-field-wrapper {
-        padding-left: 10px;
-        padding-right: 10px;
-      }
-
-      ::ng-deep .mat-icon {
-        display: flex;
-        align-items: center;
-      }
-
-      ::ng-deep .mdc-notched-outline > * {
-        border-color: $black-light !important;
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
       }
     }
   }

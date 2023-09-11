@@ -49,3 +49,26 @@ export const taskFiltersParams3: TaskFilters = {
   teamReports: false,
   sentBackAdvances: false,
 };
+
+export const taskFiltersParams4: TaskFilters = {
+  ...taskFiltersData2,
+  unreportedExpenses: true,
+  draftExpenses: true,
+  potentialDuplicates: true,
+};
+
+export const taskFiltersParams5: TaskFilters = {
+  ...taskFiltersData2,
+  draftReports: true,
+  sentBackReports: true,
+};
+
+export const taskFiltersParams6: TaskFilters = {
+  ...taskFiltersData2,
+  teamReports: true,
+};
+
+export const taskFiltersParams7: TaskFilters = {
+  ...taskFiltersData2,
+  sentBackAdvances: true,
+};

@@ -16,15 +16,29 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { of } from 'rxjs';
+import { Subject, finalize, of } from 'rxjs';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
+import {
+  individualExpPolicyStateData2,
+  individualExpPolicyStateData3,
+} from 'src/app/core/mock-data/individual-expense-policy-state.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
+import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-field.data';
+import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
+import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
+import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
+import { cloneDeep } from 'lodash';
+import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -256,5 +270,454 @@ describe('ViewPerDiemPage', () => {
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
     }));
+  });
+
+  describe('ionViewWillEnter():', () => {
+    const mockCustomFields = cloneDeep(customFields);
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      transactionService.getExpenseV2.and.returnValue(of(expenseData1));
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      customInputsService.fillCustomProperties.and.returnValue(of(mockCustomFields));
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
+      perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
+      reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
+      policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
+      policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
+      statusService.find.and.returnValue(of(estatusData1));
+      spyOn(component, 'getPolicyDetails');
+    });
+
+    it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
+      component.ionViewWillEnter();
+      component.extendedPerDiem$
+        .pipe(
+          finalize(() => {
+            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+          }),
+        )
+        .subscribe((extendedPerDiem) => {
+          expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith('tx3qwe4ty');
+          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+          expect(extendedPerDiem).toEqual(expenseData1);
+        });
+
+      component.txnFields$.subscribe((txnFields) => {
+        expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
+        expect(txnFields).toEqual(expenseFieldsMapResponse4);
+        done();
+      });
+    });
+
+    it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ correctly', (done) => {
+      component.ionViewWillEnter();
+
+      component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledTimes(1);
+        expect(projectDependentCustomProperties).toEqual(customInputData1);
+      });
+
+      component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledTimes(2);
+        expect(costCenterDependentCustomProperties).toEqual(customInputData1);
+        done();
+      });
+    });
+
+    it('should set paymentMode and paymentMode icon correctly if account type is ADVANCE', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.source_account_type = AccountType.ADVANCE;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid from Advance');
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    }));
+
+    it('should set paymentMode and paymentMode icon correctly if tx_skip_reimbursement is true', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_skip_reimbursement = true;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid by Company');
+      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+    }));
+
+    it('should set paymentMode and paymentMode icon correctly if no condition matches', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.paymentMode).toEqual('Paid by Employee');
+      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+    }));
+
+    it('should set projectFieldName and isProjectShown correctly', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.projectFieldName).toEqual('Project ID');
+      expect(component.isProjectShown).toBeTrue();
+    }));
+
+    it('should set isProjectShown to false if project name and is empty string and project is not mandatory', fakeAsync(() => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_project_name = '';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      const mockExpenseField = cloneDeep(expenseFieldsMapResponse4);
+      mockExpenseField.project_id[0].is_mandatory = false;
+      expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseField));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.isProjectShown).toBeFalse();
+    }));
+
+    it('should set orgSettings and isNewReportsFlowEnabled', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(component.orgSettings).toEqual(orgSettingsData);
+      expect(component.isNewReportsFlowEnabled).toBeFalse();
+    }));
+
+    it('should set perDiemCustomFields$ and perDiemRate$', (done) => {
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_per_diem_rate_id = '508';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
+        expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
+          expenseData1.tx_org_category_id,
+          expenseData1.tx_custom_properties,
+          true,
+        );
+        // Called twice because of the two custom fields
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[0]);
+        expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledWith(mockCustomFields[1]);
+        expect(perDiemCustomFields).toEqual(mockCustomFields);
+      });
+
+      component.perDiemRate$.subscribe((perDiemRate) => {
+        expect(perDiemService.getRate).toHaveBeenCalledOnceWith(508);
+        expect(perDiemRate).toEqual(perDiemRatesData1);
+        done();
+      });
+    });
+
+    it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      expect(component.view).toEqual(ExpenseView.team);
+      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
+        expect(canFlagOrUnflag).toBeTrue();
+        done();
+      });
+    });
+
+    it('should set canFlagOrUnflag$ to false if state is PAID', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_state = 'PAID';
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
+        expect(canFlagOrUnflag).toBeFalse();
+        done();
+      });
+    });
+
+    it('should set canDelete$ to false if report transaction equals 1', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((canDelete) => {
+        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
+        expect(canDelete).toBeFalse();
+        done();
+      });
+    });
+
+    it('should set canDelete$ to true if expense state is APPROVER_PENDING', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      const mockReport = cloneDeep(apiExtendedReportRes[0]);
+      mockReport.rp_num_transactions = 2;
+      reportService.getTeamReport.and.returnValue(of(mockReport));
+      transactionService.getExpenseV2.and.returnValue(of(expenseData2));
+      component.ionViewWillEnter();
+      component.canDelete$.subscribe((canDelete) => {
+        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpT7x1BFlLOi');
+        expect(canDelete).toBeTrue();
+        done();
+      });
+    });
+
+    it('should set policyViolations$ to approver policy state if view is set to team and id exists', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.team;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('tx3qwe4ty');
+        expect(policyService.getSpenderExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toEqual(individualExpPolicyStateData2);
+        done();
+      });
+    });
+
+    it('should set policyViolations$ to spender policy state if view is set to individual and id exists', (done) => {
+      activatedRoute.snapshot.params.view = ExpenseView.individual;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('tx3qwe4ty');
+        expect(policyService.getApproverExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toEqual(individualExpPolicyStateData3);
+        done();
+      });
+    });
+
+    it('should set policyViolations$ to null if id does not exist', (done) => {
+      activatedRoute.snapshot.params.id = undefined;
+      component.ionViewWillEnter();
+      component.policyViolations$.subscribe((policyViolations) => {
+        expect(policyService.getApproverExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyService.getSpenderExpensePolicyViolations).not.toHaveBeenCalled();
+        expect(policyViolations).toBeNull();
+        done();
+      });
+    });
+
+    it('should set comments$ and call getPolicyDetails once', (done) => {
+      component.ionViewWillEnter();
+      expect(component.getPolicyDetails).toHaveBeenCalledOnceWith('tx3qwe4ty');
+      component.comments$.subscribe((comments) => {
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', 'tx3qwe4ty');
+        expect(comments).toEqual(estatusData1);
+        done();
+      });
+    });
+
+    it('should set isCriticalPolicyViolated$ to true if policy amount is number and less than 0.0001', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_policy_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(0);
+        expect(isCriticalPolicyViolated).toBeTrue();
+        done();
+      });
+    });
+
+    it('should set isCriticalPolicyViolated$ to false if policy amount is not a number', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(false);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_policy_amount = null;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(null);
+        expect(isCriticalPolicyViolated).toBeFalse();
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to true if admin amount is number', (done) => {
+      spyOn(component, 'isNumber').and.returnValue(true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledOnceWith(0);
+        expect(isAmountCapped).toBeTrue();
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to true if policy amount is number', (done) => {
+      spyOn(component, 'isNumber').and.returnValues(false, true);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = null;
+      mockExpense.tx_policy_amount = 0;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(component.isNumber).toHaveBeenCalledWith(0);
+        expect(isAmountCapped).toBeTrue();
+        done();
+      });
+    });
+
+    it('should set isAmountCapped$ to false if policy amount and admin amount are not a number', (done) => {
+      spyOn(component, 'isNumber').and.returnValues(false, false);
+      const mockExpense = cloneDeep(expenseData1);
+      mockExpense.tx_admin_amount = null;
+      mockExpense.tx_policy_amount = null;
+      transactionService.getExpenseV2.and.returnValue(of(mockExpense));
+      component.ionViewWillEnter();
+
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(component.isNumber).toHaveBeenCalledTimes(2);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(component.isNumber).toHaveBeenCalledWith(null);
+        expect(isAmountCapped).toBeFalse();
+        done();
+      });
+    });
+
+    it('should set isExpenseFlagged to expense manual flag and updateFlag$ to null', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      expect(component.isExpenseFlagged).toBeFalse();
+      component.updateFlag$.subscribe((updateFlag) => {
+        expect(updateFlag).toBeNull();
+      });
+    }));
+
+    it('should set numEtxnsInReport and activeEtxnIndex', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      expect(component.numEtxnsInReport).toEqual(3);
+      expect(component.activeEtxnIndex).toEqual(0);
+    }));
+  });
+
+  it('getDeleteDialogProps(): should return modal params', () => {
+    const props = component.getDeleteDialogProps(expenseData1);
+    props.componentProps.deleteMethod();
+    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+  });
+
+  it('removeExpenseFromReport(): should remove the expense from report', fakeAsync(() => {
+    transactionService.getEtxn.and.returnValue(of(expenseData1));
+
+    spyOn(component, 'getDeleteDialogProps');
+    const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
+    popoverController.create.and.returnValue(deletePopoverSpy);
+    deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+    component.removeExpenseFromReport();
+    tick(100);
+    expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+    expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps(expenseData1));
+    expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
+    expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+    expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'view_team_report',
+      { id: expenseData1.tx_report_id, navigate_back: true },
+    ]);
+  }));
+
+  describe('flagUnflagExpense', () => {
+    it('should flag unflagged expense', fakeAsync(() => {
+      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+
+      const title = 'Flag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
+      statusService.post.and.returnValue(of(txnStatusData));
+      transactionService.manualFlag.and.returnValue(of(expenseData2));
+
+      component.flagUnflagExpense();
+      tick(100);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for flaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id, data, true);
+      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+      expect(transactionService.manualUnflag).not.toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+      expect(component.isExpenseFlagged).toBeFalse();
+    }));
+
+    it('should unflag flagged expense', fakeAsync(() => {
+      const mockExpenseData = {
+        ...expenseData1,
+        tx_manual_flag: true,
+      };
+      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      component.isExpenseFlagged = true;
+
+      const title = 'Unflag';
+      const flagPopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverController.create.and.returnValue(flagPopoverSpy);
+      const data = { comment: 'This is a comment for flagging' };
+      flagPopoverSpy.onWillDismiss.and.resolveTo({ data });
+      statusService.post.and.returnValue(of(txnStatusData));
+      transactionService.manualUnflag.and.returnValue(of(expenseData1));
+
+      component.flagUnflagExpense();
+      tick(100);
+      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyPopoverComponent,
+        componentProps: {
+          title,
+          formLabel: 'Reason for unflaging expense',
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+
+      expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', mockExpenseData.tx_id, data, true);
+      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
+      expect(transactionService.manualFlag).not.toHaveBeenCalled();
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
+      expect(component.isExpenseFlagged).toBeTrue();
+    }));
+  });
+
+  describe('getDisplayValue():', () => {
+    it('should get the correct display value', () => {
+      const expectedProperty = 'record1, record2';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(customFieldData1[0]);
+      expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledOnceWith(customFieldData1[0]);
+      expect(result).toEqual(expectedProperty);
+    });
+
+    it('should display Not Added if no value is added', () => {
+      const expectedProperty = '-';
+      customInputsService.getCustomPropertyDisplayValue.and.returnValue(expectedProperty);
+      const result = component.getDisplayValue(customFieldData1[0]);
+      expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledOnceWith(customFieldData1[0]);
+      expect(result).toEqual('Not Added');
+    });
   });
 });

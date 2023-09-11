@@ -40,3 +40,8 @@ export const taskCtaData8: TaskCta = {
   event: TASKEVENT.expensesCreateNewReport,
   content: 'Create New Report',
 };
+
+export const taskCtaData9: TaskCta = {
+  event: TASKEVENT.mobileNumberVerification,
+  content: 'Verify Mobile Number',
+};

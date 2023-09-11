@@ -61,7 +61,14 @@ describe('ApproverDialogComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [ApproverDialogComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule, FormsModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        MatIconModule,
+        FormsModule,
+        MatChipsModule,
+        MatCheckboxModule,
+      ],
       providers: [
         {
           provide: LoaderService,
@@ -112,7 +119,6 @@ describe('ApproverDialogComponent', () => {
     const ev: MatChipInputEvent = {
       value: 'label',
       input: getElementBySelector(fixture, '.selection-modal--form-input') as HTMLInputElement,
-      chipInput: null,
     };
     component.addChip(ev);
     expect(component.clearValue).toHaveBeenCalledTimes(1);

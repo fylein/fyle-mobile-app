@@ -19,10 +19,9 @@ describe('MyAdvancesCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getInternalStateAndDisplayName']);
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe],
+      declarations: [MyAdvancesCardComponent, EllipsisPipe, HumanizeCurrencyPipe, DatePipe],
       imports: [IonicModule.forRoot()],
       providers: [
-        DatePipe,
         FyCurrencyPipe,
         CurrencyPipe,
         {
