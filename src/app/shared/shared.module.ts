@@ -138,6 +138,7 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
 import { ReportsCardComponent } from './components/reports-card/reports-card.component';
 import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
 import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
+import { CropImageComponent } from './components/capture-receipt/crop-image/crop-image.component';
 
 @NgModule({
   declarations: [
@@ -226,6 +227,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReceiptPreviewComponent,
     AddMorePopupComponent,
     CropReceiptComponent,
+    CropImageComponent,
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
@@ -349,6 +351,7 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReceiptPreviewComponent,
     AddMorePopupComponent,
     CropReceiptComponent,
+    CropImageComponent,
     FyNumberComponent,
     FyStatisticComponent,
     FySummaryTileComponent,
