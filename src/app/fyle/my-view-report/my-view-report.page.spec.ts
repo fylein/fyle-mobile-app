@@ -115,7 +115,14 @@ describe('MyViewReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyViewReportPage, EllipsisPipe, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+      declarations: [
+        MyViewReportPage,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        AsyncPipe,
+      ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
         FyCurrencyPipe,
