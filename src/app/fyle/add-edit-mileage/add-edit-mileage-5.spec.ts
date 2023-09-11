@@ -341,7 +341,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.ionViewWillEnter();
-        tick(3000);
+        tick(1000);
         fixture.detectChanges();
 
         setupMatchers();
@@ -447,7 +447,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.ionViewWillEnter();
-        tick(3000);
+        tick(1000);
 
         setupMatchers();
 
@@ -547,7 +547,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.ionViewWillEnter();
-        tick(3000);
+        tick(1000);
         fixture.detectChanges();
 
         setupMatchers();
@@ -691,7 +691,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    it('should return true if expense less than 1', () => {
+    it('should return true if expense amount is less than 1', () => {
       const result = component.getIsPolicyExpense(policyExpense3);
 
       expect(result).toBeTrue();

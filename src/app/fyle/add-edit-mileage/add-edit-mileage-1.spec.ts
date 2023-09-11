@@ -949,7 +949,6 @@ export function TestCases1(getTestBed) {
 
         component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
           expect(res).toBeFalse();
-          // expect(accountsService.getEMyAccounts).not.toHaveBeenCalledOnceWith();
         });
         component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
         fixture.detectChanges();
@@ -1054,7 +1053,7 @@ export function TestCases1(getTestBed) {
           });
       });
 
-      it('should get null if if location is not specified', (done) => {
+      it('should return null if location is not specified', (done) => {
         mileageService.getDistance.and.returnValue(of(null));
         spyOn(component, 'getFormValues').and.returnValue(null);
         component.etxn$ = of(unflattenedTxnData);
