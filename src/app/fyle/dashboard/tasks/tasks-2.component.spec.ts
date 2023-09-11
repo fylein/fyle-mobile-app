@@ -34,6 +34,7 @@ import {
   unflattenedTxnData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
+import { singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -290,6 +291,132 @@ export function TestCases2(getTestBed) {
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
           queryParams: { filters: '{"state":["APPROVER_INQUIRY"]}' },
+        });
+      }));
+    });
+
+    describe('onSentBackAdvanceTaskClick():', () => {
+      beforeEach(() => {
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
+      });
+
+      it('should get all advances and navigate to add edit advance request page if task count is 1', fakeAsync(() => {
+        const mockDashboardTasksData = cloneDeep(dashboardTasksData);
+        mockDashboardTasksData[0].count = 1;
+        component.onSentBackAdvanceTaskClick(taskCtaData3, mockDashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your advance request...');
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+          queryParams: {
+            areq_state: 'in.(DRAFT)',
+            areq_is_sent_back: 'is.true',
+          },
+          offset: 0,
+          limit: 1,
+        });
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_advance_request',
+          { id: singleExtendedAdvReqRes.data[0].areq_id },
+        ]);
+      }));
+
+      it('should navigate to my advances page if task count is greater than 1', fakeAsync(() => {
+        component.onSentBackAdvanceTaskClick(taskCtaData3, dashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).not.toHaveBeenCalled();
+        expect(advanceRequestService.getMyadvanceRequests).not.toHaveBeenCalled();
+        expect(loaderService.hideLoader).not.toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances'], {
+          queryParams: { filters: JSON.stringify({ state: ['SENT_BACK'] }) },
+        });
+      }));
+    });
+
+    describe('onTeamReportsTaskClick():', () => {
+      beforeEach(() => {
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        reportService.getTeamReports.and.returnValue(of(apiReportRes));
+      });
+
+      it('should get all team reports and navigate to my view report page if task count is 1', fakeAsync(() => {
+        const mockDashboardTasksData = cloneDeep(dashboardTasksData);
+        mockDashboardTasksData[0].count = 1;
+        component.onTeamReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
+        expect(reportService.getTeamReports).toHaveBeenCalledOnceWith({
+          queryParams: {
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: ['in.(true)'],
+          },
+          offset: 0,
+          limit: 1,
+        });
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'view_team_report',
+          { id: apiReportRes.data[0].rp_id, navigate_back: true },
+        ]);
+      }));
+
+      it('should navigate to my reports page if task count is greater than 1', fakeAsync(() => {
+        component.onTeamReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).not.toHaveBeenCalled();
+        expect(reportService.getTeamReports).not.toHaveBeenCalled();
+        expect(loaderService.hideLoader).not.toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
+          queryParams: { filters: JSON.stringify({ state: ['APPROVER_PENDING'] }) },
+        });
+      }));
+    });
+
+    describe('onOpenDraftReportsTaskClick():', () => {
+      beforeEach(() => {
+        loaderService.showLoader.and.resolveTo();
+        loaderService.hideLoader.and.resolveTo();
+        reportService.getMyReports.and.returnValue(of(apiReportRes));
+      });
+
+      it('should get all reports and navigate to my view report page if task count is 1', fakeAsync(() => {
+        const mockDashboardTasksData = cloneDeep(dashboardTasksData);
+        mockDashboardTasksData[0].count = 1;
+        component.onOpenDraftReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
+        expect(reportService.getMyReports).toHaveBeenCalledOnceWith({
+          queryParams: {
+            rp_state: 'in.(DRAFT)',
+          },
+          offset: 0,
+          limit: 1,
+        });
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'my_view_report',
+          { id: apiReportRes.data[0].rp_id },
+        ]);
+      }));
+
+      it('should navigate to my reports page if task count is greater than 1', fakeAsync(() => {
+        component.onOpenDraftReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
+        tick(100);
+        expect(loaderService.showLoader).not.toHaveBeenCalled();
+        expect(reportService.getMyReports).not.toHaveBeenCalled();
+        expect(loaderService.hideLoader).not.toHaveBeenCalled();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+          queryParams: { filters: JSON.stringify({ state: ['DRAFT'] }) },
         });
       }));
     });
