@@ -1,16 +1,20 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { IonicModule, ModalController, Platform } from '@ionic/angular';
+import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
+import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import { tasksQueryParamsWithFiltersData } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
 import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
@@ -19,11 +23,10 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { PersonalCardsPage } from './personal-cards.page';
-import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -317,6 +320,45 @@ describe('PersonalCardsPage', () => {
       expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
     });
 
+    it('loadData(): should load data', fakeAsync(() => {
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+
+      component.loadData(new Event('') as InfiniteScrollCustomEvent);
+      tick(1500);
+
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith({
+        pageNumber: 2,
+      });
+    }));
+
+    it('segmentChanged(): should change segment', () => {
+      component.selectedTrasactionType = 'INITIALIZED';
+      component.selectionMode = true;
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+      spyOn(component, 'switchSelectionMode');
+
+      const event = new CustomEvent('click', {
+        detail: {
+          value: 'INITIALIZED',
+        },
+      }) as SegmentCustomEvent;
+
+      component.segmentChanged(event);
+
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      expect(component.switchSelectionMode).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith({
+        queryParams: {
+          btxn_status: 'in.(INITIALIZED)',
+        },
+        pageNumber: 1,
+      });
+      expect(component.acc).toEqual([]);
+    });
+
     it('onHomeClicked(): should go to dashboard page', () => {
       component.onHomeClicked();
 
@@ -431,6 +473,139 @@ describe('PersonalCardsPage', () => {
         expect(component.selectionMode).toBeTrue();
         expect(component.selectedElements).toEqual([]);
         expect(component.selectExpense).toHaveBeenCalledOnceWith('btxnMy43OZokde');
+      });
+    });
+
+    describe('selectExpense():', () => {
+      it('should add an expense to list', () => {
+        component.selectedElements = [];
+        fixture.detectChanges();
+
+        component.selectExpense('btxnMy43OZokde');
+        expect(component.selectedElements).toEqual(['btxnMy43OZokde']);
+      });
+
+      it('should add an expense to list', () => {
+        component.selectedElements = ['btxnMy43OZokde'];
+        fixture.detectChanges();
+
+        component.selectExpense('btxnMy43OZokde');
+        expect(component.selectedElements).toEqual([]);
+      });
+    });
+
+    it('onSelectAll(): should select all expenses', () => {
+      component.acc = [apiPersonalCardTxnsRes.data[0]];
+      const event = new MatCheckboxChange();
+      fixture.detectChanges();
+
+      component.onSelectAll(event);
+
+      expect(component.selectedElements).toEqual([apiPersonalCardTxnsRes.data[0].btxn_id]);
+    });
+
+    it('setState(): should set state', fakeAsync(() => {
+      spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData);
+      spyOn(component.loadData$, 'next');
+
+      component.setState();
+      tick(1000);
+
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith(tasksQueryParamsWithFiltersData);
+    }));
+
+    it('onSearchBarFocus(): should set focus on bar', () => {
+      component.onSearchBarFocus();
+
+      expect(component.isSearchBarFocused).toBeTrue();
+    });
+
+    it('onSimpleSearchCancel(): should cancel search', () => {
+      spyOn(component, 'clearText');
+      component.onSimpleSearchCancel();
+
+      expect(component.headerState).toEqual(HeaderState.base);
+      expect(component.clearText).toHaveBeenCalledOnceWith('onSimpleSearchCancel');
+    });
+
+    it('onFilterPillsClearAll(): should clear all filter pills', () => {
+      spyOn(component, 'clearFilters');
+
+      component.onFilterPillsClearAll();
+
+      expect(component.clearFilters).toHaveBeenCalledTimes(1);
+    });
+
+    it('onFilterClick(): should open filter', fakeAsync(() => {
+      spyOn(component, 'openFilters');
+
+      component.onFilterClick('filters');
+      tick(500);
+
+      expect(component.openFilters).toHaveBeenCalledOnceWith('filters');
+    }));
+
+    it('clearFilters(): should clear filters', () => {
+      personalCardsService.generateFilterPills.and.returnValue(creditTxnFilterPill);
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+
+      component.clearFilters();
+
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.generateFilterPills).toHaveBeenCalledOnceWith({});
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith({});
+    });
+
+    it('searchClick(): should open search', fakeAsync(() => {
+      spyOn(component.simpleSearchInput.nativeElement, 'focus');
+
+      component.searchClick();
+      tick(500);
+
+      expect(component.headerState).toEqual(HeaderState.simpleSearch);
+      expect(component.simpleSearchInput.nativeElement.focus).toHaveBeenCalledTimes(1);
+    }));
+
+    describe('onFilterClose():', () => {
+      it('should delete created on filter', () => {
+        personalCardsService.generateFilterPills.and.returnValue([]);
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+        component.filters = {
+          createdOn: {},
+        };
+        fixture.detectChanges();
+
+        component.onFilterClose('Created On');
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
+      });
+
+      it('should delete updated on filter', () => {
+        personalCardsService.generateFilterPills.and.returnValue([]);
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+        component.filters = {
+          updatedOn: {},
+        };
+        fixture.detectChanges();
+
+        component.onFilterClose('Updated On');
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
+      });
+
+      it('should delete transaction type filter', () => {
+        personalCardsService.generateFilterPills.and.returnValue([]);
+        spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+        component.filters = {
+          transactionType: 'DEBIT',
+        };
+        fixture.detectChanges();
+
+        component.onFilterClose('Transactions Type');
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
       });
     });
   });
