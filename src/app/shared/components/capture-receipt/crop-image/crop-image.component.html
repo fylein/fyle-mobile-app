@@ -1,0 +1,31 @@
+<div class="cropper">
+  <svg
+    #svgElement
+    [style.width]="getSVGWidth(svgElement)"
+    [attr.viewBox]="viewBox"
+    version="1.1"
+    xmlns="http://www.w3.org/2000/svg"
+    (mousedown)="startDrag($event, svgElement)"
+    (mousemove)="drag($event, svgElement)"
+    (touchstart)="startDrag($event, svgElement)"
+    (touchmove)="drag($event, svgElement)"
+  >
+    <image [attr.href]="dataURL"></image>
+    <a *ngIf="detectedQuadResult">
+      <polygon [attr.points]="getPointsData()" stroke="green" stroke-width="1" fill="lime" opacity="0.3"></polygon>
+    </a>
+    <rect
+      *ngFor="let point of points; let i = index"
+      stroke="green"
+      [attr.stroke-width]="getRectStrokeWidth(i)"
+      fill="rgba(0,255,0,.2)"
+      [attr.x]="getRectX(i, point.x)"
+      [attr.y]="getRectY(i, point.y)"
+      [attr.width]="getRectSize()"
+      [attr.height]="getRectSize()"
+      (mousedown)="onRectMouseDown(i, $event)"
+      (mouseup)="onRectMouseUp($event)"
+      (touchstart)="onRectTouchStart(i, $event)"
+    ></rect>
+  </svg>
+</div>

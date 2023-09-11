@@ -4,6 +4,10 @@ import { ModalController, Platform } from '@ionic/angular';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { Subscription } from 'rxjs';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { Router } from '@angular/router';
+import { Camera, CameraResultType } from '@capacitor/camera';
+import { DocumentNormalizer } from 'capacitor-plugin-dynamsoft-document-normalizer';
+import { CropImageComponent } from '../crop-image/crop-image.component';
 
 type Image = Partial<{
   source: string;
@@ -25,8 +29,30 @@ export class CropReceiptComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private loaderService: LoaderService,
-    private platform: Platform
-  ) {}
+    private platform: Platform,
+    private router: Router
+  ) {
+    let license =
+      'DLS2eyJoYW5kc2hha2VDb2RlIjoiMjAwMDAxLTE2NDk4Mjk3OTI2MzUiLCJvcmdhbml6YXRpb25JRCI6IjIwMDAwMSIsInNlc3Npb25QYXNzd29yZCI6IndTcGR6Vm05WDJrcEQ5YUoifQ=='; // public trial
+    DocumentNormalizer.initLicense({ license: license });
+    DocumentNormalizer.initialize();
+  }
+  async scan() {
+    const image = await Camera.getPhoto({
+      quality: 90,
+      allowEditing: false,
+      resultType: CameraResultType.DataUrl,
+    });
+    if (image) {
+      const cropReceiptModal = await this.modalController.create({
+        component: CropImageComponent,
+        componentProps: {
+          image: image,
+        },
+      });
+      await cropReceiptModal.present();
+    }
+  }
 
   ngOnInit() {
     this.loaderService.showLoader();
