@@ -22,6 +22,8 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { PersonalCardsPage } from './personal-cards.page';
+import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -190,6 +192,12 @@ describe('PersonalCardsPage', () => {
     expect(component).toBeTruthy();
   });
 
+  /**
+   * NOTE: Due to how the component is written, the lifecycle methods are throwing random observable
+   * errors while trying to run the test. It usually shows an undefined error while initializing the fixture.
+   * Disabling the lifecycle methods and then testing the rest, seems to work hence keeping it that way.
+   */
+
   describe('mocked lifecycle', () => {
     beforeEach(() => {
       spyOn(component, 'ngOnInit');
@@ -292,6 +300,160 @@ describe('PersonalCardsPage', () => {
       component.onDeleted();
       expect(component.loadCardData$.next).toHaveBeenCalledOnceWith({});
       expect(trackingService.cardDeletedOnPersonalCards).toHaveBeenCalledTimes(1);
+    });
+
+    it('onCardChanged(): should fetch new txns when card changes', () => {
+      spyOn(component.loadData$, 'getValue').and.returnValue({
+        queryParams: {},
+      });
+      spyOn(component.loadData$, 'next');
+
+      component.onCardChanged('eq.baccLesaRlyvLY');
+
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith({
+        queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+        pageNumber: 1,
+      });
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+    });
+
+    it('onHomeClicked(): should go to dashboard page', () => {
+      component.onHomeClicked();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+        queryParams: { state: 'home' },
+      });
+      expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+        page: 'Personal Cards',
+      });
+    });
+
+    it('onTaskClicked(): should go to dashboard page and apply task filter', () => {
+      component.onTaskClicked();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+        queryParams: { state: 'tasks', tasksFilters: 'none' },
+      });
+    });
+
+    it('onCameraClicked(): should open camera', () => {
+      component.onCameraClicked();
+
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'camera_overlay',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+
+    it('fetchNewTransactions(): should fetch new transactions', () => {
+      component.selectionMode = true;
+      spyOn(component, 'switchSelectionMode');
+      personalCardsService.fetchTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
+      fixture.detectChanges();
+
+      component.fetchNewTransactions();
+
+      expect(component.switchSelectionMode).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.fetchTransactions).toHaveBeenCalledTimes(1);
+      expect(trackingService.transactionsFetchedOnPersonalCards).toHaveBeenCalledTimes(1);
+    });
+
+    describe('hideSelectedTransactions():', () => {
+      it('should hide selected transactions in selection mode for multiple expenses', () => {
+        component.selectionMode = true;
+        personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes));
+        spyOn(component, 'switchSelectionMode');
+        snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes6);
+        fixture.detectChanges();
+
+        component.hideSelectedTransactions();
+
+        expect(component.switchSelectionMode).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.hideTransactions).toHaveBeenCalledTimes(1);
+        expect(trackingService.transactionsHiddenOnPersonalCards).toHaveBeenCalledTimes(1);
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...snackbarPropertiesRes6,
+          panelClass: ['msb-success'],
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+          message: '1 Transaction successfully hidden!',
+        });
+      });
+
+      it('should hide selected transactions for multiple expenses', () => {
+        component.selectionMode = false;
+        personalCardsService.hideTransactions.and.returnValue(of(expenseList2));
+        spyOn(component, 'switchSelectionMode');
+        snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes7);
+        fixture.detectChanges();
+
+        component.hideSelectedTransactions();
+
+        expect(component.switchSelectionMode).not.toHaveBeenCalled();
+        expect(personalCardsService.hideTransactions).toHaveBeenCalledTimes(1);
+        expect(trackingService.transactionsHiddenOnPersonalCards).toHaveBeenCalledTimes(1);
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...snackbarPropertiesRes7,
+          panelClass: ['msb-success'],
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+          message: '2 Transactions successfully hidden!',
+        });
+      });
+    });
+
+    describe('switchSelectionMode():', () => {
+      it('should switch mode if expense is of type INITIALIZED', () => {
+        component.selectedTrasactionType = 'INITIALIZED';
+        component.selectionMode = true;
+        spyOn(component, 'selectExpense');
+        fixture.detectChanges();
+
+        component.switchSelectionMode();
+
+        expect(component.selectionMode).toBeFalse();
+        expect(component.selectedElements).toEqual([]);
+        expect(component.selectExpense).not.toHaveBeenCalled();
+      });
+
+      it('should switch mode and select an expense if provided', () => {
+        component.selectedTrasactionType = 'INITIALIZED';
+        component.selectionMode = false;
+        spyOn(component, 'selectExpense');
+        fixture.detectChanges();
+
+        component.switchSelectionMode('btxnMy43OZokde');
+
+        expect(component.selectionMode).toBeTrue();
+        expect(component.selectedElements).toEqual([]);
+        expect(component.selectExpense).toHaveBeenCalledOnceWith('btxnMy43OZokde');
+      });
+    });
+  });
+
+  describe('ngOnInit():', () => {
+    it('should set mode to iOS and network watcher', () => {
+      spyOn(component, 'setupNetworkWatcher');
+      platform.is.and.returnValue(true);
+
+      component.ngOnInit();
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.mode).toEqual('ios');
+    });
+
+    it('should set mode to material design and network watcher', () => {
+      spyOn(component, 'setupNetworkWatcher');
+      platform.is.and.returnValue(false);
+
+      component.ngOnInit();
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(component.mode).toEqual('md');
     });
   });
 });
