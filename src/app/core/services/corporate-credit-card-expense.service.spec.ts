@@ -140,7 +140,7 @@ describe('CorporateCreditCardExpenseService', () => {
     expect(result).toEqual(expectedUniqueCardStats);
   });
 
-  it('getPlatformCorporateCardDetails(): should get expense details in platform card', () => {
+  it('getPlatformCorporateCardDetails(): should get corporate card details', () => {
     const result = cccExpenseService.getPlatformCorporateCardDetails(
       [statementUploadedCard],
       mastercardCCCStats.cardDetails,

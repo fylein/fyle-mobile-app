@@ -155,7 +155,7 @@ describe('RealTimeFeedService', () => {
   });
 
   describe('unenroll()', () => {
-    it('should handle unenrollment of visa rtf cards', () => {
+    it('should unenroll visa rtf card when VISA card is passed', () => {
       spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.VISA);
       spenderPlatformV1ApiService.post.and.returnValue(of(null));
 
@@ -170,7 +170,7 @@ describe('RealTimeFeedService', () => {
       });
     });
 
-    it('should handle unenrollment of mastercard rtf cards', () => {
+    it('should unenroll mastercard rtf card when Mastercard card is passed', () => {
       spyOn(realTimeFeedService, 'getCardType').and.returnValue(CardNetworkType.MASTERCARD);
       spenderPlatformV1ApiService.post.and.returnValue(of(null));
 
