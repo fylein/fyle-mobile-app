@@ -609,4 +609,16 @@ export class TrackingService {
   smsDeepLinkOpened(properties = {}): void {
     this.eventTrack('SMS Deep Link Opened', properties);
   }
+
+  cardUnenrolled(properties = {}): void {
+    this.eventTrack('Card Unenrolled', properties);
+  }
+
+  cardEnrolled(properties = {}): void {
+    this.eventTrack('Card Enrolled', properties);
+  }
+
+  cardEnrollmentFailed(properties = {}): void {
+    this.eventTrack('Card Enrollment Failed', properties);
+  }
 }

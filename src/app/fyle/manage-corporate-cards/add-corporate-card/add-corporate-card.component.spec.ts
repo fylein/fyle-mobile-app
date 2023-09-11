@@ -12,6 +12,8 @@ import { By } from '@angular/platform-browser';
 import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { of, throwError } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -29,6 +31,8 @@ describe('AddCorporateCardComponent', () => {
 
   let popoverController: jasmine.SpyObj<PopoverController>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
@@ -37,6 +41,7 @@ describe('AddCorporateCardComponent', () => {
       'enroll',
       'isCardNumberValid',
     ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardEnrolled', 'cardEnrollmentFailed']);
 
     TestBed.configureTestingModule({
       // Check if we need to provide the pipe spy as well
@@ -51,6 +56,16 @@ describe('AddCorporateCardComponent', () => {
           provide: RealTimeFeedService,
           useValue: realTimeFeedServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
+          provide: Router,
+          useValue: {
+            url: '/enterprise/manage_corporate_cards',
+          },
+        },
       ],
     }).compileComponents();
 
@@ -59,6 +74,8 @@ describe('AddCorporateCardComponent', () => {
 
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
     // Default inputs
     component.isYodleeEnabled = false;
@@ -279,6 +296,35 @@ describe('AddCorporateCardComponent', () => {
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
     });
 
+    it('should track card enrollment success events', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
+
+      component.card = statementUploadedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith({
+        'Card Network': 'Visa',
+        'Existing Card': statementUploadedCard.card_number,
+        'Card ID': visaRTFCard.id,
+        Source: '/enterprise/manage_corporate_cards',
+      });
+    });
+
     it('should show the error message received from backend when we face api errors while enrolling the card', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
@@ -329,6 +375,35 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
+    });
+
+    it('should track card enrollment failure events', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(trackingService.cardEnrollmentFailed).toHaveBeenCalledOnceWith({
+        'Card Network': 'Visa',
+        'Existing Card': '',
+        'Card Number': '4555 **** **** 5555',
+        'Error Message': 'Something went wrong. Please try after some time.',
+        Source: '/enterprise/manage_corporate_cards',
+      });
     });
 
     it('should disallow card enrollment if the entered card number is invalid', () => {

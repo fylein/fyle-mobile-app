@@ -1,10 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-add-corporate-card',
@@ -37,6 +39,8 @@ export class AddCorporateCardComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private realTimeFeedService: RealTimeFeedService,
+    private trackingService: TrackingService,
+    private router: Router,
   ) {}
 
   ngOnInit(): void {
@@ -79,7 +83,7 @@ export class AddCorporateCardComponent implements OnInit {
       )
       .subscribe((res) => {
         if (res) {
-          this.handleEnrollmentSuccess();
+          this.handleEnrollmentSuccess(res);
         }
       });
   }
@@ -149,9 +153,25 @@ export class AddCorporateCardComponent implements OnInit {
   private handleEnrollmentFailures(error: Error): void {
     this.cardForm.setErrors({ enrollmentError: true });
     this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+
+    const cardNumber = this.cardForm.value as string;
+    this.trackingService.cardEnrollmentFailed({
+      'Card Network': this.cardType,
+      'Existing Card': this.card ? this.card.card_number : '',
+      'Error Message': this.enrollmentFailureMessage,
+      'Card Number': `${cardNumber.slice(0, 4)} **** **** ${cardNumber.slice(12)}`,
+      Source: this.router.url,
+    });
   }
 
-  private handleEnrollmentSuccess(): void {
+  private handleEnrollmentSuccess(card: PlatformCorporateCard): void {
+    this.trackingService.cardEnrolled({
+      'Card Network': this.cardType,
+      'Existing Card': this.card ? this.card.card_number : '',
+      'Card ID': card.id,
+      Source: this.router.url,
+    });
+
     this.popoverController.dismiss({ success: true });
   }
 }

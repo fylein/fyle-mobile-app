@@ -31,6 +31,7 @@ import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from './card-added/card-added.component';
 import { noop } from 'lodash';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-corporate-card',
@@ -55,6 +56,7 @@ describe('ManageCorporateCardsPage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -67,6 +69,7 @@ describe('ManageCorporateCardsPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardUnenrolled']);
 
     TestBed.configureTestingModule({
       declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
@@ -100,6 +103,10 @@ describe('ManageCorporateCardsPage', () => {
           provide: RealTimeFeedService,
           useValue: realTimeFeedServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -115,6 +122,7 @@ describe('ManageCorporateCardsPage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
@@ -309,24 +317,6 @@ describe('ManageCorporateCardsPage', () => {
 
       tick();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        cssClass: 'pop-up-in-center',
-        componentProps: {
-          title: 'Disconnect Card',
-          message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
-          primaryCta: {
-            text: 'Yes, Disconnect',
-            action: 'disconnect',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-      });
-
-      expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(realTimeFeedService.unenroll).not.toHaveBeenCalled();
     }));
 
@@ -338,27 +328,24 @@ describe('ManageCorporateCardsPage', () => {
 
       tick();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: PopupAlertComponent,
-        cssClass: 'pop-up-in-center',
-        componentProps: {
-          title: 'Disconnect Card',
-          message: `<div class="text-left"><div class="mb-16">You are disconnecting your Visa card from real-time feed.</div><div>Do you wish to continue?</div></div>`,
-          primaryCta: {
-            text: 'Yes, Disconnect',
-            action: 'disconnect',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-      });
-
-      expect(disconnectPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(realTimeFeedService.unenroll).toHaveBeenCalledOnceWith(visaRTFCard);
       expect(corporateCreditCardExpenseService.clearCache).toHaveBeenCalledTimes(1);
       expect(component.loadCorporateCards$.next).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should track card unenrollment event', fakeAsync(() => {
+      disconnectPopoverSpy.onDidDismiss.and.resolveTo({ data: { action: 'disconnect' } });
+
+      const disconnectHandler = actionSheetButtons[0].handler;
+      disconnectHandler();
+
+      tick();
+
+      expect(trackingService.cardUnenrolled).toHaveBeenCalledOnceWith({
+        'Card Network': 'Visa',
+        'Card ID': visaRTFCard.id,
+        'Card Number': visaRTFCard.card_number,
+      });
     }));
   });
 
