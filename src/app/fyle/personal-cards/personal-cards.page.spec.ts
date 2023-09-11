@@ -6,14 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import {
-  InfiniteScrollCustomEvent,
-  IonInfiniteScroll,
-  IonicModule,
-  ModalController,
-  Platform,
-  SegmentCustomEvent,
-} from '@ionic/angular';
+import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
@@ -21,6 +14,7 @@ import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import {
   personalCardQueryParamFiltersData,
   tasksQueryParamsWithFiltersData,
+  tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
 import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
@@ -41,8 +35,10 @@ import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { InAppBrowserObject } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -88,7 +84,7 @@ describe('PersonalCardsPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const spinnerDialogSpy = jasmine.createSpyObj('SpinnerDialog', ['show']);
+    const spinnerDialogSpy = jasmine.createSpyObj('SpinnerDialog', ['show', 'hide']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'personalCardsViewed',
       'newCardLinkedOnPersonalCards',
@@ -791,6 +787,50 @@ describe('PersonalCardsPage', () => {
       expect(personalCardsService.generateCreditParams).toHaveBeenCalledTimes(1);
       expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
     });
+
+    it('openFilters(): should open filters', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
+      modalSpy.onWillDismiss.and.resolveTo({
+        data: selectedFilters2,
+      });
+      modalController.create.and.resolveTo(modalSpy);
+      personalCardsService.generateSelectedFilters.and.returnValue(selectedFilters1);
+      personalCardsService.convertFilters.and.returnValue({});
+      spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData3);
+      personalCardsService.generateFilterPills.and.returnValue(creditTxnFilterPill);
+      spyOn(component.loadData$, 'next');
+
+      component.openFilters();
+      tick(1000);
+
+      expect(modalController.create).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.generateSelectedFilters).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith(tasksQueryParamsWithFiltersData3);
+      expect(personalCardsService.generateFilterPills).toHaveBeenCalledOnceWith({});
+    }));
+
+    it('openYoodle(): should open yoodle', fakeAsync(() => {
+      personalCardsService.htmlFormUrl.and.returnValue('<h1></h1>');
+      const inappborwserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
+      inappborwserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+      const ids = JSON.stringify([{ requestId: 'id' }]);
+      inappborwserSpy.on.withArgs('loadstart').and.returnValue(
+        of({
+          url: JSON.stringify('https://www.fylehq.com/app/main/#/my_dash' + ids),
+        }),
+      );
+      inAppBrowserService.create.and.returnValue(inappborwserSpy);
+      spyOn(component, 'postAccounts');
+
+      component.openYoodle(apiToken.fast_link_url, apiToken.access_token);
+      tick(20000);
+
+      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+      expect(inappborwserSpy.on).toHaveBeenCalledTimes(2);
+      expect(inAppBrowserService.create).toHaveBeenCalledTimes(1);
+    }));
   });
 
   describe('ngOnInit():', () => {
