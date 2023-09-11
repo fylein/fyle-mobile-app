@@ -4,7 +4,6 @@ import { ActivatedRoute } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
 import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
-import { Currency } from 'src/app/core/models/currency.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -30,29 +29,9 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
-
-type EventData = {
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  isEnabled: boolean;
-  selectedCurrency?: Currency;
-};
-
-type PreferenceSetting = {
-  title: string;
-  content: string;
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  defaultCurrency?: string;
-  isEnabled: boolean;
-  isAllowed: boolean;
-};
-
-type CopyCardDetails = {
-  title: string;
-  content: string;
-  contentToCopy: string;
-  toastMessageContent: string;
-  isHidden?: boolean;
-};
+import { EventData } from 'src/app/core/models/event-data.model';
+import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
+import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 
 @Component({
   selector: 'app-my-profile',
