@@ -38,7 +38,14 @@ describe('FyUserlistModalComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [FyUserlistModalComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, FormsModule, MatIconModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        FormsModule,
+        MatChipsModule,
+        MatIconModule,
+        MatCheckboxModule,
+      ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
