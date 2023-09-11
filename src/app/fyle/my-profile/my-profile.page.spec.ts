@@ -1,12 +1,16 @@
+import { EventEmitter } from '@angular/core';
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject, of } from 'rxjs';
+import { BehaviorSubject, of, throwError } from 'rxjs';
+import { selectedCurrencies } from 'src/app/core/mock-data/currency.data';
+import { extendedDeviceInfoMockData } from 'src/app/core/mock-data/extended-device-info.data';
 import { apiEouRes, eouRes3, eouWithNoAttempts } from 'src/app/core/mock-data/extended-org-user.data';
 import { allInfoCardsData } from 'src/app/core/mock-data/info-card-data.data';
+import { orgUserSettingsData, orgUserSettingsWoInstaFyle } from 'src/app/core/mock-data/org-user-settings.data';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -19,12 +23,14 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
+import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -73,6 +79,16 @@ describe('MyProfilePage', () => {
       declarations: [MyProfilePage],
       imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                openPopover: '',
+              },
+            },
+          },
+        },
         {
           provide: AuthService,
           useValue: authServiceSpy,
@@ -159,6 +175,7 @@ describe('MyProfilePage', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -168,6 +185,46 @@ describe('MyProfilePage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('setupNetworkWatcher(): should setup network watcher', () => {
+    networkService.isOnline.and.returnValue(of(true));
+
+    component.setupNetworkWatcher();
+
+    expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+    expect(networkService.connectivityWatcher).toHaveBeenCalledOnceWith(new EventEmitter<boolean>());
+  });
+
+  describe('signOut():', () => {
+    it('should sign out the user and clear all cache', fakeAsync(() => {
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      authService.getEou.and.resolveTo(apiEouRes);
+      authService.logout.and.returnValue(of(null));
+
+      component.signOut();
+      tick(500);
+
+      expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(authService.logout).toHaveBeenCalledTimes(1);
+      expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(storageService.clearAll).toHaveBeenCalledTimes(1);
+      expect(userEventService.logout).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should throw an error but clear cache if logout fails', fakeAsync(() => {
+      deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
+      authService.getEou.and.resolveTo(apiEouRes);
+      authService.logout.and.returnValue(throwError(() => new Error('error')));
+
+      try {
+        component.signOut();
+        tick(500);
+      } catch (err) {
+        expect(err).toBeTruthy();
+      }
+    }));
   });
 
   describe('showToastMessage(): ', () => {
@@ -248,6 +305,102 @@ describe('MyProfilePage', () => {
     });
   });
 
+  describe('ionViewWillEnter():', () => {
+    it('should setup class observables and show update mobile number modal', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'updateMobileNumber');
+      activatedRoute.snapshot.params.openPopover = 'add_mobile_number';
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.updateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    }));
+
+    it('should setup class observables and show verify mobile number modal', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'verifyMobileNumber');
+      activatedRoute.snapshot.params.openPopover = 'verify_mobile_number';
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(1000);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    }));
+
+    it('should not open any modal if open popover is not passed as a param', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'verifyMobileNumber');
+      spyOn(component, 'updateMobileNumber');
+      activatedRoute.snapshot.params.openPopover = null;
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(1000);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).not.toHaveBeenCalled();
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.verifyMobileNumber).not.toHaveBeenCalled();
+      expect(component.updateMobileNumber).not.toHaveBeenCalled();
+    }));
+  });
+
+  it('reset(): should reset all settings', fakeAsync(() => {
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+    expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes);
+    expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+
+    expect(component.orgUserSettings).toEqual(orgUserSettingsData);
+    expect(component.orgSettings).toEqual(orgSettingsData);
+  }));
+
+  it('setPreferenceSettings(): should set preference settings', () => {
+    component.orgSettings = orgSettingsData;
+    component.orgUserSettings = orgUserSettingsWoInstaFyle;
+    fixture.detectChanges();
+
+    component.setPreferenceSettings();
+
+    expect(component.preferenceSettings.length).toEqual(2);
+  });
+
   describe('setInfoCardsData(): ', () => {
     it('should show only email card for non USD orgs', () => {
       component.setInfoCardsData(eouRes3);
@@ -259,6 +412,44 @@ describe('MyProfilePage', () => {
       eou.ou.mobile_verified = true;
       component.setInfoCardsData(eou);
       expect(component.infoCardsData).toEqual(allInfoCardsData);
+    });
+  });
+
+  describe('toggleSetting():', () => {
+    it('should toggle settings to true', () => {
+      component.orgUserSettings = orgUserSettingsData;
+      orgUserSettingsService.post.and.returnValue(of(null));
+
+      component.toggleSetting({
+        key: 'defaultCurrency',
+        isEnabled: true,
+        selectedCurrency: selectedCurrencies[0],
+      });
+
+      expect(trackingService.onSettingsToggle).toHaveBeenCalledOnceWith({
+        userSetting: 'defaultCurrency',
+        action: 'enabled',
+        setDefaultCurrency: true,
+      });
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
+    });
+
+    it('should toggle settings to false for default currency', () => {
+      component.orgUserSettings = orgUserSettingsData;
+      orgUserSettingsService.post.and.returnValue(of(null));
+
+      component.toggleSetting({
+        key: 'defaultCurrency',
+        isEnabled: false,
+        selectedCurrency: null,
+      });
+
+      expect(trackingService.onSettingsToggle).toHaveBeenCalledOnceWith({
+        userSetting: 'defaultCurrency',
+        action: 'disabled',
+        setDefaultCurrency: false,
+      });
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
     });
   });
 
@@ -384,6 +575,27 @@ describe('MyProfilePage', () => {
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(trackingService.verifyMobileNumber).toHaveBeenCalledTimes(1);
     }));
+  });
+
+  describe('onVerifyCtaClicked():', () => {
+    it('should open verify mobile number modal if there are attempts left', () => {
+      spyOn(component, 'verifyMobileNumber');
+
+      component.onVerifyCtaClicked(apiEouRes);
+
+      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    });
+
+    it('should show toast message if there are no attempt left', () => {
+      spyOn(component, 'showToastMessage');
+
+      component.onVerifyCtaClicked(eouWithNoAttempts);
+
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith(
+        'You have reached the limit to request OTP. Retry after 24 hours.',
+        'failure',
+      );
+    });
   });
 
   describe('updateMobileNumber(): ', () => {
