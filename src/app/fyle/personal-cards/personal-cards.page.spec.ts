@@ -6,13 +6,23 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
+import {
+  InfiniteScrollCustomEvent,
+  IonInfiniteScroll,
+  IonicModule,
+  ModalController,
+  Platform,
+  SegmentCustomEvent,
+} from '@ionic/angular';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
-import { tasksQueryParamsWithFiltersData } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
-import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import {
+  personalCardQueryParamFiltersData,
+  tasksQueryParamsWithFiltersData,
+} from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
+import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
 import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
@@ -27,6 +37,10 @@ import { HeaderState } from 'src/app/shared/components/fy-header/header-state.en
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
 import { PersonalCardsPage } from './personal-cards.page';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -607,6 +621,175 @@ describe('PersonalCardsPage', () => {
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
         expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
       });
+    });
+
+    describe('clearText():', () => {
+      it('should clear text and remove focus from search bar', () => {
+        component.clearText('onSimpleSearchCancel');
+
+        expect(component.simpleSearchText).toEqual('');
+        expect(component.isSearchBarFocused).toBeTrue();
+      });
+
+      it('should set search bar if not redirected from cancel', () => {
+        component.clearText('notFromCancel');
+
+        expect(component.simpleSearchText).toEqual('');
+        expect(component.isSearchBarFocused).toBeFalse();
+      });
+    });
+
+    describe('createExpense():', () => {
+      it('should create an expense and navigate to add edit expense if count is 0', () => {
+        component.selectionMode = false;
+        component.loadingMatchedExpenseCount = false;
+        personalCardsService.getMatchedExpensesCount.and.returnValue(of(0));
+
+        component.createExpense(apiPersonalCardTxnsRes.data[0]);
+
+        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+          apiPersonalCardTxnsRes.data[0].btxn_amount,
+          '2021-09-19',
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'add_edit_expense',
+          { personalCardTxn: JSON.stringify(apiPersonalCardTxnsRes.data[0]), navigate_back: true },
+        ]);
+      });
+
+      it('should create an expense and navigate to personal cards page if count is more than 0', () => {
+        component.selectionMode = false;
+        component.loadingMatchedExpenseCount = false;
+        personalCardsService.getMatchedExpensesCount.and.returnValue(of(1));
+
+        component.createExpense(apiPersonalCardTxnsRes.data[0]);
+
+        expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
+          apiPersonalCardTxnsRes.data[0].btxn_amount,
+          '2021-09-19',
+        );
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
+          state: { txnDetails: apiPersonalCardTxnsRes.data[0] },
+        });
+      });
+
+      it('should exit and not create an expense if the page is in loading state', () => {
+        component.selectionMode = true;
+        component.loadingMatchedExpenseCount = true;
+
+        component.createExpense(matchedPersonalCardTxn);
+
+        expect(personalCardsService.getMatchedExpensesCount).not.toHaveBeenCalled();
+      });
+
+      it('should open expense if the expense has been matched', () => {
+        component.selectionMode = false;
+        component.loadingMatchedExpenseCount = false;
+        spyOn(component, 'openExpensePreview');
+
+        component.createExpense(matchedPersonalCardTxn);
+
+        expect(component.openExpensePreview).toHaveBeenCalledOnceWith(matchedPersonalCardTxn);
+      });
+    });
+
+    it('openExpensePreview(): should open expense preview', fakeAsync(() => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+
+      const modalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present']);
+
+      modalController.create.and.resolveTo(modalSpy);
+
+      component.openExpensePreview(matchedPersonalCardTxn);
+      tick(500);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: ExpensePreviewComponent,
+        componentProps: {
+          expenseId: matchedPersonalCardTxn.txn_details[0]?.id,
+          card: matchedPersonalCardTxn.ba_account_number,
+          cardTxnId: matchedPersonalCardTxn.btxn_id,
+          type: 'unmatch',
+        },
+        ...properties,
+      });
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledOnceWith('expense-preview-modal');
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+    }));
+
+    it('openDateRangeModal(): should open date range modal', fakeAsync(() => {
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+
+      const modalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present', 'onWillDismiss']);
+      modalSpy.onWillDismiss.and.resolveTo({
+        data: {
+          range: 'Custom Range',
+          startDate: '2023-02-20T00:00:00.000Z',
+          endDate: '2023-02-24T00:00:00.000Z',
+        },
+      });
+
+      modalController.create.and.resolveTo(modalSpy);
+      personalCardsService.generateDateParams.and.returnValue({
+        queryParams: {
+          or: '(and(btxn_transaction_dt.gte.2023-02-28T18:30:00.000Z,btxn_transaction_dt.lt.2023-03-31T18:29:00.000Z))',
+          btxn_status: 'in.(INITIALIZED)',
+          ba_id: 'eq.baccLesaRlyvLY',
+        },
+        pageNumber: 1,
+      });
+
+      component.openDateRangeModal();
+      tick(500);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: DateRangeModalComponent,
+        mode: 'ios',
+        ...properties,
+      });
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledOnceWith('personal-cards-range-modal');
+      expect(personalCardsService.generateDateParams).toHaveBeenCalledOnceWith(
+        {
+          range: 'Custom Range',
+          startDate: '2023-02-20T00:00:00.000Z',
+          endDate: '2023-02-24T00:00:00.000Z',
+        },
+        {},
+      );
+    }));
+
+    it('doRefresh(): refresh page content', () => {
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      spyOn(component.loadData$, 'next');
+
+      const event = new CustomEvent('click') as IonInfiniteScrollCustomEvent<any>;
+
+      component.doRefresh(event);
+
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+      expect(component.currentPageNumber).toEqual(1);
+    });
+
+    it('addNewFiltersToParams(): should new filters to params', () => {
+      spyOn(component.loadData$, 'getValue').and.returnValue({});
+      component.selectedTrasactionType = 'DEBIT';
+      component.selectedAccount = 'baccLesaRlyvLY';
+
+      const result = component.addNewFiltersToParams();
+      expect(result).toEqual(personalCardQueryParamFiltersData);
+      expect(personalCardsService.generateTxnDateParams).toHaveBeenCalledTimes(2);
+      expect(personalCardsService.generateCreditParams).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
     });
   });
 

@@ -745,11 +745,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details;
+    const txn_details = txnDetails?.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txn_details[0].id,
+        expenseId: txn_details[0]?.id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'unmatch',
