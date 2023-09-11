@@ -30,6 +30,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyProfilePage } from './my-profile.page';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -78,6 +79,16 @@ describe('MyProfilePage', () => {
       declarations: [MyProfilePage],
       imports: [IonicModule.forRoot(), RouterTestingModule],
       providers: [
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                openPopover: '',
+              },
+            },
+          },
+        },
         {
           provide: AuthService,
           useValue: authServiceSpy,
@@ -164,6 +175,7 @@ describe('MyProfilePage', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -292,6 +304,92 @@ describe('MyProfilePage', () => {
       });
     });
   });
+
+  describe('ionViewWillEnter():', () => {
+    it('should setup class observables and show update mobile number modal', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'updateMobileNumber');
+      activatedRoute.snapshot.params.openPopover = 'add_mobile_number';
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.updateMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    }));
+
+    it('should setup class observables and show verify mobile number modal', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'verifyMobileNumber');
+      activatedRoute.snapshot.params.openPopover = 'verify_mobile_number';
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(1000);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
+    }));
+
+    it('should not open any modal if open popover is not passed as a param', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'verifyMobileNumber');
+      spyOn(component, 'updateMobileNumber');
+      activatedRoute.snapshot.params.openPopover = null;
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(1000);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).not.toHaveBeenCalled();
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.verifyMobileNumber).not.toHaveBeenCalled();
+      expect(component.updateMobileNumber).not.toHaveBeenCalled();
+    }));
+  });
+
+  it('reset(): should reset all settings', fakeAsync(() => {
+    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsData));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    spyOn(component, 'setInfoCardsData');
+    spyOn(component, 'setPreferenceSettings');
+    fixture.detectChanges();
+
+    component.reset();
+    tick(500);
+
+    expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+    expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+    expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes);
+    expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+
+    expect(component.orgUserSettings).toEqual(orgUserSettingsData);
+    expect(component.orgSettings).toEqual(orgSettingsData);
+  }));
 
   it('setPreferenceSettings(): should set preference settings', () => {
     component.orgSettings = orgSettingsData;
