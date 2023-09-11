@@ -11,6 +11,7 @@ import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
 import { costCenterOptions2, costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { expenseFieldResponse, transformedResponse } from 'src/app/core/mock-data/expense-field.data';
+import { policyExpense3 } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import {
   mileageRateApiRes2,
@@ -162,11 +163,11 @@ export function TestCases5(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
+        CorporateCreditCardExpenseService,
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService
+        RecentLocalStorageItemsService,
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -231,7 +232,6 @@ export function TestCases5(getTestBed) {
     }
 
     function getClassValues() {
-      spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
       spyOn(component, 'getTransactionFields').and.returnValue(of(expenseFieldObjData));
       spyOn(component, 'getSubCategories').and.returnValue(of(mileageCategories2));
       spyOn(component, 'getProjectCategoryIds').and.returnValue(of(['141295', '141300']));
@@ -333,6 +333,7 @@ export function TestCases5(getTestBed) {
       });
 
       it('should setup class variables', fakeAsync(() => {
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
         activatedRoute.snapshot.params.navigate_back = true;
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53', 'tx053DOHz9pU']);
@@ -340,7 +341,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.ionViewWillEnter();
-        tick(3000);
+        tick(1000);
         fixture.detectChanges();
 
         setupMatchers();
@@ -435,6 +436,7 @@ export function TestCases5(getTestBed) {
 
       it('should setup class variables with autofill enabled and no recent values available', fakeAsync(() => {
         activatedRoute.snapshot.params.navigate_back = true;
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(recentlyUsedRes));
         activatedRoute.snapshot.params.activeIndex = 3;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53']);
         component.mode = 'edit';
@@ -445,7 +447,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.ionViewWillEnter();
-        tick(3000);
+        tick(1000);
 
         setupMatchers();
 
@@ -529,6 +531,109 @@ export function TestCases5(getTestBed) {
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));
+
+      it('should setup class variables without mileage rates and payment modes', fakeAsync(() => {
+        component.mode = 'add';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        component.mileageConfig$.subscribe((res) => {
+          expect(res).toEqual(orgSettingsRes.mileage);
+        });
+
+        component.isAdvancesEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.recentlyUsedValues$.subscribe((res) => {
+          expect(res).toBeNull();
+        });
+
+        expect(component.getRecentlyUsedValues).toHaveBeenCalledTimes(1);
+
+        component.recentlyUsedMileageLocations$.subscribe((res) => {
+          expect(res).toEqual({ recent_start_locations: [], recent_end_locations: [], recent_locations: [] });
+        });
+
+        component.isProjectVisible$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.mileageRates$.subscribe((res) => {
+          expect(res).toEqual([]);
+        });
+
+        expect(component.getMileageRatesOptions).toHaveBeenCalledTimes(1);
+
+        component.etxn$.subscribe((res) => {
+          expect(res).toEqual(unflattenedTxnData);
+        });
+
+        component.isAmountDisabled$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isIndividualProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.individualProjectIds$.subscribe((res) => {
+          expect(res).toEqual([290054, 316444, 316446, 149230, 316442, 316443]);
+        });
+
+        component.isProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        expect(component.getCustomInputs).toHaveBeenCalledTimes(1);
+
+        component.isCostCentersEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+
+        component.reports$.subscribe((res) => {
+          expect(res).toEqual(reportOptionsData4);
+        });
+
+        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(component.setupTxnFields).toHaveBeenCalledTimes(1);
+
+        component.isAmountCapped$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.isCriticalPolicyViolated$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+
+        component.rate$.subscribe((res) => {
+          expect(res).toEqual(10);
+        });
+
+        component.recentlyUsedProjects$.subscribe((res) => {
+          expect(res).toEqual(recentlyUsedProjectRes);
+        });
+
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith([], null);
+        expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
+      }));
     });
 
     it('getMileageRatesOptions(): should get mileages rates options', (done) => {
@@ -566,7 +671,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -581,9 +686,36 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function)
+          jasmine.any(Function),
         );
       });
+    });
+
+    it('should return true if expense amount is less than 1', () => {
+      const result = component.getIsPolicyExpense(policyExpense3);
+
+      expect(result).toBeTrue();
+    });
+
+    it('onRouteVisualizerClick(): should open route selector modal', fakeAsync(() => {
+      const routeSelectorSpy = jasmine.createSpyObj('RouteSelectorComponent', ['openModal']);
+      component.routeSelector = routeSelectorSpy;
+      fixture.detectChanges();
+
+      component.onRouteVisualizerClick();
+      tick(500);
+
+      expect(component.routeSelector.openModal).toHaveBeenCalledTimes(1);
+    }));
+
+    it('ngOnInit(): should set report flags if provided in route', () => {
+      activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);
+      fixture.detectChanges();
+
+      component.ngOnInit();
+
+      expect(component.isRedirectedFromReport).toBeTrue();
+      expect(component.canRemoveFromReport).toBeTrue();
     });
   });
 }
