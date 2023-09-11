@@ -13,12 +13,13 @@ import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
 import { DateService } from './date.service';
 import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
-import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
+import { expectedAssignedCCCStats, mastercardCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
-import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
+import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail-data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -64,7 +65,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService
+      SpenderPlatformV1ApiService,
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -126,7 +127,7 @@ describe('CorporateCreditCardExpenseService', () => {
           queryParams +
           '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
           apiEouRes.ou.id,
-        {}
+        {},
       );
       expect(cccExpenseService.constructInQueryParamStringForV2).toHaveBeenCalledOnceWith(['COMPLETE', 'DRAFT']);
       done();
@@ -137,6 +138,15 @@ describe('CorporateCreditCardExpenseService', () => {
     const result = cccExpenseService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
 
     expect(result).toEqual(expectedUniqueCardStats);
+  });
+
+  it('getPlatformCorporateCardDetails(): should get corporate card details', () => {
+    const result = cccExpenseService.getPlatformCorporateCardDetails(
+      [statementUploadedCard],
+      mastercardCCCStats.cardDetails,
+    );
+
+    expect(result).toEqual(statementUploadedCardDetail);
   });
 
   it('getv2CardTransactions(): should get all card transactions', (done) => {

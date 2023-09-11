@@ -9,7 +9,7 @@ import { NgxMaskModule } from 'ngx-mask';
 import { ReactiveFormsModule } from '@angular/forms';
 import { Component, Input } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
+import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { of, throwError } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 
@@ -177,7 +177,7 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
+        'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
       );
     });
 
@@ -201,7 +201,7 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa number. If you have other cards, please contact your admin.'
+        'Enter a valid Visa number. If you have other cards, please contact your admin.',
       );
     });
 
@@ -225,13 +225,13 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
+        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
       );
     });
   });
 
   describe('card enrollment flow', () => {
-    it('should successfully enroll the card and close the popover if the user clicks on add corporate card button with a valid card number', () => {
+    it('should successfully enroll the card and close the popover', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
@@ -251,6 +251,31 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
+      expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
+    });
+
+    it('should successfully enroll an existing card to rtf and close the popover', () => {
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+      realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
+
+      component.card = statementUploadedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4555555555555555';
+      cardNumberInput.dispatchEvent(new Event('input'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', statementUploadedCard.id);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
     });
 
@@ -306,7 +331,7 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
     });
 
-    it('should disallow card enrollment if the user clicks on add corporate card button but the card number is invalid', () => {
+    it('should disallow card enrollment if the entered card number is invalid', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
 
@@ -346,7 +371,7 @@ describe('AddCorporateCardComponent', () => {
       expect(alertMessageComponent).toBeTruthy();
       expect(alertMessageComponent.componentInstance.type).toBe('information');
       expect(alertMessageComponent.componentInstance.message).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
       );
 
       const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;

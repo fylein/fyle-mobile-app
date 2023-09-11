@@ -50,7 +50,7 @@ export const visaRTFCard: PlatformCorporateCard = {
 export const statementUploadedCard: PlatformCorporateCard = {
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
-  card_number: '555555******5555',
+  card_number: '5555',
   cardholder_name: null,
   code: null,
   created_at: '2023-03-03T07:16:46.376082+00:00',

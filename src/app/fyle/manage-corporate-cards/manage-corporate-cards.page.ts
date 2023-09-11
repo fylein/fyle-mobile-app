@@ -38,7 +38,7 @@ export class ManageCorporateCardsPage {
     private popoverController: PopoverController,
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private realTimeFeedService: RealTimeFeedService
+    private realTimeFeedService: RealTimeFeedService,
   ) {}
 
   refresh(event: RefresherCustomEvent): void {
@@ -54,21 +54,23 @@ export class ManageCorporateCardsPage {
 
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
     );
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
+      map(
+        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
+      ),
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
-      )
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
+      ),
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
@@ -76,8 +78,8 @@ export class ManageCorporateCardsPage {
         ([orgSettings, orgUserSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
           orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled
-      )
+          orgUserSettings.bank_data_aggregation_settings.enabled,
+      ),
     );
   }
 
@@ -116,7 +118,7 @@ export class ManageCorporateCardsPage {
         }
 
         return actionSheetButtons;
-      })
+      }),
     );
   }
 
@@ -153,7 +155,7 @@ export class ManageCorporateCardsPage {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      }
+      },
     );
   }
 
@@ -197,7 +199,7 @@ export class ManageCorporateCardsPage {
 
     if (popoverResponse.data?.action === 'disconnect') {
       forkJoin([
-        this.realTimeFeedService.unenroll(cardType, card.id),
+        this.realTimeFeedService.unenroll(card),
         this.corporateCreditCardExpenseService.clearCache(),
       ]).subscribe(() => {
         this.loadCorporateCards$.next();

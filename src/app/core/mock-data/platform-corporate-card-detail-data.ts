@@ -36,3 +36,17 @@ export const cardDetailsRes: PlatformCorporateCardDetail[] = [
     },
   },
 ];
+
+export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = [
+  {
+    card: statementUploadedCard,
+    stats: {
+      totalDraftTxns: 6,
+      totalDraftValue: 937.2,
+      totalCompleteTxns: 6,
+      totalCompleteExpensesValue: 937.2,
+      totalTxnsCount: 12,
+      totalAmountValue: 1874.4,
+    },
+  },
+];
