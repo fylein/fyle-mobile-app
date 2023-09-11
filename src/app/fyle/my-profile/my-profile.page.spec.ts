@@ -343,6 +343,27 @@ describe('MyProfilePage', () => {
       expect(component.reset).toHaveBeenCalledTimes(1);
       expect(component.verifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
     }));
+
+    it('should not open any modal if open popover is not passed as a param', fakeAsync(() => {
+      spyOn(component, 'setupNetworkWatcher');
+      authService.getEou.and.resolveTo(apiEouRes);
+      tokenService.getClusterDomain.and.resolveTo('domain');
+      spyOn(component, 'reset');
+      spyOn(component, 'verifyMobileNumber');
+      spyOn(component, 'updateMobileNumber');
+      activatedRoute.snapshot.params.openPopover = null;
+      fixture.detectChanges();
+
+      component.ionViewWillEnter();
+      tick(1000);
+
+      expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+      expect(authService.getEou).not.toHaveBeenCalled();
+      expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
+      expect(component.reset).toHaveBeenCalledTimes(1);
+      expect(component.verifyMobileNumber).not.toHaveBeenCalled();
+      expect(component.updateMobileNumber).not.toHaveBeenCalled();
+    }));
   });
 
   it('reset(): should reset all settings', fakeAsync(() => {
