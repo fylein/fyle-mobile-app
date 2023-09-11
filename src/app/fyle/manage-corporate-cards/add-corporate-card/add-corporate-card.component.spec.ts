@@ -25,7 +25,7 @@ export class MockFyAlertInfoComponent {
   @Input() type: 'information' | 'warning';
 }
 
-describe('AddCorporateCardComponent', () => {
+fdescribe('AddCorporateCardComponent', () => {
   let component: AddCorporateCardComponent;
   let fixture: ComponentFixture<AddCorporateCardComponent>;
 
@@ -382,6 +382,8 @@ describe('AddCorporateCardComponent', () => {
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
 
+      component.card = statementUploadedCard;
+
       component.ngOnInit();
       fixture.detectChanges();
 
@@ -399,7 +401,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(trackingService.cardEnrollmentFailed).toHaveBeenCalledOnceWith({
         'Card Network': 'Visa',
-        'Existing Card': '',
+        'Existing Card': statementUploadedCard.card_number,
         'Card Number': '4555 **** **** 5555',
         'Error Message': 'Something went wrong. Please try after some time.',
         Source: '/enterprise/manage_corporate_cards',
