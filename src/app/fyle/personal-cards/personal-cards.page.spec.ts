@@ -17,7 +17,7 @@ import {
   tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
-import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { apiLinkedAccRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -36,8 +36,9 @@ import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expe
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { By } from '@angular/platform-browser';
 
-fdescribe('PersonalCardsPage', () => {
+describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -105,10 +106,10 @@ fdescribe('PersonalCardsPage', () => {
             snapshot: {
               params: {
                 navigateBack: true,
-                queryParams: {
-                  filters: {
-                    amount: 10,
-                  },
+              },
+              queryParams: {
+                filters: {
+                  amount: 10,
                 },
               },
             },
@@ -864,5 +865,45 @@ fdescribe('PersonalCardsPage', () => {
     expect(component.loadData$.next).toHaveBeenCalledTimes(1);
     expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
     expect(trackingService.personalCardsViewed).toHaveBeenCalledTimes(1);
+  });
+
+  describe('ngAfterViewInit():', () => {
+    it('should load data with filters', () => {
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify({});
+      personalCardsService.getLinkedAccountsCount.and.returnValue(of(0));
+      personalCardsService.getLinkedAccounts.and.returnValue(of(apiLinkedAccRes.data));
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
+      personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
+      personalCardsService.getBankTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
+
+      component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
+      const inputElement = component.simpleSearchInput.nativeElement as HTMLInputElement;
+
+      component.ngAfterViewInit();
+
+      inputElement.value = '';
+      inputElement.dispatchEvent(new Event('keyup'));
+      fixture.detectChanges();
+
+      component.linkedAccounts$.subscribe((res) => {
+        expect(res).toBeTruthy();
+      });
+
+      component.transactions$.subscribe((res) => {
+        expect(res).toBeTruthy();
+      });
+
+      component.transactionsCount$.subscribe((res) => {
+        expect(res).toBeTruthy();
+      });
+
+      expect(component.addNewFiltersToParams).toHaveBeenCalled();
+      expect(personalCardsService.getLinkedAccountsCount).toHaveBeenCalled();
+      expect(personalCardsService.getLinkedAccounts).toHaveBeenCalled();
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalled();
+      expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalled();
+      expect(personalCardsService.generateFilterPills).toHaveBeenCalled();
+    });
   });
 });
