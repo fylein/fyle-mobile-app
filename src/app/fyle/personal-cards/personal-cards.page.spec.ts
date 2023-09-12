@@ -36,7 +36,6 @@ import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expe
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
-import { InAppBrowserObject } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
 fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -853,5 +852,17 @@ fdescribe('PersonalCardsPage', () => {
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.mode).toEqual('md');
     });
+  });
+
+  it('ionViewWillEnter(): should setup class variables', () => {
+    component.isCardsLoaded = true;
+    spyOn(component.loadData$, 'getValue').and.returnValue({});
+    spyOn(component.loadData$, 'next');
+
+    component.ionViewWillEnter();
+
+    expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+    expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+    expect(trackingService.personalCardsViewed).toHaveBeenCalledTimes(1);
   });
 });
