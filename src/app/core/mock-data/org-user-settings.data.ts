@@ -678,3 +678,8 @@ export const orgUserSettingsWoInstaFyle: OrgUserSettings = {
     allowed: true,
   },
 };
+
+export const orgUserSettingsWoProjects: OrgUserSettings = {
+  ...orgUserSettingsData,
+  project_ids: null,
+};
