@@ -86,7 +86,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadCardData$: BehaviorSubject<{}>;
+  loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
   loadData$: BehaviorSubject<
     Partial<{
@@ -96,7 +96,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       sortDir: string;
       searchString: string;
     }>
-  >;
+  > = new BehaviorSubject({
+    pageNumber: 1,
+  });
 
   transactions$: Observable<PersonalCardTxn[]>;
 
@@ -215,7 +217,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       ),
       shareReplay(1),
     );
-    this.loadData$ = new BehaviorSubject({});
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
