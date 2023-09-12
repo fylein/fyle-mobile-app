@@ -8,8 +8,8 @@ import {
   nullMileageRateData,
   mileageRateApiRes1,
   mileageRateApiRes2,
-  platformMileageRatesData2,
   unfilteredMileageRatesData2,
+  expectedMileageData,
 } from '../mock-data/mileage-rate.data';
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
@@ -44,7 +44,7 @@ describe('MileageRatesService', () => {
     });
     mileageRatesService = TestBed.inject(MileageRatesService);
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService,
+      SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
@@ -148,13 +148,13 @@ describe('MileageRatesService', () => {
     spyOn(mileageRatesService, 'getAllMileageRatesCount').and.returnValue(of(3));
 
     const testParams1 = { offset: 0, limit: 2 };
-    spyGetMileageRates.withArgs(testParams1).and.returnValue(of(mileageRateApiRes1));
+    spyGetMileageRates.withArgs(testParams1).and.returnValue(of(cloneDeep(mileageRateApiRes1)));
 
     const testParams2 = { offset: 2, limit: 2 };
-    spyGetMileageRates.withArgs(testParams2).and.returnValue(of(mileageRateApiRes2));
+    spyGetMileageRates.withArgs(testParams2).and.returnValue(of(cloneDeep(mileageRateApiRes2)));
 
     mileageRatesService.getAllMileageRates().subscribe((res) => {
-      expect(res).toEqual([...platformMileageRatesData1, ...platformMileageRatesData2]);
+      expect(res).toEqual(expectedMileageData);
       expect(spyGetMileageRates).toHaveBeenCalledTimes(2);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams1);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams2);
