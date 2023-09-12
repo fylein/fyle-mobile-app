@@ -1,28 +1,27 @@
-import { Injectable } from '@angular/core';
 import {
-  HttpInterceptor,
-  HttpRequest,
-  HttpResponse,
-  HttpHandler,
-  HttpEvent,
   HttpErrorResponse,
-  HttpParams,
+  HttpEvent,
+  HttpHandler,
+  HttpInterceptor,
   HttpParameterCodec,
+  HttpParams,
+  HttpRequest,
 } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
-import { Observable, throwError, from, forkJoin, of, iif, Subject, BehaviorSubject } from 'rxjs';
-import { catchError, mergeMap, concatMap, filter, take, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, forkJoin, from, iif, of, throwError } from 'rxjs';
+import { catchError, concatMap, filter, mergeMap, take } from 'rxjs/operators';
 
 import { JwtHelperService } from '../services/jwt-helper.service';
 
 import * as dayjs from 'dayjs';
-import { TokenService } from '../services/token.service';
-import { RouterAuthService } from '../services/router-auth.service';
-import { DeviceService } from '../services/device.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
-import { UserEventService } from '../services/user-event.service';
-import { StorageService } from '../services/storage.service';
+import { DeviceService } from '../services/device.service';
+import { RouterAuthService } from '../services/router-auth.service';
 import { SecureStorageService } from '../services/secure-storage.service';
+import { StorageService } from '../services/storage.service';
+import { TokenService } from '../services/token.service';
+import { UserEventService } from '../services/user-event.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
@@ -40,7 +39,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     private secureStorageService: SecureStorageService
   ) {}
 
-  secureUrl(url: string) {
+  secureUrl(url: string): boolean {
     if (url.indexOf('localhost') >= 0 || url.indexOf('.fylehq.com') >= 0 || url.indexOf('.fyle.tech') >= 0) {
       if (url.indexOf('/api/auth/') >= 0 || url.indexOf('routerapi/auth/') >= 0) {
         if (url.indexOf('api/auth/logout') >= 0) {
@@ -65,7 +64,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     }
   }
 
-  refreshAccessToken() {
+  refreshAccessToken(): Observable<string> {
     return from(this.tokenService.getRefreshToken()).pipe(
       concatMap((refreshToken) => this.routerAuthService.fetchAccessToken(refreshToken)),
       catchError((error) => {
@@ -114,7 +113,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+  intercept(request: HttpRequest<string>, next: HttpHandler): Observable<HttpEvent<string>> {
     return forkJoin({
       token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
       deviceInfo: from(this.deviceService.getDeviceInfo()),
