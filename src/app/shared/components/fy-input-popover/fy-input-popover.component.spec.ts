@@ -53,7 +53,6 @@ describe('FyInputPopoverComponent', () => {
     it('should save input value', fakeAsync(() => {
       fixture.detectChanges();
 
-      tick();
       component.saveValue();
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ newValue: component.inputValue });
     }));
