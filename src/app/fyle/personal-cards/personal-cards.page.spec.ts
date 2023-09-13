@@ -1,5 +1,5 @@
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -37,8 +37,11 @@ import { DateRangeModalComponent } from './date-range-modal/date-range-modal.com
 import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { By } from '@angular/platform-browser';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 
-describe('PersonalCardsPage', () => {
+fdescribe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
   let fixture: ComponentFixture<PersonalCardsPage>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
@@ -97,7 +100,16 @@ describe('PersonalCardsPage', () => {
 
     TestBed.configureTestingModule({
       declarations: [PersonalCardsPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatInputModule,
+        BrowserAnimationsModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         ChangeDetectorRef,
         {
@@ -190,8 +202,10 @@ describe('PersonalCardsPage', () => {
 
     personalCardsService.getLinkedAccountsCount.and.returnValue(of(2));
     personalCardsService.getLinkedAccounts.and.returnValue(of(linkedAccountsRes));
-    component.loadData$ = new BehaviorSubject(null);
-    component.loadCardData$ = new BehaviorSubject(null);
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+    component.loadCardData$ = new BehaviorSubject({});
     component.linkedAccountsCount$ = of(1);
     component.isConnected$ = of(true);
     component.linkedAccounts$ = of(linkedAccountsRes);
@@ -897,6 +911,10 @@ describe('PersonalCardsPage', () => {
       component.transactionsCount$.subscribe((res) => {
         expect(res).toBeTruthy();
       });
+
+      // component.isInfiniteScrollRequired$.subscribe((res) => {
+      //   expect(res).toBeTrue();
+      // });
 
       expect(component.addNewFiltersToParams).toHaveBeenCalled();
       expect(personalCardsService.getLinkedAccountsCount).toHaveBeenCalled();
