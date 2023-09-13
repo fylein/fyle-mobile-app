@@ -60,4 +60,10 @@ export interface ExtendedAdvanceRequest {
   new_state?: string;
   us_full_name: string;
   adv_created_at?: Date;
+  type?: string;
+  currency?: string;
+  amount?: number;
+  created_at?: Date;
+  purpose?: string;
+  state?: string;
 }
