@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActionSheetController, IonicModule, NavController, Platform } from '@ionic/angular';
 
 import { DashboardPage } from './dashboard.page';
@@ -17,6 +17,8 @@ import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { cloneDeep } from 'lodash';
+import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -43,6 +45,7 @@ describe('DashboardPage', () => {
       'tasksPageOpened',
       'footerHomeTabClicked',
       'dashboardActionSheetButtonClicked',
+      'dashboardActionSheetOpened',
     ]);
     let actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
     let tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
@@ -298,4 +301,140 @@ describe('DashboardPage', () => {
       backButtonActionHandlerSpy,
     );
   });
+
+  it('onTaskClicked(): should set currentStateIndex to 1, navigate to tasks page with queryParams.state as tasks and track tasksPageOpened event', () => {
+    component.onTaskClicked();
+    expect(component.currentStateIndex).toEqual(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith([], {
+      relativeTo: activatedRoute,
+      queryParams: { state: 'tasks' },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'Dashboard',
+    });
+  });
+
+  it('openFilters(): should call tasksComponent.openFilters once', () => {
+    const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['openFilters']);
+    component.tasksComponent = tasksComponentSpy;
+    component.openFilters();
+    expect(tasksComponentSpy.openFilters).toHaveBeenCalledTimes(1);
+  });
+
+  it('onCameraClicked(): should navigate to camera_overlay page', () => {
+    component.onCameraClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'camera_overlay',
+      {
+        navigate_back: true,
+      },
+    ]);
+  });
+
+  it('onHomeClicked(): should set currentStateIndex to 0, navigate to my_dashboard page with queryParams.state as home and track footerHomeTabClicked event', () => {
+    component.onHomeClicked();
+    expect(component.currentStateIndex).toEqual(0);
+    expect(router.navigate).toHaveBeenCalledOnceWith([], {
+      relativeTo: activatedRoute,
+      queryParams: { state: 'home' },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+      page: 'Dashboard',
+    });
+  });
+
+  describe('actionSheetButtonsHandler():', () => {
+    it('should call trackingService and navigate to add_edit_per_diem if action is add per diem', () => {
+      const handler = component.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem');
+      handler();
+      expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
+        Action: 'Add Per Diem',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_per_diem',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+
+    it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
+      const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
+      handler();
+      expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
+        Action: 'Add Mileage',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_mileage',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+
+    it('should call trackingService and navigate to add_edit_expense if action is add expense', () => {
+      const handler = component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
+      handler();
+      expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
+        Action: 'Add Expense',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+
+    it('should call trackingService and navigate to camera_overlay if action is capture receipts', () => {
+      const handler = component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
+      handler();
+      expect(trackingService.dashboardActionSheetButtonClicked).toHaveBeenCalledOnceWith({
+        Action: 'capture receipts',
+      });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'camera_overlay',
+        {
+          navigate_back: true,
+        },
+      ]);
+    });
+  });
+
+  it('setupActionSheet(): should setup actionSheetButtons', () => {
+    const mockOrgSettings = cloneDeep(orgSettingsRes);
+    spyOn(component, 'actionSheetButtonsHandler');
+    mockOrgSettings.per_diem.enabled = true;
+    mockOrgSettings.mileage.enabled = true;
+    component.setupActionSheet(mockOrgSettings);
+    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+  });
+
+  it('openAddExpenseActionSheet(): should open actionSheetController and track event', fakeAsync(() => {
+    const actionSheetSpy = jasmine.createSpyObj('actionSheet', ['present']);
+    component.actionSheetButtons = expectedActionSheetButtonRes;
+    actionSheetController.create.and.returnValue(actionSheetSpy);
+
+    component.openAddExpenseActionSheet();
+    tick(100);
+
+    expect(trackingService.dashboardActionSheetOpened).toHaveBeenCalledTimes(1);
+    expect(actionSheetController.create).toHaveBeenCalledOnceWith({
+      header: 'ADD EXPENSE',
+      mode: 'md',
+      cssClass: 'fy-action-sheet',
+      buttons: expectedActionSheetButtonRes,
+    });
+  }));
 });
