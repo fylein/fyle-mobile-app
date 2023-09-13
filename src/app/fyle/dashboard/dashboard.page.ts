@@ -142,24 +142,29 @@ export class DashboardPage {
     });
   }
 
+  backButtonActionHandler(): void {
+    //If the user is on home page, show app close popup
+    if (!this.router.url.includes('tasks')) {
+      this.backButtonService.showAppCloseAlert();
+    }
+
+    // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
+    else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
+      //Calling onHomeClicked() because angular does not reload the page if the query params changes.
+      this.onHomeClicked();
+    }
+
+    //Else take the user back to the previous page
+    else {
+      this.navController.back();
+    }
+  }
+
   registerBackButtonAction(): void {
-    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
-      //If the user is on home page, show app close popup
-      if (!this.router.url.includes('tasks')) {
-        this.backButtonService.showAppCloseAlert();
-      }
-
-      // tasksFilters queryparam is not present when user navigates to tasks page from dashboard.
-      else if (!this.activatedRoute.snapshot.queryParams.tasksFilters) {
-        //Calling onHomeClicked() because angular does not reload the page if the query params changes.
-        this.onHomeClicked();
-      }
-
-      //Else take the user back to the previous page
-      else {
-        this.navController.back();
-      }
-    });
+    this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
+      BackButtonActionPriority.LOW,
+      this.backButtonActionHandler,
+    );
   }
 
   onTaskClicked(): void {
@@ -203,6 +208,22 @@ export class DashboardPage {
     });
   }
 
+  actionSheetButtonsHandler(action: string, route: string) {
+    return (): void => {
+      this.trackingService.dashboardActionSheetButtonClicked({
+        Action: action,
+      });
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        {
+          navigate_back: true,
+        },
+      ]);
+    };
+  }
+
   setupActionSheet(orgSettings: OrgSettings): void {
     const that = this;
     const mileageEnabled = orgSettings.mileage.enabled;
@@ -212,37 +233,13 @@ export class DashboardPage {
         text: 'Capture Receipt',
         icon: 'assets/svg/fy-camera.svg',
         cssClass: 'capture-receipt',
-        handler: (): void => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Capture Receipt',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'camera_overlay',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Capture Receipt', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
         icon: 'assets/svg/fy-expense.svg',
         cssClass: 'capture-receipt',
-        handler: (): void => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Add Manually',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Manually', 'add_edit_expense'),
       },
     ];
 
@@ -251,19 +248,7 @@ export class DashboardPage {
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Add Mileage',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_mileage',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
 
@@ -272,19 +257,7 @@ export class DashboardPage {
         text: 'Add Per Diem',
         icon: 'assets/svg/fy-calendar.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          that.trackingService.dashboardActionSheetButtonClicked({
-            Action: 'Add Per Diem',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_per_diem',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
     }
   }
