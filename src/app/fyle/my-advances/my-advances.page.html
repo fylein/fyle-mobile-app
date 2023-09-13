@@ -16,7 +16,7 @@
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
-      <ion-button class="my-advances--header-btn" [routerLink]="['/', 'enterprise', 'add_edit_advance_request']">
+      <ion-button class="my-advances--header-btn" (click)="goToAddEditAdvanceRequest()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>

@@ -86,6 +86,14 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.onPageExit.next(null);
   }
 
+  redirectToDashboardPage(): void {
+    this.isConnected$.subscribe((isOnline) => {
+      if (!isOnline) {
+        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
+      }
+    });
+  }
+
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
@@ -94,11 +102,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       shareReplay(1)
     );
 
-    this.isConnected$.subscribe((isOnline) => {
-      if (!isOnline) {
-        this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      }
-    });
+    this.redirectToDashboardPage();
   }
 
   getAndUpdateProjectName(): void {
@@ -401,5 +405,9 @@ export class MyAdvancesPage implements AfterViewChecked {
       this.filterParams$.next(filters);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
+  }
+
+  goToAddEditAdvanceRequest(): void {
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request']);
   }
 }
