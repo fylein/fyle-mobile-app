@@ -21,12 +21,17 @@ import {
   allTeamAdvanceRequestsRes,
   extendedAdvReqDraft,
   extendedAdvReqInquiry,
+  myAdvanceRequestData5,
   myAdvancerequestsData2,
   myAdvancerequestsData3,
   myAdvancerequestsData4,
   singleExtendedAdvReqRes,
 } from 'src/app/core/mock-data/extended-advance-request.data';
-import { singleExtendedAdvancesData, singleExtendedAdvancesData2 } from 'src/app/core/mock-data/extended-advance.data';
+import {
+  singleExtendedAdvancesData,
+  singleExtendedAdvancesData2,
+  singleExtendedAdvancesData3,
+} from 'src/app/core/mock-data/extended-advance.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
@@ -37,6 +42,7 @@ import {
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
+import { cloneDeep } from 'lodash';
 
 describe('MyAdvancesPage', () => {
   let component: MyAdvancesPage;
@@ -368,6 +374,84 @@ describe('MyAdvancesPage', () => {
         );
         expect(res).toEqual([myAdvancerequestsData4, myAdvancerequestsData3]);
       });
+    });
+  });
+
+  it('updateMyAdvances(): should set type, amount, orig_amount, created_at, currency, orig_currency and purpose in my advances', () => {
+    const mockMyAdvancesData = cloneDeep(singleExtendedAdvancesData.data);
+    const expectedMyAdvance = component.updateMyAdvances(mockMyAdvancesData);
+    expect(expectedMyAdvance).toEqual([singleExtendedAdvancesData3]);
+  });
+
+  it('updateMyAdvanceRequests(): should set type, amount, orig_amount, created_at, currency, orig_currency and purpose in my advances request', () => {
+    const mockMyAdvanceRequestsData = cloneDeep(singleExtendedAdvReqRes.data);
+    const expectedMyAdvanceRequest = component.updateMyAdvanceRequests(mockMyAdvanceRequestsData);
+    expect(expectedMyAdvanceRequest).toEqual([myAdvanceRequestData5]);
+  });
+
+  describe('doRefresh():', () => {
+    beforeEach(() => {
+      advanceRequestService.destroyAdvanceRequestsCacheBuster.and.returnValue(of(null));
+      advanceService.destroyAdvancesCacheBuster.and.returnValue(of(null));
+    });
+
+    it('should call destroyAdvanceRequestsCacheBuster and destroyAdvancesCacheBuster', () => {
+      const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
+      component.doRefresh(mockEvent);
+      expect(advanceRequestService.destroyAdvanceRequestsCacheBuster).toHaveBeenCalledTimes(1);
+      expect(advanceService.destroyAdvancesCacheBuster).toHaveBeenCalledTimes(1);
+      expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not call complete if event.target is undefined', () => {
+      const mockEvent = { target: undefined };
+      component.doRefresh(mockEvent);
+      expect(advanceRequestService.destroyAdvanceRequestsCacheBuster).toHaveBeenCalledTimes(1);
+      expect(advanceService.destroyAdvancesCacheBuster).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('onAdvanceClick():', () => {
+    it('should set id as adv_id and navigate to my_view_advance_request', () => {
+      const mockAdvanceData = cloneDeep(singleExtendedAdvancesData3);
+      mockAdvanceData.type = AdvancesStates.paid;
+      component.onAdvanceClick({ advanceRequest: mockAdvanceData, internalState: { state: 'INQUIRY' } });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_advance_request',
+        { id: 'advETmi3eePvQ' },
+      ]);
+    });
+
+    it('should set id as areq_id if adv_id is null and navigate to my_view_advance_request', () => {
+      const mockAdvanceData = cloneDeep(singleExtendedAdvancesData3);
+      mockAdvanceData.type = AdvancesStates.paid;
+      mockAdvanceData.adv_id = null;
+      component.onAdvanceClick({ advanceRequest: mockAdvanceData, internalState: { state: 'INQUIRY' } });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_advance_request',
+        { id: 'areqmq8cmnd5v4' },
+      ]);
+    });
+
+    it('should navigate to my_view_advance', () => {
+      component.onAdvanceClick({ advanceRequest: singleExtendedAdvancesData3, internalState: { state: 'INQUIRY' } });
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_advance', { id: 'advETmi3eePvQ' }]);
+    });
+
+    it('should navigate to add_edit_advance_request if advance request is request type and it is in inquiry state', () => {
+      const mockAdvanceData = cloneDeep(singleExtendedAdvancesData3);
+      mockAdvanceData.type = 'request';
+      component.onAdvanceClick({ advanceRequest: mockAdvanceData, internalState: { state: 'INQUIRY' } });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_advance_request',
+        { id: 'advETmi3eePvQ' },
+      ]);
     });
   });
 });

@@ -126,3 +126,14 @@ export const singleExtendedAdvancesData2: ApiV2Response<ExtendedAdvance> = {
   offset: 0,
   url: '/v2/advances',
 };
+
+export const singleExtendedAdvancesData3: ExtendedAdvance = {
+  ...singleExtendedAdvancesData.data[0],
+  type: 'advance',
+  amount: 300,
+  orig_amount: null,
+  created_at: new Date('2019-10-31T04:36:01.927Z'),
+  currency: 'INR',
+  orig_currency: null,
+  purpose: 'New advance-2',
+};
