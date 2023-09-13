@@ -12,7 +12,7 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { PinchZoomModule } from 'ngx-pinch-zoom-16';
+import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 
 @NgModule({

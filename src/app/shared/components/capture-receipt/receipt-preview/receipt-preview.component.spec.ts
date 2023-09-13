@@ -8,7 +8,7 @@ import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { PinchZoomModule } from 'ngx-pinch-zoom-16';
+import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';

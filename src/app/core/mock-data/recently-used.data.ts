@@ -187,3 +187,24 @@ export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCen
     },
   },
 ];
+
+export const recentlyUsedMileages: Pick<
+  RecentlyUsed,
+  'recent_start_locations' | 'recent_end_locations' | 'recent_locations'
+> = {
+  recent_start_locations: [
+    'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
+    'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',
+    'Chennai, Tamil Nadu, India',
+    'mg road',
+  ],
+  recent_end_locations: [
+    '578, 2nd Main Rd, A Block, Milk Colony, Subramanyanagar,2 State, Rajajinagar, Bengaluru, Karnataka 560010, India',
+  ],
+  recent_locations: [
+    'Maya Race - Bar & Restaurant, MG Road, Haridevpur, Shanthala Nagar, Ashok Nagar, Bengaluru, Karnataka, India',
+    'Cafe Coffee Day - Kolar Highway, Narsapura, Karnataka, India',
+    '16/10, 16/10, Mariyamman Kovil St, Vagai Nagar, Ramanathapuram, Tamil Nadu 623504, India',
+    'mg road race',
+  ],
+};
