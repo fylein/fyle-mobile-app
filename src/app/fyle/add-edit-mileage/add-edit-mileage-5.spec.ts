@@ -78,6 +78,7 @@ import { multiplePaymentModesData } from 'src/app/core/test-data/accounts.servic
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import { cloneDeep } from 'lodash';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditMileage-5', () => {
@@ -163,11 +164,11 @@ export function TestCases5(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -261,7 +262,7 @@ export function TestCases5(getTestBed) {
       statusService.find.and.returnValue(of(getEstatusApiResponse));
       mileageRatesService.getAllMileageRates.and.returnValue(of(unfilteredMileageRatesData));
       mileageService.getOrgUserMileageSettings.and.returnValue(of(orgUserSettingsData.mileage_settings));
-      mileageRatesService.filterEnabledMileageRates.and.returnValue(mileageRateApiRes2);
+      mileageRatesService.filterEnabledMileageRates.and.returnValue(cloneDeep(mileageRateApiRes2));
       mileageRatesService.getReadableRate.and.returnValue('10');
       mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
       recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
@@ -637,7 +638,7 @@ export function TestCases5(getTestBed) {
     });
 
     it('getMileageRatesOptions(): should get mileages rates options', (done) => {
-      component.mileageRates$ = of(mileageRateApiRes2);
+      component.mileageRates$ = of(cloneDeep(mileageRateApiRes2));
       component.homeCurrency$ = of('USD');
       mileageRatesService.getReadableRate.withArgs(18, 'USD', 'MILES').and.returnValue('$10/mi');
       mileageRatesService.getReadableRate.withArgs(122, 'USD', 'MILES').and.returnValue('$10/mi');
@@ -671,7 +672,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -686,7 +687,7 @@ export function TestCases5(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
       });
     });
