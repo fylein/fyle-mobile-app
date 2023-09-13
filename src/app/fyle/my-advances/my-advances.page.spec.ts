@@ -43,6 +43,7 @@ import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingParam } from 'src/app/core/models/sorting-param.model';
 import { cloneDeep } from 'lodash';
+import { filterOptions } from 'src/app/core/mock-data/filter-options.data';
 
 describe('MyAdvancesPage', () => {
   let component: MyAdvancesPage;
@@ -453,5 +454,111 @@ describe('MyAdvancesPage', () => {
         { id: 'advETmi3eePvQ' },
       ]);
     });
+  });
+
+  it('onHomeClicked(): should navigate to my_dashboard page and track event', () => {
+    component.onHomeClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: {
+        state: 'home',
+      },
+    });
+    expect(trackingService.footerHomeTabClicked).toHaveBeenCalledOnceWith({
+      page: 'Advances',
+    });
+  });
+
+  it('onTaskClicked(): should navigate to my_dashboard page with queryParams.state as tasks', () => {
+    component.onTaskClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
+      queryParams: {
+        state: 'tasks',
+        tasksFilters: 'advances',
+      },
+    });
+    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
+      Asset: 'Mobile',
+      from: 'My Advances',
+    });
+  });
+
+  it('onCameraClicked(): should navigate to camera_overlay page', () => {
+    component.onCameraClicked();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
+  });
+
+  describe('onFilterClose():', () => {
+    beforeEach(() => {
+      filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
+      spyOn(component.filterParams$, 'next');
+    });
+
+    it('should call filterParams$ with sortParam and sortDir equals to null if argument is sort', () => {
+      component.onFilterClose('sort');
+      expect(component.filterParams$.next).toHaveBeenCalledOnceWith({
+        sortParam: null,
+        sortDir: null,
+      });
+      expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
+      expect(component.filterPills).toEqual(allFilterPills);
+    });
+
+    it('should call filterParams$ with state equals to null if argument is state', () => {
+      component.onFilterClose('state');
+      expect(component.filterParams$.next).toHaveBeenCalledOnceWith({
+        state: null,
+      });
+      expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
+      expect(component.filterPills).toEqual(allFilterPills);
+    });
+  });
+
+  describe('onFilterClick():', () => {
+    beforeEach(() => {
+      spyOn(component, 'openFilters');
+    });
+
+    it('onFilterClick(): should call openFilters with State if argument is state', fakeAsync(() => {
+      component.onFilterClick('state');
+      tick(100);
+      expect(component.openFilters).toHaveBeenCalledOnceWith('State');
+    }));
+
+    it('onFilterClick(): should call openFilters with Sort By if argument is sort', fakeAsync(() => {
+      component.onFilterClick('sort');
+      tick(100);
+      expect(component.openFilters).toHaveBeenCalledOnceWith('Sort By');
+    }));
+  });
+
+  it('onFilterPillsClearAll(): should set filterPills to allFilterPills and call filterParams$.next', () => {
+    spyOn(component.filterParams$, 'next');
+    filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
+    component.onFilterPillsClearAll();
+    expect(component.filterPills).toEqual(allFilterPills);
+    expect(component.filterParams$.next).toHaveBeenCalledOnceWith(component.filterParams$.value);
+  });
+
+  it('openFilters(): should call filtersHelperService.openFilterModal with title and filterParams', fakeAsync(() => {
+    spyOn(component.filterParams$, 'next');
+    filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
+    filtersHelperService.openFilterModal.and.resolveTo(myAdvancesfiltersData2);
+    component.projectFieldName = 'project';
+    component.openFilters('State');
+    tick(100);
+
+    expect(filtersHelperService.openFilterModal).toHaveBeenCalledOnceWith(
+      component.filterParams$.value,
+      filterOptions,
+      'State'
+    );
+    expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesfiltersData2);
+    expect(component.filterPills).toEqual(allFilterPills);
+    expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value, 'project');
+  }));
+
+  it('goToAddEditAdvanceRequest(): should navigate to add_edit_advance_request page', () => {
+    component.goToAddEditAdvanceRequest();
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_advance_request']);
   });
 });
