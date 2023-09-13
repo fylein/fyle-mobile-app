@@ -702,3 +702,21 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
   offset: 0,
   url: '/v2/advance_requests',
 };
+
+export const myAdvancerequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
+  ...allTeamAdvanceRequestsRes,
+  count: 11,
+};
+
+export const myAdvancerequestsData3: ExtendedAdvanceRequest = {
+  ...singleExtendedAdvReqRes.data[0],
+  areq_state: 'DRAFT',
+  areq_is_sent_back: true,
+};
+
+export const myAdvancerequestsData4: ExtendedAdvanceRequest = {
+  ...singleExtendedAdvReqRes.data[0],
+  areq_state: 'DRAFT',
+  areq_is_sent_back: false,
+  areq_is_pulled_back: false,
+};

@@ -16,8 +16,6 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { SortingParam } from 'src/app/core/models/sorting-param.model';
-import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
@@ -25,12 +23,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
-
-type Filters = Partial<{
-  state: AdvancesStates[];
-  sortParam: SortingParam;
-  sortDir: SortingDirection;
-}>;
+import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 
 @Component({
   selector: 'app-my-advances',
@@ -60,7 +53,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   filterPills = [];
 
-  filterParams$ = new BehaviorSubject<Filters>({});
+  filterParams$ = new BehaviorSubject<Partial<MyAdvancesFilters>>({});
 
   advancesTaskCount = 0;
 
@@ -124,7 +117,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters as string;
     if (oldFilters) {
-      this.filterParams$.next(JSON.parse(oldFilters) as Filters);
+      this.filterParams$.next(JSON.parse(oldFilters) as Partial<MyAdvancesFilters>);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
 
