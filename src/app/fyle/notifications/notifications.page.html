@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <ion-toolbar class="notifications--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button (click)="goBack()">
@@ -16,7 +16,7 @@
     <form [formGroup]="notificationForm">
       <ng-container *ngIf="isDelegateePresent$|async">
         <h2>Delegatee Notification</h2>
-        <mat-form-field subscriptSizing="dynamic" appearance="outline">
+        <mat-form-field>
           <mat-select formControlName="notifyOption" (selectionChange)="updateDelegateeNotifyPreference($event)">
             <mat-option *ngFor="let option of delegationOptions" [value]="option"> {{option}} </mat-option>
           </mat-select>

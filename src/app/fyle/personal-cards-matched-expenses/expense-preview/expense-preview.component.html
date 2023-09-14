@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <mat-icon *ngIf="isIos" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar expense-preview--toolbar">
     <ion-buttons slot="start">
@@ -34,7 +34,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_amount | currency: expenseDetails.tx_currency : 'symbol-narrow' }}
+            {{ expenseDetails.tx_amount | currency : expenseDetails.tx_currency : 'symbol-narrow' }}
           </div>
         </ion-col>
       </ion-row>
@@ -44,7 +44,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_created_at | date: 'MMM dd, YYYY' }}
+            {{ expenseDetails.tx_created_at | date : 'MMM dd, YYYY' }}
           </div>
         </ion-col>
       </ion-row>
@@ -54,7 +54,7 @@
         </ion-col>
         <ion-col size="7">
           <div class="expense-preview--body-container__value">
-            {{ expenseDetails.tx_txn_dt | date: 'MMM dd, YYYY' }}
+            {{ expenseDetails.tx_txn_dt | date : 'MMM dd, YYYY' }}
           </div>
         </ion-col>
       </ion-row>

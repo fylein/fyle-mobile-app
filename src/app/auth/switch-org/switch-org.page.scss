@@ -82,7 +82,6 @@
       &__sub-title {
         color: $black-light;
         padding-top: 4px;
-        font-size: 14px;
       }
 
       &__icon {
@@ -102,22 +101,8 @@
     padding-top: 8px;
 
     mat-form-field {
-      ::ng-deep .mat-mdc-text-field-wrapper {
-        padding-left: 6px;
-        padding-right: 6px;
-      }
-
-      ::ng-deep .mat-icon {
-        display: flex;
-        align-items: center;
-      }
-
-      ::ng-deep .d-flex {
-        flex: 1;
-      }
-
-      ::ng-deep .mdc-notched-outline > * {
-        border-color: $black-light !important;
+      ::ng-deep .mat-form-field-outline {
+        color: $black-light !important;
       }
     }
 
@@ -133,6 +118,7 @@
       }
 
       &__clear-icon {
+        margin: -10px;
         font-size: 18px;
         background-color: transparent;
         color: $black;

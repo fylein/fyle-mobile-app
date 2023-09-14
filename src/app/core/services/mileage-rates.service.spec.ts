@@ -4,16 +4,17 @@ import { MileageRatesService } from './mileage-rates.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import {
   filterEnabledMileageRatesData,
-  unfilteredMileageRatesData,
   platformMileageRatesData1,
   nullMileageRateData,
   mileageRateApiRes1,
   mileageRateApiRes2,
-  platformMileageRatesData2,
+  unfilteredMileageRatesData2,
+  expectedMileageData,
 } from '../mock-data/mileage-rate.data';
 import { platformMileageRates, platformMileageRatesSingleData } from '../mock-data/platform-mileage-rate.data';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { cloneDeep } from 'lodash';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
@@ -99,7 +100,7 @@ describe('MileageRatesService', () => {
   });
 
   it('filterEnabledMileageRates(): should retutn enabled mileage rates', () => {
-    const result = mileageRatesService.filterEnabledMileageRates(unfilteredMileageRatesData);
+    const result = mileageRatesService.filterEnabledMileageRates(unfilteredMileageRatesData2);
     expect(result.length).toEqual(filterEnabledMileageRatesData.length);
     expect(result).toEqual(filterEnabledMileageRatesData);
   });
@@ -118,9 +119,9 @@ describe('MileageRatesService', () => {
         limit: 4,
       },
     };
-    spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(platformMileageRatesData1);
+    spyOn(mileageRatesService, 'excludeNullRates').and.returnValue(cloneDeep(platformMileageRatesData1));
     mileageRatesService.getMileageRates({ offset: 0, limit: 4 }).subscribe((res) => {
-      expect(res).toEqual(platformMileageRatesData1);
+      expect(res).toEqual(cloneDeep(platformMileageRatesData1));
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', data);
       expect(mileageRatesService.excludeNullRates).toHaveBeenCalledOnceWith(platformMileageRates.data);
       done();
@@ -147,13 +148,13 @@ describe('MileageRatesService', () => {
     spyOn(mileageRatesService, 'getAllMileageRatesCount').and.returnValue(of(3));
 
     const testParams1 = { offset: 0, limit: 2 };
-    spyGetMileageRates.withArgs(testParams1).and.returnValue(of(mileageRateApiRes1));
+    spyGetMileageRates.withArgs(testParams1).and.returnValue(of(cloneDeep(mileageRateApiRes1)));
 
     const testParams2 = { offset: 2, limit: 2 };
-    spyGetMileageRates.withArgs(testParams2).and.returnValue(of(mileageRateApiRes2));
+    spyGetMileageRates.withArgs(testParams2).and.returnValue(of(cloneDeep(mileageRateApiRes2)));
 
     mileageRatesService.getAllMileageRates().subscribe((res) => {
-      expect(res).toEqual([...platformMileageRatesData1, ...platformMileageRatesData2]);
+      expect(res).toEqual(expectedMileageData);
       expect(spyGetMileageRates).toHaveBeenCalledTimes(2);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams1);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams2);

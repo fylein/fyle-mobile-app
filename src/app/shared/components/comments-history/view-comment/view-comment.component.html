@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border">
+<ion-header>
   <mat-icon *ngIf="!platform.is('android')" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar class="view-comment--toolbar fy-modal-toolbar">
     <ion-buttons slot="start" (click)="closeCommentModal()">
@@ -54,7 +54,7 @@
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date : 'h:mm a' }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -99,7 +99,7 @@
         </ion-row>
         <ion-row>
           <ion-col size="12">
-            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+            <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date : 'h:mm a' }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>

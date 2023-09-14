@@ -1,4 +1,4 @@
-<ion-header class="fy-filters--header ion-no-border" mode="md">
+<ion-header class="fy-filters--header" mode="md">
   <ion-toolbar mode="md">
     <ion-buttons mode="md" slot="start">
       <ion-button mode="md" (click)="cancel()">
@@ -133,7 +133,7 @@
           </ion-item>
           <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === 'custom'">
             <div class="fy-filters--custom-date-filters">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-form-field>
                 <mat-label>Start date</mat-label>
                 <input
                   class="smartlook-show"
@@ -146,7 +146,7 @@
                 <mat-datepicker #picker1></mat-datepicker>
               </mat-form-field>
 
-              <mat-form-field appearance="outline" subscriptSizing="dynamic">
+              <mat-form-field>
                 <mat-label>End date</mat-label>
                 <input
                   class="smartlook-show"

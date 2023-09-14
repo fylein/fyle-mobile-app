@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
@@ -6,7 +6,7 @@
       <div *ngIf="selectedElements?.length > 0" class="add-expenses-to-report--title-container text-center">
         <div class="add-expenses-to-report--title">
           {{ selectedElements?.length }} {{ selectedElements?.length > 1 ? 'Expenses' : 'Expense' }} -
-          {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency }}
+          {{ selectedTotalAmount || 0 | humanizeCurrency : homeCurrency }}
         </div>
       </div>
     </ion-title>
