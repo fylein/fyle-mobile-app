@@ -9,7 +9,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { unflattenedErptc, unflattenedErptcArrayItem1 } from 'src/app/core/mock-data/report-unflattened.data';
 
-fdescribe('FyAddToReportComponent', () => {
+describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
   let fixture: ComponentFixture<FyAddToReportComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
