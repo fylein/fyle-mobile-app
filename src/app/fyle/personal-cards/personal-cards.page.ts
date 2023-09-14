@@ -191,18 +191,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.personalCardsViewed();
   }
 
-  ngAfterViewInit(): void {
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    this.loadCardData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
-      tap((count) => {
-        if (count === 0) {
-          this.clearFilters();
-        }
-      }),
-      shareReplay(1),
-    );
+  loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
@@ -217,10 +206,39 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       ),
       shareReplay(1),
     );
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
-    });
-    const paginatedPipe = this.loadData$.pipe(
+  }
+
+  loadTransactionCount(): void {
+    this.transactionsCount$ = this.loadData$.pipe(
+      switchMap((params) => {
+        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
+      }),
+      shareReplay(1),
+    );
+  }
+
+  loadInfinitScroll(): void {
+    const paginatedScroll$ = this.transactions$.pipe(
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
+    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+  }
+
+  loadAccountCount(): void {
+    this.linkedAccountsCount$ = this.loadCardData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      tap((count) => {
+        if (count === 0) {
+          this.clearFilters();
+        }
+      }),
+      shareReplay(1),
+    );
+  }
+
+  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+    return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
         if (this.activatedRoute.snapshot.queryParams.filters) {
@@ -269,19 +287,29 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         return this.acc;
       }),
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.loadCardData$ = new BehaviorSubject({});
+
+    this.loadAccountCount();
+
+    this.loadLinkedAccounts();
+
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    const paginatedPipe = this.loadPersonalTxns();
+
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-    this.transactionsCount$ = this.loadData$.pipe(
-      switchMap((params) => {
-        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
-      }),
-      shareReplay(1),
-    );
-    const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
-    );
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+
+    this.loadTransactionCount();
+
+    this.loadInfinitScroll();
+
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
