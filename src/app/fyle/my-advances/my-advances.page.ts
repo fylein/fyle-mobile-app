@@ -31,7 +31,7 @@ import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements AfterViewChecked {
-  myAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
+  myAdvanceRequests$: Observable<ExtendedAdvanceRequest[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
 
@@ -123,7 +123,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     this.isLoading = true;
 
-    this.myAdvancerequests$ = this.advanceRequestService
+    this.myAdvanceRequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
         areq_advance_id: 'is.null',
       })
@@ -170,16 +170,16 @@ export class MyAdvancesPage implements AfterViewChecked {
       concatMap(() => this.orgSettingsService.get()),
       switchMap((orgSettings) =>
         combineLatest([
-          iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+          iif(() => orgSettings.advance_requests.enabled, this.myAdvanceRequests$, of(null)),
           iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
         ]).pipe(
           map((res) => {
-            const [myAdvancerequestsRes, myAdvancesRes] = res;
-            let myAdvancerequests = myAdvancerequestsRes || [];
+            const [myAdvanceRequestsRes, myAdvancesRes] = res;
+            let myAdvanceRequests = myAdvanceRequestsRes || [];
             let myAdvances = myAdvancesRes || [];
-            myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
+            myAdvanceRequests = this.updateMyAdvanceRequests(myAdvanceRequests);
             myAdvances = this.updateMyAdvances(myAdvances);
-            return [...myAdvances, ...myAdvancerequests];
+            return [...myAdvances, ...myAdvanceRequests];
           }),
           sortResults
         )
@@ -239,8 +239,8 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvances;
   }
 
-  updateMyAdvanceRequests(myAdvancerequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
-    myAdvancerequests = myAdvancerequests.map((data) => ({
+  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
+    myAdvanceRequests = myAdvanceRequests.map((data) => ({
       ...data,
       type: 'request',
       currency: data.areq_currency,
@@ -249,7 +249,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       purpose: data.areq_purpose,
       state: data.areq_state,
     }));
-    return myAdvancerequests;
+    return myAdvanceRequests;
   }
 
   doRefresh(event: { target: { complete: () => void } }): void {

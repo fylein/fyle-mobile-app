@@ -7,7 +7,7 @@ export const myAdvancesfiltersData: Partial<MyAdvancesFilters> = {
   state: [AdvancesStates.cancelled, AdvancesStates.paid],
 };
 
-export const myAdvancesfiltersData2: Partial<MyAdvancesFilters> = {
+export const myAdvancesFiltersData2: Partial<MyAdvancesFilters> = {
   ...myAdvancesfiltersData,
   sortDir: SortingDirection.ascending,
   sortParam: SortingParam.project,

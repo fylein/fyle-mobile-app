@@ -32,7 +32,7 @@ import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
   draftSentBackFiltersData,
   myAdvancesfiltersData,
-  myAdvancesfiltersData2,
+  myAdvancesFiltersData2,
 } from 'src/app/core/mock-data/my-advances-filters.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
@@ -223,7 +223,7 @@ describe('MyAdvancesPage', () => {
 
     it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
       component.ionViewWillEnter();
-      component.myAdvancerequests$.subscribe((res) => {
+      component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
@@ -246,7 +246,7 @@ describe('MyAdvancesPage', () => {
       );
       advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
       component.ionViewWillEnter();
-      component.myAdvancerequests$.subscribe((res) => {
+      component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
@@ -312,7 +312,7 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should set advances$ equals to array containing extendedAdvReqDraft, extendedAdvReqInquiry', () => {
-      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesfiltersData2);
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
@@ -329,7 +329,7 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should call updateMyAdvanceRequests and updateMyAdvances with empty array if advance_requests and advances are disabled in org settings', () => {
-      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesfiltersData2);
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
