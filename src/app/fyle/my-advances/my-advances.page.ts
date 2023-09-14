@@ -2,19 +2,7 @@ import { AfterViewChecked, ChangeDetectorRef, Component, EventEmitter } from '@a
 import { Router, ActivatedRoute, Params } from '@angular/router';
 import { TitleCasePipe } from '@angular/common';
 
-import {
-  concat,
-  range,
-  combineLatest,
-  iif,
-  of,
-  BehaviorSubject,
-  forkJoin,
-  from,
-  noop,
-  Observable,
-  Subject,
-} from 'rxjs';
+import { concat, range, combineLatest, iif, of, BehaviorSubject, forkJoin, noop, Observable, Subject } from 'rxjs';
 import { concatMap, map, reduce, shareReplay, startWith, switchMap, takeUntil, tap } from 'rxjs/operators';
 
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
@@ -35,6 +23,8 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
+import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -48,9 +38,9 @@ type Filters = Partial<{
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements AfterViewChecked {
-  myAdvancerequests$: Observable<any[]>;
+  myAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
-  myAdvances$: Observable<any>;
+  myAdvances$: Observable<ExtendedAdvance[]>;
 
   loadData$: Subject<number> = new Subject();
 
@@ -62,7 +52,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   refreshAdvances$: Subject<void> = new Subject();
 
-  advances$: Observable<any>;
+  advances$: Observable<(ExtendedAdvanceRequest | ExtendedAdvance)[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -92,18 +82,11 @@ export class MyAdvancesPage implements AfterViewChecked {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  setupNetworkWatcher() {
-    const networkWatcherEmitter = new EventEmitter<boolean>();
-    this.networkService.connectivityWatcher(networkWatcherEmitter);
-    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
-      shareReplay(1)
-    );
-
+  redirectToDashboardPage(): void {
     this.isConnected$.subscribe((isOnline) => {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
@@ -111,14 +94,25 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
   }
 
-  getAndUpdateProjectName() {
+  setupNetworkWatcher(): void {
+    const networkWatcherEmitter = new EventEmitter<boolean>();
+    this.networkService.connectivityWatcher(networkWatcherEmitter);
+    this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
+      takeUntil(this.onPageExit),
+      shareReplay(1)
+    );
+
+    this.redirectToDashboardPage();
+  }
+
+  getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
       this.projectFieldName = projectField?.field_name;
     });
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.setupNetworkWatcher();
 
     this.tasksService.getAdvancesTaskCount().subscribe((advancesTaskCount) => {
@@ -128,9 +122,9 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
     this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
-    const oldFilters = this.activatedRoute.snapshot.queryParams.filters;
+    const oldFilters = this.activatedRoute.snapshot.queryParams.filters as string;
     if (oldFilters) {
-      this.filterParams$.next(JSON.parse(oldFilters));
+      this.filterParams$.next(JSON.parse(oldFilters) as Filters);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
 
@@ -175,7 +169,9 @@ export class MyAdvancesPage implements AfterViewChecked {
       reduce((acc, curr) => acc.concat(curr))
     );
 
-    const sortResults = map((res: any[]) => res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1)));
+    const sortResults = map((res: (ExtendedAdvanceRequest | ExtendedAdvance)[]) =>
+      res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
+    );
     this.advances$ = this.refreshAdvances$.pipe(
       startWith(0),
       concatMap(() => this.orgSettingsService.get()),
@@ -190,12 +186,12 @@ export class MyAdvancesPage implements AfterViewChecked {
             let myAdvances = myAdvancesRes || [];
             myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
             myAdvances = this.updateMyAdvances(myAdvances);
-            return myAdvances.concat(myAdvancerequests);
+            return [...myAdvances, ...myAdvancerequests];
           }),
           sortResults
         )
       ),
-      switchMap((advArray) =>
+      switchMap((advArray: ExtendedAdvanceRequest[]) =>
         //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
         this.filterParams$.pipe(
           map((filters) => {
@@ -232,11 +228,11 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.getAndUpdateProjectName();
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     this.cdr.detectChanges();
   }
 
-  updateMyAdvances(myAdvances: any) {
+  updateMyAdvances(myAdvances: ExtendedAdvance[]): ExtendedAdvance[] {
     myAdvances = myAdvances.map((data) => ({
       ...data,
       type: 'advance',
@@ -250,7 +246,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvances;
   }
 
-  updateMyAdvanceRequests(myAdvancerequests: any) {
+  updateMyAdvanceRequests(myAdvancerequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
     myAdvancerequests = myAdvancerequests.map((data) => ({
       ...data,
       type: 'request',
@@ -263,7 +259,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvancerequests;
   }
 
-  doRefresh(event) {
+  doRefresh(event: { target: { complete: () => void } }): void {
     forkJoin({
       destroyAdvanceRequestsCacheBuster: this.advanceRequestService.destroyAdvanceRequestsCacheBuster(),
       destroyAdvancesCacheBuster: this.advanceService.destroyAdvancesCacheBuster(),
@@ -279,7 +275,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       .subscribe(noop);
   }
 
-  onAdvanceClick(clickedAdvance: any) {
+  onAdvanceClick(clickedAdvance: { advanceRequest: ExtendedAdvance; internalState: { state: string } }): void {
     const id = clickedAdvance.advanceRequest.adv_id || clickedAdvance.advanceRequest.areq_id;
     let route = 'my_view_advance_request';
     if (
@@ -296,7 +292,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.router.navigate(['/', 'enterprise', route, { id }]);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -307,7 +303,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'advances' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -318,11 +314,11 @@ export class MyAdvancesPage implements AfterViewChecked {
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     const filters = this.filterParams$.value;
     if (filterType === 'sort') {
       this.filterParams$.next({
@@ -339,7 +335,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
   }
 
-  async onFilterClick(filterType: string) {
+  async onFilterClick(filterType: 'state' | 'sort'): Promise<void> {
     const filterTypes = {
       state: 'State',
       sort: 'Sort By',
@@ -347,12 +343,12 @@ export class MyAdvancesPage implements AfterViewChecked {
     await this.openFilters(filterTypes[filterType]);
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.filterParams$.next({});
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterOptions = [
       {
         name: 'State',
@@ -409,5 +405,9 @@ export class MyAdvancesPage implements AfterViewChecked {
       this.filterParams$.next(filters);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value, this.projectFieldName);
     }
+  }
+
+  goToAddEditAdvanceRequest(): void {
+    this.router.navigate(['/', 'enterprise', 'add_edit_advance_request']);
   }
 }

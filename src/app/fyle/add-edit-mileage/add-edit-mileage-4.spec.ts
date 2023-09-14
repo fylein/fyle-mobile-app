@@ -29,6 +29,7 @@ import {
   orgSettingsParamsWithSimplifiedReport,
   orgSettingsRes,
   orgSettingsWoAdvance,
+  orgSettingsWoMileage,
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
@@ -173,11 +174,11 @@ export function TestCases4(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -244,7 +245,7 @@ export function TestCases4(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          }),
+          })
         );
 
         component.checkMileageCategories(null).subscribe((res) => {
@@ -284,7 +285,7 @@ export function TestCases4(getTestBed) {
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
           customPropertiesData,
-          expenseFieldWithBillable,
+          expenseFieldWithBillable
         );
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
         done();
@@ -399,6 +400,15 @@ export function TestCases4(getTestBed) {
 
         component.individualMileageRatesEnabled$.subscribe((res) => {
           expect(res).toBeTrue();
+          done();
+        });
+      });
+
+      it('should set individual mileage to undefined if settings is not provided', (done) => {
+        component.checkIndividualMileageEnabled(of(orgSettingsWoMileage));
+
+        component.individualMileageRatesEnabled$.subscribe((res) => {
+          expect(res).toBeUndefined();
           done();
         });
       });
@@ -777,7 +787,7 @@ export function TestCases4(getTestBed) {
         categoriesService.getAll.and.returnValue(of(mileageCategories3));
 
         component.getCategories(unflattenedTxnWithCategory).subscribe((res) => {
-          expect(res).toEqual(mileageCategories3[0]);
+          expect(res).toEqual(mileageCategories3[1]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });

@@ -115,7 +115,14 @@ describe('MyViewReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyViewReportPage, EllipsisPipe, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+      declarations: [
+        MyViewReportPage,
+        EllipsisPipe,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        AsyncPipe,
+      ],
       imports: [IonicModule.forRoot(), MatIconTestingModule, MatIconModule],
       providers: [
         FyCurrencyPipe,
@@ -634,7 +641,7 @@ describe('MyViewReportPage', () => {
     it('should return null info message if number of txns is 0', (done) => {
       reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
-        cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' }),
+        cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' })
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
@@ -658,7 +665,7 @@ describe('MyViewReportPage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(expectedAllReports[0]);
     expect(popoverController.create).toHaveBeenCalledOnceWith(
-      component.getDeleteReportPopupParams(expectedAllReports[0]),
+      component.getDeleteReportPopupParams(expectedAllReports[0])
     );
   }));
 

@@ -1,10 +1,10 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <ion-toolbar mode="md" class="my-advances--toolbar-header">
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
     </ion-buttons>
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
-      <ion-back-button defaultHref="#" mode="md"></ion-back-button>
+      <ion-back-button mode="md"></ion-back-button>
     </ion-buttons>
     <ion-title class="page-title" mode="md"> Advances </ion-title>
     <ion-buttons mode="md" slot="end">
@@ -16,7 +16,7 @@
           <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
-      <ion-button class="my-advances--header-btn" [routerLink]="['/', 'enterprise', 'add_edit_advance_request']">
+      <ion-button class="my-advances--header-btn" (click)="goToAddEditAdvanceRequest()">
         <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
       </ion-button>
     </ion-buttons>

@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
@@ -11,11 +11,7 @@
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center">
-    <mat-form-field
-      subscriptSizing="dynamic"
-      class="selection-modal--form-field mat-form-field-no-padding"
-      appearance="outline"
-    >
+    <mat-form-field class="selection-modal--form-field mat-form-field-no-padding" appearance="none">
       <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
       <input
         #searchBar
@@ -24,7 +20,7 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
+      <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="clearValue()">
         <mat-icon>close</mat-icon>
       </button>
     </mat-form-field>

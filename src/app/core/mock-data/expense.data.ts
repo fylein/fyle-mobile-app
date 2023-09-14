@@ -5826,3 +5826,8 @@ export const selectedExpense1: Expense = {
   us_full_name: 'Abhishek Jain',
   isSelected: true,
 };
+
+export const policyExpense3: Expense = {
+  ...apiExpenseRes[0],
+  tx_policy_amount: 0.0000001,
+};

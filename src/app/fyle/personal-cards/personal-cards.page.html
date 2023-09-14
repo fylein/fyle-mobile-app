@@ -54,12 +54,8 @@
   </ng-container>
 
   <ng-container simpleSearch>
-    <div class="expense-report-search personal-cards--simple-search-container mat-form-field-container">
-      <mat-form-field
-        subscriptSizing="dynamic"
-        appearance="outline"
-        class="mat-form-field-no-padding personal-cards--simple-search"
-      >
+    <div class="expense-report-search personal-cards--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding personal-cards--simple-search">
         <div class="personal-cards--simple-search-block">
           <mat-icon class="personal-cards--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
           <input
@@ -75,6 +71,7 @@
             *ngIf="simpleSearchText"
             aria-label="Clear"
             class="personal-cards--simple-search-close"
+            mat-button
             mat-icon-button
             matSuffix
           >
