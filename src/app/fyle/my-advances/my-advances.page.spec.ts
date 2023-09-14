@@ -31,7 +31,7 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
   draftSentBackFiltersData,
-  myAdvancesfiltersData,
+  myAdvancesFiltersData,
   myAdvancesFiltersData2,
 } from 'src/app/core/mock-data/my-advances-filters.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -86,7 +86,7 @@ describe('MyAdvancesPage', () => {
           useValue: {
             snapshot: {
               queryParams: {
-                filters: JSON.stringify(myAdvancesfiltersData),
+                filters: JSON.stringify(myAdvancesFiltersData),
               },
               params: {
                 navigateBack: true,
@@ -216,7 +216,7 @@ describe('MyAdvancesPage', () => {
     it('should call filterParams$.next and set filterPills to allFilterPills', () => {
       spyOn(component.filterParams$, 'next');
       component.ionViewWillEnter();
-      expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesfiltersData);
+      expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesFiltersData);
       expect(component.filterPills).toEqual(allFilterPills);
       expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
     });
