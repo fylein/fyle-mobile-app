@@ -46,7 +46,7 @@ describe('FyInputPopoverComponent', () => {
 
   describe('saveValue():', () => {
     beforeEach(() => {
-      popoverController.dismiss.and.returnValue(Promise.resolve(true));
+      popoverController.dismiss.and.resolveTo(true);
       component.inputValue = 'input';
     });
 
@@ -57,7 +57,7 @@ describe('FyInputPopoverComponent', () => {
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ newValue: component.inputValue });
     }));
 
-    it('should not call popoverController.dismiss if error length is greater than 0', () => {
+    it('should not save the input value and close the popover if the input value is invalid', () => {
       component.error = 'Please enter a valid mobile number';
       fixture.detectChanges();
 
@@ -105,11 +105,11 @@ describe('FyInputPopoverComponent', () => {
 
   it('ngAfterViewInit(): should focus on input element', fakeAsync(() => {
     const inputEl = getElementRef(fixture, 'input');
-    const focusSpy = spyOn(inputEl.nativeElement, 'focus');
+    spyOn(inputEl.nativeElement, 'focus');
     component.ngAfterViewInit();
 
     tick(400);
-    expect(focusSpy).toHaveBeenCalledTimes(1);
+    expect(inputEl.nativeElement.focus).toHaveBeenCalledTimes(1);
   }));
 
   describe('validateInput():', () => {
