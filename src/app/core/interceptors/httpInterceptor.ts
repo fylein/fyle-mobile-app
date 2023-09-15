@@ -159,7 +159,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   }
 }
 
-class CustomEncoder implements HttpParameterCodec {
+export class CustomEncoder implements HttpParameterCodec {
   encodeKey(key: string): string {
     return encodeURIComponent(key);
   }
