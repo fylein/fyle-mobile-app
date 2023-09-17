@@ -41,10 +41,13 @@ describe('AddCorporateCardComponent', () => {
       'enroll',
       'isCardNumberValid',
     ]);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardEnrolled', 'cardEnrollmentFailed']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'cardEnrolled',
+      'cardEnrollmentErrors',
+      'enrollingNonRTFCard',
+    ]);
 
     TestBed.configureTestingModule({
-      // Check if we need to provide the pipe spy as well
       declarations: [AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
       imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
       providers: [
@@ -171,7 +174,15 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
+        'Card Network': CardNetworkType.OTHERS,
+        Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'Invalid card number',
+        'Card Number': '6111 **** **** 1111',
+      });
     });
 
     it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
@@ -193,9 +204,17 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
+        'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
+        'Card Network': CardNetworkType.VISA,
+        Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'Invalid card network',
+        'Card Number': '4111 **** **** 1111',
+      });
     });
 
     it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
@@ -217,9 +236,17 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa number. If you have other cards, please contact your admin.',
+        'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
+        'Card Network': CardNetworkType.MASTERCARD,
+        Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'Invalid card network',
+        'Card Number': '5111 **** **** 1111',
+      });
     });
 
     it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
@@ -242,8 +269,15 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
+        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
+        'Card Network': CardNetworkType.OTHERS,
+        Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'Invalid card network',
+        'Card Number': '3111 **** **** 1111',
+      });
     });
   });
 
@@ -269,6 +303,12 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith({
+        Source: '/enterprise/manage_corporate_cards',
+        'Card Network': CardNetworkType.VISA,
+        'Existing Card': '',
+        'Card ID': visaRTFCard.id,
+      });
     });
 
     it('should successfully enroll an existing card to rtf and close the popover', () => {
@@ -294,34 +334,11 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', statementUploadedCard.id);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
-    });
-
-    it('should track card enrollment success events', () => {
-      realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-      realTimeFeedService.enroll.and.returnValue(of(visaRTFCard));
-
-      component.card = statementUploadedCard;
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-      cardNumberInput.value = '4555555555555555';
-      cardNumberInput.dispatchEvent(new Event('input'));
-
-      fixture.detectChanges();
-
-      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-      addCorporateCardBtn.click();
-
-      fixture.detectChanges();
-
       expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith({
-        'Card Network': 'Visa',
+        Source: '/enterprise/manage_corporate_cards',
+        'Card Network': CardNetworkType.VISA,
         'Existing Card': statementUploadedCard.card_number,
         'Card ID': visaRTFCard.id,
-        Source: '/enterprise/manage_corporate_cards',
       });
     });
 
@@ -345,10 +362,17 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('This card already exists in the system');
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith({
+        'Card Network': CardNetworkType.VISA,
+        Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'This card already exists in the system',
+        'Card Number': '4555 **** **** 5555',
+      });
     });
 
     it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
@@ -371,40 +395,16 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
-    });
-
-    it('should track card enrollment failure events', () => {
-      realTimeFeedService.isCardNumberValid.and.returnValue(true);
-      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
-      realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
-
-      component.card = statementUploadedCard;
-
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-      cardNumberInput.value = '4555555555555555';
-      cardNumberInput.dispatchEvent(new Event('input'));
-      cardNumberInput.dispatchEvent(new Event('blur'));
-
-      fixture.detectChanges();
-
-      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
-      addCorporateCardBtn.click();
-
-      fixture.detectChanges();
-
-      expect(trackingService.cardEnrollmentFailed).toHaveBeenCalledOnceWith({
-        'Card Network': 'Visa',
-        'Existing Card': statementUploadedCard.card_number,
-        'Card Number': '4555 **** **** 5555',
-        'Error Message': 'Something went wrong. Please try after some time.',
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
+        'Card Network': CardNetworkType.VISA,
         Source: '/enterprise/manage_corporate_cards',
+        'Existing Card': '',
+        'Error Message': 'Something went wrong. Please try after some time.',
+        'Card Number': '4555 **** **** 5555',
       });
     });
 
@@ -445,14 +445,19 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+
       expect(alertMessageComponent).toBeTruthy();
       expect(alertMessageComponent.componentInstance.type).toBe('information');
       expect(alertMessageComponent.componentInstance.message).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
       );
-
-      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
       expect(addCorporateCardBtn.disabled).toBe(true);
+      expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith({
+        'Existing Card': '',
+        'Card Number': '3111 **** **** 1111',
+        Source: '/enterprise/manage_corporate_cards',
+      });
     });
   });
 

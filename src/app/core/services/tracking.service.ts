@@ -40,10 +40,7 @@ import { forkJoin, from } from 'rxjs';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(
-    private authService: AuthService,
-    private deviceService: DeviceService,
-  ) {}
+  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   get tracking(): TrackingMethods {
     return (window as typeof window & { analytics: TrackingMethods }).analytics;
@@ -618,7 +615,11 @@ export class TrackingService {
     this.eventTrack('Card Enrolled', properties);
   }
 
-  cardEnrollmentFailed(properties = {}): void {
-    this.eventTrack('Card Enrollment Failed', properties);
+  cardEnrollmentErrors(properties = {}): void {
+    this.eventTrack('Card Enrollment Errors', properties);
+  }
+
+  enrollingNonRTFCard(properties = {}): void {
+    this.eventTrack('Enrolling Non RTF Card', properties);
   }
 }
