@@ -20,6 +20,7 @@ import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
 import { txnData2 } from 'src/app/core/mock-data/transaction.data';
 import {
   mileageCategoryUnflattenedExpense,
+  newExpenseMileageData2,
   perDiemCategoryUnflattenedExpense,
   unflattenedTxnData,
 } from 'src/app/core/mock-data/unflattened-txn.data';
@@ -69,6 +70,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import { extendedAccountData1 } from 'src/app/core/mock-data/extended-account.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -153,11 +155,11 @@ export function TestCases1(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -240,7 +242,7 @@ export function TestCases1(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id,
+        activatedRoute.snapshot.params.id
       );
     });
 
@@ -483,7 +485,7 @@ export function TestCases1(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state,
+        splitPolicyExp4.data.final_desired_state
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -623,7 +625,7 @@ export function TestCases1(getTestBed) {
             removeMileageFromReport: true,
             id: 'txyeiYbLDSOy',
             reportId: 'rpFE5X1Pqi9P',
-          }),
+          })
         );
       }));
 
@@ -661,15 +663,15 @@ export function TestCases1(getTestBed) {
           removeMileageFromReport: undefined,
         });
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }),
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
         );
         expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex],
+          component.reviewList[+component.activeIndex]
         );
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
           component.reviewList,
-          +component.activeIndex,
+          +component.activeIndex
         );
       }));
 
@@ -711,7 +713,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          }),
+          })
         );
       }));
 
@@ -753,7 +755,7 @@ export function TestCases1(getTestBed) {
             ctaLoadingText,
             reportId: undefined,
             removeMileageFromReport: false,
-          }),
+          })
         );
       }));
     });
@@ -939,13 +941,27 @@ export function TestCases1(getTestBed) {
 
         tick(500);
       }));
+
+      it('should return false when account type changes to null', fakeAsync(() => {
+        accountsService.getEMyAccounts.and.returnValue(of(extendedAccountData1));
+        component.checkAvailableAdvance();
+        tick(500);
+
+        component.isBalanceAvailableInAnyAdvanceAccount$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+        component.fg.controls.paymentMode.setValue(multiplePaymentModesWithoutAdvData[0]);
+        fixture.detectChanges();
+
+        tick(500);
+      }));
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {
       accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes),
+        of(orgUserSettingsData.payment_mode_settings.allowed_payment_modes)
       );
       paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(of(true));
       accountsService.getPaymentModes.and.returnValue(accountOptionData1);
@@ -968,7 +984,7 @@ export function TestCases1(getTestBed) {
         expect(accountsService.getPaymentModes).toHaveBeenCalledOnceWith(
           multiplePaymentModesData,
           orgUserSettingsData.payment_mode_settings.allowed_payment_modes,
-          config,
+          config
         );
         done();
       });
@@ -1015,8 +1031,8 @@ export function TestCases1(getTestBed) {
       });
 
       it('should get distance in edit mode for a round trip', (done) => {
-        mileageService.getDistance.and.returnValue(of(10));
-        component.etxn$ = of(unflattenedTxnData);
+        mileageService.getDistance.and.returnValue(of(10000));
+        component.etxn$ = of(newExpenseMileageData2);
         spyOn(component, 'getFormValues').and.returnValue({
           route: {
             roundTrip: true,
@@ -1031,8 +1047,26 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData3] },
           })
           .subscribe((res) => {
-            expect(res).toEqual('0.02');
+            expect(res).toEqual('12.43');
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
+            done();
+          });
+      });
+
+      it('should return null if location is not specified', (done) => {
+        mileageService.getDistance.and.returnValue(of(null));
+        spyOn(component, 'getFormValues').and.returnValue(null);
+        component.etxn$ = of(unflattenedTxnData);
+        fixture.detectChanges();
+
+        component
+          .getEditCalculatedDistance({
+            value: null,
+          })
+          .subscribe((res) => {
+            expect(res).toEqual('0.00');
+            expect(mileageService.getDistance).toHaveBeenCalledTimes(1);
+            expect(component.getFormValues).toHaveBeenCalledTimes(1);
             done();
           });
       });

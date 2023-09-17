@@ -1,60 +1,38 @@
 import { Component, EventEmitter } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, concat, forkJoin, from, noop, Observable } from 'rxjs';
+import { PopoverController } from '@ionic/angular';
+import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
 import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { UserEventService } from 'src/app/core/services/user-event.service';
-import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { DeviceService } from 'src/app/core/services/device.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { globalCacheBusterNotifier } from 'ts-cacheable';
-import { TokenService } from 'src/app/core/services/token.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { environment } from 'src/environments/environment';
-import { Currency } from 'src/app/core/models/currency.model';
+import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
 import { CommonOrgUserSettings, OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { OrgService } from 'src/app/core/services/org.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { DeviceService } from 'src/app/core/services/device.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgService } from 'src/app/core/services/org.service';
+import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { UserEventService } from 'src/app/core/services/user-event.service';
 import { PopupWithBulletsComponent } from 'src/app/shared/components/popup-with-bullets/popup-with-bullets.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { environment } from 'src/environments/environment';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { TrackingService } from '../../core/services/tracking.service';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
-import { InfoCardData } from 'src/app/core/models/info-card-data.model';
+import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
-import { cloneDeep } from 'lodash';
+import { EventData } from 'src/app/core/models/event-data.model';
+import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
+import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
-
-type EventData = {
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  isEnabled: boolean;
-  selectedCurrency?: Currency;
-};
-
-type PreferenceSetting = {
-  title: string;
-  content: string;
-  key: 'instaFyle' | 'defaultCurrency' | 'formAutofill';
-  defaultCurrency?: string;
-  isEnabled: boolean;
-  isAllowed: boolean;
-};
-
-type CopyCardDetails = {
-  title: string;
-  content: string;
-  contentToCopy: string;
-  toastMessageContent: string;
-  isHidden?: boolean;
-};
 
 @Component({
   selector: 'app-my-profile',
@@ -78,7 +56,9 @@ export class MyProfilePage {
 
   loadEou$: BehaviorSubject<null>;
 
-  settingsMap = {
+  settingsMap: {
+    [key: string]: keyof OrgUserSettings;
+  } = {
     instaFyle: 'insta_fyle_settings',
     defaultCurrency: 'currency_settings',
     formAutofill: 'expense_form_autofills',
@@ -115,14 +95,14 @@ export class MyProfilePage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private activatedRoute: ActivatedRoute,
-    private launchDarklyService: LaunchDarklyService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -137,14 +117,14 @@ export class MyProfilePage {
             this.authService.logout({
               device_id: device.uuid,
               user_id: eou.us.id,
-            }),
+            })
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          }),
+          })
         )
         .subscribe(noop);
     } catch (e) {
@@ -154,12 +134,10 @@ export class MyProfilePage {
     }
   }
 
-  toggleSetting(eventData: EventData): void {
+  toggleSetting(eventData: EventData): Subscription {
     const settingName = this.settingsMap[eventData.key];
-    const setting = cloneDeep(this.orgUserSettings[settingName]) as CommonOrgUserSettings;
+    const setting = this.orgUserSettings[settingName] as CommonOrgUserSettings;
     setting.enabled = eventData.isEnabled;
-
-    this.orgUserSettings[settingName] = setting;
 
     if (eventData.key === 'defaultCurrency' && eventData.isEnabled && eventData.selectedCurrency) {
       this.orgUserSettings.currency_settings.preferred_currency = eventData.selectedCurrency.shortCode || null;
@@ -171,7 +149,7 @@ export class MyProfilePage {
       setDefaultCurrency: eventData.selectedCurrency ? true : false,
     });
 
-    this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
+    return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
   ionViewWillEnter(): void {
@@ -211,11 +189,11 @@ export class MyProfilePage {
             orgSettings: orgSettings$,
             isUnifiedCardEnrollmentFlowEnabled: this.launchDarklyService.getVariation(
               'unified_card_enrollment_flow_enabled',
-              false,
+              false
             ),
-          }),
+          })
         ),
-        finalize(() => from(this.loaderService.hideLoader())),
+        finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(async (res) => {
         this.orgUserSettings = res.orgUserSettings;

@@ -100,7 +100,7 @@ export const expectedExpenseFieldWithoutControl = perDiemCustomInputsData1.map((
 })) as TxnCustomProperties[];
 
 export const expectedControlValues = perDiemCustomInputsData1.map(
-  ({ control }) => control.value as string | string[] | null,
+  ({ control }: { control: { value: string | string[] } }) => control.value
 );
 
 export const perDiemCustomInputsData2: PerDiemCustomInputs[] = [

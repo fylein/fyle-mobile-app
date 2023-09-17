@@ -26,7 +26,13 @@ describe('FyAddToReportModalComponent', () => {
     const cdrSpy = jasmine.createSpyObj('ChangeDetectorRef', ['detectChanges']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     TestBed.configureTestingModule({
-      declarations: [FyAddToReportModalComponent, HumanizeCurrencyPipe, ReportState, SnakeCaseToSpaceCase],
+      declarations: [
+        FyAddToReportModalComponent,
+        HumanizeCurrencyPipe,
+        ReportState,
+        SnakeCaseToSpaceCase,
+        TitleCasePipe,
+      ],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
       providers: [
         FyCurrencyPipe,
@@ -102,10 +108,10 @@ describe('FyAddToReportModalComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__title'))).toEqual(
-      'No Reports found',
+      'No Reports found'
     );
     expect(getTextContent(getElementBySelector(fixture, '.report-list--zero-state__subtitle'))).toEqual(
-      'To create a draft report please click on',
+      'To create a draft report please click on'
     );
   });
 
@@ -150,11 +156,11 @@ describe('FyAddToReportModalComponent', () => {
     const reportCards = getAllElementsBySelector(fixture, '[data-testid="reports"]');
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--purpose')[0])).toEqual(
-      optionData1[0].value.rp.purpose,
+      optionData1[0].value.rp.purpose
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--count')[0])).toEqual(
-      `${optionData1[0].value.rp.num_transactions} Expense${optionData1[0].value.rp.num_transactions > 1 ? 's' : ''}`,
+      `${optionData1[0].value.rp.num_transactions} Expense${optionData1[0].value.rp.num_transactions > 1 ? 's' : ''}`
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--currency')[0])).toEqual('$');

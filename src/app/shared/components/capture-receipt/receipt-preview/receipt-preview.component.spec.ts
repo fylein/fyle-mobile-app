@@ -8,7 +8,7 @@ import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { PinchZoomModule } from 'ngx-pinch-zoom-16';
+import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { CropReceiptComponent } from '../crop-receipt/crop-receipt.component';
 import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
@@ -121,7 +121,7 @@ describe('ReceiptPreviewComponent', () => {
         data: {
           base64ImageWithSource: images[0],
         },
-      }),
+      })
     );
     modalController.create.and.returnValue(Promise.resolve(cropReceiptModalSpy));
     trackingService.cropReceipt.and.returnValue(null);
@@ -183,7 +183,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'discard',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -217,7 +217,7 @@ describe('ReceiptPreviewComponent', () => {
       closePopOverSpy.onWillDismiss.and.returnValue(
         Promise.resolve({
           data: {},
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
 
@@ -282,7 +282,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -316,7 +316,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();

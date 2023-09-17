@@ -38,7 +38,14 @@ describe('FyUserlistModalComponent', () => {
 
     TestBed.configureTestingModule({
       declarations: [FyUserlistModalComponent],
-      imports: [IonicModule.forRoot(), MatIconTestingModule, FormsModule, MatIconModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        MatIconTestingModule,
+        FormsModule,
+        MatChipsModule,
+        MatIconModule,
+        MatCheckboxModule,
+      ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ChangeDetectorRef, useValue: cdrSpy },
@@ -117,7 +124,7 @@ describe('FyUserlistModalComponent', () => {
   describe('onSelect():', () => {
     it('add the employee email address to the list of currently selected email addresses', () => {
       const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-        of(component.currentSelections),
+        of(component.currentSelections)
       );
       component.onSelect(selectedOptionRes, { checked: true });
       fixture.detectChanges();
@@ -127,7 +134,7 @@ describe('FyUserlistModalComponent', () => {
 
     it('remove the email address from the list of currently selected email addresses', () => {
       const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-        of(component.currentSelections),
+        of(component.currentSelections)
       );
       component.onSelect(selectedOptionRes, { checked: false });
       fixture.detectChanges();
@@ -149,7 +156,7 @@ describe('FyUserlistModalComponent', () => {
 
   it('onAddNew(): should add new email address', () => {
     const getSelectedItemDictSpy = spyOn(component, 'getSelectedItemDict').and.returnValue(
-      of(component.currentSelections),
+      of(component.currentSelections)
     );
     const clearValueSpy = spyOn(component, 'clearValue');
     component.value = 'aditi.saini@fyle.in';
