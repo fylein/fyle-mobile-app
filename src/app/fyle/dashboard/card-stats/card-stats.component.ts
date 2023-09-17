@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { BehaviorSubject, Observable, concat, forkJoin, map, shareReplay, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, concat, forkJoin, map, shareReplay, switchMap } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -108,9 +108,6 @@ export class CardStatsComponent implements OnInit {
       this.isVisaRTFEnabled$,
       this.isMastercardRTFEnabled$,
     ]).pipe(
-      tap(([isUnifiedCardEnrollmentFlowEnabled$]) => {
-        console.log('isUnifiedCardEnrollmentFlowEnabled$', isUnifiedCardEnrollmentFlowEnabled$);
-      }),
       map(
         ([isUnifiedCardEnrollmentFlowEnabled, isVisaRTFEnabled, isMastercardRTFEnabled]) =>
           isUnifiedCardEnrollmentFlowEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled)
