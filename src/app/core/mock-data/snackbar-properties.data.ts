@@ -1,3 +1,5 @@
+import { SnackbarProperties } from '../models/snackbar-properties.model';
+
 export const snackbarPropertiesRes = {
   data: {
     icon: 'danger',
@@ -39,6 +41,24 @@ export const snackbarPropertiesRes5 = {
     icon: 'success',
     showCloseButton: true,
     message: 'Expenses merged Successfully',
+  },
+  duration: 3000,
+};
+
+export const snackbarPropertiesRes6: SnackbarProperties = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: '1 Transaction successfully hidden!',
+  },
+  duration: 3000,
+};
+
+export const snackbarPropertiesRes7: SnackbarProperties = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: '2 Transactions successfully hidden!',
   },
   duration: 3000,
 };
