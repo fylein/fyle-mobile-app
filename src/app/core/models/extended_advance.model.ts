@@ -7,7 +7,7 @@ export interface ExtendedAdvance {
   account_type: string;
   adv_advance_number: string;
   adv_amount: number;
-  adv_card_number: any;
+  adv_card_number: string;
   adv_created_at: Date;
   adv_currency: string;
   adv_exported: false;
@@ -18,7 +18,7 @@ export interface ExtendedAdvance {
   adv_orig_currency: string;
   adv_payment_id: string;
   adv_purpose: string;
-  adv_refcode: any;
+  adv_refcode: string;
   adv_settlement_id: string;
   adv_source: string;
   areq_approved_at: Date;
@@ -35,11 +35,20 @@ export interface ExtendedAdvance {
   creator_ou_org_id: string;
   creator_us_email: string;
   creator_us_full_name: string;
-  custom_properties: any;
+  custom_properties: {
+    [id: string | number]: boolean | string | number | string[];
+  };
   ou_assignee_employee_id: string;
   ou_location: string;
   ou_title: string;
-  project_code: any;
+  project_code: string;
   project_id: number;
   project_name: string;
+  type?: string;
+  amount?: number;
+  orig_amount?: number;
+  currency?: string;
+  purpose?: string;
+  org_currency?: string;
+  created_at?: Date;
 }
