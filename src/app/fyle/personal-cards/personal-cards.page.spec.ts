@@ -2,28 +2,29 @@ import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef, NO_ERRORS_SCHEMA } from '@an
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxChange, MatCheckboxModule } from '@angular/material/checkbox';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { By } from '@angular/platform-browser';
+import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import {
-  InfiniteScrollCustomEvent,
-  IonInfiniteScroll,
-  IonicModule,
-  ModalController,
-  Platform,
-  SegmentCustomEvent,
-} from '@ionic/angular';
+import { InfiniteScrollCustomEvent, IonicModule, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
+import { IonInfiniteScrollCustomEvent } from '@ionic/core';
 import { BehaviorSubject, of } from 'rxjs';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import { allFilterPills, creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import {
   personalCardQueryParamFiltersData,
   tasksQueryParamsWithFiltersData,
+  tasksQueryParamsWithFiltersData3,
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { apiPersonalCardTxnsRes, matchedPersonalCardTxn } from 'src/app/core/mock-data/personal-card-txns.data';
-import { linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { apiLinkedAccRes, linkedAccountsRes } from 'src/app/core/mock-data/personal-cards.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import { snackbarPropertiesRes6, snackbarPropertiesRes7 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { apiToken } from 'src/app/core/mock-data/yoodle-token.data';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -36,11 +37,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { PersonalCardsPage } from './personal-cards.page';
-import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
 import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { IonInfiniteScrollCustomEvent } from '@ionic/core';
+import { PersonalCardsPage } from './personal-cards.page';
 
 describe('PersonalCardsPage', () => {
   let component: PersonalCardsPage;
@@ -88,7 +87,7 @@ describe('PersonalCardsPage', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
-    const spinnerDialogSpy = jasmine.createSpyObj('SpinnerDialog', ['show']);
+    const spinnerDialogSpy = jasmine.createSpyObj('SpinnerDialog', ['show', 'hide']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'personalCardsViewed',
       'newCardLinkedOnPersonalCards',
@@ -101,7 +100,16 @@ describe('PersonalCardsPage', () => {
 
     TestBed.configureTestingModule({
       declarations: [PersonalCardsPage],
-      imports: [IonicModule.forRoot(), RouterTestingModule, FormsModule, MatCheckboxModule],
+      imports: [
+        IonicModule.forRoot(),
+        RouterTestingModule,
+        FormsModule,
+        MatCheckboxModule,
+        MatFormFieldModule,
+        MatInputModule,
+        BrowserAnimationsModule,
+        NoopAnimationsModule,
+      ],
       providers: [
         ChangeDetectorRef,
         {
@@ -110,10 +118,10 @@ describe('PersonalCardsPage', () => {
             snapshot: {
               params: {
                 navigateBack: true,
-                queryParams: {
-                  filters: {
-                    amount: 10,
-                  },
+              },
+              queryParams: {
+                filters: {
+                  amount: 10,
                 },
               },
             },
@@ -194,8 +202,10 @@ describe('PersonalCardsPage', () => {
 
     personalCardsService.getLinkedAccountsCount.and.returnValue(of(2));
     personalCardsService.getLinkedAccounts.and.returnValue(of(linkedAccountsRes));
-    component.loadData$ = new BehaviorSubject(null);
-    component.loadCardData$ = new BehaviorSubject(null);
+    component.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+    component.loadCardData$ = new BehaviorSubject({});
     component.linkedAccountsCount$ = of(1);
     component.isConnected$ = of(true);
     component.linkedAccounts$ = of(linkedAccountsRes);
@@ -319,19 +329,36 @@ describe('PersonalCardsPage', () => {
       expect(trackingService.cardDeletedOnPersonalCards).toHaveBeenCalledTimes(1);
     });
 
-    it('onCardChanged(): should fetch new txns when card changes', () => {
-      spyOn(component.loadData$, 'getValue').and.returnValue({
-        queryParams: {},
-      });
-      spyOn(component.loadData$, 'next');
+    describe('onCardChanged(): ', () => {
+      it('should fetch new txns when card changes', () => {
+        spyOn(component.loadData$, 'getValue').and.returnValue({
+          queryParams: {},
+        });
+        spyOn(component.loadData$, 'next');
 
-      component.onCardChanged('eq.baccLesaRlyvLY');
+        component.onCardChanged('eq.baccLesaRlyvLY');
 
-      expect(component.loadData$.next).toHaveBeenCalledOnceWith({
-        queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
-        pageNumber: 1,
+        expect(component.loadData$.next).toHaveBeenCalledOnceWith({
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          pageNumber: 1,
+        });
+        expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
       });
-      expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+
+      it('should fetch new txns without params', () => {
+        spyOn(component.loadData$, 'getValue').and.returnValue({
+          queryParams: null,
+        });
+        spyOn(component.loadData$, 'next');
+
+        component.onCardChanged('eq.baccLesaRlyvLY');
+
+        expect(component.loadData$.next).toHaveBeenCalledOnceWith({
+          queryParams: { btxn_status: 'in.(INITIALIZED)', ba_id: 'eq.eq.baccLesaRlyvLY' },
+          pageNumber: 1,
+        });
+        expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+      });
     });
 
     it('loadData(): should load data', fakeAsync(() => {
@@ -409,7 +436,6 @@ describe('PersonalCardsPage', () => {
       component.selectionMode = true;
       spyOn(component, 'switchSelectionMode');
       personalCardsService.fetchTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
-      fixture.detectChanges();
 
       component.fetchNewTransactions();
 
@@ -424,7 +450,6 @@ describe('PersonalCardsPage', () => {
         personalCardsService.hideTransactions.and.returnValue(of(apiExpenseRes));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes6);
-        fixture.detectChanges();
 
         component.hideSelectedTransactions();
 
@@ -445,7 +470,6 @@ describe('PersonalCardsPage', () => {
         personalCardsService.hideTransactions.and.returnValue(of(expenseList2));
         spyOn(component, 'switchSelectionMode');
         snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes7);
-        fixture.detectChanges();
 
         component.hideSelectedTransactions();
 
@@ -467,7 +491,6 @@ describe('PersonalCardsPage', () => {
         component.selectedTrasactionType = 'INITIALIZED';
         component.selectionMode = true;
         spyOn(component, 'selectExpense');
-        fixture.detectChanges();
 
         component.switchSelectionMode();
 
@@ -480,7 +503,6 @@ describe('PersonalCardsPage', () => {
         component.selectedTrasactionType = 'INITIALIZED';
         component.selectionMode = false;
         spyOn(component, 'selectExpense');
-        fixture.detectChanges();
 
         component.switchSelectionMode('btxnMy43OZokde');
 
@@ -493,7 +515,6 @@ describe('PersonalCardsPage', () => {
     describe('selectExpense():', () => {
       it('should add an expense to list', () => {
         component.selectedElements = [];
-        fixture.detectChanges();
 
         component.selectExpense('btxnMy43OZokde');
         expect(component.selectedElements).toEqual(['btxnMy43OZokde']);
@@ -501,7 +522,6 @@ describe('PersonalCardsPage', () => {
 
       it('should add an expense to list', () => {
         component.selectedElements = ['btxnMy43OZokde'];
-        fixture.detectChanges();
 
         component.selectExpense('btxnMy43OZokde');
         expect(component.selectedElements).toEqual([]);
@@ -511,7 +531,6 @@ describe('PersonalCardsPage', () => {
     it('onSelectAll(): should select all expenses', () => {
       component.acc = [apiPersonalCardTxnsRes.data[0]];
       const event = new MatCheckboxChange();
-      fixture.detectChanges();
 
       component.onSelectAll(event);
 
@@ -589,11 +608,10 @@ describe('PersonalCardsPage', () => {
         component.filters = {
           createdOn: {},
         };
-        fixture.detectChanges();
 
         component.onFilterClose('Created On');
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(1);
       });
 
       it('should delete updated on filter', () => {
@@ -602,11 +620,10 @@ describe('PersonalCardsPage', () => {
         component.filters = {
           updatedOn: {},
         };
-        fixture.detectChanges();
 
         component.onFilterClose('Updated On');
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(1);
       });
 
       it('should delete transaction type filter', () => {
@@ -615,11 +632,10 @@ describe('PersonalCardsPage', () => {
         component.filters = {
           transactionType: 'DEBIT',
         };
-        fixture.detectChanges();
 
         component.onFilterClose('Transactions Type');
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(2);
+        expect(personalCardsService.generateFilterPills).toHaveBeenCalledTimes(1);
       });
     });
 
@@ -649,7 +665,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19',
+          '2021-09-19'
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -668,7 +684,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19',
+          '2021-09-19'
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
           state: { txnDetails: apiPersonalCardTxnsRes.data[0] },
@@ -763,7 +779,7 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {},
+        {}
       );
     }));
 
@@ -791,6 +807,58 @@ describe('PersonalCardsPage', () => {
       expect(personalCardsService.generateCreditParams).toHaveBeenCalledTimes(1);
       expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
     });
+
+    it('openFilters(): should open filters', fakeAsync(() => {
+      const modalSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
+      modalSpy.onWillDismiss.and.resolveTo({
+        data: selectedFilters2,
+      });
+      modalController.create.and.resolveTo(modalSpy);
+      personalCardsService.generateSelectedFilters.and.returnValue(selectedFilters1);
+      personalCardsService.convertFilters.and.returnValue({});
+      spyOn(component, 'addNewFiltersToParams').and.returnValue(tasksQueryParamsWithFiltersData3);
+      personalCardsService.generateFilterPills.and.returnValue(creditTxnFilterPill);
+      spyOn(component.loadData$, 'next');
+
+      component.openFilters();
+      tick(1000);
+
+      expect(modalController.create).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.generateSelectedFilters).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledOnceWith(tasksQueryParamsWithFiltersData3);
+      expect(personalCardsService.generateFilterPills).toHaveBeenCalledOnceWith({});
+    }));
+
+    it('openYoodle(): should open yoodle', fakeAsync(() => {
+      personalCardsService.htmlFormUrl.and.returnValue('<h1></h1>');
+      spyOn(window, 'decodeURIComponent').and.returnValue(
+        JSON.stringify([
+          {
+            requestId: 'tx3qHxFNgRcZ',
+          },
+        ])
+      );
+      const inappborwserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
+      inappborwserSpy.on.withArgs('loadstop').and.returnValue(of(null));
+      inappborwserSpy.on.withArgs('loadstart').and.returnValue(
+        of({
+          url: 'https://www.fylehq.com',
+        })
+      );
+      inAppBrowserService.create.and.returnValue(inappborwserSpy);
+      spyOn(component, 'postAccounts');
+
+      component.openYoodle(apiToken.fast_link_url, apiToken.access_token);
+      tick(20000);
+
+      expect(personalCardsService.htmlFormUrl).toHaveBeenCalledOnceWith(apiToken.fast_link_url, apiToken.access_token);
+      expect(inappborwserSpy.on).toHaveBeenCalledTimes(2);
+      expect(inAppBrowserService.create).toHaveBeenCalledTimes(1);
+      expect(window.decodeURIComponent).toHaveBeenCalledTimes(1);
+      expect(component.postAccounts).toHaveBeenCalledOnceWith(['tx3qHxFNgRcZ']);
+    }));
   });
 
   describe('ngOnInit():', () => {
@@ -813,5 +881,124 @@ describe('PersonalCardsPage', () => {
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.mode).toEqual('md');
     });
+  });
+
+  it('ionViewWillEnter(): should setup class variables', () => {
+    component.isCardsLoaded = true;
+    spyOn(component.loadData$, 'getValue').and.returnValue({});
+    spyOn(component.loadData$, 'next');
+
+    component.ionViewWillEnter();
+
+    expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+    expect(component.loadData$.getValue).toHaveBeenCalledTimes(1);
+    expect(trackingService.personalCardsViewed).toHaveBeenCalledTimes(1);
+  });
+
+  it('loadLinkedAccounts(): should load linked accounts', (done) => {
+    personalCardsService.getLinkedAccounts.and.returnValue(of(apiLinkedAccRes.data));
+
+    component.loadLinkedAccounts();
+
+    component.linkedAccounts$.subscribe((res) => {
+      expect(res).toEqual(apiLinkedAccRes.data);
+      expect(personalCardsService.getLinkedAccounts).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('loadTransactionCount(): should load transaction count', (done) => {
+    apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
+    personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
+
+    component.loadTransactionCount();
+
+    component.transactionsCount$.subscribe((res) => {
+      expect(res).toEqual(1);
+      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+      expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('loadInfiniteScroll(): should load infinite scroll', (done) => {
+    component.transactions$ = of(apiPersonalCardTxnsRes.data);
+    component.transactionsCount$ = of(1);
+
+    component.loadInfiniteScroll();
+
+    component.isInfiniteScrollRequired$.subscribe((res) => {
+      expect(res).toBeFalse();
+      done();
+    });
+  });
+
+  it('loadAccountCount(): should load accounts count and clear filters', (done) => {
+    personalCardsService.getLinkedAccountsCount.and.returnValue(of(0));
+    spyOn(component, 'clearFilters');
+
+    component.loadAccountCount();
+
+    component.linkedAccountsCount$.subscribe((res) => {
+      expect(res).toEqual(0);
+      expect(component.clearFilters).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('loadPersonalTxns():', () => {
+    it('should load personal cards txns with params', (done) => {
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify({});
+      spyOn(component, 'addNewFiltersToParams').and.returnValue({});
+      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
+      personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
+      personalCardsService.getBankTransactions.and.returnValue(of(apiPersonalCardTxnsRes));
+
+      component.loadPersonalTxns().subscribe((res) => {
+        expect(res).toEqual(apiPersonalCardTxnsRes.data);
+        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.getBankTransactions).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should load personal cards without params', (done) => {
+      activatedRoute.snapshot.queryParams.filters = null;
+      personalCardsService.getBankTransactionsCount.and.returnValue(of(0));
+      personalCardsService.getBankTransactions.and.returnValue(of({ ...apiPersonalCardTxnsRes, data: [] }));
+
+      component.loadPersonalTxns().subscribe((res) => {
+        expect(res).toEqual([]);
+        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.getBankTransactionsCount).toHaveBeenCalledTimes(1);
+        expect(personalCardsService.getBankTransactions).not.toHaveBeenCalled();
+        done();
+      });
+    });
+  });
+
+  it('ngAfterViewInit(): should setup search and load data', () => {
+    spyOn(component, 'loadAccountCount');
+    spyOn(component, 'loadLinkedAccounts');
+    spyOn(component, 'loadPersonalTxns').and.returnValue(of(apiPersonalCardTxnsRes.data));
+    personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
+    spyOn(component, 'loadTransactionCount');
+    spyOn(component, 'loadInfiniteScroll');
+
+    component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
+    const inputElement = component.simpleSearchInput.nativeElement as HTMLInputElement;
+
+    component.ngAfterViewInit();
+
+    inputElement.value = '';
+    inputElement.dispatchEvent(new Event('keyup'));
+
+    expect(component.loadAccountCount).toHaveBeenCalledTimes(1);
+    expect(component.loadLinkedAccounts).toHaveBeenCalledTimes(1);
+    expect(component.loadPersonalTxns).toHaveBeenCalledTimes(1);
+    expect(component.loadTransactionCount).toHaveBeenCalledTimes(1);
+    expect(component.loadInfiniteScroll).toHaveBeenCalledTimes(1);
   });
 });

@@ -86,7 +86,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadCardData$: BehaviorSubject<{}>;
+  loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
   loadData$: BehaviorSubject<
     Partial<{
@@ -96,7 +96,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       sortDir: string;
       searchString: string;
     }>
-  >;
+  > = new BehaviorSubject({
+    pageNumber: 1,
+  });
 
   transactions$: Observable<PersonalCardTxn[]>;
 
@@ -168,7 +170,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -189,18 +191,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.personalCardsViewed();
   }
 
-  ngAfterViewInit(): void {
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-    this.loadCardData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
-      tap((count) => {
-        if (count === 0) {
-          this.clearFilters();
-        }
-      }),
-      shareReplay(1),
-    );
+  loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
@@ -210,13 +201,44 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }),
           finalize(() => {
             this.isLoading = false;
-          }),
-        ),
+          })
+        )
       ),
-      shareReplay(1),
+      shareReplay(1)
     );
-    this.loadData$ = new BehaviorSubject({});
-    const paginatedPipe = this.loadData$.pipe(
+  }
+
+  loadTransactionCount(): void {
+    this.transactionsCount$ = this.loadData$.pipe(
+      switchMap((params) => {
+        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
+      }),
+      shareReplay(1)
+    );
+  }
+
+  loadInfiniteScroll(): void {
+    const paginatedScroll$ = this.transactions$.pipe(
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+  }
+
+  loadAccountCount(): void {
+    this.linkedAccountsCount$ = this.loadCardData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      tap((count) => {
+        if (count === 0) {
+          this.clearFilters();
+        }
+      }),
+      shareReplay(1)
+    );
+  }
+
+  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+    return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
         if (this.activatedRoute.snapshot.queryParams.filters) {
@@ -244,7 +266,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                   finalize(() => {
                     this.isTrasactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  }),
+                  })
                 );
             } else {
               this.isTrasactionsLoading = false;
@@ -252,7 +274,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 data: [],
               });
             }
-          }),
+          })
         );
       }),
       map((res) => {
@@ -263,27 +285,37 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      }),
+      })
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.loadCardData$ = new BehaviorSubject({});
+
+    this.loadAccountCount();
+
+    this.loadLinkedAccounts();
+
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    const paginatedPipe = this.loadPersonalTxns();
+
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
-    this.transactionsCount$ = this.loadData$.pipe(
-      switchMap((params) => {
-        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
-      }),
-      shareReplay(1),
-    );
-    const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
-    );
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+
+    this.loadTransactionCount();
+
+    this.loadInfiniteScroll();
+
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400),
+        debounceTime(400)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -313,7 +345,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
@@ -359,7 +391,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((data) => {
         const message =
@@ -468,7 +500,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           params.pageNumber = 1;
           this.loadData$.next(params);
           this.trackingService.transactionsFetchedOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }
@@ -498,7 +530,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }
