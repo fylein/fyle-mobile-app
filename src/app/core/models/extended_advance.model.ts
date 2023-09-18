@@ -49,6 +49,6 @@ export interface ExtendedAdvance {
   orig_amount?: number;
   currency?: string;
   purpose?: string;
-  org_currency?: string;
+  orig_currency?: string;
   created_at?: Date;
 }
