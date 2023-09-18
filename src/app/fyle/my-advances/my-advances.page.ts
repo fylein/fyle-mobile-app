@@ -16,8 +16,6 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
-import { SortingParam } from 'src/app/core/models/sorting-param.model';
-import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 
 import { cloneDeep } from 'lodash';
@@ -25,12 +23,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
-
-type Filters = Partial<{
-  state: AdvancesStates[];
-  sortParam: SortingParam;
-  sortDir: SortingDirection;
-}>;
+import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 
 @Component({
   selector: 'app-my-advances',
@@ -38,7 +31,7 @@ type Filters = Partial<{
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements AfterViewChecked {
-  myAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
+  myAdvanceRequests$: Observable<ExtendedAdvanceRequest[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
 
@@ -60,7 +53,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   filterPills = [];
 
-  filterParams$ = new BehaviorSubject<Filters>({});
+  filterParams$ = new BehaviorSubject<Partial<MyAdvancesFilters>>({});
 
   advancesTaskCount = 0;
 
@@ -124,13 +117,13 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     const oldFilters = this.activatedRoute.snapshot.queryParams.filters as string;
     if (oldFilters) {
-      this.filterParams$.next(JSON.parse(oldFilters) as Filters);
+      this.filterParams$.next(JSON.parse(oldFilters) as Partial<MyAdvancesFilters>);
       this.filterPills = this.filtersHelperService.generateFilterPills(this.filterParams$.value);
     }
 
     this.isLoading = true;
 
-    this.myAdvancerequests$ = this.advanceRequestService
+    this.myAdvanceRequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
         areq_advance_id: 'is.null',
       })
@@ -177,16 +170,16 @@ export class MyAdvancesPage implements AfterViewChecked {
       concatMap(() => this.orgSettingsService.get()),
       switchMap((orgSettings) =>
         combineLatest([
-          iif(() => orgSettings.advance_requests.enabled, this.myAdvancerequests$, of(null)),
+          iif(() => orgSettings.advance_requests.enabled, this.myAdvanceRequests$, of(null)),
           iif(() => orgSettings.advances.enabled, this.myAdvances$, of(null)),
         ]).pipe(
           map((res) => {
-            const [myAdvancerequestsRes, myAdvancesRes] = res;
-            let myAdvancerequests = myAdvancerequestsRes || [];
+            const [myAdvanceRequestsRes, myAdvancesRes] = res;
+            let myAdvanceRequests = myAdvanceRequestsRes || [];
             let myAdvances = myAdvancesRes || [];
-            myAdvancerequests = this.updateMyAdvanceRequests(myAdvancerequests);
+            myAdvanceRequests = this.updateMyAdvanceRequests(myAdvanceRequests);
             myAdvances = this.updateMyAdvances(myAdvances);
-            return [...myAdvances, ...myAdvancerequests];
+            return [...myAdvances, ...myAdvanceRequests];
           }),
           sortResults
         )
@@ -246,8 +239,8 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvances;
   }
 
-  updateMyAdvanceRequests(myAdvancerequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
-    myAdvancerequests = myAdvancerequests.map((data) => ({
+  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
+    myAdvanceRequests = myAdvanceRequests.map((data) => ({
       ...data,
       type: 'request',
       currency: data.areq_currency,
@@ -256,7 +249,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       purpose: data.areq_purpose,
       state: data.areq_state,
     }));
-    return myAdvancerequests;
+    return myAdvanceRequests;
   }
 
   doRefresh(event: { target: { complete: () => void } }): void {
@@ -268,7 +261,7 @@ export class MyAdvancesPage implements AfterViewChecked {
         map(() => {
           this.refreshAdvances$.next();
           if (event) {
-            event?.target?.complete();
+            event.target?.complete();
           }
         })
       )

@@ -65,7 +65,7 @@ export class DashboardPage {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private backButtonService: BackButtonService,
-    private navController: NavController,
+    private navController: NavController
   ) {}
 
   get displayedTaskCount(): number {
@@ -94,7 +94,7 @@ export class DashboardPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -163,7 +163,7 @@ export class DashboardPage {
   registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.LOW,
-      this.backButtonActionHandler,
+      this.backButtonActionHandler
     );
   }
 

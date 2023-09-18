@@ -1,5 +1,5 @@
 import { ReportOptions } from '../models/report-options.model';
-import { expectedErpt } from './report-unflattened.data';
+import { expectedErpt, expectedUnflattenedReports } from './report-unflattened.data';
 
 export const reportOptionsData: ReportOptions[] = [
   {
@@ -516,5 +516,24 @@ export const reportOptionsData4: ReportOptions[] = [
         email: 'ajain@fyle.in',
       },
     },
+  },
+];
+
+export const reportOptionsData5: ReportOptions[] = [
+  {
+    label: '#7:  Jan 2023',
+    value: expectedUnflattenedReports[0],
+  },
+  {
+    label: '#7:  Jan 2023',
+    value: expectedUnflattenedReports[1],
+  },
+  {
+    label: '#5:  Jan 2023',
+    value: expectedUnflattenedReports[2],
+  },
+  {
+    label: 'A new report',
+    value: expectedUnflattenedReports[3],
   },
 ];

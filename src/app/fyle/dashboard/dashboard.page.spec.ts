@@ -299,7 +299,7 @@ describe('DashboardPage', () => {
     component.registerBackButtonAction();
     expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
       BackButtonActionPriority.LOW,
-      backButtonActionHandlerSpy,
+      backButtonActionHandlerSpy
     );
   });
 
