@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -11,7 +11,7 @@ import { MAX_FILE_SIZE } from 'src/app/core/constants';
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
-  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   constructor(
     private popoverController: PopoverController,
@@ -19,24 +19,26 @@ export class CameraOptionsPopupComponent implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 
-  closeClicked() {
+  closeClicked(): void {
     this.popoverController.dismiss();
   }
 
-  async getImageFromPicture() {
+  async getImageFromPicture(): Promise<void> {
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
     this.popoverController.dismiss({ option: 'camera' });
   }
 
-  async getImageFromImagePicker() {
+  async getImageFromImagePicker(): Promise<void> {
     const that = this;
     that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
-    const nativeElement = that.fileUpload.nativeElement as HTMLInputElement;
+    const nativeElement = that.fileUpload.nativeElement;
 
-    nativeElement.onchange = async () => {
+    nativeElement.onchange = async (): Promise<void> => {
       const file = nativeElement.files[0];
 
       if (file?.size < MAX_FILE_SIZE) {
@@ -58,7 +60,7 @@ export class CameraOptionsPopupComponent implements OnInit {
     nativeElement.click();
   }
 
-  private async showSizeLimitExceededPopover() {
+  private async showSizeLimitExceededPopover(): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
