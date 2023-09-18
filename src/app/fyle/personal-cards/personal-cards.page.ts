@@ -170,7 +170,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
-    private cdr: ChangeDetectorRef,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -201,10 +201,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }),
           finalize(() => {
             this.isLoading = false;
-          }),
-        ),
+          })
+        )
       ),
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -214,13 +214,13 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams);
       }),
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
-  loadInfinitScroll(): void {
+  loadInfiniteScroll(): void {
     const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
     );
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
   }
@@ -233,7 +233,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           this.clearFilters();
         }
       }),
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -266,7 +266,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                   finalize(() => {
                     this.isTrasactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  }),
+                  })
                 );
             } else {
               this.isTrasactionsLoading = false;
@@ -274,7 +274,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 data: [],
               });
             }
-          }),
+          })
         );
       }),
       map((res) => {
@@ -285,7 +285,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      }),
+      })
     );
   }
 
@@ -308,14 +308,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     this.loadTransactionCount();
 
-    this.loadInfinitScroll();
+    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400),
+        debounceTime(400)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -345,7 +345,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
@@ -391,7 +391,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((data) => {
         const message =
@@ -500,7 +500,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           params.pageNumber = 1;
           this.loadData$.next(params);
           this.trackingService.transactionsFetchedOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }
@@ -530,7 +530,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }

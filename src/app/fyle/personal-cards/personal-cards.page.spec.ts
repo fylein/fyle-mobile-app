@@ -665,7 +665,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19',
+          '2021-09-19'
         );
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
@@ -684,7 +684,7 @@ describe('PersonalCardsPage', () => {
 
         expect(personalCardsService.getMatchedExpensesCount).toHaveBeenCalledOnceWith(
           apiPersonalCardTxnsRes.data[0].btxn_amount,
-          '2021-09-19',
+          '2021-09-19'
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'personal_cards_matched_expenses'], {
           state: { txnDetails: apiPersonalCardTxnsRes.data[0] },
@@ -779,7 +779,7 @@ describe('PersonalCardsPage', () => {
           startDate: '2023-02-20T00:00:00.000Z',
           endDate: '2023-02-24T00:00:00.000Z',
         },
-        {},
+        {}
       );
     }));
 
@@ -838,14 +838,14 @@ describe('PersonalCardsPage', () => {
           {
             requestId: 'tx3qHxFNgRcZ',
           },
-        ]),
+        ])
       );
       const inappborwserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'close']);
       inappborwserSpy.on.withArgs('loadstop').and.returnValue(of(null));
       inappborwserSpy.on.withArgs('loadstart').and.returnValue(
         of({
           url: 'https://www.fylehq.com',
-        }),
+        })
       );
       inAppBrowserService.create.and.returnValue(inappborwserSpy);
       spyOn(component, 'postAccounts');
@@ -907,7 +907,7 @@ describe('PersonalCardsPage', () => {
     });
   });
 
-  it('loadTransactionCount(): should load trnasaction count', (done) => {
+  it('loadTransactionCount(): should load transaction count', (done) => {
     apiV2Service.extendQueryParamsForTextSearch.and.returnValue({});
     personalCardsService.getBankTransactionsCount.and.returnValue(of(1));
 
@@ -921,11 +921,11 @@ describe('PersonalCardsPage', () => {
     });
   });
 
-  it('loadInfinitScroll(): should load infinit scroll', (done) => {
+  it('loadInfiniteScroll(): should load infinite scroll', (done) => {
     component.transactions$ = of(apiPersonalCardTxnsRes.data);
     component.transactionsCount$ = of(1);
 
-    component.loadInfinitScroll();
+    component.loadInfiniteScroll();
 
     component.isInfiniteScrollRequired$.subscribe((res) => {
       expect(res).toBeFalse();
@@ -985,7 +985,7 @@ describe('PersonalCardsPage', () => {
     spyOn(component, 'loadPersonalTxns').and.returnValue(of(apiPersonalCardTxnsRes.data));
     personalCardsService.generateFilterPills.and.returnValue(allFilterPills);
     spyOn(component, 'loadTransactionCount');
-    spyOn(component, 'loadInfinitScroll');
+    spyOn(component, 'loadInfiniteScroll');
 
     component.simpleSearchInput = fixture.debugElement.query(By.css('.personal-cards--simple-search-input'));
     const inputElement = component.simpleSearchInput.nativeElement as HTMLInputElement;
@@ -999,6 +999,6 @@ describe('PersonalCardsPage', () => {
     expect(component.loadLinkedAccounts).toHaveBeenCalledTimes(1);
     expect(component.loadPersonalTxns).toHaveBeenCalledTimes(1);
     expect(component.loadTransactionCount).toHaveBeenCalledTimes(1);
-    expect(component.loadInfinitScroll).toHaveBeenCalledTimes(1);
+    expect(component.loadInfiniteScroll).toHaveBeenCalledTimes(1);
   });
 });
