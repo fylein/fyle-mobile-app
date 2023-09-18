@@ -703,18 +703,18 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
   url: '/v2/advance_requests',
 };
 
-export const myAdvancerequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
+export const myAdvanceRequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
   ...allTeamAdvanceRequestsRes,
   count: 11,
 };
 
-export const myAdvancerequestsData3: ExtendedAdvanceRequest = {
+export const myAdvanceRequestsData3: ExtendedAdvanceRequest = {
   ...singleExtendedAdvReqRes.data[0],
   areq_state: 'DRAFT',
   areq_is_sent_back: true,
 };
 
-export const myAdvancerequestsData4: ExtendedAdvanceRequest = {
+export const myAdvanceRequestsData4: ExtendedAdvanceRequest = {
   ...singleExtendedAdvReqRes.data[0],
   areq_state: 'DRAFT',
   areq_is_sent_back: false,

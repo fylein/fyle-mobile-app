@@ -22,9 +22,9 @@ import {
   extendedAdvReqDraft,
   extendedAdvReqInquiry,
   myAdvanceRequestData5,
-  myAdvancerequestsData2,
-  myAdvancerequestsData3,
-  myAdvancerequestsData4,
+  myAdvanceRequestsData2,
+  myAdvanceRequestsData3,
+  myAdvanceRequestsData4,
   singleExtendedAdvReqRes,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
@@ -36,8 +36,8 @@ import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.da
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
   draftSentBackFiltersData,
-  myAdvancesfiltersData,
-  myAdvancesfiltersData2,
+  myAdvancesFiltersData,
+  myAdvancesFiltersData2,
 } from 'src/app/core/mock-data/my-advances-filters.data';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
@@ -93,7 +93,7 @@ describe('MyAdvancesPage', () => {
           useValue: {
             snapshot: {
               queryParams: {
-                filters: JSON.stringify(myAdvancesfiltersData),
+                filters: JSON.stringify(myAdvancesFiltersData),
               },
               params: {
                 navigateBack: true,
@@ -223,14 +223,14 @@ describe('MyAdvancesPage', () => {
     it('should call filterParams$.next and set filterPills to allFilterPills', () => {
       spyOn(component.filterParams$, 'next');
       component.ionViewWillEnter();
-      expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesfiltersData);
+      expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesFiltersData);
       expect(component.filterPills).toEqual(allFilterPills);
       expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
     });
 
     it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
       component.ionViewWillEnter();
-      component.myAdvancerequests$.subscribe((res) => {
+      component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
@@ -248,12 +248,12 @@ describe('MyAdvancesPage', () => {
 
     it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
       advanceRequestService.getMyadvanceRequests.and.returnValues(
-        of(myAdvancerequestsData2),
+        of(myAdvanceRequestsData2),
         of(allTeamAdvanceRequestsRes)
       );
       advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
       component.ionViewWillEnter();
-      component.myAdvancerequests$.subscribe((res) => {
+      component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
@@ -274,7 +274,7 @@ describe('MyAdvancesPage', () => {
             order: 'areq_created_at.desc,areq_id.desc',
           },
         });
-        expect(res).toEqual([...myAdvancerequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
+        expect(res).toEqual([...myAdvanceRequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
       });
     });
 
@@ -319,7 +319,7 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should set advances$ equals to array containing extendedAdvReqDraft, extendedAdvReqInquiry', () => {
-      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesfiltersData2);
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
@@ -336,7 +336,7 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should call updateMyAdvanceRequests and updateMyAdvances with empty array if advance_requests and advances are disabled in org settings', () => {
-      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesfiltersData2);
+      activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -358,8 +358,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([myAdvancerequestsData3, myAdvancerequestsData4]);
-      utilityService.sortAllAdvances.and.returnValue([myAdvancerequestsData4, myAdvancerequestsData3]);
+        .and.returnValue([myAdvanceRequestsData3, myAdvanceRequestsData4]);
+      utilityService.sortAllAdvances.and.returnValue([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -371,9 +371,9 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          [myAdvancerequestsData4, myAdvancerequestsData3]
+          [myAdvanceRequestsData4, myAdvanceRequestsData3]
         );
-        expect(res).toEqual([myAdvancerequestsData4, myAdvancerequestsData3]);
+        expect(res).toEqual([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       });
     });
   });
@@ -542,7 +542,7 @@ describe('MyAdvancesPage', () => {
   it('openFilters(): should call filtersHelperService.openFilterModal with title and filterParams', fakeAsync(() => {
     spyOn(component.filterParams$, 'next');
     filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
-    filtersHelperService.openFilterModal.and.resolveTo(myAdvancesfiltersData2);
+    filtersHelperService.openFilterModal.and.resolveTo(myAdvancesFiltersData2);
     component.projectFieldName = 'project';
     component.openFilters('State');
     tick(100);
@@ -552,7 +552,7 @@ describe('MyAdvancesPage', () => {
       filterOptions,
       'State'
     );
-    expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesfiltersData2);
+    expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesFiltersData2);
     expect(component.filterPills).toEqual(allFilterPills);
     expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value, 'project');
   }));
