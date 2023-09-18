@@ -25,3 +25,12 @@ export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFi
     and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
   },
 };
+
+export const personalCardQueryParamFiltersData = {
+  pageNumber: 1,
+  queryParams: {
+    or: [],
+    btxn_status: 'in.(DEBIT)',
+    ba_id: 'eq.baccLesaRlyvLY',
+  },
+};
