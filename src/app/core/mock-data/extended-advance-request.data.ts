@@ -703,7 +703,7 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
   url: '/v2/advance_requests',
 };
 
-export const myAdvancerequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
+export const myAdvanceRequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
   ...allTeamAdvanceRequestsRes,
   count: 11,
 };
