@@ -23,8 +23,8 @@ import {
   extendedAdvReqInquiry,
   myAdvanceRequestData5,
   myAdvanceRequestsData2,
-  myAdvancerequestsData3,
-  myAdvancerequestsData4,
+  myAdvanceRequestsData3,
+  myAdvanceRequestsData4,
   singleExtendedAdvReqRes,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
@@ -357,8 +357,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([myAdvancerequestsData3, myAdvancerequestsData4]);
-      utilityService.sortAllAdvances.and.returnValue([myAdvancerequestsData4, myAdvancerequestsData3]);
+        .and.returnValue([myAdvanceRequestsData3, myAdvanceRequestsData4]);
+      utilityService.sortAllAdvances.and.returnValue([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -370,9 +370,9 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          [myAdvancerequestsData4, myAdvancerequestsData3]
+          [myAdvanceRequestsData4, myAdvanceRequestsData3]
         );
-        expect(res).toEqual([myAdvancerequestsData4, myAdvancerequestsData3]);
+        expect(res).toEqual([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       });
     });
   });
