@@ -640,14 +640,14 @@ describe('PersonalCardsPage', () => {
     });
 
     describe('clearText():', () => {
-      it('should clear text and remove focus from search bar', () => {
+      it('should set search bar if not redirected from cancel', () => {
         component.clearText('onSimpleSearchCancel');
 
         expect(component.simpleSearchText).toEqual('');
         expect(component.isSearchBarFocused).toBeTrue();
       });
 
-      it('should set search bar if not redirected from cancel', () => {
+      it('should clear text and remove focus from search bar', () => {
         component.clearText('notFromCancel');
 
         expect(component.simpleSearchText).toEqual('');
