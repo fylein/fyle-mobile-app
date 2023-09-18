@@ -21,7 +21,7 @@ describe('FormatDateDirective', () => {
     fixture = TestBed.createComponent(TestFormatDateDirectiveComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
-    directive = inputEl.injector.get(FormatDateDirective) as FormatDateDirective;
+    directive = inputEl.injector.get(FormatDateDirective);
   });
 
   it('should create an instance', () => {
