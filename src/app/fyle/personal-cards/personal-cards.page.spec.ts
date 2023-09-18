@@ -490,40 +490,40 @@ describe('PersonalCardsPage', () => {
       it('should switch mode if expense is of type INITIALIZED', () => {
         component.selectedTrasactionType = 'INITIALIZED';
         component.selectionMode = true;
-        spyOn(component, 'selectExpense');
+        spyOn(component, 'toggleExpense');
 
         component.switchSelectionMode();
 
         expect(component.selectionMode).toBeFalse();
         expect(component.selectedElements).toEqual([]);
-        expect(component.selectExpense).not.toHaveBeenCalled();
+        expect(component.toggleExpense).not.toHaveBeenCalled();
       });
 
       it('should switch mode and select an expense if provided', () => {
         component.selectedTrasactionType = 'INITIALIZED';
         component.selectionMode = false;
-        spyOn(component, 'selectExpense');
+        spyOn(component, 'toggleExpense');
 
         component.switchSelectionMode('btxnMy43OZokde');
 
         expect(component.selectionMode).toBeTrue();
         expect(component.selectedElements).toEqual([]);
-        expect(component.selectExpense).toHaveBeenCalledOnceWith('btxnMy43OZokde');
+        expect(component.toggleExpense).toHaveBeenCalledOnceWith('btxnMy43OZokde');
       });
     });
 
-    describe('selectExpense():', () => {
+    describe('toggleExpense():', () => {
       it('should add an expense to list', () => {
         component.selectedElements = [];
 
-        component.selectExpense('btxnMy43OZokde');
+        component.toggleExpense('btxnMy43OZokde');
         expect(component.selectedElements).toEqual(['btxnMy43OZokde']);
       });
 
-      it('should add an expense to list', () => {
+      it('should remove an expense from the list list', () => {
         component.selectedElements = ['btxnMy43OZokde'];
 
-        component.selectExpense('btxnMy43OZokde');
+        component.toggleExpense('btxnMy43OZokde');
         expect(component.selectedElements).toEqual([]);
       });
     });

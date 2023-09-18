@@ -540,12 +540,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       this.selectionMode = !this.selectionMode;
       this.selectedElements = [];
       if (txnId) {
-        this.selectExpense(txnId);
+        this.toggleExpense(txnId);
       }
     }
   }
 
-  selectExpense(txnId: string): void {
+  toggleExpense(txnId: string): void {
     const itemIndex = this.selectedElements.indexOf(txnId);
     if (itemIndex >= 0) {
       this.selectedElements.splice(itemIndex, 1);
