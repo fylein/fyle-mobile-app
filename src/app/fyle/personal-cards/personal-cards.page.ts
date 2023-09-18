@@ -1,35 +1,59 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, NgZone, OnInit, ViewChild } from '@angular/core';
-import { MatCheckboxChange } from '@angular/material/checkbox';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { InfiniteScrollCustomEvent, ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
-import * as dayjs from 'dayjs';
-import { BehaviorSubject, Observable, concat, from, fromEvent, noop, of } from 'rxjs';
-import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { Expense } from 'src/app/core/models/expense.model';
-import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
-import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { InfiniteScrollCustomEvent, SegmentCustomEvent } from '@ionic/core';
+import {
+  Observable,
+  BehaviorSubject,
+  finalize,
+  noop,
+  tap,
+  from,
+  switchMap,
+  concat,
+  debounceTime,
+  distinctUntilChanged,
+  fromEvent,
+  map,
+  of,
+  shareReplay,
+} from 'rxjs';
 import { PersonalCard } from 'src/app/core/models/personal_card.model';
 import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
+
+import * as dayjs from 'dayjs';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
+import { ModalController, Platform } from '@ionic/angular';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { DateService } from 'src/app/core/services/date.service';
+import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { Expense } from 'src/app/core/models/expense.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
 
 type Filters = Partial<{
   amount: number;
@@ -62,7 +86,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadCardData$: BehaviorSubject<{}>;
+  loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
   loadData$: BehaviorSubject<
     Partial<{
@@ -72,7 +96,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       sortDir: string;
       searchString: string;
     }>
-  >;
+  > = new BehaviorSubject({
+    pageNumber: 1,
+  });
 
   transactions$: Observable<PersonalCardTxn[]>;
 
@@ -133,18 +159,18 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private networkService: NetworkService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private inAppBrowser: InAppBrowser,
+    private inAppBrowserService: InAppBrowserService,
     private loaderService: LoaderService,
     private zone: NgZone,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
-    private dateService: DateService,
     private apiV2Service: ApiV2Service,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
     private modalProperties: ModalPropertiesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
@@ -165,19 +191,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.personalCardsViewed();
   }
 
-  ngAfterViewInit(): void {
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-
-    this.loadCardData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
-      tap((count) => {
-        if (count === 0) {
-          this.clearFilters();
-        }
-      }),
-      shareReplay(1),
-    );
+  loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
@@ -187,15 +201,44 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }),
           finalize(() => {
             this.isLoading = false;
-          }),
-        ),
+          })
+        )
       ),
-      shareReplay(1),
+      shareReplay(1)
     );
+  }
 
-    this.loadData$ = new BehaviorSubject({});
+  loadTransactionCount(): void {
+    this.transactionsCount$ = this.loadData$.pipe(
+      switchMap((params) => {
+        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
+      }),
+      shareReplay(1)
+    );
+  }
 
-    const paginatedPipe = this.loadData$.pipe(
+  loadInfiniteScroll(): void {
+    const paginatedScroll$ = this.transactions$.pipe(
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+  }
+
+  loadAccountCount(): void {
+    this.linkedAccountsCount$ = this.loadCardData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      tap((count) => {
+        if (count === 0) {
+          this.clearFilters();
+        }
+      }),
+      shareReplay(1)
+    );
+  }
+
+  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+    return this.loadData$.pipe(
       switchMap((params) => {
         let queryParams: Record<string, string>;
         if (this.activatedRoute.snapshot.queryParams.filters) {
@@ -223,7 +266,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                   finalize(() => {
                     this.isTrasactionsLoading = false;
                     this.isLoadingDataInfiniteScroll = false;
-                  }),
+                  })
                 );
             } else {
               this.isTrasactionsLoading = false;
@@ -231,7 +274,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
                 data: [],
               });
             }
-          }),
+          })
         );
       }),
       map((res) => {
@@ -242,31 +285,37 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         }
         this.acc = this.acc.concat(res.data);
         return this.acc;
-      }),
+      })
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.loadCardData$ = new BehaviorSubject({});
+
+    this.loadAccountCount();
+
+    this.loadLinkedAccounts();
+
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    const paginatedPipe = this.loadPersonalTxns();
 
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
-    this.transactionsCount$ = this.loadData$.pipe(
-      switchMap((params) => {
-        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
-      }),
-      shareReplay(1),
-    );
-    const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length))),
-    );
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+    this.loadTransactionCount();
+
+    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
     fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
         map((event) => event.srcElement.value),
         distinctUntilChanged(),
-        debounceTime(400),
+        debounceTime(400)
       )
       .subscribe((searchString) => {
         const currentParams = this.loadData$.getValue();
@@ -275,6 +324,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         currentParams.pageNumber = this.currentPageNumber;
         this.loadData$.next(currentParams);
       });
+    this.cdr.detectChanges();
   }
 
   setupNetworkWatcher(): void {
@@ -295,7 +345,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.getToken()),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((yodleeConfig) => {
         this.openYoodle(yodleeConfig.fast_link_url, yodleeConfig.access_token);
@@ -304,7 +354,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   openYoodle(url: string, access_token: string): void {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
+    const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
     setTimeout(() => {
@@ -341,7 +391,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
         finalize(async () => {
           await this.loaderService.hideLoader();
-        }),
+        })
       )
       .subscribe((data) => {
         const message =
@@ -450,7 +500,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           params.pageNumber = 1;
           this.loadData$.next(params);
           this.trackingService.transactionsFetchedOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }
@@ -480,7 +530,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
           }
           this.loadData$.next(params);
           this.trackingService.transactionsHiddenOnPersonalCards();
-        }),
+        })
       )
       .subscribe(noop);
   }
@@ -670,6 +720,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (filterLabel === 'Transactions Type') {
       delete this.filters.transactionType;
     }
+
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
@@ -726,11 +777,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
   }
 
   async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
-    const txn_details = txnDetails.txn_details;
+    const txn_details = txnDetails?.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txn_details[0].id,
+        expenseId: txn_details[0]?.id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'unmatch',
