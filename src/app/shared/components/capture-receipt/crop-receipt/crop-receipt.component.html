@@ -1,4 +1,4 @@
-<ion-header class="ion-no-border" mode="md">
+<ion-header mode="md">
   <ion-toolbar mode="md" class="crop-receipt__toolbar">
     <ion-title>
       <div class="text-center crop-receipt__title">Crop Receipt</div>
@@ -15,7 +15,6 @@
   <div class="crop-receipt__content">
     <image-cropper
       #imageCropper
-      output="base64"
       [imageBase64]="base64ImageWithSource.base64Image"
       [maintainAspectRatio]="false"
       (imageLoaded)="imageLoaded()"

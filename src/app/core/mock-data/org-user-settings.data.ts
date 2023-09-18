@@ -670,3 +670,16 @@ export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
     default_project_id: null,
   },
 };
+
+export const orgUserSettingsWoInstaFyle: OrgUserSettings = {
+  ...orgUserSettingsData,
+  insta_fyle_settings: {
+    ...orgUserSettingsData.insta_fyle_settings,
+    allowed: true,
+  },
+};
+
+export const orgUserSettingsWoProjects: OrgUserSettings = {
+  ...orgUserSettingsData,
+  project_ids: null,
+};

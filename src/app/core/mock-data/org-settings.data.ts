@@ -1293,3 +1293,44 @@ export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
     enabled: true,
   },
 };
+
+export const orgSettingsProjectDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  projects: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};
+
+export const orgSettingsCCDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  cost_centers: {
+    enabled: false,
+  },
+};
+
+export const orgSettingsOrgAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    enabled: true,
+    allowed: true,
+  },
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoProjects: OrgSettings = {
+  ...orgSettingsRes,
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoMileage: OrgSettings = {
+  ...orgSettingsParams2,
+  mileage: null,
+};

@@ -15,9 +15,8 @@ describe('MyViewReportEtxnCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [MyViewReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe],
+      declarations: [MyViewReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe, DatePipe, CurrencyPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
-      providers: [DatePipe, CurrencyPipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewReportEtxnCardComponent);
