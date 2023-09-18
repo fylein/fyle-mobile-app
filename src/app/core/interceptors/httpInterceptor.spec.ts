@@ -23,6 +23,7 @@ describe('HttpConfigInterceptor', () => {
   let userEventService: jasmine.SpyObj<UserEventService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let secureStorageService: jasmine.SpyObj<SecureStorageService>;
+  let encoder: CustomEncoder;
 
   beforeEach(() => {
     const jwtHelperServiceSpy = jasmine.createSpyObj('JwtHelperService', ['getExpirationDate']);
@@ -297,30 +298,26 @@ describe('HttpConfigInterceptor', () => {
     });
 
     describe('CustomEncoder():', () => {
-      it('should encode uri key', () => {
-        const encoder = new CustomEncoder();
+      beforeEach(() => {
+        encoder = new CustomEncoder();
+      });
 
+      it('should encode uri key', () => {
         const result = encoder.encodeKey('key');
         expect(result).toEqual('key');
       });
 
       it('should encode uri value', () => {
-        const encoder = new CustomEncoder();
-
         const result = encoder.encodeValue('value');
         expect(result).toEqual('value');
       });
 
       it('should decode uri key', () => {
-        const encoder = new CustomEncoder();
-
         const result = encoder.decodeKey('key');
         expect(result).toEqual('key');
       });
 
       it('should decode uri key', () => {
-        const encoder = new CustomEncoder();
-
         const result = encoder.decodeValue('key');
         expect(result).toEqual('key');
       });
