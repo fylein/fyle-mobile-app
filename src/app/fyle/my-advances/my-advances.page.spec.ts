@@ -21,7 +21,7 @@ import {
   allTeamAdvanceRequestsRes,
   extendedAdvReqDraft,
   extendedAdvReqInquiry,
-  myAdvancerequestsData2,
+  myAdvanceRequestsData2,
   myAdvancerequestsData3,
   myAdvancerequestsData4,
   singleExtendedAdvReqRes,
@@ -241,7 +241,7 @@ describe('MyAdvancesPage', () => {
 
     it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
       advanceRequestService.getMyadvanceRequests.and.returnValues(
-        of(myAdvancerequestsData2),
+        of(myAdvanceRequestsData2),
         of(allTeamAdvanceRequestsRes)
       );
       advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
@@ -267,7 +267,7 @@ describe('MyAdvancesPage', () => {
             order: 'areq_created_at.desc,areq_id.desc',
           },
         });
-        expect(res).toEqual([...myAdvancerequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
+        expect(res).toEqual([...myAdvanceRequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
       });
     });
 
