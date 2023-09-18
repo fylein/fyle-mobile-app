@@ -25,9 +25,9 @@ import { UserEventService } from '../services/user-event.service';
 
 @Injectable()
 export class HttpConfigInterceptor implements HttpInterceptor {
-  private accessTokenCallInProgress = false;
+  public accessTokenCallInProgress = false;
 
-  private accessTokenSubject = new BehaviorSubject<string>(null);
+  public accessTokenSubject = new BehaviorSubject<string>(null);
 
   constructor(
     private jwtHelperService: JwtHelperService,
@@ -159,7 +159,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
   }
 }
 
-class CustomEncoder implements HttpParameterCodec {
+export class CustomEncoder implements HttpParameterCodec {
   encodeKey(key: string): string {
     return encodeURIComponent(key);
   }
