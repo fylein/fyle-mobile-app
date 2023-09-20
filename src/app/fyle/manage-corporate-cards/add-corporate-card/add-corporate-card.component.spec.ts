@@ -14,6 +14,17 @@ import { of, throwError } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
+import {
+  cardEnrolledProperties1,
+  cardEnrolledProperties2,
+  cardEnrollmentErrorsProperties1,
+  cardEnrollmentErrorsProperties2,
+  cardEnrollmentErrorsProperties3,
+  cardEnrollmentErrorsProperties4,
+  cardEnrollmentErrorsProperties5,
+  cardEnrollmentErrorsProperties6,
+  enrollingNonRTFCardProperties,
+} from 'src/app/core/mock-data/corporate-card-trackers.data';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -176,13 +187,7 @@ describe('AddCorporateCardComponent', () => {
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
-        'Card Network': CardNetworkType.OTHERS,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'Invalid card number',
-        'Card Number': '6111 **** **** 1111',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties3);
     });
 
     it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
@@ -208,13 +213,7 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
-        'Card Network': CardNetworkType.VISA,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'Invalid card network',
-        'Card Number': '4111 **** **** 1111',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties4);
     });
 
     it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
@@ -240,13 +239,7 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
-        'Card Network': CardNetworkType.MASTERCARD,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'Invalid card network',
-        'Card Number': '5111 **** **** 1111',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties5);
     });
 
     it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
@@ -271,13 +264,7 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
-        'Card Network': CardNetworkType.OTHERS,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'Invalid card network',
-        'Card Number': '3111 **** **** 1111',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties6);
     });
   });
 
@@ -303,12 +290,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
-      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith({
-        Source: '/enterprise/manage_corporate_cards',
-        'Card Network': CardNetworkType.VISA,
-        'Existing Card': '',
-        'Card ID': visaRTFCard.id,
-      });
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties1);
     });
 
     it('should successfully enroll an existing card to rtf and close the popover', () => {
@@ -334,12 +316,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', statementUploadedCard.id);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
-      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith({
-        Source: '/enterprise/manage_corporate_cards',
-        'Card Network': CardNetworkType.VISA,
-        'Existing Card': statementUploadedCard.card_number,
-        'Card ID': visaRTFCard.id,
-      });
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties2);
     });
 
     it('should show the error message received from backend when we face api errors while enrolling the card', () => {
@@ -366,13 +343,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('This card already exists in the system');
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith({
-        'Card Network': CardNetworkType.VISA,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'This card already exists in the system',
-        'Card Number': '4555 **** **** 5555',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith(cardEnrollmentErrorsProperties1);
     });
 
     it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
@@ -399,13 +370,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith({
-        'Card Network': CardNetworkType.VISA,
-        Source: '/enterprise/manage_corporate_cards',
-        'Existing Card': '',
-        'Error Message': 'Something went wrong. Please try after some time.',
-        'Card Number': '4555 **** **** 5555',
-      });
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties2);
     });
 
     it('should disallow card enrollment if the entered card number is invalid', () => {
@@ -453,11 +418,7 @@ describe('AddCorporateCardComponent', () => {
         'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
       );
       expect(addCorporateCardBtn.disabled).toBe(true);
-      expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith({
-        'Existing Card': '',
-        'Card Number': '3111 **** **** 1111',
-        Source: '/enterprise/manage_corporate_cards',
-      });
+      expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);
     });
   });
 

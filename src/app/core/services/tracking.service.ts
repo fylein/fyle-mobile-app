@@ -25,6 +25,10 @@ import {
   CaptureSingleReceiptTimeProperties,
   SwitchOrgLaunchTimeProperties,
   ReportNameChangeProperties,
+  CardEnrolledProperties,
+  CardEnrollmentErrorsProperties,
+  CardUnenrolledProperties,
+  EnrollingNonRTFCardProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -607,19 +611,19 @@ export class TrackingService {
     this.eventTrack('SMS Deep Link Opened', properties);
   }
 
-  cardUnenrolled(properties = {}): void {
+  cardUnenrolled(properties: CardUnenrolledProperties): void {
     this.eventTrack('Card Unenrolled', properties);
   }
 
-  cardEnrolled(properties = {}): void {
+  cardEnrolled(properties: CardEnrolledProperties): void {
     this.eventTrack('Card Enrolled', properties);
   }
 
-  cardEnrollmentErrors(properties = {}): void {
+  cardEnrollmentErrors(properties: CardEnrollmentErrorsProperties): void {
     this.eventTrack('Card Enrollment Errors', properties);
   }
 
-  enrollingNonRTFCard(properties = {}): void {
+  enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
     this.eventTrack('Enrolling Non RTF Card', properties);
   }
 }

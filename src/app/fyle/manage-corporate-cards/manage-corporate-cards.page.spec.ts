@@ -32,6 +32,7 @@ import { AddCorporateCardComponent } from './add-corporate-card/add-corporate-ca
 import { CardAddedComponent } from './card-added/card-added.component';
 import { noop } from 'lodash';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-trackers.data';
 
 @Component({
   selector: 'app-corporate-card',
@@ -115,7 +116,7 @@ describe('ManageCorporateCardsPage', () => {
 
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService,
+      CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     actionSheetController = TestBed.inject(ActionSheetController) as jasmine.SpyObj<ActionSheetController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -199,7 +200,7 @@ describe('ManageCorporateCardsPage', () => {
 
       popoverController.create.and.returnValues(
         Promise.resolve(addCardPopoverSpy),
-        Promise.resolve(cardAddedPopoverSpy),
+        Promise.resolve(cardAddedPopoverSpy)
       );
 
       component.ionViewWillEnter();
@@ -341,11 +342,7 @@ describe('ManageCorporateCardsPage', () => {
 
       tick();
 
-      expect(trackingService.cardUnenrolled).toHaveBeenCalledOnceWith({
-        'Card Network': 'Visa',
-        'Card ID': visaRTFCard.id,
-        'Card Number': visaRTFCard.card_number,
-      });
+      expect(trackingService.cardUnenrolled).toHaveBeenCalledOnceWith(cardUnenrolledProperties);
     }));
   });
 
