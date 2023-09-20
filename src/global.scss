@@ -792,14 +792,8 @@ ref - https://stackoverflow.com/a/31162426
   margin-bottom: -12px;
 }
 
-.ios {
-  .manage-corporate-cards__footer-toolbar {
-    margin-bottom: -14px;
-  }
-
-  .add-corporate-card__footer-toolbar {
-    margin-bottom: -16px;
-  }
+.ios .manage-corporate-cards__footer-toolbar {
+  margin-bottom: -14px;
 }
 
 .dashboard {
