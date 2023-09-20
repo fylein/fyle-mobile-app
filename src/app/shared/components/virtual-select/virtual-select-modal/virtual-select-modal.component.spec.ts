@@ -16,7 +16,7 @@ import {
   virtualSelectOptionData5,
 } from 'src/app/core/mock-data/virtual-select-option.data';
 
-fdescribe('VirtualSelectModalComponent', () => {
+describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
   let fixture: ComponentFixture<VirtualSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
