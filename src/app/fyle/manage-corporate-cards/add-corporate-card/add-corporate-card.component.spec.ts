@@ -34,7 +34,7 @@ export class MockFyAlertInfoComponent {
   @Input() type: 'information' | 'warning';
 }
 
-fdescribe('AddCorporateCardComponent', () => {
+describe('AddCorporateCardComponent', () => {
   let component: AddCorporateCardComponent;
   let fixture: ComponentFixture<AddCorporateCardComponent>;
 
