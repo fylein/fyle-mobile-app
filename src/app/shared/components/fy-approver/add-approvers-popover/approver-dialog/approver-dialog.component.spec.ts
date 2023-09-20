@@ -157,7 +157,7 @@ describe('ApproverDialogComponent', () => {
           us_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: true },
+        { checked: true }
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -186,7 +186,7 @@ describe('ApproverDialogComponent', () => {
           us_id: 'usvKA4X8Ugcr',
           is_selected: true,
         },
-        { checked: false },
+        { checked: false }
       );
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
@@ -349,7 +349,7 @@ describe('ApproverDialogComponent', () => {
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--selected-count'))).toEqual(
-      `${component.selectedApproversList.length} selected`,
+      `${component.selectedApproversList.length} selected`
     );
   });
 
@@ -359,7 +359,7 @@ describe('ApproverDialogComponent', () => {
 
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__title'))).toEqual('AA23');
     expect(getTextContent(getElementBySelector(fixture, '.selection-modal--approver-details__content'))).toEqual(
-      'ajain+12+12+1@fyle.in',
+      'ajain+12+12+1@fyle.in'
     );
   });
 
