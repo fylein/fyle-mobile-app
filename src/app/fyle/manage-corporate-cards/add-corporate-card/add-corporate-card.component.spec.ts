@@ -12,6 +12,19 @@ import { By } from '@angular/platform-browser';
 import { statementUploadedCard, visaRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { of, throwError } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Router } from '@angular/router';
+import {
+  cardEnrolledProperties1,
+  cardEnrolledProperties2,
+  cardEnrollmentErrorsProperties1,
+  cardEnrollmentErrorsProperties2,
+  cardEnrollmentErrorsProperties3,
+  cardEnrollmentErrorsProperties4,
+  cardEnrollmentErrorsProperties5,
+  cardEnrollmentErrorsProperties6,
+  enrollingNonRTFCardProperties,
+} from 'src/app/core/mock-data/corporate-card-trackers.data';
 
 @Component({
   selector: 'app-fy-alert-info',
@@ -29,6 +42,8 @@ describe('AddCorporateCardComponent', () => {
 
   let popoverController: jasmine.SpyObj<PopoverController>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
@@ -37,9 +52,13 @@ describe('AddCorporateCardComponent', () => {
       'enroll',
       'isCardNumberValid',
     ]);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'cardEnrolled',
+      'cardEnrollmentErrors',
+      'enrollingNonRTFCard',
+    ]);
 
     TestBed.configureTestingModule({
-      // Check if we need to provide the pipe spy as well
       declarations: [AddCorporateCardComponent, MockFyAlertInfoComponent, ArrayToCommaListPipe],
       imports: [IonicModule.forRoot(), NgxMaskModule.forRoot(), ReactiveFormsModule],
       providers: [
@@ -51,6 +70,16 @@ describe('AddCorporateCardComponent', () => {
           provide: RealTimeFeedService,
           useValue: realTimeFeedServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+        {
+          provide: Router,
+          useValue: {
+            url: '/enterprise/manage_corporate_cards',
+          },
+        },
       ],
     }).compileComponents();
 
@@ -59,6 +88,8 @@ describe('AddCorporateCardComponent', () => {
 
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
     // Default inputs
     component.isYodleeEnabled = false;
@@ -154,7 +185,9 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties3);
     });
 
     it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
@@ -176,9 +209,11 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Mastercard number. If you have other cards, please contact your admin.',
+        'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties4);
     });
 
     it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
@@ -200,9 +235,11 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa number. If you have other cards, please contact your admin.',
+        'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties5);
     });
 
     it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
@@ -225,8 +262,9 @@ describe('AddCorporateCardComponent', () => {
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.',
+        'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties6);
     });
   });
 
@@ -252,6 +290,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties1);
     });
 
     it('should successfully enroll an existing card to rtf and close the popover', () => {
@@ -277,6 +316,7 @@ describe('AddCorporateCardComponent', () => {
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', statementUploadedCard.id);
       expect(popoverController.dismiss).toHaveBeenCalledOnceWith({ success: true });
+      expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties2);
     });
 
     it('should show the error message received from backend when we face api errors while enrolling the card', () => {
@@ -299,10 +339,11 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('This card already exists in the system');
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith(cardEnrollmentErrorsProperties1);
     });
 
     it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
@@ -325,10 +366,11 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
 
-      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
+
+      expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties2);
     });
 
     it('should disallow card enrollment if the entered card number is invalid', () => {
@@ -368,14 +410,15 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const alertMessageComponent = fixture.debugElement.query(By.directive(MockFyAlertInfoComponent));
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+
       expect(alertMessageComponent).toBeTruthy();
       expect(alertMessageComponent.componentInstance.type).toBe('information');
       expect(alertMessageComponent.componentInstance.message).toBe(
-        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.',
+        'Enter a valid Visa or Mastercard number. If you have other cards, please add them on Fyle Web or contact your admin.'
       );
-
-      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
       expect(addCorporateCardBtn.disabled).toBe(true);
+      expect(trackingService.enrollingNonRTFCard).toHaveBeenCalledOnceWith(enrollingNonRTFCardProperties);
     });
   });
 
