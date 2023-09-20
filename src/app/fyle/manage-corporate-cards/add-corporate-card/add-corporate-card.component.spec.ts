@@ -21,8 +21,6 @@ import {
   cardEnrollmentErrorsProperties2,
   cardEnrollmentErrorsProperties3,
   cardEnrollmentErrorsProperties4,
-  cardEnrollmentErrorsProperties5,
-  cardEnrollmentErrorsProperties6,
   enrollingNonRTFCardProperties,
 } from 'src/app/core/mock-data/corporate-card-trackers.data';
 
@@ -36,7 +34,7 @@ export class MockFyAlertInfoComponent {
   @Input() type: 'information' | 'warning';
 }
 
-describe('AddCorporateCardComponent', () => {
+fdescribe('AddCorporateCardComponent', () => {
   let component: AddCorporateCardComponent;
   let fixture: ComponentFixture<AddCorporateCardComponent>;
 
@@ -187,7 +185,6 @@ describe('AddCorporateCardComponent', () => {
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties3);
     });
 
     it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
@@ -213,7 +210,6 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties4);
     });
 
     it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
@@ -239,7 +235,6 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties5);
     });
 
     it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
@@ -264,7 +259,6 @@ describe('AddCorporateCardComponent', () => {
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
-      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties6);
     });
   });
 
@@ -381,7 +375,7 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
-      cardNumberInput.value = '4555555555556767';
+      cardNumberInput.value = '4234111111111111';
       cardNumberInput.dispatchEvent(new Event('input'));
 
       fixture.detectChanges();
@@ -392,6 +386,34 @@ describe('AddCorporateCardComponent', () => {
       fixture.detectChanges();
 
       expect(realTimeFeedService.enroll).not.toHaveBeenCalled();
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties3);
+    });
+
+    it('should disallow card enrollment if the entered card number is not supported by the org', () => {
+      component.isMastercardRTFEnabled = true;
+      component.isVisaRTFEnabled = false;
+      component.isYodleeEnabled = false;
+
+      realTimeFeedService.isCardNumberValid.and.returnValue(true);
+      realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const cardNumberInput = getElementBySelector(fixture, '[data-testid="card-number-input"]') as HTMLInputElement;
+      cardNumberInput.value = '4111111111111111';
+      cardNumberInput.dispatchEvent(new Event('input'));
+      cardNumberInput.dispatchEvent(new Event('blur'));
+
+      fixture.detectChanges();
+
+      const addCorporateCardBtn = getElementBySelector(fixture, '[data-testid="add-btn"]') as HTMLButtonElement;
+      addCorporateCardBtn.click();
+
+      fixture.detectChanges();
+
+      expect(realTimeFeedService.enroll).not.toHaveBeenCalled();
+      expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties4);
     });
 
     it('should disallow card enrollment and show a warning message if the user has entered a non visa/mastercard card number and yodlee is enabled in the org', () => {

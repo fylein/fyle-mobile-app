@@ -2,7 +2,7 @@ import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { catchError, distinctUntilChanged, filter, finalize, of } from 'rxjs';
+import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
@@ -61,15 +61,6 @@ export class AddCorporateCardComponent implements OnInit {
         });
       }
     });
-
-    this.cardForm.statusChanges
-      .pipe(
-        distinctUntilChanged(),
-        filter((status) => status === 'INVALID')
-      )
-      .subscribe(() => {
-        this.trackEnrollmentErrors();
-      });
   }
 
   closePopover(): void {
@@ -78,6 +69,7 @@ export class AddCorporateCardComponent implements OnInit {
 
   enrollCard(): void {
     if (this.cardForm.invalid) {
+      this.trackEnrollmentErrors();
       return;
     }
 
@@ -190,6 +182,8 @@ export class AddCorporateCardComponent implements OnInit {
   private handleEnrollmentFailures(error: Error): void {
     this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
     this.cardForm.setErrors({ enrollmentError: true });
+
+    this.trackEnrollmentErrors();
   }
 
   private handleEnrollmentSuccess(card: PlatformCorporateCard): void {

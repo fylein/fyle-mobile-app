@@ -43,11 +43,11 @@ export const cardEnrollmentErrorsProperties2: CardEnrollmentErrorsProperties = {
 };
 
 export const cardEnrollmentErrorsProperties3: CardEnrollmentErrorsProperties = {
-  'Card Network': CardNetworkType.OTHERS,
+  'Card Network': CardNetworkType.VISA,
   Source: '/enterprise/manage_corporate_cards',
   'Existing Card': '',
   'Error Message': 'Invalid card number',
-  'Card Number': '6111 **** **** 1111',
+  'Card Number': '4234 **** **** 1111',
 };
 
 export const cardEnrollmentErrorsProperties4: CardEnrollmentErrorsProperties = {
@@ -56,22 +56,6 @@ export const cardEnrollmentErrorsProperties4: CardEnrollmentErrorsProperties = {
   'Existing Card': '',
   'Error Message': 'Invalid card network',
   'Card Number': '4111 **** **** 1111',
-};
-
-export const cardEnrollmentErrorsProperties5: CardEnrollmentErrorsProperties = {
-  'Card Network': CardNetworkType.MASTERCARD,
-  Source: '/enterprise/manage_corporate_cards',
-  'Existing Card': '',
-  'Error Message': 'Invalid card network',
-  'Card Number': '5111 **** **** 1111',
-};
-
-export const cardEnrollmentErrorsProperties6: CardEnrollmentErrorsProperties = {
-  'Card Network': CardNetworkType.OTHERS,
-  Source: '/enterprise/manage_corporate_cards',
-  'Existing Card': '',
-  'Error Message': 'Invalid card network',
-  'Card Number': '3111 **** **** 1111',
 };
 
 export const enrollingNonRTFCardProperties: EnrollingNonRTFCardProperties = {
