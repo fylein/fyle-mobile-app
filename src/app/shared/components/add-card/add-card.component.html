@@ -1,0 +1,9 @@
+<div class="add-card-container">
+  <img class="add-card-container__img" src="../../../../assets/images/cards.svg" />
+  <span *ngIf="showZeroStateMessage" data-testid="zero-state-message">No card added yet!</span>
+
+  <button class="add-card-container__cta" (click)="addCardClick.emit($event)" data-testid="add-card-button">
+    <ion-icon class="add-card-container__cta-icon" src="../../../../assets/svg/plus.svg"></ion-icon>
+    <span>Add Corporate Card</span>
+  </button>
+</div>

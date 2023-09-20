@@ -1,3 +1,5 @@
+import { DataFeedSource } from '../../enums/data-feed-source.enum';
+
 export interface PlatformCorporateCard {
   assignor_user_id: string;
   bank_name: string;
@@ -5,7 +7,7 @@ export interface PlatformCorporateCard {
   cardholder_name: string;
   code: string;
   created_at: string;
-  data_feed_source: string;
+  data_feed_source: DataFeedSource;
   id: string;
   is_dummy: boolean;
   is_mastercard_enrolled: boolean;
