@@ -204,7 +204,7 @@
               [isSelectionModeEnabled]="selectionMode"
               [selectedElements]="selectedElements"
               (setMultiselectMode)="switchSelectionMode($event)"
-              (cardClickedForSelection)="selectExpense($event)"
+              (cardClickedForSelection)="toggleExpense($event)"
             >
             </app-personal-card-transaction>
           </ng-container>
