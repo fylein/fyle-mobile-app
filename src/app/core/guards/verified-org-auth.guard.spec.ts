@@ -1,11 +1,10 @@
-import { TestBed, fakeAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
 import { VerifiedOrgAuthGuard } from './verified-org-auth.guard';
 import { AuthService } from '../services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { apiEouRes, eouWithPendingDetails } from '../mock-data/extended-org-user.data';
-import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { routerStateSnapshotData } from '../mock-data/router-state-snapshot.data';
 
 describe('AuthGuard', () => {
@@ -51,6 +50,7 @@ describe('AuthGuard', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
       canActivate.then((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeTrue();
         done();
       });
@@ -60,6 +60,7 @@ describe('AuthGuard', () => {
       authService.getEou.and.resolveTo(null);
       const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
       canActivate.then((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeFalse();
         done();
       });
@@ -69,6 +70,7 @@ describe('AuthGuard', () => {
       authService.getEou.and.resolveTo(eouWithPendingDetails);
       const canActivate = guard.canActivate(activatedRoute.snapshot, routerStateSnapshotData) as Promise<boolean>;
       canActivate.then((res) => {
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toBeTrue();
         expect(router.navigate).toHaveBeenCalledWith(['/', 'auth', 'switch_org']);
         done();
