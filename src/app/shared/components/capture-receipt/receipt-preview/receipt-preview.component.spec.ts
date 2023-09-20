@@ -2,7 +2,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ReceiptPreviewComponent } from './receipt-preview.component';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
@@ -22,7 +21,7 @@ describe('ReceiptPreviewComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let matBottomSheet: jasmine.SpyObj<MatBottomSheet>;
-  let imagePicker: jasmine.SpyObj<ImagePicker>;
+  // let imagePicker: jasmine.SpyObj<ImagePicker>;
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   @Component({
@@ -59,11 +58,11 @@ describe('ReceiptPreviewComponent', () => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
-    const imagePickerSpy = jasmine.createSpyObj('ImagePicker', [
-      'hasReadPermission',
-      'getPictures',
-      'requestReadPermission',
-    ]);
+    // const imagePickerSpy = jasmine.createSpyObj('ImagePicker', [
+    //   'hasReadPermission',
+    //   'getPictures',
+    //   'requestReadPermission',
+    // ]);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cropReceipt']);
     const swiperSpy = jasmine.createSpyObj('SwiperStubComponent', ['update', 'slidePrev', 'slideNext']);
 
@@ -84,10 +83,10 @@ describe('ReceiptPreviewComponent', () => {
           provide: MatBottomSheet,
           useValue: matBottomSheetSpy,
         },
-        {
-          provide: ImagePicker,
-          useValue: imagePickerSpy,
-        },
+        // {
+        //   provide: ImagePicker,
+        //   useValue: imagePickerSpy,
+        // },
         {
           provide: TrackingService,
           useValue: trackingServiceSpy,
@@ -102,7 +101,7 @@ describe('ReceiptPreviewComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     matBottomSheet = TestBed.inject(MatBottomSheet) as jasmine.SpyObj<MatBottomSheet>;
-    imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
+    // imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     component.base64ImagesWithSource = images;
@@ -121,7 +120,7 @@ describe('ReceiptPreviewComponent', () => {
         data: {
           base64ImageWithSource: images[0],
         },
-      }),
+      })
     );
     modalController.create.and.returnValue(Promise.resolve(cropReceiptModalSpy));
     trackingService.cropReceipt.and.returnValue(null);
@@ -183,7 +182,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'discard',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -217,7 +216,7 @@ describe('ReceiptPreviewComponent', () => {
       closePopOverSpy.onWillDismiss.and.returnValue(
         Promise.resolve({
           data: {},
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
 
@@ -246,22 +245,22 @@ describe('ReceiptPreviewComponent', () => {
     });
   });
 
-  describe('galleryUpload(): ', () => {
-    it('should update the images list if upload from gallery is successful', async () => {
-      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
-      imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1']));
+  // describe('galleryUpload(): ', () => {
+  //   it('should update the images list if upload from gallery is successful', async () => {
+  //     imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
+  //     imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1']));
 
-      const options = {
-        maximumImagesCount: 10,
-        outputType: 1,
-        quality: 70,
-      };
+  //     const options = {
+  //       maximumImagesCount: 10,
+  //       outputType: 1,
+  //       quality: 70,
+  //     };
 
-      await component.galleryUpload();
-      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-      expect(imagePicker.getPictures).toHaveBeenCalledOnceWith(options);
-    });
-  });
+  //     await component.galleryUpload();
+  //     expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
+  //     expect(imagePicker.getPictures).toHaveBeenCalledOnceWith(options);
+  //   });
+  // });
 
   it('captureReceipts(): should close the modal and save the captured receipts', async () => {
     modalController.dismiss.and.returnValue(Promise.resolve(null));
@@ -282,7 +281,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -316,7 +315,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();

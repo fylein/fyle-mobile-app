@@ -5,7 +5,7 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
+import { ImagePicker } from '@jonz94/capacitor-image-picker';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
@@ -65,7 +65,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private router: Router,
     private navController: NavController,
     private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
     private networkService: NetworkService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
@@ -447,50 +446,30 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onGalleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
-
-    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
-
-    const receiptsFromGallery$ = checkPermission$.pipe(
-      filter((permission) => !!permission),
-      switchMap(() => {
-        const galleryUploadOptions = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        return from(this.imagePicker.getPictures(galleryUploadOptions));
-      }),
-      shareReplay(1)
+    const receiptsFromGallery$ = from(
+      ImagePicker.present({
+        limit: 10,
+        surpassLimitMessage: 'You cannot select more than %d images.',
+        titleText: 'Pick a image',
+        albumsTitleText: 'Chose an album',
+        libraryTitleText: 'Click here to change library',
+        cancelText: 'Go Back',
+        doneText: 'OK',
+      })
     );
 
-    checkPermission$
-      .pipe(
-        filter((permission) => !permission),
-        switchMap(() => from(this.cameraService.requestCameraPermissions(['photos'])))
-      )
-      .subscribe((permissions) => {
-        if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedPopover('GALLERY');
-        }
-        this.onGalleryUpload();
-      });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => receiptsFromGallery.length > 0))
-      .subscribe((receiptsFromGallery) => {
-        receiptsFromGallery.forEach((receiptBase64) => {
-          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
-          });
+    receiptsFromGallery$.pipe(filter(({ images }) => images.length > 0)).subscribe(({ images }) => {
+      images.forEach((receiptBase64) => {
+        const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_GALLERY',
+          base64Image: receiptBase64Data,
         });
-        this.openReceiptPreviewModal();
       });
+      this.openReceiptPreviewModal();
+    });
 
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
-      .subscribe(() => this.setUpAndStartCamera());
+    receiptsFromGallery$.pipe(filter(({ images }) => !images.length)).subscribe(() => this.setUpAndStartCamera());
   }
 
   ngAfterViewInit() {

@@ -14,6 +14,9 @@ project(':capacitor-browser').projectDir = new File('../node_modules/@capacitor/
 include ':capacitor-camera'
 project(':capacitor-camera').projectDir = new File('../node_modules/@capacitor/camera/android')
 
+include ':capacitor-clipboard'
+project(':capacitor-clipboard').projectDir = new File('../node_modules/@capacitor/clipboard/android')
+
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')
 
@@ -43,6 +46,9 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 
 include ':capacitor-text-zoom'
 project(':capacitor-text-zoom').projectDir = new File('../node_modules/@capacitor/text-zoom/android')
+
+include ':jonz94-capacitor-image-picker'
+project(':jonz94-capacitor-image-picker').projectDir = new File('../node_modules/@jonz94/capacitor-image-picker/android')
 
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')
