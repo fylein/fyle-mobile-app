@@ -138,6 +138,11 @@ import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-se
 import { ReportsCardComponent } from './components/reports-card/reports-card.component';
 import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
 import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
+import { AddCardComponent } from './components/add-card/add-card.component';
+import { CardNumberComponent } from './components/card-number/card-number.component';
+import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
+import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
+import { AutofocusDirective } from './directive/autofocus.directive';
 
 @NgModule({
   declarations: [
@@ -255,6 +260,11 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReportsCardComponent,
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
+    AddCardComponent,
+    CardNumberComponent,
+    ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
   ],
   imports: [
     CommonModule,
@@ -377,6 +387,11 @@ import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup
     ReportsCardComponent,
     ViewDependentFieldsComponent,
     PopupWithBulletsComponent,
+    AddCardComponent,
+    CardNumberComponent,
+    ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

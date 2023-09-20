@@ -78,7 +78,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
     expect(personalCardsService.getMatchedExpenses).toHaveBeenCalledOnceWith(component.txnDetails.btxn_amount, txnDate);
 
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--purpose'))).toEqual(
-      component.txnDetails.btxn_description,
+      component.txnDetails.btxn_description
     );
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--currency'))).toEqual('$');
     expect(getTextContent(getElementBySelector(fixture, '.matched-expenses--amount'))).toEqual('200.00');
@@ -107,7 +107,7 @@ describe('PersonalCardsMatchedExpensesPage', () => {
         const expenseDetailsModalSpy = jasmine.createSpyObj('expenseDetailsModal', ['present']) as any;
         expenseDetailsModalSpy.present.and.callThrough();
         resolve(expenseDetailsModalSpy);
-      }),
+      })
     );
     const cssClass = 'expense-preview-modal';
 

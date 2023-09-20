@@ -1,0 +1,68 @@
+@import '../../../theme/colors.scss';
+
+.manage-corporate-cards {
+  &__toolbar {
+    box-shadow: 0 0 8px $black-shadow;
+  }
+
+  &__toolbar-title {
+    color: $black;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: normal;
+    padding: 18px 0 18px 14px;
+  }
+
+  &__cards {
+    padding: 24px 16px;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__cards-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__card {
+    width: 100%;
+    height: 162px;
+  }
+
+  &__shimmer {
+    height: 162px;
+    border-radius: 16px;
+  }
+
+  &__zero-state-container {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  &__zero-state-img {
+    width: 200px;
+    height: 200px;
+    margin-bottom: 16px;
+  }
+
+  &__zero-state-heading {
+    color: $blue-black;
+    font-size: 18px;
+    font-weight: 500;
+    margin-bottom: 8px;
+  }
+
+  &__zero-state-subheading {
+    color: $blue-black;
+    font-size: 12px;
+  }
+
+  &__footer-toolbar {
+    padding: 14px 16px;
+  }
+}

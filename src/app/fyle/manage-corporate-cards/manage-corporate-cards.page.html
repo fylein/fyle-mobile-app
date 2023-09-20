@@ -1,0 +1,58 @@
+<ion-header mode="md" class="ion-no-border">
+  <ion-toolbar class="manage-corporate-cards__toolbar">
+    <ion-buttons mode="md" slot="start">
+      <ion-button (click)="goBack()" data-testid="back-button">
+        <mat-icon>keyboard_backspace</mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="manage-corporate-cards__toolbar-title" mode="md">Manage Corporate Cards</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div class="manage-corporate-cards__cards">
+    <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+      <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
+        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+          <app-corporate-card
+            [card]="corporateCard"
+            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+            (cardOptionsClick)="openCardOptions($event)"
+          ></app-corporate-card>
+        </div>
+      </div>
+      <ng-template #zeroState>
+        <div class="manage-corporate-cards__zero-state-container" data-testid="zero-state">
+          <img class="manage-corporate-cards__zero-state-img" src="../../../../assets/images/cards.svg" />
+
+          <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
+          <div class="manage-corporate-cards__zero-state-subheading">
+            Add Corporate Cards to sync your transactions on Fyle.
+          </div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <ng-template #shimmers>
+      <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+    </ng-template>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar mode="md">
+    <div class="manage-corporate-cards__footer-toolbar">
+      <ion-button
+        data-testid="add-button"
+        class="fy-footer-cta fy-footer-cta--primary"
+        (click)="openAddCorporateCardPopover()"
+        >Add Corporate Card</ion-button
+      >
+    </div>
+  </ion-toolbar>
+</ion-footer>

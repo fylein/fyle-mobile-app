@@ -44,7 +44,7 @@ describe('ViewTeamReportEtxnCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--amount'))).toEqual(`${expenseData1.tx_amount}.00`);
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--vendor'))).toEqual(``);
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--category'))).toEqual(
-      `${expenseData1.tx_org_category}`,
+      `${expenseData1.tx_org_category}`
     );
   });
 

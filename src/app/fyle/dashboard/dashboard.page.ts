@@ -18,6 +18,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { CardStatsComponent } from './card-stats/card-stats.component';
 
 enum DashboardState {
   home,
@@ -31,6 +32,8 @@ enum DashboardState {
 })
 export class DashboardPage {
   @ViewChild(StatsComponent) statsComponent: StatsComponent;
+
+  @ViewChild(CardStatsComponent) cardStatsComponent: CardStatsComponent;
 
   @ViewChild(TasksComponent) tasksComponent: TasksComponent;
 
@@ -65,7 +68,7 @@ export class DashboardPage {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private backButtonService: BackButtonService,
-    private navController: NavController,
+    private navController: NavController
   ) {}
 
   get displayedTaskCount(): number {
@@ -94,7 +97,7 @@ export class DashboardPage {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       takeUntil(this.onPageExit$),
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -120,6 +123,8 @@ export class DashboardPage {
     });
 
     this.statsComponent.init();
+    this.cardStatsComponent.init();
+
     this.tasksComponent.init();
     /**
      * What does the _ mean in the subscribe block?
@@ -163,7 +168,7 @@ export class DashboardPage {
   registerBackButtonAction(): void {
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
       BackButtonActionPriority.LOW,
-      this.backButtonActionHandler,
+      this.backButtonActionHandler
     );
   }
 

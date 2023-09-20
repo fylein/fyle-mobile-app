@@ -13,11 +13,13 @@ import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
 import { DateService } from './date.service';
 import { expectedUniqueCardStats } from '../mock-data/unique-cards-stats.data';
 import { apiAssignedCardDetailsRes } from '../mock-data/stats-response.data';
-import { expectedAssignedCCCStats } from '../mock-data/ccc-expense.details.data';
+import { expectedAssignedCCCStats, mastercardCCCStats } from '../mock-data/ccc-expense.details.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.data';
-import { platformCorporateCard } from '../mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
+import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
+import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail-data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -138,6 +140,15 @@ describe('CorporateCreditCardExpenseService', () => {
     expect(result).toEqual(expectedUniqueCardStats);
   });
 
+  it('getPlatformCorporateCardDetails(): should get corporate card details', () => {
+    const result = cccExpenseService.getPlatformCorporateCardDetails(
+      [statementUploadedCard],
+      mastercardCCCStats.cardDetails
+    );
+
+    expect(result).toEqual(statementUploadedCardDetail);
+  });
+
   it('getv2CardTransactions(): should get all card transactions', (done) => {
     apiV2Service.get.and.returnValue(of(apiCardV2Transactions));
 
@@ -162,15 +173,20 @@ describe('CorporateCreditCardExpenseService', () => {
 
   it('getCorporateCards(): should get all corporate cards', (done) => {
     const apiResponse = {
-      data: [platformCorporateCard],
+      data: [mastercardRTFCard],
       count: 1,
     };
     spenderPlatformV1ApiService.get.and.returnValue(of(apiResponse));
 
     cccExpenseService.getCorporateCards().subscribe((res) => {
-      expect(res).toEqual([platformCorporateCard]);
+      expect(res).toEqual([mastercardRTFCard]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/corporate_cards');
       done();
     });
+  });
+
+  it('getBankFeedSources(): should get all the bank feed sources', () => {
+    const res = cccExpenseService.getBankFeedSources();
+    expect(res).toEqual(bankFeedSourcesData);
   });
 });
