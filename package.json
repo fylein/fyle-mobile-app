@@ -35,7 +35,7 @@
     "@auth0/angular-jwt": "^5.0.2",
     "@awesome-cordova-plugins/core": "^6.2.0",
     "@awesome-cordova-plugins/google-plus": "^6.2.0",
-    "@awesome-cordova-plugins/image-picker": "^6.2.0",
+    "@awesome-cordova-plugins/image-picker": "^6.3.0",
     "@awesome-cordova-plugins/in-app-browser": "^6.2.0",
     "@awesome-cordova-plugins/smartlook": "^6.2.0",
     "@awesome-cordova-plugins/spinner-dialog": "^6.2.0",
