@@ -438,7 +438,8 @@ describe('MyProfilePage', () => {
 
   describe('toggleSetting():', () => {
     it('should toggle settings to true', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
       orgUserSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
@@ -452,11 +453,12 @@ describe('MyProfilePage', () => {
         action: 'enabled',
         setDefaultCurrency: true,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
     });
 
     it('should toggle settings to false for default currency', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
       orgUserSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
@@ -470,7 +472,7 @@ describe('MyProfilePage', () => {
         action: 'disabled',
         setDefaultCurrency: false,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
     });
   });
 
