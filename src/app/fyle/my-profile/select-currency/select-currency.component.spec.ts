@@ -87,7 +87,7 @@ describe('SelectCurrencyComponent', () => {
     inputElement.value = 'US';
     inputElement.dispatchEvent(new Event('keyup'));
     component.filteredCurrencies$.pipe(take(1)).subscribe((currencies) => {
-      expect(currencies).toEqual(mockCurrencies);
+      expect(currencies).toEqual([mockCurrencies[0]]);
     });
     tick(500);
   }));
