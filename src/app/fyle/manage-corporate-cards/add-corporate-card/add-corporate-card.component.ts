@@ -1,10 +1,12 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
+import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
-import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
+import { catchError, distinctUntilChanged, filter, finalize, of } from 'rxjs';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-add-corporate-card',
@@ -37,6 +39,8 @@ export class AddCorporateCardComponent implements OnInit {
   constructor(
     private popoverController: PopoverController,
     private realTimeFeedService: RealTimeFeedService,
+    private trackingService: TrackingService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -47,9 +51,25 @@ export class AddCorporateCardComponent implements OnInit {
     this.cardForm.valueChanges.pipe(distinctUntilChanged()).subscribe((value: string) => {
       this.cardType = this.realTimeFeedService.getCardTypeFromNumber(value);
       this.cardNetworks = this.getCardNetworks();
-
       this.isAddingNonRTFCard = this.cardType === CardNetworkType.OTHERS && this.cardForm.valid;
+
+      if (this.isAddingNonRTFCard) {
+        this.trackingService.enrollingNonRTFCard({
+          'Existing Card': this.card ? this.card.card_number : '',
+          'Card Number': `${value.slice(0, 4)} **** **** ${value.slice(12)}`,
+          Source: this.router.url,
+        });
+      }
     });
+
+    this.cardForm.statusChanges
+      .pipe(
+        distinctUntilChanged(),
+        filter((status) => status === 'INVALID')
+      )
+      .subscribe(() => {
+        this.trackEnrollmentErrors();
+      });
   }
 
   closePopover(): void {
@@ -75,13 +95,34 @@ export class AddCorporateCardComponent implements OnInit {
         }),
         finalize(() => {
           this.isEnrollingCard = false;
-        }),
+        })
       )
       .subscribe((res) => {
         if (res) {
-          this.handleEnrollmentSuccess();
+          this.handleEnrollmentSuccess(res);
         }
       });
+  }
+
+  private trackEnrollmentErrors(): void {
+    const cardNumber = this.cardForm.value as string;
+    let error = '';
+
+    if (this.cardForm.errors.invalidCardNumber) {
+      error = 'Invalid card number';
+    } else if (this.cardForm.errors.invalidCardNetwork) {
+      error = 'Invalid card network';
+    } else if (this.cardForm.errors.enrollmentError) {
+      error = this.enrollmentFailureMessage;
+    }
+
+    this.trackingService.cardEnrollmentErrors({
+      'Card Network': this.cardType,
+      'Existing Card': this.card ? this.card.card_number : '',
+      'Error Message': error,
+      'Card Number': `${cardNumber.slice(0, 4)} **** **** ${cardNumber.slice(12)}`,
+      Source: this.router.url,
+    });
   }
 
   private getAllowedCardNetworks(): CardNetworkType[] {
@@ -147,11 +188,18 @@ export class AddCorporateCardComponent implements OnInit {
   }
 
   private handleEnrollmentFailures(error: Error): void {
-    this.cardForm.setErrors({ enrollmentError: true });
     this.enrollmentFailureMessage = error.message || 'Something went wrong. Please try after some time.';
+    this.cardForm.setErrors({ enrollmentError: true });
   }
 
-  private handleEnrollmentSuccess(): void {
+  private handleEnrollmentSuccess(card: PlatformCorporateCard): void {
+    this.trackingService.cardEnrolled({
+      'Card Network': this.cardType,
+      'Existing Card': this.card ? this.card.card_number : '',
+      'Card ID': card.id,
+      Source: this.router.url,
+    });
+
     this.popoverController.dismiss({ success: true });
   }
 }

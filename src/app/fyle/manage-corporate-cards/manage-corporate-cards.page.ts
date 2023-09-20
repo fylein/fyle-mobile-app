@@ -14,6 +14,7 @@ import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.servic
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { RefresherCustomEvent } from '@ionic/core';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -39,6 +40,7 @@ export class ManageCorporateCardsPage {
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
     private realTimeFeedService: RealTimeFeedService,
+    private trackingService: TrackingService,
   ) {}
 
   refresh(event: RefresherCustomEvent): void {
@@ -203,6 +205,11 @@ export class ManageCorporateCardsPage {
         this.corporateCreditCardExpenseService.clearCache(),
       ]).subscribe(() => {
         this.loadCorporateCards$.next();
+        this.trackingService.cardUnenrolled({
+          'Card Network': cardType,
+          'Card ID': card.id,
+          'Card Number': card.card_number,
+        });
       });
     }
   }
