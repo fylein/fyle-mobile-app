@@ -18,6 +18,7 @@ export class LaunchDarklyService {
 
   getVariation(key: string, defaultValue: boolean): Observable<boolean> {
     if (this.ldClient) {
+      // Wait for LD client to be initialized before getting flag value
       return from(this.ldClient.waitForInitialization()).pipe(
         map(() => this.ldClient.variation(key, defaultValue) as boolean)
       );
