@@ -320,8 +320,8 @@ export class AddEditMileagePage implements OnInit {
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private storageService: StorageService
-  ) { }
+    private storageService: StorageService,
+  ) {}
 
   get showSaveAndNext(): boolean {
     return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
@@ -691,10 +691,10 @@ export class AddEditMileagePage implements OnInit {
                       ? customField.value
                       : dayjs(customField.value as string).format('YYYY-MM-DD'),
                     isConnected &&
-                    customField.type !== 'BOOLEAN' &&
-                    customField.type !== 'USER_LIST' &&
-                    customField.mandatory &&
-                    Validators.required,
+                      customField.type !== 'BOOLEAN' &&
+                      customField.type !== 'USER_LIST' &&
+                      customField.mandatory &&
+                      Validators.required,
                   ],
                 }),
               );
@@ -919,8 +919,8 @@ export class AddEditMileagePage implements OnInit {
       return passedInDate.isBefore(maxDate) && passedInDate.isAfter(minDate)
         ? null
         : {
-          invalidDateSelection: true,
-        };
+            invalidDateSelection: true,
+          };
     }
   }
 
@@ -931,8 +931,8 @@ export class AddEditMileagePage implements OnInit {
         map((subCategories) =>
           subCategories
             .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name?.toLowerCase())
-            .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
-        )
+            .find((subCategory) => subCategory?.id === etxn.tx.org_category_id),
+        ),
       );
   }
 
@@ -1100,9 +1100,9 @@ export class AddEditMileagePage implements OnInit {
               map(
                 (accounts) =>
                   accounts.filter(
-                    (account) => account.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0
-                  ).length > 0
-              )
+                    (account) => account.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0,
+                  ).length > 0,
+              ),
             );
         }
         return of(false);
@@ -1249,7 +1249,7 @@ export class AddEditMileagePage implements OnInit {
         } else {
           return of(null);
         }
-      })
+      }),
     );
   }
 
@@ -1265,25 +1265,8 @@ export class AddEditMileagePage implements OnInit {
             label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
             value: rate,
           };
-        })
-      )
-    );
-  }
-
-  getMileageRatesOptions(): void {
-    this.mileageRatesOptions$ = forkJoin({
-      mileageRates: this.mileageRates$,
-      homeCurrency: this.homeCurrency$,
-    }).pipe(
-      map(({ mileageRates, homeCurrency }) =>
-        mileageRates.map((rate) => {
-          rate.readableRate = this.mileageRatesService.getReadableRate(rate.rate, homeCurrency, rate.unit);
-          return {
-            label: this.mileageRatesService.formatMileageRateName(rate.vehicle_type) + ' (' + rate.readableRate + ')',
-            value: rate,
-          };
-        })
-      )
+        }),
+      ),
     );
   }
 
