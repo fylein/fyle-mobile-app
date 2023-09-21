@@ -52,7 +52,6 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
@@ -170,13 +169,10 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     ViewCommentComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
-    FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApproverComponent,
     ApproverDialogComponent,
-    FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
@@ -313,12 +309,9 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     StatusesDiffComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
-    FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApproverComponent,
-    FyPreviewAttachmentsComponent,
     FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
