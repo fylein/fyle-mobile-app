@@ -121,7 +121,7 @@ describe('ReceiptPreviewComponent', () => {
         data: {
           base64ImageWithSource: images[0],
         },
-      }),
+      })
     );
     modalController.create.and.returnValue(Promise.resolve(cropReceiptModalSpy));
     trackingService.cropReceipt.and.returnValue(null);
@@ -183,7 +183,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'discard',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -217,7 +217,7 @@ describe('ReceiptPreviewComponent', () => {
       closePopOverSpy.onWillDismiss.and.returnValue(
         Promise.resolve({
           data: {},
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
 
@@ -282,7 +282,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();
@@ -316,7 +316,7 @@ describe('ReceiptPreviewComponent', () => {
           data: {
             action: 'remove',
           },
-        }),
+        })
       );
       popoverController.create.and.returnValue(Promise.resolve(closePopOverSpy));
       fixture.detectChanges();

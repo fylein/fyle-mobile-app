@@ -1,8 +1,6 @@
-import { S } from '@angular/cdk/keycodes';
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { Params, Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
@@ -10,28 +8,28 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   templateUrl: './card-detail.component.html',
   styleUrls: ['./card-detail.component.scss'],
 })
-export class CardDetailComponent implements OnInit {
-  @Input() cardDetail: CardDetail;
+export class CardDetailComponent {
+  @Input() cardDetail: PlatformCorporateCardDetail;
 
-  @Input() homeCurrency: Observable<string>;
+  @Input() homeCurrency: string;
 
-  @Input() currencySymbol: Observable<string>;
+  @Input() currencySymbol: string;
 
   constructor(private router: Router, private trackingService: TrackingService) {}
 
-  goToExpensesPage(state: string, cardDetail: CardDetail) {
-    if (state === 'incompleteExpenses' && cardDetail.totalDraftTxns && cardDetail.totalDraftTxns > 0) {
+  goToExpensesPage(state: string, cardDetail: PlatformCorporateCardDetail): void {
+    if (state === 'incompleteExpenses' && cardDetail.stats.totalDraftTxns && cardDetail.stats.totalDraftTxns > 0) {
       const queryParams: Params = {
-        filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.cardNumber] }),
+        filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.card.card_number] }),
       };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
 
       this.trackingService.dashboardOnIncompleteCardExpensesClick();
-    } else if (state === 'totalExpenses' && cardDetail.totalTxnsCount && cardDetail.totalTxnsCount > 0) {
+    } else if (state === 'totalExpenses' && cardDetail.stats.totalTxnsCount && cardDetail.stats.totalTxnsCount > 0) {
       const queryParams: Params = {
-        filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [this.cardDetail?.cardNumber] }),
+        filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [this.cardDetail?.card.card_number] }),
       };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
         queryParams,
@@ -40,6 +38,4 @@ export class CardDetailComponent implements OnInit {
       this.trackingService.dashboardOnTotalCardExpensesClick();
     }
   }
-
-  ngOnInit() {}
 }

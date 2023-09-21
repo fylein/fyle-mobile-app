@@ -30,7 +30,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
-  'Minimum screen width to act as breakpoint between regular and small devices',
+  'Minimum screen width to act as breakpoint between regular and small devices'
 );
 
 @NgModule({

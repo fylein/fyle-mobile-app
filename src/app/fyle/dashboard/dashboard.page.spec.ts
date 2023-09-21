@@ -174,8 +174,10 @@ describe('DashboardPage', () => {
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       spyOn(component, 'setupActionSheet');
       const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
+      const cardStatsComponentSpy = jasmine.createSpyObj('CardStatsComponent', ['init']);
       const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', ['init']);
       component.statsComponent = statsComponentSpy;
+      component.cardStatsComponent = cardStatsComponentSpy;
       component.tasksComponent = tasksComponentSpy;
       tasksService.getTotalTaskCount.and.returnValue(of(4));
       component.isConnected$ = of(true);
@@ -232,6 +234,7 @@ describe('DashboardPage', () => {
     it('should call init method of statsComponent and tasksComponent', () => {
       component.ionViewWillEnter();
       expect(component.statsComponent.init).toHaveBeenCalledTimes(1);
+      expect(component.cardStatsComponent.init).toHaveBeenCalledTimes(1);
       expect(component.tasksComponent.init).toHaveBeenCalledTimes(1);
     });
 

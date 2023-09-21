@@ -32,6 +32,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -67,6 +68,16 @@ export class MyProfilePage {
 
   infoCardsData: CopyCardDetails[];
 
+  isCCCEnabled: boolean;
+
+  isVisaRTFEnabled: boolean;
+
+  isMastercardRTFEnabled: boolean;
+
+  isYodleeEnabled: boolean;
+
+  isUnifiedCardEnrollmentFlowEnabled: boolean;
+
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -84,13 +95,14 @@ export class MyProfilePage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private activatedRoute: ActivatedRoute,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -105,14 +117,14 @@ export class MyProfilePage {
             this.authService.logout({
               device_id: device.uuid,
               user_id: eou.us.id,
-            }),
+            })
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          }),
+          })
         )
         .subscribe(noop);
     } catch (e) {
@@ -136,6 +148,7 @@ export class MyProfilePage {
       action: eventData.isEnabled ? 'enabled' : 'disabled',
       setDefaultCurrency: eventData.selectedCurrency ? true : false,
     });
+
     return this.orgUserSettingsService.post(this.orgUserSettings).subscribe(noop);
   }
 
@@ -174,15 +187,35 @@ export class MyProfilePage {
           forkJoin({
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
-          }),
+            isUnifiedCardEnrollmentFlowEnabled: this.launchDarklyService.getVariation(
+              'unified_card_enrollment_flow_enabled',
+              false
+            ),
+          })
         ),
-        finalize(() => from(this.loaderService.hideLoader())),
+        finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(async (res) => {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
+        this.isUnifiedCardEnrollmentFlowEnabled = res.isUnifiedCardEnrollmentFlowEnabled;
+
+        this.setCCCFlags();
         this.setPreferenceSettings();
       });
+  }
+
+  setCCCFlags(): void {
+    this.isCCCEnabled =
+      this.orgSettings.corporate_credit_card_settings.allowed &&
+      this.orgSettings.corporate_credit_card_settings.enabled;
+
+    this.isVisaRTFEnabled =
+      this.orgSettings.visa_enrollment_settings.allowed && this.orgSettings.visa_enrollment_settings.enabled;
+
+    this.isMastercardRTFEnabled =
+      this.orgSettings.mastercard_enrollment_settings.allowed &&
+      this.orgSettings.mastercard_enrollment_settings.enabled;
   }
 
   setPreferenceSettings(): void {
@@ -244,7 +277,7 @@ export class MyProfilePage {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
     let snackbarIcon: string;
     if (message.toLowerCase().includes('copied')) {
-      snackbarIcon = 'tick-circle-outline';
+      snackbarIcon = 'tick-circle-outline-white';
     }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),

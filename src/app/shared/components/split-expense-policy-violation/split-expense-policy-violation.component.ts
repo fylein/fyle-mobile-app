@@ -21,7 +21,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   constructor(
     private modalController: ModalController,
     private fb: FormBuilder,
-    private splitExpenseService: SplitExpenseService,
+    private splitExpenseService: SplitExpenseService
   ) {}
 
   get formComments() {
