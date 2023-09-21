@@ -174,11 +174,11 @@ export function TestCases4(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -245,7 +245,7 @@ export function TestCases4(getTestBed) {
           of({
             defaultMileageCategory: mileageCategories2[0],
             mileageCategories: [mileageCategories2[1]],
-          }),
+          })
         );
 
         component.checkMileageCategories(null).subscribe((res) => {
@@ -285,7 +285,7 @@ export function TestCases4(getTestBed) {
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
           customPropertiesData,
-          expenseFieldWithBillable,
+          expenseFieldWithBillable
         );
         expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
         done();
