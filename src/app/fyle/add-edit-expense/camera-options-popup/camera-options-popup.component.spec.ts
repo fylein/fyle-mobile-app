@@ -126,7 +126,7 @@ describe('CameraOptionsPopupComponent', () => {
   }));
 
   describe('uploadFileCallback():', () => {
-    it('should read file if the size in less than maximum file size', fakeAsync(() => {
+    it('should read file if the size is less than the maximum file size limit', fakeAsync(() => {
       fileService.readFile.and.resolveTo('file');
       const myBlob = new Blob([new ArrayBuffer(100 * 100)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
@@ -142,7 +142,7 @@ describe('CameraOptionsPopupComponent', () => {
       });
     }));
 
-    it('should dismiss modal and show size limit exceeded to the user', fakeAsync(() => {
+    it('should show warning popup to the user when the file size exceeds the maximum file size limit  allowed', fakeAsync(() => {
       const myBlob = new Blob([new ArrayBuffer(100 * 100 * 1000)], { type: 'application/octet-stream' });
       const file = new File([myBlob], 'file');
 
