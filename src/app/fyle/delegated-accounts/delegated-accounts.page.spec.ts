@@ -3,9 +3,9 @@ import { IonicModule } from '@ionic/angular';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
+import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiEouRes, eouRes2, eouRes3 } from 'src/app/core/mock-data/extended-org-user.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -129,7 +129,7 @@ describe('DelegatedAccountsPage', () => {
     }));
 
     it('should allow user to search and select a delegatee account', fakeAsync(() => {
-      component.searchDelegatees = fixture.debugElement.query(By.css('.delegated--search-input'));
+      component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
       const input = component.searchDelegatees.nativeElement as HTMLInputElement;
       activatedRoute.snapshot.params.switchToOwn = null;
       orgUserService.findDelegatedAccounts.and.returnValue(of([apiEouRes, eouRes2, eouRes3]));
@@ -150,7 +150,7 @@ describe('DelegatedAccountsPage', () => {
     }));
 
     it('should set delegatee acc list to empty array if no accounts are provided', fakeAsync(() => {
-      component.searchDelegatees = fixture.debugElement.query(By.css('.delegated--search-input'));
+      component.searchDelegatees = getElementRef(fixture, '.delegated--search-input');
       const input = component.searchDelegatees.nativeElement as HTMLInputElement;
       activatedRoute.snapshot.params.switchToOwn = null;
       orgUserService.findDelegatedAccounts.and.returnValue(of([]));
