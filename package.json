@@ -73,7 +73,7 @@
     "cordova-plugin-ionic": "^5.5.3",
     "cordova-plugin-native-spinner": "^1.1.4",
     "cordova-plugin-smartlook": "github:smartlook/cordova-smartlook",
-    "cordova-plugin-telerik-imagepicker": "^2.3.6",
+    "cordova-plugin-telerik-imagepicker": "github:VerianMobile/ImagePicker",
     "dayjs": "^1.11.7",
     "dotenv": "^16.0.1",
     "hammerjs": "^2.0.8",
