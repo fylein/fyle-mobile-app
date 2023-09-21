@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 
-import { By } from '@angular/platform-browser';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of, take } from 'rxjs';
+import { getElementRef } from 'src/app/core/dom-helpers';
 import { apiAllCurrencies2, selectedCurrencies } from 'src/app/core/mock-data/currency.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { SelectCurrencyComponent } from './select-currency.component';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 
 describe('SelectCurrencyComponent', () => {
   let component: SelectCurrencyComponent;
@@ -67,7 +67,7 @@ describe('SelectCurrencyComponent', () => {
   }));
 
   it('ngAfterViewInit(): should update the filteredCurrencies$', fakeAsync(() => {
-    component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
+    component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
     const inputElement = component.searchBarRef.nativeElement as HTMLInputElement;
     const mockCurrencies = [
       { shortCode: 'USD', longName: 'US Dollar' },
@@ -107,7 +107,7 @@ describe('SelectCurrencyComponent', () => {
   });
 
   it('clearValue(): should clear value', () => {
-    component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
+    component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
     component.clearValue();
 
     expect(component.value).toEqual('');
