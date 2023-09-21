@@ -15,6 +15,8 @@ import {
   virtualSelectOptionData4,
   virtualSelectOptionData5,
 } from 'src/app/core/mock-data/virtual-select-option.data';
+import { cloneDeep } from 'lodash';
+import { getElementRef } from 'src/app/core/dom-helpers';
 
 describe('VirtualSelectModalComponent', () => {
   let component: VirtualSelectModalComponent;
@@ -57,8 +59,9 @@ describe('VirtualSelectModalComponent', () => {
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     component.enableSearch = true;
-    component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
+    component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
     spyOn(component, 'setSelectableOptions');
+    spyOn(component, 'setFilteredOptions');
     fixture.detectChanges();
     inputElement = component.searchBarRef.nativeElement;
   }));
@@ -69,14 +72,23 @@ describe('VirtualSelectModalComponent', () => {
 
   describe('ngAfterViewInit():', () => {
     beforeEach(() => {
-      component.currentSelection = virtualSelectOptionData;
+      component.currentSelection = cloneDeep(virtualSelectOptionData);
       component.defaultLabelProp = 'label';
-      component.options = virtualSelectOptionData4;
+      component.options = cloneDeep(virtualSelectOptionData4);
     });
 
     it('should set filteredOptions$ to None and Mail if searchText contains similar expression', fakeAsync(() => {
+      component.setFilteredOptions = jasmine
+        .createSpy()
+        .and.returnValues(virtualSelectOptionData4, expectedVirtualSelectOptionData);
       component.nullOption = true;
       component.ngAfterViewInit();
+      inputElement.value = '';
+      inputElement.dispatchEvent(new Event('keyup'));
+      tick(100);
+      component.filteredOptions$.pipe(take(1)).subscribe((res) => {
+        expect(res).toEqual(virtualSelectOptionData4);
+      });
       inputElement.value = 'ail';
       inputElement.dispatchEvent(new Event('keyup'));
 

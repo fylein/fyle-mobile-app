@@ -93,44 +93,46 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     });
   }
 
+  setFilteredOptions(searchText: string): VirtualSelectOption[] {
+    const initial: VirtualSelectOption[] = [];
+
+    if (this.nullOption && this.currentSelection) {
+      initial.push({ label: 'None', value: null });
+    }
+
+    let extraOption: VirtualSelectOption[] = [];
+    if (this.currentSelection && this.defaultLabelProp) {
+      const selectedOption: VirtualSelectOption = this.options.find((option) =>
+        isEqual(option.value, this.currentSelection)
+      );
+      if (!selectedOption) {
+        extraOption = extraOption.concat({
+          label: this.currentSelection[this.defaultLabelProp] as string,
+          value: this.currentSelection,
+          selected: false,
+        });
+      }
+    }
+
+    return initial.concat(
+      this.options
+        .concat(extraOption)
+        .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+        .sort((element1, element2) => element1.label.localeCompare(element2.label))
+        .map((option) => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        })
+    );
+  }
+
   ngAfterViewInit(): void {
     if (this.searchBarRef && this.searchBarRef.nativeElement) {
       this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event) => event.target.value),
         startWith(''),
         distinctUntilChanged(),
-        map((searchText: string) => {
-          const initial: VirtualSelectOption[] = [];
-
-          if (this.nullOption && this.currentSelection) {
-            initial.push({ label: 'None', value: null });
-          }
-
-          let extraOption: VirtualSelectOption[] = [];
-          if (this.currentSelection && this.defaultLabelProp) {
-            const selectedOption: VirtualSelectOption = this.options.find((option) =>
-              isEqual(option.value, this.currentSelection)
-            );
-            if (!selectedOption) {
-              extraOption = extraOption.concat({
-                label: this.currentSelection[this.defaultLabelProp] as string,
-                value: this.currentSelection,
-                selected: false,
-              });
-            }
-          }
-
-          return initial.concat(
-            this.options
-              .concat(extraOption)
-              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
-              .sort((element1, element2) => element1.label.localeCompare(element2.label))
-              .map((option) => {
-                option.selected = isEqual(option.value, this.currentSelection);
-                return option;
-              })
-          );
-        }),
+        map((searchText: string) => this.setFilteredOptions(searchText)),
         shareReplay(1)
       );
       this.recentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
