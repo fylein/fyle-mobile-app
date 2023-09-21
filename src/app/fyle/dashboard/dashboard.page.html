@@ -1,3 +1,7 @@
+<div class="dashboard--background-container">
+  <div class="dashboard--background"></div>
+</div>
+
 <ion-header class="tasks--header ion-no-border" mode="md" translucent="true" *ngIf="currentStateIndex===1">
   <ion-toolbar class="dashboard--toolbar">
     <ion-buttons slot="start">
@@ -36,20 +40,17 @@
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
-      <app-stats #stats></app-stats>
+      <app-stats></app-stats>
+      <app-card-stats></app-card-stats>
     </mat-tab>
     <mat-tab label="tasks">
-      <app-tasks #tasks></app-tasks>
+      <app-tasks></app-tasks>
     </mat-tab>
   </mat-tab-group>
 </ion-content>
 
 <ion-footer>
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"
     [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
-  ></app-fy-footer>
+    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
 </ion-footer>

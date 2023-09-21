@@ -12,22 +12,16 @@
   </ion-toolbar>
 
   <ion-toolbar class="view-info--segment-block-container">
-    <ion-segment
-      class="segment-block view-info--segment-block-container__segment"
-      (ionChange)="segmentChanged($event)"
-      value="report"
-    >
+    <ion-segment class="segment-block view-info--segment-block-container__segment" (ionChange)="segmentChanged($event)"
+      value="report">
       <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
         Report
       </ion-segment-button>
       <ion-segment-button value="amount" class="view-info--segment-block-container__btn text-capitalize">
         Amount
       </ion-segment-button>
-      <ion-segment-button
-        *ngIf="view === ExpenseView.team"
-        value="employee"
-        class="view-info--segment-block-container__btn text-capitalize"
-      >
+      <ion-segment-button *ngIf="view === ExpenseView.team" value="employee"
+        class="view-info--segment-block-container__btn text-capitalize">
         Employee
       </ion-segment-button>
     </ion-segment>
@@ -36,7 +30,7 @@
 
 <ion-content *ngIf="isReportView && !isEmployeeView" (swipe)="onSwipeReport($event)">
   <ion-grid class="view-info--body-container">
-    <ion-row *ngFor="let item of reportDetails | keyvalue: originalOrder" class="view-info--body-container__content">
+    <ion-row *ngFor="let item of reportDetails | keyvalue : originalOrder" class="view-info--body-container__content">
       <ion-col size="5">
         <div class="view-info--body-container__title">
           {{ item.key }}
@@ -54,10 +48,8 @@
 <ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
   <p class="view-info--section-header">COMPONENT WISE SPLIT</p>
   <ion-grid class="view-info--body-container">
-    <ion-row
-      *ngFor="let item of amountComponentWiseDetails | keyvalue: originalOrder"
-      class="view-info--body-container__content"
-    >
+    <ion-row *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
+      class="view-info--body-container__content">
       <ion-col size="5">
         <div class="view-info--body-container__title">
           {{ item.key }}
@@ -68,7 +60,7 @@
       </ion-col>
       <ion-col size="7">
         <div class="view-info--body-container__value">
-          {{ item.value | currency: reportCurrency : 'symbol-narrow' }}
+          {{ item.value | currency : reportCurrency : 'symbol-narrow' }}
         </div>
       </ion-col>
     </ion-row>
@@ -88,10 +80,10 @@
         <ion-col size="7">
           <div class="view-info--body-container__value">
             <ng-container *ngIf="item.currency !== reportCurrency; else origAmountOnly">
-              {{ item.origAmount | currency: item.currency : 'code' }} =
-              {{ item.amount | currency: reportCurrency : 'code' }}
+              {{ item.origAmount | currency : item.currency : 'code' }} =
+              {{ item.amount | currency : reportCurrency : 'code' }}
             </ng-container>
-            <ng-template #origAmountOnly> {{ item.origAmount | currency: item.currency : 'code' }} </ng-template>
+            <ng-template #origAmountOnly> {{ item.origAmount | currency : item.currency : 'code' }} </ng-template>
           </div>
         </ion-col>
       </ion-row>
@@ -101,7 +93,7 @@
 
 <ion-content *ngIf="view === ExpenseView.team && isEmployeeView && !isReportView" (swipe)="onSwipeEmployee($event)">
   <ion-grid class="view-info--body-container">
-    <ng-container *ngFor="let item of employeeDetails | keyvalue: originalOrder">
+    <ng-container *ngFor="let item of employeeDetails | keyvalue : originalOrder">
       <ion-row *ngIf="item && item.value && item.value.length" class="view-info--body-container__content">
         <ion-col size="5">
           <div class="view-info--body-container__title">

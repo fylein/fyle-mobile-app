@@ -135,7 +135,7 @@
 
   <ng-container *ngIf="txnFields?.distance">
     <div
-      class="route-selector--text route-selector--internal-block"
+      class="route-selector--text route-selector--internal-distance-block"
       [ngClass]="{ 'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid }"
     >
       <div class="route-selector--text-label">
@@ -149,14 +149,22 @@
         </ng-template>
         <div class="route-selector--mandatory" *ngIf="isDistanceMandatory">*</div>
       </div>
-      <app-fy-number [disabled]="isAmountDisabled" [min]="0" formControlName="distance" placeholder="Enter Distance">
+      <app-fy-number
+        [disabled]="isAmountDisabled"
+        [min]="0"
+        [isDistance]="true"
+        formControlName="distance"
+        placeholder="Enter Distance"
+      >
       </app-fy-number>
     </div>
     <div
-      *ngIf="form.controls.distance.touched && !form.controls.distance.valid"
+      *ngIf="
+        form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
+      "
       class="route-selector--error route-selector--text-error"
     >
-      Please enter the distance
+      Please enter valid distance
     </div>
   </ng-container>
 </div>

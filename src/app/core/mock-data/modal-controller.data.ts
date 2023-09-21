@@ -10,6 +10,10 @@ import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { FyAddToReportModalComponent } from 'src/app/shared/components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
+import { reportOptionsData } from './report-options.data';
+import { expectedErpt } from './report-unflattened.data';
+import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -325,4 +329,41 @@ export const popoverControllerParams2 = {
     },
   },
   cssClass: 'pop-up-in-center',
+};
+
+export const addToReportModalControllerParams = {
+  component: FyAddToReportModalComponent,
+  componentProps: {
+    options: reportOptionsData,
+    currentSelection: expectedErpt[0],
+    selectionElement: undefined,
+    showNullOption: true,
+    cacheName: '',
+    customInput: false,
+    subheader: 'All',
+    enableSearch: false,
+    autoSubmissionReportName: '#Aug 1',
+    isNewReportsFlowEnabled: false,
+  },
+  mode: 'ios' as Mode,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const popoverControllerParams3 = {
+  component: FyInputPopoverComponent,
+  componentProps: {
+    title: 'New Draft Report',
+    ctaText: 'Save',
+    inputValue: 'Client Meeting',
+    inputLabel: 'Report Name',
+    isRequired: true,
+  },
+  cssClass: 'fy-dialog-popover',
 };

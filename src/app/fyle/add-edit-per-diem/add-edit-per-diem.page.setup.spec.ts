@@ -38,6 +38,7 @@ import { DateService } from 'src/app/core/services/date.service';
 import { TestCases2 } from './add-edit-per-diem-2.page.spec';
 import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
+import { TestCases5 } from './add-edit-per-diem-5.page.spec';
 
 describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
@@ -97,6 +98,12 @@ describe('AddEditPerDiemPage', () => {
       'editExpense',
       'addToExistingReportAddEditExpense',
       'removeFromExistingReportEditExpense',
+      'showToastMessage',
+      'clickDeleteExpense',
+      'addComment',
+      'viewComment',
+      'hideMoreClicked',
+      'showMoreClicked',
     ]);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
       'getRecentlyUsed',
@@ -284,4 +291,5 @@ describe('AddEditPerDiemPage', () => {
   TestCases2(getTestBed);
   TestCases3(getTestBed);
   TestCases4(getTestBed);
+  TestCases5(getTestBed);
 });

@@ -104,6 +104,9 @@ import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { Expense } from 'src/app/core/models/expense.model';
+import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -279,7 +282,7 @@ export class AddEditPerDiemPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private storageService: StorageService,
-  ) {}
+  ) { }
 
   get minPerDiemDate(): string {
     return (
@@ -288,10 +291,6 @@ export class AddEditPerDiemPage implements OnInit {
         .subtract(1, 'day')
         .format('YYYY-MM-D')
     );
-  }
-
-  get showSaveAndNext(): boolean {
-    return this.activeIndex !== null && this.reviewList !== null && +this.activeIndex === this.reviewList.length - 1;
   }
 
   get isExpandedView(): boolean {
@@ -547,14 +546,6 @@ export class AddEditPerDiemPage implements OnInit {
           const control = keyToControlMap[defaultValueColumn];
           if (!control.value && defaultValueColumn !== 'billable') {
             control.patchValue(defaultValues[defaultValueColumn]);
-          } else if (
-            control.value === null &&
-            control.value === undefined &&
-            this.fg.controls.project.value &&
-            defaultValueColumn !== 'billable' &&
-            !control.touched
-          ) {
-            control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
       }
@@ -711,7 +702,7 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap(() => {
-        const category = this.fg.controls.sub_category.value as OrgCategory;
+        const category = this.getFormValues().sub_category;
         if (this.initialFetch) {
           return this.etxn$.pipe(
             switchMap((etxn) =>
@@ -768,10 +759,10 @@ export class AddEditPerDiemPage implements OnInit {
                       ? customField.value
                       : dayjs(customField.value as string).format('YYYY-MM-DD'),
                     isConnected &&
-                      customField.type !== 'BOOLEAN' &&
-                      customField.type !== 'USER_LIST' &&
-                      customField.mandatory &&
-                      Validators.required,
+                    customField.type !== 'BOOLEAN' &&
+                    customField.type !== 'USER_LIST' &&
+                    customField.mandatory &&
+                    Validators.required,
                   ],
                 }),
               );
@@ -795,8 +786,8 @@ export class AddEditPerDiemPage implements OnInit {
       return passedInDate.isSame(fromDt) || passedInDate.isAfter(fromDt)
         ? null
         : {
-            invalidDateSelection: true,
-          };
+          invalidDateSelection: true,
+        };
     }
   }
 
@@ -807,7 +798,7 @@ export class AddEditPerDiemPage implements OnInit {
         if (formValue.paymentMode?.acc?.type === AccountType.ADVANCE) {
           if (
             etxn?.tx.id &&
-            formValue.paymentMode?.acc?.id === etxn.tx.source_account_id &&
+            formValue.paymentMode.acc.id === etxn.tx.source_account_id &&
             etxn.tx.state !== TransactionState.DRAFT
           ) {
             return formValue.paymentMode.acc.tentative_balance_amount + etxn.tx.amount < formValue.currencyObj.amount;
@@ -817,7 +808,7 @@ export class AddEditPerDiemPage implements OnInit {
         } else {
           return false;
         }
-      })
+      }),
     );
   }
 
@@ -1050,9 +1041,9 @@ export class AddEditPerDiemPage implements OnInit {
         costCenters.map((costCenter) => ({
           label: costCenter.name,
           value: costCenter,
-        }))
+        })),
       ),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     this.recentlyUsedCostCenters$ = forkJoin({
@@ -1254,8 +1245,7 @@ export class AddEditPerDiemPage implements OnInit {
               map(
                 (accounts) =>
                   accounts.filter(
-                    (account) =>
-                      account?.acc?.type === AccountType.ADVANCE && account?.acc?.tentative_balance_amount > 0,
+                    (account) => account?.acc?.type === AccountType.ADVANCE && account.acc.tentative_balance_amount > 0,
                   ).length > 0,
               ),
             );
@@ -1643,7 +1633,7 @@ export class AddEditPerDiemPage implements OnInit {
           name: dependentField.label,
           value: dependentField.value,
         }));
-        return this.customFieldsService.standardizeCustomFields(mappedDependentFields || [], customFields);
+        return this.customFieldsService.standardizeCustomFields(mappedDependentFields, customFields);
       }),
     );
 
@@ -1766,10 +1756,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  addExpense(redirectedFrom: string): Observable<OutboxQueue> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  addExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<OutboxQueue> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     const customFields$ = this.getCustomFields();
 
@@ -1943,10 +1933,10 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
-    this.savePerDiemLoader = redirectedFrom === 'SAVE_PER_DIEM';
-    this.saveAndNextPerDiemLoader = redirectedFrom === 'SAVE_AND_NEXT_PERDIEM';
-    this.saveAndPrevPerDiemLoader = redirectedFrom === 'SAVE_AND_PREV_PERDIEM';
+  editExpense(redirectedFrom: PerDiemRedirectedFrom): Observable<Partial<Transaction>> {
+    this.savePerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_PER_DIEM;
+    this.saveAndNextPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM;
+    this.saveAndPrevPerDiemLoader = redirectedFrom === PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM;
 
     this.trackPolicyCorrections();
 
@@ -2103,7 +2093,7 @@ export class AddEditPerDiemPage implements OnInit {
       redirectionText: 'View Report',
     };
     const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      ...this.snackbarProperties.setSnackbarProperties(ToastType.SUCCESS, toastMessageData),
       panelClass: ['msb-success-with-camera-icon'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
@@ -2111,6 +2101,19 @@ export class AddEditPerDiemPage implements OnInit {
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
+  }
+
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
   }
 
   savePerDiem(): void {
@@ -2122,21 +2125,12 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.addExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           } else {
-            that.editExpense('SAVE_PER_DIEM').subscribe(() => this.goBack());
+            that.editExpense(PerDiemRedirectedFrom.SAVE_PER_DIEM).subscribe(() => this.goBack());
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
 
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
@@ -2162,26 +2156,17 @@ export class AddEditPerDiemPage implements OnInit {
       .subscribe((invalidPaymentMode) => {
         if (that.fg.valid && !invalidPaymentMode) {
           if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               this.reloadCurrentRoute();
             });
           } else {
             // to do edit
-            that.editExpense('SAVE_AND_NEW_PER_DIEM').subscribe(() => {
+            that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEW_PER_DIEM).subscribe(() => {
               that.goBack();
             });
           }
         } else {
-          that.fg.markAllAsTouched();
-          const formContainer = that.formContainer.nativeElement as HTMLElement;
-          if (formContainer) {
-            const invalidElement = formContainer.querySelector('.ng-invalid');
-            if (invalidElement) {
-              invalidElement.scrollIntoView({
-                behavior: 'smooth',
-              });
-            }
-          }
+          this.showFormValidationErrors();
           if (invalidPaymentMode) {
             that.invalidPaymentMode = true;
             setTimeout(() => {
@@ -2196,7 +2181,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2205,7 +2190,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_PREV_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_PREV_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === 0) {
             that.close();
           } else {
@@ -2214,17 +2199,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2232,7 +2207,7 @@ export class AddEditPerDiemPage implements OnInit {
     const that = this;
     if (that.fg.valid) {
       if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.addExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2241,7 +2216,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       } else {
         // to do edit
-        that.editExpense('SAVE_AND_NEXT_PERDIEM').subscribe(() => {
+        that.editExpense(PerDiemRedirectedFrom.SAVE_AND_NEXT_PER_DIEM).subscribe(() => {
           if (+this.activeIndex === this.reviewList.length - 1) {
             that.close();
           } else {
@@ -2250,17 +2225,7 @@ export class AddEditPerDiemPage implements OnInit {
         });
       }
     } else {
-      that.fg.markAllAsTouched();
-      const formContainer = that.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -2268,34 +2233,66 @@ export class AddEditPerDiemPage implements OnInit {
     this.router.navigate(['/', 'enterprise', 'my_expenses']);
   }
 
-  async deleteExpense(reportId?: string): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
-
-    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete  Per Diem';
-    const body = removePerDiemFromReport
-      ? 'Are you sure you want to remove this Per Diem expense from this report?'
-      : 'Are you sure you want to delete this Per Diem expense?';
-    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
-    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteReportParams(
+    config: { header: string; body: string; ctaText: string; ctaLoadingText: string },
+    removePerDiemFromReport: boolean,
+    id: string,
+    reportId?: string,
+  ): {
+    component: typeof FyDeleteDialogComponent;
+    cssClass: string;
+    backdropDismiss: boolean;
+    componentProps: {
+      header: string;
+      body: string;
+      ctaText: string;
+      ctaLoadingText: string;
+      deleteMethod: () => Observable<Expense | void>;
+    };
+  } {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
-        header,
-        body,
-        ctaText,
-        ctaLoadingText,
-        deleteMethod: () => {
+        header: config.header,
+        body: config.body,
+        ctaText: config.ctaText,
+        ctaLoadingText: config.ctaLoadingText,
+        deleteMethod: (): Observable<Expense | void> => {
           if (removePerDiemFromReport) {
             return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
         },
       },
-    });
+    };
+  }
+
+  async deleteExpense(reportId?: string): Promise<void> {
+    const id = this.activatedRoute.snapshot.params.id as string;
+    const removePerDiemFromReport = reportId && this.isRedirectedFromReport;
+
+    const header = removePerDiemFromReport ? 'Remove Per Diem' : 'Delete Per Diem';
+    const body = removePerDiemFromReport
+      ? 'Are you sure you want to remove this Per Diem expense from this report?'
+      : 'Are you sure you want to delete this Per Diem expense?';
+    const ctaText = removePerDiemFromReport ? 'Remove' : 'Delete';
+    const ctaLoadingText = removePerDiemFromReport ? 'Removing' : 'Deleting';
+
+    const deletePopover = await this.popoverController.create(
+      this.getDeleteReportParams(
+        {
+          header,
+          body,
+          ctaText,
+          ctaLoadingText,
+        },
+        removePerDiemFromReport,
+        id,
+        reportId,
+      ),
+    );
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
@@ -2314,19 +2311,6 @@ export class AddEditPerDiemPage implements OnInit {
     } else {
       if (this.mode === 'add') {
         this.trackingService.clickDeleteExpense({ Type: 'Per Diem' });
-      }
-    }
-  }
-
-  scrollCommentsIntoView(): void {
-    if (this.commentsContainer) {
-      const commentsContainer = this.commentsContainer.nativeElement as HTMLElement;
-      if (commentsContainer) {
-        commentsContainer.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest',
-          inline: 'start',
-        });
       }
     }
   }

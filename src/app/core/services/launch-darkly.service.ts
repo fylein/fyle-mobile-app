@@ -2,8 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
-import { from, Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { from, Observable, map } from 'rxjs';
 import { isEqual } from 'lodash';
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
@@ -19,7 +18,10 @@ export class LaunchDarklyService {
 
   getVariation(key: string, defaultValue: boolean): Observable<boolean> {
     if (this.ldClient) {
-      return of(this.ldClient.variation(key, defaultValue)) as Observable<boolean>;
+      // Wait for LD client to be initialized before getting flag value
+      return from(this.ldClient.waitForInitialization()).pipe(
+        map(() => this.ldClient.variation(key, defaultValue) as boolean)
+      );
     }
 
     return from(this.storageService.get('cachedLDFlags')).pipe(
@@ -66,6 +68,10 @@ export class LaunchDarklyService {
 
   checkIfNegativeExpensePluginIsEnabled(): Observable<boolean> {
     return this.getVariation('numeric-keypad', false);
+  }
+
+  checkIfAndroidNegativeExpensePluginIsEnabled(): Observable<boolean> {
+    return this.getVariation('android-numeric-keypad', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

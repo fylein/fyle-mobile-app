@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -23,6 +23,7 @@ describe('FyNumberComponent', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
       'checkIfKeyboardPluginIsEnabled',
       'checkIfNegativeExpensePluginIsEnabled',
+      'checkIfAndroidNegativeExpensePluginIsEnabled',
     ]);
     const injectorSpy = jasmine.createSpyObj('Injector', ['get']);
 
@@ -36,6 +37,12 @@ describe('FyNumberComponent', () => {
           provide: Injector,
           useValue: injectorSpy,
         },
+        {
+          provide: NgControl,
+          useValue: {
+            control: new FormControl(),
+          },
+        },
       ],
     }).compileComponents();
 
@@ -43,8 +50,10 @@ describe('FyNumberComponent', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     platform.is.withArgs('ios').and.returnValue(true);
+    platform.is.withArgs('android').and.returnValue(false);
     launchDarklyService.checkIfKeyboardPluginIsEnabled.and.returnValue(of(true));
     launchDarklyService.checkIfNegativeExpensePluginIsEnabled.and.returnValue(of(true));
+    launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled.and.returnValue(of(true));
     fixture = TestBed.createComponent(FyNumberComponent);
     component = fixture.componentInstance;
     inputEl = fixture.debugElement.query(By.css('input'));
@@ -109,6 +118,31 @@ describe('FyNumberComponent', () => {
       expect(component.isNegativeExpensePluginEnabled).toBeFalse();
       expect(inputElement.length).toBe(1);
       expect(component.handleChange).not.toHaveBeenCalled();
+    });
+
+    it('should enable isAndroidNegativeExpensePluginEnabled plugin when checkIfAndroidNegativeExpensePluginIsEnabled returns true', () => {
+      spyOn(component, 'handleChange');
+
+      platform.is.withArgs('android').and.returnValue(true);
+      launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled.and.returnValue(of(true));
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      const inputElement = getAllElementsBySelector(fixture, '.fy-number--input');
+      expect(component.isAndroid).toBeTrue();
+      expect(component.isAndroidNegativeExpensePluginEnabled).toBeTrue();
+      expect(inputElement.length).toBe(1);
+      expect(component.handleChange).not.toHaveBeenCalled();
+    });
+
+    it('should set this.value to null and give invalid error when given a negative number if input is distance', () => {
+      spyOn(component, 'handleChange');
+      component.isDistance = true;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+      component.fc.setValue(-1);
+      expect(component.value).toBeNull();
     });
 
     it('should set this.value to a parsed float when given a string', () => {

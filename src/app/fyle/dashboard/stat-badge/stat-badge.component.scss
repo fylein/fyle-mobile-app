@@ -1,10 +1,11 @@
 @import '../../../../theme/colors';
 
 .stat-badge {
-  background-color: $translucent-white;
+  background-color: $pure-white;
   border-radius: 8px;
   min-height: 64px;
   max-height: 64px;
+  border: 1px solid $lighter-grey;
 
   &--container {
     padding: 8px;

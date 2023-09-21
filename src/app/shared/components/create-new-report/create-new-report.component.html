@@ -6,7 +6,7 @@
         <div class="create-new-report--title">Create new report</div>
         <div class="create-new-report--sub-title">
           {{ selectedElements.length }} {{ selectedElements.length > 1 ? 'Expenses' : 'Expense' }} -
-          {{ selectedTotalAmount || 0 | humanizeCurrency: homeCurrency }}
+          {{ selectedTotalAmount || 0 | humanizeCurrency : homeCurrency }}
         </div>
       </div>
     </ion-title>

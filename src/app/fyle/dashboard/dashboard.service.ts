@@ -5,11 +5,8 @@ import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
-import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Stats } from '../../core/models/stats.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
-import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
 
 @Injectable()
@@ -116,10 +113,6 @@ export class DashboardService {
       paymentPending: paymentPendingReportStats,
       processing: processingReportStats,
     };
-  }
-
-  getExpenseDetailsInCards(uniqueCards: UniqueCards[], statsResponse: CardAggregateStats[]): UniqueCardStats[] {
-    return this.corporateCreditCardExpenseService.getExpenseDetailsInCards(uniqueCards, statsResponse);
   }
 
   getCCCDetails(): Observable<CCCDetails> {

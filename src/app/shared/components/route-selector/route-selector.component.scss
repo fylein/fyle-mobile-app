@@ -66,6 +66,11 @@
     }
   }
 
+  &--internal-distance-block {
+    @extend .route-selector--internal-block;
+    padding: 8px 0 0 0;
+  }
+
   &--text {
     border-bottom: 1px solid $grey-lighter;
 

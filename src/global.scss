@@ -373,6 +373,10 @@ ion-popover.camera-options-popover {
   margin-bottom: 0 !important;
 }
 
+.mb-16 {
+  margin-bottom: 16px !important;
+}
+
 .pb-0 {
   padding-bottom: 0 !important;
 }
@@ -417,10 +421,6 @@ ion-popover.camera-options-popover {
   font-size: 14px;
   padding: 8px;
   border-radius: 4px;
-}
-
-.ios .stats--background {
-  min-height: calc(360px + constant(safe-area-inset-top)) !important;
 }
 
 .ios .timeline--timeline-item__middle > .timeline--timeline-item-internal::before,
@@ -778,6 +778,14 @@ ref - https://stackoverflow.com/a/31162426
     font-weight: 500;
   }
 
+  .danger {
+    color: $red;
+
+    .action-sheet-icon {
+      color: $red;
+    }
+  }
+
   .action-sheet-button-inner {
     border-bottom: 1px solid $translucent-grey;
   }
@@ -1125,12 +1133,6 @@ ion-popover.delete-button-class {
   opacity: 0.3;
 }
 
-.spent-cards {
-  .swiper-slide-active {
-    margin-left: -20px !important;
-  }
-}
-
 .spent-cards.swiper-pagination-bullet {
   width: 6px !important;
   height: 6px !important;
@@ -1148,7 +1150,11 @@ ion-popover.delete-button-class {
   opacity: 0.3;
 }
 
-.spent-cards--swiper .swiper-pagination {
+.spent-cards__swiper {
+  padding: 0 16px;
+}
+
+.spent-cards__swiper .swiper-pagination {
   position: absolute;
   text-align: center;
   transition: 300ms opacity;
@@ -1157,7 +1163,7 @@ ion-popover.delete-button-class {
   margin-left: 40%;
 }
 
-.spent-cards--swiper .swiper-wrapper {
+.spent-cards__swiper .swiper-wrapper {
   margin-top: 6%;
 }
 

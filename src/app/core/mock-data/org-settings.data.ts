@@ -1278,6 +1278,18 @@ export const orgSettingsCCCDisabled3: OrgSettings = {
   },
 };
 
+export const orgSettingsRTFDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  mastercard_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  visa_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
 export const orgSettingsWithProjectAndAutofill: OrgSettings = {
   ...orgSettingsRes,
   org_expense_form_autofills: {
@@ -1292,4 +1304,45 @@ export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+};
+
+export const orgSettingsProjectDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  projects: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};
+
+export const orgSettingsCCDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  cost_centers: {
+    enabled: false,
+  },
+};
+
+export const orgSettingsOrgAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    enabled: true,
+    allowed: true,
+  },
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoProjects: OrgSettings = {
+  ...orgSettingsRes,
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoMileage: OrgSettings = {
+  ...orgSettingsParams2,
+  mileage: null,
 };
