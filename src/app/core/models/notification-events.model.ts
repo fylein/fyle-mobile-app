@@ -1,8 +1,10 @@
+import { EmailEvents as EE } from './org-settings.model';
+
 export type EmailEvents = {
   email: {
     selected: boolean;
   };
-  eventType: string;
+  eventType: string | EE;
   feature: string;
   push: {
     selected: boolean;
@@ -22,5 +24,16 @@ export interface NotificationEvents {
       selected: boolean;
       textLabel: string;
     };
+  };
+}
+
+export interface NotificationEventFeatures {
+  advances: {
+    selected: boolean;
+    textLabel: string;
+  };
+  expensesAndReports: {
+    selected: boolean;
+    textLabel: string;
   };
 }
