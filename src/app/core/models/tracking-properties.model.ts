@@ -2,6 +2,7 @@ import { DeviceInfo } from '@capacitor/device';
 import { Transaction } from './v1/transaction.model';
 import { ExpenseView } from './expense-view.enum';
 import { TaskFilters } from './task-filters.model';
+import { CardNetworkType } from '../enums/card-network-type';
 
 export interface TrackingMethods {
   identify<T, K>(data: T, property?: K): void;
@@ -143,4 +144,31 @@ export interface SwitchOrgLaunchTimeProperties {
 export interface ReportNameChangeProperties {
   Time_spent: number;
   Roles: string[];
+}
+
+export interface CardEnrolledProperties {
+  Source: string;
+  'Card Network': CardNetworkType;
+  'Existing Card': string;
+  'Card ID': string;
+}
+
+export interface CardUnenrolledProperties {
+  'Card Network': CardNetworkType;
+  'Card ID': string;
+  'Card Number': string;
+}
+
+export interface CardEnrollmentErrorsProperties {
+  'Card Network': CardNetworkType;
+  Source: string;
+  'Existing Card': string;
+  'Error Message': string;
+  'Card Number': string;
+}
+
+export interface EnrollingNonRTFCardProperties {
+  'Existing Card': string;
+  'Card Number': string;
+  Source: string;
 }

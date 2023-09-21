@@ -1,8 +1,7 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
-import { SwiperComponent } from 'swiper/angular';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import SwiperCore, { Pagination } from 'swiper';
-import { Observable } from 'rxjs';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
+import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
+import { PaginationOptions } from 'swiper/types';
 
 // install Swiper modules
 SwiperCore.use([Pagination]);
@@ -12,23 +11,21 @@ SwiperCore.use([Pagination]);
   templateUrl: './spent-cards.component.html',
   styleUrls: ['./spent-cards.component.scss'],
 })
-export class SpentCardsComponent implements OnInit {
-  @Input() spentCards: CardDetail[];
+export class SpentCardsComponent {
+  @Input() cardDetails: PlatformCorporateCardDetail[];
 
-  @Input() homeCurrency: Observable<string>;
+  @Input() homeCurrency: string;
 
-  @Input() currencySymbol: Observable<string>;
+  @Input() currencySymbol: string;
 
-  @ViewChild('swiper', { static: false }) swiper?: SwiperComponent;
+  @Input() showAddCardSlide: boolean;
 
-  pagination = {
+  @Output() addCardClick = new EventEmitter<void>();
+
+  pagination: PaginationOptions = {
     dynamicBullets: true,
-    renderBullet(index, className) {
+    renderBullet(index, className): string {
       return '<span class="spent-cards ' + className + '"> </span>';
     },
   };
-
-  constructor() {}
-
-  ngOnInit() {}
 }
