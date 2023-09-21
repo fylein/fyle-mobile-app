@@ -190,11 +190,8 @@ describe('VirtualSelectModalComponent', () => {
 
   it('onElementSelect(): should call recentlocalstorage service and dismiss the modal', () => {
     component.cacheName = 'cache1';
-    component.options = [
-      { label: 'business', value: 'BUSINESS' },
-      { label: 'economy', value: 'ECONOMY' },
-    ];
-    const option = { label: 'business', value: 'BUSINESS' };
+    component.options = virtualSelectOptionData4;
+    const option = virtualSelectOptionData4[1];
     component.onElementSelect(option);
     expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('cache1', option, 'label');
     expect(modalController.dismiss).toHaveBeenCalledOnceWith(option);
