@@ -407,3 +407,11 @@ export const eouWithNoAttempts: ExtendedOrgUser = {
     mobile_verification_attempts_left: 0,
   },
 };
+
+export const eouWithPendingDetails: ExtendedOrgUser = {
+  ...apiEouRes,
+  ou: {
+    ...apiEouRes.ou,
+    status: 'PENDING_DETAILS',
+  },
+};
