@@ -77,7 +77,7 @@ describe('VirtualSelectModalComponent', () => {
       component.options = cloneDeep(virtualSelectOptionData4);
     });
 
-    it('should set filteredOptions$ to None and Mail if searchText contains similar expression', fakeAsync(() => {
+    it('should set filteredOptions$ equals to value returned by setFilteredOptions whenever input changes', fakeAsync(() => {
       component.setFilteredOptions = jasmine
         .createSpy()
         .and.returnValues(virtualSelectOptionData4, expectedVirtualSelectOptionData);
