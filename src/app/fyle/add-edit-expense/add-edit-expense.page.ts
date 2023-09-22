@@ -1190,19 +1190,19 @@ export class AddEditExpensePage implements OnInit {
         if (extractedCategoryDetails?.category) {
           return this.categoriesService.getCategoryByName(extractedCategoryDetails.category).pipe(
             map((category) => {
-              const newDependencies = { ...dependencies, extractedCategories: category };
+              const newDependencies = { ...dependencies, extractedCategory: category };
               return newDependencies;
             })
           );
         } else {
-          return of({ ...dependencies, extractedCategories: null });
+          return of({ ...dependencies, extractedCategory: null });
         }
       }),
       map(
         (dependencies: {
           orgSettings: OrgSettings;
           orgUserSettings: OrgUserSettings;
-          extractedCategories: OrgCategory;
+          extractedCategory: OrgCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
           imageData: InstaFyleResponse;
@@ -1212,7 +1212,7 @@ export class AddEditExpensePage implements OnInit {
           const {
             orgSettings,
             orgUserSettings,
-            extractedCategories,
+            extractedCategory,
             homeCurrency,
             eou,
             imageData,
@@ -1353,9 +1353,9 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.vendor = extractedData.vendor;
             }
 
-            if (extractedCategories) {
-              etxn.tx.org_category_id = extractedCategories?.id;
-              etxn.tx.fyle_category = extractedCategories?.fyle_category;
+            if (extractedCategory) {
+              etxn.tx.org_category_id = extractedCategory?.id;
+              etxn.tx.fyle_category = extractedCategory?.fyle_category;
             }
           }
 
