@@ -1185,24 +1185,24 @@ export class AddEditExpensePage implements OnInit {
       recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
-      concatMap((dependencies) => {
+      switchMap((dependencies) => {
         const extractedCategoryDetails = dependencies.imageData?.parsedResponse as ParsedResponse;
         if (extractedCategoryDetails?.category) {
           return this.categoriesService.getCategoryByName(extractedCategoryDetails.category).pipe(
             map((category) => {
-              const newDependencies = { ...dependencies, categories: category };
+              const newDependencies = { ...dependencies, extractedCategories: category };
               return newDependencies;
             })
           );
         } else {
-          return of({ ...dependencies, categories: null });
+          return of({ ...dependencies, extractedCategories: null });
         }
       }),
       map(
         (dependencies: {
           orgSettings: OrgSettings;
           orgUserSettings: OrgUserSettings;
-          categories: OrgCategory;
+          extractedCategories: OrgCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
           imageData: InstaFyleResponse;
@@ -1212,7 +1212,7 @@ export class AddEditExpensePage implements OnInit {
           const {
             orgSettings,
             orgUserSettings,
-            categories,
+            extractedCategories,
             homeCurrency,
             eou,
             imageData,
@@ -1353,9 +1353,9 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.vendor = extractedData.vendor;
             }
 
-            if (categories) {
-              etxn.tx.org_category_id = categories?.id;
-              etxn.tx.fyle_category = categories?.fyle_category;
+            if (extractedCategories) {
+              etxn.tx.org_category_id = extractedCategories?.id;
+              etxn.tx.fyle_category = extractedCategories?.fyle_category;
             }
           }
 
