@@ -1,22 +1,20 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { IonBackButton, IonicModule } from '@ionic/angular';
-
-import { PotentialDuplicatesPage } from './potential-duplicates.page';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { Router, RouterModule, UrlSerializer } from '@angular/router';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
 import { duplicateSetData1, duplicateSetData2 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { apiExpenseRes, etxncData, expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { dismissExpenseSnackbarProps } from 'src/app/core/mock-data/snackbar-properties.data';
+import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { PotentialDuplicatesPage } from './potential-duplicates.page';
 
-fdescribe('PotentialDuplicatesPage', () => {
+describe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
   let fixture: ComponentFixture<PotentialDuplicatesPage>;
   let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
@@ -39,8 +37,8 @@ fdescribe('PotentialDuplicatesPage', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [PotentialDuplicatesPage, IonBackButton],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      declarations: [PotentialDuplicatesPage],
+      imports: [RouterTestingModule],
       providers: [
         {
           provide: HandleDuplicatesService,
@@ -90,7 +88,41 @@ fdescribe('PotentialDuplicatesPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ionViewWillEnter(): should populate duplicate sets', () => {});
+  describe('ionViewWillEnter(): ', () => {
+    it('should populate duplicate sets', fakeAsync(() => {
+      handleDuplicates.getDuplicateSets.and.returnValue(of([duplicateSetData1]));
+      transactionService.getETxnc.and.returnValue(of(apiExpenseRes));
+      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenseRes);
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      component.duplicateSets$.subscribe((res) => {
+        expect(res).toEqual([apiExpenseRes]);
+      });
+
+      expect(handleDuplicates.getDuplicateSets).toHaveBeenCalledTimes(2);
+      expect(transactionService.getETxnc).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        params: { tx_id: 'in.(tx5fBcPBAxLv)' },
+      });
+      expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledTimes(2);
+    }));
+
+    it('should go to tasks page if no duplicate sets are found', fakeAsync(() => {
+      handleDuplicates.getDuplicateSets.and.returnValue(of([]));
+      transactionService.getETxnc.and.returnValue(of(null));
+      spyOn(component, 'goToTasks');
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(handleDuplicates.getDuplicateSets).toHaveBeenCalledTimes(1);
+      expect(component.goToTasks).toHaveBeenCalledTimes(1);
+      expect(transactionService.getETxnc).toHaveBeenCalledTimes(1);
+    }));
+  });
 
   it('addExpenseDetailsToDuplicateSets(): should add expense details to duplicate sets', () => {
     const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData1, [expenseData1, etxncData[0]]);
@@ -114,18 +146,20 @@ fdescribe('PotentialDuplicatesPage', () => {
     expect(component.selectedSet).toEqual(0);
   });
 
-  it('dismiss(): should dismiss a duplicate expense', () => {
-    component.duplicateSetData = [duplicateSetData2];
-    component.selectedSet = 0;
-    handleDuplicates.dismissAll.and.returnValue(of(null));
-    spyOn(component, 'showDismissedSuccessToast');
-    component.duplicateExpenses = [[apiExpenseRes[0], expenseData1]];
+  describe('dismiss():', () => {
+    it('should dismiss a duplicate expense', () => {
+      component.duplicateSetData = [duplicateSetData2];
+      component.selectedSet = 0;
+      handleDuplicates.dismissAll.and.returnValue(of(null));
+      spyOn(component, 'showDismissedSuccessToast');
+      component.duplicateExpenses = [[apiExpenseRes[0], expenseData1]];
 
-    component.dismiss(apiExpenseRes[0]);
+      component.dismiss(apiExpenseRes[0]);
 
-    expect(component.duplicateExpenses[0].length).toEqual(1);
-    expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(['tx5fBcPBAxLv', 'tx3nHShG60zq'], ['tx3nHShG60zq']);
-    expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+      expect(component.duplicateExpenses[0].length).toEqual(1);
+      expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(['tx5fBcPBAxLv', 'tx3nHShG60zq'], ['tx3nHShG60zq']);
+      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('dismissAll(): should dismiss all transactions', () => {
@@ -148,29 +182,31 @@ fdescribe('PotentialDuplicatesPage', () => {
     expect(component.loadData$.next).toHaveBeenCalledTimes(1);
   });
 
-  it('mergeExpense(): should merge expense', () => {
-    component.duplicateSetData = [duplicateSetData2];
-    transactionService.getETxnc.and.returnValue(of(apiExpenseRes));
+  describe('mergeExpense():', () => {
+    it('should merge expense', () => {
+      component.duplicateSetData = [duplicateSetData2];
+      transactionService.getETxnc.and.returnValue(of(apiExpenseRes));
 
-    component.mergeExpense();
+      component.mergeExpense();
 
-    expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
-      offset: 0,
-      limit: 10,
-      params: {
-        tx_id: `in.(${duplicateSetData2.transaction_ids.join(',')})`,
-      },
+      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
+        offset: 0,
+        limit: 10,
+        params: {
+          tx_id: `in.(${duplicateSetData2.transaction_ids.join(',')})`,
+        },
+      });
+      expect(trackingService.visitedMergeExpensesPageFromTask).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'merge_expense',
+        {
+          selectedElements: JSON.stringify(apiExpenseRes),
+          from: 'TASK',
+        },
+      ]);
     });
-    expect(trackingService.visitedMergeExpensesPageFromTask).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'merge_expense',
-      {
-        selectedElements: JSON.stringify(apiExpenseRes),
-        from: 'TASK',
-      },
-    ]);
   });
 
   it('showDismissedSuccessToast(): should show dismissal successful toast', () => {

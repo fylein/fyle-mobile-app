@@ -48,7 +48,7 @@ export class PotentialDuplicatesPage {
         this.handleDuplicates.getDuplicateSets().pipe(
           tap((duplicateSets) => {
             this.duplicateSetData = duplicateSets;
-            if (this.duplicateSetData?.length === 0) {
+            if (this.duplicateSetData.length === 0) {
               this.goToTasks();
               return EMPTY;
             }
@@ -96,21 +96,21 @@ export class PotentialDuplicatesPage {
 
   dismiss(expense: Expense): void {
     const transactionIds = [expense.tx_id];
-    const duplicateTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+    const duplicateTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet].transaction_ids = this.duplicateSetData[
         this.selectedSet
-      ]?.transaction_ids.filter((expId) => expId !== expense.tx_id);
-      this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet]?.filter(
+      ].transaction_ids.filter((expId) => expId !== expense.tx_id);
+      this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
         (exp) => exp.tx_id !== expense.tx_id
       );
     });
   }
 
   dismissAll(): void {
-    const txnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+    const txnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
@@ -125,7 +125,7 @@ export class PotentialDuplicatesPage {
   }
 
   mergeExpense(): void {
-    const selectedTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+    const selectedTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     const params = {
       tx_id: `in.(${selectedTxnIds.join(',')})`,
     };
