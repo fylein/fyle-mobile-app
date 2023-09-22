@@ -53,9 +53,26 @@ export const virtualSelectOptionData3: VirtualSelectOption = {
 
 export const virtualSelectOptionData4: VirtualSelectOption[] = [virtualSelectOptionData, virtualSelectOptionData2];
 
-export const virtualSelectOptionData5: VirtualSelectOption[] = [virtualSelectOptionData2, virtualSelectOptionData3];
+export const virtualSelectOptionData5: VirtualSelectOption[] = [
+  { ...virtualSelectOptionData2 },
+  virtualSelectOptionData3,
+];
 
 export const expectedVirtualSelectOptionData: VirtualSelectOption[] = [
   { label: 'None', value: null },
   virtualSelectOptionData2,
+];
+
+export const expectedSelectableOptionsData: VirtualSelectOption[] = [
+  { ...virtualSelectOptionData2, isRecentlyUsed: true },
+  { ...virtualSelectOptionData3, isRecentlyUsed: true },
+  virtualSelectOptionData,
+  virtualSelectOptionData2,
+];
+
+export const expectedFilteredOptionsData: VirtualSelectOption[] = [
+  { label: 'None', value: null },
+  virtualSelectOptionData,
+  virtualSelectOptionData2,
+  { label: 'Train', value: virtualSelectOptionData3, selected: true },
 ];

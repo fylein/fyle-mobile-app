@@ -4,13 +4,13 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of, skip, take } from 'rxjs';
-import { By } from '@angular/platform-browser';
+import { of, take } from 'rxjs';
 import { VirtualSelectModalComponent } from './virtual-select-modal.component';
 import {
+  expectedFilteredOptionsData,
+  expectedSelectableOptionsData,
   expectedVirtualSelectOptionData,
   virtualSelectOptionData,
-  virtualSelectOptionData2,
   virtualSelectOptionData3,
   virtualSelectOptionData4,
   virtualSelectOptionData5,
@@ -60,10 +60,6 @@ describe('VirtualSelectModalComponent', () => {
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     component.enableSearch = true;
     component.searchBarRef = getElementRef(fixture, '.selection-modal--search-input');
-    spyOn(component, 'setSelectableOptions');
-    spyOn(component, 'setFilteredOptions');
-    fixture.detectChanges();
-    inputElement = component.searchBarRef.nativeElement;
   }));
 
   it('should create', () => {
@@ -72,6 +68,10 @@ describe('VirtualSelectModalComponent', () => {
 
   describe('ngAfterViewInit():', () => {
     beforeEach(() => {
+      spyOn(component, 'setSelectableOptions');
+      spyOn(component, 'setFilteredOptions');
+      fixture.detectChanges();
+      inputElement = component.searchBarRef.nativeElement;
       component.currentSelection = cloneDeep(virtualSelectOptionData);
       component.defaultLabelProp = 'label';
       component.options = cloneDeep(virtualSelectOptionData4);
@@ -148,6 +148,10 @@ describe('VirtualSelectModalComponent', () => {
   });
 
   it('clearValue(): should clear the value and trigger a keyup event', () => {
+    spyOn(component, 'setSelectableOptions');
+    spyOn(component, 'setFilteredOptions');
+    fixture.detectChanges();
+    inputElement = component.searchBarRef.nativeElement;
     inputElement.value = 'example';
     spyOn(inputElement, 'dispatchEvent');
     fixture.detectChanges();
@@ -159,10 +163,13 @@ describe('VirtualSelectModalComponent', () => {
   });
 
   describe('getRecentlyUsedItems(): ', () => {
-    const options = virtualSelectOptionData4;
-    const recentlyUsed = virtualSelectOptionData5;
-    const localStorageItems = virtualSelectOptionData5;
-    const filteredItems = [virtualSelectOptionData2];
+    const mockOptions = cloneDeep(virtualSelectOptionData4);
+    const options = mockOptions;
+    const mockRecentlyUsedItems = cloneDeep(virtualSelectOptionData5);
+    const recentlyUsed = mockRecentlyUsedItems;
+    const mockLocalStorageItems = cloneDeep(virtualSelectOptionData5);
+    const localStorageItems = mockLocalStorageItems;
+    const filteredItems = [mockOptions[1]];
 
     it('should return recently used items from API if available', (done) => {
       component.recentlyUsed = recentlyUsed;
@@ -190,7 +197,6 @@ describe('VirtualSelectModalComponent', () => {
 
   it('onElementSelect(): should call recentlocalstorage service and dismiss the modal', () => {
     component.cacheName = 'cache1';
-    component.options = virtualSelectOptionData4;
     const option = virtualSelectOptionData4[1];
     component.onElementSelect(option);
     expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('cache1', option, 'label');
@@ -198,6 +204,10 @@ describe('VirtualSelectModalComponent', () => {
   });
 
   it('saveToCacheAndUse(): should call onElementSelect', () => {
+    spyOn(component, 'setSelectableOptions');
+    spyOn(component, 'setFilteredOptions');
+    fixture.detectChanges();
+    inputElement = component.searchBarRef.nativeElement;
     inputElement.value = 'example';
     fixture.detectChanges();
     spyOn(component, 'onElementSelect');
@@ -208,4 +218,27 @@ describe('VirtualSelectModalComponent', () => {
       selected: false,
     });
   });
+
+  it('setSelectableOptions(): should update selectableOptions correctly', fakeAsync(() => {
+    const mockFilteredOptions = virtualSelectOptionData4;
+    const mockRecentlyUsedItems = virtualSelectOptionData5;
+    component.filteredOptions$ = of(mockFilteredOptions);
+    component.recentlyUsedItems$ = of(mockRecentlyUsedItems);
+    component.setSelectableOptions();
+    tick(100);
+
+    expect(component.selectableOptions).toEqual(expectedSelectableOptionsData);
+  }));
+
+  it('setFilteredOptions(): should update filteredOptions correctly', fakeAsync(() => {
+    component.nullOption = true;
+    component.currentSelection = cloneDeep(virtualSelectOptionData3);
+    component.defaultLabelProp = 'label';
+    component.options = cloneDeep(virtualSelectOptionData4);
+
+    const res = component.setFilteredOptions('ai');
+    tick(100);
+
+    expect(res).toEqual(expectedFilteredOptionsData);
+  }));
 });
