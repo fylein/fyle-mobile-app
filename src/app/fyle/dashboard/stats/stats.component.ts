@@ -14,7 +14,7 @@ import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
 
 @Component({
   selector: 'app-stats',
@@ -50,13 +50,7 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  reportStatsData$: Observable<{
-    reportStats: ReportStats;
-    simplifyReportsSettings: { enabled: boolean };
-    homeCurrency: string;
-    currencySymbol: string;
-    isNonReimbursableOrg: boolean;
-  }>;
+  reportStatsData$: Observable<ReportStatsData>;
 
   constructor(
     private dashboardService: DashboardService,
