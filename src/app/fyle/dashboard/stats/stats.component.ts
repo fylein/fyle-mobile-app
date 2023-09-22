@@ -132,6 +132,30 @@ export class StatsComponent implements OnInit {
     );
   }
 
+  trackOrgLaunchTime(isMultiOrg: boolean): void {
+    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
+      // Time taken for the app to launch and display the first screen
+      performance.mark(PerfTrackers.appLaunchEndTime);
+
+      // Measure time taken to launch app
+      performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
+
+      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
+
+      // Converting the duration to seconds and fix it to 3 decimal places
+      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
+
+      this.trackingService.appLaunchTime({
+        'App launch time': launchTimeDuration,
+        'Is logged in': isLoggedIn,
+        'Is multi org': isMultiOrg,
+      });
+    }
+  }
+
   /*
    * This is required because ionic dosnt reload the page every time we enter, it initializes via ngOnInit only on first entry.
    * The ionViewWillEnter is an alternative for this but not present in child pages.
@@ -151,27 +175,7 @@ export class StatsComponent implements OnInit {
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
 
-      if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
-        // Time taken for the app to launch and display the first screen
-        performance.mark(PerfTrackers.appLaunchEndTime);
-
-        // Measure time taken to launch app
-        performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
-
-        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
-
-        // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
-
-        this.trackingService.appLaunchTime({
-          'App launch time': launchTimeDuration,
-          'Is logged in': isLoggedIn,
-          'Is multi org': isMultiOrg,
-        });
-      }
+      this.trackOrgLaunchTime(isMultiOrg);
 
       this.trackDashboardLaunchTime();
     });
