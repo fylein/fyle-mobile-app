@@ -4,15 +4,13 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { of, skip, take } from 'rxjs';
-import { By } from '@angular/platform-browser';
+import { of, take } from 'rxjs';
 import { VirtualSelectModalComponent } from './virtual-select-modal.component';
 import {
   expectedFilteredOptionsData,
   expectedSelectableOptionsData,
   expectedVirtualSelectOptionData,
   virtualSelectOptionData,
-  virtualSelectOptionData2,
   virtualSelectOptionData3,
   virtualSelectOptionData4,
   virtualSelectOptionData5,
@@ -165,10 +163,13 @@ describe('VirtualSelectModalComponent', () => {
   });
 
   describe('getRecentlyUsedItems(): ', () => {
-    const options = virtualSelectOptionData4;
-    const recentlyUsed = virtualSelectOptionData5;
-    const localStorageItems = virtualSelectOptionData5;
-    const filteredItems = [virtualSelectOptionData2];
+    const mockOptions = cloneDeep(virtualSelectOptionData4);
+    const options = mockOptions;
+    const mockRecentlyUsedItems = cloneDeep(virtualSelectOptionData5);
+    const recentlyUsed = mockRecentlyUsedItems;
+    const mockLocalStorageItems = cloneDeep(virtualSelectOptionData5);
+    const localStorageItems = mockLocalStorageItems;
+    const filteredItems = [mockOptions[1]];
 
     it('should return recently used items from API if available', (done) => {
       component.recentlyUsed = recentlyUsed;
@@ -196,7 +197,6 @@ describe('VirtualSelectModalComponent', () => {
 
   it('onElementSelect(): should call recentlocalstorage service and dismiss the modal', () => {
     component.cacheName = 'cache1';
-    component.options = virtualSelectOptionData4;
     const option = virtualSelectOptionData4[1];
     component.onElementSelect(option);
     expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('cache1', option, 'label');

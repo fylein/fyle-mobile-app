@@ -53,7 +53,10 @@ export const virtualSelectOptionData3: VirtualSelectOption = {
 
 export const virtualSelectOptionData4: VirtualSelectOption[] = [virtualSelectOptionData, virtualSelectOptionData2];
 
-export const virtualSelectOptionData5: VirtualSelectOption[] = [virtualSelectOptionData2, virtualSelectOptionData3];
+export const virtualSelectOptionData5: VirtualSelectOption[] = [
+  { ...virtualSelectOptionData2 },
+  virtualSelectOptionData3,
+];
 
 export const expectedVirtualSelectOptionData: VirtualSelectOption[] = [
   { label: 'None', value: null },
