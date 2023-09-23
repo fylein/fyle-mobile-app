@@ -84,7 +84,7 @@ describe('MyAdvancesPage', () => {
     let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [MyAdvancesPage, TitleCasePipe],
+      declarations: [MyAdvancesPage],
       imports: [IonicModule.forRoot()],
       providers: [
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
@@ -249,7 +249,7 @@ describe('MyAdvancesPage', () => {
     it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
       advanceRequestService.getMyadvanceRequests.and.returnValues(
         of(myAdvanceRequestsData2),
-        of(allTeamAdvanceRequestsRes)
+        of(allTeamAdvanceRequestsRes),
       );
       advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
       component.ionViewWillEnter();
@@ -329,7 +329,7 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          []
+          [],
         );
         expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
       });
@@ -338,7 +338,7 @@ describe('MyAdvancesPage', () => {
     it('should call updateMyAdvanceRequests and updateMyAdvances with empty array if advance_requests and advances are disabled in org settings', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(
-        of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
+        of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } }),
       );
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
@@ -348,7 +348,7 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          []
+          [],
         );
         expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
       });
@@ -361,7 +361,7 @@ describe('MyAdvancesPage', () => {
         .and.returnValue([myAdvanceRequestsData3, myAdvanceRequestsData4]);
       utilityService.sortAllAdvances.and.returnValue([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       orgSettingsService.get.and.returnValue(
-        of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
+        of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } }),
       );
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
@@ -371,7 +371,7 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          [myAdvanceRequestsData4, myAdvanceRequestsData3]
+          [myAdvanceRequestsData4, myAdvanceRequestsData3],
         );
         expect(res).toEqual([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       });
@@ -550,7 +550,7 @@ describe('MyAdvancesPage', () => {
     expect(filtersHelperService.openFilterModal).toHaveBeenCalledOnceWith(
       component.filterParams$.value,
       filterOptions,
-      'State'
+      'State',
     );
     expect(component.filterParams$.next).toHaveBeenCalledOnceWith(myAdvancesFiltersData2);
     expect(component.filterPills).toEqual(allFilterPills);
