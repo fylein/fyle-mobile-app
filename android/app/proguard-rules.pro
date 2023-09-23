@@ -66,3 +66,6 @@
   public <methods>;
   public <fields>;
 }
+
+-keep class com.getcapacitor.** { *; }
+-keep class com.capacitorjs.plugins.** { *; }
