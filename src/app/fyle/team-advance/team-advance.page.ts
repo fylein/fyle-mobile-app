@@ -15,6 +15,7 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { IonRefresherCustomEvent } from '@ionic/core';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -27,7 +28,7 @@ type Filters = Partial<{
   styleUrls: ['./team-advance.page.scss'],
 })
 export class TeamAdvancePage implements AfterViewChecked {
-  teamAdvancerequests$: Observable<any[]>;
+  teamAdvancerequests$: Observable<ExtendedAdvanceRequest[]>;
 
   loadData$: Subject<{
     pageNumber: number;
@@ -63,7 +64,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     private titleCasePipe: TitleCasePipe
   ) {}
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.tasksService.getTotalTaskCount().subscribe((totalTaskCount) => (this.totalTaskCount = totalTaskCount));
 
     this.setupDefaultFilters();
@@ -136,15 +137,15 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.getAndUpdateProjectName();
   }
 
-  ngAfterViewChecked() {
+  ngAfterViewChecked(): void {
     this.cdRef.detectChanges();
   }
 
-  onAdvanceClick(areq: ExtendedAdvanceRequest) {
+  onAdvanceClick(areq: ExtendedAdvanceRequest): void {
     this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
   }
 
-  changeState(event?, incrementPageNumber = false) {
+  changeState(event?: IonRefresherCustomEvent<{}>, incrementPageNumber = false): void {
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
     this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
       this.loadData$.next({
@@ -159,14 +160,14 @@ export class TeamAdvancePage implements AfterViewChecked {
     }
   }
 
-  getAndUpdateProjectName() {
+  getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
       this.projectFieldName = projectField?.field_name;
     });
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterOptions = [
       {
         name: 'State',
@@ -219,7 +220,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     }
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     if (filterType === 'sort') {
       this.filters = {
         ...this.filters,
@@ -236,31 +237,31 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.changeState();
   }
 
-  async onFilterClick(filterType: string) {
-    const filterTypes = {
+  async onFilterClick(filterType: string): Promise<void> {
+    const filterTypes: Record<string, string> = {
       state: 'State',
       sort: 'Sort By',
     };
     await this.openFilters(filterTypes[filterType]);
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.filters = {};
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
     this.changeState();
   }
 
-  setupDefaultFilters() {
+  setupDefaultFilters(): void {
     this.filters = {
       state: [AdvancesStates.pending],
     };
     this.filterPills = this.filtersHelperService.generateFilterPills(this.filters);
   }
 
-  getExtraParams(state: AdvancesStates[]) {
+  getExtraParams(state: AdvancesStates[]): Record<string, string[]> {
     const isPending = state.includes(AdvancesStates.pending);
     const isApproved = state.includes(AdvancesStates.approved);
-    let extraParams;
+    let extraParams = {};
 
     if (isPending && isApproved) {
       extraParams = {
@@ -286,7 +287,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     return extraParams;
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -297,7 +298,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -308,7 +309,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 }
