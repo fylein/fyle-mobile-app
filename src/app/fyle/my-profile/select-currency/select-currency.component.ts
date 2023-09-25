@@ -14,7 +14,7 @@ import { Currency } from 'src/app/core/models/currency.model';
 export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   @Input() currentSelection: string;
 
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   currencies$: Observable<Currency[]>;
 
@@ -28,7 +28,7 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
     private loaderService: LoaderService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currencies$ = from(this.loaderService.showLoader()).pipe(
       concatMap(() => this.currencyService.getAll()),
       map((currenciesObj) =>
@@ -44,11 +44,14 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filteredCurrencies$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+    this.filteredCurrencies$ = fromEvent<{ srcElement: { value: string } }>(
+      this.searchBarRef.nativeElement,
+      'keyup'
+    ).pipe(
+      map((event) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.currencies$.pipe(
           map((currencies) =>
             currencies.filter(
@@ -58,23 +61,24 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
-  closeModal() {
+  closeModal(): void {
     this.modalController.dismiss();
   }
 
-  onCurrencySelect(selectedCurrency: Currency) {
+  onCurrencySelect(selectedCurrency: Currency): void {
     this.modalController.dismiss({
       selectedCurrency,
     });
   }
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
