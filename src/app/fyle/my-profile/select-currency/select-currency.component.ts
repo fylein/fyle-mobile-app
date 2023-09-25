@@ -61,7 +61,8 @@ export class SelectCurrencyComponent implements OnInit, AfterViewInit {
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
