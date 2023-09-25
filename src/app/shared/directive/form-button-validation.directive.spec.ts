@@ -1,15 +1,15 @@
 import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { FormButtonValidationDirective } from './form-button-validation.directive';
-import { FormatDateDirective } from './format-date.directive';
 import { By } from '@angular/platform-browser';
+import { FormButtonValidationDirective } from './form-button-validation.directive';
+import { LoaderPosition } from './loader-position.enum';
 
 @Component({
   template: `<button appFormButtonValidation>Save</button>`,
 })
 class TestFormValidationButtonComponent {}
 
-fdescribe('FormButtonValidationDirective', () => {
+describe('FormButtonValidationDirective', () => {
   let component: TestFormValidationButtonComponent;
   let fixture: ComponentFixture<TestFormValidationButtonComponent>;
   let buttonElement: DebugElement;
@@ -30,9 +30,11 @@ fdescribe('FormButtonValidationDirective', () => {
     expect(directive).toBeTruthy();
   });
 
-  it('get selectedElement(): should return the current html element', () => {
-    const selectedElement = buttonElement.nativeElement;
-    expect(directive.selectedElement).toEqual(selectedElement);
+  describe('get selectedElement():', () => {
+    it('should return the current html element', () => {
+      const selectedElement = buttonElement.nativeElement;
+      expect(directive.selectedElement).toEqual(selectedElement);
+    });
   });
 
   it('ngOnChanges(): should start loading if any change is registered', () => {
@@ -53,5 +55,89 @@ fdescribe('FormButtonValidationDirective', () => {
     directive.getButtonText();
 
     expect(directive.defaultText).toEqual('Save');
+  });
+
+  describe('changeLoadingText():', () => {
+    it('should change the button text to loading text if provided', () => {
+      directive.loadingText = 'Loading';
+
+      directive.changeLoadingText();
+
+      expect(directive.selectedElement.innerHTML).toEqual('Loading');
+    });
+
+    it('should change the button text to default text', () => {
+      directive.defaultText = 'Default';
+
+      directive.changeLoadingText();
+
+      expect(directive.selectedElement.innerHTML).toEqual('Default');
+    });
+
+    it('should change the button text as defined in the text map', () => {
+      directive.defaultText = 'Directive';
+      directive.loadingTextMap = {
+        Directive: 'Loading Text',
+      };
+
+      directive.changeLoadingText();
+
+      expect(directive.selectedElement.innerHTML).toEqual('Loading Text');
+    });
+  });
+
+  describe('addLoader():', () => {
+    it('should add secondary loader', () => {
+      directive.buttonType = 'secondary';
+
+      directive.addLoader();
+
+      expect(directive.selectedElement.classList.contains('disabled')).toBeTrue();
+      expect(directive.selectedElement.innerHTML).toEqual('Save <div class="secondary-loader"></div>');
+    });
+
+    it('should add primary loader in prefix position', () => {
+      directive.buttonType = 'primary';
+      directive.loaderPosition = LoaderPosition.prefix;
+
+      directive.addLoader();
+
+      expect(directive.selectedElement.classList.contains('disabled')).toBeTrue();
+      expect(directive.selectedElement.innerHTML).toEqual('<div class="primary-loader"></div>Save');
+    });
+  });
+
+  it('resetButton(): should reset button if the loaded is added', () => {
+    directive.loaderAdded = true;
+
+    directive.resetButton();
+
+    expect(directive.selectedElement.classList.contains('disabled')).toBeFalse();
+    expect(directive.selectedElement.disabled).toBeFalse();
+    expect(directive.selectedElement.innerHTML).toEqual('undefined');
+  });
+
+  describe('onLoading():', () => {
+    it('should disable button if in loading state', () => {
+      spyOn(directive, 'disableButton');
+      spyOn(directive, 'getButtonText');
+      spyOn(directive, 'changeLoadingText');
+      spyOn(directive, 'addLoader');
+
+      directive.onLoading(true);
+
+      expect(directive.disableButton).toHaveBeenCalledTimes(1);
+      expect(directive.getButtonText).toHaveBeenCalledTimes(1);
+      expect(directive.changeLoadingText).toHaveBeenCalledTimes(1);
+      expect(directive.addLoader).toHaveBeenCalledTimes(1);
+    });
+
+    it('should reset button if the button is not in loading state', () => {
+      spyOn(directive, 'resetButton');
+
+      directive.onLoading(false);
+
+      expect(directive.resetButton).toHaveBeenCalledTimes(1);
+    });
   });
 });
