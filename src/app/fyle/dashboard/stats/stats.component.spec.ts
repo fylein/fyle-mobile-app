@@ -248,6 +248,31 @@ describe('StatsComponent', () => {
       });
     });
 
+    it('should track org launch time and call appLaunchTime with NaN if getEntriesByName(appLaunchTime) returns empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [], [{ detail: true }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.trackOrgLaunchTime(true);
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.appLaunchEndTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.appLaunchTime,
+        PerfTrackers.appLaunchStartTime,
+        PerfTrackers.appLaunchEndTime
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(3);
+      expect(trackingService.appLaunchTime).toHaveBeenCalledOnceWith({
+        'App launch time': 'NaN',
+        'Is logged in': true,
+        'Is multi org': true,
+      });
+    });
+
     it('should not track org launch time if getEntriesByName() returns undefined', () => {
       const performance = {
         mark: jasmine.createSpy('mark'),
@@ -313,6 +338,91 @@ describe('StatsComponent', () => {
     expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
     component.homeCurrency$.subscribe((res) => {
       expect(res).toEqual('INR');
+    });
+  });
+
+  it('goToReportsPage(): should navigate to reports page with query params', () => {
+    component.goToReportsPage(ReportStates.APPROVED);
+
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
+      queryParams: {
+        filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
+      },
+    });
+    expect(trackingService.dashboardOnReportPillClick).toHaveBeenCalledOnceWith({
+      State: ReportStates.APPROVED.toString(),
+    });
+  });
+
+  describe('goToExpensesPage():', () => {
+    it('goToExpensesPage(): should navigate to expenses page with query params', () => {
+      component.goToExpensesPage('COMPLETE');
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['READY_TO_REPORT'] }),
+        },
+      });
+      expect(trackingService.dashboardOnUnreportedExpensesClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('goToExpensesPage(): should navigate to expenses page with query params', () => {
+      component.goToExpensesPage('INCOMPLETE');
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT'] }),
+        },
+      });
+      expect(trackingService.dashboardOnIncompleteExpensesClick).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('trackDashboardLaunchTime():', () => {
+    it('should track dashboard launch time', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [{ duration: 12000 }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      //@ts-ignore
+      component.trackDashboardLaunchTime();
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.dashboardLaunchTime,
+        PerfTrackers.onClickSwitchOrg
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
+      expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({
+        'Dashboard launch time': '12.000',
+      });
+    });
+
+    it('should track dashboard launch time and call Dashboard launch time with NaN if measureLaunchTime is empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValue([]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      //@ts-ignore
+      component.trackDashboardLaunchTime();
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.dashboardLaunchTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.dashboardLaunchTime,
+        PerfTrackers.onClickSwitchOrg
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(2);
+      expect(trackingService.dashboardLaunchTime).toHaveBeenCalledOnceWith({
+        'Dashboard launch time': 'NaN',
+      });
     });
   });
 });
