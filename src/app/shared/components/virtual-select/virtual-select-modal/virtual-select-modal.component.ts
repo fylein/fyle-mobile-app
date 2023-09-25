@@ -1,6 +1,6 @@
 import { Component, ViewChild, ElementRef, AfterViewInit, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { combineLatest, from, fromEvent, Observable, of } from 'rxjs';
-import { map, startWith, distinctUntilChanged, switchMap } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, shareReplay } from 'rxjs/operators';
 import { ModalController } from '@ionic/angular';
 import { cloneDeep, isEqual } from 'lodash';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
@@ -78,44 +78,62 @@ export class VirtualSelectModalComponent implements AfterViewInit {
     }
   }
 
+  setSelectableOptions(): void {
+    combineLatest({
+      filteredOptions: this.filteredOptions$,
+      recentlyUsedItems: this.recentlyUsedItems$,
+    }).subscribe(({ filteredOptions, recentlyUsedItems }) => {
+      const recentlyUsedItemsUpdated = cloneDeep(recentlyUsedItems).map((v) => {
+        v.isRecentlyUsed = true;
+        v.selected = false;
+        return v;
+      });
+      this.selectableOptions = recentlyUsedItemsUpdated.concat(filteredOptions);
+      this.cdr.detectChanges();
+    });
+  }
+
+  setFilteredOptions(searchText: string): VirtualSelectOption[] {
+    const initial: VirtualSelectOption[] = [];
+
+    if (this.nullOption && this.currentSelection) {
+      initial.push({ label: 'None', value: null });
+    }
+
+    let extraOption: VirtualSelectOption[] = [];
+    if (this.currentSelection && this.defaultLabelProp) {
+      const selectedOption: VirtualSelectOption = this.options.find((option) =>
+        isEqual(option.value, this.currentSelection)
+      );
+      if (!selectedOption) {
+        extraOption = extraOption.concat({
+          label: this.currentSelection[this.defaultLabelProp] as string,
+          value: this.currentSelection,
+          selected: false,
+        });
+      }
+    }
+
+    return initial.concat(
+      this.options
+        .concat(extraOption)
+        .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
+        .sort((element1, element2) => element1.label.localeCompare(element2.label))
+        .map((option) => {
+          option.selected = isEqual(option.value, this.currentSelection);
+          return option;
+        })
+    );
+  }
+
   ngAfterViewInit(): void {
     if (this.searchBarRef && this.searchBarRef.nativeElement) {
       this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event) => event.target.value),
         startWith(''),
         distinctUntilChanged(),
-        map((searchText: string) => {
-          const initial: VirtualSelectOption[] = [];
-
-          if (this.nullOption && this.currentSelection) {
-            initial.push({ label: 'None', value: null });
-          }
-
-          let extraOption: VirtualSelectOption[] = [];
-          if (this.currentSelection && this.defaultLabelProp) {
-            const selectedOption: VirtualSelectOption = this.options.find((option) =>
-              isEqual(option.value, this.currentSelection)
-            );
-            if (!selectedOption) {
-              extraOption = extraOption.concat({
-                label: this.currentSelection[this.defaultLabelProp] as string,
-                value: this.currentSelection,
-                selected: false,
-              });
-            }
-          }
-
-          return initial.concat(
-            this.options
-              .concat(extraOption)
-              .filter((option) => option.label.toLowerCase().includes(searchText.toLowerCase()))
-              .sort((element1, element2) => element1.label.localeCompare(element2.label))
-              .map((option) => {
-                option.selected = isEqual(option.value, this.currentSelection);
-                return option;
-              })
-          );
-        })
+        map((searchText: string) => this.setFilteredOptions(searchText)),
+        shareReplay(1)
       );
       this.recentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
         map((event) => event.target.value),
@@ -126,7 +144,8 @@ export class VirtualSelectModalComponent implements AfterViewInit {
             // filtering of recently used items wrt searchText is taken care in service method
             this.utilityService.searchArrayStream(searchText)
           )
-        )
+        ),
+        shareReplay(1)
       );
     } else {
       const initial: VirtualSelectOption[] = [];
@@ -147,18 +166,7 @@ export class VirtualSelectModalComponent implements AfterViewInit {
       );
     }
 
-    combineLatest({
-      filteredOptions: this.filteredOptions$,
-      recentlyUsedItems: this.recentlyUsedItems$,
-    }).subscribe(({ filteredOptions, recentlyUsedItems }) => {
-      const recentlyUsedItemsUpdated = cloneDeep(recentlyUsedItems).map((v) => {
-        v.isRecentlyUsed = true;
-        v.selected = false;
-        return v;
-      });
-      this.selectableOptions = recentlyUsedItemsUpdated.concat(filteredOptions);
-      this.cdr.detectChanges();
-    });
+    this.setSelectableOptions();
 
     this.cdr.detectChanges();
   }
