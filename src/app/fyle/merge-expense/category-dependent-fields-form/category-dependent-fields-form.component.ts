@@ -1,25 +1,18 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
-import { EventEmitter, Injector, Output, TemplateRef } from '@angular/core';
-import { Observable, Subscription } from 'rxjs';
-import {
-  FormControl,
-  FormGroup,
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { EventEmitter, Injector, Output } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormControl } from '@angular/forms';
 
 type Option = Partial<{
   label: string;
-  value: any;
+  value: string;
 }>;
 
 type OptionsData = Partial<{
   options: Option[];
   areSameValues: boolean;
   name: string;
-  value: any;
+  value: string;
 }>;
 
 @Component({
@@ -59,7 +52,9 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
-  ngOnInit() {
+  isFieldTouched = (fieldName: string): boolean => this.categoryDependentFormGroup.get(fieldName).touched;
+
+  ngOnInit(): void {
     this.categoryDependentFormGroup = this.formBuilder.group({
       location_1: [],
       location_2: [],
@@ -73,10 +68,10 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
       distance_unit: [],
     });
 
-    this.categoryDependentFormGroup.valueChanges.subscribe((formControlNames) => {
-      const touchedItems = [];
+    this.categoryDependentFormGroup.valueChanges.subscribe((formControlNames: FormControl[]) => {
+      const touchedItems: string[] = [];
       Object.keys(formControlNames).forEach((key) => {
-        if (this.categoryDependentFormGroup.get(key).touched) {
+        if (this.isFieldTouched(key)) {
           touchedItems.push(key);
         }
       });
@@ -84,23 +79,24 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
     });
   }
 
-  onTouched = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onTouched = (): void => {};
 
   ngOnDestroy(): void {
-    this.onChangeSub.unsubscribe();
+    this.onChangeSub?.unsubscribe();
   }
 
-  writeValue(value: any) {
+  writeValue(value: FormGroup): void {
     if (value) {
       this.categoryDependentFormGroup.patchValue(value);
     }
   }
 
-  registerOnChange(onChange): void {
+  registerOnChange(onChange: () => void): void {
     this.onChangeSub = this.categoryDependentFormGroup.valueChanges.subscribe(onChange);
   }
 
-  registerOnTouched(onTouched): void {
+  registerOnTouched(onTouched: () => void): void {
     this.onTouched = onTouched;
   }
 }
