@@ -60,6 +60,10 @@
 		"classpath": "com.capacitorjs.plugins.textzoom.TextZoomPlugin"
 	},
 	{
+		"pkg": "@jonz94/capacitor-image-picker",
+		"classpath": "dev.jonz94.capacitorjs.plugins.imagepicker.ImagePickerPlugin"
+	},
+	{
 		"pkg": "capacitor-native-settings",
 		"classpath": "nl.raphael.settings.NativeSettingsPlugin"
 	},

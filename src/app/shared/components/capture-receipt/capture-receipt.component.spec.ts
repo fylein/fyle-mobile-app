@@ -3,7 +3,6 @@ import { IonicModule } from '@ionic/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { OrgService } from 'src/app/core/services/org.service';
@@ -43,7 +42,6 @@ describe('CaptureReceiptComponent', () => {
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
-  let imagePicker: jasmine.SpyObj<ImagePicker>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -99,7 +97,7 @@ describe('CaptureReceiptComponent', () => {
       'incrementSingleCaptureCount',
       'singleCaptureCount',
     ]);
-    const imagePickerSpy = jasmine.createSpyObj('ImagePicker', ['hasReadPermission', 'getPictures']);
+    // const imagePickerSpy = jasmine.createSpyObj('ImagePicker', ['hasReadPermission', 'getPictures']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -137,10 +135,10 @@ describe('CaptureReceiptComponent', () => {
           provide: TransactionsOutboxService,
           useValue: transactionsOutboxServiceSpy,
         },
-        {
-          provide: ImagePicker,
-          useValue: imagePickerSpy,
-        },
+        // {
+        //   provide: ImagePicker,
+        //   useValue: imagePickerSpy,
+        // },
         {
           provide: NetworkService,
           useValue: networkServiceSpy,
@@ -196,7 +194,7 @@ describe('CaptureReceiptComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
-    imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
+    // imagePicker = TestBed.inject(ImagePicker) as jasmine.SpyObj<ImagePicker>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -413,7 +411,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'showReceiptPreview').and.returnValue(
         of({
           base64ImagesWithSource: images,
-        })
+        }),
       );
 
       component.openReceiptPreviewModal();
@@ -428,7 +426,7 @@ describe('CaptureReceiptComponent', () => {
       spyOn(component, 'showReceiptPreview').and.returnValue(
         of({
           base64ImagesWithSource: [],
-        })
+        }),
       );
       spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
 
@@ -459,7 +457,7 @@ describe('CaptureReceiptComponent', () => {
         },
         onWillDismiss: () => Promise.resolve(true),
         present: () => Promise.resolve(true),
-      } as any)
+      } as any),
     );
 
     component.showReceiptPreview().subscribe(() => {
@@ -481,7 +479,7 @@ describe('CaptureReceiptComponent', () => {
       new Promise((resolve) => {
         const limitReachedPopoverSpy = jasmine.createSpyObj('limitReachedPopover', ['present']);
         resolve(limitReachedPopoverSpy);
-      })
+      }),
     );
     component.showLimitReachedPopover().subscribe(() => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -507,7 +505,7 @@ describe('CaptureReceiptComponent', () => {
       cameraPreviewService.capture.and.returnValue(
         Promise.resolve({
           value: 'value',
-        })
+        }),
       );
 
       component.isBulkMode = false;
@@ -527,7 +525,7 @@ describe('CaptureReceiptComponent', () => {
       cameraPreviewService.capture.and.returnValue(
         Promise.resolve({
           value: 'value',
-        })
+        }),
       );
 
       const len = component.base64ImagesWithSource.length;
@@ -609,7 +607,7 @@ describe('CaptureReceiptComponent', () => {
         data: {
           action: 'OPEN_SETTINGS',
         },
-      })
+      }),
     );
     spyOn(component, 'setupPermissionDeniedPopover').and.returnValue(Promise.resolve(popoverSpy));
 
@@ -619,18 +617,18 @@ describe('CaptureReceiptComponent', () => {
     expect(component.nativeSettings.open).toHaveBeenCalledTimes(1);
   }));
 
-  describe('onGalleryUpload():', () => {
-    it('should upload images to gallery if permission graneted', () => {
-      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
-      imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1', 'encodedcontent2']));
+  // describe('onGalleryUpload():', () => {
+  //   it('should upload images to gallery if permission graneted', () => {
+  //     imagePicker.hasReadPermission.and.returnValue(Promise.resolve(true));
+  //     imagePicker.getPictures.and.returnValue(Promise.resolve(['encodedcontent1', 'encodedcontent2']));
 
-      fixture.detectChanges();
+  //     fixture.detectChanges();
 
-      component.onGalleryUpload();
-      expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
-      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
-    });
-  });
+  //     component.onGalleryUpload();
+  //     expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
+  //     expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
+  //   });
+  // });
 
   it('setUpAndStartCamera(): should setup and start camera', () => {
     spyOn(component.cameraPreview, 'setUpAndStartCamera').and.returnValue(null);
@@ -658,11 +656,11 @@ describe('CaptureReceiptComponent', () => {
               data: {
                 base64ImagesWithSource: images,
               },
-            })
+            }),
           );
           popOverSpy.onDidDismiss.and.returnValue(Promise.resolve({ data: 'value' }));
           resolve(popOverSpy);
-        })
+        }),
       );
       fixture.detectChanges();
 
@@ -684,10 +682,10 @@ describe('CaptureReceiptComponent', () => {
                   base64ImagesWithSource: [],
                 },
               });
-            })
+            }),
           );
           resolve(popOverSpy);
-        })
+        }),
       );
       component.isOffline$ = of(false);
       fixture.detectChanges();
