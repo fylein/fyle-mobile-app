@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -11,7 +11,7 @@ import { MAX_FILE_SIZE } from 'src/app/core/constants';
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
-  @ViewChild('fileUpload', { static: false }) fileUpload: any;
+  @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   constructor(
     private popoverController: PopoverController,
@@ -19,46 +19,55 @@ export class CameraOptionsPopupComponent implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 
-  closeClicked() {
+  closeClicked(): void {
     this.popoverController.dismiss();
   }
 
-  async getImageFromPicture() {
+  async getImageFromPicture(): Promise<void> {
     this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
     this.popoverController.dismiss({ option: 'camera' });
   }
 
-  async getImageFromImagePicker() {
+  async uploadFileCallback(file: File): Promise<void> {
+    if (file?.size < MAX_FILE_SIZE) {
+      const dataUrl = await this.fileService.readFile(file);
+      this.popoverController.dismiss({
+        type: file.type,
+        dataUrl,
+        actionSource: 'gallery_upload',
+      });
+    } else {
+      this.closeClicked();
+
+      if (file?.size > MAX_FILE_SIZE) {
+        this.showSizeLimitExceededPopover();
+      }
+    }
+  }
+
+  async onChangeCallback(nativeElement: HTMLInputElement): Promise<void> {
+    const file = nativeElement.files[0];
+    this.uploadFileCallback(file);
+  }
+
+  async getImageFromImagePicker(): Promise<void> {
     const that = this;
     that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
 
-    const nativeElement = that.fileUpload.nativeElement as HTMLInputElement;
+    const nativeElement = that.fileUpload.nativeElement;
 
-    nativeElement.onchange = async () => {
-      const file = nativeElement.files[0];
-
-      if (file?.size < MAX_FILE_SIZE) {
-        const dataUrl = await that.fileService.readFile(file);
-        that.popoverController.dismiss({
-          type: file.type,
-          dataUrl,
-          actionSource: 'gallery_upload',
-        });
-      } else {
-        that.closeClicked();
-
-        if (file?.size > MAX_FILE_SIZE) {
-          this.showSizeLimitExceededPopover();
-        }
-      }
+    nativeElement.onchange = async (): Promise<void> => {
+      that.onChangeCallback(nativeElement);
     };
 
     nativeElement.click();
   }
 
-  private async showSizeLimitExceededPopover() {
+  async showSizeLimitExceededPopover(): Promise<void> {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {

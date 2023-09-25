@@ -7,7 +7,7 @@
     <div class="suggested-duplicates--container">
       <div class="suggested-duplicates--header text-center">
         {{ duplicateExpenses.length }} expenses for
-        {{ duplicateExpenses[0].tx_amount | currency: duplicateExpenses[0].tx_currency : 'symbol-narrow' }}
+        {{ duplicateExpenses[0].tx_amount | currency : duplicateExpenses[0].tx_currency : 'symbol-narrow' }}
       </div>
       <ng-container *ngFor="let expense of duplicateExpenses as list; let i = index">
         <app-expense-card

@@ -73,9 +73,9 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { Datum } from 'src/app/core/models/v2/stats-response.model';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -384,7 +384,7 @@ export class MyExpensesPage implements OnInit {
       };
       cardNames.push(cardDetail);
     });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames)) as CardDetail[];
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames)) as UniqueCards[];
 
     return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }

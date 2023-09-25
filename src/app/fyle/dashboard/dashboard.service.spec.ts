@@ -26,11 +26,8 @@ import {
   apiAssignedCardDetailsRes,
 } from '../../core/mock-data/stats-response.data';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
-import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
-import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 describe('DashboardService', () => {
@@ -191,12 +188,6 @@ describe('DashboardService', () => {
       expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
       done();
     });
-  });
-
-  it('getExpenseDetailsInCards(): should get expense details in cards', () => {
-    const result = dashboardService.getExpenseDetailsInCards(uniqueCardsParam, cardAggregateStatParam);
-
-    expect(result).toEqual(expectedUniqueCardStats);
   });
 
   it('getCCCDetails(): should get assigned card details', (done) => {

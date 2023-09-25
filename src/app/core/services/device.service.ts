@@ -23,8 +23,8 @@ export class DeviceService {
         Object.assign(deviceInfo, deviceId, {
           appVersion: appInfo.version,
           liveUpdateAppVersion: environment.LIVE_UPDATE_APP_VERSION,
-        }),
-      ),
+        })
+      )
     );
   }
 

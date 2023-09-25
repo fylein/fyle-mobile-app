@@ -25,6 +25,10 @@ import {
   CaptureSingleReceiptTimeProperties,
   SwitchOrgLaunchTimeProperties,
   ReportNameChangeProperties,
+  CardEnrolledProperties,
+  CardEnrollmentErrorsProperties,
+  CardUnenrolledProperties,
+  EnrollingNonRTFCardProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -40,10 +44,7 @@ import { forkJoin, from } from 'rxjs';
 export class TrackingService {
   identityEmail = null;
 
-  constructor(
-    private authService: AuthService,
-    private deviceService: DeviceService,
-  ) {}
+  constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
   get tracking(): TrackingMethods {
     return (window as typeof window & { analytics: TrackingMethods }).analytics;
@@ -608,5 +609,21 @@ export class TrackingService {
 
   smsDeepLinkOpened(properties = {}): void {
     this.eventTrack('SMS Deep Link Opened', properties);
+  }
+
+  cardUnenrolled(properties: CardUnenrolledProperties): void {
+    this.eventTrack('Card Unenrolled', properties);
+  }
+
+  cardEnrolled(properties: CardEnrolledProperties): void {
+    this.eventTrack('Card Enrolled', properties);
+  }
+
+  cardEnrollmentErrors(properties: CardEnrollmentErrorsProperties): void {
+    this.eventTrack('Card Enrollment Errors', properties);
+  }
+
+  enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
+    this.eventTrack('Enrolling Non RTF Card', properties);
   }
 }
