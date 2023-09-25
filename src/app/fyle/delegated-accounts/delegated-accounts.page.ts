@@ -1,6 +1,5 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { User } from '@sentry/angular';
 import { forkJoin, from, fromEvent } from 'rxjs';
 import { concatMap, distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -9,13 +8,14 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { User } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-delegated-accounts',
   templateUrl: './delegated-accounts.page.html',
   styleUrls: ['./delegated-accounts.page.scss'],
 })
-export class DelegatedAccountsPage implements OnInit {
+export class DelegatedAccountsPage {
   @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
   delegatedAccList;
@@ -48,10 +48,6 @@ export class DelegatedAccountsPage implements OnInit {
       .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       });
-  }
-
-  ngOnInit(): void {
-    return;
   }
 
   ionViewWillEnter(): void {
