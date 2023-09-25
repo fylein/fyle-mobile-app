@@ -82,7 +82,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private snackbarProperties: SnackbarPropertiesService,
     private routerAuthService: RouterAuthService,
     private transactionService: TransactionService,
-    private deepLinkService: DeepLinkService,
+    private deepLinkService: DeepLinkService
   ) {}
 
   ngOnInit() {
@@ -137,7 +137,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         }
         return currentOrgs;
       }),
-      shareReplay(1),
+      shareReplay(1)
     );
 
     currentOrgs$.subscribe(() => {
@@ -149,7 +149,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText)))),
+      switchMap((searchText) => currentOrgs$.pipe(map((orgs) => this.getOrgsWhichContainSearchText(orgs, searchText))))
     );
   }
 
@@ -193,7 +193,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.setSentryUser(eou);
           return this.transactionService.getETxnUnflattened(txnId);
         }),
-        finalize(() => this.loaderService.hideLoader()),
+        finalize(() => this.loaderService.hideLoader())
       )
       .subscribe({
         next: (etxn) => {
@@ -223,7 +223,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           catchError((error) => {
             this.showToastNotification('Verification link could not be sent. Please try again!');
             return throwError(() => error);
-          }),
+          })
         )
         .subscribe(() => {
           this.showToastNotification('Verification Email Sent');
@@ -283,7 +283,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       finalize(() => {
         this.loaderService.hideLoader();
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
-      }),
+      })
     );
   }
 
@@ -301,7 +301,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           return this.markUserActive();
         }
         return of(null);
-      }),
+      })
     );
   }
 
@@ -345,7 +345,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.setSentryUser(eou);
           return this.navigateBasedOnUserStatus({ isPendingDetails, roles, eou, isFromInviteLink });
         }),
-        finalize(() => this.loaderService.hideLoader()),
+        finalize(() => this.loaderService.hideLoader())
       )
       .subscribe();
 
@@ -361,7 +361,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.appVersionService.load(deviceInfo);
           return this.appVersionService.getUserAppVersionDetails(deviceInfo);
         }),
-        filter((userAppVersionDetails) => !!userAppVersionDetails),
+        filter((userAppVersionDetails) => !!userAppVersionDetails)
       )
       .subscribe((userAppVersionDetails) => {
         const { appSupportDetails, lastLoggedInVersion, eou, deviceInfo } = userAppVersionDetails;
@@ -416,7 +416,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.userEventService.logout();
           globalCacheBusterNotifier.next();
           await this.loaderService.hideLoader();
-        },
+        }
       );
   }
 
@@ -431,14 +431,14 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
             this.authService.logout({
               device_id: device.uuid,
               user_id: eou.us.id,
-            }),
+            })
           ),
           finalize(() => {
             this.secureStorageService.clearAll();
             this.storageService.clearAll();
             globalCacheBusterNotifier.next();
             this.userEventService.logout();
-          }),
+          })
         )
         .subscribe(noop);
     } catch (e) {
@@ -453,7 +453,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       Object.values(org)
         .map((value) => value && value.toString().toLowerCase())
         .filter((value) => !!value)
-        .some((value) => value.toLowerCase().includes(searchText.toLowerCase())),
+        .some((value) => value.toLowerCase().includes(searchText.toLowerCase()))
     );
   }
 

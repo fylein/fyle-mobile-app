@@ -64,7 +64,7 @@ const routes: Routes = [
     path: 'view_team_advance',
     loadChildren: () =>
       import('./view-team-advance-request/view-team-advance-request.module').then(
-        (m) => m.ViewTeamAdvanceRequestPageModule
+        (m) => m.ViewTeamAdvanceRequestPageModule,
       ),
   },
   {
@@ -87,7 +87,7 @@ const routes: Routes = [
     path: 'add_edit_advance_request',
     loadChildren: () =>
       import('./add-edit-advance-request/add-edit-advance-request.module').then(
-        (m) => m.AddEditAdvanceRequestPageModule
+        (m) => m.AddEditAdvanceRequestPageModule,
       ),
   },
   {
@@ -102,7 +102,7 @@ const routes: Routes = [
     path: 'personal_cards_matched_expenses',
     loadChildren: () =>
       import('./personal-cards-matched-expenses/personal-cards-matched-expenses.module').then(
-        (m) => m.PersonalCardsMatchedExpensesPageModule
+        (m) => m.PersonalCardsMatchedExpensesPageModule,
       ),
   },
   {
@@ -129,6 +129,11 @@ const routes: Routes = [
   {
     path: 'merge_expense',
     loadChildren: () => import('./merge-expense/merge-expense.module').then((m) => m.MergeExpensePageModule),
+  },
+  {
+    path: 'manage_corporate_cards',
+    loadChildren: () =>
+      import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
   },
 ];
 

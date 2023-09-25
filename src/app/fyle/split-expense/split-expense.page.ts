@@ -121,7 +121,7 @@ export class SplitExpensePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService,
+    private projectsService: ProjectsService
   ) {}
 
   goBack(): void {
@@ -147,7 +147,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false },
+        { emitEvent: false }
       );
     }
 
@@ -184,7 +184,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false },
+        { emitEvent: false }
       );
     }
 
@@ -200,7 +200,7 @@ export class SplitExpensePage {
   getTotalSplitAmount(): void {
     if ((this.splitExpensesFormArray.value as SplitExpense[]).length > 1) {
       const amounts = (this.splitExpensesFormArray.value as SplitExpense[]).map(
-        (obj: { amount: number }) => obj.amount,
+        (obj: { amount: number }) => obj.amount
       );
 
       const totalSplitAmount = amounts.reduce((acc, curr) => acc + curr);
@@ -244,7 +244,7 @@ export class SplitExpensePage {
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties.includes(customProperty),
+            (customProperty) => !dependentCustomProperties.includes(customProperty)
           );
         }
 
@@ -260,7 +260,7 @@ export class SplitExpensePage {
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
           custom_properties: txnCustomProperties,
         };
-      }),
+      })
     );
   }
 
@@ -290,7 +290,7 @@ export class SplitExpensePage {
         map((files) => {
           this.fileObjs = files;
           return this.fileObjs;
-        }),
+        })
       );
     } else {
       return this.getAttachedFiles(this.transaction.id);
@@ -325,7 +325,7 @@ export class SplitExpensePage {
       switchMap((data) => {
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-      }),
+      })
     );
   }
 
@@ -384,7 +384,7 @@ export class SplitExpensePage {
       map((uploadedFiles) => {
         this.fileObjs = uploadedFiles;
         return this.fileObjs;
-      }),
+      })
     );
   }
 
@@ -437,7 +437,7 @@ export class SplitExpensePage {
             }
             return defaultValue;
           },
-          true,
+          true
         );
 
         if (!canCreateNegativeExpense) {
@@ -452,7 +452,7 @@ export class SplitExpensePage {
         this.saveSplitExpenseLoading = true;
 
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue),
+          this.generateSplitEtxnFromFg(splitExpenseValue)
         );
 
         forkJoin({
@@ -477,7 +477,7 @@ export class SplitExpensePage {
               observables.violations = this.splitExpenseService.checkForPolicyViolations(
                 res,
                 this.fileObjs,
-                this.categoryList,
+                this.categoryList
               );
 
               return forkJoin(observables);
@@ -496,7 +496,7 @@ export class SplitExpensePage {
                 'Is Evenly Split': this.isEvenlySplit(),
               };
               this.trackingService.splittingExpense(splitTrackingProps);
-            }),
+            })
           )
           .subscribe((response) => {
             this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
@@ -520,7 +520,7 @@ export class SplitExpensePage {
     this.txnFields = JSON.parse(this.activatedRoute.snapshot.params.txnFields as string) as Partial<ExpenseFieldsObj>;
     this.fileUrls = JSON.parse(this.activatedRoute.snapshot.params.fileObjs as string) as FileObject[];
     this.selectedCCCTransaction = JSON.parse(
-      this.activatedRoute.snapshot.params.selectedCCCTransaction as string,
+      this.activatedRoute.snapshot.params.selectedCCCTransaction as string
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
@@ -535,16 +535,16 @@ export class SplitExpensePage {
                 .pipe(
                   map(
                     (project) =>
-                      this.projectsService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[],
-                  ),
+                      this.projectsService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[]
+                  )
                 );
             }
 
             return of(activeCategories);
           }),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
-        ),
-      ),
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+        )
+      )
     );
 
     this.getCategoryList();
@@ -560,9 +560,9 @@ export class SplitExpensePage {
       () => !!parentFieldId,
       this.dependentFieldsService.getDependentFieldValuesForBaseField(
         this.transaction.custom_properties,
-        parentFieldId,
+        parentFieldId
       ),
-      of(null),
+      of(null)
     );
 
     if (this.splitType === 'cost centers') {
@@ -582,23 +582,23 @@ export class SplitExpensePage {
           costCenters.map((costCenter) => ({
             label: costCenter.name,
             value: costCenter,
-          })),
-        ),
+          }))
+        )
       );
     }
 
     this.isCorporateCardsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled,
-      ),
+          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
+      )
     );
 
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
-      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled),
+      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
     );
   }
 
@@ -680,7 +680,7 @@ export class SplitExpensePage {
 
       const percentage = Math.min(
         100,
-        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage),
+        Math.max(0, 100 - (firstSplitExpenseForm.value as { percentage: number }).percentage)
       );
 
       const rawAmount = (this.amount * percentage) / 100;
@@ -691,7 +691,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false },
+        { emitEvent: false }
       );
     }
 
@@ -718,7 +718,7 @@ export class SplitExpensePage {
     evenAmount: number,
     evenPercentage: number,
     lastSplitAmount: number,
-    lastSplitPercentage: number,
+    lastSplitPercentage: number
   ): void {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
@@ -732,7 +732,7 @@ export class SplitExpensePage {
         },
         {
           emitEvent: false,
-        },
+        }
       );
     });
   }
