@@ -62,3 +62,12 @@ export const snackbarPropertiesRes7: SnackbarProperties = {
   },
   duration: 3000,
 };
+
+export const dismissExpenseSnackbarProps: SnackbarProperties = {
+  data: {
+    icon: 'success',
+    showCloseButton: true,
+    message: 'Expense dismissed',
+  },
+  duration: 3000,
+};
