@@ -162,6 +162,7 @@ export class NotificationsPage implements OnInit {
   removeAdminUnsbscribedEvents(): void {
     this.orgSettings$.pipe(
       map((setting) => {
+        console.log(setting.admin_email_settings);
         if (setting.admin_email_settings.unsubscribed_events.length) {
           this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
             const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
@@ -290,6 +291,11 @@ export class NotificationsPage implements OnInit {
      * on valueChange of any check box, checking for all box selected or not
      * if selected will toggle all select box
      */
+
+    this.toggleEvents();
+  }
+
+  toggleEvents(): void {
     this.notificationForm.valueChanges.subscribe((change: { emailEvents: boolean[]; pushEvents: boolean[] }) => {
       const emailEvents = change.emailEvents;
       const pushEvents = change.pushEvents;
