@@ -19,6 +19,9 @@ android {
           'proguard-rules.pro'
         }
     }
+    dataBinding {
+        enabled true
+    }
 }
 
 repositories {
