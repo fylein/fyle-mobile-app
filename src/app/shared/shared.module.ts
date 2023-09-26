@@ -106,7 +106,6 @@ import { CaptureReceiptComponent } from './components/capture-receipt/capture-re
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
 import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
@@ -387,6 +386,6 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     AutofocusDirective,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}

@@ -47,6 +47,9 @@ project(':capacitor-status-bar').projectDir = new File('../node_modules/@capacit
 include ':capacitor-text-zoom'
 project(':capacitor-text-zoom').projectDir = new File('../node_modules/@capacitor/text-zoom/android')
 
+include ':jonz94-capacitor-image-picker'
+project(':jonz94-capacitor-image-picker').projectDir = new File('../node_modules/@jonz94/capacitor-image-picker/android')
+
 include ':capacitor-native-settings'
 project(':capacitor-native-settings').projectDir = new File('../node_modules/capacitor-native-settings/android')
 
