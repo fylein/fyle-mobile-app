@@ -2,27 +2,21 @@ import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, Te
 import { Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
-import {
-  FormControl,
-  FormGroup,
-  ControlValueAccessor,
-  NG_VALUE_ACCESSOR,
-  FormBuilder,
-  Validators,
-} from '@angular/forms';
+import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, Validators } from '@angular/forms';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomProperty } from 'src/app/core/models/custom-properties.model';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 type Option = Partial<{
   label: string;
-  value: any;
+  value: string;
 }>;
 
 type OptionsData = Partial<{
   options: Option[];
   areSameValues: boolean;
   name: string;
-  value: any;
+  value: string;
 }>;
 
 @Component({
@@ -58,7 +52,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Input() purposeOptionsData: OptionsData;
 
-  @Input() categoryDependentTemplate: TemplateRef<any>;
+  @Input() categoryDependentTemplate: TemplateRef<string[]>;
 
   @Input() CCCTxns: CorporateCardExpense[];
 
@@ -70,11 +64,11 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   @Output() fieldsTouched = new EventEmitter<string[]>();
 
-  @Output() categoryChanged = new EventEmitter<void>();
+  @Output() categoryChanged = new EventEmitter<number>();
 
-  @Output() receiptChanged = new EventEmitter<void>();
+  @Output() receiptChanged = new EventEmitter<string>();
 
-  @Output() paymentModeChanged = new EventEmitter<void>();
+  @Output() paymentModeChanged = new EventEmitter<AllowedPaymentModes>();
 
   genericFieldsFormGroup: FormGroup;
 
@@ -86,7 +80,9 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
-  ngOnInit() {
+  isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
+
+  ngOnInit(): void {
     this.genericFieldsFormGroup = this.formBuilder.group({
       amount: [, Validators.required],
       receipt_ids: [],
@@ -102,34 +98,34 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       purpose: [],
     });
 
-    this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId) => {
+    this.genericFieldsFormGroup.controls.category.valueChanges.subscribe((categoryId: number) => {
       this.categoryChanged.emit(categoryId);
     });
 
     this.genericFieldsFormGroup.controls.project.valueChanges
       .pipe(filter((projectId) => !!projectId))
-      .subscribe((projectId) => {
+      .subscribe((projectId: number) => {
         this.projectDependentFields = this.projectDependentFieldsMapping[projectId];
       });
 
     this.genericFieldsFormGroup.controls.costCenter.valueChanges
       .pipe(filter((costCenterId) => !!costCenterId))
-      .subscribe((costCenterId) => {
+      .subscribe((costCenterId: number) => {
         this.costCenterDependentFields = this.costCenterDependentFieldsMapping[costCenterId];
       });
 
-    this.genericFieldsFormGroup.controls.paymentMode.valueChanges.subscribe((paymentMode) => {
+    this.genericFieldsFormGroup.controls.paymentMode.valueChanges.subscribe((paymentMode: AllowedPaymentModes) => {
       this.paymentModeChanged.emit(paymentMode);
     });
 
-    this.genericFieldsFormGroup.controls.receipt_ids.valueChanges.subscribe((receiptIds) => {
+    this.genericFieldsFormGroup.controls.receipt_ids.valueChanges.subscribe((receiptIds: string) => {
       this.receiptChanged.emit(receiptIds);
     });
 
-    this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames) => {
-      const touchedItems = [];
+    this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames: FormGroup) => {
+      const touchedItems: string[] = [];
       Object.keys(formControlNames).forEach((key) => {
-        if (this.genericFieldsFormGroup.get(key).touched) {
+        if (this.isFieldTouched(key)) {
           touchedItems.push(key);
         }
       });
@@ -137,23 +133,24 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
     });
   }
 
-  onTouched = () => {};
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  onTouched = (): void => {};
 
   ngOnDestroy(): void {
-    this.onChangeSub.unsubscribe();
+    this.onChangeSub?.unsubscribe();
   }
 
-  writeValue(value: any) {
+  writeValue(value: FormGroup): void {
     if (value) {
       this.genericFieldsFormGroup.patchValue(value);
     }
   }
 
-  registerOnChange(onChange): void {
+  registerOnChange(onChange: () => void): void {
     this.onChangeSub = this.genericFieldsFormGroup.valueChanges.subscribe(onChange);
   }
 
-  registerOnTouched(onTouched): void {
+  registerOnTouched(onTouched: () => void): void {
     this.onTouched = onTouched;
   }
 }
