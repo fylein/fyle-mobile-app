@@ -5,6 +5,7 @@ import { DEVICE_PLATFORM } from 'src/app/constants';
 import { CameraState } from 'src/app/core/enums/camera-state.enum';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
 import { CameraService } from 'src/app/core/services/camera.service';
+import { App } from '@capacitor/app';
 
 @Component({
   selector: 'app-camera-preview',
@@ -42,6 +43,8 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
 
   cameraState: CameraState = CameraState.STOPPED;
 
+  private appStateListener: any;
+
   flashMode: 'on' | 'off';
 
   showModeChangedMessage = false;
@@ -51,7 +54,7 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   constructor(
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
     private cameraService: CameraService,
-    private cameraPreviewService: CameraPreviewService
+    private cameraPreviewService: CameraPreviewService,
   ) {}
 
   get CameraState() {
@@ -159,6 +162,23 @@ export class CameraPreviewComponent implements OnInit, OnChanges {
   ngOnInit() {
     //Component is initialized with camera in STOPPED state
     this.cameraState = CameraState.STOPPED;
+    this.appStateListener = App.addListener('appStateChange', this.handleAppStateChange.bind(this));
+  }
+
+  handleAppStateChange(state: { isActive: boolean }) {
+    if (state.isActive) {
+      // App has come to the foreground
+      console.log('App is now in the foreground!');
+      // Here, check if the camera is supposed to be running and if it's not, restart it
+      if (this.cameraState !== CameraState.RUNNING) {
+        this.setUpAndStartCamera();
+      }
+    }
+  }
+
+  // Cleanup the listener when the component is destroyed
+  ngOnDestroy() {
+    this.appStateListener.remove();
   }
 
   ngOnChanges(changes: SimpleChanges) {
