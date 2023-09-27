@@ -2,9 +2,8 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
-import { CustomField } from 'src/app/core/models/custom_field.model';
+import { concat, forkJoin, from, iif, noop, Observable, of, Subscription, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
@@ -16,7 +15,6 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -29,9 +27,18 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ProjectV1 } from 'src/app/core/models/v1/extended-project.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { AdvanceRequests } from 'src/app/core/models/advance-requests.model';
+import { AddEditAdvanceRequestFormValue } from 'src/app/core/models/add-edit-advance-request-form-value.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
+import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
+import { AdvanceRequestFile } from 'src/app/core/models/advance-request-file.model';
+import { PolicyViolationCheck } from 'src/app/core/models/policy-violation-check.model';
+import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
+import { File } from 'src/app/core/models/file.model';
+import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -44,23 +51,23 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   isProjectsEnabled$: Observable<boolean>;
 
-  extendedAdvanceRequest$: Observable<any>;
+  extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>;
 
   mode: string;
 
   fg: FormGroup;
 
-  homeCurrency$: Observable<any>;
+  homeCurrency$: Observable<string>;
 
   projects$: Observable<ProjectV1[]>;
 
-  customFields$: Observable<any>;
+  customFields$: Observable<AdvanceRequestsCustomFields[]>;
 
-  dataUrls: any[];
+  dataUrls: FileObject[];
 
-  customFieldValues: any[];
+  customFieldValues: AdvanceRequestCustomFieldValues[];
 
-  actions$: Observable<any>;
+  actions$: Observable<AdvanceRequestActions>;
 
   id: string;
 
@@ -105,7 +112,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
   ) {}
 
   @HostListener('keydown')
-  scrollInputIntoView() {
+  scrollInputIntoView(): void {
     const el = document.activeElement;
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
@@ -114,8 +121,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
+  getFormValues(): AddEditAdvanceRequestFormValue {
+    return this.fg.value as AddEditAdvanceRequestFormValue;
+  }
+
   currencyObjValidator(c: FormControl): ValidationErrors {
-    if (c.value && c.value.amount && c.value.currency) {
+    const currencyObj = c.value as CurrencyObj;
+    if (currencyObj && currencyObj.amount && currencyObj.currency) {
       return null;
     }
     return {
@@ -123,9 +135,9 @@ export class AddEditAdvanceRequestPage implements OnInit {
     };
   }
 
-  ngOnInit() {
-    this.id = this.activatedRoute.snapshot.params.id;
-    this.from = this.activatedRoute.snapshot.params.from;
+  ngOnInit(): void {
+    this.id = this.activatedRoute.snapshot.params.id as string;
+    this.from = this.activatedRoute.snapshot.params.from as string;
     this.fg = this.formBuilder.group({
       currencyObj: [, this.currencyObjValidator],
       purpose: [, Validators.required],
@@ -144,7 +156,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.expenseFields$ = this.expenseFieldsService.getAllMap();
   }
 
-  goBack() {
+  goBack(): void {
     // Todo: Fix all redirecton cases here later
     if (this.from === 'TEAM_ADVANCE') {
       this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -153,21 +165,21 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  checkPolicyViolation(advanceRequest) {
+  checkPolicyViolation(advanceRequest: Partial<AdvanceRequests>): Observable<PolicyViolationCheck> {
     return this.advanceRequestService.testPolicy(advanceRequest);
   }
 
-  submitAdvanceRequest(advanceRequest) {
+  submitAdvanceRequest(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {
     const fileObjPromises = this.fileAttachments();
     return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
   }
 
-  saveDraftAdvanceRequest(advanceRequest) {
+  saveDraftAdvanceRequest(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {
     const fileObjPromises = this.fileAttachments();
     return this.advanceRequestService.saveDraftAdvReqWithFiles(advanceRequest, fileObjPromises);
   }
 
-  saveAndSubmit(event, advanceRequest) {
+  saveAndSubmit(event: string, advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {
     if (event !== 'draft') {
       return this.submitAdvanceRequest(advanceRequest);
     } else {
@@ -179,10 +191,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     violatedPolicyRules: string[],
     policyViolationActionDescription: string,
     event: string,
-    advanceRequest
-  ) {
+    advanceRequest: Partial<AdvanceRequests>
+  ): Promise<Subscription> {
     return iif(
-      () => advanceRequest && advanceRequest.id && advanceRequest.org_user_id,
+      () => !!(advanceRequest && advanceRequest.id && advanceRequest.org_user_id),
       this.statusService.findLatestComment(advanceRequest.id, 'advance_requests', advanceRequest.org_user_id),
       of(null)
     ).subscribe(async (latestComment) => {
@@ -199,7 +211,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       await policyViolationModal.present();
 
-      const { data } = await policyViolationModal.onWillDismiss();
+      const { data } = await policyViolationModal.onWillDismiss<{ reason: string }>();
       if (data) {
         return this.saveAndSubmit(event, advanceRequest)
           .pipe(
@@ -235,7 +247,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     });
   }
 
-  async showAdvanceSummaryPopover() {
+  async showAdvanceSummaryPopover(): Promise<void> {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
         component: PopupAlertComponent,
@@ -257,7 +269,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
       await advanceSummaryPopover.present();
 
-      const { data } = await advanceSummaryPopover.onWillDismiss();
+      const { data } = await advanceSummaryPopover.onWillDismiss<{ action: string }>();
 
       if (data && data.action === 'continue') {
         this.save('Draft');
@@ -276,7 +288,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  save(event: string) {
+  save(event: string): void {
     event = event.toLowerCase();
     if (this.fg.valid) {
       if (event === 'draft') {
@@ -295,7 +307,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
                 policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
                 return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
               }),
-              catchError((err) => {
+              catchError((err: { status: number }) => {
                 if (err.status === 500) {
                   return of([]);
                 } else {
@@ -341,33 +353,37 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  generateAdvanceRequestFromFg(extendedAdvanceRequest$) {
+  generateAdvanceRequestFromFg(
+    extendedAdvanceRequest$: Observable<Partial<AdvanceRequests>>
+  ): Observable<Partial<AdvanceRequests>> {
     return forkJoin({
       extendedAdvanceRequest: extendedAdvanceRequest$,
     }).pipe(
       map((res) => {
-        const advanceRequest: any = res.extendedAdvanceRequest;
+        const advanceRequest = res.extendedAdvanceRequest;
+
+        const formValue = this.getFormValues();
 
         return {
           ...advanceRequest,
-          currency: this.fg.value.currencyObj.currency,
-          amount: this.fg.value.currencyObj.amount,
-          purpose: this.fg.value.purpose,
-          project_id: this.fg.value.project && this.fg.value.project.project_id,
+          currency: formValue.currencyObj.currency,
+          amount: formValue.currencyObj.amount,
+          purpose: formValue.purpose,
+          project_id: formValue.project && formValue.project.project_id,
           org_user_id: advanceRequest.org_user_id,
-          notes: this.fg.value.notes,
+          notes: formValue.notes,
           source: 'MOBILE',
-          custom_field_values: this.fg.value.custom_field_values,
+          custom_field_values: formValue.custom_field_values,
         };
       })
     );
   }
 
-  modifyAdvanceRequestCustomFields(customFields): CustomField[] {
+  modifyAdvanceRequestCustomFields(customFields: AdvanceRequestCustomFieldValues[]): AdvanceRequestCustomFieldValues[] {
     customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
-        const updatedDate = new Date(customField.value);
+        const updatedDate = new Date(customField.value.toString());
         customField.value =
           updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
@@ -377,7 +393,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.customFieldValues;
   }
 
-  fileAttachments() {
+  fileAttachments(): Observable<File[]> {
     const fileObjs = [];
     this.dataUrls.map((dataUrl) => {
       dataUrl.type = dataUrl.type === 'application/pdf' || dataUrl.type === 'pdf' ? 'pdf' : 'image';
@@ -389,7 +405,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return iif(() => fileObjs.length !== 0, forkJoin(fileObjs), of(null));
   }
 
-  async addAttachments(event) {
+  async addAttachments(event: Event): Promise<void> {
     event.stopPropagation();
     event.preventDefault();
 
@@ -400,7 +416,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     await cameraOptionsPopup.present();
 
-    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss();
+    let { data: receiptDetails } = await cameraOptionsPopup.onWillDismiss<{
+      dataUrl: string;
+      type: string;
+      option?: string;
+    }>();
 
     if (receiptDetails && receiptDetails.option === 'camera') {
       const captureReceiptModal = await this.modalController.create({
@@ -415,7 +435,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       await captureReceiptModal.present();
       this.isCameraPreviewStarted = true;
 
-      const { data } = await captureReceiptModal.onWillDismiss();
+      const { data } = await captureReceiptModal.onWillDismiss<{ dataUrl: string }>();
       this.isCameraPreviewStarted = false;
 
       if (data && data.dataUrl) {
@@ -431,7 +451,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  async viewAttachments() {
+  async viewAttachments(): Promise<void> {
     let attachments = this.dataUrls;
 
     attachments = attachments.map((attachment) => {
@@ -451,15 +471,15 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     await attachmentsModal.present();
 
-    const { data } = await attachmentsModal.onWillDismiss();
+    const { data } = await attachmentsModal.onWillDismiss<{ attachments: FileObject[] }>();
 
     if (data) {
       this.dataUrls = data.attachments;
     }
   }
 
-  getReceiptExtension(name) {
-    let res = null;
+  getReceiptExtension(name: string): string {
+    let res: string = null;
 
     if (name) {
       const filename = name.toLowerCase();
@@ -473,7 +493,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return res;
   }
 
-  getReceiptDetails(file) {
+  getReceiptDetails(file: FileObject): { type: string; thumbnail: string } {
     const ext = this.getReceiptExtension(file.name);
     const res = {
       type: 'unknown',
@@ -491,10 +511,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return res;
   }
 
-  getAttachedReceipts(id) {
+  getAttachedReceipts(id: string): Observable<FileObject[]> {
     return this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: any) =>
+      concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
@@ -505,11 +525,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
           })
         )
       ),
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
     );
   }
 
-  async openCommentsModal() {
+  async openCommentsModal(): Promise<void> {
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
@@ -520,7 +540,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = await modal.onDidDismiss<{ updated: boolean }>();
 
     if (data && data.updated) {
       this.trackingService.addComment();
@@ -529,7 +549,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  async delete() {
+  async delete(): Promise<void> {
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -537,21 +557,21 @@ export class AddEditAdvanceRequestPage implements OnInit {
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id),
+        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
     });
 
     await deletePopover.present();
 
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = await deletePopover.onDidDismiss<{ status: string }>();
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_advances']);
     }
   }
 
-  ionViewWillEnter() {
-    this.mode = this.activatedRoute.snapshot.params.id ? 'edit' : 'add';
+  ionViewWillEnter(): void {
+    this.mode = (this.activatedRoute.snapshot.params.id as string) ? 'edit' : 'add';
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -560,7 +580,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.customFieldValues = [];
     if (this.mode === 'edit') {
       this.actions$ = this.advanceRequestService
-        .getActions(this.activatedRoute.snapshot.params.id)
+        .getActions(this.activatedRoute.snapshot.params.id as string)
         .pipe(shareReplay(1));
 
       this.actions$.subscribe((res) => {
@@ -568,8 +588,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
       });
     }
 
-    const editAdvanceRequestPipe$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id)),
+    const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
+      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string)),
       map((res) => {
         this.fg.patchValue({
           currencyObj: {
@@ -592,7 +612,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         if (res.areq.custom_field_values) {
           this.modifyAdvanceRequestCustomFields(res.areq.custom_field_values);
         }
-        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id).subscribe((files) => {
+        this.getAttachedReceipts(this.activatedRoute.snapshot.params.id as string).subscribe((files) => {
           this.dataUrls = files;
         });
         return res.areq;
@@ -619,7 +639,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     this.extendedAdvanceRequest$ = iif(
-      () => this.activatedRoute.snapshot.params.id,
+      () => !!this.activatedRoute.snapshot.params.id,
       editAdvanceRequestPipe$,
       newAdvanceRequestPipe$
     );
@@ -632,7 +652,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService.get().pipe(map((orgUserSettings) => orgUserSettings.project_ids || [])),
           this.projects$
         )
       ),
@@ -640,7 +660,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
-      map((customFields: any[]) => {
+      map((customFields) => {
         const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
         customFieldsFormArray.clear();
         customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
@@ -668,7 +688,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
           customField.control = customFieldsFormArray.at(i);
 
           if (customField.options) {
-            customField.options = customField.options.map((option) => ({ label: option, value: option }));
+            const newOptions = customField.options.map((option) => ({
+              label: option as string,
+              value: option as string,
+            }));
+            customField.options = newOptions;
           }
           return customField;
         });
@@ -677,7 +701,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
