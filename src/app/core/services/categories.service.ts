@@ -78,6 +78,18 @@ export class CategoriesService {
     );
   }
 
+  getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.' + true,
+        system_category: 'in.(Mileage, Per Diem)',
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => res.data));
+  }
+
   transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {
     const oldCategory = platformCategory.map((category) => ({
       code: category.code,
