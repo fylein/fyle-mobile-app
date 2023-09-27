@@ -22,35 +22,38 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './add-edit-advance-request-1.page.spec';
 import { FormBuilder } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
-    const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['login', 'logout']);
+    const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['getEou']);
     const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
-      'getCustomFields',
+      'getAll',
     ]);
     const advanceRequestServiceSpyObj = jasmine.createSpyObj('AdvanceRequestService', [
-      'getAdvanceRequest',
-      'createAdvanceRequest',
-      'updateAdvanceRequest',
+      'testPolicy',
+      'createAdvReqWithFilesAndSubmit',
+      'saveDraftAdvReqWithFiles',
+      'delete',
+      'getActions',
+      'getEReq',
     ]);
-    const advanceRequestPolicyServiceSpyObj = jasmine.createSpyObj('AdvanceRequestPolicyService', [
-      'checkPolicyViolation',
-    ]);
+    const advanceRequestPolicyServiceSpyObj = jasmine.createSpyObj('AdvanceRequestPolicyService', ['getPolicyRules']);
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
-    const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['setStatus']);
+    const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
     const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getProjects']);
+    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getById', 'getAllActive']);
     const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
     const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['addTransaction']);
-    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['uploadFile']);
-    const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['getOrgSettings']);
-    const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['isConnected']);
-    const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalProperties']);
-    const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['trackEvent']);
-    const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getExpenseFields']);
-    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getCurrency']);
-    const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['getOrgUserSettings']);
+    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['fileUpload']);
+    const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
+    const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
+    const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
+    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrrency']);
+    const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditAdvanceRequestPage],
@@ -74,6 +77,17 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpyObj },
         { provide: CurrencyService, useValue: currencyServiceSpyObj },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpyObj },
+        { provide: Router, useValue: routerSpyObj },
+        {
+          provide: ActivatedRoute,
+          useValue: {
+            snapshot: {
+              params: {
+                id: 'areqR1cyLgXdND',
+              },
+            },
+          },
+        },
         FormBuilder,
       ],
       schemas: [NO_ERRORS_SCHEMA],

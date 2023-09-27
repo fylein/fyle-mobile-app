@@ -19,6 +19,7 @@ import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { ComponentFixture } from '@angular/core/testing';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { addEditAdvanceRequestFormValueData } from 'src/app/core/mock-data/add-edit-advance-request-form-value.data';
+import { ActivatedRoute, Router } from '@angular/router';
 
 export function TestCases1(getTestBed) {
   return describe('test cases 1', () => {
@@ -42,6 +43,8 @@ export function TestCases1(getTestBed) {
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+    let router: jasmine.SpyObj<Router>;
+    let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -72,6 +75,8 @@ export function TestCases1(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+      router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+      activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     });
 
     it('should create', () => {
