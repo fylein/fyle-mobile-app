@@ -1,0 +1,86 @@
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+
+import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
+import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { RouterTestingModule } from '@angular/router/testing';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
+import { TestCases1 } from './add-edit-advance-request-1.page.spec';
+import { FormBuilder } from '@angular/forms';
+
+describe('AddEditAdvanceRequestPage', () => {
+  const getTestBed = () => {
+    const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['login', 'logout']);
+    const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
+      'getCustomFields',
+    ]);
+    const advanceRequestServiceSpyObj = jasmine.createSpyObj('AdvanceRequestService', [
+      'getAdvanceRequest',
+      'createAdvanceRequest',
+      'updateAdvanceRequest',
+    ]);
+    const advanceRequestPolicyServiceSpyObj = jasmine.createSpyObj('AdvanceRequestPolicyService', [
+      'checkPolicyViolation',
+    ]);
+    const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
+    const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['setStatus']);
+    const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
+    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getProjects']);
+    const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
+    const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['addTransaction']);
+    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['uploadFile']);
+    const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['getOrgSettings']);
+    const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['isConnected']);
+    const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalProperties']);
+    const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['trackEvent']);
+    const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getExpenseFields']);
+    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getCurrency']);
+    const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['getOrgUserSettings']);
+
+    TestBed.configureTestingModule({
+      declarations: [AddEditAdvanceRequestPage],
+      imports: [IonicModule.forRoot(), RouterTestingModule],
+      providers: [
+        { provide: AuthService, useValue: authServiceSpyObj },
+        { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpyObj },
+        { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
+        { provide: AdvanceRequestPolicyService, useValue: advanceRequestPolicyServiceSpyObj },
+        { provide: ModalController, useValue: modalControllerSpyObj },
+        { provide: StatusService, useValue: statusServiceSpyObj },
+        { provide: LoaderService, useValue: loaderServiceSpyObj },
+        { provide: ProjectsService, useValue: projectsServiceSpyObj },
+        { provide: PopoverController, useValue: popoverControllerSpyObj },
+        { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpyObj },
+        { provide: FileService, useValue: fileServiceSpyObj },
+        { provide: OrgSettingsService, useValue: orgSettingsServiceSpyObj },
+        { provide: NetworkService, useValue: networkServiceSpyObj },
+        { provide: ModalPropertiesService, useValue: modalPropertiesSpyObj },
+        { provide: TrackingService, useValue: trackingServiceSpyObj },
+        { provide: ExpenseFieldsService, useValue: expenseFieldsServiceSpyObj },
+        { provide: CurrencyService, useValue: currencyServiceSpyObj },
+        { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpyObj },
+        FormBuilder,
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+    }).compileComponents();
+
+    return TestBed;
+  };
+
+  TestCases1(getTestBed);
+});
