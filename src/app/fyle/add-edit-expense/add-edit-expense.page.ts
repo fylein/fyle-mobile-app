@@ -1916,7 +1916,7 @@ export class AddEditExpensePage implements OnInit {
     const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
     /*
-     * Autofill should be applied iff:
+     * Autofill should be applied if:
      * - Autofilled is allowed and enabled for the user
      * - The user has some recently used categories present
      * - isTxnEligibleForCategoryAutofill:
