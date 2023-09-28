@@ -19,6 +19,8 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
+import { SortingParam } from 'src/app/core/models/sorting-param.model';
+import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 
 fdescribe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
@@ -99,7 +101,7 @@ fdescribe('TeamAdvancePage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ionViewWillEnter(): should setup class observables', (done) => {
+  it('ionViewWillEnter(): should setup class observables', fakeAsync(() => {
     tasksService.getTotalTaskCount.and.returnValue(of(1));
     spyOn(component, 'setupDefaultFilters');
     advanceRequestService.getTeamAdvanceRequests.and.returnValue(of(allTeamAdvanceRequestsRes));
@@ -108,8 +110,9 @@ fdescribe('TeamAdvancePage', () => {
     });
     advanceRequestService.getTeamAdvanceRequestsCount.and.returnValue(of(1));
     spyOn(component, 'getAndUpdateProjectName');
-    spyOn(component.loadData$, 'next');
+
     component.filters = {};
+
     fixture.detectChanges();
 
     component.ionViewWillEnter();
@@ -125,9 +128,8 @@ fdescribe('TeamAdvancePage', () => {
     component.count$.subscribe((res) => {
       console.log(res);
     });
-
-    done();
-  });
+    tick(1000);
+  }));
 
   describe('changeState(): ', () => {
     it('should change state', () => {
