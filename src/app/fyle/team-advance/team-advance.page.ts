@@ -162,7 +162,7 @@ export class TeamAdvancePage implements AfterViewChecked {
   getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
-      this.projectFieldName = projectField?.field_name;
+      this.projectFieldName = projectField.field_name;
     });
   }
 

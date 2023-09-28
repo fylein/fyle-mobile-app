@@ -5,7 +5,7 @@ import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
-import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
+import { projectNameNullField, transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import {
   allTeamAdvanceRequestsRes,
   singleExtendedAdvReqRes,
@@ -19,8 +19,6 @@ import { FiltersHelperService } from 'src/app/core/services/filters-helper.servi
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
-import { SortingParam } from 'src/app/core/models/sorting-param.model';
-import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 
 fdescribe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
@@ -118,15 +116,15 @@ fdescribe('TeamAdvancePage', () => {
     component.ionViewWillEnter();
 
     component.teamAdvancerequests$.subscribe((res) => {
-      console.log(res);
+      expect(res).toEqual(allTeamAdvanceRequestsRes.data);
     });
 
     component.isInfiniteScrollRequired$.subscribe((res) => {
-      console.log(res);
+      expect(res).toBeFalse();
     });
 
     component.count$.subscribe((res) => {
-      console.log(res);
+      expect(res).toEqual(1);
     });
     tick(1000);
   }));
@@ -178,13 +176,15 @@ fdescribe('TeamAdvancePage', () => {
     ]);
   });
 
-  it('getAndUpdateProjectName(): should get and update project name', () => {
-    expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
+  describe('getAndUpdateProjectName():', () => {
+    it('should get and update project name', () => {
+      expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
 
-    component.getAndUpdateProjectName();
+      component.getAndUpdateProjectName();
 
-    expect(component.projectFieldName).toEqual('Purpose');
-    expect(expenseFieldsService.getAllEnabled).toHaveBeenCalledTimes(1);
+      expect(component.projectFieldName).toEqual('Purpose');
+      expect(expenseFieldsService.getAllEnabled).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('openFilters(): should open filters', fakeAsync(() => {
