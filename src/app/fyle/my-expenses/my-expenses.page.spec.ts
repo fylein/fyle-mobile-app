@@ -104,6 +104,7 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -549,7 +550,7 @@ describe('MyExpensesPage', () => {
       component.ionViewWillEnter();
       tick(500);
 
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
+      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes, allowedExpenseTypes);
     }));
 
     it('should update cardNumbers by calling getCardDetail', fakeAsync(() => {
@@ -1102,7 +1103,7 @@ describe('MyExpensesPage', () => {
   });
   it('setupActionSheet(): should update actionSheetButtons', () => {
     spyOn(component, 'actionSheetButtonsHandler');
-    component.setupActionSheet(orgSettingsRes);
+    component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
     expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
   });
 

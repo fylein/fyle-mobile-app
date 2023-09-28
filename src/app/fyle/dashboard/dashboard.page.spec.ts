@@ -20,6 +20,7 @@ import { BackButtonActionPriority } from 'src/app/core/models/back-button-action
 import { cloneDeep } from 'lodash';
 import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -228,7 +229,7 @@ describe('DashboardPage', () => {
 
     it('should call setupActionSheet once with orgSettings data', () => {
       component.ionViewWillEnter();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
+      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes, allowedExpenseTypes);
     });
 
     it('should call init method of statsComponent and tasksComponent', () => {
@@ -421,7 +422,7 @@ describe('DashboardPage', () => {
     spyOn(component, 'actionSheetButtonsHandler');
     mockOrgSettings.per_diem.enabled = true;
     mockOrgSettings.mileage.enabled = true;
-    component.setupActionSheet(mockOrgSettings);
+    component.setupActionSheet(mockOrgSettings, allowedExpenseTypes);
     expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
   });
 
