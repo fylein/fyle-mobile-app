@@ -247,6 +247,19 @@ export class AddEditAdvanceRequestPage implements OnInit {
     });
   }
 
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
+
   async showAdvanceSummaryPopover(): Promise<void> {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
@@ -275,16 +288,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         this.save('Draft');
       }
     } else {
-      this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
@@ -340,16 +344,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
         )
         .subscribe(noop);
     } else {
-      this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 

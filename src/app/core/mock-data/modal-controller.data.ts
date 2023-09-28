@@ -387,3 +387,21 @@ export const advanceRequestPolicyViolationParams = {
   breakpoints: [0, 1],
   handle: false,
 };
+
+export const popoverControllerParams4 = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: 'Review',
+    message:
+      'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
+    primaryCta: {
+      text: 'Finish',
+      action: 'continue',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+};
