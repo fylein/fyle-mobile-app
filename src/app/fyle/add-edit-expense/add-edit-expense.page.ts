@@ -3329,6 +3329,9 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
+    const formValues = this.getFormValues();
+    const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
      * If editing an expense with receipts, check for already uploaded receipts
@@ -3357,14 +3360,19 @@ export class AddEditExpensePage implements OnInit {
            * expense.
            */
           const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
-          return this.transactionService.checkMandatoryFields(policyExpense).pipe(
-            tap((mandatoryFields) => {
-              if (mandatoryFields.missing_receipt) {
-                this.showReceiptMandatoryError = true;
-              }
-            }),
-            filter((mandatoryFields) => !mandatoryFields.missing_receipt),
-            switchMap(() => this.transactionService.checkPolicy(policyExpense))
+
+          return iif(
+            () => saveIncompleteExpense,
+            this.transactionService.checkPolicy(policyExpense),
+            this.transactionService.checkMandatoryFields(policyExpense).pipe(
+              tap((mandatoryFields) => {
+                if (mandatoryFields.missing_receipt) {
+                  this.showReceiptMandatoryError = true;
+                }
+              }),
+              filter((mandatoryFields) => !mandatoryFields.missing_receipt),
+              switchMap(() => this.transactionService.checkPolicy(policyExpense))
+            )
           );
         })
       );
@@ -3375,14 +3383,18 @@ export class AddEditExpensePage implements OnInit {
        * expense.
        */
       const policyExpense = this.policyService.transformTo(transactionCopy);
-      return this.transactionService.checkMandatoryFields(policyExpense).pipe(
-        tap((mandatoryFields) => {
-          if (mandatoryFields.missing_receipt) {
-            this.showReceiptMandatoryError = true;
-          }
-        }),
-        filter((mandatoryFields) => !mandatoryFields.missing_receipt),
-        switchMap(() => this.transactionService.checkPolicy(policyExpense))
+      return iif(
+        () => saveIncompleteExpense,
+        this.transactionService.checkPolicy(policyExpense),
+        this.transactionService.checkMandatoryFields(policyExpense).pipe(
+          tap((mandatoryFields) => {
+            if (mandatoryFields.missing_receipt) {
+              this.showReceiptMandatoryError = true;
+            }
+          }),
+          filter((mandatoryFields) => !mandatoryFields.missing_receipt),
+          switchMap(() => this.transactionService.checkPolicy(policyExpense))
+        )
       );
     }
   }
