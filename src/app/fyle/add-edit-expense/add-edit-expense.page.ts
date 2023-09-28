@@ -3329,9 +3329,6 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    const formValues = this.getFormValues();
-    const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
      * If editing an expense with receipts, check for already uploaded receipts
@@ -3346,57 +3343,36 @@ export class AddEditExpensePage implements OnInit {
     }
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    if (!transactionCopy.org_category_id) {
-      const categoryName = 'Unspecified';
-      return this.categoriesService.getCategoryByName(categoryName).pipe(
+    return iif(
+      () => !transactionCopy.org_category_id,
+      this.categoriesService.getCategoryByName('Unspecified').pipe(
         map((category: OrgCategory) => {
           transactionCopy.org_category_id = category.id;
           return transactionCopy;
-        }),
-        switchMap((unspecifiedTransaction) => {
-          /* Expense creation has not moved to platform yet and since policy is moved to platform,
-           * it expects the expense object in terms of platform world. Until then, the method
-           * `transformTo` act as a bridge by translating the public expense object to platform
-           * expense.
-           */
-          const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
-
-          return iif(
-            () => saveIncompleteExpense,
-            this.transactionService.checkPolicy(policyExpense),
-            this.transactionService.checkMandatoryFields(policyExpense).pipe(
-              tap((mandatoryFields) => {
-                if (mandatoryFields.missing_receipt) {
-                  this.showReceiptMandatoryError = true;
-                }
-              }),
-              filter((mandatoryFields) => !mandatoryFields.missing_receipt),
-              switchMap(() => this.transactionService.checkPolicy(policyExpense))
-            )
-          );
         })
-      );
-    } else {
-      /* Expense creation has not moved to platform yet and since policy is moved to platform,
-       * it expects the expense object in terms of platform world. Until then, the method
-       * `transformTo` act as a bridge by translating the public expense object to platform
-       * expense.
-       */
-      const policyExpense = this.policyService.transformTo(transactionCopy);
-      return iif(
-        () => saveIncompleteExpense,
-        this.transactionService.checkPolicy(policyExpense),
-        this.transactionService.checkMandatoryFields(policyExpense).pipe(
-          tap((mandatoryFields) => {
-            if (mandatoryFields.missing_receipt) {
-              this.showReceiptMandatoryError = true;
-            }
-          }),
-          filter((mandatoryFields) => !mandatoryFields.missing_receipt),
-          switchMap(() => this.transactionService.checkPolicy(policyExpense))
-        )
-      );
-    }
+      ),
+      of(transactionCopy)
+    ).pipe(
+      switchMap((transaction) => {
+        const formValues = this.getFormValues();
+        const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+        const policyExpense = this.policyService.transformTo(transaction);
+
+        return iif(
+          () => saveIncompleteExpense,
+          this.transactionService.checkPolicy(policyExpense),
+          this.transactionService.checkMandatoryFields(policyExpense).pipe(
+            tap((mandatoryFields) => {
+              if (mandatoryFields.missing_receipt) {
+                this.showReceiptMandatoryError = true;
+              }
+            }),
+            filter((mandatoryFields) => !mandatoryFields.missing_receipt),
+            switchMap(() => this.transactionService.checkPolicy(policyExpense))
+          )
+        );
+      })
+    );
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {
