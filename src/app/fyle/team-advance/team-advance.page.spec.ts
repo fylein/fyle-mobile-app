@@ -5,7 +5,7 @@ import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, ChangeDetectorRef } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, of } from 'rxjs';
-import { projectNameNullField, transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
+import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import {
   allTeamAdvanceRequestsRes,
   singleExtendedAdvReqRes,
@@ -20,7 +20,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TeamAdvancePage } from './team-advance.page';
 
-fdescribe('TeamAdvancePage', () => {
+describe('TeamAdvancePage', () => {
   let component: TeamAdvancePage;
   let fixture: ComponentFixture<TeamAdvancePage>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
