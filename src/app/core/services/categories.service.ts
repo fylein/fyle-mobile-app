@@ -78,6 +78,7 @@ export class CategoriesService {
     );
   }
 
+  @Cacheable()
   getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
     const data = {
       params: {

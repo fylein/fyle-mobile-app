@@ -262,7 +262,7 @@ export class DashboardPage {
     ];
 
     if (mileageEnabled) {
-      this.actionSheetButtons.push({
+      that.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',
