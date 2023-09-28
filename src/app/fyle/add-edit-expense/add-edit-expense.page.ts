@@ -3357,8 +3357,8 @@ export class AddEditExpensePage implements OnInit {
         const policyExpense = this.policyService.transformTo(transaction);
         return this.transactionService.checkMandatoryFields(policyExpense).pipe(
           tap((mandatoryFields) => {
-            if (!mandatoryFields.missing_receipt) {
-              // TODO: Propagate receipt mandatory error message
+            if (mandatoryFields.missing_receipt) {
+              this.showReceiptMandatoryError = true;
             }
           }),
           filter((mandatoryFields) => !mandatoryFields.missing_receipt),
