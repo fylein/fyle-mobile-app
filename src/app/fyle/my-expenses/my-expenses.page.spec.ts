@@ -66,7 +66,11 @@ import { ExpenseFilters } from './expense-filters.model';
 import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
 import { cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -1101,10 +1105,26 @@ describe('MyExpensesPage', () => {
       });
     });
   });
-  it('setupActionSheet(): should update actionSheetButtons', () => {
-    spyOn(component, 'actionSheetButtonsHandler');
-    component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
-    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+  describe('setupActionSheet()', () => {
+    it('should update actionSheetButtons', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+    });
+
+    it('should update actionSheetButtons without mileage', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      allowedExpenseTypes.mileage = false;
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
+    });
+
+    it('should update actionSheetButtons without Per Diem', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      allowedExpenseTypes.perDiem = false;
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
+    });
   });
 
   describe('actionSheetButtonsHandler():', () => {

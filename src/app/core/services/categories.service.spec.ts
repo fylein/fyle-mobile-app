@@ -96,6 +96,23 @@ describe('CategoriesService', () => {
     });
   });
 
+  it('getMileageOrPerDiemCategories(): should get platform categories', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryRes));
+
+    const apiParam = {
+      params: {
+        is_enabled: 'eq.true',
+        system_category: 'in.(Mileage, Per Diem)',
+      },
+    };
+
+    categoriesService.getMileageOrPerDiemCategories().subscribe((res) => {
+      expect(res).toEqual(platformApiCategoryRes.data);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/categories', apiParam);
+      done();
+    });
+  });
+
   it('getCategories(): should get categories from the api', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiAllCategories));
     spyOn(categoriesService, 'transformFrom').and.returnValue(transformedOrgCategories);
