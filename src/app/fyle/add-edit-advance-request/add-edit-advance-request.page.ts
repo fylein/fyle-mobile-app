@@ -143,7 +143,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       purpose: [, Validators.required],
       notes: [],
       project: [],
-      custom_field_values: new FormArray([]),
+      customFieldValues: new FormArray([]),
     });
 
     if (!this.id) {
@@ -373,7 +373,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
           org_user_id: advanceRequest.org_user_id,
           notes: formValue.notes,
           source: 'MOBILE',
-          custom_field_values: formValue.custom_field_values,
+          custom_field_values: formValue.customFieldValues,
         };
       })
     );
@@ -661,7 +661,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
       map((customFields) => {
-        const customFieldsFormArray = this.fg.controls.custom_field_values as FormArray;
+        const customFieldsFormArray = this.fg.controls.customFieldValues as FormArray;
         customFieldsFormArray.clear();
         customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
         for (const customField of customFields) {
