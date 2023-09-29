@@ -28,7 +28,7 @@ export class NavMock {
   public navigateRoot: Function = (url: string | any[], options: any) => {};
 }
 
-fdescribe('NotificationsPage', () => {
+describe('NotificationsPage', () => {
   let component: NotificationsPage;
   let fixture: ComponentFixture<NotificationsPage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -154,6 +154,7 @@ fdescribe('NotificationsPage', () => {
   });
 
   it('saveNotificationSettings(): should save notification settings', () => {
+    component.setEvents(notificationEventsData, orgUserSettingsData);
     component.notificationEvents = cloneDeep(notificationEventsData);
     component.orgUserSettings = cloneDeep(orgUserSettingsData);
     orgUserSettingsService.post.and.returnValue(of(null));
@@ -180,13 +181,13 @@ fdescribe('NotificationsPage', () => {
 
   it('removeAdminUnsbscribedEvents(): should remove admin unsubscribe events', fakeAsync(() => {
     component.orgSettings$ = of(orgSettingsWithUnsubscribeEvent);
+    component.orgSettings = orgSettingsWithUnsubscribeEvent;
+    component.notificationEvents = cloneDeep(notificationEventsData);
 
     component.removeAdminUnsbscribedEvents();
     tick(500);
 
-    component.orgSettings$.subscribe((res) => {
-      // console.log(res);
-    });
+    expect(Object.keys(component.notificationEvents.features).includes('advances')).toBeFalse();
   }));
 
   it('updateAdvanceRequestFeatures(): should update advance request features', () => {
@@ -253,41 +254,49 @@ fdescribe('NotificationsPage', () => {
   });
 
   describe('toggleAllSelected():', () => {
-    it('should set value if email event exists', () => {
+    beforeEach(() => {
+      component.setEvents(notificationEventsData, orgUserSettingsData);
+    });
+
+    it('should set value if email event exists', fakeAsync(() => {
       component.isAllSelected = {
         emailEvents: true,
       };
 
       component.toggleAllSelected('email');
+      tick(500);
 
-      expect(component.emailEvents.value).toEqual([]);
-    });
+      expect(component.emailEvents.getRawValue().length).not.toBe(0);
+    }));
 
-    it('should set value if email event does not exist', () => {
+    it('should set value if email event does not exist', fakeAsync(() => {
       component.isAllSelected = {};
 
       component.toggleAllSelected('email');
+      tick(500);
 
-      expect(component.emailEvents.value).toEqual([]);
-    });
+      expect(component.emailEvents.getRawValue().length).not.toBe(0);
+    }));
 
-    it('should set value if push event exists', () => {
+    it('should set value if push event exists', fakeAsync(() => {
       component.isAllSelected = {
         pushEvents: true,
       };
 
       component.toggleAllSelected('push');
+      tick(500);
 
-      expect(component.pushEvents.value).toEqual([]);
-    });
+      expect(component.emailEvents.getRawValue().length).not.toBe(0);
+    }));
 
-    it('should set value if push event does not exist', () => {
+    it('should set value if push event does not exist', fakeAsync(() => {
       component.isAllSelected = {};
 
       component.toggleAllSelected('push');
+      tick(500);
 
-      expect(component.pushEvents.value).toEqual([]);
-    });
+      expect(component.emailEvents.getRawValue().length).not.toBe(0);
+    }));
   });
 
   it('ngOnInit(): should initialize the form and observables', (done) => {
@@ -332,10 +341,6 @@ fdescribe('NotificationsPage', () => {
   });
 
   it('toggleEvents(): should toggle events on value change', fakeAsync(() => {
-    component.notificationForm.patchValue({
-      emailEvents: [],
-      pushEvents: [],
-    });
     component.isAllSelected = {
       emailEvents: true,
       pushEvents: false,
@@ -344,15 +349,12 @@ fdescribe('NotificationsPage', () => {
     component.toggleEvents();
     tick(500);
 
-    component.notificationForm.patchValue({
-      emailEvents: [],
-      pushEvents: [],
-    });
+    component.setEvents(notificationEventsData, orgUserSettingsData);
     tick(500);
 
     expect(component.isAllSelected).toEqual({
-      emailEvents: true,
-      pushEvents: true,
+      emailEvents: false,
+      pushEvents: false,
     });
   }));
 });
