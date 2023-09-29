@@ -7,7 +7,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build && npm run prepare-ios",
-    "prepare-ios": "node your-script.js",
+    "prepare-ios": "node env-script.js",
     "appflow": "sh build_appflow.sh",
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test-basic": "ng test",
