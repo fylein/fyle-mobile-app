@@ -29,6 +29,7 @@ import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.detai
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -37,6 +38,7 @@ describe('DashboardService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
   let authService: jasmine.SpyObj<AuthService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
 
   const apiReportStatParams: Partial<StatsResponse> = {
     scalar: false,
@@ -49,6 +51,7 @@ describe('DashboardService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories', 'getAll']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -70,6 +73,10 @@ describe('DashboardService', () => {
           provide: ApiV2Service,
           useValue: apiV2ServiceSpy,
         },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
@@ -78,6 +85,7 @@ describe('DashboardService', () => {
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
   });
 
   it('should be created', () => {
