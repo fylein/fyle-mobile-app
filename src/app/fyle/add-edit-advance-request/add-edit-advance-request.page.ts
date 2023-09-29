@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, Subscription, throwError } from 'rxjs';
@@ -125,7 +125,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     return this.fg.value as AddEditAdvanceRequestFormValue;
   }
 
-  currencyObjValidator(c: FormControl): ValidationErrors {
+  currencyObjValidator(c: AbstractControl): ValidationErrors {
     const currencyObj = c.value as CurrencyObj;
     if (currencyObj && currencyObj.amount && currencyObj.currency) {
       return null;
