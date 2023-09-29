@@ -3366,19 +3366,22 @@ export class AddEditExpensePage implements OnInit {
          * expense.
          */
         const policyExpense = this.policyService.transformTo(transaction);
-        let receiptMandatoryCheck$ = this.transactionService.checkMandatoryFields(policyExpense);
+        let isReceiptMandatoryAndMissing$ = this.transactionService
+          .checkMandatoryFields(policyExpense)
+          .pipe(map((missingMandatoryFields) => missingMandatoryFields.missing_receipt));
+
         if (saveIncompleteExpense) {
           // Skip receipt mandatory check
-          receiptMandatoryCheck$ = of(null);
+          isReceiptMandatoryAndMissing$ = of(false);
         }
 
-        return receiptMandatoryCheck$.pipe(
-          tap((missingMandatoryFields) => {
-            if (missingMandatoryFields?.missing_receipt) {
+        return isReceiptMandatoryAndMissing$.pipe(
+          tap((isReceiptMissing) => {
+            if (isReceiptMissing) {
               this.showReceiptMandatoryError = true;
             }
           }),
-          filter((missingMandatoryFields) => !missingMandatoryFields || !missingMandatoryFields.missing_receipt),
+          filter((isReceiptMissing) => !isReceiptMissing),
           switchMap(() => this.transactionService.checkPolicy(policyExpense))
         );
       })
