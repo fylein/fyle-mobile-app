@@ -108,8 +108,13 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import {
+  allowedExpenseTypes,
+  allowedExpenseTypesMileage,
+  allowedExpenseTypesPerDiem,
+} from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { platformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
 fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -403,6 +408,7 @@ fdescribe('MyExpensesPage', () => {
       platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(platformCategoryData));
       corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
       spyOn(component, 'syncOutboxExpenses');
@@ -1122,15 +1128,13 @@ fdescribe('MyExpensesPage', () => {
 
     it('should update actionSheetButtons without mileage', () => {
       spyOn(component, 'actionSheetButtonsHandler');
-      allowedExpenseTypes.mileage = false;
-      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypesPerDiem);
       expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
     });
 
     it('should update actionSheetButtons without Per Diem', () => {
       spyOn(component, 'actionSheetButtonsHandler');
-      allowedExpenseTypes.perDiem = false;
-      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypesMileage);
       expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
     });
   });

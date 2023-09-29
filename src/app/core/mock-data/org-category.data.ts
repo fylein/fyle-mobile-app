@@ -1,3 +1,4 @@
+import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 
 export const orgCategoryData: OrgCategory = {
@@ -12,6 +13,33 @@ export const orgCategoryData: OrgCategory = {
   sub_category: 'Food',
   updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
 };
+
+export const platformCategoryData: PlatformCategory[] = [
+  {
+    code: null,
+    created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
+    display_name: 'Food',
+    is_enabled: true,
+    system_category: 'Mileage',
+    id: 16566,
+    name: 'Food',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'Food',
+    updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
+  },
+  {
+    code: null,
+    created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
+    display_name: 'Food',
+    is_enabled: true,
+    system_category: 'Per Diem',
+    id: 16566,
+    name: 'Food',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'Food',
+    updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
+  },
+];
 
 export const transformedOrgCategories: OrgCategory[] = [
   {
