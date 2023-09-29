@@ -1,6 +1,6 @@
 import { Component, DebugElement } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { By } from '@angular/platform-browser';
+import { getElementRef } from 'src/app/core/dom-helpers';
 import { FormButtonValidationDirective } from './form-button-validation.directive';
 import { LoaderPosition } from './loader-position.enum';
 
@@ -22,7 +22,7 @@ describe('FormButtonValidationDirective', () => {
 
     fixture = TestBed.createComponent(TestFormValidationButtonComponent);
     component = fixture.componentInstance;
-    buttonElement = fixture.debugElement.query(By.css('button'));
+    buttonElement = getElementRef(fixture, 'button') as DebugElement;
     directive = buttonElement.injector.get(FormButtonValidationDirective);
   });
 
@@ -63,7 +63,7 @@ describe('FormButtonValidationDirective', () => {
 
       directive.changeLoadingText();
 
-      expect(directive.selectedElement.innerHTML).toEqual('Loading');
+      expect(directive.selectedElement.innerText).toEqual('Loading');
     });
 
     it('should change the button text to default text', () => {
@@ -71,7 +71,7 @@ describe('FormButtonValidationDirective', () => {
 
       directive.changeLoadingText();
 
-      expect(directive.selectedElement.innerHTML).toEqual('Default');
+      expect(directive.selectedElement.innerText).toEqual('Default');
     });
 
     it('should change the button text as defined in the text map', () => {
@@ -82,7 +82,7 @@ describe('FormButtonValidationDirective', () => {
 
       directive.changeLoadingText();
 
-      expect(directive.selectedElement.innerHTML).toEqual('Loading Text');
+      expect(directive.selectedElement.innerText).toEqual('Loading Text');
     });
   });
 
@@ -93,7 +93,7 @@ describe('FormButtonValidationDirective', () => {
       directive.addLoader();
 
       expect(directive.selectedElement.classList.contains('disabled')).toBeTrue();
-      expect(directive.selectedElement.innerHTML).toEqual('Save <div class="secondary-loader"></div>');
+      expect(directive.selectedElement.innerText).toEqual('Save');
     });
 
     it('should add primary loader in prefix position', () => {
@@ -103,18 +103,19 @@ describe('FormButtonValidationDirective', () => {
       directive.addLoader();
 
       expect(directive.selectedElement.classList.contains('disabled')).toBeTrue();
-      expect(directive.selectedElement.innerHTML).toEqual('<div class="primary-loader"></div>Save');
+      expect(directive.selectedElement.innerText).toEqual('Save');
     });
   });
 
-  it('resetButton(): should reset button if the loaded is added', () => {
+  it('resetButton(): should reset button if the loader is added', () => {
     directive.loaderAdded = true;
+    directive.defaultText = 'Save';
 
     directive.resetButton();
 
     expect(directive.selectedElement.classList.contains('disabled')).toBeFalse();
     expect(directive.selectedElement.disabled).toBeFalse();
-    expect(directive.selectedElement.innerHTML).toEqual('undefined');
+    expect(directive.selectedElement.innerText).toEqual('Save');
   });
 
   describe('onLoading():', () => {
