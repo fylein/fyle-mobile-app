@@ -56,6 +56,7 @@
     "@capacitor/splash-screen": "^5.0.6",
     "@capacitor/status-bar": "^5.0.6",
     "@capacitor/text-zoom": "^5.0.6",
+    "@codetrix-studio/capacitor-google-auth": "^3.3.2",
     "@googlemaps/js-api-loader": "^1.16.2",
     "@ionic/angular": "^7.2.1",
     "@ionic/core": "^7.2.1",
