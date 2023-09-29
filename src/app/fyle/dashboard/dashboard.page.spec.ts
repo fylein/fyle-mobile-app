@@ -21,6 +21,7 @@ import { cloneDeep } from 'lodash';
 import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -35,6 +36,7 @@ describe('DashboardPage', () => {
   let smartlookService: jasmine.SpyObj<SmartlookService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   let platform: Platform;
   let navController: jasmine.SpyObj<NavController>;
@@ -54,6 +56,7 @@ describe('DashboardPage', () => {
     let smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     let orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     let backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     let navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
@@ -70,6 +73,7 @@ describe('DashboardPage', () => {
         { provide: SmartlookService, useValue: smartlookServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
         Platform,
@@ -99,6 +103,7 @@ describe('DashboardPage', () => {
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
     platform = TestBed.inject(Platform);
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
