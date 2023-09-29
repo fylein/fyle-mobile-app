@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Injector, Input, OnDestroy, OnInit, Output, TemplateRef } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, noop } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
 import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, Validators } from '@angular/forms';
@@ -78,6 +78,8 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
 
   costCenterDependentFields: CustomProperty<string>[] = [];
 
+  onTouched: () => void = noop;
+
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
   isFieldTouched = (fieldName: string): boolean => this.genericFieldsFormGroup.get(fieldName).touched;
@@ -132,9 +134,6 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       this.fieldsTouched.emit(touchedItems);
     });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onTouched = (): void => {};
 
   ngOnDestroy(): void {
     this.onChangeSub?.unsubscribe();

@@ -79,10 +79,6 @@ describe('GenericFieldsFormComponent', () => {
     });
   });
 
-  it('onTouched(): should return nothing', () => {
-    expect(component.onTouched()).toBeUndefined();
-  });
-
   it('ngOnDestroy(): should unsubscribe from onChangeSub', () => {
     component.onChangeSub = jasmine.createSpyObj('onChangeSub', ['unsubscribe']);
     component.ngOnDestroy();
