@@ -3343,33 +3343,43 @@ export class AddEditExpensePage implements OnInit {
     }
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    return iif(
-      () => !transactionCopy.org_category_id,
-      this.categoriesService.getCategoryByName('Unspecified').pipe(
-        map((category: OrgCategory) => {
-          transactionCopy.org_category_id = category.id;
-          return transactionCopy;
-        })
-      ),
-      of(transactionCopy)
-    ).pipe(
+    let transaction$ = of(transactionCopy);
+    if (!transactionCopy.org_category_id) {
+      // Set unspecified org category if expense doesn't have a category
+      const categoryName = 'Unspecified';
+      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
+        map((category) => ({
+          ...transactionCopy,
+          org_category_id: category.id,
+        }))
+      );
+    }
+
+    return transaction$.pipe(
       switchMap((transaction) => {
         const formValues = this.getFormValues();
         const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-        const policyExpense = this.policyService.transformTo(transaction);
 
-        return iif(
-          () => saveIncompleteExpense,
-          this.transactionService.checkPolicy(policyExpense),
-          this.transactionService.checkMandatoryFields(policyExpense).pipe(
-            tap((mandatoryFields) => {
-              if (mandatoryFields.missing_receipt) {
-                this.showReceiptMandatoryError = true;
-              }
-            }),
-            filter((mandatoryFields) => !mandatoryFields.missing_receipt),
-            switchMap(() => this.transactionService.checkPolicy(policyExpense))
-          )
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
+         */
+        const policyExpense = this.policyService.transformTo(transaction);
+        let receiptMandatoryCheck$ = this.transactionService.checkMandatoryFields(policyExpense);
+        if (saveIncompleteExpense) {
+          // Skip receipt mandatory check
+          receiptMandatoryCheck$ = of(null);
+        }
+
+        return receiptMandatoryCheck$.pipe(
+          tap((missingMandatoryFields) => {
+            if (missingMandatoryFields?.missing_receipt) {
+              this.showReceiptMandatoryError = true;
+            }
+          }),
+          filter((missingMandatoryFields) => !missingMandatoryFields || !missingMandatoryFields.missing_receipt),
+          switchMap(() => this.transactionService.checkPolicy(policyExpense))
         );
       })
     );
