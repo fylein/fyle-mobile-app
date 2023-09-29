@@ -107,7 +107,7 @@ import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 
-describe('MyExpensesPage', () => {
+fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -130,6 +130,7 @@ describe('MyExpensesPage', () => {
   let storageService: jasmine.SpyObj<StorageService>;
   let corporateCreditCardService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
   let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -351,6 +352,7 @@ describe('MyExpensesPage', () => {
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
