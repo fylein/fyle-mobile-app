@@ -96,7 +96,7 @@ describe('CategoriesService', () => {
     });
   });
 
-  it('getMileageOrPerDiemCategories(): should get platform categories', (done) => {
+  it('getMileageOrPerDiemCategories(): should get platform categories with Mileage and Per Diem as system category', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiCategoryRes));
 
     const apiParam = {
