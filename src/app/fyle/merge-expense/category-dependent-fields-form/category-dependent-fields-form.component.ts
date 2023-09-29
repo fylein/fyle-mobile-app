@@ -1,6 +1,6 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core';
 import { EventEmitter, Injector, Output } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, noop } from 'rxjs';
 import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormControl } from '@angular/forms';
 
 type Option = Partial<{
@@ -50,6 +50,8 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
 
   onChangeSub: Subscription;
 
+  onTouched: () => void = noop;
+
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
   isFieldTouched = (fieldName: string): boolean => this.categoryDependentFormGroup.get(fieldName).touched;
@@ -78,9 +80,6 @@ export class CategoryDependentFieldsFormComponent implements OnInit, ControlValu
       this.fieldsTouched.emit(touchedItems);
     });
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onTouched = (): void => {};
 
   ngOnDestroy(): void {
     this.onChangeSub?.unsubscribe();

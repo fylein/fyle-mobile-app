@@ -45,10 +45,6 @@ describe('CategoryDependentFieldsFormComponent', () => {
     expect(component.fieldsTouched.emit).toHaveBeenCalledOnceWith(['location_1']);
   });
 
-  it('onTouched(): should return nothing', () => {
-    expect(component.onTouched()).toBeUndefined();
-  });
-
   it('ngOnDestroy(): should unsubscribe from onChangeSub', () => {
     component.onChangeSub = new Subscription();
     spyOn(component.onChangeSub, 'unsubscribe');
