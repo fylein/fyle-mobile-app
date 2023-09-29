@@ -3343,7 +3343,8 @@ export class AddEditExpensePage implements OnInit {
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
     let transaction$ = of(transactionCopy);
     if (!transactionCopy.org_category_id) {
-      transaction$ = this.categoriesService.getCategoryByName('Unspecified').pipe(
+      const categoryName = 'Unspecified';
+      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
           ...transactionCopy,
           org_category_id: category.id,
@@ -3353,6 +3354,11 @@ export class AddEditExpensePage implements OnInit {
 
     return transaction$.pipe(
       switchMap((transaction) => {
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
+         */
         const policyExpense = this.policyService.transformTo(transaction);
         return this.transactionService.checkMandatoryFields(policyExpense).pipe(
           tap((mandatoryFields) => {
