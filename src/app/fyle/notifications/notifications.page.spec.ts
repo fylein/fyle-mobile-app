@@ -121,7 +121,7 @@ describe('NotificationsPage', () => {
       });
     });
 
-    it('should only the user', (done) => {
+    it('should only notify the user', (done) => {
       component.orgUserSettings$ = of(notificationDelegateeSettings2);
 
       component.getDelegateeSubscription().subscribe((res) => {
@@ -130,7 +130,7 @@ describe('NotificationsPage', () => {
       });
     });
 
-    it('should both user and delegatee', (done) => {
+    it('should notify both the user and delegatee', (done) => {
       component.orgUserSettings$ = of(notificationDelegateeSettings3);
 
       component.getDelegateeSubscription().subscribe((res) => {

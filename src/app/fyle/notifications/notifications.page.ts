@@ -162,7 +162,6 @@ export class NotificationsPage implements OnInit {
   removeAdminUnsbscribedEvents(): void {
     this.orgSettings$.pipe(
       map((setting) => {
-        console.log(setting.admin_email_settings);
         if (setting.admin_email_settings.unsubscribed_events.length) {
           this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
             const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
