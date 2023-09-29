@@ -15,7 +15,6 @@ import { SortingDirection } from 'src/app/core/models/sorting-direction.model';
 import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { TitleCasePipe } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { IonRefresherCustomEvent } from '@ionic/core';
 
 type Filters = Partial<{
   state: AdvancesStates[];
@@ -145,7 +144,7 @@ export class TeamAdvancePage implements AfterViewChecked {
     this.router.navigate(['/', 'enterprise', 'view_team_advance', { id: areq.areq_id }]);
   }
 
-  changeState(event?: IonRefresherCustomEvent<{}>, incrementPageNumber = false): void {
+  changeState(event?: { target?: { complete: () => void } }, incrementPageNumber = false): void {
     this.currentPageNumber = incrementPageNumber ? this.currentPageNumber + 1 : 1;
     this.advanceRequestService.destroyAdvanceRequestsCacheBuster().subscribe(() => {
       this.loadData$.next({
@@ -156,14 +155,14 @@ export class TeamAdvancePage implements AfterViewChecked {
       });
     });
     if (event) {
-      event?.target?.complete();
+      event.target?.complete();
     }
   }
 
   getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       const projectField = expenseFields.find((expenseField) => expenseField.column_name === 'project_id');
-      this.projectFieldName = projectField?.field_name;
+      this.projectFieldName = projectField.field_name;
     });
   }
 
