@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { Injector } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Subscription, noop } from 'rxjs';
 import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormArray } from '@angular/forms';
 import { CustomInputsField } from 'src/app/core/models/custom-inputs-field.model';
 
@@ -39,6 +39,8 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
 
   customFields: CustomInputsField[];
 
+  onTouched: () => void = noop;
+
   constructor(private formBuilder: FormBuilder, private injector: Injector) {}
 
   ngOnInit(): void {
@@ -64,9 +66,6 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
       control: customFieldsFormArray.at(i),
     }));
   }
-
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  onTouched = (): void => {};
 
   ngOnDestroy(): void {
     this.onChangeSub?.unsubscribe();
