@@ -82,7 +82,7 @@ export class CategoriesService {
   getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
     const data = {
       params: {
-        is_enabled: 'eq.' + true,
+        is_enabled: 'eq.true',
         system_category: 'in.(Mileage, Per Diem)',
       },
     };
