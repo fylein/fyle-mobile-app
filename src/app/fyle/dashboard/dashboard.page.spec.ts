@@ -21,7 +21,6 @@ import { cloneDeep } from 'lodash';
 import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
-import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 
 describe('DashboardPage', () => {
@@ -177,7 +176,6 @@ describe('DashboardPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'registerBackButtonAction');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       spyOn(component, 'setupActionSheet');
