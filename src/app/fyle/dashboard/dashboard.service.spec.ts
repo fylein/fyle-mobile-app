@@ -29,6 +29,7 @@ import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.detai
 import { of } from 'rxjs';
 import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -49,6 +50,7 @@ describe('DashboardService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
@@ -69,6 +71,10 @@ describe('DashboardService', () => {
         {
           provide: ApiV2Service,
           useValue: apiV2ServiceSpy,
+        },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
       ],
     });

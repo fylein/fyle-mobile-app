@@ -105,6 +105,7 @@ import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -177,6 +178,7 @@ describe('MyExpensesPage', () => {
       'deleteBulk',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
     const activatedRouteSpy = {
@@ -326,6 +328,10 @@ describe('MyExpensesPage', () => {
         {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
+        },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
         },
         ReportState,
         MaskNumber,
