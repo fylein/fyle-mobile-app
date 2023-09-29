@@ -12,3 +12,11 @@ export const addEditAdvanceRequestFormValueData: AddEditAdvanceRequestFormValue 
   project: null,
   custom_field_values: null,
 };
+
+export const addEditAdvanceRequestFormValueData2: AddEditAdvanceRequestFormValue = {
+  currencyObj: null,
+  purpose: null,
+  notes: null,
+  project: null,
+  custom_field_values: [],
+};

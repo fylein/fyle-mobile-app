@@ -16,10 +16,23 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
-import { ComponentFixture } from '@angular/core/testing';
+import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
 import { FormBuilder, FormControl } from '@angular/forms';
-import { addEditAdvanceRequestFormValueData } from 'src/app/core/mock-data/add-edit-advance-request-form-value.data';
+import {
+  addEditAdvanceRequestFormValueData,
+  addEditAdvanceRequestFormValueData2,
+} from 'src/app/core/mock-data/add-edit-advance-request-form-value.data';
 import { ActivatedRoute, Router } from '@angular/router';
+import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
+import { Observable, of } from 'rxjs';
+import { checkPolicyData } from 'src/app/core/mock-data/policy-violation-check.data';
+import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
+import { fileData1 } from 'src/app/core/mock-data/file.data';
+import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
+import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { advanceRequestPolicyViolationParams } from 'src/app/core/mock-data/modal-controller.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases 1', () => {
@@ -115,6 +128,231 @@ export function TestCases1(getTestBed) {
           required: false,
         });
       });
+    });
+
+    it('ngOnInit(): should setup form and initialize id, from, advanceActions, and expenseFields$', () => {
+      activatedRoute.snapshot.params = {
+        from: 'TEAM_ADVANCE',
+      };
+      expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+
+      component.ngOnInit();
+
+      expect(component.fg.value).toEqual(addEditAdvanceRequestFormValueData2);
+      expect(component.fg.controls.currencyObj.validator).toEqual(component.currencyObjValidator);
+      expect(component.id).toEqual(undefined);
+      expect(component.from).toEqual('TEAM_ADVANCE');
+      expect(component.advanceActions).toEqual({
+        can_save: true,
+        can_submit: true,
+      });
+      component.expenseFields$.subscribe((result) => {
+        expect(result).toEqual(expenseFieldsMapResponse);
+      });
+    });
+
+    describe('goBack():', () => {
+      it('should navigate to team_advances page if from is TEAM_ADVANCE', () => {
+        component.from = 'TEAM_ADVANCE';
+        component.goBack();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
+      });
+
+      it('should navigate to my advances page if from is ADVANCE', () => {
+        component.from = 'ADVANCE';
+        component.goBack();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
+      });
+    });
+
+    it('checkPolicyViolation(): should call advanceRequestService.testPolicy() once', () => {
+      advanceRequestService.testPolicy.and.returnValue(of(checkPolicyData));
+      const result = component.checkPolicyViolation(advanceRequests);
+      expect(advanceRequestService.testPolicy).toHaveBeenCalledOnceWith(advanceRequests);
+      result.subscribe((res) => {
+        expect(res).toEqual(checkPolicyData);
+      });
+    });
+
+    it('submitAdvanceRequest(): should get file attachments and call advanceRequestService.createAdvReqWithFilesAndSubmit once', () => {
+      advanceRequestService.createAdvReqWithFilesAndSubmit.and.returnValue(of(advRequestFile));
+      const mockFileData = of(fileData1);
+      spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
+
+      const result = component.submitAdvanceRequest(advanceRequests);
+
+      expect(component.fileAttachments).toHaveBeenCalledTimes(1);
+      expect(advanceRequestService.createAdvReqWithFilesAndSubmit).toHaveBeenCalledOnceWith(
+        advanceRequests,
+        mockFileData
+      );
+      result.subscribe((res) => {
+        expect(res).toEqual(advRequestFile);
+      });
+    });
+
+    it('saveDraftAdvanceRequest(): should get file attachments and call advanceRequestService.saveDraftAdvReqWithFiles once', () => {
+      advanceRequestService.saveDraftAdvReqWithFiles.and.returnValue(of(advRequestFile));
+      const mockFileData = of(fileData1);
+      spyOn(component, 'fileAttachments').and.returnValue(mockFileData);
+
+      const result = component.saveDraftAdvanceRequest(advanceRequests);
+
+      expect(component.fileAttachments).toHaveBeenCalledTimes(1);
+      expect(advanceRequestService.saveDraftAdvReqWithFiles).toHaveBeenCalledOnceWith(advanceRequests, mockFileData);
+      result.subscribe((res) => {
+        expect(res).toEqual(advRequestFile);
+      });
+    });
+
+    describe('saveAndSubmit():', () => {
+      beforeEach(() => {
+        spyOn(component, 'submitAdvanceRequest');
+        spyOn(component, 'saveDraftAdvanceRequest');
+      });
+
+      it('should call submitAdvanceRequest once if event is not equal to draft', () => {
+        component.saveAndSubmit('submit', advanceRequests);
+        expect(component.submitAdvanceRequest).toHaveBeenCalledTimes(1);
+        expect(component.saveDraftAdvanceRequest).not.toHaveBeenCalled();
+      });
+
+      it('should call saveDraftAdvanceRequest once if event is equal to draft', () => {
+        component.saveAndSubmit('draft', advanceRequests);
+        expect(component.submitAdvanceRequest).not.toHaveBeenCalled();
+        expect(component.saveDraftAdvanceRequest).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    describe('showPolicyModal():', () => {
+      beforeEach(() => {
+        component.fg = new FormBuilder().group({});
+        statusService.findLatestComment.and.returnValue(of('latest comment'));
+        statusService.post.and.returnValue(of(txnStatusData));
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+        spyOn(component, 'saveAndSubmit').and.returnValue(of(advRequestFile));
+        spyOn(component.fg, 'reset');
+      });
+
+      it('should navigate to team_advance page and set saveDraftAdvanceLoading to false if reason in specified, event is draft and user has come from team advances page', fakeAsync(() => {
+        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
+        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: { reason: 'latest comment' } });
+        modalController.create.and.resolveTo(policyViolationModalSpy);
+        component.from = 'TEAM_ADVANCE';
+
+        const policyRules = ['rule1', 'rule2'];
+        const policyViolationActionDescription =
+          'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
+        component.showPolicyModal(policyRules, policyViolationActionDescription, 'draft', advanceRequests);
+        tick(200);
+
+        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          'areqMP09oaYXBf',
+          'advance_requests',
+          'ouX8dwsbLCLv'
+        );
+        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.saveAndSubmit).toHaveBeenCalledOnceWith('draft', advanceRequests);
+        expect(statusService.post).toHaveBeenCalledOnceWith(
+          'advance_requests',
+          'areqMP09oaYXBf',
+          { comment: 'latest comment' },
+          true
+        );
+        expect(component.fg.reset).toHaveBeenCalledTimes(1);
+        expect(component.saveDraftAdvanceLoading).toBeFalse();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
+      }));
+
+      it('should navigate to my_advances page and set saveAdvanceLoading to false if reason in specified, event is not draft and user has come from my advances page', fakeAsync(() => {
+        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
+        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: { reason: 'latest comment' } });
+        modalController.create.and.resolveTo(policyViolationModalSpy);
+        component.from = 'ADVANCE';
+
+        const policyRules = ['rule1', 'rule2'];
+        const policyViolationActionDescription =
+          'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
+        component.showPolicyModal(policyRules, policyViolationActionDescription, 'submit', advanceRequests);
+        tick(200);
+
+        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          'areqMP09oaYXBf',
+          'advance_requests',
+          'ouX8dwsbLCLv'
+        );
+        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.saveAndSubmit).toHaveBeenCalledOnceWith('submit', advanceRequests);
+        expect(statusService.post).toHaveBeenCalledOnceWith(
+          'advance_requests',
+          'areqMP09oaYXBf',
+          { comment: 'latest comment' },
+          true
+        );
+        expect(component.fg.reset).toHaveBeenCalledTimes(1);
+        expect(component.saveAdvanceLoading).toBeFalse();
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
+      }));
+
+      it('should set saveDraftAdvanceLoading to false if policyViolation popover returns undefined and event is draft', fakeAsync(() => {
+        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
+        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: undefined });
+        modalController.create.and.resolveTo(policyViolationModalSpy);
+
+        const policyRules = ['rule1', 'rule2'];
+        const policyViolationActionDescription =
+          'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
+        component.showPolicyModal(policyRules, policyViolationActionDescription, 'draft', advanceRequests);
+        tick(200);
+
+        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          'areqMP09oaYXBf',
+          'advance_requests',
+          'ouX8dwsbLCLv'
+        );
+        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.saveAndSubmit).not.toHaveBeenCalled();
+        expect(statusService.post).not.toHaveBeenCalled();
+        expect(component.fg.reset).not.toHaveBeenCalled();
+        expect(component.saveDraftAdvanceLoading).toBeFalse();
+        expect(router.navigate).not.toHaveBeenCalled();
+      }));
+
+      it('should set saveAdvanceLoading to false if policyViolation popover returns undefined and event is not draft', fakeAsync(() => {
+        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
+        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: undefined });
+        modalController.create.and.resolveTo(policyViolationModalSpy);
+
+        const policyRules = ['rule1', 'rule2'];
+        const policyViolationActionDescription =
+          'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.';
+        component.showPolicyModal(policyRules, policyViolationActionDescription, 'submit', advanceRequests);
+        tick(200);
+
+        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
+          'areqMP09oaYXBf',
+          'advance_requests',
+          'ouX8dwsbLCLv'
+        );
+        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(component.saveAndSubmit).not.toHaveBeenCalled();
+        expect(statusService.post).not.toHaveBeenCalled();
+        expect(component.fg.reset).not.toHaveBeenCalled();
+        expect(component.saveAdvanceLoading).toBeFalse();
+        expect(router.navigate).not.toHaveBeenCalled();
+      }));
     });
   });
 }
