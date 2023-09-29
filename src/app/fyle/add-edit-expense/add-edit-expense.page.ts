@@ -3341,16 +3341,17 @@ export class AddEditExpensePage implements OnInit {
     }
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    return iif(
-      () => !transactionCopy.org_category_id,
-      this.categoriesService.getCategoryByName('Unspecified').pipe(
-        map((category: OrgCategory) => {
-          transactionCopy.org_category_id = category.id;
-          return transactionCopy;
-        })
-      ),
-      of(transactionCopy)
-    ).pipe(
+    let transaction$ = of(transactionCopy);
+    if (!transactionCopy.org_category_id) {
+      transaction$ = this.categoriesService.getCategoryByName('Unspecified').pipe(
+        map((category) => ({
+          ...transactionCopy,
+          org_category_id: category.id,
+        }))
+      );
+    }
+
+    return transaction$.pipe(
       switchMap((transaction) => {
         const policyExpense = this.policyService.transformTo(transaction);
         return this.transactionService.checkMandatoryFields(policyExpense).pipe(
