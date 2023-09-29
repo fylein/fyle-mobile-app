@@ -71,7 +71,7 @@ import {
   expectedActionSheetButtonsWithMileage,
   expectedActionSheetButtonsWithPerDiem,
 } from 'src/app/core/mock-data/action-sheet-options.data';
-import { cloneDeep } from 'lodash';
+import { clone, cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -108,15 +108,11 @@ import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dia
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import {
-  allowedExpenseTypes,
-  allowedExpenseTypesMileage,
-  allowedExpenseTypesPerDiem,
-} from 'src/app/core/mock-data/allowed-expense-types.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
-fdescribe('MyExpensesPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -1128,13 +1124,17 @@ fdescribe('MyExpensesPage', () => {
 
     it('should update actionSheetButtons without mileage', () => {
       spyOn(component, 'actionSheetButtonsHandler');
-      component.setupActionSheet(orgSettingsRes, allowedExpenseTypesPerDiem);
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.mileage = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
       expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
     });
 
     it('should update actionSheetButtons without Per Diem', () => {
       spyOn(component, 'actionSheetButtonsHandler');
-      component.setupActionSheet(orgSettingsRes, allowedExpenseTypesMileage);
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.perDiem = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
       expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
     });
   });
