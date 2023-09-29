@@ -114,7 +114,7 @@ import {
   allowedExpenseTypesPerDiem,
 } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { platformCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
 fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -408,7 +408,7 @@ fdescribe('MyExpensesPage', () => {
       platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(platformCategoryData));
+      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
       spyOn(component, 'syncOutboxExpenses');

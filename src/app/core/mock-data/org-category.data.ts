@@ -14,29 +14,29 @@ export const orgCategoryData: OrgCategory = {
   updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
 };
 
-export const platformCategoryData: PlatformCategory[] = [
+export const mileagePerDiemPlatformCategoryData: PlatformCategory[] = [
   {
     code: null,
     created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
-    display_name: 'Food',
+    display_name: 'Mileage',
     is_enabled: true,
     system_category: 'Mileage',
     id: 16566,
-    name: 'Food',
+    name: 'Mileage',
     org_id: 'orNVthTo2Zyo',
-    sub_category: 'Food',
+    sub_category: 'Mileage',
     updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
   },
   {
     code: null,
     created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
-    display_name: 'Food',
+    display_name: 'Per Diem',
     is_enabled: true,
     system_category: 'Per Diem',
     id: 16566,
-    name: 'Food',
+    name: 'Per Diem',
     org_id: 'orNVthTo2Zyo',
-    sub_category: 'Food',
+    sub_category: 'Per Diem',
     updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
   },
 ];
