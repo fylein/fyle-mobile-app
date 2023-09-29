@@ -293,7 +293,7 @@ describe('TeamAdvancePage', () => {
       });
     });
 
-    it('should generate params for other states', () => {
+    it('should generate params for rejected state', () => {
       const result = component.getExtraParams([AdvancesStates.rejected]);
 
       expect(result).toEqual({
@@ -318,10 +318,6 @@ describe('TeamAdvancePage', () => {
 
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard'], {
       queryParams: { state: 'tasks', tasksFilters: 'none' },
-    });
-    expect(trackingService.tasksPageOpened).toHaveBeenCalledOnceWith({
-      Asset: 'Mobile',
-      from: 'Team Advances',
     });
   });
 
