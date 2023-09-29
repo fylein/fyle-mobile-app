@@ -379,3 +379,14 @@ export const checkPolicyAdvReqParam: AdvanceRequests = {
   is_sent_back: null,
   is_pulled_back: true,
 };
+
+export const advanceRequests2: Partial<AdvanceRequests> = {
+  ...advanceRequests,
+  currency: 'USD',
+  amount: 130,
+  purpose: 'Test purpose',
+  project_id: 168826,
+  notes: 'Test notes',
+  source: 'MOBILE',
+  custom_field_values: null,
+};

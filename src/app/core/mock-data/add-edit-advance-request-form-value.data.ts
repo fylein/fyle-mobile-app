@@ -1,4 +1,5 @@
 import { AddEditAdvanceRequestFormValue } from '../models/add-edit-advance-request-form-value.model';
+import { recentlyUsedProjectRes } from './recently-used.data';
 
 export const addEditAdvanceRequestFormValueData: AddEditAdvanceRequestFormValue = {
   currencyObj: {
@@ -19,4 +20,9 @@ export const addEditAdvanceRequestFormValueData2: AddEditAdvanceRequestFormValue
   notes: null,
   project: null,
   custom_field_values: [],
+};
+
+export const addEditAdvanceRequestFormValueData3: AddEditAdvanceRequestFormValue = {
+  ...addEditAdvanceRequestFormValueData,
+  project: recentlyUsedProjectRes[0],
 };

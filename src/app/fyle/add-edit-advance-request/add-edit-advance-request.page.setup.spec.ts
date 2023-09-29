@@ -23,8 +23,9 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './add-edit-advance-request-1.page.spec';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 
-describe('AddEditAdvanceRequestPage', () => {
+fdescribe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
     const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['getEou']);
     const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
@@ -97,4 +98,5 @@ describe('AddEditAdvanceRequestPage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
 });
