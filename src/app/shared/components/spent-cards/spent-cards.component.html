@@ -1,16 +1,20 @@
-<div [ngClass]="{ 'spent-cards': spentCards?.length > 1, 'spent-card': spentCards?.length === 1 }">
+<div class="spent-cards">
   <swiper
     #swiper
-    class="spent-cards--swiper"
-    *ngIf="spentCards"
-    [slidesPerView]="1.2"
-    [spaceBetween]="1"
-    [centeredSlides]="true"
+    class="spent-cards__swiper"
+    *ngIf="cardDetails"
+    [slidesPerView]="1.1"
+    [spaceBetween]="16"
     [pagination]="pagination"
   >
-    <ng-template *ngFor="let card of spentCards" swiperSlide>
-      <app-card-detail [cardDetail]="card" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
+    <ng-template *ngFor="let cardDetail of cardDetails" swiperSlide>
+      <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
       </app-card-detail>
+    </ng-template>
+    <ng-template *ngIf="showAddCardSlide" swiperSlide>
+      <div class="spent-cards__add-card" data-testid="add-card">
+        <app-add-card [showZeroStateMessage]="false" (addCardClick)="addCardClick.emit()"></app-add-card>
+      </div>
     </ng-template>
   </swiper>
 </div>

@@ -807,6 +807,28 @@ export const transformedResponse2 = [
   },
 ];
 
+export const projectNameNullField = [
+  {
+    id: 214657,
+    code: null,
+    column_name: 'project_id',
+    created_at: new Date('2022-11-10T15:14:53.132883+00:00'),
+    default_value: null,
+    field_name: null,
+    is_custom: false,
+    is_enabled: true,
+    is_mandatory: false,
+    options: [],
+    org_category_ids: [214309, 214310, 214311, 214312],
+    org_id: 'orOTDe765hQp',
+    placeholder: 'E.g. Client Meeting',
+    seq: 1,
+    type: 'TEXT',
+    updated_at: new Date('2023-02-01T09:49:21.584869+00:00'),
+    parent_field_id: 12345,
+  },
+];
+
 export const dependentCustomFields: ExpenseField[] = [
   {
     id: 219199,

@@ -31,6 +31,7 @@ import { MyProfilePage } from './my-profile.page';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -51,6 +52,7 @@ describe('MyProfilePage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -74,6 +76,7 @@ describe('MyProfilePage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -153,6 +156,10 @@ describe('MyProfilePage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -176,7 +183,9 @@ describe('MyProfilePage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
+    launchDarklyService.getVariation.and.returnValue(of(true));
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
 
@@ -297,7 +306,7 @@ describe('MyProfilePage', () => {
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'tick-circle-outline',
+        'tick-circle-outline-white'
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,
@@ -374,6 +383,7 @@ describe('MyProfilePage', () => {
     loaderService.hideLoader.and.resolveTo();
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
+    spyOn(component, 'setCCCFlags');
     fixture.detectChanges();
 
     component.reset();
@@ -384,12 +394,23 @@ describe('MyProfilePage', () => {
     expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     expect(component.setInfoCardsData).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.setPreferenceSettings).toHaveBeenCalledTimes(1);
+    expect(component.setCCCFlags).toHaveBeenCalledTimes(1);
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
 
     expect(component.orgUserSettings).toEqual(orgUserSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
   }));
+
+  it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
+    component.orgSettings = orgSettingsData;
+
+    component.setCCCFlags();
+
+    expect(component.isCCCEnabled).toBeTrue();
+    expect(component.isVisaRTFEnabled).toBeTrue();
+    expect(component.isMastercardRTFEnabled).toBeTrue();
+  });
 
   it('setPreferenceSettings(): should set preference settings', () => {
     component.orgSettings = orgSettingsData;
@@ -417,7 +438,8 @@ describe('MyProfilePage', () => {
 
   describe('toggleSetting():', () => {
     it('should toggle settings to true', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
       orgUserSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
@@ -431,11 +453,12 @@ describe('MyProfilePage', () => {
         action: 'enabled',
         setDefaultCurrency: true,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
     });
 
     it('should toggle settings to false for default currency', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
       orgUserSettingsService.post.and.returnValue(of(null));
 
       component.toggleSetting({
@@ -449,7 +472,7 @@ describe('MyProfilePage', () => {
         action: 'disabled',
         setDefaultCurrency: false,
       });
-      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(orgUserSettingsData);
+      expect(orgUserSettingsService.post).toHaveBeenCalledOnceWith(mockOrgUserSettings);
     });
   });
 
@@ -593,7 +616,7 @@ describe('MyProfilePage', () => {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith(
         'You have reached the limit to request OTP. Retry after 24 hours.',
-        'failure',
+        'failure'
       );
     });
   });
@@ -693,7 +716,7 @@ describe('MyProfilePage', () => {
 
       expect(component.showToastMessage).toHaveBeenCalledOnceWith(
         'Something went wrong. Please try again later.',
-        'failure',
+        'failure'
       );
     }));
   });

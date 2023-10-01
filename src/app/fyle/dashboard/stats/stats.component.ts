@@ -1,22 +1,20 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit } from '@angular/core';
 import { DashboardService } from '../dashboard.service';
 import { Observable } from 'rxjs/internal/Observable';
 import { shareReplay } from 'rxjs/internal/operators/shareReplay';
-import { delay, finalize, map, switchMap, tap } from 'rxjs/operators';
+import { map, tap } from 'rxjs/operators';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Params, Router } from '@angular/router';
 import { NetworkService } from '../../../core/services/network.service';
-import { concat, forkJoin, of, Subject } from 'rxjs';
+import { concat, forkJoin, Subject } from 'rxjs';
 import { ReportStates } from '../stat-badge/report-states';
 import { getCurrencySymbol } from '@angular/common';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-import { CardDetail } from 'src/app/core/models/card-detail.model';
 import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
 
 @Component({
   selector: 'app-stats',
@@ -52,17 +50,7 @@ export class StatsComponent implements OnInit {
 
   loadData$ = new Subject();
 
-  isCCCStatsLoading: boolean;
-
-  cardTransactionsAndDetails: CardDetail[];
-
-  reportStatsData$: Observable<{
-    reportStats: ReportStats;
-    simplifyReportsSettings: { enabled: boolean };
-    homeCurrency: string;
-    currencySymbol: string;
-    isNonReimbursableOrg: boolean;
-  }>;
+  reportStatsData$: Observable<ReportStatsData>;
 
   constructor(
     private dashboardService: DashboardService,
@@ -75,11 +63,11 @@ export class StatsComponent implements OnInit {
     private paymentModeService: PaymentModesService
   ) {}
 
-  get ReportStates() {
+  get ReportStates(): typeof ReportStates {
     return ReportStates;
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -87,7 +75,7 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  initializeReportStats() {
+  initializeReportStats(): void {
     this.reportStatsLoading = true;
     const reportStats$ = this.dashboardService.getReportsStats().pipe(
       tap(() => {
@@ -122,7 +110,7 @@ export class StatsComponent implements OnInit {
     this.processingStats$ = reportStats$.pipe(map((stats) => stats.processing));
   }
 
-  initializeExpensesStats() {
+  initializeExpensesStats(): void {
     this.unreportedExpensesStats$ = this.dashboardService.getUnreportedExpensesStats().pipe(
       shareReplay(1),
       tap(() => {
@@ -138,25 +126,28 @@ export class StatsComponent implements OnInit {
     );
   }
 
-  getCardDetail(statsResponses) {
-    const cardNames = [];
-    statsResponses.forEach((response) => {
-      const cardDetail = {
-        cardNumber: response.key[1].column_value,
-        cardName: response.key[0].column_value,
-      };
-      cardNames.push(cardDetail);
-    });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+  trackOrgLaunchTime(isMultiOrg: boolean): void {
+    if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
+      // Time taken for the app to launch and display the first screen
+      performance.mark(PerfTrackers.appLaunchEndTime);
 
-    return this.dashboardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
-  }
+      // Measure time taken to launch app
+      performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
 
-  initializeCCCStats() {
-    this.dashboardService.getCCCDetails().subscribe((details) => {
-      this.cardTransactionsAndDetails = this.getCardDetail(details.cardDetails);
-    });
-    finalize(() => (this.isCCCStatsLoading = false));
+      const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
+
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
+
+      // Converting the duration to seconds and fix it to 3 decimal places
+      const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
+
+      this.trackingService.appLaunchTime({
+        'App launch time': launchTimeDuration,
+        'Is logged in': isLoggedIn,
+        'Is multi org': isMultiOrg,
+      });
+    }
   }
 
   /*
@@ -164,9 +155,9 @@ export class StatsComponent implements OnInit {
    * The ionViewWillEnter is an alternative for this but not present in child pages.
    * Here, I am setting up the initialize method to be called from the parent's ionViewWillEnter method.
    * **/
-  init() {
+  init(): void {
     const that = this;
-    that.cardTransactionsAndDetails = [];
+
     that.homeCurrency$ = that.currencyService.getHomeCurrency().pipe(shareReplay(1));
     that.currencySymbol$ = that.homeCurrency$.pipe(
       map((homeCurrency: string) => getCurrencySymbol(homeCurrency, 'wide'))
@@ -174,50 +165,22 @@ export class StatsComponent implements OnInit {
 
     that.initializeReportStats();
     that.initializeExpensesStats();
-    that.orgSettingsService.get().subscribe((orgSettings) => {
-      if (orgSettings?.corporate_credit_card_settings?.enabled) {
-        that.isCCCStatsLoading = true;
-        that.initializeCCCStats();
-      } else {
-        this.cardTransactionsAndDetails = [];
-      }
-    });
 
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs?.length > 1;
 
-      if (performance.getEntriesByName(PerfTrackers.appLaunchTime)?.length < 1) {
-        // Time taken for the app to launch and display the first screen
-        performance.mark(PerfTrackers.appLaunchEndTime);
-
-        // Measure time taken to launch app
-        performance.measure(PerfTrackers.appLaunchTime, PerfTrackers.appLaunchStartTime, PerfTrackers.appLaunchEndTime);
-
-        const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
-
-        // eslint-disable-next-line @typescript-eslint/dot-notation
-        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
-
-        // Converting the duration to seconds and fix it to 3 decimal places
-        const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000).toFixed(3);
-
-        this.trackingService.appLaunchTime({
-          'App launch time': launchTimeDuration,
-          'Is logged in': isLoggedIn,
-          'Is multi org': isMultiOrg,
-        });
-      }
+      this.trackOrgLaunchTime(isMultiOrg);
 
       this.trackDashboardLaunchTime();
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
     this.setupNetworkWatcher();
   }
 
-  goToReportsPage(state: ReportStates) {
+  goToReportsPage(state: ReportStates): void {
     this.router.navigate(['/', 'enterprise', 'my_reports'], {
       queryParams: {
         filters: JSON.stringify({ state: [state.toString()] }),
@@ -229,7 +192,7 @@ export class StatsComponent implements OnInit {
     });
   }
 
-  goToExpensesPage(state: string) {
+  goToExpensesPage(state: string): void {
     if (state === 'COMPLETE') {
       const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
@@ -247,7 +210,7 @@ export class StatsComponent implements OnInit {
     }
   }
 
-  private trackDashboardLaunchTime() {
+  private trackDashboardLaunchTime(): void {
     try {
       if (performance.getEntriesByName(PerfTrackers.dashboardLaunchTime).length === 0) {
         // Time taken to land on dashboard page after switching org
