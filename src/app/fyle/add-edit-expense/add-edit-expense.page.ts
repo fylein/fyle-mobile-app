@@ -1354,8 +1354,8 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedCategory) {
-              etxn.tx.org_category_id = extractedCategory?.id;
-              etxn.tx.fyle_category = extractedCategory?.fyle_category;
+              etxn.tx.org_category_id = extractedCategory.id;
+              etxn.tx.fyle_category = extractedCategory.fyle_category;
             }
           }
 
