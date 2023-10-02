@@ -316,7 +316,7 @@ describe('AddCorporateCardComponent', () => {
       expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties2);
     });
 
-    it('should show the error message received from backend when we face api errors while enrolling the card', () => {
+    it('should show the error message received from backend when we face api errors while enrolling the card', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
@@ -335,15 +335,16 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('This card already exists in the system');
       expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith(cardEnrollmentErrorsProperties1);
-    });
+    }));
 
-    it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
+    it('should show a default error message when we face api errors from backend but we dont have the error message', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
@@ -362,13 +363,14 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
       expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
       expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties2);
-    });
+    }));
 
     it('should disallow card enrollment if the entered card number is invalid', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
