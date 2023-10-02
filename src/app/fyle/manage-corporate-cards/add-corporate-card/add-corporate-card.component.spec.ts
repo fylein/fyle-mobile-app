@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
@@ -168,7 +168,7 @@ describe('AddCorporateCardComponent', () => {
   });
 
   describe('card number validation errors', () => {
-    it('should show an error message when the user has entered an invalid card number', () => {
+    it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
@@ -181,13 +181,13 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
-
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
-    });
+    }));
 
-    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
+    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', fakeAsync(() => {
       component.isMastercardRTFEnabled = true;
       component.isVisaRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -204,15 +204,16 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.innerText).toBe(
         'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
 
-    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
+    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', fakeAsync(() => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -229,15 +230,16 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
 
-    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
+    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', fakeAsync(() => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = true;
       component.isYodleeEnabled = false;
@@ -254,12 +256,13 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
+      tick(500);
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
         'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
-    });
+    }));
   });
 
   describe('card enrollment flow', () => {
