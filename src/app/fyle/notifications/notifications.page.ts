@@ -38,8 +38,8 @@ export class NotificationsPage implements OnInit {
   orgSettings: OrgSettings;
 
   isAllSelected: {
-    emailEvents: boolean;
-    pushEvents: boolean;
+    emailEvents?: boolean;
+    pushEvents?: boolean;
   };
 
   notifEvents = [];
@@ -150,8 +150,12 @@ export class NotificationsPage implements OnInit {
       .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
-        this.navController.back();
+        this.navBack();
       });
+  }
+
+  navBack(): void {
+    this.navController.back();
   }
 
   isAllEventsSubscribed(): void {
@@ -160,16 +164,18 @@ export class NotificationsPage implements OnInit {
   }
 
   removeAdminUnsbscribedEvents(): void {
-    this.orgSettings$.pipe(
-      map((setting) => {
-        if (setting.admin_email_settings.unsubscribed_events.length) {
-          this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
-            const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
-            return emailEvents.indexOf(notificationEvent.eventType.toUpperCase()) === -1;
-          });
-        }
-      })
-    );
+    this.orgSettings$
+      .pipe(
+        map((setting) => {
+          if (setting.admin_email_settings.unsubscribed_events.length) {
+            this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
+              const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
+              return emailEvents.indexOf(notificationEvent.eventType.toUpperCase()) === -1;
+            });
+          }
+        })
+      )
+      .subscribe(noop);
   }
 
   updateAdvanceRequestFeatures(): void {
@@ -212,7 +218,16 @@ export class NotificationsPage implements OnInit {
       return accumulator as string[];
     }, []);
 
-    let newFeatures: NotificationEventFeatures;
+    const newFeatures: NotificationEventFeatures = {
+      advances: {
+        selected: false,
+        textLabel: '',
+      },
+      expensesAndReports: {
+        selected: false,
+        textLabel: '',
+      },
+    };
     activeFeatures.forEach((featureKey: string) => {
       newFeatures[featureKey] = this.notificationEvents.features[featureKey] as {
         selected: boolean;
