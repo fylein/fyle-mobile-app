@@ -167,7 +167,7 @@ describe('AddCorporateCardComponent', () => {
     });
   });
 
-  fdescribe('card number validation errors', () => {
+  describe('card number validation errors', () => {
     it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
