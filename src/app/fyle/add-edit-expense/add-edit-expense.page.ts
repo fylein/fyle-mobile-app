@@ -3352,32 +3352,36 @@ export class AddEditExpensePage implements OnInit {
     }
 
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
+    let transaction$ = of(transactionCopy);
     if (!transactionCopy.org_category_id) {
       const categoryName = 'Unspecified';
-      return this.categoriesService.getCategoryByName(categoryName).pipe(
-        map((category: OrgCategory) => {
-          transactionCopy.org_category_id = category.id;
-          return transactionCopy;
-        }),
-        switchMap((unspecifiedTransaction) => {
-          /* Expense creation has not moved to platform yet and since policy is moved to platform,
-           * it expects the expense object in terms of platform world. Until then, the method
-           * `transformTo` act as a bridge by translating the public expense object to platform
-           * expense.
-           */
-          const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
-          return this.transactionService.checkPolicy(policyExpense);
-        })
+      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
+        map((category) => ({
+          ...transactionCopy,
+          org_category_id: category.id,
+        }))
       );
-    } else {
-      /* Expense creation has not moved to platform yet and since policy is moved to platform,
-       * it expects the expense object in terms of platform world. Until then, the method
-       * `transformTo` act as a bridge by translating the public expense object to platform
-       * expense.
-       */
-      const policyExpense = this.policyService.transformTo(transactionCopy);
-      return this.transactionService.checkPolicy(policyExpense);
     }
+
+    return transaction$.pipe(
+      switchMap((transaction) => {
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
+         */
+        const policyExpense = this.policyService.transformTo(transaction);
+        return this.transactionService.checkMandatoryFields(policyExpense).pipe(
+          tap((mandatoryFields) => {
+            if (mandatoryFields.missing_receipt) {
+              // TODO: Propagate receipt mandatory error message
+            }
+          }),
+          filter((mandatoryFields) => !mandatoryFields.missing_receipt),
+          switchMap(() => this.transactionService.checkPolicy(policyExpense))
+        );
+      })
+    );
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {
