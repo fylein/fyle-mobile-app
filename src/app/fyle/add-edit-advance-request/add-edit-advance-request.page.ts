@@ -39,6 +39,7 @@ import { PolicyViolationCheck } from 'src/app/core/models/policy-violation-check
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
+import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -544,17 +545,22 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  async delete(): Promise<void> {
-    const deletePopover = await this.popoverController.create({
+  getAdvanceRequestDeleteParams(): AdvanceRequestDeleteParams {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Advance Request',
         body: 'Are you sure you want to delete this request?',
-        deleteMethod: () => this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
+        deleteMethod: (): Observable<AdvanceRequests> =>
+          this.advanceRequestService.delete(this.activatedRoute.snapshot.params.id as string),
       },
-    });
+    };
+  }
+
+  async delete(): Promise<void> {
+    const deletePopover = await this.popoverController.create(this.getAdvanceRequestDeleteParams());
 
     await deletePopover.present();
 

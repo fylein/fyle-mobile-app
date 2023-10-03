@@ -44,7 +44,6 @@ import {
   modalControllerParams3,
   modalControllerParams4,
   modalControllerParams5,
-  popoverControllerParams5,
 } from 'src/app/core/mock-data/modal-controller.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
@@ -275,7 +274,14 @@ export function TestCases2(getTestBed) {
       }));
     });
 
+    it('getAdvanceRequestDeleteParams(): should return the advance request delete params', () => {
+      const props = component.getAdvanceRequestDeleteParams();
+      props.componentProps.deleteMethod();
+      expect(advanceRequestService.delete).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+    });
+
     it('delete(): should show popover and remove delete advance request', fakeAsync(() => {
+      spyOn(component, 'getAdvanceRequestDeleteParams');
       const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopoverSpy);
@@ -283,7 +289,7 @@ export function TestCases2(getTestBed) {
       component.id = 'areqR1cyLgXdND';
       component.delete();
       tick(100);
-      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams5);
+      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getAdvanceRequestDeleteParams());
       expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
