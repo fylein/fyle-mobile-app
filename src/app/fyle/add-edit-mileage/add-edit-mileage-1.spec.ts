@@ -264,6 +264,26 @@ export function TestCases1(getTestBed) {
       expect(component.isExpandedView).toBeFalse();
     });
 
+    it('should scroll input into view on keydown', () => {
+      const inputElement = document.createElement('input');
+      spyOn(inputElement, 'scrollIntoView');
+      spyOn(component, 'getActiveElement').and.returnValue(inputElement);
+
+      component.scrollInputIntoView();
+
+      expect(inputElement.scrollIntoView).toHaveBeenCalledOnceWith({
+        block: 'center',
+      });
+
+      expect(component.getActiveElement).toHaveBeenCalledTimes(1);
+    });
+
+    it('getActiveElement(): should return active element in DOM', () => {
+      const result = component.getActiveElement();
+
+      expect(result).toEqual(document.activeElement);
+    });
+
     describe('openCommentsModal():', () => {
       it('should add comment to the expense and track the event', fakeAsync(() => {
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
