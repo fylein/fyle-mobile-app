@@ -10,7 +10,7 @@ export const addEditAdvanceRequestFormValueData: AddEditAdvanceRequestFormValue 
   purpose: 'Test purpose',
   notes: 'Test notes',
   project: null,
-  custom_field_values: null,
+  customFieldValues: null,
 };
 
 export const addEditAdvanceRequestFormValueData2: AddEditAdvanceRequestFormValue = {
@@ -18,5 +18,5 @@ export const addEditAdvanceRequestFormValueData2: AddEditAdvanceRequestFormValue
   purpose: null,
   notes: null,
   project: null,
-  custom_field_values: [],
+  customFieldValues: [],
 };
