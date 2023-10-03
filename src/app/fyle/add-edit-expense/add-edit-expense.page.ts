@@ -410,6 +410,8 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter | null>;
 
+  showReceiptMandatoryError = false;
+
   _isExpandedView = false;
 
   constructor(
@@ -3374,7 +3376,7 @@ export class AddEditExpensePage implements OnInit {
         return this.transactionService.checkMandatoryFields(policyExpense).pipe(
           tap((mandatoryFields) => {
             if (mandatoryFields.missing_receipt) {
-              // TODO: Propagate receipt mandatory error message
+              this.showReceiptMandatoryError = true;
             }
           }),
           filter((mandatoryFields) => !mandatoryFields.missing_receipt),
@@ -4438,6 +4440,7 @@ export class AddEditExpensePage implements OnInit {
         this.attachReceipts(receiptDetails as { type: string; dataUrl: string });
         const message = 'Receipt added to Expense successfully';
         this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
+        this.showReceiptMandatoryError = false;
 
         this.trackingService.showToastMessage({ ToastContent: message });
       }
