@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
@@ -181,7 +181,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
@@ -205,7 +205,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
@@ -232,7 +232,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
@@ -259,7 +259,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
@@ -339,7 +339,7 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
@@ -368,7 +368,7 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      flush();
+      tick(500);
       fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
