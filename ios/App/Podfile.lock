@@ -5,50 +5,49 @@ PODS:
   - AppAuth/Core (1.6.2)
   - AppAuth/ExternalUserAgent (1.6.2):
     - AppAuth/Core
-  - Capacitor (4.6.1):
+  - Capacitor (5.4.1):
     - CapacitorCordova
-  - CapacitorApp (4.1.1):
+  - CapacitorApp (5.0.6):
     - Capacitor
-  - CapacitorBrowser (4.1.0):
+  - CapacitorBrowser (5.1.0):
     - Capacitor
-  - CapacitorCamera (4.1.5):
+  - CapacitorCamera (5.0.7):
+    - Capacitor
+  - CapacitorClipboard (5.0.6):
     - Capacitor
   - CapacitorCommunityCameraPreview (2.0.0):
     - Capacitor
-  - CapacitorCordova (4.6.1)
-  - CapacitorDevice (4.1.0):
+  - CapacitorCordova (5.4.1)
+  - CapacitorDevice (5.0.6):
     - Capacitor
-  - CapacitorGeolocation (4.1.0):
+  - CapacitorGeolocation (5.0.6):
     - Capacitor
-  - CapacitorHaptics (4.1.0):
+  - CapacitorHaptics (5.0.6):
     - Capacitor
-  - CapacitorKeyboard (4.1.0):
+  - CapacitorKeyboard (5.0.6):
     - Capacitor
-  - CapacitorNativeSettings (4.0.3):
+  - CapacitorNativeSettings (5.0.1):
     - Capacitor
-  - CapacitorNetwork (4.1.0):
+  - CapacitorNetwork (5.0.6):
     - Capacitor
-  - CapacitorPreferences (4.0.2):
+  - CapacitorPreferences (5.0.6):
     - Capacitor
-  - CapacitorPushNotifications (4.1.2):
+  - CapacitorPushNotifications (5.1.0):
     - Capacitor
-  - CapacitorSecureStoragePlugin (0.8.1):
+  - CapacitorSecureStoragePlugin (0.9.0):
     - Capacitor
     - SwiftKeychainWrapper
-  - CapacitorSplashScreen (4.1.2):
+  - CapacitorSplashScreen (5.0.6):
     - Capacitor
-  - CapacitorStatusBar (4.1.1):
+  - CapacitorStatusBar (5.0.6):
     - Capacitor
-  - CapacitorTextZoom (4.1.0):
+  - CapacitorTextZoom (5.0.6):
     - Capacitor
-  - CordovaPlugins (4.6.1):
+  - CodetrixStudioCapacitorGoogleAuth (0.0.1):
+    - Capacitor
+    - GoogleSignIn (~> 6.2.4)
+  - CordovaPlugins (5.4.1):
     - CapacitorCordova
-  - CordovaPluginsResources (0.0.105)
-  - CordovaPluginsStatic (4.6.1):
-    - CapacitorCordova
-    - GoogleSignIn (~> 5.0.2)
-    - GoogleUtilities (~> 7.2.2)
-    - Smartlook (= 1.8.5)
   - Firebase/CoreOnly (7.11.0):
     - FirebaseCore (= 7.11.0)
   - Firebase/Messaging (7.11.0):
@@ -85,32 +84,18 @@ PODS:
     - GoogleUtilities/Environment (~> 7.2)
     - nanopb (~> 2.30908.0)
     - PromisesObjC (~> 1.2)
-  - GoogleSignIn (5.0.2):
-    - AppAuth (~> 1.2)
-    - GTMAppAuth (~> 1.0)
-    - GTMSessionFetcher/Core (~> 1.1)
-  - GoogleUtilities (7.2.2):
-    - GoogleUtilities/AppDelegateSwizzler (= 7.2.2)
-    - GoogleUtilities/Environment (= 7.2.2)
-    - GoogleUtilities/ISASwizzler (= 7.2.2)
-    - GoogleUtilities/Logger (= 7.2.2)
-    - GoogleUtilities/MethodSwizzler (= 7.2.2)
-    - GoogleUtilities/Network (= 7.2.2)
-    - "GoogleUtilities/NSData+zlib (= 7.2.2)"
-    - GoogleUtilities/Reachability (= 7.2.2)
-    - GoogleUtilities/SwizzlerTestHelpers (= 7.2.2)
-    - GoogleUtilities/UserDefaults (= 7.2.2)
+  - GoogleSignIn (6.2.4):
+    - AppAuth (~> 1.5)
+    - GTMAppAuth (~> 1.3)
+    - GTMSessionFetcher/Core (< 3.0, >= 1.1)
   - GoogleUtilities/AppDelegateSwizzler (7.2.2):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
   - GoogleUtilities/Environment (7.2.2):
     - PromisesObjC (~> 1.2)
-  - GoogleUtilities/ISASwizzler (7.2.2)
   - GoogleUtilities/Logger (7.2.2):
     - GoogleUtilities/Environment
-  - GoogleUtilities/MethodSwizzler (7.2.2):
-    - GoogleUtilities/Logger
   - GoogleUtilities/Network (7.2.2):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
@@ -118,14 +103,15 @@ PODS:
   - "GoogleUtilities/NSData+zlib (7.2.2)"
   - GoogleUtilities/Reachability (7.2.2):
     - GoogleUtilities/Logger
-  - GoogleUtilities/SwizzlerTestHelpers (7.2.2):
-    - GoogleUtilities/MethodSwizzler
   - GoogleUtilities/UserDefaults (7.2.2):
     - GoogleUtilities/Logger
   - GTMAppAuth (1.3.1):
     - AppAuth/Core (~> 1.6)
     - GTMSessionFetcher/Core (< 3.0, >= 1.5)
-  - GTMSessionFetcher/Core (1.7.2)
+  - GTMSessionFetcher/Core (2.3.0)
+  - Jonz94CapacitorImagePicker (2.0.0):
+    - Capacitor
+    - YPImagePicker
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
@@ -133,7 +119,6 @@ PODS:
   - nanopb/encode (2.30908.0)
   - PromisesObjC (1.2.12)
   - PryntTrimmerView (4.0.2)
-  - Smartlook (1.8.5)
   - SteviaLayout (5.1.2)
   - SwiftKeychainWrapper (4.0.1)
   - YPImagePicker (5.2.1.0):
@@ -145,6 +130,7 @@ DEPENDENCIES:
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
   - "CapacitorCommunityCameraPreview (from `../../node_modules/@capacitor-community/camera-preview`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
@@ -159,11 +145,11 @@ DEPENDENCIES:
   - "CapacitorSplashScreen (from `../../node_modules/@capacitor/splash-screen`)"
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
+  - "CodetrixStudioCapacitorGoogleAuth (from `../../node_modules/@codetrix-studio/capacitor-google-auth`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
-  - CordovaPluginsResources (from `../capacitor-cordova-ios-plugins`)
-  - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - Firebase/Messaging
   - FirebaseCore
+  - "Jonz94CapacitorImagePicker (from `../../node_modules/@jonz94/capacitor-image-picker`)"
   - YPImagePicker (from `https://github.com/jonz94/YPImagePicker.git`, tag `5.2.1.0`)
 
 SPEC REPOS:
@@ -183,7 +169,6 @@ SPEC REPOS:
     - nanopb
     - PromisesObjC
     - PryntTrimmerView
-    - Smartlook
     - SteviaLayout
     - SwiftKeychainWrapper
 
@@ -196,6 +181,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/browser"
   CapacitorCamera:
     :path: "../../node_modules/@capacitor/camera"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
   CapacitorCommunityCameraPreview:
     :path: "../../node_modules/@capacitor-community/camera-preview"
   CapacitorCordova:
@@ -224,12 +211,12 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
   CapacitorTextZoom:
     :path: "../../node_modules/@capacitor/text-zoom"
+  CodetrixStudioCapacitorGoogleAuth:
+    :path: "../../node_modules/@codetrix-studio/capacitor-google-auth"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
-  CordovaPluginsResources:
-    :path: "../capacitor-cordova-ios-plugins"
-  CordovaPluginsStatic:
-    :path: "../capacitor-cordova-ios-plugins"
+  Jonz94CapacitorImagePicker:
+    :path: "../../node_modules/@jonz94/capacitor-image-picker"
   YPImagePicker:
     :git: https://github.com/jonz94/YPImagePicker.git
     :tag: 5.2.1.0
@@ -241,27 +228,27 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AppAuth: 3bb1d1cd9340bd09f5ed189fb00b1cc28e1e8570
-  Capacitor: 6b8848492d0b4fec76f53c1504089228d00645bf
-  CapacitorApp: acd42fe8561fe751ad5b5f459aa85e6acd7bee24
-  CapacitorBrowser: 05b68799d62b7b864974f59a5af3e4ddcce953f1
-  CapacitorCamera: 6f0777dbc5b9fbb59852567ba9ac3b0da2e4ee8f
+  Capacitor: 4c0681b47eebeba1f902093d24149cf2f518393e
+  CapacitorApp: 024e1b1bea5f883d79f6330d309bc441c88ad04a
+  CapacitorBrowser: 7a0fb6a1011abfaaf2dfedfd8248f942a8eda3d6
+  CapacitorCamera: 084b0b228bba7d00587910337b1c89e93b1d32ab
+  CapacitorClipboard: 77edf49827ea21da2a9c05c690a4a6a4d07199c4
   CapacitorCommunityCameraPreview: 47070b2c66a79a424afe7c73bd951dfabfbc0f76
-  CapacitorCordova: 48a0f6863177473356a4aecb4ee69e2b865202e7
-  CapacitorDevice: 63e8ef8837176b8caf67dc0717b8b1123754a955
-  CapacitorGeolocation: e792888b4eca5cf31ed984491b645d42666278cb
-  CapacitorHaptics: 213b3a1f3efd6dbf6e6b76a1b2bb0399cf43b213
-  CapacitorKeyboard: 3c14461fb337847524357151edbbe4229bda83c8
-  CapacitorNativeSettings: b6f40955945bc659f966a43fa54fc6be192d8f9b
-  CapacitorNetwork: 7126b3d2d23ca60d5ac0d8d2ecccfab0b1f305c6
-  CapacitorPreferences: 1d66dc32299f55ed632c5611f312878979275ea5
-  CapacitorPushNotifications: b59c99fb4041a4f2c450f9287d158cca48a788f0
-  CapacitorSecureStoragePlugin: e616d090177dfbf9754dd1bdb515a8f23855bf4e
-  CapacitorSplashScreen: 58602bb275ecbc4a7957b4cdf93497db24ae2289
-  CapacitorStatusBar: 65933e554bb5d65b361deaa936a93616086a2608
-  CapacitorTextZoom: 61c79e8d6dd5209e059dc0f6dadbf7db21b05761
-  CordovaPlugins: c4502e7833e1e1dc5165643c685765ffdc578ac1
-  CordovaPluginsResources: 1b3992e05cb6336d2850cd77dd5e3054f2f76f96
-  CordovaPluginsStatic: 94a3fc74f0c1d4667b589b11aeae6e40cb5ad76e
+  CapacitorCordova: 1222fdd78bfd0d323cc22bf254eed1484fe6c92a
+  CapacitorDevice: 2c968f98a1ec4d22357418c1521e7ddc46c675e6
+  CapacitorGeolocation: 7be5f77abc205c0efe319fff8587a7183e7b0240
+  CapacitorHaptics: 1fffc1217c7e64a472d7845be50fb0c2f7d4204c
+  CapacitorKeyboard: b978154b024a5f65e044908e37d15b7de58b9d12
+  CapacitorNativeSettings: 6e94ed3c0465206756f320df18efc52f053ce3c7
+  CapacitorNetwork: d80b3e79bef6ec37640ee2806c19771f07ff2d0c
+  CapacitorPreferences: f03954bcb0ff09c792909e46bff88e3183c16b10
+  CapacitorPushNotifications: b31e326c6e4eb216a622041d6ca21a973f34943f
+  CapacitorSecureStoragePlugin: e91d7df060f2495a1acff9583641a6953e3aacba
+  CapacitorSplashScreen: 5fa2ab5e46cf5cc530cf16a51c80c7a986579ccd
+  CapacitorStatusBar: 565c0a1ebd79bb40d797606a8992b4a105885309
+  CapacitorTextZoom: bd623313a291bc1f38cdc01bd94c39b2b48d794a
+  CodetrixStudioCapacitorGoogleAuth: fcce058390347c1ce5d8ac4764bdf1f5c1ee233b
+  CordovaPlugins: 16e9c4206daa34bfdd8b699a70bbb69568ae0e9d
   Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
   FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
   FirebaseCoreDiagnostics: 68ad972f99206cef818230f3f3179d52ccfb7f8c
@@ -269,18 +256,18 @@ SPEC CHECKSUMS:
   FirebaseInstanceID: ad5135045a498d7775903efd39762d2cdfa1be27
   FirebaseMessaging: 163435fb6db065e3b6228f1e577b10ed2cc506d2
   GoogleDataTransport: cd9db2180fcecd8da1b561aea31e3e56cf834aa7
-  GoogleSignIn: 7137d297ddc022a7e0aa4619c86d72c909fa7213
+  GoogleSignIn: 5651ce3a61e56ca864160e79b484cd9ed3f49b7a
   GoogleUtilities: 31c5b01f978a70c6cff2afc6272b3f1921614b43
   GTMAppAuth: 0ff230db599948a9ad7470ca667337803b3fc4dd
-  GTMSessionFetcher: 5595ec75acf5be50814f81e9189490412bad82ba
+  GTMSessionFetcher: 3a63d75eecd6aa32c2fc79f578064e1214dfdec2
+  Jonz94CapacitorImagePicker: 9e3fe870389143933fc18dbc631dd70a1eb5e254
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   PromisesObjC: 3113f7f76903778cf4a0586bd1ab89329a0b7b97
   PryntTrimmerView: 6a43cc90df5d99addeabd33d4ba09b1365322130
-  Smartlook: 6ff002c5bef2210f4ed8a4da87e123f8f45d72fb
   SteviaLayout: 05424e528d643657d39ce72c786e4adf13cfc5f2
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   YPImagePicker: a904f09d282be4ca4ed27c780a5485e119657eaa
 
-PODFILE CHECKSUM: 6818e6fe45584268b86a3fd0ed7e3e2fe1b05f95
+PODFILE CHECKSUM: 53341a7fa50c3462e21e30152a84cf0e5ca17426
 
-COCOAPODS: 1.12.1
+COCOAPODS: 1.13.0
