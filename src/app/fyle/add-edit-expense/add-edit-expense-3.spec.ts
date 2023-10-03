@@ -376,7 +376,7 @@ export function TestCases3(getTestBed) {
           recentValue: recentlyUsedRes,
           recentCategories: recentUsedCategoriesRes,
           etxn: draftUnflattendedTxn3,
-          category: orgCategoryData,
+          category: null,
         });
 
         expect(result).toBeFalsy();
