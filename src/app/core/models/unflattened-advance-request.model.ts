@@ -1,30 +1,7 @@
+import { AdvanceRequests } from './advance-requests.model';
+
 export interface UnflattenedAdvanceRequest {
-  areq: {
-    advance_id: string;
-    advance_request_number: string;
-    amount: number;
-    approval_state?: string[];
-    approved_at: Date;
-    approvers_ids?: string[];
-    created_at: Date;
-    currency: string;
-    custom_field_values: string;
-    id: string;
-    is_pulled_back: boolean;
-    is_sent_back: boolean;
-    last_updated_by?: string;
-    updated_by?: string;
-    notes: string;
-    org_user_id: string;
-    policy_amount: number;
-    policy_flag: boolean;
-    policy_state: string;
-    project_id: string;
-    purpose: string;
-    source: string;
-    state: string;
-    updated_at: Date;
-  };
+  areq: AdvanceRequests;
   ou: {
     business_unit: string;
     department: string;
