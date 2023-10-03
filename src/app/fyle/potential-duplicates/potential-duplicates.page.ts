@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
-import { BehaviorSubject, EMPTY, from, noop, Observable, Subject } from 'rxjs';
-import { finalize, map, mergeMap, switchMap, tap, toArray } from 'rxjs/operators';
+import { Component } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Params, Router } from '@angular/router';
+import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
+import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { Params, Router } from '@angular/router';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type Expenses = Expense[];
 
@@ -18,7 +18,7 @@ type Expenses = Expense[];
   templateUrl: './potential-duplicates.page.html',
   styleUrls: ['./potential-duplicates.page.scss'],
 })
-export class PotentialDuplicatesPage implements OnInit {
+export class PotentialDuplicatesPage {
   duplicateSets$: Observable<Expenses[]>;
 
   loadData$ = new BehaviorSubject<void>(null);
@@ -40,9 +40,7 @@ export class PotentialDuplicatesPage implements OnInit {
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit() {}
-
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.selectedSet = 0;
 
     this.duplicateSets$ = this.loadData$.pipe(
@@ -50,7 +48,7 @@ export class PotentialDuplicatesPage implements OnInit {
         this.handleDuplicates.getDuplicateSets().pipe(
           tap((duplicateSets) => {
             this.duplicateSetData = duplicateSets;
-            if (this.duplicateSetData?.length === 0) {
+            if (this.duplicateSetData.length === 0) {
               this.goToTasks();
               return EMPTY;
             }
@@ -82,37 +80,37 @@ export class PotentialDuplicatesPage implements OnInit {
     });
   }
 
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]) {
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]): Expense[] {
     return duplicateSet.transaction_ids.map(
-      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: any) => expenseId === duplicateTxn.tx_id)]
+      (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.tx_id)]
     );
   }
 
-  next() {
+  next(): void {
     this.selectedSet++;
   }
 
-  prev() {
+  prev(): void {
     this.selectedSet--;
   }
 
-  dismiss(expense: Expense) {
+  dismiss(expense: Expense): void {
     const transactionIds = [expense.tx_id];
-    const duplicateTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+    const duplicateTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet].transaction_ids = this.duplicateSetData[
         this.selectedSet
-      ]?.transaction_ids.filter((expId) => expId !== expense.tx_id);
-      this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet]?.filter(
+      ].transaction_ids.filter((expId) => expId !== expense.tx_id);
+      this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
         (exp) => exp.tx_id !== expense.tx_id
       );
     });
   }
 
-  dismissAll() {
-    const txnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+  dismissAll(): void {
+    const txnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
@@ -126,8 +124,8 @@ export class PotentialDuplicatesPage implements OnInit {
     });
   }
 
-  mergeExpense() {
-    const selectedTxnIds = this.duplicateSetData[this.selectedSet]?.transaction_ids;
+  mergeExpense(): void {
+    const selectedTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
     const params = {
       tx_id: `in.(${selectedTxnIds.join(',')})`,
     };
@@ -145,7 +143,7 @@ export class PotentialDuplicatesPage implements OnInit {
     });
   }
 
-  showDismissedSuccessToast() {
+  showDismissedSuccessToast(): void {
     const toastMessageData = {
       message: 'Expense dismissed',
     };
@@ -158,7 +156,7 @@ export class PotentialDuplicatesPage implements OnInit {
       .subscribe(noop);
   }
 
-  goToTasks() {
+  goToTasks(): void {
     const queryParams: Params = { state: 'tasks' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -166,7 +164,7 @@ export class PotentialDuplicatesPage implements OnInit {
     });
   }
 
-  goToTransaction({ etxn: expense, etxnIndex }) {
+  goToTransaction({ etxn: expense }: { etxn: Expense }): void {
     this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
   }
 }
