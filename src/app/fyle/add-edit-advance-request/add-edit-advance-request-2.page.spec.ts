@@ -39,7 +39,12 @@ import {
 import { fileData3 } from 'src/app/core/mock-data/file.data';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { modalControllerParams3, modalControllerParams4 } from 'src/app/core/mock-data/modal-controller.data';
+import {
+  modalControllerParams3,
+  modalControllerParams4,
+  modalControllerParams5,
+} from 'src/app/core/mock-data/modal-controller.data';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -232,6 +237,40 @@ export function TestCases2(getTestBed) {
           },
         ]);
       });
+    });
+
+    describe('openCommentsModal():', () => {
+      it('openCommentsModal(): should open the comments modal and call track addComment method if updated is true', fakeAsync(() => {
+        const viewCommentModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+        viewCommentModalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });
+        modalController.create.and.resolveTo(viewCommentModalSpy);
+        component.id = 'areqR1cyLgXdND';
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+
+        component.openCommentsModal();
+        tick(100);
+        expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams5);
+        expect(viewCommentModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(viewCommentModalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+      }));
+
+      it('openCommentsModal(): should open the comments modal and call track viewComment method if updated is false', fakeAsync(() => {
+        const viewCommentModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+        viewCommentModalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } });
+        modalController.create.and.resolveTo(viewCommentModalSpy);
+        component.id = 'areqR1cyLgXdND';
+        modalProperties.getModalDefaultProperties.and.returnValue(properties);
+
+        component.openCommentsModal();
+        tick(100);
+        expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams5);
+        expect(viewCommentModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(viewCommentModalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+        expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+      }));
     });
   });
 }
