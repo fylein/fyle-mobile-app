@@ -14,6 +14,7 @@ import { FyAddToReportModalComponent } from 'src/app/shared/components/fy-add-to
 import { reportOptionsData } from './report-options.data';
 import { expectedErpt } from './report-unflattened.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
+import { PolicyViolationDialogComponent } from 'src/app/fyle/add-edit-advance-request/policy-violation-dialog/policy-violation-dialog.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -366,4 +367,23 @@ export const popoverControllerParams3 = {
     isRequired: true,
   },
   cssClass: 'fy-dialog-popover',
+};
+
+export const advanceRequestPolicyViolationParams = {
+  component: PolicyViolationDialogComponent,
+  componentProps: {
+    latestComment: 'latest comment',
+    violatedPolicyRules: ['rule1', 'rule2'],
+    policyViolationActionDescription:
+      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.',
+  },
+  mode: 'ios' as Mode,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
 };

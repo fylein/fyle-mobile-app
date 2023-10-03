@@ -136,7 +136,7 @@
               <form [formGroup]="customInput.control">
                 <div
                   class="add-edit-advance-request--text"
-                  [ngClass]="{'add-edit-advance-request--text__invalid': fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid}"
+                  [ngClass]="{'add-edit-advance-request--text__invalid': fg.controls.customFieldValues['controls'][i].touched && !fg.controls.customFieldValues['controls'][i].valid}"
                   *ngIf="customInput.type !== 'BOOLEAN' && customInput.type !== 'SELECT' && customInput.type !== 'MULTI_SELECT' && customInput.type !== 'USER_LIST' && customInput.type !== 'LOCATION'"
                 >
                   <div class="add-edit-advance-request--text-label">
@@ -180,8 +180,8 @@
                     [mandatory]="customInput.mandatory"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
-                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
-                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
+                    [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
+                    [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
                   >
                   </app-fy-location>
                 </div>
@@ -193,8 +193,8 @@
                     [options]="customInput.options"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
-                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
-                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
+                    [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
+                    [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
                   >
                   </app-fy-select>
                 </div>
@@ -206,8 +206,8 @@
                     [options]="customInput.options"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
-                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
-                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
+                    [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
+                    [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
                   >
                   </app-fy-multiselect>
                 </div>
@@ -218,15 +218,15 @@
                     [mandatory]="customInput.mandatory"
                     formControlName="value"
                     [placeholder]="customInput.placeholder | ellipsis: 30"
-                    [touchedInParent]="fg.controls.custom_field_values['controls'][i].touched"
-                    [validInParent]="fg.controls.custom_field_values['controls'][i].valid"
+                    [touchedInParent]="fg.controls.customFieldValues['controls'][i].touched"
+                    [validInParent]="fg.controls.customFieldValues['controls'][i].valid"
                   >
                   </app-fy-userlist>
                 </div>
               </form>
             </div>
             <div
-              *ngIf="fg.controls.custom_field_values['controls'][i].touched && !fg.controls.custom_field_values['controls'][i].valid"
+              *ngIf="fg.controls.customFieldValues['controls'][i].touched && !fg.controls.customFieldValues['controls'][i].valid"
               class="add-edit-advance-request--mandatory-text"
             >
               Please add {{customInput.name}}.
