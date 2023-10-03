@@ -66,8 +66,12 @@ import { ExpenseFilters } from './expense-filters.model';
 import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
-import { cloneDeep } from 'lodash';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
+import { clone, cloneDeep } from 'lodash';
 import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -106,6 +110,7 @@ import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/sta
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -399,6 +404,7 @@ describe('MyExpensesPage', () => {
       platformHandlerService.registerBackButtonAction.and.returnValue(backButtonSubscription);
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
       spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
       spyOn(component, 'syncOutboxExpenses');
@@ -1109,10 +1115,28 @@ describe('MyExpensesPage', () => {
       });
     });
   });
-  it('setupActionSheet(): should update actionSheetButtons', () => {
-    spyOn(component, 'actionSheetButtonsHandler');
-    component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
-    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+  describe('setupActionSheet()', () => {
+    it('should update actionSheetButtons', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+    });
+
+    it('should update actionSheetButtons without mileage', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.mileage = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
+    });
+
+    it('should update actionSheetButtons without Per Diem', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.perDiem = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
+    });
   });
 
   describe('actionSheetButtonsHandler():', () => {

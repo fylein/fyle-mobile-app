@@ -17,11 +17,16 @@ import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { cloneDeep } from 'lodash';
-import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
+import { clone, cloneDeep } from 'lodash';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
 import { CategoriesService } from 'src/app/core/services/categories.service';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -177,6 +182,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'registerBackButtonAction');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       spyOn(component, 'setupActionSheet');
       const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
@@ -422,13 +428,32 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('setupActionSheet(): should setup actionSheetButtons', () => {
+  describe('setupActionSheet()', () => {
     const mockOrgSettings = cloneDeep(orgSettingsRes);
-    spyOn(component, 'actionSheetButtonsHandler');
     mockOrgSettings.per_diem.enabled = true;
     mockOrgSettings.mileage.enabled = true;
-    component.setupActionSheet(mockOrgSettings, allowedExpenseTypes);
-    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+
+    it('should setup actionSheetButtons', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+    });
+
+    it('should update actionSheetButtons without mileage', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.mileage = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
+    });
+
+    it('should update actionSheetButtons without Per Diem', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.perDiem = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
+    });
   });
 
   it('openAddExpenseActionSheet(): should open actionSheetController and track event', fakeAsync(() => {
