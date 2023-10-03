@@ -7,5 +7,5 @@ export interface AddEditAdvanceRequestFormValue {
   purpose: string;
   notes: string;
   project: ExtendedProject;
-  custom_field_values: AdvanceRequestCustomFieldValues[];
+  customFieldValues: AdvanceRequestCustomFieldValues[];
 }
