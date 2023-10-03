@@ -44,7 +44,6 @@ import {
   draftUnflattendedTxn,
   draftUnflattendedTxn2,
   draftUnflattendedTxn3,
-  draftUnflattendedTxn4,
   unflattenedExpData,
   unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -374,7 +373,7 @@ export function TestCases3(getTestBed) {
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
           recentCategories: recentUsedCategoriesRes,
-          etxn: draftUnflattendedTxn4,
+          etxn: draftUnflattendedTxn3,
           category: orgCategoryData,
         });
 

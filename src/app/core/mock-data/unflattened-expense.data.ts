@@ -554,18 +554,6 @@ export const draftUnflattendedTxn3 = {
   tx: {
     ...unflattenedExpData.tx,
     id: 'txCYDX0peUw5',
-    source: 'MOBILE',
-    state: 'DRAFT',
-    org_category_id: null,
-    fyle_category: 'UNSPECIFIED',
-  },
-};
-
-export const draftUnflattendedTxn4 = {
-  ...unflattenedExpData,
-  tx: {
-    ...unflattenedExpData.tx,
-    id: 'txCYDX0peUw5',
     source: 'WEBAPP_BULK',
     state: 'DRAFT',
     org_category_id: null,
