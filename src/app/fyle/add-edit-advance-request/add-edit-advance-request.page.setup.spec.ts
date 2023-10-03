@@ -46,7 +46,12 @@ describe('AddEditAdvanceRequestPage', () => {
     const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getById', 'getAllActive']);
     const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
     const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
-    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['fileUpload', 'getImageTypeFromDataUrl']);
+    const fileServiceSpyObj = jasmine.createSpyObj('FileService', [
+      'fileUpload',
+      'getImageTypeFromDataUrl',
+      'downloadUrl',
+      'findByAdvanceRequestId',
+    ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);

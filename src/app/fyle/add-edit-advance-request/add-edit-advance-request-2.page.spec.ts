@@ -178,5 +178,60 @@ export function TestCases2(getTestBed) {
       expect(attachmentModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(component.dataUrls).toEqual(expectedFileData2);
     }));
+
+    it('getReceiptExtension(): should return the extension of the receipt', () => {
+      const mockFileObject = cloneDeep(advanceRequestFileUrlData2[0]);
+      const result = component.getReceiptExtension(mockFileObject.name);
+      expect(result).toEqual('pdf');
+    });
+
+    describe('getReceiptDetails():', () => {
+      it('should return the receipt details with thumbnail as fy-receipt.svg if extension is pdf', () => {
+        spyOn(component, 'getReceiptExtension').and.returnValue('pdf');
+        const mockFileObject = cloneDeep(advanceRequestFileUrlData2[0]);
+        const result = component.getReceiptDetails(mockFileObject);
+        expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileObject.name);
+        expect(result).toEqual({
+          type: 'pdf',
+          thumbnail: 'img/fy-pdf.svg',
+        });
+      });
+
+      it('should return the receipt details with type as image and thumbnail as file url if extension is png', () => {
+        spyOn(component, 'getReceiptExtension').and.returnValue('png');
+        const mockFileObject = cloneDeep(advanceRequestFileUrlData2[0]);
+        const result = component.getReceiptDetails(mockFileObject);
+        expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileObject.name);
+        expect(result).toEqual({
+          type: 'image',
+          thumbnail:
+            'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
+        });
+      });
+    });
+
+    it('getAttachedReceipts(): should return all the attached receipts corresponding to an advance request', () => {
+      const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
+      spyOn(component, 'getReceiptDetails').and.returnValue({
+        type: 'pdf',
+        thumbnail: 'img/fy-pdf.svg',
+      });
+      fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
+      fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
+      component.dataUrls = [mockFileObject];
+      component.getAttachedReceipts('areqR1cyLgXdND').subscribe((res) => {
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject);
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiSSsy2Bf4Se');
+        expect(fileService.findByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(res).toEqual([
+          {
+            ...mockFileObject,
+            type: 'pdf',
+            thumbnail: 'img/fy-pdf.svg',
+            url: 'mockdownloadurl.png',
+          },
+        ]);
+      });
+    });
   });
 }
