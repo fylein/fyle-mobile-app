@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
@@ -182,6 +182,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
@@ -205,6 +206,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -231,6 +233,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -257,6 +260,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
@@ -336,6 +340,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -364,6 +369,7 @@ describe('AddCorporateCardComponent', () => {
 
       fixture.detectChanges();
       flush();
+      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
