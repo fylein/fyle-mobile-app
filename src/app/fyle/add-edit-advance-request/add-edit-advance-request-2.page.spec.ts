@@ -43,6 +43,7 @@ import {
   modalControllerParams3,
   modalControllerParams4,
   modalControllerParams5,
+  popoverControllerParams5,
 } from 'src/app/core/mock-data/modal-controller.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 
@@ -272,5 +273,19 @@ export function TestCases2(getTestBed) {
         expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
       }));
     });
+
+    it('delete(): should show popover and remove delete advance request', fakeAsync(() => {
+      const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopoverSpy);
+      advanceRequestService.delete.and.resolveTo();
+      component.id = 'areqR1cyLgXdND';
+      component.delete();
+      tick(100);
+      expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams5);
+      expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
+      expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
+    }));
   });
 }

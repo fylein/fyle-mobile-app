@@ -19,6 +19,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { advanceRequestFileUrlData2 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -443,4 +444,15 @@ export const modalControllerParams5 = {
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
+};
+
+export const popoverControllerParams5 = {
+  component: FyDeleteDialogComponent,
+  cssClass: 'delete-dialog',
+  backdropDismiss: false,
+  componentProps: {
+    header: 'Delete Advance Request',
+    body: 'Are you sure you want to delete this request?',
+    deleteMethod: jasmine.any(Function),
+  },
 };
