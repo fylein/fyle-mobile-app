@@ -310,3 +310,34 @@ export const expectedFileData1 = [
     thumbnail: 'thumbnail',
   },
 ];
+
+export const advanceRequestFileUrlData: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+  },
+  {
+    ...fileObject7[0],
+    type: 'jpeg',
+    id: null,
+  },
+];
+
+export const expectedFileData2: FileObject[] = [
+  {
+    type: 'pdf',
+    url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
+    thumbnail: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
+  },
+];
+
+export const advanceRequestFileUrlData2: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+    id: null,
+  },
+  {
+    ...fileObject7[0],
+    type: 'image',
+    id: null,
+  },
+];

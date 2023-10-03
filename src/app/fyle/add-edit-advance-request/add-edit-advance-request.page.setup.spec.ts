@@ -25,7 +25,7 @@ import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 
-fdescribe('AddEditAdvanceRequestPage', () => {
+describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
     const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['getEou']);
     const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [
@@ -45,8 +45,8 @@ fdescribe('AddEditAdvanceRequestPage', () => {
     const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getById', 'getAllActive']);
     const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
-    const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['addTransaction']);
-    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['fileUpload']);
+    const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
+    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['fileUpload', 'getImageTypeFromDataUrl']);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);

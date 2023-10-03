@@ -30,6 +30,16 @@ import {
   advanceRequestCustomFieldValuesData,
   advanceRequestCustomFieldValuesData2,
 } from 'src/app/core/mock-data/advance-request-custom-field-values.data';
+import {
+  advanceRequestFileUrlData,
+  advanceRequestFileUrlData2,
+  expectedFileData2,
+  fileObject4,
+} from 'src/app/core/mock-data/file-object.data';
+import { fileData3 } from 'src/app/core/mock-data/file.data';
+import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { modalControllerParams3, modalControllerParams4 } from 'src/app/core/mock-data/modal-controller.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -106,5 +116,67 @@ export function TestCases2(getTestBed) {
       expect(result).toEqual(advanceRequestCustomFieldValuesData2);
       expect(component.customFieldValues).toEqual(advanceRequestCustomFieldValuesData2);
     });
+
+    it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObject4[0]);
+      const mockFileObjects = cloneDeep(advanceRequestFileUrlData);
+      component.dataUrls = mockFileObjects;
+      component.fileAttachments().subscribe((res) => {
+        expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(undefined, 'image');
+        expect(res).toEqual(fileData3);
+        done();
+      });
+    });
+
+    it('addAttachments(): should open camera option popup and add receipt details', fakeAsync(() => {
+      component.dataUrls = [];
+      fileService.getImageTypeFromDataUrl.and.returnValue('pdf');
+
+      const cameraOptionsPopupSpy = jasmine.createSpyObj('cameraOptionsPopup', ['present', 'onWillDismiss']);
+      cameraOptionsPopupSpy.onWillDismiss.and.resolveTo({
+        data: { dataUrl: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf', option: 'camera' },
+      });
+      popoverController.create.and.resolveTo(cameraOptionsPopupSpy);
+
+      const captureReceiptModalSpy = jasmine.createSpyObj('captureReceiptModal', ['present', 'onWillDismiss']);
+      captureReceiptModalSpy.onWillDismiss.and.resolveTo({
+        data: { dataUrl: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf' },
+      });
+      modalController.create.and.resolveTo(captureReceiptModalSpy);
+
+      const event = jasmine.createSpyObj('event', ['stopPropagation', 'preventDefault']);
+      component.addAttachments(event);
+      tick(100);
+
+      expect(event.stopPropagation).toHaveBeenCalledTimes(1);
+      expect(event.preventDefault).toHaveBeenCalledTimes(1);
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: CameraOptionsPopupComponent,
+        cssClass: 'camera-options-popover',
+      });
+      expect(cameraOptionsPopupSpy.present).toHaveBeenCalledTimes(1);
+      expect(cameraOptionsPopupSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams3);
+      expect(captureReceiptModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(captureReceiptModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(fileService.getImageTypeFromDataUrl).toHaveBeenCalledOnceWith(
+        '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf'
+      );
+      expect(component.dataUrls).toEqual(expectedFileData2);
+    }));
+
+    it('viewAttachments(): should show the attachments as preview', fakeAsync(() => {
+      component.dataUrls = cloneDeep(advanceRequestFileUrlData2);
+      const attachmentModalSpy = jasmine.createSpyObj('attachmentsModal', ['present', 'onWillDismiss']);
+      attachmentModalSpy.onWillDismiss.and.resolveTo({ data: { attachments: expectedFileData2 } });
+      modalController.create.and.resolveTo(attachmentModalSpy);
+
+      component.viewAttachments();
+      tick(100);
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams4);
+      expect(attachmentModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(attachmentModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+      expect(component.dataUrls).toEqual(expectedFileData2);
+    }));
   });
 }
