@@ -114,12 +114,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
-    const el = document.activeElement;
+    const el = this.getActiveElement();
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
         block: 'center',
       });
     }
+  }
+
+  getActiveElement(): Element {
+    return document.activeElement;
   }
 
   getFormValues(): AddEditAdvanceRequestFormValue {
