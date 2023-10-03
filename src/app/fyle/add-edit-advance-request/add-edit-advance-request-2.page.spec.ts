@@ -35,6 +35,7 @@ import {
   advanceRequestFileUrlData2,
   expectedFileData2,
   fileObject4,
+  fileObject9,
 } from 'src/app/core/mock-data/file-object.data';
 import { fileData3 } from 'src/app/core/mock-data/file.data';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
@@ -118,7 +119,7 @@ export function TestCases2(getTestBed) {
     });
 
     it('fileAttachments(): should return file attachments if ids are absent in fileObject', (done) => {
-      transactionsOutboxService.fileUpload.and.resolveTo(fileObject4[0]);
+      transactionsOutboxService.fileUpload.and.resolveTo(cloneDeep(fileObject9[0]));
       const mockFileObjects = cloneDeep(advanceRequestFileUrlData);
       component.dataUrls = mockFileObjects;
       component.fileAttachments().subscribe((res) => {

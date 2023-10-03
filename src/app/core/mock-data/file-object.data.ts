@@ -341,3 +341,21 @@ export const advanceRequestFileUrlData2: FileObject[] = [
     id: null,
   },
 ];
+
+export const fileObject9: FileObject[] = [
+  {
+    id: 'fiV1gXpyCcbU',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-03-06T07:51:05.614Z'),
+    name: '000.jpeg',
+    s3url: '2023-03-06/orNVthTo2Zyo/receipts/fiV1gXpyCcbU.000.jpeg',
+    transaction_id: 'tx1vdITUXIzf',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
+  },
+];
