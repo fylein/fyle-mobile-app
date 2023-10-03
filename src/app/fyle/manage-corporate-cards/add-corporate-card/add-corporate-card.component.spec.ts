@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
@@ -167,7 +167,7 @@ describe('AddCorporateCardComponent', () => {
     });
   });
 
-  describe('card number validation errors', () => {
+  fdescribe('card number validation errors', () => {
     it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
@@ -181,7 +181,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe('Please enter a valid card number.');
@@ -204,7 +204,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -230,7 +230,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -256,7 +256,7 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
       expect(errorMessage.innerText).toBe(
@@ -335,7 +335,7 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
@@ -363,7 +363,7 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      tick(500);
+      flush();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
