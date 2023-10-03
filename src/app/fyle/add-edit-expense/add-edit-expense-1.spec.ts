@@ -215,7 +215,7 @@ export function TestCases1(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    it('should scroll input into view on keydown', () => {
+    it('scrollInputIntoView(): should scroll input into view on keydown', () => {
       const inputElement = document.createElement('input');
       spyOn(inputElement, 'scrollIntoView');
       spyOn(component, 'getActiveElement').and.returnValue(inputElement);
