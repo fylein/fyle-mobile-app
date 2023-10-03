@@ -16,7 +16,7 @@ export type EmailEvents = {
 export interface NotificationEvents {
   events: EmailEvents[];
   features: {
-    advances: {
+    advances?: {
       selected: boolean;
       textLabel: string;
     };
