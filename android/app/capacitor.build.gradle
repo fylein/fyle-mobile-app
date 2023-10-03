@@ -2,8 +2,8 @@
 
 android {
   compileOptions {
-      sourceCompatibility JavaVersion.VERSION_17
-      targetCompatibility JavaVersion.VERSION_17
+      sourceCompatibility JavaVersion.VERSION_11
+      targetCompatibility JavaVersion.VERSION_11
   }
 }
 
@@ -24,8 +24,6 @@ dependencies {
     implementation project(':capacitor-splash-screen')
     implementation project(':capacitor-status-bar')
     implementation project(':capacitor-text-zoom')
-    implementation project(':codetrix-studio-capacitor-google-auth')
-    implementation project(':jonz94-capacitor-image-picker')
     implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
     implementation "com.google.android.gms:play-services-auth:15.0.1"

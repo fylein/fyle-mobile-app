@@ -13,6 +13,8 @@ PODS:
     - Capacitor
   - CapacitorCamera (4.1.5):
     - Capacitor
+  - CapacitorClipboard (4.1.0):
+    - Capacitor
   - CapacitorCommunityCameraPreview (2.0.0):
     - Capacitor
   - CapacitorCordova (4.6.1)
@@ -43,7 +45,6 @@ PODS:
     - Capacitor
   - CordovaPlugins (4.6.1):
     - CapacitorCordova
-  - CordovaPluginsResources (0.0.105)
   - CordovaPluginsStatic (4.6.1):
     - CapacitorCordova
     - GoogleSignIn (~> 5.0.2)
@@ -145,6 +146,7 @@ DEPENDENCIES:
   - "CapacitorApp (from `../../node_modules/@capacitor/app`)"
   - "CapacitorBrowser (from `../../node_modules/@capacitor/browser`)"
   - "CapacitorCamera (from `../../node_modules/@capacitor/camera`)"
+  - "CapacitorClipboard (from `../../node_modules/@capacitor/clipboard`)"
   - "CapacitorCommunityCameraPreview (from `../../node_modules/@capacitor-community/camera-preview`)"
   - "CapacitorCordova (from `../../node_modules/@capacitor/ios`)"
   - "CapacitorDevice (from `../../node_modules/@capacitor/device`)"
@@ -160,7 +162,6 @@ DEPENDENCIES:
   - "CapacitorStatusBar (from `../../node_modules/@capacitor/status-bar`)"
   - "CapacitorTextZoom (from `../../node_modules/@capacitor/text-zoom`)"
   - CordovaPlugins (from `../capacitor-cordova-ios-plugins`)
-  - CordovaPluginsResources (from `../capacitor-cordova-ios-plugins`)
   - CordovaPluginsStatic (from `../capacitor-cordova-ios-plugins`)
   - Firebase/Messaging
   - FirebaseCore
@@ -196,6 +197,8 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/browser"
   CapacitorCamera:
     :path: "../../node_modules/@capacitor/camera"
+  CapacitorClipboard:
+    :path: "../../node_modules/@capacitor/clipboard"
   CapacitorCommunityCameraPreview:
     :path: "../../node_modules/@capacitor-community/camera-preview"
   CapacitorCordova:
@@ -226,8 +229,6 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/text-zoom"
   CordovaPlugins:
     :path: "../capacitor-cordova-ios-plugins"
-  CordovaPluginsResources:
-    :path: "../capacitor-cordova-ios-plugins"
   CordovaPluginsStatic:
     :path: "../capacitor-cordova-ios-plugins"
   YPImagePicker:
@@ -245,6 +246,7 @@ SPEC CHECKSUMS:
   CapacitorApp: acd42fe8561fe751ad5b5f459aa85e6acd7bee24
   CapacitorBrowser: 05b68799d62b7b864974f59a5af3e4ddcce953f1
   CapacitorCamera: 6f0777dbc5b9fbb59852567ba9ac3b0da2e4ee8f
+  CapacitorClipboard: 4c092a2608520afb799429e63820256c3a59f1e5
   CapacitorCommunityCameraPreview: 47070b2c66a79a424afe7c73bd951dfabfbc0f76
   CapacitorCordova: 48a0f6863177473356a4aecb4ee69e2b865202e7
   CapacitorDevice: 63e8ef8837176b8caf67dc0717b8b1123754a955
@@ -259,8 +261,7 @@ SPEC CHECKSUMS:
   CapacitorSplashScreen: 58602bb275ecbc4a7957b4cdf93497db24ae2289
   CapacitorStatusBar: 65933e554bb5d65b361deaa936a93616086a2608
   CapacitorTextZoom: 61c79e8d6dd5209e059dc0f6dadbf7db21b05761
-  CordovaPlugins: c4502e7833e1e1dc5165643c685765ffdc578ac1
-  CordovaPluginsResources: 1b3992e05cb6336d2850cd77dd5e3054f2f76f96
+  CordovaPlugins: fd3193ba9649b269ba722a83f43f45f092b160a5
   CordovaPluginsStatic: 94a3fc74f0c1d4667b589b11aeae6e40cb5ad76e
   Firebase: c121feb35e4126c0b355e3313fa9b487d47319fd
   FirebaseCore: 907447d8917a4d3eb0cce2829c5a0ad21d90b432
@@ -281,6 +282,6 @@ SPEC CHECKSUMS:
   SwiftKeychainWrapper: 807ba1d63c33a7d0613288512399cd1eda1e470c
   YPImagePicker: a904f09d282be4ca4ed27c780a5485e119657eaa
 
-PODFILE CHECKSUM: 6818e6fe45584268b86a3fd0ed7e3e2fe1b05f95
+PODFILE CHECKSUM: 5d8b12ab41537c3db09315c2c0b8ba7d813c02c3
 
 COCOAPODS: 1.12.1
