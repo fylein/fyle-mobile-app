@@ -1923,8 +1923,9 @@ export class AddEditExpensePage implements OnInit {
      * - The transaction category is empty or 'unspecified'
      * - The user is on creating a new expense or editing a DRAFT expense that was created from bulk upload
      */
-    const isTxnEligibleForCategoryAutofill =
-      isCategoryEmpty && (!etxn.tx.id || (etxn.tx.state === 'DRAFT' && etxn.tx.source === 'WEBAPP_BULK'));
+    const isNewExpense = !etxn.tx.id;
+    const canAutofillCategoryDuringEdit = etxn.tx.state === 'DRAFT' && etxn.tx.source === 'WEBAPP_BULK';
+    const isTxnEligibleForCategoryAutofill = isCategoryEmpty && (isNewExpense || canAutofillCategoryDuringEdit);
     if (doRecentOrgCategoryIdsExist && isTxnEligibleForCategoryAutofill) {
       const autoFillCategory = recentCategories.length && recentCategories[0];
 

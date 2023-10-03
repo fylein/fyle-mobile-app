@@ -43,6 +43,7 @@ import {
   draftUnflattendedTxn,
   draftUnflattendedTxn2,
   draftUnflattendedTxn3,
+  draftUnflattendedTxn4,
   unflattenedExpData,
   unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -185,11 +186,11 @@ export function TestCases3(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -367,12 +368,26 @@ export function TestCases3(getTestBed) {
         }
       });
 
-      it('should get auto fill category for DRAFT expense', () => {
+      // if an expense is in DRAFT state and not added via bulk upload, then no need to autofill
+      it('should not get auto fill category if expense is in DRAFT state but not added via bulk upload', () => {
         const result = component.getAutofillCategory({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
           recentCategories: recentUsedCategoriesRes,
           etxn: draftUnflattendedTxn3,
+          category: orgCategoryData,
+        });
+
+        expect(result).toBeFalsy();
+        expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
+      });
+
+      it('should get auto fill category for DRAFT expense added via bulk upload', () => {
+        const result = component.getAutofillCategory({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: recentUsedCategoriesRes,
+          etxn: draftUnflattendedTxn4,
           category: orgCategoryData,
         });
 
@@ -689,7 +704,7 @@ export function TestCases3(getTestBed) {
             expect(res).toEqual(newExpFromFg4);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
               component.mode,
-              draftUnflattendedTxn.tx.id,
+              draftUnflattendedTxn.tx.id
             );
             expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
             expect(component.getBillable).toHaveBeenCalledTimes(1);
@@ -880,7 +895,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2),
+            of(customFieldData2)
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -902,7 +917,7 @@ export function TestCases3(getTestBed) {
             {
               policyViolations: criticalPolicyViolation1,
             },
-            of(customFieldData2),
+            of(customFieldData2)
           )
           .subscribe({
             next: () => {},
@@ -928,14 +943,14 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2),
+            of(customFieldData2)
           )
           .subscribe(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
             done();
@@ -954,7 +969,7 @@ export function TestCases3(getTestBed) {
               policyViolations: criticalPolicyViolation1,
               policyAction: policyViolation1.data.final_desired_state,
             },
-            of(customFieldData2),
+            of(customFieldData2)
           )
           .subscribe({
             next: () => {},
