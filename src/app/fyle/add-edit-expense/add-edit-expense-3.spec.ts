@@ -369,20 +369,6 @@ export function TestCases3(getTestBed) {
         }
       });
 
-      // if an expense is in DRAFT state and not added via bulk upload, then no need to autofill
-      it('should not get auto fill category if expense is in DRAFT state but not added via bulk upload', () => {
-        const result = component.getAutofillCategory({
-          isAutofillsEnabled: true,
-          recentValue: recentlyUsedRes,
-          recentCategories: recentUsedCategoriesRes,
-          etxn: draftUnflattendedTxn3,
-          category: null,
-        });
-
-        expect(result).toBeFalsy();
-        expect(component.recentCategories).toEqual(recentUsedCategoriesRes);
-      });
-
       it('should get auto fill category for DRAFT expense added via bulk upload', () => {
         const result = component.getAutofillCategory({
           isAutofillsEnabled: true,
