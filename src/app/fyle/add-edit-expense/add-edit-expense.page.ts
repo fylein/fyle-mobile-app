@@ -1935,7 +1935,8 @@ export class AddEditExpensePage implements OnInit {
      * - The user is on creating a new expense or editing a DRAFT expense that was created from bulk upload
      */
     const isNewExpense = !etxn.tx.id;
-    const canAutofillCategoryDuringEdit = etxn.tx.state === 'DRAFT' && etxn.tx.source === 'WEBAPP_BULK';
+    const canAutofillCategoryDuringEdit =
+      etxn.tx.state === 'DRAFT' && (etxn.tx.source === 'WEBAPP_BULK' || etxn.tx.source === 'MOBILE_DASHCAM_BULK');
     const isTxnEligibleForCategoryAutofill = isCategoryEmpty && (isNewExpense || canAutofillCategoryDuringEdit);
     if (doRecentOrgCategoryIdsExist && isTxnEligibleForCategoryAutofill) {
       const autoFillCategory = recentCategories?.length && recentCategories[0];
