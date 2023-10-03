@@ -25,7 +25,7 @@ import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 
-fdescribe('AddEditAdvanceRequestPage', () => {
+describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
     const authServiceSpyObj = jasmine.createSpyObj('AuthService', ['getEou']);
     const advanceRequestsCustomFieldsServiceSpyObj = jasmine.createSpyObj('AdvanceRequestsCustomFieldsService', [

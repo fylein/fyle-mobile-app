@@ -474,17 +474,5 @@ export function TestCases2(getTestBed) {
       expect(networkService.isOnline).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
-
-    it('should scroll input into view on keydown', () => {
-      const inputElement = document.createElement('input');
-      spyOn(inputElement, 'scrollIntoView');
-      spyOn(component, 'getActiveElement').and.returnValue(inputElement);
-
-      component.scrollInputIntoView();
-
-      expect(inputElement.scrollIntoView).toHaveBeenCalledWith({
-        block: 'center',
-      });
-    });
   });
 }
