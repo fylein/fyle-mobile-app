@@ -1932,7 +1932,7 @@ export class AddEditExpensePage implements OnInit {
      * - The user has some recently used categories present
      * - isTxnEligibleForCategoryAutofill:
      * - The transaction category is empty or 'unspecified'
-     * - The user is on creating a new expense or editing a DRAFT expense that was created from bulk upload
+     * - The user is on creating a new expense or editing a DRAFT expense that was created from bulk upload or bulk instafyle
      */
     const isNewExpense = !etxn.tx.id;
     const canAutofillCategoryDuringEdit =
