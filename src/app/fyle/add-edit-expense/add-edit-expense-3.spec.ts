@@ -27,6 +27,7 @@ import {
   expectedAutoFillCategory,
   expectedAutoFillCategory2,
   expectedAutoFillCategory3,
+  expectedOrgCategoryByName2,
   filteredCategoriesData,
   orgCategoryData,
   orgCategoryData1,
@@ -1197,11 +1198,13 @@ export function TestCases3(getTestBed) {
     });
 
     describe('getNewExpenseObservable():', () => {
+      beforeEach(() => {
+        categoriesService.getCategoryByName.and.returnValue(of(expectedOrgCategoryByName2));
+      });
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1218,7 +1221,7 @@ export function TestCases3(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(instaFyleData1.parsedResponse.category);
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           done();
@@ -1229,7 +1232,6 @@ export function TestCases3(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsWithCurrency);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(null));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1245,7 +1247,7 @@ export function TestCases3(getTestBed) {
           expect(component.instaFyleCancelled).toBeFalse();
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).not.toHaveBeenCalled();
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           done();
         });
@@ -1253,7 +1255,6 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense observable without autofill and currency settings enabled', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
         categoriesService.getAll.and.returnValue(of(orgCategoryData1));
@@ -1272,7 +1273,7 @@ export function TestCases3(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
@@ -1283,10 +1284,8 @@ export function TestCases3(getTestBed) {
       it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('INR');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1302,7 +1301,7 @@ export function TestCases3(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           done();
@@ -1311,10 +1310,8 @@ export function TestCases3(getTestBed) {
 
       it('should get new expense from bank txn', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
-
         authService.getEou.and.resolveTo(apiEouRes);
         component.orgUserSettings$ = of(orgUserSettingsData);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         component.homeCurrency$ = of('USD');
         spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
         recentLocalStorageItemsService.get.and.resolveTo(selectedCurrencies);
@@ -1331,7 +1328,7 @@ export function TestCases3(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
 
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
@@ -1348,13 +1345,12 @@ export function TestCases3(getTestBed) {
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
         recentLocalStorageItemsService.get.and.resolveTo(null);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
-        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
         fixture.detectChanges();
 
         component.getNewExpenseObservable().subscribe(() => {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
           expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
           expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
           done();

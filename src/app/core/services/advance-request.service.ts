@@ -141,7 +141,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  submit(advanceRequest: AdvanceRequests): Observable<AdvanceRequests> {
+  submit(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/submit', advanceRequest);
   }
 
@@ -240,7 +240,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest: AdvanceRequests): Observable<PolicyViolationCheck> {
+  testPolicy(advanceRequest: Partial<AdvanceRequests>): Observable<PolicyViolationCheck> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (advanceRequest.created_at) {
@@ -336,7 +336,7 @@ export class AdvanceRequestService {
   }
 
   createAdvReqWithFilesAndSubmit(
-    advanceRequest: AdvanceRequests,
+    advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
@@ -360,7 +360,7 @@ export class AdvanceRequestService {
   }
 
   saveDraftAdvReqWithFiles(
-    advanceRequest: AdvanceRequests,
+    advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
