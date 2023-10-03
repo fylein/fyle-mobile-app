@@ -1179,18 +1179,30 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       orgSettings: orgSettings$,
       orgUserSettings: this.orgUserSettings$,
-      categories: this.categoriesService.getAll(),
       homeCurrency: this.homeCurrency$,
       eou: eou$,
       imageData: this.getInstaFyleImageData(),
       recentCurrency: from(this.recentLocalStorageItemsService.get<Currency>('recent-currency-cache')),
       recentValue: this.recentlyUsedValues$,
     }).pipe(
+      switchMap((dependencies) => {
+        const extractedCategoryDetails = dependencies.imageData?.parsedResponse as ParsedResponse;
+        if (extractedCategoryDetails?.category) {
+          return this.categoriesService.getCategoryByName(extractedCategoryDetails.category).pipe(
+            map((category) => {
+              const newDependencies = { ...dependencies, extractedCategory: category };
+              return newDependencies;
+            })
+          );
+        } else {
+          return of({ ...dependencies, extractedCategory: null });
+        }
+      }),
       map(
         (dependencies: {
           orgSettings: OrgSettings;
           orgUserSettings: OrgUserSettings;
-          categories: OrgCategory[];
+          extractedCategory: OrgCategory;
           homeCurrency: string;
           eou: ExtendedOrgUser;
           imageData: InstaFyleResponse;
@@ -1200,7 +1212,7 @@ export class AddEditExpensePage implements OnInit {
           const {
             orgSettings,
             orgUserSettings,
-            categories,
+            extractedCategory,
             homeCurrency,
             eou,
             imageData,
@@ -1341,10 +1353,9 @@ export class AddEditExpensePage implements OnInit {
               etxn.tx.vendor = extractedData.vendor;
             }
 
-            if (extractedData.category) {
-              const category = categories.find((orgCategory) => orgCategory.name === extractedData.category);
-              etxn.tx.org_category_id = category?.id;
-              etxn.tx.fyle_category = category?.fyle_category;
+            if (extractedCategory) {
+              etxn.tx.org_category_id = extractedCategory.id;
+              etxn.tx.fyle_category = extractedCategory.fyle_category;
             }
           }
 
