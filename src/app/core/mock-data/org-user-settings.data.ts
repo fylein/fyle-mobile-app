@@ -683,3 +683,30 @@ export const orgUserSettingsWoProjects: OrgUserSettings = {
   ...orgUserSettingsData,
   project_ids: null,
 };
+
+export const notificationDelegateeSettings1: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: false,
+  },
+};
+
+export const notificationDelegateeSettings2: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: false,
+    notify_user: true,
+  },
+};
+
+export const notificationDelegateeSettings3: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: true,
+  },
+};
