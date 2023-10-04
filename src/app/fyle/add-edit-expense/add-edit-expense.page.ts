@@ -1936,7 +1936,7 @@ export class AddEditExpensePage implements OnInit {
      */
     const isNewExpense = !etxn.tx.id;
     const canAutofillCategoryDuringEdit =
-      etxn.tx.state === 'DRAFT' && (etxn.tx.source === 'WEBAPP_BULK' || etxn.tx.source === 'MOBILE_DASHCAM_BULK');
+      etxn.tx.state === 'DRAFT' && ['WEBAPP_BULK', 'MOBILE_DASHCAM_BULK'].includes(etxn.tx.source);
     const isTxnEligibleForCategoryAutofill = isCategoryEmpty && (isNewExpense || canAutofillCategoryDuringEdit);
     if (doRecentOrgCategoryIdsExist && isTxnEligibleForCategoryAutofill) {
       const autoFillCategory = recentCategories?.length && recentCategories[0];
