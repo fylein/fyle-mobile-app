@@ -60,5 +60,12 @@
   &--action-shortcut {
     padding-right: 12px;
     padding-top: 2px;
+
+    &--skeleton-icon {
+      margin-right: 12px;
+      width: 24px;
+      height: 24px;
+      border-radius: 5px;
+    }
   }
 }
