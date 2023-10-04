@@ -5,11 +5,18 @@ import {
   expenseFiltersData3,
   expenseFiltersData4,
   expenseFiltersData5,
+  expenseFiltersData6,
 } from 'src/app/core/mock-data/expense-filters.data';
-import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import {
+  creditTxnFilterPill,
+  sortByAscFilterPill,
+  sortByDateAscFilterPill,
+  sortByDateDescFilterPill,
+  sortByDescFilterPill,
+} from 'src/app/core/mock-data/filter-pills.data';
 import { selectedFilters7, selectedFilters8 } from 'src/app/core/mock-data/selected-filters.data';
 
-fdescribe('MyExpensesService', () => {
+describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
 
   beforeEach(() => {
@@ -70,7 +77,40 @@ fdescribe('MyExpensesService', () => {
 
   describe('generateSortAmountPills():', () => {
     it('should add amount - high to low as sort params if sort direction is decreasing', () => {
-      myExpensesService.generateSortAmountPills(expenseFiltersData5, []);
+      const filterPill = [];
+      myExpensesService.generateSortAmountPills(expenseFiltersData5, filterPill);
+      expect(filterPill).toEqual(sortByDescFilterPill);
     });
+
+    it('should add amount - low to high as sort params if sort direction is ascending', () => {
+      const filterPill = [];
+      myExpensesService.generateSortAmountPills({ ...expenseFiltersData5, sortDir: 'asc' }, filterPill);
+      expect(filterPill).toEqual(sortByAscFilterPill);
+    });
+  });
+
+  describe('generateSortTxnDatePills():', () => {
+    it('should add date - old to new as sort params if sort direction is ascending', () => {
+      const filterPill = [];
+      myExpensesService.generateSortTxnDatePills(expenseFiltersData6, filterPill);
+      expect(filterPill).toEqual(sortByDateAscFilterPill);
+    });
+
+    it('should add date - new to old as sort params if sort direction is descending', () => {
+      const filterPill = [];
+      myExpensesService.generateSortTxnDatePills({ ...expenseFiltersData6, sortDir: 'desc' }, filterPill);
+      expect(filterPill).toEqual(sortByDateDescFilterPill);
+    });
+  });
+
+  it('generateTypeFilterPills(): should add combined expense types value in filter pills', () => {
+    const filterPill = [];
+    myExpensesService.generateTypeFilterPills(
+      { ...expenseFiltersData1, type: ['RegularExpenses', 'PerDiem', 'Mileage', 'custom'] },
+      filterPill
+    );
+    expect(filterPill).toEqual([
+      { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
+    ]);
   });
 });

@@ -154,3 +154,35 @@ export const filterTypeMappings: FilterPill[] = [
   sortFilterPill,
   splitExpenseFilterPill,
 ];
+
+export const sortByDescFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'amount - high to low',
+  },
+];
+
+export const sortByAscFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'amount - low to high',
+  },
+];
+
+export const sortByDateAscFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'date - old to new',
+  },
+];
+
+export const sortByDateDescFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'date - new to old',
+  },
+];

@@ -43,3 +43,10 @@ export const expenseFiltersData5: Partial<ExpenseFilters> = {
   sortDir: 'desc',
   splitExpense: 'YES',
 };
+
+export const expenseFiltersData6: Partial<ExpenseFilters> = {
+  receiptsAttached: 'YES',
+  sortParam: 'tx_txn_dt',
+  sortDir: 'asc',
+  splitExpense: 'YES',
+};
