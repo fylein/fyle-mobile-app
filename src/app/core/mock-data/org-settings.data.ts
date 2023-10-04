@@ -1,5 +1,5 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-import { OrgSettings, TaxSettings } from '../models/org-settings.model';
+import { EmailEvents, OrgSettings, TaxSettings } from '../models/org-settings.model';
 import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
 export const orgSettingsRes: OrgSettings = {
@@ -1345,4 +1345,12 @@ export const orgSettingsWoProjects: OrgSettings = {
 export const orgSettingsWoMileage: OrgSettings = {
   ...orgSettingsParams2,
   mileage: null,
+};
+
+export const orgSettingsWithUnsubscribeEvent: OrgSettings = {
+  ...orgSettingsRes,
+  admin_email_settings: {
+    ...orgSettingsRes.admin_email_settings,
+    unsubscribed_events: [EmailEvents.DELEGATOR_SUBSCRIPTION, EmailEvents.EADVANCES_CREATED],
+  },
 };
