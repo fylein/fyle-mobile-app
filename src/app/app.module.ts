@@ -7,7 +7,6 @@ import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
-import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe, TitleCasePipe } from '@angular/common';
@@ -48,7 +47,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HammerModule,
   ],
   providers: [
-    GooglePlus,
     InAppBrowser,
     Smartlook,
     {
