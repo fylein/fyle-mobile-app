@@ -186,3 +186,17 @@ export const sortByDateDescFilterPill: FilterPill[] = [
     value: 'date - new to old',
   },
 ];
+
+export const expectedDateFilterPill = [
+  {
+    label: 'Date',
+    type: 'date',
+    value: '2023-01-21 to 2023-01-31',
+  },
+];
+
+export const stateFilterPill2: FilterPill = {
+  label: 'Type',
+  type: 'state',
+  value: 'Incomplete, Complete, approved',
+};
