@@ -30,9 +30,16 @@
     </ion-buttons>
     <ion-title class="stats--title" mode="md"> Home </ion-title>
     <ion-buttons slot="end" *ngIf="isConnected$ | async">
-      <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-        <mat-icon svgIcon="fy-plus"></mat-icon>
-      </div>
+      <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
+        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+          <mat-icon svgIcon="fy-plus"></mat-icon>
+        </div>
+      </ng-container>
+      <ng-template #actionLoader>
+        <div class="stats--action-shortcut--skeleton-icon">
+          <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+        </div>
+      </ng-template>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>

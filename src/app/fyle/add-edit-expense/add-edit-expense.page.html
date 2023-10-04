@@ -439,7 +439,7 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
+            <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div
@@ -1153,6 +1153,15 @@
                 </app-fy-alert-info>
               </ng-container>
             </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="filteredCategories$|async as categories">
+            <app-fy-alert-info
+              *ngIf="txnFields?.org_category_id?.is_mandatory && !categories.length"
+              [message]="'There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+              [type]="'warning'"
+            >
+            </app-fy-alert-info>
           </ng-container>
         </ng-container>
       </ng-container>

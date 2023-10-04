@@ -1,3 +1,4 @@
+import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 
 export const orgCategoryData: OrgCategory = {
@@ -12,6 +13,33 @@ export const orgCategoryData: OrgCategory = {
   sub_category: 'Food',
   updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
 };
+
+export const mileagePerDiemPlatformCategoryData: PlatformCategory[] = [
+  {
+    code: null,
+    created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
+    display_name: 'Mileage',
+    is_enabled: true,
+    system_category: 'Mileage',
+    id: 16566,
+    name: 'Mileage',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'Mileage',
+    updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
+  },
+  {
+    code: null,
+    created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
+    display_name: 'Per Diem',
+    is_enabled: true,
+    system_category: 'Per Diem',
+    id: 16566,
+    name: 'Per Diem',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'Per Diem',
+    updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
+  },
+];
 
 export const transformedOrgCategories: OrgCategory[] = [
   {
@@ -1119,3 +1147,16 @@ export const expectedMileageCategoriesData: OrgCategory[] = [
     updated_at: new Date('2022-05-05T17:47:06.951Z'),
   },
 ];
+
+export const expectedOrgCategoryByName2: OrgCategory = {
+  code: '93',
+  created_at: new Date('2021-05-18T11:40:38.576Z'),
+  displayName: 'Business',
+  enabled: true,
+  fyle_category: undefined,
+  id: undefined,
+  name: 'Business',
+  org_id: 'orrjqbDbeP9p',
+  sub_category: 'Business',
+  updated_at: new Date('2022-07-01T05:51:31.800Z'),
+};

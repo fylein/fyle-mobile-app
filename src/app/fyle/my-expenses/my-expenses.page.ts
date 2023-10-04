@@ -76,6 +76,8 @@ import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -114,6 +116,10 @@ export class MyExpensesPage implements OnInit {
   isMileageEnabled$: Observable<boolean>;
 
   isPerDiemEnabled$: Observable<boolean>;
+
+  orgSettings$: Observable<OrgSettings>;
+
+  specialCategories$: Observable<PlatformCategory[]>;
 
   pendingTransactions: Partial<Expense>[] = [];
 
@@ -208,6 +214,7 @@ export class MyExpensesPage implements OnInit {
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
     private platformHandlerService: PlatformHandlerService,
+    private categoriesService: CategoriesService,
     private navController: NavController
   ) {}
 
@@ -337,10 +344,10 @@ export class MyExpensesPage implements OnInit {
     };
   }
 
-  setupActionSheet(orgSettings: OrgSettings): void {
+  setupActionSheet(orgSettings: OrgSettings, allowedExpenseTypes: Record<string, boolean>): void {
     const that = this;
-    const mileageEnabled = orgSettings.mileage.enabled;
-    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    const mileageEnabled = orgSettings.mileage.enabled && allowedExpenseTypes.mileage;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
@@ -357,7 +364,7 @@ export class MyExpensesPage implements OnInit {
     ];
 
     if (mileageEnabled) {
-      this.actionSheetButtons.push({
+      that.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',
@@ -428,14 +435,25 @@ export class MyExpensesPage implements OnInit {
       map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
     );
 
-    const getOrgSettingsService$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
 
-    this.isMileageEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.mileage?.enabled));
-    this.isPerDiemEnabled$ = getOrgSettingsService$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
+    this.isMileageEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.mileage?.enabled));
+    this.isPerDiemEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
 
-    getOrgSettingsService$.subscribe((orgSettings) => {
+    this.orgSettings$.subscribe((orgSettings) => {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-      this.setupActionSheet(orgSettings);
+    });
+
+    forkJoin({
+      orgSettings: this.orgSettings$,
+      specialCategories: this.specialCategories$,
+    }).subscribe(({ orgSettings, specialCategories }) => {
+      const allowedExpenseTypes = {
+        mileage: specialCategories.some((category) => category.system_category === 'Mileage'),
+        perDiem: specialCategories.some((category) => category.system_category === 'Per Diem'),
+      };
+      this.setupActionSheet(orgSettings, allowedExpenseTypes);
     });
 
     forkJoin({

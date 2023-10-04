@@ -1,14 +1,19 @@
 import { Component, OnInit } from '@angular/core';
-import { Observable, from, forkJoin, merge, zip, noop } from 'rxjs';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { map, tap, switchMap, mergeMap, finalize } from 'rxjs/operators';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { FormGroup, FormControl, FormBuilder, FormArray } from '@angular/forms';
-import { LoaderService } from 'src/app/core/services/loader.service';
+import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
+import { Observable, from, noop, zip } from 'rxjs';
+import { finalize, map } from 'rxjs/operators';
+import {
+  EmailEvents,
+  NotificationEventFeatures,
+  NotificationEvents,
+} from 'src/app/core/models/notification-events.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 
 @Component({
   selector: 'app-notifications',
@@ -20,23 +25,21 @@ export class NotificationsPage implements OnInit {
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  notificationEvents$: Observable<any>;
+  notificationEvents$: Observable<NotificationEvents>;
 
-  orgSettings$: Observable<any>;
+  orgSettings$: Observable<OrgSettings>;
 
-  features$: Observable<any>;
+  delegationOptions: string[];
 
-  delegationOptions;
+  notificationEvents: NotificationEvents;
 
-  notificationEvents;
+  orgUserSettings: OrgUserSettings;
 
-  orgUserSettings;
-
-  orgSettings;
+  orgSettings: OrgSettings;
 
   isAllSelected: {
-    emailEvents: boolean;
-    pushEvents: boolean;
+    emailEvents?: boolean;
+    pushEvents?: boolean;
   };
 
   notifEvents = [];
@@ -62,7 +65,7 @@ export class NotificationsPage implements OnInit {
     return this.notificationForm.controls.emailEvents as FormArray;
   }
 
-  getDelegateeSubscription() {
+  getDelegateeSubscription(): Observable<string> {
     return this.orgUserSettings$.pipe(
       map((ouSetting) => {
         if (
@@ -85,15 +88,7 @@ export class NotificationsPage implements OnInit {
     );
   }
 
-  trackByFeatureKey(index, item) {
-    return item.key;
-  }
-
-  trackByEventType(index, item) {
-    return item.eventType;
-  }
-
-  setEvents(notificationEvents, orgUserSettings) {
+  setEvents(notificationEvents: NotificationEvents, orgUserSettings: OrgUserSettings): void {
     const unSubscribedPushNotifications = orgUserSettings.notification_settings.push.unsubscribed_events;
     const unSubscribedEmailNotifications = orgUserSettings.notification_settings.email.unsubscribed_events;
 
@@ -121,23 +116,25 @@ export class NotificationsPage implements OnInit {
     });
   }
 
-  goBack() {
+  goBack(): void {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
-  saveNotificationSettings() {
+  saveNotificationSettings(): void {
     this.saveNotifLoading = true;
-    const unsubscribedPushEvents = [];
-    const unsubscribedEmailEvents = [];
+    const unsubscribedPushEvents: string[] = [];
+    const unsubscribedEmailEvents: string[] = [];
 
-    this.notificationEvents.events.forEach((event, index) => {
-      event.email.selected = this.emailEvents.value[index];
-      event.push.selected = this.pushEvents.value[index];
+    this.notificationEvents.events.forEach((event: EmailEvents, index: number) => {
+      const emailEvent = this.emailEvents.value as { value: { email: { selected: boolean } } };
+      const pushEvent = this.pushEvents.value as { value: { push: { selected: boolean } } };
+      event.email.selected = emailEvent[index] as boolean;
+      event.push.selected = pushEvent[index] as boolean;
 
-      if (this.emailEvents.value[index] === false) {
+      if (emailEvent[index] === false) {
         unsubscribedEmailEvents.push(event.eventType.toUpperCase());
       }
-      if (this.pushEvents.value[index] === false) {
+      if (pushEvent[index] === false) {
         unsubscribedPushEvents.push(event.eventType.toUpperCase());
       }
     });
@@ -153,31 +150,35 @@ export class NotificationsPage implements OnInit {
       .pipe(() => this.orgUserSettingsService.clearOrgUserSettings())
       .pipe(finalize(() => (this.saveNotifLoading = false)))
       .subscribe(() => {
-        this.navController.back();
+        this.navBack();
       });
   }
 
-  isAllEventsSubscribed() {
+  navBack(): void {
+    this.navController.back();
+  }
+
+  isAllEventsSubscribed(): void {
     this.isAllSelected.emailEvents = this.orgUserSettings.notification_settings.email.unsubscribed_events.length === 0;
     this.isAllSelected.pushEvents = this.orgUserSettings.notification_settings.push.unsubscribed_events.length === 0;
   }
 
-  removeAdminUnsbscribedEvents() {
-    this.orgSettings$.pipe(
-      map((setting) => {
-        if (setting.admin_email_settings.unsubscribed_events.length) {
-          this.notificationEvents.events = this.notificationEvents.events.filter(
-            (notificationEvent) =>
-              this.orgSettings.admin_email_settings.unsubscribed_events.indexOf(
-                notificationEvent.eventType.toUpperCase()
-              ) === -1
-          );
-        }
-      })
-    );
+  removeAdminUnsbscribedEvents(): void {
+    this.orgSettings$
+      .pipe(
+        map((setting) => {
+          if (setting.admin_email_settings.unsubscribed_events.length) {
+            this.notificationEvents.events = this.notificationEvents.events.filter((notificationEvent) => {
+              const emailEvents = this.orgSettings.admin_email_settings.unsubscribed_events as string[];
+              return emailEvents.indexOf(notificationEvent.eventType.toUpperCase()) === -1;
+            });
+          }
+        })
+      )
+      .subscribe(noop);
   }
 
-  updateAdvanceRequestFeatures() {
+  updateAdvanceRequestFeatures(): void {
     this.orgSettings$
       .pipe(
         map((setting) => {
@@ -192,7 +193,7 @@ export class NotificationsPage implements OnInit {
       .subscribe(noop);
   }
 
-  updateDelegateeNotifyPreference(event) {
+  updateDelegateeNotifyPreference(event: { value: string }): void {
     if (event) {
       if (event.value === 'Notify my delegate') {
         this.orgUserSettings.notification_settings.notify_delegatee = true;
@@ -207,54 +208,60 @@ export class NotificationsPage implements OnInit {
     }
   }
 
-  removeDisabledFeatures() {
+  removeDisabledFeatures(): void {
     this.updateAdvanceRequestFeatures();
 
     const activeFeatures = this.notificationEvents.events.reduce((accumulator, notificationEvent) => {
       if (accumulator.indexOf(notificationEvent.feature) === -1) {
         accumulator.push(notificationEvent.feature);
       }
-      return accumulator;
+      return accumulator as string[];
     }, []);
 
-    const newFeatures = {};
-    activeFeatures.forEach((featureKey) => {
-      newFeatures[featureKey] = this.notificationEvents.features[featureKey];
+    const newFeatures: NotificationEventFeatures = {
+      advances: {
+        selected: false,
+        textLabel: '',
+      },
+      expensesAndReports: {
+        selected: false,
+        textLabel: '',
+      },
+    };
+    activeFeatures.forEach((featureKey: string) => {
+      newFeatures[featureKey] = this.notificationEvents.features[featureKey] as {
+        selected: boolean;
+        textLabel: string;
+      };
     });
     this.notificationEvents.features = newFeatures;
   }
 
-  updateNotificationEvents() {
+  updateNotificationEvents(): void {
     this.removeAdminUnsbscribedEvents();
     this.removeDisabledFeatures();
   }
 
-  toggleAllSelected(eventType) {
+  toggleAllSelected(eventType: string): void {
     if (eventType === 'email') {
+      const emailEventsValue = this.notificationForm.controls.emailEvents.value as string[];
       if (this.isAllSelected.emailEvents) {
-        this.notificationForm.controls.emailEvents.setValue(
-          this.notificationForm.controls.emailEvents.value.map(() => false)
-        );
+        this.emailEvents.setValue(emailEventsValue.map(() => false));
       } else {
-        this.notificationForm.controls.emailEvents.setValue(
-          this.notificationForm.controls.emailEvents.value.map(() => true)
-        );
+        this.emailEvents.setValue(emailEventsValue.map(() => true));
       }
     }
     if (eventType === 'push') {
+      const pushEventsValue = this.notificationForm.controls.pushEvents.value as string[];
       if (this.isAllSelected.pushEvents) {
-        this.notificationForm.controls.pushEvents.setValue(
-          this.notificationForm.controls.pushEvents.value.map(() => false)
-        );
+        this.pushEvents.setValue(pushEventsValue.map(() => false));
       } else {
-        this.notificationForm.controls.pushEvents.setValue(
-          this.notificationForm.controls.pushEvents.value.map(() => true)
-        );
+        this.pushEvents.setValue(pushEventsValue.map(() => true));
       }
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.delegationOptions = ['Notify me and my delegate', 'Notify my delegate', 'Notify me only'];
 
     this.isAllSelected = {
@@ -281,7 +288,7 @@ export class NotificationsPage implements OnInit {
     this.orgSettings$ = this.orgSettingsService.get();
     this.notificationEvents$ = this.orgUserSettingsService.getNotificationEvents();
 
-    const mergedData$ = zip(this.notificationEvents$, this.orgUserSettings$, this.orgSettings$)
+    zip(this.notificationEvents$, this.orgUserSettings$, this.orgSettings$)
       .pipe(
         finalize(() => {
           this.isAllEventsSubscribed();
@@ -298,9 +305,16 @@ export class NotificationsPage implements OnInit {
      * on valueChange of any check box, checking for all box selected or not
      * if selected will toggle all select box
      */
-    this.notificationForm.valueChanges.subscribe((change) => {
-      this.isAllSelected.emailEvents = change.emailEvents.every((selected) => selected === true);
-      this.isAllSelected.pushEvents = change.pushEvents.every((selected) => selected === true);
+
+    this.toggleEvents();
+  }
+
+  toggleEvents(): void {
+    this.notificationForm.valueChanges.subscribe((change: { emailEvents: boolean[]; pushEvents: boolean[] }) => {
+      const emailEvents = change.emailEvents;
+      const pushEvents = change.pushEvents;
+      this.isAllSelected.emailEvents = emailEvents.every((selected) => selected === true);
+      this.isAllSelected.pushEvents = pushEvents.every((selected) => selected === true);
     });
   }
 }
