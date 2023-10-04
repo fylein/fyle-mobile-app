@@ -132,3 +132,56 @@ export const selectedFiltersParams2: SelectedFilters<string>[] = [
     },
   },
 ];
+
+export const selectedFilters7: SelectedFilters<string | string[]>[] = [
+  ...selectedFilters5,
+  {
+    name: 'Type',
+    value: 'custom',
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'Yes',
+  },
+  {
+    name: 'Expense Type',
+    value: ['Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '2389'],
+  },
+  { name: 'Sort By', value: 'dateNewToOld' },
+  {
+    name: 'Split Expense',
+    value: 'Yes',
+  },
+];
+
+export const selectedFilters8: SelectedFilters<string | string[]>[] = [
+  {
+    name: 'Date',
+    value: 'Last Month',
+  },
+  {
+    name: 'Type',
+    value: 'custom',
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'Yes',
+  },
+  {
+    name: 'Expense Type',
+    value: ['Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '2389'],
+  },
+  { name: 'Sort By', value: 'dateNewToOld' },
+  {
+    name: 'Split Expense',
+    value: 'Yes',
+  },
+];
