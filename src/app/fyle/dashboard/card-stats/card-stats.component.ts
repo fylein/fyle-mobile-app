@@ -12,7 +12,6 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-card-stats',
@@ -47,8 +46,7 @@ export class CardStatsComponent implements OnInit {
     private networkService: NetworkService,
     private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private popoverController: PopoverController,
-    private launchDarklyService: LaunchDarklyService
+    private popoverController: PopoverController
   ) {}
 
   ngOnInit(): void {
@@ -98,20 +96,8 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    const isUnifiedCardEnrollmentFlowEnabled$ = this.launchDarklyService.getVariation(
-      'unified_card_enrollment_flow_enabled',
-      false
-    );
-
-    this.canAddCorporateCards$ = forkJoin([
-      isUnifiedCardEnrollmentFlowEnabled$,
-      this.isVisaRTFEnabled$,
-      this.isMastercardRTFEnabled$,
-    ]).pipe(
-      map(
-        ([isUnifiedCardEnrollmentFlowEnabled, isVisaRTFEnabled, isMastercardRTFEnabled]) =>
-          isUnifiedCardEnrollmentFlowEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled)
-      )
+    this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
+      map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
     );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
