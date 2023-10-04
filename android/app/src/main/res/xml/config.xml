@@ -3,11 +3,6 @@
   
   <access origin="https://app.fylehq.com" />
   
-  <feature name="GooglePlus">
-    <param name="android-package" value="nl.xservices.plugins.GooglePlus"/>
-    <param name="onload" value="true"/>
-  </feature>
-
   <feature name="InAppBrowser">
     <param name="android-package" value="org.apache.cordova.inappbrowser.InAppBrowser"/>
   </feature>

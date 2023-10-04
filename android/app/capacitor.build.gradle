@@ -28,8 +28,7 @@ dependencies {
     implementation project(':jonz94-capacitor-image-picker')
     implementation project(':capacitor-native-settings')
     implementation project(':capacitor-secure-storage-plugin')
-    implementation "com.google.android.gms:play-services-auth:15.0.1"
-    implementation "com.google.android.gms:play-services-identity:15.0.1"
+
 }
 apply from: "../../node_modules/cordova-plugin-ionic/src/android/cordovapluginionic.gradle"
 apply from: "../../node_modules/cordova-plugin-smartlook/src/android/plugin.gradle"
