@@ -17,10 +17,11 @@ import {
   sortByDateAscFilterPill,
   sortByDateDescFilterPill,
   sortByDescFilterPill,
+  sortFilterPill,
   splitExpenseFilterPill,
   stateFilterPill2,
 } from 'src/app/core/mock-data/filter-pills.data';
-import { selectedFilters7, selectedFilters8 } from 'src/app/core/mock-data/selected-filters.data';
+import { selectedFilters7, selectedFilters8, selectedFilters9 } from 'src/app/core/mock-data/selected-filters.data';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import {
@@ -32,7 +33,8 @@ import {
   expectedFilterPill8,
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
-import { filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
+import { filter1, filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
+import { filterOptions2 } from 'src/app/core/mock-data/filter-options.data';
 
 describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
@@ -345,6 +347,174 @@ describe('MyExpensesService', () => {
         sortParam: 'tx_org_category',
         sortDir: 'desc',
       });
+    });
+  });
+
+  it('getFilters(): should return all the filters', () => {
+    const filters = myExpensesService.getFilters();
+
+    expect(filters).toEqual(filterOptions2);
+  });
+
+  it('generateSelectedFilters(): should generate selected filters', () => {
+    spyOn(myExpensesService, 'addSortToGeneratedFilters');
+
+    const filters = myExpensesService.generateSelectedFilters(expenseFiltersData1);
+
+    expect(myExpensesService.addSortToGeneratedFilters).toHaveBeenCalledOnceWith(expenseFiltersData1, filters);
+
+    expect(filters).toEqual(selectedFilters9);
+  });
+
+  it('addSortToGeneratedFilters(): should call convertTxnDtSortToSelectedFilters, convertAmountSortToSelectedFilters and convertCategorySortToSelectedFilters once', () => {
+    spyOn(myExpensesService, 'convertTxnDtSortToSelectedFilters');
+    spyOn(myExpensesService, 'convertAmountSortToSelectedFilters');
+    spyOn(myExpensesService, 'convertCategorySortToSelectedFilters');
+
+    myExpensesService.addSortToGeneratedFilters(expenseFiltersData1, selectedFilters9);
+
+    expect(myExpensesService.convertTxnDtSortToSelectedFilters).toHaveBeenCalledOnceWith(
+      expenseFiltersData1,
+      selectedFilters9
+    );
+    expect(myExpensesService.convertAmountSortToSelectedFilters).toHaveBeenCalledOnceWith(
+      expenseFiltersData1,
+      selectedFilters9
+    );
+    expect(myExpensesService.convertCategorySortToSelectedFilters).toHaveBeenCalledOnceWith(
+      expenseFiltersData1,
+      selectedFilters9
+    );
+  });
+
+  describe('convertCategorySortToSelectedFilters():', () => {
+    it('should add categoryAToZ sort params if sort direction is ascending', () => {
+      const generatedFilters = [];
+
+      myExpensesService.convertCategorySortToSelectedFilters(expenseFiltersData1, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'categoryAToZ',
+        },
+      ]);
+    });
+
+    it('should add categoryZToA sort params if sort direction is descending', () => {
+      const generatedFilters = [];
+
+      myExpensesService.convertCategorySortToSelectedFilters(
+        { ...expenseFiltersData1, sortDir: 'desc' },
+        generatedFilters
+      );
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'categoryZToA',
+        },
+      ]);
+    });
+  });
+
+  describe('convertAmountSortToSelectedFilters(): ', () => {
+    it('should convert amount sort to selected filters for descending sort', () => {
+      const filter = {
+        sortParam: 'tx_amount',
+        sortDir: 'desc',
+      };
+      const generatedFilters = [];
+
+      myExpensesService.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'amountHighToLow',
+        },
+      ]);
+    });
+
+    it('should convert amount sort to selected filters for ascending sort', () => {
+      const filter = {
+        sortParam: 'tx_amount',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      myExpensesService.convertAmountSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'amountLowToHigh',
+        },
+      ]);
+    });
+  });
+
+  describe('convertTxnDtSortToSelectedFilters():', () => {
+    it('should covert txn date sort to selected filters for descending sort', () => {
+      const filter = {
+        sortParam: 'tx_txn_dt',
+        sortDir: 'desc',
+      };
+      const generatedFilters = [];
+
+      myExpensesService.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'dateNewToOld',
+        },
+      ]);
+    });
+
+    it('should covert txn date sort to selected filters for ascending sort', () => {
+      const filter = {
+        sortParam: 'tx_txn_dt',
+        sortDir: 'asc',
+      };
+      const generatedFilters = [];
+
+      myExpensesService.convertTxnDtSortToSelectedFilters(filter, generatedFilters);
+
+      expect(generatedFilters).toEqual([
+        {
+          name: 'Sort By',
+          value: 'dateOldToNew',
+        },
+      ]);
+    });
+  });
+
+  describe('generateSortCategoryPills():', () => {
+    it('should add category - a to z as sort params if sort direction is ascending', () => {
+      const filter = {
+        sortParam: 'tx_org_category',
+        sortDir: 'asc',
+      };
+      const filterPill = [];
+
+      //@ts-ignore
+      myExpensesService.generateSortCategoryPills(filter, filterPill);
+
+      expect(filterPill).toEqual([sortFilterPill]);
+    });
+
+    it('should add category - z to a as sort params if sort direction is descending', () => {
+      const filter = {
+        sortParam: 'tx_org_category',
+        sortDir: 'desc',
+      };
+      const filterPill = [];
+
+      //@ts-ignore
+      myExpensesService.generateSortCategoryPills(filter, filterPill);
+
+      expect(filterPill).toEqual([{ ...sortFilterPill, value: 'category - z to a' }]);
     });
   });
 });
