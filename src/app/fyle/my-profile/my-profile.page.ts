@@ -32,7 +32,6 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -74,10 +73,6 @@ export class MyProfilePage {
 
   isMastercardRTFEnabled: boolean;
 
-  isYodleeEnabled: boolean;
-
-  isUnifiedCardEnrollmentFlowEnabled: boolean;
-
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -94,8 +89,7 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private activatedRoute: ActivatedRoute,
-    private launchDarklyService: LaunchDarklyService
+    private activatedRoute: ActivatedRoute
   ) {}
 
   setupNetworkWatcher(): void {
@@ -187,10 +181,6 @@ export class MyProfilePage {
           forkJoin({
             orgUserSettings: orgUserSettings$,
             orgSettings: orgSettings$,
-            isUnifiedCardEnrollmentFlowEnabled: this.launchDarklyService.getVariation(
-              'unified_card_enrollment_flow_enabled',
-              false
-            ),
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -198,7 +188,6 @@ export class MyProfilePage {
       .subscribe(async (res) => {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
-        this.isUnifiedCardEnrollmentFlowEnabled = res.isUnifiedCardEnrollmentFlowEnabled;
 
         this.setCCCFlags();
         this.setPreferenceSettings();
