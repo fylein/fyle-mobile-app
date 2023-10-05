@@ -390,3 +390,10 @@ export const advanceRequests2: Partial<AdvanceRequests> = {
   source: 'MOBILE',
   custom_field_values: null,
 };
+
+export const advanceRequests3: Partial<AdvanceRequests> = {
+  org_user_id: 'ouX8dwsbLCLv',
+  currency: 'GNF',
+  source: 'MOBILE',
+  created_at: new Date(),
+};

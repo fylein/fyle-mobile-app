@@ -43,7 +43,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
     const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getById', 'getAllActive']);
+    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllActive']);
     const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
     const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
     const fileServiceSpyObj = jasmine.createSpyObj('FileService', [
@@ -57,7 +57,7 @@ describe('AddEditAdvanceRequestPage', () => {
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrrency']);
+    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 

@@ -16,11 +16,11 @@ import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
-import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { FormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { clone, cloneDeep } from 'lodash';
-import { advanceRequests, advanceRequests2 } from 'src/app/core/mock-data/advance-requests.data';
+import { advanceRequests, advanceRequests2, advanceRequests3 } from 'src/app/core/mock-data/advance-requests.data';
 import {
   addEditAdvanceRequestFormValueData,
   addEditAdvanceRequestFormValueData3,
@@ -46,6 +46,19 @@ import {
   modalControllerParams5,
 } from 'src/app/core/mock-data/modal-controller.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
+import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
+import { unflattenedAdvanceRequestData } from 'src/app/core/mock-data/unflattened-advance-request.data';
+import { projects } from 'src/app/core/mock-data/extended-projects.data';
+import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
+import {
+  advanceRequestCustomFieldData,
+  advanceRequestCustomFieldData2,
+} from 'src/app/core/mock-data/advance-requests-custom-fields.data';
+import { EventEmitter } from '@angular/core';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -294,5 +307,172 @@ export function TestCases2(getTestBed) {
       expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
     }));
+
+    describe('ionViewWillEnter():', () => {
+      beforeEach(() => {
+        expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
+        authService.getEou.and.resolveTo(apiEouRes);
+        orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
+        loaderService.showLoader.and.resolveTo(undefined);
+        loaderService.hideLoader.and.resolveTo(undefined);
+        advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
+        projectsService.getbyId.and.returnValue(of(projects[0]));
+        spyOn(component, 'modifyAdvanceRequestCustomFields');
+        spyOn(component, 'getAttachedReceipts').and.returnValue(of(fileObject4));
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        const mockCustomField = cloneDeep(advanceRequestCustomFieldData);
+        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        spyOn(component, 'setupNetworkWatcher');
+      });
+
+      it('should set mode, homeCurrency$ and actions$ correctly', fakeAsync(() => {
+        component.ionViewWillEnter();
+        tick(100);
+        expect(component.mode).toEqual('edit');
+        component.homeCurrency$.subscribe((res) => {
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          expect(res).toEqual('USD');
+        });
+        component.actions$.subscribe((res) => {
+          expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.advanceActions).toEqual(apiAdvanceRequestAction);
+          expect(res).toEqual(apiAdvanceRequestAction);
+        });
+      }));
+
+      it('should set mode to add if id is not defined', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: undefined,
+        };
+        component.ionViewWillEnter();
+        tick(100);
+        expect(component.mode).toEqual('add');
+        component.homeCurrency$.subscribe((res) => {
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          expect(res).toEqual('USD');
+        });
+        expect(component.actions$).toBeUndefined();
+      }));
+
+      it('should get new advance request observable if mode is add', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: undefined,
+        };
+        component.ionViewWillEnter();
+        tick(100);
+
+        component.extendedAdvanceRequest$.subscribe((res) => {
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(res).toEqual({ ...advanceRequests3, created_at: new Date() });
+        });
+      }));
+
+      it('should get new advance request observable if mode is add with currency equal to homeCurrency if no preferred_currency is selected', fakeAsync(() => {
+        const mockOrgUserData = cloneDeep(orgUserSettingsData);
+        mockOrgUserData.currency_settings.preferred_currency = null;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserData));
+        activatedRoute.snapshot.params = {
+          id: undefined,
+        };
+        component.ionViewWillEnter();
+        tick(100);
+
+        component.extendedAdvanceRequest$.subscribe((res) => {
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(res).toEqual({ ...advanceRequests3, created_at: new Date(), currency: 'USD' });
+        });
+      }));
+
+      it('should get edit advance request observable if mode is edit', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: 'areqR1cyLgXdND',
+        };
+        const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
+        mockAdvanceRequest.areq.project_id = '3019';
+        advanceRequestService.getEReq.and.returnValue(of(mockAdvanceRequest));
+        fixture.detectChanges();
+        component.ionViewWillEnter();
+        tick(100);
+        component.extendedAdvanceRequest$.subscribe((res) => {
+          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getEReq).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.fg.value.currencyObj).toEqual({
+            currency: 'USD',
+            amount: 2,
+          });
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
+          expect(component.fg.value.project).toEqual(projects[0]);
+          expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
+            mockAdvanceRequest.areq.custom_field_values
+          );
+          expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.dataUrls).toEqual(fileObject4);
+          expect(res).toEqual(mockAdvanceRequest.areq);
+        });
+      }));
+
+      it('should set isProjectsEnabled$, projects$ and isProjectsVisible$ correctly', fakeAsync(() => {
+        component.ionViewWillEnter();
+        tick(100);
+        component.isProjectsEnabled$.subscribe((res) => {
+          expect(res).toBeTrue();
+        });
+        component.projects$.subscribe((res) => {
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(projectsV1Data);
+        });
+        component.isProjectsVisible$.subscribe((res) => {
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(res).toBeTrue();
+        });
+      }));
+
+      it('should set isProjectsEnabled$ to false if project_ids are undefined in org user settings data', fakeAsync(() => {
+        const mockOrgSettingsData = cloneDeep(orgSettingsRes);
+        mockOrgSettingsData.advanced_projects.enable_individual_projects = true;
+        orgSettingsService.get.and.returnValue(of(mockOrgSettingsData));
+        const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
+        mockOrgUserSettingsData.project_ids = undefined;
+        orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettingsData));
+        component.ionViewWillEnter();
+        tick(100);
+        component.isProjectsVisible$.subscribe((res) => {
+          expect(res).toBeFalse();
+        });
+      }));
+
+      it('should set customFields$ correctly', fakeAsync(() => {
+        const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
+        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        const customFieldValuesData = cloneDeep(advanceRequestCustomFieldValuesData);
+        customFieldValuesData[0].id = 150;
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(100);
+        component.customFieldValues = customFieldValuesData;
+
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+        component.customFields$.subscribe((res) => {
+          expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(mockCustomField);
+        });
+      }));
+    });
+
+    it('setupNetworkWatcher(): should setup network watcher', () => {
+      networkService.isOnline.and.returnValue(of(false));
+
+      component.setupNetworkWatcher();
+
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
+    });
   });
 }

@@ -114,12 +114,16 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
-    const el = document.activeElement;
+    const el = this.getActiveElement();
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
         block: 'center',
       });
     }
+  }
+
+  getActiveElement(): Element {
+    return document.activeElement;
   }
 
   getFormValues(): AddEditAdvanceRequestFormValue {
@@ -649,7 +653,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     );
     this.projects$ = this.projectsService.getAllActive();
 
-    this.isProjectsVisible$ = this.orgSettingsService.get().pipe(
+    this.isProjectsVisible$ = orgSettings$.pipe(
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
