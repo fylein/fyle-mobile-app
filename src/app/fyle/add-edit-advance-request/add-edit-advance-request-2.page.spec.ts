@@ -54,7 +54,11 @@ import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-
 import { unflattenedAdvanceRequestData } from 'src/app/core/mock-data/unflattened-advance-request.data';
 import { projects } from 'src/app/core/mock-data/extended-projects.data';
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
-import { advanceRequestCustomFieldData } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
+import {
+  advanceRequestCustomFieldData,
+  advanceRequestCustomFieldData2,
+} from 'src/app/core/mock-data/advance-requests-custom-fields.data';
+import { EventEmitter } from '@angular/core';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -441,6 +445,34 @@ export function TestCases2(getTestBed) {
           expect(res).toBeFalse();
         });
       }));
+
+      it('should set customFields$ correctly', fakeAsync(() => {
+        const mockCustomField = cloneDeep(advanceRequestCustomFieldData2);
+        advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockCustomField));
+        const customFieldValuesData = cloneDeep(advanceRequestCustomFieldValuesData);
+        customFieldValuesData[0].id = 150;
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(100);
+        component.customFieldValues = customFieldValuesData;
+
+        expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
+        component.customFields$.subscribe((res) => {
+          expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(mockCustomField);
+        });
+      }));
+    });
+
+    it('setupNetworkWatcher(): should setup network watcher', () => {
+      networkService.isOnline.and.returnValue(of(false));
+
+      component.setupNetworkWatcher();
+
+      expect(networkService.connectivityWatcher).toHaveBeenCalledTimes(1);
+      expect(networkService.isOnline).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
     });
   });
 }
