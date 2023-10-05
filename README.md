@@ -24,7 +24,7 @@ Please install node v14.17.2 or above via nvm.
    ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
    SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
    ```
-   make sure you have the latest `environment.ts` and `environment.staging.ts` file.
+   make sure you have the latest `environment.staging.ts` file.
 
 ## For creating pull requests
 
