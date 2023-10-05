@@ -59,6 +59,7 @@ import {
   advanceRequestCustomFieldData2,
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { EventEmitter } from '@angular/core';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -254,13 +255,16 @@ export function TestCases2(getTestBed) {
     });
 
     describe('openCommentsModal():', () => {
-      it('openCommentsModal(): should open the comments modal and call track addComment method if updated is true', fakeAsync(() => {
-        const viewCommentModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+      let viewCommentModalSpy: jasmine.SpyObj<HTMLIonModalElement>;
+      beforeEach(() => {
+        viewCommentModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
         viewCommentModalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });
         modalController.create.and.resolveTo(viewCommentModalSpy);
         component.id = 'areqR1cyLgXdND';
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      });
 
+      it('openCommentsModal(): should open the comments modal and call track addComment method if updated is true', fakeAsync(() => {
         component.openCommentsModal();
         tick(100);
         expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams5);
@@ -271,11 +275,8 @@ export function TestCases2(getTestBed) {
       }));
 
       it('openCommentsModal(): should open the comments modal and call track viewComment method if updated is false', fakeAsync(() => {
-        const viewCommentModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
         viewCommentModalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } });
         modalController.create.and.resolveTo(viewCommentModalSpy);
-        component.id = 'areqR1cyLgXdND';
-        modalProperties.getModalDefaultProperties.and.returnValue(properties);
 
         component.openCommentsModal();
         tick(100);
@@ -287,10 +288,20 @@ export function TestCases2(getTestBed) {
       }));
     });
 
-    it('getAdvanceRequestDeleteParams(): should return the advance request delete params', () => {
+    it('getAdvanceRequestDeleteParams(): should return the advance request delete params and deleteMethod should call advanceRequestService.delete', () => {
       const props = component.getAdvanceRequestDeleteParams();
       props.componentProps.deleteMethod();
       expect(advanceRequestService.delete).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      expect(props).toEqual({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Advance Request',
+          body: 'Are you sure you want to delete this request?',
+          deleteMethod: jasmine.any(Function),
+        },
+      });
     });
 
     it('delete(): should show popover and remove delete advance request', fakeAsync(() => {
