@@ -15,6 +15,10 @@ import { reportOptionsData } from './report-options.data';
 import { expectedErpt } from './report-unflattened.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { PolicyViolationDialogComponent } from 'src/app/fyle/add-edit-advance-request/policy-violation-dialog/policy-violation-dialog.component';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { advanceRequestFileUrlData2 } from './file-object.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -404,4 +408,39 @@ export const popoverControllerParams4 = {
     },
   },
   cssClass: 'pop-up-in-center',
+};
+
+export const modalControllerParams3 = {
+  component: CaptureReceiptComponent,
+  componentProps: {
+    isModal: true,
+    allowGalleryUploads: false,
+    allowBulkFyle: false,
+  },
+  cssClass: 'hide-modal',
+};
+
+export const modalControllerParams4 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: advanceRequestFileUrlData2,
+    canEdit: true,
+  },
+  mode: 'ios' as Mode,
+};
+
+export const modalControllerParams5 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqR1cyLgXdND',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
 };
