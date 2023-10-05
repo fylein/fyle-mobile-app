@@ -7,7 +7,11 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { eCCCData2, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import {
+  eCCCData2,
+  eCCCData3,
+  expectedECccResponse,
+} from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { defaultTxnFieldValuesData3 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import {
@@ -158,11 +162,11 @@ export function TestCases6(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -239,7 +243,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
         expect(dependentFieldSpy.ngOnInit).toHaveBeenCalledTimes(2);
       });
@@ -254,7 +258,7 @@ export function TestCases6(getTestBed) {
 
         expect(platformHandlerService.registerBackButtonAction).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
       });
     });
@@ -347,7 +351,7 @@ export function TestCases6(getTestBed) {
           'tax_group_id',
           'org_category_id',
         ],
-        undefined,
+        undefined
       );
     }));
 
@@ -511,6 +515,17 @@ export function TestCases6(getTestBed) {
       expect(component.fg.controls.train_travel_class.value).toBeNull();
       expect(component.fg.controls.bus_travel_class.value).toBeNull();
     }));
+
+    it('initCCCTxn(): should initialize CCC txn and initialize card number and ending digits', () => {
+      activatedRoute.snapshot.params = {
+        bankTxn: JSON.stringify(eCCCData3),
+      };
+      component.initCCCTxn();
+      expect(component.showSelectedTransaction).toBeTrue();
+      expect(component.selectedCCCTransaction).toEqual(eCCCData3.ccce);
+      expect(component.isCreatedFromCCC).toBeTrue();
+      expect(component.cardEndingDigits).toEqual('6789');
+    });
 
     it('ngOnInit(): should populate report permissions', () => {
       activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);
