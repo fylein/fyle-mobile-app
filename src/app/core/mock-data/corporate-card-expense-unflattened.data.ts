@@ -67,3 +67,15 @@ export const eCCCData2: CCCExpUnflattened = {
     vendor: null,
   },
 };
+
+export const eCCCData3: CCCExpUnflattened = {
+  ...expectedECccResponse[0],
+  balance: {
+    transfer_settlement_id: 'setxPixUhOPVL',
+  },
+  flow: 'newCCCFlow',
+  ccce: {
+    ...expectedECccResponse[0].ccce,
+    corporate_credit_card_account_number: '123456789',
+  },
+};

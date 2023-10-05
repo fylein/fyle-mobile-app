@@ -31,7 +31,6 @@ import { MyProfilePage } from './my-profile.page';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -52,7 +51,6 @@ describe('MyProfilePage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
-  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -76,7 +74,6 @@ describe('MyProfilePage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -156,10 +153,6 @@ describe('MyProfilePage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
-        {
-          provide: LaunchDarklyService,
-          useValue: launchDarklyServiceSpy,
-        },
       ],
     }).compileComponents();
 
@@ -183,9 +176,7 @@ describe('MyProfilePage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
-    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
-    launchDarklyService.getVariation.and.returnValue(of(true));
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
 
