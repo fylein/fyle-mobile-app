@@ -17,9 +17,16 @@ import { Subject, Subscription, of } from 'rxjs';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { cloneDeep } from 'lodash';
-import { expectedActionSheetButtonRes } from 'src/app/core/mock-data/action-sheet-options.data';
+import { clone, cloneDeep } from 'lodash';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 
 describe('DashboardPage', () => {
   let component: DashboardPage;
@@ -34,6 +41,7 @@ describe('DashboardPage', () => {
   let smartlookService: jasmine.SpyObj<SmartlookService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
   let backButtonService: jasmine.SpyObj<BackButtonService>;
   let platform: Platform;
   let navController: jasmine.SpyObj<NavController>;
@@ -53,6 +61,7 @@ describe('DashboardPage', () => {
     let smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
     let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     let orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
     let backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
     let navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
@@ -69,6 +78,7 @@ describe('DashboardPage', () => {
         { provide: SmartlookService, useValue: smartlookServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: BackButtonService, useValue: backButtonServiceSpy },
         { provide: NavController, useValue: navControllerSpy },
         Platform,
@@ -98,6 +108,7 @@ describe('DashboardPage', () => {
     smartlookService = TestBed.inject(SmartlookService) as jasmine.SpyObj<SmartlookService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     backButtonService = TestBed.inject(BackButtonService) as jasmine.SpyObj<BackButtonService>;
     platform = TestBed.inject(Platform);
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
@@ -171,6 +182,7 @@ describe('DashboardPage', () => {
       spyOn(component, 'registerBackButtonAction');
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       spyOn(component, 'setupActionSheet');
       const statsComponentSpy = jasmine.createSpyObj('StatsComponent', ['init']);
@@ -228,7 +240,7 @@ describe('DashboardPage', () => {
 
     it('should call setupActionSheet once with orgSettings data', () => {
       component.ionViewWillEnter();
-      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes);
+      expect(component.setupActionSheet).toHaveBeenCalledOnceWith(orgSettingsRes, allowedExpenseTypes);
     });
 
     it('should call init method of statsComponent and tasksComponent', () => {
@@ -416,13 +428,32 @@ describe('DashboardPage', () => {
     });
   });
 
-  it('setupActionSheet(): should setup actionSheetButtons', () => {
+  describe('setupActionSheet()', () => {
     const mockOrgSettings = cloneDeep(orgSettingsRes);
-    spyOn(component, 'actionSheetButtonsHandler');
     mockOrgSettings.per_diem.enabled = true;
     mockOrgSettings.mileage.enabled = true;
-    component.setupActionSheet(mockOrgSettings);
-    expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+
+    it('should setup actionSheetButtons', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      component.setupActionSheet(orgSettingsRes, allowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonRes);
+    });
+
+    it('should update actionSheetButtons without mileage', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.mileage = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithPerDiem);
+    });
+
+    it('should update actionSheetButtons without Per Diem', () => {
+      spyOn(component, 'actionSheetButtonsHandler');
+      const mockAllowedExpenseTypes = clone(allowedExpenseTypes);
+      mockAllowedExpenseTypes.perDiem = false;
+      component.setupActionSheet(orgSettingsRes, mockAllowedExpenseTypes);
+      expect(component.actionSheetButtons).toEqual(expectedActionSheetButtonsWithMileage);
+    });
   });
 
   it('openAddExpenseActionSheet(): should open actionSheetController and track event', fakeAsync(() => {
