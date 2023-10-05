@@ -102,6 +102,24 @@ export function TestCases1(getTestBed) {
       expect(component).toBeTruthy();
     });
 
+    it('should scroll input into view on keydown', () => {
+      const inputElement = document.createElement('input');
+      spyOn(inputElement, 'scrollIntoView');
+      spyOn(component, 'getActiveElement').and.returnValue(inputElement);
+
+      component.scrollInputIntoView();
+
+      expect(inputElement.scrollIntoView).toHaveBeenCalledWith({
+        block: 'center',
+      });
+    });
+
+    it('getActiveElement(): should return active element in DOM', () => {
+      const result = component.getActiveElement();
+
+      expect(result).toEqual(document.activeElement);
+    });
+
     it('getFormValues(): should return form value', () => {
       component.fg = new FormBuilder().group({ ...addEditAdvanceRequestFormValueData });
 
