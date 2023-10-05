@@ -419,10 +419,10 @@ export function TestCases1(getTestBed) {
         component.showAdvanceSummaryPopover();
         tick(100);
 
-        expect(popoverController.create).not.toHaveBeenCalledOnceWith(popoverControllerParams4);
-        expect(advanceSummaryPopoverSpy.present).not.toHaveBeenCalledTimes(1);
-        expect(advanceSummaryPopoverSpy.onWillDismiss).not.toHaveBeenCalledTimes(1);
-        expect(component.save).not.toHaveBeenCalledOnceWith('Draft');
+        expect(popoverController.create).not.toHaveBeenCalled();
+        expect(advanceSummaryPopoverSpy.present).not.toHaveBeenCalled();
+        expect(advanceSummaryPopoverSpy.onWillDismiss).not.toHaveBeenCalled();
+        expect(component.save).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       }));
     });
