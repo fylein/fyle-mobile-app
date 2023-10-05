@@ -175,7 +175,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     );
     this.advanceRequestCustomFields$ = customFields$;
 
-    this.setupActionScheet();
+    this.setupActionSheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
   }
 
@@ -219,7 +219,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  setupActionScheet(): void {
+  setupActionSheet(): void {
     this.actions$.subscribe((actions) => {
       if (actions.can_approve) {
         this.actionSheetButtons.push({

@@ -359,3 +359,12 @@ export const fileObject9: FileObject[] = [
     fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
   },
 ];
+
+export const fileObject10: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+    url: 'mockdownloadurl.png',
+    type: 'pdf',
+    thumbnail: 'img/fy-pdf.svg',
+  },
+];
