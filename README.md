@@ -12,18 +12,19 @@ Please install node v14.17.2 or above via nvm.
  - ionic serve -c `env_name`
 
 # IMPORTANT
-## before making any changes
-
- - go to .git/hooks
- - run in the shell - chmod +x pre-commit 
- - Note: It is to prevent keys from accidentally leaking.
-
-
 ## For setting environment variables
 
  - Ping mobile app team for environment files
  - Add them inside the environments folder
- - Note: Do not make any changes to the environment.ts file - this is a template folder for creating configurations.
+ - Note: Do not make any changes to the environment.ts file - this is a template folder for creating configurations. Also, make sure not to put staging envs in this file.
+ - If you are getting errors like this:
+   ```
+   Property 'LIVE_UPDATE_APP_VERSION' does not exist on type
+   '{ production: boolean; NAME: string; CLUSTER_DOMAIN: string; ROOT_URL: string; ROUTER_API_ENDPOINT: string;
+   ANDROID_CLIENT_ID: string; IP_FIND_KEY: string; GOOGLE_MAPS_API_KEY: string; FRESHCHAT_TOKEN: string;
+   SENTRY_DSN: string; REFINER_NPS_FORM_ID: string; }'
+   ```
+   make sure you have the latest `environment.ts` and `environment.staging.ts` file.
 
 ## For creating pull requests
 
