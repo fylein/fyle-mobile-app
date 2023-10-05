@@ -29,6 +29,7 @@ import { cloneDeep } from 'lodash';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { popupConfigData3 } from 'src/app/core/mock-data/popup.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { popoverControllerParams5 } from 'src/app/core/mock-data/modal-controller.data';
 
 describe('ViewTeamAdvanceRequestPage', () => {
   let component: ViewTeamAdvanceRequestPage;
@@ -360,5 +361,24 @@ describe('ViewTeamAdvanceRequestPage', () => {
       buttons: component.actionSheetButtons,
     });
     expect(actionSheetSpy.present).toHaveBeenCalledTimes(1);
+  }));
+
+  it('showApproveAdvanceSummaryPopover(): should show popup for approving advances', fakeAsync(() => {
+    component.advanceRequest$ = of(extendedAdvReqDraft);
+    humanizeCurrency.transform.and.returnValue('$54');
+    const showApproverSpy = jasmine.createSpyObj('showApprover', ['present', 'onWillDismiss']);
+    showApproverSpy.onWillDismiss.and.resolveTo({ data: { action: 'approve' } });
+    popoverController.create.and.resolveTo(showApproverSpy);
+    advanceRequestService.approve.and.returnValue(of(advanceRequests));
+
+    component.showApproveAdvanceSummaryPopover();
+    tick(100);
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams5);
+    expect(showApproverSpy.present).toHaveBeenCalledTimes(1);
+    expect(showApproverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+    expect(humanizeCurrency.transform).toHaveBeenCalledOnceWith(54, 'USD', false);
+    expect(advanceRequestService.approve).toHaveBeenCalledOnceWith('areqoVuT5I8OOy');
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
   }));
 });

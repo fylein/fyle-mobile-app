@@ -444,3 +444,20 @@ export const modalControllerParams5 = {
   breakpoints: [0, 1],
   handle: false,
 };
+
+export const popoverControllerParams5 = {
+  component: PopupAlertComponent,
+  cssClass: 'pop-up-in-center',
+  componentProps: {
+    title: 'Review Advance',
+    message: 'Advance request by Abhishek Jain of amount $54 will be approved',
+    primaryCta: {
+      text: 'Approve',
+      action: 'approve',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+};
