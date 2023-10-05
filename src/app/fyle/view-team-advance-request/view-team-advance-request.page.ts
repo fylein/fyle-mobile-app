@@ -46,7 +46,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   attachedFiles$: Observable<File[] | FileObject[]>;
 
-  advanceRequestCustomFields$: Observable<CustomField[]>;
+  advanceRequestCustomFields$: Observable<CustomField[] | AdvanceRequestsCustomFields[]>;
 
   refreshApprovers$ = new Subject();
 
