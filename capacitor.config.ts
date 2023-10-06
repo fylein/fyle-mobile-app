@@ -1,6 +1,5 @@
 import { CapacitorConfig } from '@capacitor/cli';
 import { KeyboardStyle } from '@capacitor/keyboard';
-import { environment } from './src/environments/environment';
 
 const config: CapacitorConfig = {
   appId: 'com.ionicframework.fyle595781',
@@ -15,10 +14,6 @@ const config: CapacitorConfig = {
     },
     Keyboard: {
       style: KeyboardStyle.Light,
-    },
-    GoogleAuth: {
-      scopes: ['profile', 'email'],
-      clientId: environment.ANDROID_CLIENT_ID,
     },
   },
   cordova: {
