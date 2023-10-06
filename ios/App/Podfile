@@ -37,6 +37,7 @@ target 'App' do
   # Add your Pods here
   pod 'FirebaseCore'
   pod 'Firebase/Messaging'
+  pod 'YPImagePicker', :git => 'https://github.com/jonz94/YPImagePicker.git', :tag => '5.2.1.0'
 end
 
 

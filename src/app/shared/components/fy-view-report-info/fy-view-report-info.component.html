@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header class="ion-no-border">
   <mat-icon *ngIf="platform.is('ios')" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
   <ion-toolbar mode="md" class="text-center fy-modal-toolbar view-info--toolbar">
     <ion-buttons slot="start">
@@ -12,22 +12,16 @@
   </ion-toolbar>
 
   <ion-toolbar class="view-info--segment-block-container">
-    <ion-segment
-      class="segment-block view-info--segment-block-container__segment"
-      (ionChange)="segmentChanged($event)"
-      value="report"
-    >
+    <ion-segment class="segment-block view-info--segment-block-container__segment" (ionChange)="segmentChanged($event)"
+      value="report">
       <ion-segment-button value="report" class="view-info--segment-block-container__btn text-capitalize">
         Report
       </ion-segment-button>
       <ion-segment-button value="amount" class="view-info--segment-block-container__btn text-capitalize">
         Amount
       </ion-segment-button>
-      <ion-segment-button
-        *ngIf="view === ExpenseView.team"
-        value="employee"
-        class="view-info--segment-block-container__btn text-capitalize"
-      >
+      <ion-segment-button *ngIf="view === ExpenseView.team" value="employee"
+        class="view-info--segment-block-container__btn text-capitalize">
         Employee
       </ion-segment-button>
     </ion-segment>
@@ -54,10 +48,8 @@
 <ion-content *ngIf="!isReportView && !isEmployeeView" (swipe)="onSwipeAmount($event)">
   <p class="view-info--section-header">COMPONENT WISE SPLIT</p>
   <ion-grid class="view-info--body-container">
-    <ion-row
-      *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
-      class="view-info--body-container__content"
-    >
+    <ion-row *ngFor="let item of amountComponentWiseDetails | keyvalue : originalOrder"
+      class="view-info--body-container__content">
       <ion-col size="5">
         <div class="view-info--body-container__title">
           {{ item.key }}

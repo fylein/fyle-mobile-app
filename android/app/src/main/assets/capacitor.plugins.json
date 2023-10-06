@@ -16,6 +16,10 @@
 		"classpath": "com.capacitorjs.plugins.camera.CameraPlugin"
 	},
 	{
+		"pkg": "@capacitor/clipboard",
+		"classpath": "com.capacitorjs.plugins.clipboard.ClipboardPlugin"
+	},
+	{
 		"pkg": "@capacitor/device",
 		"classpath": "com.capacitorjs.plugins.device.DevicePlugin"
 	},
@@ -56,11 +60,15 @@
 		"classpath": "com.capacitorjs.plugins.textzoom.TextZoomPlugin"
 	},
 	{
+		"pkg": "@jonz94/capacitor-image-picker",
+		"classpath": "dev.jonz94.capacitorjs.plugins.imagepicker.ImagePickerPlugin"
+	},
+	{
 		"pkg": "capacitor-native-settings",
 		"classpath": "nl.raphael.settings.NativeSettingsPlugin"
 	},
 	{
 		"pkg": "capacitor-secure-storage-plugin",
-		"classpath": "com.whitestein.securestorage.SecureStoragePlugin"
+		"classpath": "com.whitestein.securestorage.SecureStoragePluginPlugin"
 	}
 ]

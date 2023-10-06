@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
+import { ImagePicker } from '@jonz94/capacitor-image-picker';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import { from, Subscription } from 'rxjs';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -43,8 +43,7 @@ export class ReceiptPreviewComponent implements OnInit {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private matBottomSheet: MatBottomSheet,
-    private imagePicker: ImagePicker,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
   ) {}
 
   async openCropReceiptModal() {
@@ -80,7 +79,7 @@ export class ReceiptPreviewComponent implements OnInit {
       BackButtonActionPriority.HIGH,
       () => {
         this.closeModal();
-      }
+      },
     );
     this.swiper.swiperRef.update();
   }
@@ -148,29 +147,47 @@ export class ReceiptPreviewComponent implements OnInit {
   }
 
   galleryUpload() {
-    this.imagePicker.hasReadPermission().then((permission) => {
-      if (permission) {
-        const options = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        // If android app start crashing then convert outputType to 0 to get file path and then convert it to base64 before upload to s3.
-        from(this.imagePicker.getPictures(options)).subscribe(async (imageBase64Strings) => {
-          if (imageBase64Strings.length > 0) {
-            imageBase64Strings.forEach((base64String, key) => {
-              const base64PictureData = 'data:image/jpeg;base64,' + base64String;
-              this.base64ImagesWithSource.push({
-                source: 'MOBILE_DASHCAM_GALLERY',
-                base64Image: base64PictureData,
-              });
-            });
-          }
-        });
-      } else {
-        this.imagePicker.requestReadPermission();
-        this.galleryUpload();
+    from(
+      ImagePicker.present({
+        limit: 10,
+        surpassLimitMessage: 'You cannot select more than %d images.',
+        titleText: 'Pick a image',
+        albumsTitleText: 'Chose an album',
+        libraryTitleText: 'Click here to change library',
+        cancelText: 'Go Back',
+        doneText: 'OK',
+      }),
+    ).subscribe(async ({ images }) => {
+      if (images.length > 0) {
+        for (const image of images) {
+          // Fetch the image using its webPath (the URL of the image).
+          const response = await fetch(image.webPath);
+          // Convert the fetched response to a Blob (binary large object).
+          const blob = await response.blob();
+          // Convert the Blob to a base64-encoded string using the blobToBase64 helper function.
+          const receiptBase64Data = await this.blobToBase64(blob);
+          this.base64ImagesWithSource.push({
+            source: 'MOBILE_DASHCAM_GALLERY',
+            base64Image: receiptBase64Data,
+          });
+        }
       }
+    });
+  }
+
+  // Helper function to convert a Blob to a base64-encoded string.
+  blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Create a new FileReader object.
+      const reader = new FileReader();
+      // Define an event handler for when the file reading process ends.
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      // Define an event handler for potential errors during the file reading process.
+      reader.onerror = reject;
+      // Initiate the reading of the Blob as a data URL.
+      reader.readAsDataURL(blob);
     });
   }
 

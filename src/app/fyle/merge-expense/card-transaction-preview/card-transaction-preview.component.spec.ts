@@ -15,8 +15,9 @@ describe('CardTransactionPreviewComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [CardTransactionPreviewComponent, EllipsisPipe, DatePipe, CurrencyPipe],
+      declarations: [CardTransactionPreviewComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      providers: [DatePipe, CurrencyPipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(CardTransactionPreviewComponent);

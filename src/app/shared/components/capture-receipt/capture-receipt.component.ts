@@ -5,7 +5,7 @@ import { ReceiptPreviewComponent } from './receipt-preview/receipt-preview.compo
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Router } from '@angular/router';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
+import { ImagePicker } from '@jonz94/capacitor-image-picker';
 import { concat, forkJoin, from, noop, Observable } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { concatMap, filter, finalize, map, reduce, shareReplay, switchMap, take, tap } from 'rxjs/operators';
@@ -65,7 +65,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private router: Router,
     private navController: NavController,
     private transactionsOutboxService: TransactionsOutboxService,
-    private imagePicker: ImagePicker,
     private networkService: NetworkService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,
@@ -76,7 +75,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     private authService: AuthService,
     private cameraService: CameraService,
     private cameraPreviewService: CameraPreviewService,
-    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
+    @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web',
   ) {}
 
   setupNetworkWatcher() {
@@ -84,7 +83,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       map((connected) => !connected),
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -98,7 +97,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
     return from(base64ImagesWithSource).pipe(
       concatMap((res: Image) => this.addExpenseToQueue(res)),
-      reduce((acc, curr) => acc.concat(curr), [])
+      reduce((acc, curr) => acc.concat(curr), []),
     );
   }
 
@@ -127,7 +126,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
           },
         ];
         return this.transactionsOutboxService.addEntry(transaction, attachmentUrls, null, null, true);
-      })
+      }),
     );
   }
 
@@ -182,8 +181,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         map(
           (orgUserSettings) =>
-            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled
-        )
+            orgUserSettings.insta_fyle_settings.allowed && orgUserSettings.insta_fyle_settings.enabled,
+        ),
       );
 
     isInstafyleEnabled$.subscribe((isInstafyleEnabled) => {
@@ -218,7 +217,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
       map((receiptPreviewData) => receiptPreviewData?.data),
-      filter((receiptPreviewDetails) => !!receiptPreviewDetails)
+      filter((receiptPreviewDetails) => !!receiptPreviewDetails),
     );
 
     receiptPreviewDetails$
@@ -238,14 +237,14 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         this.loaderService.showLoader();
         return this.isModal;
       }),
-      shareReplay(1)
+      shareReplay(1),
     );
 
     saveReceipt$
       .pipe(
         filter((isModal) => !!isModal),
         switchMap(() => from(receiptPreviewModal)),
-        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss())
+        switchMap((receiptPreviewModal) => receiptPreviewModal.onDidDismiss()),
       )
       .subscribe(() => {
         setTimeout(() => {
@@ -296,8 +295,8 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0
-        )
+            receiptPreviewDetails.continueCaptureReceipt || receiptPreviewDetails.base64ImagesWithSource.length === 0,
+        ),
       )
       .subscribe((receiptPreviewDetails) => {
         this.isBulkMode = true;
@@ -313,13 +312,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length
+            !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length,
         ),
         switchMap(() => {
           this.loaderService.showLoader('Please wait...', 10000);
           return this.addMultipleExpensesToQueue(this.base64ImagesWithSource);
         }),
-        finalize(() => this.loaderService.hideLoader())
+        finalize(() => this.loaderService.hideLoader()),
       )
       .subscribe(() => {
         this.router.navigate(['/', 'enterprise', 'my_expenses']);
@@ -340,7 +339,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     return from(this.createReceiptPreviewModal('bulk')).pipe(
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
       switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
-      map((receiptPreviewDetails) => receiptPreviewDetails?.data)
+      map((receiptPreviewDetails) => receiptPreviewDetails?.data),
     );
   }
 
@@ -432,7 +431,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     from(this.setupPermissionDeniedPopover(permissionType))
       .pipe(
         tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss()),
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -447,50 +446,51 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
 
   onGalleryUpload() {
     this.trackingService.instafyleGalleryUploadOpened({});
-
-    const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
-
-    const receiptsFromGallery$ = checkPermission$.pipe(
-      filter((permission) => !!permission),
-      switchMap(() => {
-        const galleryUploadOptions = {
-          maximumImagesCount: 10,
-          outputType: 1,
-          quality: 70,
-        };
-        return from(this.imagePicker.getPictures(galleryUploadOptions));
+    const receiptsFromGallery$ = from(
+      ImagePicker.present({
+        limit: 10,
+        surpassLimitMessage: 'You cannot select more than %d images.',
+        titleText: 'Pick a image',
+        albumsTitleText: 'Chose an album',
+        libraryTitleText: 'Click here to change library',
+        cancelText: 'Go Back',
+        doneText: 'OK',
       }),
-      shareReplay(1)
     );
 
-    checkPermission$
-      .pipe(
-        filter((permission) => !permission),
-        switchMap(() => from(this.cameraService.requestCameraPermissions(['photos'])))
-      )
-      .subscribe((permissions) => {
-        if (permissions?.photos === 'denied') {
-          return this.showPermissionDeniedPopover('GALLERY');
-        }
-        this.onGalleryUpload();
-      });
-
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => receiptsFromGallery.length > 0))
-      .subscribe((receiptsFromGallery) => {
-        receiptsFromGallery.forEach((receiptBase64) => {
-          const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
-          this.base64ImagesWithSource.push({
-            source: 'MOBILE_DASHCAM_GALLERY',
-            base64Image: receiptBase64Data,
-          });
+    receiptsFromGallery$.pipe(filter(({ images }) => images.length > 0)).subscribe(async ({ images }) => {
+      for (const image of images) {
+        // Fetch the image using its webPath (the URL of the image).
+        const response = await fetch(image.webPath);
+        // Convert the fetched response to a Blob (binary large object).
+        const blob = await response.blob();
+        // Convert the Blob to a base64-encoded string using the blobToBase64 helper function.
+        const receiptBase64Data = await this.blobToBase64(blob);
+        this.base64ImagesWithSource.push({
+          source: 'MOBILE_DASHCAM_GALLERY',
+          base64Image: receiptBase64Data,
         });
-        this.openReceiptPreviewModal();
-      });
+      }
+      this.openReceiptPreviewModal();
+    });
 
-    receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
-      .subscribe(() => this.setUpAndStartCamera());
+    receiptsFromGallery$.pipe(filter(({ images }) => !images.length)).subscribe(() => this.setUpAndStartCamera());
+  }
+
+  // Helper function to convert a Blob to a base64-encoded string.
+  blobToBase64(blob: Blob): Promise<string> {
+    return new Promise((resolve, reject) => {
+      // Create a new FileReader object.
+      const reader = new FileReader();
+      // Define an event handler for when the file reading process ends.
+      reader.onloadend = () => {
+        resolve(reader.result as string);
+      };
+      // Define an event handler for potential errors during the file reading process.
+      reader.onerror = reject;
+      // Initiate the reading of the Blob as a data URL.
+      reader.readAsDataURL(blob);
+    });
   }
 
   ngAfterViewInit() {
