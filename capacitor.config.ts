@@ -19,7 +19,6 @@ const config: CapacitorConfig = {
     GoogleAuth: {
       scopes: ['profile', 'email'],
       clientId: environment.ANDROID_CLIENT_ID,
-      forceCodeForRefreshToken: true,
     },
   },
   cordova: {

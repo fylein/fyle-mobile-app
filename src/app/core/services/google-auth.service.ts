@@ -15,7 +15,6 @@ export class GoogleAuthService {
     GoogleAuth.initialize({
       clientId: clientId,
       scopes: ['profile', 'email'],
-      grantOfflineAccess: true,
     });
 
     try {
