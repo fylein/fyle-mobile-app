@@ -74,7 +74,7 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: 'DRAFT',
       },
     ],
-  } as FilterOptions<string>,
+  },
   {
     name: 'Date',
     optionType: FilterOptionType.date,
@@ -100,7 +100,7 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: DateFilters.custom,
       },
     ],
-  } as FilterOptions<DateFilters>,
+  },
   {
     name: 'Receipts Attached',
     optionType: FilterOptionType.singleselect,
@@ -114,7 +114,7 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: 'NO',
       },
     ],
-  } as FilterOptions<string>,
+  },
   {
     name: 'Expense Type',
     optionType: FilterOptionType.multiselect,
@@ -132,7 +132,7 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: 'RegularExpenses',
       },
     ],
-  } as FilterOptions<string>,
+  },
   {
     name: 'Sort By',
     optionType: FilterOptionType.singleselect,
@@ -162,7 +162,7 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: 'categoryZToA',
       },
     ],
-  } as FilterOptions<string>,
+  },
   {
     name: 'Split Expense',
     optionType: FilterOptionType.singleselect,
@@ -176,5 +176,5 @@ export const filterOptions2: FilterOptions<string>[] = [
         value: 'NO',
       },
     ],
-  } as FilterOptions<string>,
+  },
 ];
