@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
 import { MyViewAdvanceRequestPage } from './my-view-advance-request.page';
@@ -14,9 +14,24 @@ import { MIN_SCREEN_WIDTH } from 'src/app/app.module';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { cloneDeep } from 'lodash';
-import { advanceRequestFileUrlData2 } from 'src/app/core/mock-data/file-object.data';
+import {
+  advanceRequestFileUrlData,
+  advanceRequestFileUrlData2,
+  expectedFileData1,
+  fileObject10,
+  fileObject4,
+} from 'src/app/core/mock-data/file-object.data';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
+import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
+import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
+import { advanceReqApprovals } from 'src/app/core/mock-data/approval.data';
+import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
+import { customFields } from 'src/app/core/mock-data/custom-field.data';
+import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -54,6 +69,7 @@ describe('MyViewAdvanceRequestPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllEnabled']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['navigateForward']);
+    const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
 
     TestBed.configureTestingModule({
       declarations: [MyViewAdvanceRequestPage],
@@ -63,7 +79,7 @@ describe('MyViewAdvanceRequestPage', () => {
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
-        { provide: LoaderService, useValue: loaderService },
+        { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
         { provide: ModalPropertiesService, useValue: modalPropertiesSpy },
@@ -154,4 +170,203 @@ describe('MyViewAdvanceRequestPage', () => {
 
     expect(component.projectFieldName).toEqual('Purpose');
   });
+
+  describe('ionViewWillEnter():', () => {
+    beforeEach(() => {
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      advanceRequestService.getAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
+      advanceRequestService.getInternalStateAndDisplayName.and.returnValue({
+        state: 'DRAFT',
+        name: 'Draft',
+      });
+      advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
+      advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
+      const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
+      spyOn(component, 'getReceiptDetails').and.returnValue({
+        type: 'pdf',
+        thumbnail: 'img/fy-pdf.svg',
+      });
+      fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
+      fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
+      const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
+      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+      spyOn(component, 'getAndUpdateProjectName');
+      advanceRequestService.modifyAdvanceRequestCustomFields.and.returnValue(customFields);
+    });
+
+    it('should set advanceRequest$, internal state and currency symbol to $', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.advanceRequest$.subscribe((res) => {
+        expect(advanceRequestService.getAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+        expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+        expect(res).toEqual(extendedAdvReqDraft);
+      });
+      expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(extendedAdvReqDraft);
+      expect(component.internalState).toEqual({
+        state: 'DRAFT',
+        name: 'Draft',
+      });
+      expect(component.currencySymbol).toEqual('$');
+    }));
+
+    it('should set currency symbol to undefined if advance request is undefined', fakeAsync(() => {
+      advanceRequestService.getAdvanceRequest.and.returnValue(of(undefined));
+      component.ionViewWillEnter();
+      tick(100);
+
+      expect(component.internalState).toEqual({
+        state: 'DRAFT',
+        name: 'Draft',
+      });
+      expect(component.currencySymbol).toEqual(undefined);
+    }));
+
+    it('should set actions$ to actions', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.actions$.subscribe((res) => {
+        expect(res).toEqual(apiAdvanceRequestAction);
+      });
+      expect(advanceRequestService.getActions).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+    }));
+
+    it('should set activeApprovals$ to active approvals', fakeAsync(() => {
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.activeApprovals$.subscribe((res) => {
+        expect(res).toEqual(advanceReqApprovals);
+      });
+      expect(advanceRequestService.getActiveApproversByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+    }));
+
+    it('should set attachedFiles$ to attached files', fakeAsync(() => {
+      const mockFileObject = cloneDeep(expectedFileData1[0]);
+      fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.attachedFiles$.subscribe((res) => {
+        expect(fileService.findByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+        expect(res).toEqual([mockFileObject]);
+      });
+    }));
+
+    it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
+      const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
+      advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
+
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.advanceRequestCustomFields$.subscribe(() => {
+        expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
+          JSON.parse(extendedAdvReqDraft.areq_custom_field_values)
+        );
+        expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
+      });
+      expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
+    advanceRequestService.pullBackadvanceRequest.and.returnValue(of(advanceRequests));
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
+    const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);
+    pullBackPopoverSpy.onWillDismiss.and.resolveTo({ data: { comment: 'test comment' } });
+    popoverController.create.and.resolveTo(pullBackPopoverSpy);
+    component.pullBack();
+    tick(100);
+
+    expect(advanceRequestService.pullBackadvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND', {
+      status: {
+        comment: 'test comment',
+      },
+      notify: false,
+    });
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
+    expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+    expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+  }));
+
+  it('edit(): should navigate to add-edit-advance-request page', () => {
+    component.edit();
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'add_edit_advance_request',
+      { id: 'areqR1cyLgXdND' },
+    ]);
+  });
+
+  it('delete(): should show delete advance request popover and navigate to my_advances page', fakeAsync(() => {
+    const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+    deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+    popoverController.create.and.resolveTo(deletePopoverSpy);
+    advanceRequestService.delete.and.returnValue(of(advanceRequests));
+
+    component.delete();
+    tick(100);
+
+    expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
+    expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+    expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
+  }));
+
+  describe('openCommentsModal():', () => {
+    let commentsModalSpy: jasmine.SpyObj<HTMLIonModalElement>;
+    beforeEach(() => {
+      component.advanceRequest$ = of(extendedAdvReqDraft);
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      commentsModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
+      commentsModalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });
+      modalController.create.and.resolveTo(commentsModalSpy);
+    });
+
+    it('should open comments modal and track addComment event if updated is true', fakeAsync(() => {
+      component.openCommentsModal();
+      tick(100);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams8);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(commentsModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(commentsModalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(trackingService.addComment).toHaveBeenCalledTimes(1);
+      expect(trackingService.viewComment).not.toHaveBeenCalled();
+    }));
+
+    it('should open comments modal and track viewComment event if updated is false', fakeAsync(() => {
+      commentsModalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } });
+      modalController.create.and.resolveTo(commentsModalSpy);
+
+      component.openCommentsModal();
+      tick(100);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams8);
+      expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+      expect(commentsModalSpy.present).toHaveBeenCalledTimes(1);
+      expect(commentsModalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
+      expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
+      expect(trackingService.addComment).not.toHaveBeenCalled();
+    }));
+  });
+
+  it('viewAttachments(): should open attachments modal', fakeAsync(() => {
+    const attachmentsModalSpy = jasmine.createSpyObj('attachmentsModal', ['present']);
+    modalController.create.and.resolveTo(attachmentsModalSpy);
+    modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    component.viewAttachments(fileObject4[0]);
+    tick(100);
+
+    expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams9);
+    expect(attachmentsModalSpy.present).toHaveBeenCalledTimes(1);
+    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
+  }));
 });
