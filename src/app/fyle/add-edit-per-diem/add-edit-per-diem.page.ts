@@ -282,7 +282,7 @@ export class AddEditPerDiemPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private storageService: StorageService,
-  ) {}
+  ) { }
 
   get minPerDiemDate(): string {
     return (
@@ -759,10 +759,10 @@ export class AddEditPerDiemPage implements OnInit {
                       ? customField.value
                       : dayjs(customField.value as string).format('YYYY-MM-DD'),
                     isConnected &&
-                      customField.type !== 'BOOLEAN' &&
-                      customField.type !== 'USER_LIST' &&
-                      customField.mandatory &&
-                      Validators.required,
+                    customField.type !== 'BOOLEAN' &&
+                    customField.type !== 'USER_LIST' &&
+                    customField.mandatory &&
+                    Validators.required,
                   ],
                 }),
               );
@@ -786,8 +786,8 @@ export class AddEditPerDiemPage implements OnInit {
       return passedInDate.isSame(fromDt) || passedInDate.isAfter(fromDt)
         ? null
         : {
-            invalidDateSelection: true,
-          };
+          invalidDateSelection: true,
+        };
     }
   }
 

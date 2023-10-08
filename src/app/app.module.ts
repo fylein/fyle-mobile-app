@@ -7,11 +7,10 @@ import { AppRoutingModule } from './app-routing.module';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HttpConfigInterceptor } from './core/interceptors/httpInterceptor';
-import { GooglePlus } from '@awesome-cordova-plugins/google-plus/ngx';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 import { SharedModule } from './shared/shared.module';
 import { CurrencyPipe, TitleCasePipe } from '@angular/common';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { ConfigService } from './core/services/config.service';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { TokenService } from './core/services/token.service';
@@ -30,7 +29,7 @@ export class MyHammerConfig extends HammerGestureConfig {
 }
 
 export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
-  'Minimum screen width to act as breakpoint between regular and small devices'
+  'Minimum screen width to act as breakpoint between regular and small devices',
 );
 
 @NgModule({
@@ -48,7 +47,6 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
     HammerModule,
   ],
   providers: [
-    GooglePlus,
     InAppBrowser,
     Smartlook,
     {

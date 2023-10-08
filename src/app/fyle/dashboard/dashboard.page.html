@@ -2,7 +2,7 @@
   <div class="dashboard--background"></div>
 </div>
 
-<ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
+<ion-header class="tasks--header ion-no-border" mode="md" translucent="true" *ngIf="currentStateIndex===1">
   <ion-toolbar class="dashboard--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
@@ -23,7 +23,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-header mode="md" class="dashboard--header" *ngIf="!(currentStateIndex === 1)">
+<ion-header mode="md" class="dashboard--header ion-no-border" *ngIf="!(currentStateIndex === 1)">
   <ion-toolbar class="stats--toolbar">
     <ion-buttons slot="start">
       <app-fy-menu-icon></app-fy-menu-icon>
@@ -57,11 +57,7 @@
 </ion-content>
 
 <ion-footer>
-  <app-fy-footer
-    (homeClicked)="onHomeClicked()"
-    (taskClicked)="onTaskClicked()"
-    (cameraClicked)="onCameraClicked()"
+  <app-fy-footer (homeClicked)="onHomeClicked()" (taskClicked)="onTaskClicked()" (cameraClicked)="onCameraClicked()"
     [taskCount]="displayedTaskCount"
-    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"
-  ></app-fy-footer>
+    [activeState]="currentStateIndex===0?FooterState.HOME: FooterState.TASKS"></app-fy-footer>
 </ion-footer>

@@ -87,6 +87,14 @@ module.exports = function (ctx) {
     'utf8'
   );
 
+  const capacitorConfigPath = path.resolve(process.cwd(), 'capacitor.config.ts');
+  const capacitorConfigContents = fs.readFileSync(capacitorConfigPath).toString();
+  fs.writeFileSync(
+    capacitorConfigPath,
+    capacitorConfigContents.replace(/{{ANDROID_CLIENT_ID}}/g, process.env.FYLE_MOBILE_ANDROID_CLIENT_ID),
+    'utf8'
+  );
+
   // Creating google-services.json file
   fs.writeFileSync('android/app/google-services.json', secrets.googleCredentialsAndroid);
 

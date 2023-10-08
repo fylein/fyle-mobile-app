@@ -51,7 +51,7 @@ export class SignInPage implements OnInit {
     private trackingService: TrackingService,
     private deviceService: DeviceService,
     private loginInfoService: LoginInfoService,
-    private inAppBrowserService: InAppBrowserService
+    private inAppBrowserService: InAppBrowserService,
   ) {}
 
   async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
@@ -76,7 +76,7 @@ export class SignInPage implements OnInit {
             this.trackingService.onSignin(this.fg.controls.email.value as string, {
               label: 'Email',
             });
-          })
+          }),
         )
         .subscribe(() => {
           this.pushNotificationService.initPush();
@@ -124,7 +124,7 @@ export class SignInPage implements OnInit {
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
-        })
+        }),
       ) as Observable<EmailExistsResponse>;
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
@@ -192,7 +192,7 @@ export class SignInPage implements OnInit {
             });
             await this.trackLoginInfo();
           }),
-          finalize(() => (this.passwordLoading = false))
+          finalize(() => (this.passwordLoading = false)),
         )
         .subscribe({
           next: () => {
@@ -215,32 +215,32 @@ export class SignInPage implements OnInit {
     performance.mark('login start time', markOptions);
     from(this.googleAuthService.login())
       .pipe(
-        switchMap((googleAuthResponse: { accessToken: string }) => {
-          if (googleAuthResponse.accessToken) {
-            return of(googleAuthResponse);
+        switchMap((googleAuthResponse: any) => {
+          if (googleAuthResponse && googleAuthResponse.authentication && googleAuthResponse.authentication.idToken) {
+            return of(googleAuthResponse.authentication.idToken);
           } else {
             return throwError(noop);
           }
         }),
-        map((googleAuthResponse) => {
+        map((idToken: string) => {
           from(this.loaderService.showLoader('Signing you in...', 10000));
-          return googleAuthResponse;
+          return idToken;
         }),
-        switchMap((googleAuthResponse) =>
-          this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
+        switchMap((idToken: string) =>
+          this.routerAuthService.googleSignin(idToken).pipe(
             switchMap(() => this.authService.refreshEou()),
             tap(async () => {
               this.trackingService.onSignin(this.fg.controls.email.value as string, {
                 label: 'Email',
               });
               await this.trackLoginInfo();
-            })
-          )
+            }),
+          ),
         ),
         finalize(() => {
           this.loaderService.hideLoader();
           this.googleSignInLoading = false;
-        })
+        }),
       )
       .subscribe({
         next: () => {
@@ -272,7 +272,7 @@ export class SignInPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => from(this.routerAuthService.isLoggedIn())),
-        finalize(() => from(this.loaderService.hideLoader()))
+        finalize(() => from(this.loaderService.hideLoader())),
       )
       .subscribe((isLoggedIn) => {
         if (isLoggedIn) {

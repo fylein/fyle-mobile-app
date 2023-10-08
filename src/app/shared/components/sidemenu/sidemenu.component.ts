@@ -1,5 +1,5 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import { Observable, from, forkJoin, concat, combineLatest } from 'rxjs';
 import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
@@ -63,7 +63,7 @@ export class SidemenuComponent implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private orgService: OrgService,
     private authService: AuthService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
   ) {}
 
   ngOnInit(): void {
@@ -76,7 +76,7 @@ export class SidemenuComponent implements OnInit {
   setupNetworkWatcher() {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1)
+      shareReplay(1),
     );
   }
 
@@ -169,7 +169,7 @@ export class SidemenuComponent implements OnInit {
 
         this.switchDelegator.emit(this.isSwitchedToDelegator);
         this.setupSideMenu(isConnected, orgs, isDelegatee);
-      }
+      },
     );
   }
 
@@ -277,12 +277,12 @@ export class SidemenuComponent implements OnInit {
   updateSidemenuOption(
     primaryOptions: Partial<SidemenuItem>[],
     dropdownTitle: string,
-    updatedOption: Partial<SidemenuItem>
+    updatedOption: Partial<SidemenuItem>,
   ) {
     return primaryOptions.splice(
       primaryOptions.findIndex((option) => option.title === dropdownTitle),
       1,
-      updatedOption
+      updatedOption,
     );
   }
 
