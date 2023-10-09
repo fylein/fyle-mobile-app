@@ -27,9 +27,49 @@ jobs:
       - name: Run Tests
         run: npm run test
 
+      - name: Save Code Coverage to a file
+        run: |
+          npm run coverage -- --output-file=coverage/coverage-summary.json
+        continue-on-error: true
+
       - name: Unit Test Coverage
         uses: fylein/comment-test-coverage@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           path: coverage/coverage-summary.json
           title: Unit Test Coverage
+
+  compare_coverage:
+            runs-on: ubuntu-latest
+            needs: build
+            steps:
+              - name: Check out Git repository
+                uses: actions/checkout@v2
+        
+              - name: Set up Node.js
+                uses: actions/setup-node@v1
+                with:
+                  node-version: 16
+        
+              - name: Install dependencies for comparing coverage
+                run: npm install -g json
+        
+              - name: Get coverage from master branch
+                run: |
+                  git checkout master
+                  git pull
+                  json -I -f coverage/coverage-summary.json -e 'this.total = this.total || this.totalPercent'
+                  echo "Code coverage on master branch: $(cat coverage/coverage-summary.json)"
+                continue-on-error: true
+        
+              - name: Compare coverage and fail if not greater or equal
+                run: |
+                  current_coverage=$(cat coverage/coverage-summary.json)
+                  master_coverage=$(cat coverage/coverage-summary.json)
+                  
+                  if (( $(echo "$current_coverage >= $master_coverage" | bc -l) )); then
+                    echo "Coverage on current branch is greater than or equal to master branch."
+                  else
+                    echo "Coverage on current branch is less than master branch."
+                    exit 1
+                  fi
