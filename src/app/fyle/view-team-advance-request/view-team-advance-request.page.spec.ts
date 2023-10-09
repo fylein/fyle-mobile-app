@@ -272,7 +272,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
     fileService.getReceiptsDetails.and.returnValue({
       type: 'pdf',
-      thumbnail: 'mockdownloadurl.png',
+      thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
     });
     fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
     fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
