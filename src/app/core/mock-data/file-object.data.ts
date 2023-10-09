@@ -78,7 +78,7 @@ export const fileObjectData5: FileObject = {
   purpose: '',
 };
 
-export const thumbnailUrlMockData: FileObject[] = [
+export const fileUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
     url: 'mock-url-1',
