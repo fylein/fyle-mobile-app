@@ -19,6 +19,7 @@ import { CaptureReceiptComponent } from 'src/app/shared/components/capture-recei
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { advanceRequestFileUrlData2 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -435,6 +436,34 @@ export const modalControllerParams5 = {
     objectType: 'advance_requests',
     objectId: 'areqR1cyLgXdND',
   },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const virtualSelectModalControllerParams = {
+  component: VirtualSelectModalComponent,
+  componentProps: {
+    options: [],
+    currentSelection: undefined,
+    selectionElement: undefined,
+    nullOption: true,
+    cacheName: '',
+    subheader: 'All',
+    enableSearch: true,
+    selectModalHeader: 'Select Item',
+    placeholder: undefined,
+    showSaveButton: false,
+    defaultLabelProp: undefined,
+    recentlyUsed: undefined,
+    label: '',
+  },
+  mode: 'ios' as Mode,
   cssClass: 'fy-modal',
   showBackdrop: true,
   canDismiss: true,
