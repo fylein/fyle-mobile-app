@@ -3356,6 +3356,7 @@ export class AddEditExpensePage implements OnInit {
     transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
     let transaction$ = of(transactionCopy);
     if (!transactionCopy.org_category_id) {
+      // Set unspecified org category if expense doesn't have a category
       const categoryName = 'Unspecified';
       transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
         map((category) => ({
@@ -3367,19 +3368,31 @@ export class AddEditExpensePage implements OnInit {
 
     return transaction$.pipe(
       switchMap((transaction) => {
+        const formValues = this.getFormValues();
+        const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+
         /* Expense creation has not moved to platform yet and since policy is moved to platform,
          * it expects the expense object in terms of platform world. Until then, the method
          * `transformTo` act as a bridge by translating the public expense object to platform
          * expense.
          */
         const policyExpense = this.policyService.transformTo(transaction);
-        return this.transactionService.checkMandatoryFields(policyExpense).pipe(
-          tap((mandatoryFields) => {
-            if (mandatoryFields.missing_receipt) {
-              this.showReceiptMandatoryError = true;
-            }
+        let isReceiptMandatoryAndMissing$: Observable<boolean>;
+
+        if (saveIncompleteExpense) {
+          // Skip receipt mandatory check
+          isReceiptMandatoryAndMissing$ = of(false);
+        } else {
+          isReceiptMandatoryAndMissing$ = this.transactionService
+            .checkMandatoryFields(policyExpense)
+            .pipe(map((missingMandatoryFields) => missingMandatoryFields.missing_receipt));
+        }
+
+        return isReceiptMandatoryAndMissing$.pipe(
+          tap((isReceiptMissing) => {
+            this.showReceiptMandatoryError = !!isReceiptMissing;
           }),
-          filter((mandatoryFields) => !mandatoryFields.missing_receipt),
+          filter((isReceiptMissing) => !isReceiptMissing),
           switchMap(() => this.transactionService.checkPolicy(policyExpense))
         );
       })
