@@ -81,7 +81,6 @@ export const fileObjectData5: FileObject = {
 export const thumbnailUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
-    purpose: 'THUMBNAILx200x200',
     url: 'mock-url-1',
   },
 ];
