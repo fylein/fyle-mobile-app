@@ -42,11 +42,11 @@ describe('AddCardComponent', () => {
     expect(zeroStateMessageElement).toBeNull();
   });
 
-  it('should raise an event addCardClick when the add card button is clicked', () => {
+  it('should raise an event addCardClick when the add card container is clicked', () => {
     spyOn(component.addCardClick, 'emit');
 
-    const addCardButton = getElementRef(fixture, '[data-testid="add-card-button"]');
-    addCardButton.nativeElement.click();
+    const addCardContainer = getElementRef(fixture, '[data-testid="add-card-container"]');
+    addCardContainer.nativeElement.click();
 
     expect(component.addCardClick.emit).toHaveBeenCalled();
   });
