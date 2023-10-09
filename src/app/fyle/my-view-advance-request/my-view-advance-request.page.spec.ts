@@ -40,7 +40,7 @@ describe('MyViewAdvanceRequestPage', () => {
       'getInternalStateAndDisplayName',
       'getActiveApproversByAdvanceRequestId',
       'modifyAdvanceRequestCustomFields',
-      'pullBackadvanceRequest',
+      'pullBackAdvanceRequest',
       'delete',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByAdvanceRequestId', 'downloadUrl']);
@@ -112,7 +112,7 @@ describe('MyViewAdvanceRequestPage', () => {
     expect(component).toBeTruthy();
   });
 
-  it('StatisticTypes(): should return statistic types', () => {
+  it('statisticTypes(): should return statistic types', () => {
     expect(component.StatisticTypes).toEqual(StatisticTypes);
   });
 
