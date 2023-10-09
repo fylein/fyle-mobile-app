@@ -84,7 +84,7 @@ import {
   splitExpFile2,
   splitExpFile3,
   splitExpFileObj,
-  thumbnailUrlMockData,
+  fileUrlMockData,
   fileObjectData1,
 } from 'src/app/core/mock-data/file-object.data';
 import {
@@ -632,7 +632,7 @@ describe('SplitExpensePage', () => {
 
     it('should return the attached files when the transaction id is specified', (done) => {
       spyOn(component, 'getAttachedFiles').and.returnValue(of(fileObject8));
-      const FileObject9: FileObject[] = thumbnailUrlMockData.map((fileObject) => ({
+      const FileObject9: FileObject[] = fileUrlMockData.map((fileObject) => ({
         ...fileObject,
         id: 'fizBwnXhyZTp',
       }));

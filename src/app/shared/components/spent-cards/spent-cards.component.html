@@ -6,6 +6,7 @@
     [slidesPerView]="1.1"
     [spaceBetween]="16"
     [pagination]="pagination"
+    [centeredSlides]="cardDetails.length === 1 && !showAddCardSlide"
   >
     <ng-template *ngFor="let cardDetail of cardDetails" swiperSlide>
       <app-card-detail [cardDetail]="cardDetail" [homeCurrency]="homeCurrency" [currencySymbol]="currencySymbol">
