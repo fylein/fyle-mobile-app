@@ -58,18 +58,21 @@ jobs:
                 run: |
                   git checkout master
                   git pull
-                  json -I -f coverage/coverage-summary.json -e 'this.total = this.total || this.totalPercent'
-                  echo "Code coverage on master branch: $(cat coverage/coverage-summary.json)"
+                  npm install --legacy-peer-deps
+                  npm run test
+                  npm run coverage -- --output-file=coverage/coverage-summary-master.json
+                  json -I -f coverage/coverage-summary-master.json -e 'this.total = this.total || this.totalPercent'
+                  echo "Code coverage on master branch: $(cat coverage/coverage-summary-master.json)"
                 continue-on-error: true
         
               - name: Compare coverage and fail if not greater or equal
                 run: |
                   current_coverage=$(cat coverage/coverage-summary.json)
-                  master_coverage=$(cat coverage/coverage-summary.json)
+                  master_coverage=$(cat coverage/coverage-summary-master.json)
                   
                   if (( $(echo "$current_coverage >= $master_coverage" | bc -l) )); then
                     echo "Coverage on current branch is greater than or equal to master branch."
                   else
                     echo "Coverage on current branch is less than master branch."
                     exit 1
-                  fi
+                  fi        
