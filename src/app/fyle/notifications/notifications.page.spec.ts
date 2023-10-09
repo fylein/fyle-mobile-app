@@ -8,7 +8,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { notificationEventsData } from 'src/app/core/mock-data/notification-events.data';
+import { notificationEventsData, notificationEventsData2 } from 'src/app/core/mock-data/notification-events.data';
 import { orgSettingsWithUnsubscribeEvent } from 'src/app/core/mock-data/org-settings.data';
 import {
   notificationDelegateeSettings1,
@@ -182,12 +182,12 @@ describe('NotificationsPage', () => {
   it('removeAdminUnsbscribedEvents(): should remove admin unsubscribe events', fakeAsync(() => {
     component.orgSettings$ = of(orgSettingsWithUnsubscribeEvent);
     component.orgSettings = orgSettingsWithUnsubscribeEvent;
-    component.notificationEvents = cloneDeep(notificationEventsData);
+    component.notificationEvents = cloneDeep(notificationEventsData2);
 
     component.removeAdminUnsbscribedEvents();
     tick(500);
 
-    expect(Object.keys(component.notificationEvents.features).includes('advances')).toBeFalse();
+    expect(Object.keys(component.notificationEvents.features)).toEqual(['expensesAndReports', 'advances']);
   }));
 
   it('updateAdvanceRequestFeatures(): should update advance request features', () => {
@@ -236,7 +236,7 @@ describe('NotificationsPage', () => {
 
   it('removeDisabledFeatures(): should remove disabled features', () => {
     spyOn(component, 'updateAdvanceRequestFeatures');
-    component.notificationEvents = cloneDeep(notificationEventsData);
+    component.notificationEvents = cloneDeep(notificationEventsData2);
 
     component.removeDisabledFeatures();
 
