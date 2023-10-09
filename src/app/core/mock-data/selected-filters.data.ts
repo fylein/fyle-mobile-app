@@ -185,3 +185,34 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = [
     value: 'Yes',
   },
 ];
+
+export const selectedFilters9: SelectedFilters<string | string[]>[] = [
+  {
+    name: 'Type',
+    value: ['DRAFT', 'READY_TO_REPORT'],
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'YES',
+  },
+  {
+    name: 'Date',
+    value: 'thisWeek',
+    associatedData: {
+      startDate: undefined,
+      endDate: undefined,
+    },
+  },
+  {
+    name: 'Expense Type',
+    value: ['PerDiem', 'Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '5678'],
+  },
+  {
+    name: 'Split Expense',
+    value: 'YES',
+  },
+];
