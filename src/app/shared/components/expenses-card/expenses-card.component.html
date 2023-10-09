@@ -55,7 +55,7 @@
         }"
         *ngIf="isReceiptPresent"
       >
-        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf_receipt_placeholder.png'" />
+        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
         <ion-icon *ngIf="isScanInProgress" class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
       </div>
 
@@ -65,7 +65,7 @@
         [ngStyle]="{
           'background-image':
             inlineReceiptDataUrl &&
-            imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf_receipt_placeholder.png' + ')'
+            imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
         }"
       >
         <div class="expenses-card--spinner-placeholder">
@@ -80,7 +80,7 @@
             [ngStyle]="{
               'background-image':
                 expense.tx_dataUrls?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf_receipt_placeholder.png' + ')'
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
             <div class="expenses-card--spinner-placeholder">
@@ -94,7 +94,7 @@
             [ngStyle]="{
               'background-image':
                 expense.tx_dataUrls?.length > 0 &&
-                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf_receipt_placeholder.png' + ')'
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
             <ion-icon

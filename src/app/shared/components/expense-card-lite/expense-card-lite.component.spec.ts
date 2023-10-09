@@ -57,7 +57,7 @@ describe('ExpenseCardLiteComponent', () => {
     });
   });
 
-  it('should display the recipt when available', () => {
+  it('should display the receipt when available', () => {
     initialSetup([fileObjectData]);
     const element = fixture.nativeElement;
     const receiptContainer = element.querySelector('.expenses-card--receipt-image-container');
