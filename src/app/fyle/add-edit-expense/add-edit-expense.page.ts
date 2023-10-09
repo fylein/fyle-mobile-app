@@ -3390,9 +3390,7 @@ export class AddEditExpensePage implements OnInit {
 
         return isReceiptMandatoryAndMissing$.pipe(
           tap((isReceiptMissing) => {
-            if (isReceiptMissing) {
-              this.showReceiptMandatoryError = true;
-            }
+            this.showReceiptMandatoryError = !!isReceiptMissing;
           }),
           filter((isReceiptMissing) => !isReceiptMissing),
           switchMap(() => this.transactionService.checkPolicy(policyExpense))
