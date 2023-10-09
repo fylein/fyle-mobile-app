@@ -185,7 +185,7 @@ describe('MyViewAdvanceRequestPage', () => {
       const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
       spyOn(component, 'getReceiptDetails').and.returnValue({
         type: 'pdf',
-        thumbnail: 'img/fy-pdf.svg',
+        thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
       });
       fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
       fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
@@ -276,7 +276,7 @@ describe('MyViewAdvanceRequestPage', () => {
   });
 
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
-    advanceRequestService.pullBackadvanceRequest.and.returnValue(of(advanceRequests));
+    advanceRequestService.pullBackAdvanceRequest.and.returnValue(of(advanceRequests));
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     const pullBackPopoverSpy = jasmine.createSpyObj('pullBackPopover', ['present', 'onWillDismiss']);
@@ -285,7 +285,7 @@ describe('MyViewAdvanceRequestPage', () => {
     component.pullBack();
     tick(100);
 
-    expect(advanceRequestService.pullBackadvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND', {
+    expect(advanceRequestService.pullBackAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND', {
       status: {
         comment: 'test comment',
       },
