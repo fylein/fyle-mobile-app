@@ -272,7 +272,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
     fileService.getReceiptsDetails.and.returnValue({
       type: 'pdf',
-      thumbnail: 'img/fy-pdf.svg',
+      thumbnail: 'mockdownloadurl.png',
     });
     fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
     fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
@@ -297,7 +297,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     ]);
   });
 
-  describe('getArpproverEmails():', () => {
+  describe('getApproverEmails():', () => {
     it('getApproverEmails(): should return approver emails', () => {
       const approvalEmails = component.getApproverEmails(advanceReqApprovals);
       expect(approvalEmails).toEqual(['ajain@fyle.in']);
@@ -309,7 +309,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     });
   });
 
-  it('onUpdateApprover(): should call refreshApprovers$.next with null', () => {
+  it('onUpdateApprover(): should refresh approvers', () => {
     spyOn(component.refreshApprovers$, 'next');
     component.onUpdateApprover(true);
     expect(component.refreshApprovers$.next).toHaveBeenCalledOnceWith(null);

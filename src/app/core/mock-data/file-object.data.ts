@@ -364,6 +364,6 @@ export const fileObject10: FileObject[] = [
     ...fileObjectAdv1,
     url: 'mockdownloadurl.png',
     type: 'pdf',
-    thumbnail: 'img/fy-pdf.svg',
+    thumbnail: 'mockdownloadurl.png',
   },
 ];
