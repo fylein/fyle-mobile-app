@@ -132,3 +132,87 @@ export const selectedFiltersParams2: SelectedFilters<string>[] = [
     },
   },
 ];
+
+export const selectedFilters7: SelectedFilters<string | string[]>[] = [
+  ...selectedFilters5,
+  {
+    name: 'Type',
+    value: 'custom',
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'Yes',
+  },
+  {
+    name: 'Expense Type',
+    value: ['Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '2389'],
+  },
+  { name: 'Sort By', value: 'dateNewToOld' },
+  {
+    name: 'Split Expense',
+    value: 'Yes',
+  },
+];
+
+export const selectedFilters8: SelectedFilters<string | string[]>[] = [
+  {
+    name: 'Date',
+    value: 'Last Month',
+  },
+  {
+    name: 'Type',
+    value: 'custom',
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'Yes',
+  },
+  {
+    name: 'Expense Type',
+    value: ['Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '2389'],
+  },
+  { name: 'Sort By', value: 'dateNewToOld' },
+  {
+    name: 'Split Expense',
+    value: 'Yes',
+  },
+];
+
+export const selectedFilters9: SelectedFilters<string | string[]>[] = [
+  {
+    name: 'Type',
+    value: ['DRAFT', 'READY_TO_REPORT'],
+  },
+  {
+    name: 'Receipts Attached',
+    value: 'YES',
+  },
+  {
+    name: 'Date',
+    value: 'thisWeek',
+    associatedData: {
+      startDate: undefined,
+      endDate: undefined,
+    },
+  },
+  {
+    name: 'Expense Type',
+    value: ['PerDiem', 'Mileage'],
+  },
+  {
+    name: 'Cards',
+    value: ['1234', '5678'],
+  },
+  {
+    name: 'Split Expense',
+    value: 'YES',
+  },
+];
