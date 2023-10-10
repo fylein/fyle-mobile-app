@@ -23,6 +23,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './add-edit-advance-request-1.page.spec';
 import { FormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 
 describe('AddEditAdvanceRequestPage', () => {
   const getTestBed = () => {
@@ -42,16 +43,21 @@ describe('AddEditAdvanceRequestPage', () => {
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
     const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
-    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getById', 'getAllActive']);
+    const projectsServiceSpyObj = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllActive']);
     const popoverControllerSpyObj = jasmine.createSpyObj('PopoverController', ['create']);
-    const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['addTransaction']);
-    const fileServiceSpyObj = jasmine.createSpyObj('FileService', ['fileUpload']);
+    const transactionsOutboxServiceSpyObj = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
+    const fileServiceSpyObj = jasmine.createSpyObj('FileService', [
+      'fileUpload',
+      'getImageTypeFromDataUrl',
+      'downloadUrl',
+      'findByAdvanceRequestId',
+    ]);
     const orgSettingsServiceSpyObj = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const networkServiceSpyObj = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const modalPropertiesSpyObj = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
     const trackingServiceSpyObj = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment']);
     const expenseFieldsServiceSpyObj = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrrency']);
+    const currencyServiceSpyObj = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const orgUserSettingsServiceSpyObj = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const routerSpyObj = jasmine.createSpyObj('Router', ['navigate']);
 
@@ -97,4 +103,5 @@ describe('AddEditAdvanceRequestPage', () => {
   };
 
   TestCases1(getTestBed);
+  TestCases2(getTestBed);
 });
