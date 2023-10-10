@@ -17,8 +17,9 @@ import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popo
 import { PolicyViolationDialogComponent } from 'src/app/fyle/add-edit-advance-request/policy-violation-dialog/policy-violation-dialog.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
-import { advanceRequestFileUrlData2 } from './file-object.data';
+import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -460,4 +461,55 @@ export const popoverControllerParams5 = {
       action: 'cancel',
     },
   },
+};
+
+export const popoverControllerParams6 = {
+  component: FyPopoverComponent,
+  cssClass: 'fy-dialog-popover',
+  componentProps: {
+    title: 'Send Back',
+    formLabel: 'Reason For Sending Back Advance',
+  },
+};
+
+export const popoverControllerParams7 = {
+  component: FyPopoverComponent,
+  cssClass: 'fy-dialog-popover',
+  componentProps: {
+    title: 'Reject',
+    formLabel: 'Please mention the reason for rejecting the advance request',
+  },
+};
+
+export const modalControllerParams6 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqR1cyLgXdND',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const modalControllerParams7 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: fileObject4[0],
+  },
+  mode: 'ios' as Mode,
+  presentingElement: undefined,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
 };
