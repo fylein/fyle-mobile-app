@@ -586,15 +586,15 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        isNumber(taxGroupControl.value?.percentage) &&
+        isNumber(taxGroupControl.value.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
         const amount =
-          currencyObjControl.value?.amount - currencyObjControl.value?.amount / (taxGroupControl.value?.percentage + 1);
+          currencyObjControl.value.amount - currencyObjControl.value.amount / (taxGroupControl.value.percentage + 1);
 
         const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(
           amount,
-          currencyObjControl.value?.currency
+          currencyObjControl.value.currency
         );
 
         this.fg.controls.tax_amount.setValue(formattedAmount);

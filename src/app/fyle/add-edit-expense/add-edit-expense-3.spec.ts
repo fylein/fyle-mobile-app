@@ -1232,6 +1232,34 @@ export function TestCases3(getTestBed) {
         });
       });
 
+      it('should get new expense observable without autofill and set currency equal to homeCurrency if recently used currency is undefined', (done) => {
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithoutAutofill));
+        authService.getEou.and.resolveTo(apiEouRes);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+        component.homeCurrency$ = of('USD');
+        dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
+        spyOn(component, 'getInstaFyleImageData').and.returnValue(of(instaFyleData1));
+        recentLocalStorageItemsService.get.and.resolveTo(undefined);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        fixture.detectChanges();
+
+        component.getNewExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(expectedExpenseObservable3);
+          expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
+          expect(component.isExpenseBankTxn).toBeFalse();
+          expect(component.instaFyleCancelled).toBeFalse();
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+
+          expect(authService.getEou).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryByName).toHaveBeenCalledTimes(1);
+          expect(recentLocalStorageItemsService.get).toHaveBeenCalledOnceWith('recent-currency-cache');
+          expect(component.getInstaFyleImageData).toHaveBeenCalledTimes(1);
+          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          done();
+        });
+      });
+
       it('should get new expense observable from personal card txn and home currency does not match extracted data', (done) => {
         activatedRoute.snapshot.params.personalCardTxn = JSON.stringify(apiPersonalCardTxnsRes.data);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
