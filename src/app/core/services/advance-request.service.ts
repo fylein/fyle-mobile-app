@@ -121,7 +121,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
+  pullBackAdvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
