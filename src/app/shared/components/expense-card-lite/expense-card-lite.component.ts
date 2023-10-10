@@ -1,6 +1,4 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { noop } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { FileService } from 'src/app/core/services/file.service';
 
@@ -12,7 +10,7 @@ import { FileService } from 'src/app/core/services/file.service';
 export class ExpenseCardLiteComponent implements OnInit {
   @Input() expense;
 
-  receiptThumbnail: string;
+  isReceiptPresent: boolean;
 
   constructor(private fileService: FileService) {}
 
@@ -21,19 +19,8 @@ export class ExpenseCardLiteComponent implements OnInit {
   }
 
   getReceipt() {
-    this.fileService
-      .getFilesWithThumbnail(this.expense.id)
-      .pipe(
-        switchMap((ThumbFiles: FileObject[]) => {
-          if (ThumbFiles.length > 0) {
-            return this.fileService.downloadThumbnailUrl(ThumbFiles[0].id);
-          } else {
-            return [];
-          }
-        })
-      )
-      .subscribe((downloadUrl: FileObject[]) => {
-        this.receiptThumbnail = downloadUrl[0].url;
-      });
+    this.fileService.findByTransactionId(this.expense.id).subscribe((files: FileObject[]) => {
+      this.isReceiptPresent = files.length > 0;
+    });
   }
 }

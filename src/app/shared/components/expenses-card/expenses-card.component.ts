@@ -101,7 +101,7 @@ export class ExpensesCardComponent implements OnInit {
 
   attachmentUploadInProgress = false;
 
-  receiptThumbnail: string = null;
+  isReceiptPresent: boolean;
 
   isConnected$: Observable<boolean>;
 
@@ -135,7 +135,7 @@ export class ExpensesCardComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   get isSelected(): boolean {
@@ -167,36 +167,7 @@ export class ExpensesCardComponent implements OnInit {
           this.receiptIcon = 'assets/svg/fy-expense.svg';
         }
       } else {
-        this.fileService
-          .getFilesWithThumbnail(this.expense.tx_id)
-          .pipe(
-            map((ThumbFiles: FileObject[]) => {
-              if (ThumbFiles.length > 0) {
-                this.fileService
-                  .downloadThumbnailUrl(ThumbFiles[0].id)
-                  .pipe(
-                    map((downloadUrl: FileObject[]) => {
-                      this.receiptThumbnail = downloadUrl[0].url;
-                    }),
-                  )
-                  .subscribe(noop);
-              } else {
-                this.fileService
-                  .downloadUrl(this.expense.tx_file_ids[0])
-                  .pipe(
-                    map((downloadUrl: string) => {
-                      if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
-                        this.receiptIcon = 'assets/svg/pdf.svg';
-                      } else {
-                        this.receiptIcon = 'assets/svg/fy-expense.svg';
-                      }
-                    }),
-                  )
-                  .subscribe(noop);
-              }
-            }),
-          )
-          .subscribe(noop);
+        this.isReceiptPresent = true;
       }
     }
   }
@@ -281,7 +252,7 @@ export class ExpensesCardComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     this.isSycing$ = this.isConnected$.pipe(
-      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense),
+      map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
     this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
@@ -301,13 +272,13 @@ export class ExpensesCardComponent implements OnInit {
       .pipe(
         map((homeCurrency) => {
           this.homeCurrency = homeCurrency;
-        }),
+        })
       )
       .subscribe(noop);
 
     this.isProjectEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.allowed && orgSettings.projects.enabled),
-      shareReplay(1),
+      shareReplay(1)
     );
 
     if (!this.expense.tx_id) {
@@ -315,7 +286,7 @@ export class ExpensesCardComponent implements OnInit {
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
       const previousDate = new Date(
-        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string,
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
       ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
@@ -453,16 +424,6 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  setThumbnail(fileObjId: string, attachmentType: string): void {
-    this.fileService.downloadUrl(fileObjId).subscribe((downloadUrl) => {
-      if (attachmentType === 'pdf') {
-        this.receiptIcon = 'assets/svg/pdf.svg';
-      } else {
-        this.receiptThumbnail = downloadUrl;
-      }
-    });
-  }
-
   matchReceiptWithEtxn(fileObj: FileObject): void {
     this.expense.tx_file_ids = [];
     this.expense.tx_file_ids.push(fileObj.id);
@@ -482,17 +443,17 @@ export class ExpensesCardComponent implements OnInit {
         }),
         finalize(() => {
           this.attachmentUploadInProgress = false;
-        }),
+        })
       )
-      .subscribe((fileObj: FileObject) => {
-        this.setThumbnail(fileObj.id, attachmentType);
+      .subscribe(() => {
+        this.isReceiptPresent = true;
       });
   }
 
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      startWith(true),
+      startWith(true)
     );
   }
 
