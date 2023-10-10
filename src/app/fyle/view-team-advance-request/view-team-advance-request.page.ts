@@ -46,7 +46,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   attachedFiles$: Observable<File[] | FileObject[]>;
 
-  advanceRequestCustomFields$: Observable<CustomField[]>;
+  advanceRequestCustomFields$: Observable<CustomField[] | AdvanceRequestsCustomFields[]>;
 
   refreshApprovers$ = new Subject();
 
@@ -82,7 +82,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number,
+    @Inject(MIN_SCREEN_WIDTH) public minScreenWidth: number
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -94,32 +94,8 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     return expenseFields.filter((expenseField) => expenseField.column_name === 'project_id')[0];
   }
 
-  ionViewWillEnter(): void {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    this.advanceRequest$ = this.refreshApprovers$.pipe(
-      startWith(true),
-      switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id))),
-      ),
-      finalize(() => from(this.loaderService.hideLoader())),
-      shareReplay(1),
-    );
-
-    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
-
-    this.showAdvanceActions$ = this.actions$.pipe(
-      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject),
-    );
-
-    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
-
-    this.activeApprovals$ = this.refreshApprovers$.pipe(
-      startWith(true),
-      switchMap(() => this.approvals$),
-      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED')),
-    );
-
-    this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
+  getAttachedReceipts(id: string): Observable<FileObject[]> {
+    return this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
       concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
@@ -129,11 +105,39 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
-          }),
-        ),
+          })
+        )
       ),
-      reduce((acc, curr) => acc.concat(curr), [] as FileObject[]),
+      reduce((acc, curr) => acc.concat(curr), [] as FileObject[])
     );
+  }
+
+  ionViewWillEnter(): void {
+    const id = this.activatedRoute.snapshot.params.id as string;
+    this.advanceRequest$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() =>
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.advanceRequestService.getAdvanceRequest(id)))
+      ),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
+    );
+
+    this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
+
+    this.showAdvanceActions$ = this.actions$.pipe(
+      map((advanceActions) => advanceActions.can_approve || advanceActions.can_inquire || advanceActions.can_reject)
+    );
+
+    this.approvals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+
+    this.activeApprovals$ = this.refreshApprovers$.pipe(
+      startWith(true),
+      switchMap(() => this.approvals$),
+      map((approvals) => approvals.filter((approval) => approval.state !== 'APPROVAL_DISABLED'))
+    );
+
+    this.attachedFiles$ = this.getAttachedReceipts(id);
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll();
 
@@ -150,7 +154,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
             res.advanceRequest.areq_custom_field_values.length > 0
           ) {
             customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[],
+              JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
             );
           }
 
@@ -164,14 +168,14 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           return res.customFields;
         } else {
           return this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[],
+            JSON.parse(res.advanceRequest.areq_custom_field_values) as CustomField[]
           );
         }
-      }),
+      })
     );
     this.advanceRequestCustomFields$ = customFields$;
 
-    this.setupActionScheet();
+    this.setupActionSheet();
     this.getAndUpdateProjectName().then((projectField) => (this.projectFieldName = projectField.field_name));
   }
 
@@ -215,7 +219,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
     }
   }
 
-  setupActionScheet(): void {
+  setupActionSheet(): void {
     this.actions$.subscribe((actions) => {
       if (actions.can_approve) {
         this.actionSheetButtons.push({
@@ -331,7 +335,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.sendBackLoading = false;
             this.trackingService.sendBackAdvance({ Asset: 'Mobile' });
-          }),
+          })
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -373,7 +377,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
           finalize(() => {
             this.rejectLoading = false;
             this.trackingService.rejectAdvance({ Asset: 'Mobile' });
-          }),
+          })
         )
         .subscribe(() => {
           this.router.navigate(['/', 'enterprise', 'team_advance']);
@@ -422,5 +426,9 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
 
   ngOnInit(): void {
     return;
+  }
+
+  goToTeamAdvances(): void {
+    this.router.navigate(['/', 'enterprise', 'team_advance']);
   }
 }
