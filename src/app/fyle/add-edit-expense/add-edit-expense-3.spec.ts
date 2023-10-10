@@ -44,6 +44,7 @@ import {
   draftUnflattendedTxn,
   draftUnflattendedTxn2,
   draftUnflattendedTxn3,
+  draftUnflattendedTxn4,
   unflattenedExpData,
   unflattenedTxn,
 } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -382,12 +383,38 @@ export function TestCases3(getTestBed) {
         expect(component.presetCategoryId).toEqual(expectedAutoFillCategory2.id);
       });
 
+      it('should return config category for DRAFT expense added via webapp bulk upload or bulk instafyle if recent category is undefined', () => {
+        const result = component.getAutofillCategory({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: undefined,
+          etxn: draftUnflattendedTxn3,
+          category: orgCategoryData,
+        });
+
+        expect(result).toEqual(orgCategoryData);
+        expect(component.recentCategories).toEqual(undefined);
+        expect(component.presetCategoryId).toEqual(undefined);
+      });
+
       it('return auto fill category if recent categories is not present and expense category is empty', () => {
         const result = component.getAutofillCategory({
           isAutofillsEnabled: true,
           recentValue: null,
           recentCategories: null,
           etxn: draftUnflattendedTxn2,
+          category: orgCategoryData,
+        });
+
+        expect(result).toEqual(expectedAutoFillCategory3);
+      });
+
+      it('should return config category if recent categories is not present, expense category is empty and fyle_category is undefined', () => {
+        const result = component.getAutofillCategory({
+          isAutofillsEnabled: true,
+          recentValue: null,
+          recentCategories: null,
+          etxn: draftUnflattendedTxn4,
           category: orgCategoryData,
         });
 
@@ -1050,6 +1077,47 @@ export function TestCases3(getTestBed) {
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
         component.etxn$ = of(unflattenedPaidExp);
+        component.initialFetch = true;
+        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+
+        fixture.detectChanges();
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(orgCategoryPaginated1[0]);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
+          done();
+        });
+      });
+
+      it('should return category as null if etxn.tx is undefined', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of({ ...unflattenedPaidExp, tx: undefined });
+        component.initialFetch = true;
+        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
+
+        fixture.detectChanges();
+        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
+          expect(res).toEqual(null);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(categoriesService.getCategoryById).not.toHaveBeenCalled();
+          done();
+        });
+      });
+
+      it('should return selected category for draft expense if fyle_category is undefined', (done) => {
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.etxn$ = of({
+          ...unflattenedPaidExp,
+          tx: { ...unflattenedPaidExp.tx, fyle_category: undefined, state: 'DRAFT' },
+        });
         component.initialFetch = true;
         categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
 

@@ -105,7 +105,7 @@ import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-dat
 import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
-import { txnFieldsData2 } from 'src/app/core/mock-data/expense-fields-map.data';
+import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -1516,6 +1516,80 @@ export function TestCases5(getTestBed) {
         expect(component.getDuplicateExpenses).toHaveBeenCalledTimes(1);
         expect(component.getPolicyDetails).toHaveBeenCalledTimes(1);
         done();
+      });
+
+      it('should set flightJourneyTravelClassOptions$', (done) => {
+        component.isConnected$ = of(true);
+        component.txnFields$ = of(txnFieldsFlightData);
+        component.filteredCategories$ = of();
+
+        spyOn(component, 'initClassObservables').and.returnValue(null);
+        tokenService.getClusterDomain.and.resolveTo('domain');
+        categoriesService.getSystemCategories.and.returnValue(['Bus', 'Airlines', 'Lodging', 'Train']);
+        categoriesService.getBreakfastSystemCategories.and.returnValue(['Lodging']);
+        reportService.getAutoSubmissionReportName.and.returnValue(of('Jun #23'));
+        spyOn(component, 'setupSelectedProjectObservable');
+        spyOn(component, 'setupSelectedCostCenterObservable');
+        spyOn(component, 'getCCCpaymentMode');
+        spyOn(component, 'setUpTaxCalculations');
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
+        spyOn(component, 'setupNetworkWatcher');
+        taxGroupService.get.and.returnValue(of(taxGroupData));
+        recentlyUsedItemsService.getRecentlyUsed.and.returnValue(of(recentlyUsedRes));
+        component.individualProjectIds$ = of([]);
+        component.isIndividualProjectsEnabled$ = of(false);
+        projectsService.getProjectCount.and.returnValue(of(2));
+        spyOn(component, 'setupCostCenters');
+        storageService.get.and.resolveTo(true);
+        spyOn(component, 'setupBalanceFlag');
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
+        spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
+        spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
+        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        fileService.downloadUrl.and.returnValue(of('url'));
+        spyOn(component, 'getReceiptDetails').and.returnValue({
+          type: 'jpeg',
+          thumbnail: 'thumbnail',
+        });
+        spyOn(component, 'getPaymentModes');
+        spyOn(component, 'setupFilteredCategories');
+        spyOn(component, 'setupExpenseFields');
+
+        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        recentlyUsedItemsService.getRecentCategories.and.returnValue(of(recentUsedCategoriesRes));
+
+        spyOn(component, 'setupFormInit');
+        spyOn(component, 'setupCustomFields');
+        spyOn(component, 'clearCategoryOnValueChange');
+        spyOn(component, 'getActionSheetOptions').and.returnValue(of([]));
+        spyOn(component, 'getPolicyDetails');
+        spyOn(component, 'getDuplicateExpenses');
+
+        activatedRoute.snapshot.params.bankTxn = JSON.stringify(expectedECccResponse);
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['id_1']);
+        component.reviewList = ['id_1'];
+        component.activeIndex = 0;
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+
+        component.flightJourneyTravelClassOptions$.subscribe((res) => {
+          expect(res).toEqual([
+            {
+              label: 'economy',
+              value: 'economy',
+            },
+            {
+              label: 'business',
+              value: 'business',
+            },
+          ]);
+          done();
+        });
       });
 
       it('should setup class variables for offline mode', (done) => {

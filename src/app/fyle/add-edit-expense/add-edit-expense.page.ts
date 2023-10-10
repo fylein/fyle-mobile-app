@@ -1981,7 +1981,7 @@ export class AddEditExpensePage implements OnInit {
           etxn: UnflattenedTransaction;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx?.fyle_category?.toLowerCase() === 'unspecified';
-          if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
+          if (this.initialFetch && etxn.tx?.org_category_id && !isExpenseCategoryUnspecified) {
             return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
               map((selectedCategory) => ({
                 orgUserSettings,
@@ -2013,7 +2013,7 @@ export class AddEditExpensePage implements OnInit {
           orgUserSettings.expense_form_autofills.enabled;
         const isCategoryExtracted = etxn.tx?.extracted_data?.category;
         if (this.initialFetch) {
-          if (etxn.tx.org_category_id) {
+          if (etxn.tx?.org_category_id) {
             if (etxn.tx.state === 'DRAFT' && etxn.tx.fyle_category?.toLowerCase() === 'unspecified') {
               return this.getAutofillCategory({
                 isAutofillsEnabled,
@@ -2025,11 +2025,7 @@ export class AddEditExpensePage implements OnInit {
             } else {
               return selectedCategory;
             }
-          } else if (
-            etxn.tx.state === 'DRAFT' &&
-            !isCategoryExtracted &&
-            (!etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified')
-          ) {
+          } else if (etxn.tx?.state === 'DRAFT' && !isCategoryExtracted && !etxn.tx.org_category_id) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
               recentValue: recentValues,
@@ -3145,7 +3141,7 @@ export class AddEditExpensePage implements OnInit {
 
   getSkipRemibursement(): boolean {
     const formValue = this.getFormValues();
-    return formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc?.isReimbursable;
+    return formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
   }
 
   getTxnDate(): Date {
