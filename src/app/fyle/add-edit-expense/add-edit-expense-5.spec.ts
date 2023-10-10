@@ -187,11 +187,11 @@ export function TestCases5(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -270,7 +270,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            true,
+            true
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -295,7 +295,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false,
+            false
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -320,7 +320,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false,
+            false
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -345,7 +345,7 @@ export function TestCases5(getTestBed) {
               ctaText: 'Done',
               ctaLoadingText: 'Loading',
             },
-            false,
+            false
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
@@ -644,7 +644,7 @@ export function TestCases5(getTestBed) {
         expect(res).toEqual(unflattenedAccount1Data);
         expect(accountsService.getEtxnSelectedPaymentMode).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
-          accountOptionData1,
+          accountOptionData1
         );
         done();
       });
@@ -864,6 +864,127 @@ export function TestCases5(getTestBed) {
           recentValue: recentlyUsedRes,
           recentCategories: recentUsedCategoriesRes,
           etxn: unflattenedTxnData,
+          category: orgCategoryData,
+        });
+        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should setup form and set payment mode as default payment mode if selectedPaymentMode is undefined', fakeAsync(() => {
+        spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
+        spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(undefined));
+        spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
+        spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getRecentCurrencies').and.returnValue(of(recentCurrencyRes));
+        spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
+        spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
+        spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(unflattenedTxnData);
+        component.taxGroups$ = of(taxGroupData);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
+        component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
+        component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        spyOn(component, 'setCategoryOnValueChange');
+        spyOn(component, 'getAutofillCategory');
+        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
+        customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
+        fixture.detectChanges();
+
+        component.setupFormInit();
+        tick(1000);
+
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: recentUsedCategoriesRes,
+          etxn: unflattenedTxnData,
+          category: orgCategoryData,
+        });
+        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
+        expect(component.fg.value.paymentMode).toEqual(accountOptionData1[1].value);
+      }));
+
+      it('should setup form if custom field has a date type field', fakeAsync(() => {
+        spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
+        spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
+        spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
+        spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getRecentCurrencies').and.returnValue(of(recentCurrencyRes));
+        spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
+        spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
+        spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        orgSettingsService.get.and.returnValue(of(orgSettingsData));
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of({
+          ...unflattenedTxnData,
+          tx: {
+            ...unflattenedTxnData.tx,
+            custom_properties: [
+              {
+                name: 'Arrival',
+                value: '2021-06-01',
+              },
+            ],
+          },
+        });
+        component.taxGroups$ = of(taxGroupData);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
+        component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
+        component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
+        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
+        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        spyOn(component, 'setCategoryOnValueChange');
+        spyOn(component, 'getAutofillCategory');
+        customFieldsService.standardizeCustomFields.and.returnValue([
+          ...txnCustomProperties,
+          {
+            type: 'DATE',
+            name: 'Arrival',
+            value: '2023-06-01',
+          },
+        ]);
+        customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
+        fixture.detectChanges();
+
+        component.setupFormInit();
+        tick(1000);
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: recentUsedCategoriesRes,
+          etxn: {
+            ...unflattenedTxnData,
+            tx: {
+              ...unflattenedTxnData.tx,
+              custom_properties: [
+                {
+                  name: 'Arrival',
+                  value: '2021-06-01',
+                },
+              ],
+            },
+          },
           category: orgCategoryData,
         });
         expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
@@ -1100,6 +1221,52 @@ export function TestCases5(getTestBed) {
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
           recentCategories: [],
+          etxn: setupFormExpenseWoCurrency3,
+          category: orgCategoryData,
+        });
+        expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
+      }));
+
+      it('setup form for an expense with different currencies and DRAFT state if recently used categories are undefined', fakeAsync(() => {
+        spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
+        spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
+        spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
+        spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
+        spyOn(component, 'getRecentCurrencies').and.returnValue(of(recentCurrencyRes));
+        spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
+        spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
+        spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        loaderService.hideLoader.and.resolveTo();
+        loaderService.showLoader.and.resolveTo();
+        component.etxn$ = of(setupFormExpenseWoCurrency3);
+        component.taxGroups$ = of(taxGroupData);
+        component.orgUserSettings$ = of(orgUserSettingsData);
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
+        component.recentlyUsedCurrencies$ = of(recentCurrencyRes);
+        component.recentlyUsedCostCenters$ = of(recentlyUsedCostCentersRes);
+        component.recentlyUsedCategories$ = of(undefined);
+        component.selectedCostCenter$ = new BehaviorSubject<CostCenter>(costCentersData[0]);
+        spyOn(component, 'setCategoryOnValueChange');
+        spyOn(component, 'getAutofillCategory');
+        customFieldsService.standardizeCustomFields.and.returnValue(TxnCustomProperties3);
+        customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
+        fixture.detectChanges();
+
+        component.setupFormInit();
+        tick(1000);
+
+        expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
+          isAutofillsEnabled: true,
+          recentValue: recentlyUsedRes,
+          recentCategories: undefined,
           etxn: setupFormExpenseWoCurrency3,
           category: orgCategoryData,
         });
