@@ -513,3 +513,44 @@ export const modalControllerParams7 = {
   breakpoints: [0, 1],
   handle: false,
 };
+
+export const popoverControllerParams8 = {
+  component: FyPopoverComponent,
+  componentProps: {
+    title: 'Pull Back Advance?',
+    formLabel: 'Pulling back your advance request will allow you to edit and re-submit the request.',
+  },
+  cssClass: 'fy-dialog-popover',
+};
+
+export const modalControllerParams8 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqoVuT5I8OOy',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const modalControllerParams9 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: fileObject4[0],
+  },
+  mode: 'ios' as Mode,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
