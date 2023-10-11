@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unsafe-call */
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
 import { from, concat, Observable, noop } from 'rxjs';
@@ -7,7 +8,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
-import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
@@ -26,6 +26,9 @@ import { BackButtonActionPriority } from './core/models/back-button-action-prior
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
+import { SendIntent } from 'send-intent';
+import { TransactionsOutboxService } from './core/services/transactions-outbox.service';
+import { Filesystem } from '@capacitor/filesystem';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +74,8 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private navController: NavController,
     private backButtonService: BackButtonService,
-    private gmapsService: GmapsService
+    private gmapsService: GmapsService,
+    private transactionOutboxService: TransactionsOutboxService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -148,6 +152,27 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    SendIntent.checkSendIntentReceived()
+      .then((result: any) => {
+        if (result) {
+          console.log('SendIntent received');
+          console.log(JSON.stringify(result));
+        }
+        if (result.url) {
+          let resultUrl = decodeURIComponent(result.url);
+          Filesystem.readFile({ path: resultUrl })
+            .then((content) => {
+              console.log(content);
+            })
+            .catch((err) => console.error(err));
+        }
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        SendIntent.finish();
+      });
+
     this.setupNetworkWatcher();
 
     if ((window as any) && (window as any).localStorage) {
