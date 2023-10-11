@@ -412,6 +412,8 @@ export class AddEditExpensePage implements OnInit {
 
   _isExpandedView = false;
 
+  extractedCategoryIsNotValid: boolean;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2027,7 +2029,7 @@ export class AddEditExpensePage implements OnInit {
             }
           } else if (
             etxn.tx.state === 'DRAFT' &&
-            !isCategoryExtracted &&
+            (!isCategoryExtracted || this.extractedCategoryIsNotValid) &&
             (!etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified')
           ) {
             return this.getAutofillCategory({
@@ -2550,6 +2552,7 @@ export class AddEditExpensePage implements OnInit {
             const categoryName = etxn.tx.extracted_data.category || 'unspecified';
             return this.categoriesService.getCategoryByName(categoryName).pipe(
               map((selectedCategory) => {
+                this.extractedCategoryIsNotValid = true;
                 etxn.tx.org_category_id = selectedCategory && selectedCategory.id;
                 return etxn;
               })
@@ -4264,6 +4267,8 @@ export class AddEditExpensePage implements OnInit {
           this.fg.patchValue({
             category: category && category.value,
           });
+        } else {
+          this.extractedCategoryIsNotValid = false;
         }
       });
   }
