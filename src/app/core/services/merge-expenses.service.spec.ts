@@ -911,17 +911,16 @@ describe('MergeExpensesService', () => {
 
     it('formatTaxGroupOption(): should return the formatted tax group option with label as undefined if id does not matches with options', (done) => {
       taxGroupService.get.and.returnValue(of(taxGroupData));
+      const mockOptions = { ...optionsData11.options[0], value: 'tgp6JA6tgoZ1' };
       // @ts-ignore
-      mergeExpensesService
-        .formatTaxGroupOption({ ...optionsData11.options[0], value: 'tgp6JA6tgoZ1' })
-        .subscribe((res) => {
-          expect(res).toEqual({
-            label: undefined,
-            value: 'tgp6JA6tgoZ1',
-          });
-          expect(taxGroupService.get).toHaveBeenCalledTimes(1);
-          done();
+      mergeExpensesService.formatTaxGroupOption(mockOptions).subscribe((res) => {
+        expect(res).toEqual({
+          label: undefined,
+          value: 'tgp6JA6tgoZ1',
         });
+        expect(taxGroupService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 
