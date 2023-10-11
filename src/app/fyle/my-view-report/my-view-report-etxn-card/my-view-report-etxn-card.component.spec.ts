@@ -15,8 +15,9 @@ describe('MyViewReportEtxnCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
-      declarations: [MyViewReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe, DatePipe, CurrencyPipe],
+      declarations: [MyViewReportEtxnCardComponent, FyCategoryIconComponent, EllipsisPipe],
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule],
+      providers: [DatePipe, CurrencyPipe],
     }).compileComponents();
 
     fixture = TestBed.createComponent(MyViewReportEtxnCardComponent);
@@ -44,7 +45,7 @@ describe('MyViewReportEtxnCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--amount'))).toEqual(`${expenseData1.tx_amount}.00`);
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--vendor'))).toEqual(``);
     expect(getTextContent(getElementBySelector(fixture, '.etxn-card--category'))).toEqual(
-      `${expenseData1.tx_org_category}`
+      `${expenseData1.tx_org_category}`,
     );
   });
 

@@ -121,7 +121,7 @@ export class SplitExpensePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService
+    private projectsService: ProjectsService,
   ) {}
 
   goBack(): void {
@@ -147,7 +147,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -184,7 +184,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -244,7 +244,7 @@ export class SplitExpensePage {
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties.includes(customProperty)
+            (customProperty) => !dependentCustomProperties.includes(customProperty),
           );
         }
 
@@ -260,7 +260,7 @@ export class SplitExpensePage {
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
           custom_properties: txnCustomProperties,
         };
-      })
+      }),
     );
   }
 
@@ -290,7 +290,7 @@ export class SplitExpensePage {
         map((files) => {
           this.fileObjs = files;
           return this.fileObjs;
-        })
+        }),
       );
     } else {
       return this.getAttachedFiles(this.transaction.id);
@@ -325,7 +325,7 @@ export class SplitExpensePage {
       switchMap((data) => {
         const txnIds = data.txns.map((txn) => txn.id);
         return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-      })
+      }),
     );
   }
 
@@ -384,7 +384,7 @@ export class SplitExpensePage {
       map((uploadedFiles) => {
         this.fileObjs = uploadedFiles;
         return this.fileObjs;
-      })
+      }),
     );
   }
 
@@ -477,7 +477,7 @@ export class SplitExpensePage {
               observables.violations = this.splitExpenseService.checkForPolicyViolations(
                 res,
                 this.fileObjs,
-                this.categoryList
+                this.categoryList,
               );
 
               return forkJoin(observables);
@@ -496,7 +496,7 @@ export class SplitExpensePage {
                 'Is Evenly Split': this.isEvenlySplit(),
               };
               this.trackingService.splittingExpense(splitTrackingProps);
-            })
+            }),
           )
           .subscribe((response) => {
             this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
@@ -542,9 +542,9 @@ export class SplitExpensePage {
 
             return of(activeCategories);
           }),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
-        )
-      )
+          map((categories) => categories.map((category) => ({ label: category.displayName, value: category }))),
+        ),
+      ),
     );
 
     this.getCategoryList();
@@ -582,23 +582,23 @@ export class SplitExpensePage {
           costCenters.map((costCenter) => ({
             label: costCenter.name,
             value: costCenter,
-          }))
-        )
+          })),
+        ),
       );
     }
 
     this.isCorporateCardsEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
-      )
+          orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled,
+      ),
     );
 
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
     }).subscribe(({ homeCurrency, isCorporateCardsEnabled }) =>
-      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled)
+      this.setValuesForCCC(currencyObj, homeCurrency, isCorporateCardsEnabled),
     );
   }
 
@@ -652,7 +652,7 @@ export class SplitExpensePage {
       txnDt = dateOfTxn ? new Date(dateOfTxn) : today;
       txnDt = dayjs(txnDt).format('YYYY-MM-DD');
     }
-    const fg = this.formBuilder.group({
+    const fg: FormGroup<any> = this.formBuilder.group({
       amount: [amount, Validators.required],
       currency: [currency],
       percentage: [percentage],
@@ -691,7 +691,7 @@ export class SplitExpensePage {
           amount,
           percentage,
         },
-        { emitEvent: false }
+        { emitEvent: false },
       );
     }
 
@@ -732,7 +732,7 @@ export class SplitExpensePage {
         },
         {
           emitEvent: false,
-        }
+        },
       );
     });
   }

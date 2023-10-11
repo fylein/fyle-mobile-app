@@ -1,4 +1,4 @@
-<ion-header mode="md">
+<ion-header class="ion-no-border" mode="md">
   <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
 </ion-header>
 
@@ -10,11 +10,8 @@
         {{ duplicateExpenses[0].tx_amount | currency : duplicateExpenses[0].tx_currency : 'symbol-narrow' }}
       </div>
       <ng-container *ngFor="let expense of duplicateExpenses as list; let i = index">
-        <app-expense-card
-          [previousExpenseTxnDate]="list[i - 1]?.tx_txn_dt"
-          [previousExpenseCreatedAt]="list[i - 1]?.tx_created_at"
-          [expense]="expense"
-        >
+        <app-expense-card [previousExpenseTxnDate]="list[i - 1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i - 1]?.tx_created_at" [expense]="expense">
         </app-expense-card>
       </ng-container>
     </div>

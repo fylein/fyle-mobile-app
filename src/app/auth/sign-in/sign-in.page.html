@@ -11,6 +11,7 @@
     <div class="sign-in--form-subheader">Enter your details below</div>
     <form [formGroup]="fg">
       <mat-form-field
+        subscriptSizing="dynamic"
         class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
         appearance="outline"
         *ngIf="!emailSet"
@@ -51,6 +52,7 @@
       </div>
 
       <mat-form-field
+        subscriptSizing="dynamic"
         class="signin-signup-fields sign-in--form-field mat-form-field-no-padding"
         appearance="outline"
         *ngIf="emailSet"

@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core';
+import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { CommonModule, DatePipe, DecimalPipe } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
@@ -52,7 +52,7 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { PinchZoomModule } from 'ngx13-pinch-zoom';
+import { PinchZoomModule } from 'ngx-pinch-zoom-16';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
@@ -106,7 +106,6 @@ import { CaptureReceiptComponent } from './components/capture-receipt/capture-re
 import { ReceiptPreviewComponent } from './components/capture-receipt/receipt-preview/receipt-preview.component';
 import { AddMorePopupComponent } from './components/capture-receipt/add-more-popup/add-more-popup.component';
 import { CropReceiptComponent } from './components/capture-receipt/crop-receipt/crop-receipt.component';
-import { ImagePicker } from '@awesome-cordova-plugins/image-picker/ngx';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { ImageCropperModule } from 'ngx-image-cropper';
 import { FyNumberComponent } from './components/fy-number/fy-number.component';
@@ -386,6 +385,7 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     CorporateCardComponent,
     AutofocusDirective,
   ],
-  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, FyCurrencyPipe, ReportState],
 })
 export class SharedModule {}

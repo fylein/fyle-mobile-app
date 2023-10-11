@@ -3,15 +3,6 @@
   
   <access origin="https://app.fylehq.com" />
   
-  <feature name="DecimalKeyboard">
-    <param name="ios-package" value="CDVDecimalKeyboard" onload="true"/>
-  </feature>
-
-  <feature name="GooglePlus">
-    <param name="ios-package" value="GooglePlus"/>
-    <param name="onload" value="true"/>
-  </feature>
-
   <feature name="InAppBrowser">
     <param name="ios-package" value="CDVWKInAppBrowser"/>
     <param name="onload" value="true"/>
@@ -21,20 +12,12 @@
     <param name="ios-package" value="IonicCordovaCommon" onload="true"/>
   </feature>
 
-  <feature name="DecimalKeyboard">
-    <param name="ios-package" value="CDVDecimalKeyboard" onload="true"/>
-  </feature>
-
   <feature name="SpinnerDialog">
     <param name="ios-package" value="CDVSpinnerDialog"/>
   </feature>
 
   <feature name="SmartlookPlugin">
     <param name="ios-package" value="SmartlookPlugin"/>
-  </feature>
-
-  <feature name="ImagePicker">
-    <param name="ios-package" value="SOSPicker"/>
   </feature>
 
   
