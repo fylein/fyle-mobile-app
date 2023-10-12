@@ -154,3 +154,49 @@ export const filterTypeMappings: FilterPill[] = [
   sortFilterPill,
   splitExpenseFilterPill,
 ];
+
+export const sortByDescFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'amount - high to low',
+  },
+];
+
+export const sortByAscFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'amount - low to high',
+  },
+];
+
+export const sortByDateAscFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'date - old to new',
+  },
+];
+
+export const sortByDateDescFilterPill: FilterPill[] = [
+  {
+    label: 'Sort By',
+    type: 'sort',
+    value: 'date - new to old',
+  },
+];
+
+export const expectedDateFilterPill = [
+  {
+    label: 'Date',
+    type: 'date',
+    value: '2023-01-21 to 2023-01-31',
+  },
+];
+
+export const stateFilterPill2: FilterPill = {
+  label: 'Type',
+  type: 'state',
+  value: 'Incomplete, Complete, approved',
+};
