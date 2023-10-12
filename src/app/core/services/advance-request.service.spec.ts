@@ -360,7 +360,7 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('pullBackadvanceRequest(): should pull back an advance requests', (done) => {
+  it('pullBackAdvanceRequest(): should pull back an advance requests', (done) => {
     apiService.post.and.returnValue(of(pullBackAdvancedRequests));
 
     const payloadParam = {
@@ -372,7 +372,7 @@ describe('AdvanceRequestService', () => {
 
     const advanceID = 'areqMP09oaYXBf';
 
-    advanceRequestService.pullBackadvanceRequest(advanceID, payloadParam).subscribe((res) => {
+    advanceRequestService.pullBackAdvanceRequest(advanceID, payloadParam).subscribe((res) => {
       expect(res).toEqual(pullBackAdvancedRequests);
       expect(apiService.post).toHaveBeenCalledOnceWith(`/advance_requests/${advanceID}/pull_back`, payloadParam);
       done();

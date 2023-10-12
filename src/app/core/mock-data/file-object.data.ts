@@ -78,10 +78,9 @@ export const fileObjectData5: FileObject = {
   purpose: '',
 };
 
-export const thumbnailUrlMockData: FileObject[] = [
+export const fileUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
-    purpose: 'THUMBNAILx200x200',
     url: 'mock-url-1',
   },
 ];
@@ -357,5 +356,14 @@ export const fileObject9: FileObject[] = [
     receipt_coordinates: null,
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
+  },
+];
+
+export const fileObject10: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+    url: 'mockdownloadurl.png',
+    type: 'pdf',
+    thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
   },
 ];
