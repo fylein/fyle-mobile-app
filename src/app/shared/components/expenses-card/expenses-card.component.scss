@@ -109,7 +109,7 @@
     min-width: 74px;
   }
 
-  &--receipt-thumbnail-container {
+  &--receipt-image-container {
     background-color: $light-grey;
     border-radius: 8px;
     height: 74px;
@@ -117,6 +117,11 @@
     display: flex;
     justify-content: center;
     align-items: center;
+  }
+
+  &--receipt-image {
+    height: 70px;
+    width: 80px;
   }
 
   &--with-image {

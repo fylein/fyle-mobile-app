@@ -199,7 +199,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
       from(this.loaderService.showLoader())
         .pipe(
-          switchMap(() => this.advanceRequestService.pullBackadvanceRequest(id, statusPayload)),
+          switchMap(() => this.advanceRequestService.pullBackAdvanceRequest(id, statusPayload)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe(() => {

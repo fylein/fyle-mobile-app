@@ -31,13 +31,6 @@
                 <ion-col>
                   <div><strong>{{ feature.value.textLabel }}</strong></div>
                 </ion-col>
-                <ion-col size="2" *ngIf="$first && (orgUserSettings$|async)?.notification_settings?.push.enabled">
-                  <mat-checkbox
-                    [checked]="isAllSelected.pushEvents"
-                    (change)="toggleAllSelected('push')"
-                  ></mat-checkbox>
-                  <mat-icon svgIcon="fy-iphone" class="notifications--notif-type-icon"></mat-icon>
-                </ion-col>
                 <ion-col size="2" *ngIf="$first">
                   <mat-checkbox
                     [checked]="isAllSelected.emailEvents"
@@ -54,11 +47,7 @@
                   <ion-col>
                     <div class="notifications--event-label">{{ event.textLabel }}</div>
                   </ion-col>
-                  <ion-col size="2" *ngIf="(orgUserSettings$|async)?.notification_settings?.push.enabled">
-                    <div formArrayName="pushEvents">
-                      <mat-checkbox formControlName="{{i}}"></mat-checkbox>
-                    </div>
-                  </ion-col>
+
                   <ion-col size="2">
                     <div formArrayName="emailEvents">
                       <mat-checkbox formControlName="{{i}}"></mat-checkbox>

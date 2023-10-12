@@ -417,7 +417,7 @@ export function TestCases3(getTestBed) {
         }
       });
 
-      it('should get auto fill category for DRAFT expense', () => {
+      it('should get auto fill category for DRAFT expense added via webapp bulk upload or bulk instafyle', () => {
         const result = component.getAutofillCategory({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,

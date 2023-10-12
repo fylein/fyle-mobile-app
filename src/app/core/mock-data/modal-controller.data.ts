@@ -15,6 +15,11 @@ import { reportOptionsData } from './report-options.data';
 import { expectedErpt } from './report-unflattened.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { PolicyViolationDialogComponent } from 'src/app/fyle/add-edit-advance-request/policy-violation-dialog/policy-violation-dialog.component';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -376,6 +381,168 @@ export const advanceRequestPolicyViolationParams = {
     violatedPolicyRules: ['rule1', 'rule2'],
     policyViolationActionDescription:
       'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.',
+  },
+  mode: 'ios' as Mode,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const popoverControllerParams4 = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: 'Review',
+    message:
+      'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
+    primaryCta: {
+      text: 'Finish',
+      action: 'continue',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+};
+
+export const modalControllerParams3 = {
+  component: CaptureReceiptComponent,
+  componentProps: {
+    isModal: true,
+    allowGalleryUploads: false,
+    allowBulkFyle: false,
+  },
+  cssClass: 'hide-modal',
+};
+
+export const modalControllerParams4 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: advanceRequestFileUrlData2,
+    canEdit: true,
+  },
+  mode: 'ios' as Mode,
+};
+
+export const modalControllerParams5 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqR1cyLgXdND',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const popoverControllerParams5 = {
+  component: PopupAlertComponent,
+  cssClass: 'pop-up-in-center',
+  componentProps: {
+    title: 'Review Advance',
+    message: 'Advance request by Abhishek Jain of amount $54 will be approved',
+    primaryCta: {
+      text: 'Approve',
+      action: 'approve',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'cancel',
+    },
+  },
+};
+
+export const popoverControllerParams6 = {
+  component: FyPopoverComponent,
+  cssClass: 'fy-dialog-popover',
+  componentProps: {
+    title: 'Send Back',
+    formLabel: 'Reason For Sending Back Advance',
+  },
+};
+
+export const popoverControllerParams7 = {
+  component: FyPopoverComponent,
+  cssClass: 'fy-dialog-popover',
+  componentProps: {
+    title: 'Reject',
+    formLabel: 'Please mention the reason for rejecting the advance request',
+  },
+};
+
+export const modalControllerParams6 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqR1cyLgXdND',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const modalControllerParams7 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: fileObject4[0],
+  },
+  mode: 'ios' as Mode,
+  presentingElement: undefined,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const popoverControllerParams8 = {
+  component: FyPopoverComponent,
+  componentProps: {
+    title: 'Pull Back Advance?',
+    formLabel: 'Pulling back your advance request will allow you to edit and re-submit the request.',
+  },
+  cssClass: 'fy-dialog-popover',
+};
+
+export const modalControllerParams8 = {
+  component: ViewCommentComponent,
+  componentProps: {
+    objectType: 'advance_requests',
+    objectId: 'areqoVuT5I8OOy',
+  },
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const modalControllerParams9 = {
+  component: FyViewAttachmentComponent,
+  componentProps: {
+    attachments: fileObject4[0],
   },
   mode: 'ios' as Mode,
   cssClass: 'fy-modal',
