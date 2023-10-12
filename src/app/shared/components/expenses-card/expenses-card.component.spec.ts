@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -20,36 +20,22 @@ import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of, take } from 'rxjs';
-import { expenseData1, expenseList, expenseList2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
 import { FileObject } from 'src/app/core/models/file-obj.model';
-import {
-  fileObjectAdv,
-  fileObjectAdv1,
-  fileObjectData,
-  fileObjectData1,
-} from 'src/app/core/mock-data/file-object.data';
+import { fileObjectAdv, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
-import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { cloneDeep, stubFalse } from 'lodash';
+import { cloneDeep } from 'lodash';
 import * as dayjs from 'dayjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
-
-const thumbnailUrlMockData1: FileObject[] = [
-  {
-    id: 'fiwJ0nQTBpYH',
-    purpose: 'THUMBNAILx200x200',
-    url: '/assets/images/add-to-list.png',
-  },
-];
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -79,8 +65,6 @@ describe('ExpensesCardComponent', () => {
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
-      'getFilesWithThumbnail',
-      'downloadThumbnailUrl',
       'downloadUrl',
       'getReceiptDetails',
       'readFile',
@@ -89,8 +73,6 @@ describe('ExpensesCardComponent', () => {
       'post',
     ]);
 
-    fileServiceSpy.getFilesWithThumbnail.and.returnValue(of(fileObjectData1));
-    fileServiceSpy.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
     fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -174,7 +156,6 @@ describe('ExpensesCardComponent', () => {
     component.isConnected$ = of(true);
     component.isSycing$ = of(true);
     component.isPerDiem = true;
-    component.receiptThumbnail = 'assets/svg/pdf.svg';
     component.isSelectionModeEnabled = false;
     component.etxnIndex = 1;
     componentElement = fixture.debugElement;
@@ -224,69 +205,6 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('getReceipt', () => {
-    it('should get the receipts when the file ids are present and the length of the thumbnail files array is greater that 0', fakeAsync(() => {
-      fileService.getFilesWithThumbnail.and.returnValue(of([fileObjectData]));
-      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockData1));
-      component.expense = {
-        ...expenseData1,
-        tx_file_ids: ['fiGLwwPtYD8X'],
-      };
-      component.getReceipt();
-      fixture.detectChanges();
-      tick(500);
-      expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
-      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      expect(fileService.downloadThumbnailUrl).toHaveBeenCalledOnceWith('fiHPZUiichAS');
-    }));
-
-    it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-expense when type is not pdf', fakeAsync(() => {
-      const mockDownloadUrl = {
-        url: 'mock-url',
-      };
-      fileService.getFilesWithThumbnail.and.returnValue(of([]));
-      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-      fileService.getReceiptDetails.and.returnValue('mock-url');
-
-      component.expense = {
-        ...expenseData1,
-        tx_file_ids: ['fiGLwwPtYD8X'],
-      };
-      component.getReceipt();
-      fixture.detectChanges();
-      tick(500);
-      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8X');
-      expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
-      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
-    }));
-
-    it('should get the receipts when the file ids are present and there are no thumbnail files and set the icon to fy-pdf when type is pdf', fakeAsync(() => {
-      const mockDownloadUrl = {
-        url: 'mock-url',
-      };
-
-      const thumbnailUrlMockRes = {
-        ...thumbnailUrlMockData1,
-        url: '/assets/mock-url.pdf',
-      };
-      fileService.getFilesWithThumbnail.and.returnValue(of([]));
-      fileService.downloadThumbnailUrl.and.returnValue(of(thumbnailUrlMockRes));
-      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
-      fileService.getReceiptDetails.and.returnValue('pdf');
-
-      component.expense = {
-        ...expenseData1,
-        tx_file_ids: ['fiGLwwPtYD8Y'],
-      };
-      component.getReceipt();
-      fixture.detectChanges();
-      tick(500);
-      expect(fileService.getFilesWithThumbnail).toHaveBeenCalledOnceWith(component.expense.tx_id);
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiGLwwPtYD8Y');
-      expect(fileService.getReceiptDetails).toHaveBeenCalledOnceWith('mock-url');
-      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
-    }));
-
     it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
       component.expense = {
         ...expenseData1,
@@ -742,7 +660,6 @@ describe('ExpensesCardComponent', () => {
       fileService.post.and.returnValue(of(fileObjectData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
-      spyOn(component, 'setThumbnail').and.callThrough();
 
       component.attachReceipt(receiptDetailsaRes);
       tick(500);
@@ -751,7 +668,6 @@ describe('ExpensesCardComponent', () => {
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
       expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
-      expect(component.setThumbnail).toHaveBeenCalledOnceWith(fileObjectData.id, attachmentType);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));
@@ -893,32 +809,6 @@ describe('ExpensesCardComponent', () => {
         panelClass: ['msb-success-with-camera-icon'],
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
-    }));
-  });
-
-  describe('setThumbnail():', () => {
-    it('should set the thumbnail', fakeAsync(() => {
-      const fileObjid = fileObjectData.id;
-      const attachmentType = 'pdf';
-      fileService.downloadUrl.and.returnValue(of('mock-url'));
-      component.setThumbnail(fileObjid, attachmentType);
-      fixture.detectChanges();
-      tick(500);
-      expect(component.receiptIcon).toEqual('assets/svg/pdf.svg');
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
-    }));
-
-    it('should set the receipt thumbnail to download url when the attatchment tyoe is not pdf', fakeAsync(() => {
-      component.receiptIcon = undefined;
-      const fileObjid = fileObjectData.id;
-      const attachmentType = 'png';
-      fileService.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
-      component.setThumbnail(fileObjid, attachmentType);
-      fixture.detectChanges();
-      tick(500);
-      expect(component.receiptThumbnail).toEqual(thumbnailUrlMockData1[0].url);
-      expect(component.receiptIcon).toBeUndefined();
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjid);
     }));
   });
 

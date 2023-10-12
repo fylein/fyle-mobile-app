@@ -22,3 +22,11 @@ export const popupConfigData2: PopupConfig = {
     text: 'Close',
   },
 };
+
+export const popupConfigData3: PopupConfig = {
+  header: 'Confirm',
+  message: 'Are you sure you want to delete this Advance Request',
+  primaryCta: {
+    text: 'Delete Advance Request',
+  },
+};
