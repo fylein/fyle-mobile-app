@@ -71,7 +71,7 @@ describe('VirtualSelectModalComponent', () => {
       modalController.create.and.resolveTo(selectionModalSpy);
     });
 
-    it('openModal(): should open select modal and set value equals to value returned by modal', fakeAsync(() => {
+    it('should open select modal and set value equals to value returned by modal', fakeAsync(() => {
       component.openModal();
       tick(100);
 
@@ -81,7 +81,7 @@ describe('VirtualSelectModalComponent', () => {
       expect(selectionModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
     }));
 
-    it('openModal(): should open select modal and set value equals to value returned by modal if label is Payment Mode', fakeAsync(() => {
+    it('should open select modal and set value equals to value returned by modal if label is Payment Mode', fakeAsync(() => {
       component.label = 'Payment Mode';
       component.openModal();
       tick(100);
@@ -130,13 +130,13 @@ describe('VirtualSelectModalComponent', () => {
       component.options = [
         { label: 'Business', value: 'BUSINESS' },
         { label: 'Economy', value: 'ECONOMY' },
-        { label: '', value: '' },
+        { label: 'First Class', value: 'FIRST_CLASS' },
       ];
       //@ts-ignore
       spyOn(component, 'onChangeCallback');
     });
 
-    it('should set the value and update the displayValue if any option.value is equal to innerValue', () => {
+    it('should set the value and update the displayValue if any "option.value" is equal to innerValue', () => {
       component.value = 'BUSINESS';
       //@ts-ignore
       expect(component.innerValue).toEqual('BUSINESS');
@@ -153,6 +153,7 @@ describe('VirtualSelectModalComponent', () => {
       //@ts-ignore
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith('');
     });
+
     it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
@@ -162,6 +163,7 @@ describe('VirtualSelectModalComponent', () => {
       //@ts-ignore
       expect(component.onChangeCallback).toHaveBeenCalledOnceWith({ travelClass: 'BUSINESS', vendor: 'vendor1' });
     });
+
     it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.value = { travelClass: 'BUSINESS', vendor: 'vendor1' };
@@ -188,11 +190,11 @@ describe('VirtualSelectModalComponent', () => {
       component.options = [
         { label: 'Business', value: 'BUSINESS' },
         { label: 'Economy', value: 'ECONOMY' },
-        { label: '', value: '' },
+        { label: 'First Class', value: 'FIRST_CLASS' },
       ];
     });
 
-    it('should set the value and update the displayValue if any option.value is equal to innerValue', () => {
+    it('should set the value and update the displayValue if any "option.value" is equal to innerValue', () => {
       component.writeValue('BUSINESS');
       //@ts-ignore
       expect(component.innerValue).toEqual('BUSINESS');
@@ -205,6 +207,7 @@ describe('VirtualSelectModalComponent', () => {
       expect(component.innerValue).toEqual('');
       expect(component.displayValue).toEqual('');
     });
+
     it('should set the value and update the displayValue if innerValue and defaultLabelProps is defined', () => {
       component.defaultLabelProp = 'vendor';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });
@@ -212,6 +215,7 @@ describe('VirtualSelectModalComponent', () => {
       expect(component.innerValue).toEqual({ travelClass: 'BUSINESS', vendor: 'vendor1' });
       expect(component.displayValue).toEqual('vendor1');
     });
+
     it('should set the value and update the displayValue if none of the conditions holds true', () => {
       component.defaultLabelProp = '';
       component.writeValue({ travelClass: 'BUSINESS', vendor: 'vendor1' });
