@@ -1244,8 +1244,8 @@ export function TestCases3(getTestBed) {
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         fixture.detectChanges();
 
-        component.getNewExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedExpenseObservable3);
+        component.getNewExpenseObservable().subscribe((newExpense) => {
+          expect(newExpense).toEqual(expectedExpenseObservable3);
           expect(component.source).toEqual('MOBILE_DASHCAM_SINGLE');
           expect(component.isExpenseBankTxn).toBeFalse();
           expect(component.instaFyleCancelled).toBeFalse();

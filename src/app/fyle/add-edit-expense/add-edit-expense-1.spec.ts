@@ -1063,11 +1063,9 @@ export function TestCases1(getTestBed) {
         launchDarklyService.getVariation.and.returnValue(of(true));
         fixture.detectChanges();
 
-        let actionSheetOptions;
-
-        component.getActionSheetOptions().subscribe((res) => {
-          actionSheetOptions = res;
-          expect(res.length).toEqual(6);
+        component.getActionSheetOptions().subscribe((actionSheetOptionsResponse) => {
+          const actionSheetOptions = actionSheetOptionsResponse;
+          expect(actionSheetOptionsResponse.length).toEqual(6);
           expect(titleCasePipe.transform).toHaveBeenCalledOnceWith('Project');
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
@@ -1075,21 +1073,20 @@ export function TestCases1(getTestBed) {
             'show_project_mapped_categories_in_split_expense',
             false
           );
+          actionSheetOptions[0].handler();
+          expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[1].handler();
+          expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[2].handler();
+          expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[3].handler();
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[4].handler();
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[5].handler();
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
         });
-
-        actionSheetOptions[0].handler();
-        expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[1].handler();
-        expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[2].handler();
-        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[3].handler();
-        expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[4].handler();
-        expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[5].handler();
-        expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
-        done();
       });
 
       it('should get action sheet options when split expense is not allowed', (done) => {
