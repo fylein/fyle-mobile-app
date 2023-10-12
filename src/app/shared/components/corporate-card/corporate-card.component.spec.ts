@@ -15,7 +15,6 @@ import {
 import { bankFeedSourcesData } from 'src/app/core/mock-data/bank-feed-sources.data';
 import { Component, Input } from '@angular/core';
 import { By } from '@angular/platform-browser';
-import { computeStackId } from '@ionic/angular/directives/navigation/stack-utils';
 
 @Component({
   selector: 'app-card-number',
