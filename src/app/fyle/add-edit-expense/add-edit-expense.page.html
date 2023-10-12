@@ -72,7 +72,10 @@
         </div>
 
         <div *ngIf="isIncompleteExpense" class="add-edit-expense--alert-offline">
-          <app-fy-alert-info message="Please save the expense after reviewing it." type="warning"></app-fy-alert-info>
+          <app-fy-alert-info
+            message="Mandatory field values are missing. Please update the details and save the Expense."
+            type="warning"
+          ></app-fy-alert-info>
         </div>
 
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
