@@ -2,9 +2,9 @@ import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } 
 import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
-import { concat, forkJoin, from, iif, noop, Observable, of, Subscription, throwError } from 'rxjs';
-import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
-import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
+import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
+import { catchError, concatMap, finalize, map, reduce, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { CustomField } from 'src/app/core/models/custom_field.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -14,7 +14,8 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
-import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { DraftAdvanceSummaryComponent } from './draft-advance-summary/draft-advance-summary.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -95,7 +96,6 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private formBuilder: FormBuilder,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private advanceRequestService: AdvanceRequestService,
-    private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private modalController: ModalController,
     private statusService: StatusService,
     private loaderService: LoaderService,
@@ -170,11 +170,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  checkPolicyViolation(advanceRequest: Partial<AdvanceRequests>): Observable<PolicyViolationCheck> {
-    return this.advanceRequestService.testPolicy(advanceRequest);
-  }
-
-  submitAdvanceRequest(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequestFile> {
+  submitAdvanceRequest(advanceRequest) {
     const fileObjPromises = this.fileAttachments();
     return this.advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequest, fileObjPromises);
   }
@@ -192,108 +188,31 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
   }
 
-  async showPolicyModal(
-    violatedPolicyRules: string[],
-    policyViolationActionDescription: string,
-    event: string,
-    advanceRequest: Partial<AdvanceRequests>
-  ): Promise<Subscription> {
-    return iif(
-      () => !!(advanceRequest && advanceRequest.id && advanceRequest.org_user_id),
-      this.statusService.findLatestComment(advanceRequest.id, 'advance_requests', advanceRequest.org_user_id),
-      of(null)
-    ).subscribe(async (latestComment) => {
-      const policyViolationModal = await this.modalController.create({
-        component: PolicyViolationDialogComponent,
-        componentProps: {
-          latestComment,
-          violatedPolicyRules,
-          policyViolationActionDescription,
-        },
-        mode: 'ios',
-        ...this.modalProperties.getModalDefaultProperties(),
-      });
-
-      await policyViolationModal.present();
-
-      const { data } = await policyViolationModal.onWillDismiss<{ reason: string }>();
-      if (data) {
-        return this.saveAndSubmit(event, advanceRequest)
-          .pipe(
-            switchMap((res) =>
-              iif(
-                () => data.reason && data.reason !== latestComment,
-                this.statusService.post('advance_requests', res.advanceReq.id, { comment: data.reason }, true),
-                of(null)
-              )
-            ),
-            finalize(() => {
-              this.fg.reset();
-              if (event === 'draft') {
-                this.saveDraftAdvanceLoading = false;
-              } else {
-                this.saveAdvanceLoading = false;
-              }
-              if (this.from === 'TEAM_ADVANCE') {
-                return this.router.navigate(['/', 'enterprise', 'team_advance']);
-              } else {
-                return this.router.navigate(['/', 'enterprise', 'my_advances']);
-              }
-            })
-          )
-          .subscribe(noop);
-      } else {
-        if (event === 'draft') {
-          this.saveDraftAdvanceLoading = false;
-        } else {
-          this.saveAdvanceLoading = false;
-        }
-      }
-    });
-  }
-
-  showFormValidationErrors(): void {
-    this.fg.markAllAsTouched();
-    const formContainer = this.formContainer.nativeElement as HTMLElement;
-    if (formContainer) {
-      const invalidElement = formContainer.querySelector('.ng-invalid');
-      if (invalidElement) {
-        invalidElement.scrollIntoView({
-          behavior: 'smooth',
-        });
-      }
-    }
-  }
-
-  async showAdvanceSummaryPopover(): Promise<void> {
+  async showAdvanceSummaryPopover() {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
-        component: PopupAlertComponent,
-        componentProps: {
-          title: 'Review',
-          message:
-            'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
-          primaryCta: {
-            text: 'Finish',
-            action: 'continue',
-          },
-          secondaryCta: {
-            text: 'Cancel',
-            action: 'cancel',
-          },
-        },
-        cssClass: 'pop-up-in-center',
+        component: DraftAdvanceSummaryComponent,
+        cssClass: 'dialog-popover',
       });
 
       await advanceSummaryPopover.present();
 
-      const { data } = await advanceSummaryPopover.onWillDismiss<{ action: string }>();
+      const { data } = await advanceSummaryPopover.onWillDismiss();
 
-      if (data && data.action === 'continue') {
+      if (data && data.saveAdvanceRequest) {
         this.save('Draft');
       }
     } else {
-      this.showFormValidationErrors();
+      this.fg.markAllAsTouched();
+      const formContainer = this.formContainer.nativeElement as HTMLElement;
+      if (formContainer) {
+        const invalidElement = formContainer.querySelector('.ng-invalid');
+        if (invalidElement) {
+          invalidElement.scrollIntoView({
+            behavior: 'smooth',
+          });
+        }
+      }
     }
   }
 
@@ -308,40 +227,18 @@ export class AddEditAdvanceRequestPage implements OnInit {
       this.generateAdvanceRequestFromFg(this.extendedAdvanceRequest$)
         .pipe(
           switchMap((advanceRequest) => {
-            const policyViolations$ = this.checkPolicyViolation(advanceRequest).pipe(shareReplay(1));
-
-            let policyViolationActionDescription = '';
-            return policyViolations$.pipe(
-              map((policyViolations) => {
-                policyViolationActionDescription = policyViolations.advance_request_desired_state.action_description;
-                return this.advanceRequestPolicyService.getPolicyRules(policyViolations);
-              }),
-              catchError((err: { status: number }) => {
-                if (err.status === 500) {
-                  return of([]);
+            return this.saveAndSubmit(event, advanceRequest).pipe(
+              finalize(() => {
+                this.fg.reset();
+                if (event === 'draft') {
+                  this.saveDraftAdvanceLoading = false;
                 } else {
-                  return throwError(err);
+                  this.saveAdvanceLoading = false;
                 }
-              }),
-              switchMap((policyRules: string[]) => {
-                if (policyRules.length > 0) {
-                  return this.showPolicyModal(policyRules, policyViolationActionDescription, event, advanceRequest);
+                if (this.from === 'TEAM_ADVANCE') {
+                  return this.router.navigate(['/', 'enterprise', 'team_advance']);
                 } else {
-                  return this.saveAndSubmit(event, advanceRequest).pipe(
-                    finalize(() => {
-                      this.fg.reset();
-                      if (event === 'draft') {
-                        this.saveDraftAdvanceLoading = false;
-                      } else {
-                        this.saveAdvanceLoading = false;
-                      }
-                      if (this.from === 'TEAM_ADVANCE') {
-                        return this.router.navigate(['/', 'enterprise', 'team_advance']);
-                      } else {
-                        return this.router.navigate(['/', 'enterprise', 'my_advances']);
-                      }
-                    })
-                  );
+                  return this.router.navigate(['/', 'enterprise', 'my_advances']);
                 }
               })
             );

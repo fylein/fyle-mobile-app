@@ -7,7 +7,6 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
-import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
@@ -63,7 +62,6 @@ export class AdvanceRequestService {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
-    private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private fileService: FileService
@@ -240,21 +238,7 @@ export class AdvanceRequestService {
     );
   }
 
-  testPolicy(advanceRequest: Partial<AdvanceRequests>): Observable<PolicyViolationCheck> {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (advanceRequest.created_at) {
-          advanceRequest.created_at = this.timezoneService.convertToUtc(
-            advanceRequest.created_at,
-            orgUserSettings.locale.offset
-          );
-        }
-        return this.advanceRequestPolicyService.servicePost<PolicyViolationCheck>('/policy_check/test', advanceRequest);
-      })
-    );
-  }
-
-  getActions(advanceRequestId: string): Observable<AdvanceRequestActions> {
+  getActions(advanceRequestId: string) {
     return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
   }
 
