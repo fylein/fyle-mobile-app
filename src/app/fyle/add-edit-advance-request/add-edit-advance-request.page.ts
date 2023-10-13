@@ -187,32 +187,48 @@ export class AddEditAdvanceRequestPage implements OnInit {
       return this.saveDraftAdvanceRequest(advanceRequest);
     }
   }
+  showFormValidationErrors(): void {
+    this.fg.markAllAsTouched();
+    const formContainer = this.formContainer.nativeElement as HTMLElement;
+    if (formContainer) {
+      const invalidElement = formContainer.querySelector('.ng-invalid');
+      if (invalidElement) {
+        invalidElement.scrollIntoView({
+          behavior: 'smooth',
+        });
+      }
+    }
+  }
 
-  async showAdvanceSummaryPopover() {
+  async showAdvanceSummaryPopover(): Promise<void> {
     if (this.fg.valid) {
       const advanceSummaryPopover = await this.popoverController.create({
-        component: DraftAdvanceSummaryComponent,
-        cssClass: 'dialog-popover',
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Review',
+          message:
+            'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
+          primaryCta: {
+            text: 'Finish',
+            action: 'continue',
+          },
+          secondaryCta: {
+            text: 'Cancel',
+            action: 'cancel',
+          },
+        },
+        cssClass: 'pop-up-in-center',
       });
 
       await advanceSummaryPopover.present();
 
-      const { data } = await advanceSummaryPopover.onWillDismiss();
+      const { data } = await advanceSummaryPopover.onWillDismiss<{ action: string }>();
 
-      if (data && data.saveAdvanceRequest) {
+      if (data && data.action === 'continue') {
         this.save('Draft');
       }
     } else {
-      this.fg.markAllAsTouched();
-      const formContainer = this.formContainer.nativeElement as HTMLElement;
-      if (formContainer) {
-        const invalidElement = formContainer.querySelector('.ng-invalid');
-        if (invalidElement) {
-          invalidElement.scrollIntoView({
-            behavior: 'smooth',
-          });
-        }
-      }
+      this.showFormValidationErrors();
     }
   }
 
