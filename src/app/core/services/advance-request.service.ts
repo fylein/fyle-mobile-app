@@ -238,7 +238,7 @@ export class AdvanceRequestService {
     );
   }
 
-  getActions(advanceRequestId: string) {
+  getActions(advanceRequestId: string): Observable<AdvanceRequestActions> {
     return this.apiService.get('/advance_requests/' + advanceRequestId + '/actions');
   }
 
