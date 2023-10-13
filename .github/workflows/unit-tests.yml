@@ -40,5 +40,6 @@ jobs:
           coverage_summary=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
           if (( $(echo "$coverage_summary < 95" | bc -l) )); then
             echo "Coverage percentage is less than 95%."
+            echo "Coverage Percentage is less than 95%" | gh release create "comment"
             exit 1
           fi
