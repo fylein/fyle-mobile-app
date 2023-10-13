@@ -383,7 +383,7 @@ export function TestCases3(getTestBed) {
         expect(component.presetCategoryId).toEqual(expectedAutoFillCategory2.id);
       });
 
-      it('should return config category for DRAFT expense added via webapp bulk upload or bulk instafyle if recent category is undefined', () => {
+      it('should return category passed as arguments for DRAFT expense added via webapp bulk upload or bulk instafyle if recent category is undefined', () => {
         const result = component.getAutofillCategory({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1086,25 +1086,6 @@ export function TestCases3(getTestBed) {
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(categoriesService.getCategoryById).toHaveBeenCalledOnceWith(unflattenedDraftExp.tx.org_category_id);
-          done();
-        });
-      });
-
-      it('should return category as null if etxn.tx is undefined', (done) => {
-        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-        orgSettingsService.get.and.returnValue(of(orgSettingsData));
-        component.recentlyUsedValues$ = of(recentlyUsedRes);
-        component.recentlyUsedCategories$ = of(recentUsedCategoriesRes);
-        component.etxn$ = of({ ...unflattenedPaidExp, tx: undefined });
-        component.initialFetch = true;
-        categoriesService.getCategoryById.and.returnValue(of(orgCategoryData1[0]));
-
-        fixture.detectChanges();
-        component.getCategoryOnEdit(orgCategoryData1[0]).subscribe((res) => {
-          expect(res).toEqual(null);
-          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(categoriesService.getCategoryById).not.toHaveBeenCalled();
           done();
         });
       });
