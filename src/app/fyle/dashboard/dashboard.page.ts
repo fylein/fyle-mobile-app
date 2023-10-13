@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild } from '@angular/core';
-import { concat, Observable, of, Subject, Subscription } from 'rxjs';
+import { concat, forkJoin, Observable, of, Subject, Subscription } from 'rxjs';
 import { shareReplay, switchMap, takeUntil } from 'rxjs/operators';
 import { ActionSheetButton, ActionSheetController, NavController, Platform } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -19,6 +19,8 @@ import { BackButtonService } from 'src/app/core/services/back-button.service';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { CardStatsComponent } from './card-stats/card-stats.component';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 enum DashboardState {
   home,
@@ -40,6 +42,8 @@ export class DashboardPage {
   orgUserSettings$: Observable<OrgUserSettings>;
 
   orgSettings$: Observable<OrgSettings>;
+
+  specialCategories$: Observable<PlatformCategory[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -66,6 +70,7 @@ export class DashboardPage {
     private smartlookService: SmartlookService,
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService,
     private platform: Platform,
     private backButtonService: BackButtonService,
     private navController: NavController
@@ -116,10 +121,18 @@ export class DashboardPage {
 
     this.orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
     this.homeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.orgSettings$.subscribe((orgSettings) => {
-      this.setupActionSheet(orgSettings);
+    forkJoin({
+      orgSettings: this.orgSettings$,
+      specialCategories: this.specialCategories$,
+    }).subscribe(({ orgSettings, specialCategories }) => {
+      const allowedExpenseTypes = {
+        mileage: specialCategories.some((category) => category.system_category === 'Mileage'),
+        perDiem: specialCategories.some((category) => category.system_category === 'Per Diem'),
+      };
+      this.setupActionSheet(orgSettings, allowedExpenseTypes);
     });
 
     this.statsComponent.init();
@@ -229,10 +242,10 @@ export class DashboardPage {
     };
   }
 
-  setupActionSheet(orgSettings: OrgSettings): void {
+  setupActionSheet(orgSettings: OrgSettings, allowedExpenseTypes: Record<string, boolean>): void {
     const that = this;
-    const mileageEnabled = orgSettings.mileage.enabled;
-    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    const mileageEnabled = orgSettings.mileage.enabled && allowedExpenseTypes.mileage;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
@@ -249,7 +262,7 @@ export class DashboardPage {
     ];
 
     if (mileageEnabled) {
-      this.actionSheetButtons.push({
+      that.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/fy-mileage.svg',
         cssClass: 'capture-receipt',

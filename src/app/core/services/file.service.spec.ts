@@ -1,12 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
-import {
-  fileObjectAdv,
-  fileObjectAdv1,
-  fileObjectData,
-  fileObjectData4,
-  thumbnailUrlMockData,
-} from '../mock-data/file-object.data';
+import { fileObjectAdv, fileObjectAdv1, fileObjectData, fileObjectData4 } from '../mock-data/file-object.data';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
 
@@ -40,39 +34,6 @@ describe('FileService', () => {
 
   it('should be created', () => {
     expect(fileService).toBeTruthy();
-  });
-
-  it('downloadThumbnailUrl(): should return the file obj with thumbnail url', (done) => {
-    apiService.post.and.returnValue(of(thumbnailUrlMockData));
-
-    const fileId = 'fiwJ0nQTBpYH';
-    fileService.downloadThumbnailUrl(fileId).subscribe((res) => {
-      expect(res).toEqual(thumbnailUrlMockData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/files/download_urls', [
-        {
-          id: fileId,
-          purpose: 'THUMBNAILx200x200',
-        },
-      ]);
-      done();
-    });
-  });
-
-  it('getFilesWithThumbnail(): should return files with thumbnail for the given txn ID', (done) => {
-    apiService.get.and.returnValue(of([fileObjectData]));
-
-    const txnId = 'txdzGV1TZEg3';
-    fileService.getFilesWithThumbnail(txnId).subscribe((res) => {
-      expect(res).toEqual([fileObjectData]);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/files', {
-        params: {
-          transaction_id: txnId,
-          skip_html: 'true',
-          purpose: 'THUMBNAILx200x200',
-        },
-      });
-      done();
-    });
   });
 
   it('base64Download(): should return the base64 encoded file content', (done) => {

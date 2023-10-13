@@ -1931,13 +1931,18 @@ export class AddEditExpensePage implements OnInit {
     const isCategoryEmpty = !etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
 
     /*
-     * Autofill should be applied iff:
+     * Autofill should be applied if:
      * - Autofilled is allowed and enabled for the user
      * - The user has some recently used categories present
+     * - isTxnEligibleForCategoryAutofill:
      * - The transaction category is empty or 'unspecified'
-     * - The user is on creating a new expense or editing a DRAFT expense
+     * - The user is on creating a new expense or editing a DRAFT expense that was created from bulk upload or bulk instafyle
      */
-    if (doRecentOrgCategoryIdsExist && isCategoryEmpty && (!etxn.tx.id || etxn.tx.state === 'DRAFT')) {
+    const isNewExpense = !etxn.tx.id;
+    const canAutofillCategoryDuringEdit =
+      etxn.tx.state === 'DRAFT' && ['WEBAPP_BULK', 'MOBILE_DASHCAM_BULK'].includes(etxn.tx.source);
+    const isTxnEligibleForCategoryAutofill = isCategoryEmpty && (isNewExpense || canAutofillCategoryDuringEdit);
+    if (doRecentOrgCategoryIdsExist && isTxnEligibleForCategoryAutofill) {
       const autoFillCategory = recentCategories?.length && recentCategories[0];
 
       if (autoFillCategory) {
