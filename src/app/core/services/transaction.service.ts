@@ -372,16 +372,6 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<Expense> {
-    return this.apiV2Service
-      .get<Expense, {}>('/expenses', {
-        params: {
-          tx_id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.fixDates(res.data[0])));
-  }
-
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
