@@ -40,8 +40,8 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-per-diem--container" *ngIf="extendedPerDiem$|async as extendedPerDiem">
-    <ng-container *ngIf="extendedPerDiem.tx_policy_flag">
+  <div class="view-per-diem--container" *ngIf="perDiemExpense$|async as perDiemExpense">
+    <ng-container *ngIf="perDiemExpense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
           [policyDetails]="policyDetails"
@@ -52,19 +52,19 @@
 
     <div class="view-per-diem--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
       <span class="info-text m-0">
-        Claimed amount {{extendedPerDiem.tx_user_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} was
-        capped to {{extendedPerDiem.tx_amount | currency: extendedPerDiem.tx_currency: 'symbol-narrow'}} due to policy.
+        Claimed amount {{perDiemExpense.claim_amount | currency: perDiemExpense.currency: 'symbol-narrow'}} was capped
+        to {{perDiemExpense.amount | currency: perDiemExpense.currency: 'symbol-narrow'}} due to policy.
       </span>
     </div>
 
     <div class="d-flex view-per-diem--card-container">
       <div class="view-per-diem--card-container__block">
         <div class="view-per-diem--card-container__category">Per Diem</div>
-        <div *ngIf="extendedPerDiem.tx_num_days" class="view-per-diem--card-container__merchant">
-          {{extendedPerDiem.tx_num_days}} {{extendedPerDiem.tx_num_days === 1 ? 'Day' : 'Days'}}
+        <div *ngIf="perDiemExpense.per_diem_num_days" class="view-per-diem--card-container__merchant">
+          {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
         </div>
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ extendedPerDiem.tx_project_name ? extendedPerDiem.tx_project_name :
+          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project.name ? perDiemExpense.project.name :
           'Unspecified' }}
         </div>
       </div>
@@ -72,7 +72,7 @@
         <div>
           <span>{{ etxnCurrencySymbol }}</span>
           <span class="view-per-diem--card-container__amount">
-            {{ extendedPerDiem.tx_amount || 0 | humanizeCurrency: extendedPerDiem.tx_currency:true }}
+            {{ perDiemExpense.amount || 0 | humanizeCurrency: perDiemExpense.currency:true }}
           </span>
           <ion-icon
             class="view-per-diem--card-container__icon"
@@ -84,8 +84,8 @@
           class="view-per-diem--card-container__state-pill ion-text-right"
           [ngClass]="{'view-per-diem--card-container__state-pill--with-project': isProjectShown}"
         >
-          <div class="state-pill state-{{extendedPerDiem.tx_state | expenseState}}">
-            {{ extendedPerDiem.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+          <div class="state-pill state-{{perDiemExpense.state | expenseState}}">
+            {{ perDiemExpense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
@@ -100,7 +100,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Report Name</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.rp_purpose }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.report.title }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -114,7 +114,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Employee</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.us_full_name }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.user.full_name }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -128,7 +128,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Expense ID</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.tx_expense_number }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.seq_num }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -147,12 +147,12 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Created Date</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.tx_created_at | date: 'MMM dd, YYYY' }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.created_at | date: 'MMM dd, YYYY' }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="extendedPerDiem.tx_from_dt" class="view-per-diem--grid">
+    <ion-grid *ngIf="perDiemExpense.started_at" class="view-per-diem--grid">
       <ion-row>
         <ion-col size="6">
           <ion-grid>
@@ -167,12 +167,12 @@
               </ion-col>
               <ion-col class="view-per-diem--content-container">
                 <div class="view-per-diem--label">Onward Date</div>
-                <div class="view-per-diem--value">{{ extendedPerDiem.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
+                <div class="view-per-diem--value">{{ perDiemExpense.started_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col *ngIf="extendedPerDiem.tx_to_dt">
+        <ion-col *ngIf="perDiemExpense.ended_at">
           <ion-grid>
             <ion-row>
               <ion-col class="view-per-diem--icon-container">
@@ -185,7 +185,7 @@
               </ion-col>
               <ion-col class="view-per-diem--content-container">
                 <div class="view-per-diem--label">Return Date</div>
-                <div class="view-per-diem--value">{{ extendedPerDiem.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
+                <div class="view-per-diem--value">{{ perDiemExpense.ended_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -210,7 +210,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="extendedPerDiem.tx_purpose" class="view-per-diem--grid">
+    <ion-grid *ngIf="perDiemExpense.purpose" class="view-per-diem--grid">
       <ion-row>
         <ion-col class="view-per-diem--icon-container">
           <div class="view-per-diem--icon-container__background">
@@ -219,13 +219,13 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Purpose</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.tx_purpose }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.purpose }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
 
     <ion-grid
-      *ngIf="extendedPerDiem.tx_org_category && extendedPerDiem.tx_sub_category && (extendedPerDiem.tx_org_category !== extendedPerDiem.tx_sub_category)"
+      *ngIf="perDiemExpense.category.name && perDiemExpense.category.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
       class="view-per-diem--grid"
     >
       <ion-row>
@@ -236,7 +236,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Subcategory</div>
-          <div class="view-per-diem--value">{{ extendedPerDiem.tx_sub_category }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.category.sub_category }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -260,11 +260,11 @@
     <ng-container *ngIf="{ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async} as data">
       <ng-container *ngIf="!data.costCenterDependentCustomProperties?.length">
         <ion-grid
-          *ngIf="orgSettings?.cost_centers?.enabled && extendedPerDiem.tx_cost_center_id"
+          *ngIf="orgSettings?.cost_centers?.enabled && perDiemExpense.cost_center_id"
           class="view-per-diem--grid"
         >
           <ion-row>
-            <ion-col *ngIf="extendedPerDiem.tx_cost_center_name" size="6">
+            <ion-col *ngIf="perDiemExpense.cost_center.name" size="6">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-per-diem--icon-container">
@@ -277,12 +277,12 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Cost Center</div>
-                    <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_name }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center.name }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
             </ion-col>
-            <ion-col size="6" *ngIf="extendedPerDiem.tx_cost_center_code">
+            <ion-col size="6" *ngIf="perDiemExpense.cost_center.code">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-per-diem--icon-container">
@@ -295,7 +295,7 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Cost Center Code</div>
-                    <div class="view-per-diem--value">{{ extendedPerDiem.tx_cost_center_code }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center.code }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -312,7 +312,7 @@
           <app-view-dependent-fields
             parentFieldType="PROJECT"
             [parentFieldName]="txnFields.project_id[0]?.field_name"
-            [parentFieldValue]="extendedPerDiem.tx_project_name"
+            [parentFieldValue]="perDiemExpense.project.name"
             [dependentCustomProperties]="projectDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
@@ -326,8 +326,8 @@
           <app-view-dependent-fields
             parentFieldType="COST_CENTER"
             [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
-            [parentFieldValue]="extendedPerDiem.tx_cost_center_name"
-            [costCenterCode]="extendedPerDiem.tx_cost_center_code"
+            [parentFieldValue]="perDiemExpense.cost_center.name"
+            [costCenterCode]="perDiemExpense.cost_center.code"
             [dependentCustomProperties]="costCenterDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>

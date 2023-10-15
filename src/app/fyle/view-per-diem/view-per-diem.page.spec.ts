@@ -201,7 +201,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for team expenses', () => {
       component.view = ExpenseView.team;
       policyService.getApproverExpensePolicyViolations.and.returnValue(
-        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states),
+        of(ApproverExpensePolicyStatesData.data[0].individual_desired_states)
       );
       component.getPolicyDetails('txRNWeQRXhso');
       expect(policyService.getApproverExpensePolicyViolations).toHaveBeenCalledOnceWith('txRNWeQRXhso');
@@ -211,7 +211,7 @@ describe('ViewPerDiemPage', () => {
     it('should get policy details for individual expenses', () => {
       component.view = ExpenseView.individual;
       policyService.getSpenderExpensePolicyViolations.and.returnValue(
-        of(expensePolicyStatesData.data[0].individual_desired_states),
+        of(expensePolicyStatesData.data[0].individual_desired_states)
       );
       component.getPolicyDetails('txVTmNOp5JEa');
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith('txVTmNOp5JEa');
@@ -293,11 +293,11 @@ describe('ViewPerDiemPage', () => {
 
     it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
       component.ionViewWillEnter();
-      component.extendedPerDiem$
+      component.perDiemExpense$
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          }),
+          })
         )
         .subscribe((extendedPerDiem) => {
           expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith('tx3qwe4ty');
@@ -391,7 +391,7 @@ describe('ViewPerDiemPage', () => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           expenseData1.tx_org_category_id,
           expenseData1.tx_custom_properties,
-          true,
+          true
         );
         // Called twice because of the two custom fields
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(2);

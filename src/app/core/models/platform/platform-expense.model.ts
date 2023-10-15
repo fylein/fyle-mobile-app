@@ -3,7 +3,6 @@ import { Location } from '../location.model';
 import { MileageUnitEnum } from '../mileage-unit.enum';
 import { NameValuePair } from '../name-value-pair.model';
 import { ParsedResponse } from '../parsed_response.model';
-import { PerDiemRates } from '../v1/per-diem-rates.model';
 import { PlatformCorporateCardTransaction } from './platform-corporate-card-transaction.model';
 import { ExpenseRuleData } from './expense-rule-data.model';
 import { MissingMandatoryFields } from './missing-mandatory-fields.model';
@@ -19,6 +18,7 @@ import { PlatformUser } from './platform-user.model';
 import { PolicyChecks } from './policy-checks.model';
 import { ReportApprovals } from './report-approvals.model';
 import { AccountType } from '../../enums/account-type.enum';
+import { PlatformPerDiemRates } from './platform-per-diem-rates.model';
 
 export interface PlatformExpense {
   // `activity_details` is not added on purpose
@@ -119,7 +119,7 @@ export interface PlatformExpense {
   missing_mandatory_fields: MissingMandatoryFields;
   org_id: string;
   per_diem_num_days: number;
-  per_diem_rate: PerDiemRates;
+  per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
   per_diem_rate_id: string;
   physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
