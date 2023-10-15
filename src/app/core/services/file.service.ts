@@ -176,8 +176,8 @@ export class FileService {
     return dataUrl.split(';')[0].split(':')[1];
   }
 
-  getReceiptsDetails(file: FileObject): ReceiptInfo {
-    const receiptExtn = this.getReceiptExtension(file.name);
+  getReceiptsDetails(fileName: string, downloadUrl: string): ReceiptInfo {
+    const receiptExtn = this.getReceiptExtension(fileName);
     const receiptInfo = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
@@ -188,7 +188,7 @@ export class FileService {
       receiptInfo.thumbnail = 'img/fy-pdf.svg';
     } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
       receiptInfo.type = 'image';
-      receiptInfo.thumbnail = file.url;
+      receiptInfo.thumbnail = downloadUrl;
     }
     return receiptInfo;
   }

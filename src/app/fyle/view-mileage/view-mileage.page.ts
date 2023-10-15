@@ -286,13 +286,13 @@ export class ViewMileagePage {
       concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj);
-
+            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
             const fileObjWithDetails: FileObject = {
               url: downloadUrl,
               type: details.type,
               thumbnail: details.thumbnail,
             };
+
             return fileObjWithDetails;
           })
         )
