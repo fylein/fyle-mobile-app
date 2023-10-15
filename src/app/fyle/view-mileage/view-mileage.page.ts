@@ -435,7 +435,7 @@ export class ViewMileagePage {
     this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.mileageExpense$.pipe(
-      map((res) => this.isNumber(res.admin_amount) || this.isNumber(res.admin_amount))
+      map((res) => this.isNumber(res.admin_amount) || this.isNumber(res.policy_amount))
     );
 
     this.updateFlag$.next(null);

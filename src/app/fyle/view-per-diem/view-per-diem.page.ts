@@ -258,7 +258,7 @@ export class ViewPerDiemPage {
 
     this.perDiemRate$ = this.perDiemExpense$.pipe(
       switchMap((res) => {
-        const perDiemRateId = parseInt(res.per_diem_rate_id, 10);
+        const perDiemRateId = res.per_diem_rate_id;
         return this.perDiemService.getRate(perDiemRateId);
       })
     );

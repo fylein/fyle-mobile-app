@@ -51,7 +51,6 @@ export interface PlatformExpense {
     | 'department_id'
     | 'id'
     | 'level'
-    | 'level_id'
     | 'location'
     | 'org_id'
     | 'org_name'
@@ -101,25 +100,26 @@ export interface PlatformExpense {
         | 'foreign_currency'
         | 'id'
         | 'merchant'
-      > & {
-        bank_name: string;
-        cardholder_name: string;
-        corporate_card_number: string;
-        masked_corporate_card_number: string;
-        matched_by: PlatformUser;
-        posted_at: Date;
-      };
+      >[] &
+        {
+          bank_name: string;
+          cardholder_name: string;
+          corporate_card_number: string;
+          masked_corporate_card_number: string;
+          matched_by: PlatformUser;
+          posted_at: Date;
+        }[];
   merchant: string;
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;
   mileage_rate: Pick<PlatformMileageRates, 'id' | 'code' | 'vehicle_type'>;
-  mileage_rate_id: string;
+  mileage_rate_id: number;
   missing_mandatory_fields: MissingMandatoryFields;
   org_id: string;
   per_diem_num_days: number;
   per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
-  per_diem_rate_id: string;
+  per_diem_rate_id: number;
   physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
   policy_amount: number;
@@ -141,11 +141,11 @@ export interface PlatformExpense {
       > & {
         last_verified_at: Date;
         reimbursement_id: number;
-        settlement_locked_at: Date;
         reimbursement_seq_num: string;
         title: string;
       };
   report_id: string;
+  report_settlement_id: string;
   seq_num: string;
   source: string;
   source_account: {

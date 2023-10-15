@@ -87,7 +87,7 @@ export class MileageRatesService {
     return allMileageRates.filter((rate) => !!rate.is_enabled);
   }
 
-  getRate(id: string): Observable<PlatformMileageRates> {
+  getRate(id: number): Observable<PlatformMileageRates> {
     const data = {
       params: {
         id: 'eq.' + id,
