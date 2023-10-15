@@ -277,7 +277,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="expense.mileage_rate_id" class="view-mileage--grid">
+    <ion-grid *ngIf="mileageRate$ | async as mileageRate" class="view-mileage--grid">
       <ion-row>
         <ion-col>
           <ion-grid>
@@ -293,8 +293,8 @@
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Mileage Rate</div>
                 <div class="view-mileage--value">
-                  {{ expense.mileage_rate.vehicle_type | mileageRateName }} ({{expense.mileage_rate.rate |
-                  currency:expense.currency: 'symbol-narrow'}} / {{expense.distance_unit | titlecase}})
+                  {{ mileageRate.vehicle_type | mileageRateName }} ({{mileageRate.rate | currency:expense.currency:
+                  'symbol-narrow'}} / {{mileageRate.unit | titlecase}})
                 </div>
               </ion-col>
             </ion-row>

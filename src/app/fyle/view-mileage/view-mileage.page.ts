@@ -34,6 +34,8 @@ import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
 import { PlatformExpenseService } from 'src/app/core/services/platform-expense.service';
 import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -101,6 +103,8 @@ export class ViewMileagePage {
 
   mapAttachment$: Observable<FileObject>;
 
+  mileageRate$: Observable<PlatformMileageRates>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -119,7 +123,8 @@ export class ViewMileagePage {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
-    private fileService: FileService
+    private fileService: FileService,
+    private mileageRatesService: MileageRatesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -381,6 +386,10 @@ export class ViewMileagePage {
           return customProperties;
         })
       )
+    );
+
+    this.mileageRate$ = this.mileageExpense$.pipe(
+      switchMap((mileageExpense) => this.mileageRatesService.getRate(mileageExpense.mileage_rate_id))
     );
 
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
