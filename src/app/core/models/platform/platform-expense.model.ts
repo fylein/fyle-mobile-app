@@ -3,7 +3,6 @@ import { Location } from '../location.model';
 import { MileageUnitEnum } from '../mileage-unit.enum';
 import { NameValuePair } from '../name-value-pair.model';
 import { ParsedResponse } from '../parsed_response.model';
-import { PaymentModeType } from '../payment-mode-type.enum';
 import { PerDiemRates } from '../v1/per-diem-rates.model';
 import { PlatformCorporateCardTransaction } from './platform-corporate-card-transaction.model';
 import { ExpenseRuleData } from './expense-rule-data.model';
@@ -19,6 +18,7 @@ import { PlatformTaxGroup } from './platform-tax-group.model';
 import { PlatformUser } from './platform-user.model';
 import { PolicyChecks } from './policy-checks.model';
 import { ReportApprovals } from './report-approvals.model';
+import { AccountType } from '../../enums/account-type.enum';
 
 export interface PlatformExpense {
   // `activity_details` is not added on purpose
@@ -139,8 +139,7 @@ export interface PlatformExpense {
         | 'seq_num'
         | 'state'
         | 'settlement_id'
-      >
-    | {
+      > & {
         last_verified_at: Date;
         reimbursement_id: number;
         settlement_locked_at: Date;
@@ -152,7 +151,7 @@ export interface PlatformExpense {
   source: string;
   source_account: {
     id: string;
-    type: PaymentModeType;
+    type: AccountType;
   };
   source_account_id: string;
   spent_at: Date;
