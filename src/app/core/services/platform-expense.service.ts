@@ -11,8 +11,14 @@ export class PlatformExpenseService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
   getExpense(id: string): Observable<PlatformExpense> {
+    const data = {
+      params: {
+        id: `eq.${id}`,
+      },
+    };
+
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformExpense>>('/expenses', { params: { id: `eq.${id}` } })
+      .get<PlatformApiResponse<PlatformExpense>>('/expenses', data)
       .pipe(map((res) => res.data[0]));
   }
 }
