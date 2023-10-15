@@ -281,18 +281,19 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((expense) => this.fileService.findByTransactionId(expense.id)),
+      map((expense) => expense.files),
       map((fileObjs) => fileObjs[0]),
       concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             const details = this.fileService.getReceiptsDetails(fileObj);
 
-            fileObj.url = downloadUrl;
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-
-            return fileObj;
+            const fileObjWithDetails: FileObject = {
+              url: downloadUrl,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+            return fileObjWithDetails;
           })
         )
       )
