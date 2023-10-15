@@ -101,8 +101,7 @@ export interface PlatformExpense {
         | 'foreign_currency'
         | 'id'
         | 'merchant'
-      >
-    | {
+      > & {
         bank_name: string;
         cardholder_name: string;
         corporate_card_number: string;
