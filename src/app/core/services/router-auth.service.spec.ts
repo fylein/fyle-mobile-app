@@ -3,6 +3,7 @@ import { RouterAuthService } from './router-auth.service';
 import { RouterApiService } from './router-api.service';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiService } from './api.service';
 import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
@@ -20,6 +21,7 @@ describe('RouterAuthService', () => {
   let routerApiService: jasmine.SpyObj<RouterApiService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let tokenService: jasmine.SpyObj<TokenService>;
+  let advanceRequestPolicyService: jasmine.SpyObj<AdvanceRequestPolicyService>;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let locationService: jasmine.SpyObj<LocationService>;
@@ -47,6 +49,7 @@ describe('RouterAuthService', () => {
       'setClusterDomain',
       'setAccessToken',
     ]);
+    const advanceRequestPolicyServiceSpy = jasmine.createSpyObj('AdvanceRequestPolicyService', ['setRoot']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['setRoot']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['setRoot']);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['setRoot']);
@@ -70,6 +73,10 @@ describe('RouterAuthService', () => {
         {
           provide: TokenService,
           useValue: tokenServiceSpy,
+        },
+        {
+          provide: AdvanceRequestPolicyService,
+          useValue: advanceRequestPolicyServiceSpy,
         },
         {
           provide: ApiService,
@@ -113,6 +120,9 @@ describe('RouterAuthService', () => {
     routerApiService = TestBed.inject(RouterApiService) as jasmine.SpyObj<RouterApiService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
+    advanceRequestPolicyService = TestBed.inject(
+      AdvanceRequestPolicyService
+    ) as jasmine.SpyObj<AdvanceRequestPolicyService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
@@ -149,6 +159,7 @@ describe('RouterAuthService', () => {
 
     routerAuthService.setClusterDomain(domain).then((res) => {
       expect(apiService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(advanceRequestPolicyService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(apiV2Service.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(locationService.setRoot).toHaveBeenCalledOnceWith(domain);
       expect(transactionOutboxService.setRoot).toHaveBeenCalledOnceWith(domain);

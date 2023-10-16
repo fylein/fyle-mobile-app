@@ -6,6 +6,7 @@ import { TokenService } from './token.service';
 import { ApiService } from './api.service';
 import { AuthResponse } from '../models/auth-response.model';
 import { Observable, from } from 'rxjs';
+import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
@@ -23,6 +24,7 @@ export class RouterAuthService {
     private routerApiService: RouterApiService,
     private storageService: StorageService,
     private tokenService: TokenService,
+    private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private apiService: ApiService,
     private apiv2Service: ApiV2Service,
     private locationService: LocationService,
@@ -52,6 +54,7 @@ export class RouterAuthService {
 
   async setClusterDomain(domain) {
     this.apiService.setRoot(domain);
+    this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
     this.locationService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);

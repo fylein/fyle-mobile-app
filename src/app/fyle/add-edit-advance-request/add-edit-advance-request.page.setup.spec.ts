@@ -2,6 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
 
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
+import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -38,6 +39,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'getActions',
       'getEReq',
     ]);
+    const advanceRequestPolicyServiceSpyObj = jasmine.createSpyObj('AdvanceRequestPolicyService', ['getPolicyRules']);
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
     const loaderServiceSpyObj = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -66,6 +68,7 @@ describe('AddEditAdvanceRequestPage', () => {
         { provide: AuthService, useValue: authServiceSpyObj },
         { provide: AdvanceRequestsCustomFieldsService, useValue: advanceRequestsCustomFieldsServiceSpyObj },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpyObj },
+        { provide: AdvanceRequestPolicyService, useValue: advanceRequestPolicyServiceSpyObj },
         { provide: ModalController, useValue: modalControllerSpyObj },
         { provide: StatusService, useValue: statusServiceSpyObj },
         { provide: LoaderService, useValue: loaderServiceSpyObj },
