@@ -1,13 +1,24 @@
 <div class="corporate-card">
   <ion-row class="ion-align-items-center">
     <ion-col class="p-0">
-      <div *ngIf="!isCardConnectedToRTF" class="corporate-card__logo--default">
-        <ion-icon
-          src="../../../../assets/svg/card.svg"
-          class="corporate-card__logo--default__icon"
-          data-testid="default-icon"
-        ></ion-icon>
-      </div>
+      <ng-container *ngIf="!isCardConnectedToRTF">
+        <div class="corporate-card__logo--default">
+          <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.AMEX_FEED; else defaultCard">
+            <img
+              src="../../../../assets/images/amex-logo.png"
+              class="corporate-card__logo--amex__icon"
+              data-testid="amex-icon"
+            />
+          </ng-container>
+          <ng-template #defaultCard>
+            <ion-icon
+              src="../../../../assets/svg/card.svg"
+              class="corporate-card__logo--default__icon"
+              data-testid="default-icon"
+            ></ion-icon>
+          </ng-template>
+        </div>
+      </ng-container>
 
       <ng-container *ngIf="isCardConnectedToRTF">
         <img
@@ -50,10 +61,14 @@
       </div>
     </ng-container>
 
-    <ng-container *ngIf="card.data_feed_source === dataFeedSourceTypes.YODLEE">
+    <ng-container
+      *ngIf="
+        card.data_feed_source === dataFeedSourceTypes.YODLEE || card.data_feed_source === dataFeedSourceTypes.AMEX_FEED
+      "
+    >
       <span class="corporate-card__feed-label">Last Synced</span>
       <span class="corporate-card__feed-value" data-testid="feed-info">{{
-        card.last_synced_at | date: 'MMM dd, YYYY'
+        card.last_synced_at | date : 'MMM dd, YYYY'
       }}</span>
     </ng-container>
 
