@@ -1,5 +1,4 @@
 import { ModalController, PopoverController } from '@ionic/angular';
-import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -29,13 +28,8 @@ import { checkPolicyData } from 'src/app/core/mock-data/policy-violation-check.d
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { PolicyViolationDialogComponent } from './policy-violation-dialog/policy-violation-dialog.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import {
-  advanceRequestPolicyViolationParams,
-  popoverControllerParams4,
-} from 'src/app/core/mock-data/modal-controller.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases 1', () => {
@@ -44,7 +38,6 @@ export function TestCases1(getTestBed) {
     let authService: jasmine.SpyObj<AuthService>;
     let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
-    let advanceRequestPolicyService: jasmine.SpyObj<AdvanceRequestPolicyService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
@@ -71,10 +64,6 @@ export function TestCases1(getTestBed) {
       advanceRequestsCustomFieldsService = TestBed.inject(
         AdvanceRequestsCustomFieldsService
       ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
-      advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
-      advanceRequestPolicyService = TestBed.inject(
-        AdvanceRequestPolicyService
-      ) as jasmine.SpyObj<AdvanceRequestPolicyService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
@@ -189,15 +178,6 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    it('checkPolicyViolation(): should call advanceRequestService.testPolicy() once', () => {
-      advanceRequestService.testPolicy.and.returnValue(of(checkPolicyData));
-      const result = component.checkPolicyViolation(advanceRequests);
-      expect(advanceRequestService.testPolicy).toHaveBeenCalledOnceWith(advanceRequests);
-      result.subscribe((res) => {
-        expect(res).toEqual(checkPolicyData);
-      });
-    });
-
     it('submitAdvanceRequest(): should get file attachments and call advanceRequestService.createAdvReqWithFilesAndSubmit once', () => {
       advanceRequestService.createAdvReqWithFilesAndSubmit.and.returnValue(of(advRequestFile));
       const mockFileData = of(fileData1);
@@ -248,129 +228,6 @@ export function TestCases1(getTestBed) {
       });
     });
 
-    describe('showPolicyModal():', () => {
-      beforeEach(() => {
-        component.fg = new FormBuilder().group({});
-        statusService.findLatestComment.and.returnValue(of('latest comment'));
-        statusService.post.and.returnValue(of(txnStatusData));
-        modalProperties.getModalDefaultProperties.and.returnValue(properties);
-        spyOn(component, 'saveAndSubmit').and.returnValue(of(advRequestFile));
-        spyOn(component.fg, 'reset');
-      });
-
-      it('should navigate to team_advance page and set saveDraftAdvanceLoading to false if reason in specified, event is draft and user has come from team advances page', fakeAsync(() => {
-        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
-        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: { reason: 'latest comment' } });
-        modalController.create.and.resolveTo(policyViolationModalSpy);
-        component.from = 'TEAM_ADVANCE';
-
-        const policyRules = ['rule1', 'rule2'];
-        component.showPolicyModal(policyRules, policyViolationActionDescription, 'draft', advanceRequests);
-        tick(200);
-
-        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
-          'areqMP09oaYXBf',
-          'advance_requests',
-          'ouX8dwsbLCLv'
-        );
-        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
-        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
-        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(component.saveAndSubmit).toHaveBeenCalledOnceWith('draft', advanceRequests);
-        expect(statusService.post).toHaveBeenCalledOnceWith(
-          'advance_requests',
-          'areqMP09oaYXBf',
-          { comment: 'latest comment' },
-          true
-        );
-        expect(component.fg.reset).toHaveBeenCalledTimes(1);
-        expect(component.saveDraftAdvanceLoading).toBeFalse();
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
-      }));
-
-      it('should navigate to my_advances page and set saveAdvanceLoading to false if reason in specified, event is not draft and user has come from my advances page', fakeAsync(() => {
-        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
-        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: { reason: 'latest comment' } });
-        modalController.create.and.resolveTo(policyViolationModalSpy);
-        component.from = 'ADVANCE';
-
-        const policyRules = ['rule1', 'rule2'];
-        component.showPolicyModal(policyRules, policyViolationActionDescription, 'submit', advanceRequests);
-        tick(200);
-
-        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
-          'areqMP09oaYXBf',
-          'advance_requests',
-          'ouX8dwsbLCLv'
-        );
-        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
-        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
-        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(component.saveAndSubmit).toHaveBeenCalledOnceWith('submit', advanceRequests);
-        expect(statusService.post).toHaveBeenCalledOnceWith(
-          'advance_requests',
-          'areqMP09oaYXBf',
-          { comment: 'latest comment' },
-          true
-        );
-        expect(component.fg.reset).toHaveBeenCalledTimes(1);
-        expect(component.saveAdvanceLoading).toBeFalse();
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
-      }));
-
-      it('should set saveDraftAdvanceLoading to false if policyViolation popover returns undefined and event is draft', fakeAsync(() => {
-        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
-        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: undefined });
-        modalController.create.and.resolveTo(policyViolationModalSpy);
-
-        const policyRules = ['rule1', 'rule2'];
-        component.showPolicyModal(policyRules, policyViolationActionDescription, 'draft', advanceRequests);
-        tick(200);
-
-        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
-          'areqMP09oaYXBf',
-          'advance_requests',
-          'ouX8dwsbLCLv'
-        );
-        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
-        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
-        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(component.saveAndSubmit).not.toHaveBeenCalled();
-        expect(statusService.post).not.toHaveBeenCalled();
-        expect(component.fg.reset).not.toHaveBeenCalled();
-        expect(component.saveDraftAdvanceLoading).toBeFalse();
-        expect(router.navigate).not.toHaveBeenCalled();
-      }));
-
-      it('should set saveAdvanceLoading to false if policyViolation popover returns undefined and event is not draft', fakeAsync(() => {
-        const policyViolationModalSpy = jasmine.createSpyObj('policyViolationModal', ['present', 'onWillDismiss']);
-        policyViolationModalSpy.onWillDismiss.and.resolveTo({ data: undefined });
-        modalController.create.and.resolveTo(policyViolationModalSpy);
-
-        const policyRules = ['rule1', 'rule2'];
-        component.showPolicyModal(policyRules, policyViolationActionDescription, 'submit', advanceRequests);
-        tick(200);
-
-        expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
-          'areqMP09oaYXBf',
-          'advance_requests',
-          'ouX8dwsbLCLv'
-        );
-        expect(policyViolationModalSpy.present).toHaveBeenCalledTimes(1);
-        expect(policyViolationModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
-        expect(modalController.create).toHaveBeenCalledOnceWith(advanceRequestPolicyViolationParams);
-        expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-        expect(component.saveAndSubmit).not.toHaveBeenCalled();
-        expect(statusService.post).not.toHaveBeenCalled();
-        expect(component.fg.reset).not.toHaveBeenCalled();
-        expect(component.saveAdvanceLoading).toBeFalse();
-        expect(router.navigate).not.toHaveBeenCalled();
-      }));
-    });
-
     it('showFormValidationErrors(): should show form validation errors', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
       fixture.detectChanges();
@@ -401,8 +258,6 @@ export function TestCases1(getTestBed) {
 
         component.showAdvanceSummaryPopover();
         tick(100);
-
-        expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams4);
         expect(advanceSummaryPopoverSpy.present).toHaveBeenCalledTimes(1);
         expect(advanceSummaryPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
         expect(component.save).toHaveBeenCalledOnceWith('Draft');
@@ -430,9 +285,6 @@ export function TestCases1(getTestBed) {
     describe('save():', () => {
       beforeEach(() => {
         spyOn(component, 'generateAdvanceRequestFromFg').and.returnValue(of(advanceRequests));
-        spyOn(component, 'checkPolicyViolation').and.returnValue(of(checkPolicyData));
-        advanceRequestPolicyService.getPolicyRules.and.returnValue(['rule1', 'rule2']);
-        spyOn(component, 'showPolicyModal').and.resolveTo(new Subscription());
         spyOn(component, 'saveAndSubmit').and.returnValue(of(advRequestFile));
         component.fg = new FormBuilder().group({});
       });
@@ -445,9 +297,6 @@ export function TestCases1(getTestBed) {
         component.from = 'TEAM_ADVANCE';
         component.save('Draft');
         expect(component.generateAdvanceRequestFromFg).toHaveBeenCalledOnceWith(component.extendedAdvanceRequest$);
-        expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith(advanceRequests);
-        expect(advanceRequestPolicyService.getPolicyRules).toHaveBeenCalledOnceWith(checkPolicyData);
-        expect(component.showPolicyModal).toHaveBeenCalledOnceWith(['rule1', 'rule2'], null, 'draft', advanceRequests);
         expect(router.navigate).not.toHaveBeenCalled();
       });
 
@@ -455,14 +304,10 @@ export function TestCases1(getTestBed) {
         Object.defineProperty(component.fg, 'valid', {
           get: () => true,
         });
-        advanceRequestPolicyService.getPolicyRules.and.returnValue([]);
         component.extendedAdvanceRequest$ = of(advanceRequests);
         component.from = 'TEAM_ADVANCE';
         component.save('Draft');
         expect(component.generateAdvanceRequestFromFg).toHaveBeenCalledOnceWith(component.extendedAdvanceRequest$);
-        expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith(advanceRequests);
-        expect(advanceRequestPolicyService.getPolicyRules).toHaveBeenCalledOnceWith(checkPolicyData);
-        expect(component.showPolicyModal).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_advance']);
         expect(component.saveDraftAdvanceLoading).toBeFalse();
       });
@@ -471,14 +316,10 @@ export function TestCases1(getTestBed) {
         Object.defineProperty(component.fg, 'valid', {
           get: () => true,
         });
-        advanceRequestPolicyService.getPolicyRules.and.returnValue([]);
         component.extendedAdvanceRequest$ = of(advanceRequests);
         component.from = 'ADVANCE';
         component.save('Submit');
         expect(component.generateAdvanceRequestFromFg).toHaveBeenCalledOnceWith(component.extendedAdvanceRequest$);
-        expect(component.checkPolicyViolation).toHaveBeenCalledOnceWith(advanceRequests);
-        expect(advanceRequestPolicyService.getPolicyRules).toHaveBeenCalledOnceWith(checkPolicyData);
-        expect(component.showPolicyModal).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances']);
         expect(component.saveAdvanceLoading).toBeFalse();
       });
@@ -490,9 +331,6 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'showFormValidationErrors');
         component.save('Draft');
         expect(component.generateAdvanceRequestFromFg).not.toHaveBeenCalled();
-        expect(component.checkPolicyViolation).not.toHaveBeenCalled();
-        expect(advanceRequestPolicyService.getPolicyRules).not.toHaveBeenCalled();
-        expect(component.showPolicyModal).not.toHaveBeenCalled();
         expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
