@@ -209,7 +209,7 @@ describe('FileService', () => {
 
     it('should return the pdf receipt details', () => {
       spyOn(fileService, 'getReceiptExtension').and.returnValue('pdf');
-      expect(fileService.getReceiptsDetails(fileObjectAdv[0].name, fileObjectAdv[0].url)).toEqual({
+      expect(fileService.getReceiptsDetails(fileObjectAdv1.name, fileObjectAdv1.url)).toEqual({
         thumbnail: 'img/fy-pdf.svg',
         type: fileObjectAdv1.type,
       });
