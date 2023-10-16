@@ -46,7 +46,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { platformMileageRates } from 'src/app/core/mock-data/platform-mileage-rate.data';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
