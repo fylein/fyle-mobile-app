@@ -869,6 +869,7 @@ export function TestCases5(getTestBed) {
         expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
       }));
 
+      //TODO: Reduce the number of test by moving it to beforeEach
       it('should setup form and set payment mode as default payment mode if selectedPaymentMode is undefined', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
