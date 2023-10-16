@@ -69,23 +69,20 @@ describe('FyCurrencyChooseCurrencyComponent', () => {
     it('should set currencies$ properly', fakeAsync(() => {
       component.ngOnInit();
       tick(100);
-      component.currencies$
-        .pipe(
-          finalize(() => {
-            expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          })
-        )
-        .subscribe((currencies) => {
-          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(currencyService.getAll).toHaveBeenCalledTimes(1);
-          expect(currencies).toEqual(selectedCurrencies2);
-        });
+
+      expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+      expect(currencyService.getAll).toHaveBeenCalledTimes(1);
+      expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
+      component.currencies$.subscribe((currencies) => {
+        expect(currencies).toEqual(selectedCurrencies2);
+      });
     }));
 
     it('should set currencies$ properly if longName is undefined', fakeAsync(() => {
       currencyService.getAll.and.returnValue(of({ USD: undefined }));
       component.ngOnInit();
       tick(100);
+
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(currencyService.getAll).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
