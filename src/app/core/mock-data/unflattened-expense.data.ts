@@ -561,6 +561,18 @@ export const draftUnflattendedTxn3 = {
   },
 };
 
+export const draftUnflattendedTxn4: UnflattenedTransaction = {
+  ...unflattenedExpData,
+  tx: {
+    ...unflattenedExpData.tx,
+    id: null,
+    source: 'MOBILE',
+    state: 'DRAFT',
+    org_category_id: 212690,
+    fyle_category: null,
+  },
+};
+
 export const unflattenedTxnDataPerDiem = {
   tx: {
     // TODO: Enum for state and source
