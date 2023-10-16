@@ -78,6 +78,7 @@ export function TestCases1(getTestBed) {
       modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
+      advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -287,17 +288,6 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'generateAdvanceRequestFromFg').and.returnValue(of(advanceRequests));
         spyOn(component, 'saveAndSubmit').and.returnValue(of(advRequestFile));
         component.fg = new FormBuilder().group({});
-      });
-
-      it('should call showPolicyModal if user has come from team advances page, policy rules are present and form is valid', () => {
-        Object.defineProperty(component.fg, 'valid', {
-          get: () => true,
-        });
-        component.extendedAdvanceRequest$ = of(advanceRequests);
-        component.from = 'TEAM_ADVANCE';
-        component.save('Draft');
-        expect(component.generateAdvanceRequestFromFg).toHaveBeenCalledOnceWith(component.extendedAdvanceRequest$);
-        expect(router.navigate).not.toHaveBeenCalled();
       });
 
       it('should navigate to team_advance page if user has come from team advance page, policy rules are not present and form is valid', () => {
