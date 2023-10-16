@@ -20,6 +20,7 @@ import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-att
 import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
+import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -543,6 +544,34 @@ export const modalControllerParams9 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: fileObject4[0],
+  },
+  mode: 'ios' as Mode,
+  cssClass: 'fy-modal',
+  showBackdrop: true,
+  canDismiss: true,
+  backdropDismiss: true,
+  animated: true,
+  initialBreakpoint: 1,
+  breakpoints: [0, 1],
+  handle: false,
+};
+
+export const virtualSelectModalControllerParams = {
+  component: VirtualSelectModalComponent,
+  componentProps: {
+    options: [],
+    currentSelection: undefined,
+    selectionElement: undefined,
+    nullOption: true,
+    cacheName: '',
+    subheader: 'All',
+    enableSearch: true,
+    selectModalHeader: 'Select Item',
+    placeholder: undefined,
+    showSaveButton: false,
+    defaultLabelProp: undefined,
+    recentlyUsed: undefined,
+    label: '',
   },
   mode: 'ios' as Mode,
   cssClass: 'fy-modal',
