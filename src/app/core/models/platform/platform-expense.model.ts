@@ -3,9 +3,7 @@ import { Location } from '../location.model';
 import { MileageUnitEnum } from '../mileage-unit.enum';
 import { NameValuePair } from '../name-value-pair.model';
 import { ParsedResponse } from '../parsed_response.model';
-import { PaymentModeType } from '../payment-mode-type.enum';
 import { PerDiemRates } from '../v1/per-diem-rates.model';
-import { PlatformCorporateCardTransaction } from './platform-corporate-card-transaction.model';
 import { ExpenseRuleData } from './expense-rule-data.model';
 import { MissingMandatoryFields } from './missing-mandatory-fields.model';
 import { PlatformCategory } from './platform-category.model';
@@ -19,6 +17,8 @@ import { PlatformTaxGroup } from './platform-tax-group.model';
 import { PlatformUser } from './platform-user.model';
 import { PolicyChecks } from './policy-checks.model';
 import { ReportApprovals } from './report-approvals.model';
+import { AccountType } from '../../enums/account-type.enum';
+import { MatchedCorporateCardTransaction } from './matched-corporate-card-transaction.model';
 
 export interface PlatformExpense {
   // `activity_details` is not added on purpose
@@ -88,28 +88,7 @@ export interface PlatformExpense {
   last_verified_at: Date;
   locations: Location[];
   matched_corporate_card_transaction_ids: string[];
-  matched_corporate_card_transactions:
-    | Pick<
-        PlatformCorporateCardTransaction,
-        | 'amount'
-        | 'category'
-        | 'corporate_card_id'
-        | 'spent_at'
-        | 'currency'
-        | 'description'
-        | 'foreign_amount'
-        | 'foreign_currency'
-        | 'id'
-        | 'merchant'
-      >
-    | {
-        bank_name: string;
-        cardholder_name: string;
-        corporate_card_number: string;
-        masked_corporate_card_number: string;
-        matched_by: PlatformUser;
-        posted_at: Date;
-      };
+  matched_corporate_card_transactions: MatchedCorporateCardTransaction[];
   merchant: string;
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
@@ -152,7 +131,7 @@ export interface PlatformExpense {
   source: string;
   source_account: {
     id: string;
-    type: PaymentModeType;
+    type: AccountType;
   };
   source_account_id: string;
   spent_at: Date;
