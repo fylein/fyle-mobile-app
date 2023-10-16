@@ -58,6 +58,22 @@ describe('AppVersionService', () => {
     it('should check if a mobile app version is lower than other', () => {
       expect(appVersionService.isVersionLower('5.57.0', '5.56.0')).toBeFalse();
     });
+
+    it('should return true if version1 is undefined', () => {
+      expect(appVersionService.isVersionLower(undefined, '5.56.0')).toBeTrue();
+    });
+
+    it('should return true if version1 has no digit after decimal in version number', () => {
+      expect(appVersionService.isVersionLower('5.56.', '5.56.5')).toBeTrue();
+    });
+
+    it('should return false if version2 has no digit after decimal in version number', () => {
+      expect(appVersionService.isVersionLower('5.56.5', '5.56.')).toBeFalse();
+    });
+
+    it('should return false if version1 and version2 are empty strings', () => {
+      expect(appVersionService.isVersionLower('', '')).toBeFalse();
+    });
   });
 
   it('get(): should get app version', (done) => {
@@ -141,16 +157,30 @@ describe('AppVersionService', () => {
     });
   });
 
-  it("getUserAppVersionDetails(): should get user's app version details", (done) => {
-    spyOn(appVersionService, 'isSupported').and.returnValue(of({ supported: true }));
-    loginInfoService.getLastLoggedInVersion.and.returnValue(of('5.50.0'));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-
-    appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
-      expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
-      expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
+  describe('getUserAppVersionDetails():', () => {
+    beforeEach(() => {
+      spyOn(appVersionService, 'isSupported').and.returnValue(of({ supported: true }));
+      loginInfoService.getLastLoggedInVersion.and.returnValue(of('5.50.0'));
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     });
-    done();
+
+    it("getUserAppVersionDetails(): should get user's app version details", (done) => {
+      appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
+        expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
+        expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+      });
+      done();
+    });
+
+    it("getUserAppVersionDetails(): should get user's app version details if supported is false", (done) => {
+      appVersionService.isSupported = jasmine.createSpy().and.returnValue(of({ supported: false }));
+      appVersionService.getUserAppVersionDetails(extendedDeviceInfoMockData).subscribe(() => {
+        expect(appVersionService.isSupported).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
+        expect(loginInfoService.getLastLoggedInVersion).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+      });
+      done();
+    });
   });
 });

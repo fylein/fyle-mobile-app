@@ -5,6 +5,7 @@ import { CorporateCardComponent } from './corporate-card.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import {
+  amexFeedCard,
   bankFeedCard,
   mastercardRTFCard,
   statementUploadedCard,
@@ -92,7 +93,17 @@ describe('CorporateCardComponent', () => {
       expect(icon).toBeTruthy();
     });
 
-    it('should show the default card icon when the card is not connected to visa and mastercard RTF', () => {
+    it('should show amex icon when the card is connected to AMEX_FEED', () => {
+      component.card = amexFeedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const icon = getElementBySelector(fixture, '[data-testid="amex-icon"]');
+      expect(icon).toBeTruthy();
+    });
+
+    it('should show the default card icon when the card is not connected to visa,  mastercard RTF and AMEX_FEED', () => {
       component.card = statementUploadedCard;
 
       component.ngOnInit();
@@ -173,6 +184,16 @@ describe('CorporateCardComponent', () => {
       expect(optionsBtn).toBeFalsy();
     });
 
+    it('should not be visible for amex feed cards', () => {
+      component.card = amexFeedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const optionsBtn = getElementBySelector(fixture, '[data-testid="more-options-btn"]');
+      expect(optionsBtn).toBeFalsy();
+    });
+
     it('should not be visible for bank feed cards', () => {
       component.card = bankFeedCard;
 
@@ -208,6 +229,22 @@ describe('CorporateCardComponent', () => {
       expect(feedInfo).toBeTruthy();
 
       const expectedDateString = new Date(yodleeCard.last_synced_at).toDateString();
+      const actualDateString = new Date(feedInfo.textContent).toDateString();
+
+      expect(actualDateString).toEqual(expectedDateString);
+    });
+
+    it('should show the last synced date when the card is connected to AMEX_FEED', () => {
+      component.card = amexFeedCard;
+
+      component.ngOnInit();
+      fixture.detectChanges();
+
+      const feedInfo = getElementBySelector(fixture, '[data-testid="feed-info"]');
+
+      expect(feedInfo).toBeTruthy();
+
+      const expectedDateString = new Date(amexFeedCard.last_synced_at).toDateString();
       const actualDateString = new Date(feedInfo.textContent).toDateString();
 
       expect(actualDateString).toEqual(expectedDateString);

@@ -475,12 +475,16 @@ export class AddEditExpensePage implements OnInit {
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
-    const el = document.activeElement;
+    const el = this.getActiveElement();
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
         block: 'center',
       });
     }
+  }
+
+  getActiveElement(): Element {
+    return document.activeElement;
   }
 
   getFormValues(): FormValue {
@@ -586,15 +590,15 @@ export class AddEditExpensePage implements OnInit {
     combineLatest(this.fg.controls.currencyObj.valueChanges, this.fg.controls.tax_group.valueChanges).subscribe(() => {
       if (
         this.fg.controls.tax_group.value &&
-        isNumber(taxGroupControl.value?.percentage) &&
+        isNumber(taxGroupControl.value.percentage) &&
         this.fg.controls.currencyObj.value
       ) {
         const amount =
-          currencyObjControl.value?.amount - currencyObjControl.value?.amount / (taxGroupControl.value?.percentage + 1);
+          currencyObjControl.value.amount - currencyObjControl.value.amount / (taxGroupControl.value.percentage + 1);
 
         const formattedAmount = this.currencyService.getAmountWithCurrencyFraction(
           amount,
-          currencyObjControl.value?.currency
+          currencyObjControl.value.currency
         );
 
         this.fg.controls.tax_amount.setValue(formattedAmount);
@@ -1980,7 +1984,7 @@ export class AddEditExpensePage implements OnInit {
           recentCategories: OrgCategoryListItem[];
           etxn: UnflattenedTransaction;
         }) => {
-          const isExpenseCategoryUnspecified = etxn.tx?.fyle_category?.toLowerCase() === 'unspecified';
+          const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
             return this.categoriesService.getCategoryById(etxn.tx.org_category_id).pipe(
               map((selectedCategory) => ({
@@ -2025,11 +2029,7 @@ export class AddEditExpensePage implements OnInit {
             } else {
               return selectedCategory;
             }
-          } else if (
-            etxn.tx.state === 'DRAFT' &&
-            !isCategoryExtracted &&
-            (!etxn.tx.org_category_id || etxn.tx.fyle_category?.toLowerCase() === 'unspecified')
-          ) {
+          } else if (etxn.tx.state === 'DRAFT' && !isCategoryExtracted && !etxn.tx.org_category_id) {
             return this.getAutofillCategory({
               isAutofillsEnabled,
               recentValue: recentValues,
@@ -3145,7 +3145,7 @@ export class AddEditExpensePage implements OnInit {
 
   getSkipRemibursement(): boolean {
     const formValue = this.getFormValues();
-    return formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc?.isReimbursable;
+    return formValue?.paymentMode?.acc?.type === AccountType.PERSONAL && !formValue.paymentMode.acc.isReimbursable;
   }
 
   getTxnDate(): Date {
