@@ -90,7 +90,8 @@ describe('FyCurrencyComponent', () => {
   it('get value(): should return innerValue', () => {
     //@ts-ignore
     component.innerValue = mockCurrency;
-    expect(component.value).toEqual(mockCurrency);
+    const expectedValue = component.value;
+    expect(expectedValue).toEqual(mockCurrency);
   });
 
   it('set value(): should set innerValue and call onChangeCallback', () => {
@@ -105,7 +106,10 @@ describe('FyCurrencyComponent', () => {
 
   it('convertInnerValueToFormValue(): should return amount as null and currency as homeCurrency if inner value is not defined', () => {
     component.homeCurrency = 'INR';
-    expect(component.convertInnerValueToFormValue(undefined)).toEqual({
+
+    const expectedFormValue = component.convertInnerValueToFormValue(undefined);
+
+    expect(expectedFormValue).toEqual({
       amount: null,
       currency: 'INR',
     });
