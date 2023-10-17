@@ -26,6 +26,8 @@ import { BackButtonActionPriority } from './core/models/back-button-action-prior
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
+import { CategoriesService as CategoriesV1Service } from './core/services/platform/v1/categories.service';
+import { CategoriesService as CategoriesV2Service } from './core/services/platform/v2/categories.service';
 
 @Component({
   selector: 'app-root',
@@ -71,7 +73,9 @@ export class AppComponent implements OnInit {
     private loginInfoService: LoginInfoService,
     private navController: NavController,
     private backButtonService: BackButtonService,
-    private gmapsService: GmapsService
+    private gmapsService: GmapsService,
+    private categoriesV1Service: CategoriesV1Service,
+    private categoriesV2Service: CategoriesV2Service
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -148,6 +152,11 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.categoriesV1Service.get();
+    this.categoriesV1Service.post();
+    this.categoriesV2Service.get();
+    this.categoriesV2Service.post();
+
     this.setupNetworkWatcher();
 
     if ((window as any) && (window as any).localStorage) {
