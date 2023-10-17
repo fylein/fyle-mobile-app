@@ -410,8 +410,10 @@ export function TestCases1(getTestBed) {
       it('should return undefined if category id is not defined', (done) => {
         categoriesService.getAll.and.returnValue(of(mileageCategoryWithoutId));
 
-        component.getProjectCategoryIds().subscribe((res) => {
-          expect(res).toEqual([undefined]);
+        const projectCategoryIds = component.getProjectCategoryIds();
+
+        projectCategoryIds.subscribe((expectedProjectCategoryIds) => {
+          expect(expectedProjectCategoryIds).toEqual([undefined]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });

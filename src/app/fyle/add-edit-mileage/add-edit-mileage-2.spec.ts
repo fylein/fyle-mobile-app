@@ -485,8 +485,10 @@ export function TestCases2(getTestBed) {
         component.homeCurrency$ = of('USD');
         fixture.detectChanges();
 
-        component.getNewExpense().subscribe((res) => {
-          expect(res).toEqual(newExpenseMileageData1);
+        const newExpense = component.getNewExpense();
+
+        newExpense.subscribe((expectedNewExpense) => {
+          expect(expectedNewExpense).toEqual(newExpenseMileageData1);
           expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
           expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(3);

@@ -279,8 +279,10 @@ export function TestCases3(getTestBed) {
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
 
-        component.addExpense('SAVE_MILEAGE').subscribe((res) => {
-          expect(res).toEqual(unflattenedMileageDataWithPolicyAmount);
+        const addExpense = component.addExpense('SAVE_MILEAGE');
+
+        addExpense.subscribe((expectedEtxn) => {
+          expect(expectedEtxn).toEqual(unflattenedMileageDataWithPolicyAmount);
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.getCalculatedDistance).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(
