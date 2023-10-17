@@ -464,6 +464,41 @@ export function TestCases2(getTestBed) {
         });
       });
 
+      it('should get a new expense object if org user mileage service settings returns undefined', (done) => {
+        const date = new Date('2023-08-21T07:43:15.592Z');
+        jasmine.clock().mockDate(date);
+        transactionService.getDefaultVehicleType.and.returnValue(of('CAR'));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(undefined));
+        orgSettingsService.get.and.returnValue(of(cloneDeep(orgSettingsParams2)));
+        orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+        component.recentlyUsedValues$ = of(recentlyUsedRes);
+        component.mileageRates$ = of(unfilteredMileageRatesData);
+        spyOn(component, 'getMileageByVehicleType').and.returnValue(filterEnabledMileageRatesData[0]);
+        authService.getEou.and.resolveTo(apiEouRes);
+        locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
+        spyOn(component, 'getMileageCategories').and.returnValue(
+          of({
+            defaultMileageCategory: mileageCategories2[0],
+            mileageCategories: [mileageCategories2[1]],
+          })
+        );
+        component.homeCurrency$ = of('USD');
+        fixture.detectChanges();
+
+        component.getNewExpense().subscribe((res) => {
+          expect(res).toEqual(newExpenseMileageData1);
+          expect(transactionService.getDefaultVehicleType).toHaveBeenCalledTimes(1);
+          expect(mileageService.getOrgUserMileageSettings).toHaveBeenCalledTimes(1);
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(3);
+          expect(orgUserSettingsService.get).toHaveBeenCalledTimes(2);
+          expect(locationService.getCurrentLocation).toHaveBeenCalledTimes(1);
+          expect(authService.getEou).toHaveBeenCalledTimes(2);
+          expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, 'bicycle');
+          expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
       afterEach(function () {
         jasmine.clock().uninstall();
       });

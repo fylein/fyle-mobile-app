@@ -13,7 +13,11 @@ import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import {
+  mileageCategories,
+  mileageCategoryWithoutId,
+  transformedOrgCategoryById,
+} from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
@@ -398,6 +402,16 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual([]);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return undefined if category id is not defined', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategoryWithoutId));
+
+        component.getProjectCategoryIds().subscribe((res) => {
+          expect(res).toEqual([undefined]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });
