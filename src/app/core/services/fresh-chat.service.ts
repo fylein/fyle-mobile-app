@@ -27,6 +27,10 @@ export class FreshChatService {
     private networkService: NetworkService
   ) {}
 
+  getWindow(): Window {
+    return window;
+  }
+
   setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
@@ -43,12 +47,12 @@ export class FreshChatService {
   }
 
   openLiveChatSupport(): void {
-    return window && window.fcWidget && window.fcWidget.open();
+    return this.getWindow()?.fcWidget?.open();
   }
 
   destroy(): void {
-    if (window && window.fcWidget && window.fcWidget.destroy) {
-      window.fcWidget.destroy();
+    if (this.getWindow()?.fcWidget?.destroy) {
+      this.getWindow().fcWidget.destroy();
     }
   }
 
@@ -69,7 +73,7 @@ export class FreshChatService {
       device = 'ANDROID';
     }
 
-    window.fcWidget.init({
+    this.getWindow().fcWidget.init({
       config: {
         disableNotifications: true,
       },
@@ -79,29 +83,29 @@ export class FreshChatService {
       restoreId: inAppChatRestoreId, // that id is used to restore chat for the user
     });
 
-    window.fcWidget.on('widget:loaded', () => {
+    this.getWindow().fcWidget.on('widget:loaded', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    window.fcWidget.on('widget:closed', () => {
+    this.getWindow().fcWidget.on('widget:closed', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'none';
       }
     });
-    window.fcWidget.on('widget:opened', () => {
+    this.getWindow().fcWidget.on('widget:opened', () => {
       if (document.getElementById('fc_frame')) {
         document.getElementById('fc_frame').style.display = 'flex';
       }
     });
 
-    window.fcWidget.user.get((resp: { status: number; data: { restoreId: string } }) => {
+    this.getWindow().fcWidget.user.get((resp: { status: number; data: { restoreId: string } }) => {
       // Freshchat here calls an API to check if there is any user with the above externalId
       const status = resp && resp.status;
       const data = resp && resp.data;
       if (status !== 200) {
         // If there is no user with the above externalId; then set the below properties
-        window.fcWidget.user.setProperties({
+        this.getWindow().fcWidget.user.setProperties({
           firstName: eou.us.full_name, // user's first name
           email: eou.us.email, // user's email address
           orgName: eou.ou.org_name, // user's org name
@@ -109,7 +113,7 @@ export class FreshChatService {
           userId: eou.us.id, // user's user id
           device, // storing users device
         });
-        window.fcWidget.on('user:created', async (resp: { status: number; data: { restoreId: string } }) => {
+        this.getWindow().fcWidget.on('user:created', async (resp: { status: number; data: { restoreId: string } }) => {
           // When that new user tries to initiate a chat Freshchat creates a users with above properties
           const status = resp && resp.status;
           const data = resp && resp.data;
