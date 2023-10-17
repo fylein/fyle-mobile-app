@@ -6,7 +6,7 @@ Please install node v14.17.2 or above via nvm.
 
 ## How to run this locally?
 
- - [Install ionic cli](https://ionicframework.com/docs/cli)
+ - [Install ionic cli](https://ionicframework.com/docs/cli). If you have it already installed, make sure that you are on CLI version 6 or above.
  - npm install
  - Add the environment files corresponding to the build you want in the environment folder
  - ionic serve -c `env_name`
