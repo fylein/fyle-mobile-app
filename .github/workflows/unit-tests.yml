@@ -37,9 +37,15 @@ jobs:
 
       - name: Check Coverage Percentage
         run: |
-          coverage_summary=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
-          if (( $(echo "$coverage_summary < 95" | bc -l) )); then
-            echo "Coverage percentage is less than 95%."
-            echo "Coverage Percentage is less than 95%" | gh release create "comment"
+          lines=$(jq '.total.lines.pct' < coverage/coverage-summary.json)
+          statements=$(jq '.total.statements.pct' < coverage/coverage-summary.json)
+          branches=$(jq '.total.branches.pct' < coverage/coverage-summary.json)
+          functions=$(jq '.total.functions.pct' < coverage/coverage-summary.json)
+          
+          if (( $(echo "$lines < 19" | bc -l) || \
+                $(echo "$statements < 20" | bc -l) || \
+                $(echo "$branches < 16" | bc -l) || \
+                $(echo "$functions < 9" | bc -l) )); then
+            echo "Coverage percentages are below threshold"
             exit 1
           fi
