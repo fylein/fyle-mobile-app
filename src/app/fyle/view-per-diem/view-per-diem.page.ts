@@ -270,9 +270,8 @@ export class ViewPerDiemPage {
 
     this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      map((etxn) =>
+        ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(etxn.tx_state)
       )
     );
 
