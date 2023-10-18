@@ -75,7 +75,8 @@ export class FyCurrencyChooseCurrencyComponent implements OnInit, AfterViewInit 
             )
           )
         )
-      )
+      ),
+      shareReplay(1)
     );
   }
 
