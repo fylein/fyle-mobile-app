@@ -222,7 +222,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         emitEvent: false,
       });
 
-      data?.mileageLocations?.forEach((mileageLocation) => {
+      data.mileageLocations?.forEach((mileageLocation) => {
         this.mileageLocations.push(
           new FormControl(mileageLocation, this.mileageConfig.location_mandatory && Validators.required)
         );
