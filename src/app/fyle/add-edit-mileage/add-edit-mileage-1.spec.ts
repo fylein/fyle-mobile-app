@@ -13,7 +13,11 @@ import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { locationData1, locationData2, locationData3 } from 'src/app/core/mock-data/location.data';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
-import { mileageCategories, transformedOrgCategoryById } from 'src/app/core/mock-data/org-category.data';
+import {
+  mileageCategories,
+  mileageCategoryWithoutId,
+  transformedOrgCategoryById,
+} from 'src/app/core/mock-data/org-category.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { splitPolicyExp4 } from 'src/app/core/mock-data/policy-violation.data';
@@ -264,6 +268,26 @@ export function TestCases1(getTestBed) {
       expect(component.isExpandedView).toBeFalse();
     });
 
+    it('scrollInputIntoView(): should scroll input into view on keydown', () => {
+      const inputElement = document.createElement('input');
+      spyOn(inputElement, 'scrollIntoView');
+      spyOn(component, 'getActiveElement').and.returnValue(inputElement);
+
+      component.scrollInputIntoView();
+
+      expect(inputElement.scrollIntoView).toHaveBeenCalledOnceWith({
+        block: 'center',
+      });
+
+      expect(component.getActiveElement).toHaveBeenCalledTimes(1);
+    });
+
+    it('getActiveElement(): should return active element in DOM', () => {
+      const result = component.getActiveElement();
+
+      expect(result).toEqual(document.activeElement);
+    });
+
     describe('openCommentsModal():', () => {
       it('should add comment to the expense and track the event', fakeAsync(() => {
         modalProperties.getModalDefaultProperties.and.returnValue(properties);
@@ -378,6 +402,18 @@ export function TestCases1(getTestBed) {
 
         component.getProjectCategoryIds().subscribe((res) => {
           expect(res).toEqual([]);
+          expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+
+      it('should return undefined if category id is not defined', (done) => {
+        categoriesService.getAll.and.returnValue(of(mileageCategoryWithoutId));
+
+        const projectCategoryIds = component.getProjectCategoryIds();
+
+        projectCategoryIds.subscribe((expectedProjectCategoryIds) => {
+          expect(expectedProjectCategoryIds).toEqual([undefined]);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           done();
         });

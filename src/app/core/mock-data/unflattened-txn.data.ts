@@ -3554,3 +3554,11 @@ export const newMileageExpFromForm3: UnflattenedTransaction = {
     ],
   },
 };
+
+export const unflattenedMileageDataWithPolicyAmount: UnflattenedTransaction = {
+  ...unflattenedTxnData,
+  tx: {
+    ...unflattenedTxnData.tx,
+    policy_amount: 100,
+  },
+};
