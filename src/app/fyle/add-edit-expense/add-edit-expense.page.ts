@@ -3344,11 +3344,22 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  checkIfReceiptIsInvalid(redirectedFrom: string): Observable<boolean> {
+  showSaveExpenseLoader(redirectedFrom: string): void {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
     this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
     this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+  }
+
+  hideSaveExpenseLoader(): void {
+    this.saveExpenseLoader = false;
+    this.saveAndNewExpenseLoader = false;
+    this.saveAndNextExpenseLoader = false;
+    this.saveAndPrevExpenseLoader = false;
+  }
+
+  checkIfReceiptIsInvalid(redirectedFrom: string): Observable<boolean> {
+    this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
 
@@ -3376,10 +3387,7 @@ export class AddEditExpensePage implements OnInit {
         }
       }),
       finalize(() => {
-        this.saveExpenseLoader = false;
-        this.saveAndNewExpenseLoader = false;
-        this.saveAndNextExpenseLoader = false;
-        this.saveAndPrevExpenseLoader = false;
+        this.hideSaveExpenseLoader();
       })
     );
   }
@@ -3696,10 +3704,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
-    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
-    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
-    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
-    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    this.showSaveExpenseLoader(redirectedFrom);
 
     this.trackPolicyCorrections();
 
@@ -3878,10 +3883,7 @@ export class AddEditExpensePage implements OnInit {
         return of(transaction);
       }),
       finalize(() => {
-        this.saveExpenseLoader = false;
-        this.saveAndNewExpenseLoader = false;
-        this.saveAndNextExpenseLoader = false;
-        this.saveAndPrevExpenseLoader = false;
+        this.hideSaveExpenseLoader();
       })
     );
   }
@@ -3998,10 +4000,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   addExpense(redirectedFrom: string): Observable<OutboxQueue | Promise<OutboxQueue>> {
-    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
-    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
-    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
-    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
 
@@ -4153,9 +4152,7 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       finalize(() => {
-        this.saveAndNewExpenseLoader = false;
-        this.saveAndNextExpenseLoader = false;
-        this.saveAndPrevExpenseLoader = false;
+        this.hideSaveExpenseLoader();
       })
     );
   }
