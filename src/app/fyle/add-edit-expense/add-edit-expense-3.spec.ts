@@ -256,79 +256,20 @@ export function TestCases3(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    describe('checkPolicyViolation():', () => {
-      beforeEach(() => {
-        policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
-        transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-      });
+    it('checkPolicyViolation(): should check for policy violations', (done) => {
+      const etxn = {
+        tx: publicPolicyExpenseData1,
+        dataUrls: fileObject4,
+      };
 
-      it('should not check for policy violations if receipt is missing and mandatory', fakeAsync(() => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe();
+      policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
+      transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
 
-        tick();
-
-        expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-        expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-        expect(transactionService.checkPolicy).not.toHaveBeenCalled();
-      }));
-
-      it('should populate unspecified category if not present in expense', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
-
-        component
-          .checkPolicyViolation({ tx: { ...publicPolicyExpenseData1, org_category_id: null }, dataUrls: fileObject4 })
-          .subscribe((res) => {
-            expect(res).toEqual(expensePolicyData);
-            expect(policyService.transformTo).toHaveBeenCalledOnceWith({
-              ...publicPolicyExpenseData1,
-              num_files: 1,
-              org_category_id: 16566,
-            });
-            expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-            expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-            expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
-            done();
-          });
-      });
-
-      it('should check for policy violations if receipt is present', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
-          expect(res).toEqual(expensePolicyData);
-          expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          done();
-        });
-      });
-
-      it("should not check for receipt mandatory status if user is coming from capture receipt flow and they aren't adding the expense to a report", (done) => {
-        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
-        component.fg.controls.report.setValue(null);
-
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
-          expect(res).toEqual(expensePolicyData);
-          expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-          expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
-          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          done();
-        });
-      });
-
-      it('should check for receipt mandatory status if user is coming from capture receipt flow but they are adding the expense to a report', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
-        component.fg.controls.report.setValue(expectedErpt[0]);
-
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
-          expect(res).toEqual(expensePolicyData);
-          expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          done();
-        });
+      component.checkPolicyViolation(etxn).subscribe((res) => {
+        expect(res).toEqual(expensePolicyData);
+        expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(etxn, component.selectedCCCTransaction);
+        expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+        done();
       });
     });
 

@@ -129,7 +129,6 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
-import { PlatformPolicyExpense } from 'src/app/core/models/platform/platform-policy-expense.model';
 
 type FormValue = {
   currencyObj: {
@@ -3345,15 +3344,6 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getPlatformPolicyExpense(etxn: {
-    tx: PublicPolicyExpense;
-    dataUrls: Partial<FileObject>[];
-  }): Observable<PlatformPolicyExpense> {
-    return this.policyService
-      .prepareEtxnForPolicyCheck(etxn, this.selectedCCCTransaction)
-      .pipe(map((publicPolicyExpense) => this.policyService.transformTo(publicPolicyExpense)));
-  }
-
   checkIfReceiptIsInvalid(redirectedFrom: string): Observable<boolean> {
     this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
     this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
@@ -3369,8 +3359,9 @@ export class AddEditExpensePage implements OnInit {
           return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
             switchMap((etxn) =>
               // TODO: We should not use as unknown, this needs to be removed everywhere
-              this.getPlatformPolicyExpense(
-                etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
+              this.policyService.getPlatformPolicyExpense(
+                etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+                this.selectedCCCTransaction
               )
             ),
             switchMap((platformPolicyExpense) => this.transactionService.checkMandatoryFields(platformPolicyExpense)),
@@ -3394,7 +3385,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    return this.getPlatformPolicyExpense(etxn).pipe(
+    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
       switchMap((platformPolicyExpense) =>
         /* Expense creation has not moved to platform yet and since policy is moved to platform,
          * it expects the expense object in terms of platform world. Until then, the method

@@ -194,4 +194,16 @@ export class PolicyService {
 
     return transaction$;
   }
+
+  getPlatformPolicyExpense(
+    etxn: {
+      tx: PublicPolicyExpense;
+      dataUrls: Partial<FileObject>[];
+    },
+    selectedCCCTransaction: CCCExpense
+  ): Observable<PlatformPolicyExpense> {
+    return this.prepareEtxnForPolicyCheck(etxn, selectedCCCTransaction).pipe(
+      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense))
+    );
+  }
 }
