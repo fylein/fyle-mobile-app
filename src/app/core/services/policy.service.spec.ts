@@ -29,7 +29,7 @@ import { fileObject4 } from '../mock-data/file-object.data';
 import { unspecifiedCategory } from '../mock-data/org-category.data';
 import { eCCCData1 } from '../mock-data/corporate-card-expense-unflattened.data';
 
-fdescribe('PolicyService', () => {
+describe('PolicyService', () => {
   let policyService: PolicyService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
@@ -219,7 +219,7 @@ fdescribe('PolicyService', () => {
     expect(policyService.getPolicyRules).toHaveBeenCalledOnceWith(policyViolationData);
   });
 
-  fdescribe('prepareEtxnForPolicyCheck()', () => {
+  describe('prepareEtxnForPolicyCheck()', () => {
     it('should set num_files in the transaction based on the number of files', (done) => {
       const etxn = {
         tx: publicPolicyExpenseData1,
