@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
@@ -10,6 +10,10 @@ import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { Transaction } from '../models/v1/transaction.model';
+import { cloneDeep } from 'lodash';
+import { CategoriesService } from './categories.service';
+import { FileObject } from '../models/file-obj.model';
+import { CCCExpense } from '../models/corporate-card-expense-unflattened.model';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +22,7 @@ export class PolicyService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private approverPlatformApiService: ApproverPlatformApiService,
+    private categoriesService: CategoriesService
   ) {}
 
   transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
@@ -155,5 +160,38 @@ export class PolicyService {
 
   isExpenseCapped(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will be capped to');
+  }
+
+  prepareEtxnForPolicyCheck(
+    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+    selectedCCCTransaction: CCCExpense
+  ): Observable<PublicPolicyExpense> {
+    const transactionCopy = cloneDeep(etxn.tx);
+    /* Adding number of attachements and sending in test call as tx_num_files
+     * If editing an expense with receipts, check for already uploaded receipts
+     */
+    if (etxn.tx) {
+      transactionCopy.num_files = etxn.tx.num_files;
+
+      // Check for receipts uploaded from mobile
+      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+      }
+    }
+
+    transactionCopy.is_matching_ccc_expense = !!selectedCCCTransaction;
+    let transaction$ = of(transactionCopy);
+    if (!transactionCopy.org_category_id) {
+      // Set unspecified org category if expense doesn't have a category
+      const categoryName = 'Unspecified';
+      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
+        map((category) => ({
+          ...transactionCopy,
+          org_category_id: category.id,
+        }))
+      );
+    }
+
+    return transaction$;
   }
 }

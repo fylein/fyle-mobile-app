@@ -129,6 +129,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
+import { PlatformPolicyExpense } from 'src/app/core/models/platform/platform-policy-expense.model';
 
 type FormValue = {
   currencyObj: {
@@ -3344,63 +3345,64 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  getPlatformPolicyExpense(etxn: {
+    tx: PublicPolicyExpense;
+    dataUrls: Partial<FileObject>[];
+  }): Observable<PlatformPolicyExpense> {
+    return this.policyService
+      .prepareEtxnForPolicyCheck(etxn, this.selectedCCCTransaction)
+      .pipe(map((publicPolicyExpense) => this.policyService.transformTo(publicPolicyExpense)));
+  }
+
+  checkIfReceiptIsInvalid(redirectedFrom: string): Observable<boolean> {
+    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
+    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
+    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+
+    const customFields$ = this.getCustomFields();
+
+    return this.isConnected$.pipe(
+      take(1),
+      switchMap((isConnected) => {
+        if (isConnected) {
+          return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+            switchMap((etxn) =>
+              this.getPlatformPolicyExpense(
+                etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
+              )
+            ),
+            switchMap((platformPolicyExpense) => this.transactionService.checkMandatoryFields(platformPolicyExpense)),
+            map((missingMandatoryFields) => !!missingMandatoryFields.missing_receipt),
+            tap((isReceiptInvalid) => {
+              this.showReceiptMandatoryError = isReceiptInvalid;
+            }),
+            catchError(() => of(false))
+          );
+        } else {
+          return of(false);
+        }
+      }),
+      finalize(() => {
+        this.saveExpenseLoader = false;
+        this.saveAndNewExpenseLoader = false;
+        this.saveAndNextExpenseLoader = false;
+        this.saveAndPrevExpenseLoader = false;
+      })
+    );
+  }
+
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    const transactionCopy = cloneDeep(etxn.tx);
-    /* Adding number of attachements and sending in test call as tx_num_files
-     * If editing an expense with receipts, check for already uploaded receipts
-     */
-    if (etxn.tx) {
-      transactionCopy.num_files = etxn.tx.num_files;
-
-      // Check for receipts uploaded from mobile
-      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-      }
-    }
-
-    transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    let transaction$ = of(transactionCopy);
-    if (!transactionCopy.org_category_id) {
-      // Set unspecified org category if expense doesn't have a category
-      const categoryName = 'Unspecified';
-      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
-        map((category) => ({
-          ...transactionCopy,
-          org_category_id: category.id,
-        }))
-      );
-    }
-
-    return transaction$.pipe(
-      switchMap((transaction) => {
-        const formValues = this.getFormValues();
-        const saveIncompleteExpense = this.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-
+    return this.getPlatformPolicyExpense(etxn).pipe(
+      switchMap((platformPolicyExpense) =>
         /* Expense creation has not moved to platform yet and since policy is moved to platform,
          * it expects the expense object in terms of platform world. Until then, the method
          * `transformTo` act as a bridge by translating the public expense object to platform
          * expense.
          */
-        const policyExpense = this.policyService.transformTo(transaction);
-        let isReceiptMandatoryAndMissing$: Observable<boolean>;
 
-        if (saveIncompleteExpense) {
-          // Skip receipt mandatory check
-          isReceiptMandatoryAndMissing$ = of(false);
-        } else {
-          isReceiptMandatoryAndMissing$ = this.transactionService
-            .checkMandatoryFields(policyExpense)
-            .pipe(map((missingMandatoryFields) => missingMandatoryFields.missing_receipt));
-        }
-
-        return isReceiptMandatoryAndMissing$.pipe(
-          tap((isReceiptMissing) => {
-            this.showReceiptMandatoryError = !!isReceiptMissing;
-          }),
-          filter((isReceiptMissing) => !isReceiptMissing),
-          switchMap(() => this.transactionService.checkPolicy(policyExpense))
-        );
-      })
+        this.transactionService.checkPolicy(platformPolicyExpense)
+      )
     );
   }
 
@@ -3485,132 +3487,138 @@ export class AddEditExpensePage implements OnInit {
     const that = this;
     const formValues = this.getFormValues();
 
-    that
-      .checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-        if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
-          if (that.mode === 'add') {
-            if (that.isCreatedFromPersonalCard) {
-              that.saveAndMatchWithPersonalCardTxn();
-            } else {
-              if (saveIncompleteExpense && !that.fg.valid) {
-                this.trackingService.saveReceiptWithInvalidForm();
-              }
-
-              that
-                .addExpense('SAVE_EXPENSE')
-                .pipe(
-                  switchMap((txnData) => {
-                    if (txnData) {
-                      return from(txnData as Promise<OutboxQueue>);
-                    } else {
-                      return of(null);
-                    }
-                  }),
-                  finalize(() => {
-                    this.saveExpenseLoader = false;
-                  })
-                )
-                .subscribe(() => this.goBack());
-            }
+    forkJoin({
+      invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
+      invalidReceipt: that.checkIfReceiptIsInvalid('SAVE_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
+      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+      if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !invalidReceipt)) {
+        if (that.mode === 'add') {
+          if (that.isCreatedFromPersonalCard) {
+            that.saveAndMatchWithPersonalCardTxn();
           } else {
-            // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
+            if (saveIncompleteExpense && !that.fg.valid) {
+              this.trackingService.saveReceiptWithInvalidForm();
+            }
+
+            that
+              .addExpense('SAVE_EXPENSE')
+              .pipe(
+                switchMap((txnData) => {
+                  if (txnData) {
+                    return from(txnData as Promise<OutboxQueue>);
+                  } else {
+                    return of(null);
+                  }
+                }),
+                finalize(() => {
+                  this.saveExpenseLoader = false;
+                })
+              )
+              .subscribe(() => this.goBack());
           }
         } else {
-          that.showFormValidationErrors();
-
-          if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
-            setTimeout(() => {
-              that.invalidPaymentMode = false;
-            }, 3000);
-          }
+          // to do edit
+          that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
         }
-      });
+      } else {
+        that.showFormValidationErrors();
+
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveAndNewExpense(): void {
     const that = this;
     this.trackingService.clickSaveAddNew();
-    that
-      .checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
-          if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
-              this.reloadCurrentRoute();
-            });
-          } else {
-            that.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
-              that.goBack();
-            });
-          }
+
+    forkJoin({
+      invalidPaymentMode: that.checkIfInvalidPaymentMode(),
+      invalidReceipt: that.checkIfReceiptIsInvalid('SAVE_AND_NEW_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
+      if (that.fg.valid && !invalidPaymentMode && !invalidReceipt) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
+            this.reloadCurrentRoute();
+          });
         } else {
-          that.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
-            setTimeout(() => {
-              that.invalidPaymentMode = false;
-            }, 3000);
-          }
+          that.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
+            that.goBack();
+          });
         }
-      });
+      } else {
+        that.showFormValidationErrors();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveExpenseAndGotoPrev(): void {
     const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === 0) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToPrev();
-          }
-        });
+
+    that.checkIfReceiptIsInvalid('SAVE_AND_PREV_EXPENSE').subscribe((invalidReceipt) => {
+      if (that.fg.valid && !invalidReceipt) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === 0) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToPrev();
+            }
+          });
+        } else {
+          // to do edit
+          that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === 0) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToPrev();
+            }
+          });
+        }
       } else {
-        // to do edit
-        that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === 0) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToPrev();
-          }
-        });
+        that.showFormValidationErrors();
       }
-    } else {
-      that.showFormValidationErrors();
-    }
+    });
   }
 
   saveExpenseAndGotoNext(): void {
     const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === this.reviewList.length - 1) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToNext();
-          }
-        });
+    that.checkIfReceiptIsInvalid('SAVE_AND_NEXT_EXPENSE').subscribe((invalidReceipt) => {
+      if (that.fg.valid && !invalidReceipt) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === this.reviewList.length - 1) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToNext();
+            }
+          });
+        } else {
+          // to do edit
+          that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === this.reviewList.length - 1) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToNext();
+            }
+          });
+        }
       } else {
-        // to do edit
-        that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === this.reviewList.length - 1) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToNext();
-          }
-        });
+        that.showFormValidationErrors();
       }
-    } else {
-      that.showFormValidationErrors();
-    }
+    });
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<boolean> {
