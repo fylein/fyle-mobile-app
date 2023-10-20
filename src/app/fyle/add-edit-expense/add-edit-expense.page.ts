@@ -3368,6 +3368,7 @@ export class AddEditExpensePage implements OnInit {
         if (isConnected) {
           return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
             switchMap((etxn) =>
+              // TODO: We should not use as unknown, this needs to be removed everywhere
               this.getPlatformPolicyExpense(
                 etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
               )
