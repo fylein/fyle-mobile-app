@@ -3367,14 +3367,17 @@ export class AddEditExpensePage implements OnInit {
   }
 
   checkIfReceiptIsMissingAndMandatory(redirectedFrom: string): Observable<boolean> {
-    this.showSaveExpenseLoader(redirectedFrom);
+    if (this.attachedReceiptsCount > 0) {
+      return of(false);
+    }
 
-    const customFields$ = this.getCustomFields();
+    this.showSaveExpenseLoader(redirectedFrom);
 
     return this.isConnected$.pipe(
       take(1),
       switchMap((isConnected) => {
         if (isConnected) {
+          const customFields$ = this.getCustomFields();
           return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
             switchMap((etxn) =>
               // TODO: We should not use as unknown, this needs to be removed everywhere
