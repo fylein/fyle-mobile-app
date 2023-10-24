@@ -887,8 +887,16 @@ export class AddEditExpensePage implements OnInit {
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
+
     if (formContainer) {
-      const invalidElement = formContainer.querySelector('.ng-invalid');
+      let invalidElement: Element;
+
+      if (this.showReceiptMandatoryError) {
+        invalidElement = formContainer.querySelector('.receipt-mandatory-error');
+      } else {
+        invalidElement = formContainer.querySelector('.ng-invalid');
+      }
+
       if (invalidElement) {
         invalidElement.scrollIntoView({
           behavior: 'smooth',

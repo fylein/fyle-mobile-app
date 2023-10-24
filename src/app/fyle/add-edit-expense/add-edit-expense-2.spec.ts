@@ -686,6 +686,37 @@ export function TestCases2(getTestBed) {
       }));
     });
 
+    describe('showSaveExpenseLoader()', () => {
+      it('should set saveExpenseLoader to true if redirected from save expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_EXPENSE');
+        expect(component.saveExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndNewExpenseLoader to true if redirected from save and new expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_NEW_EXPENSE');
+        expect(component.saveAndNewExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndNextExpenseLoader to true if redirected from save and next expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_NEXT_EXPENSE');
+        expect(component.saveAndNextExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndPrevExpenseLoader to true if redirected from save and prev expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_PREV_EXPENSE');
+        expect(component.saveAndPrevExpenseLoader).toBeTrue();
+      });
+    });
+
+    it('hideSaveExpenseLoader(): it should set all the save expense loader flags to false', () => {
+      component.hideSaveExpenseLoader();
+
+      expect(component.saveExpenseLoader).toBeFalse();
+      expect(component.saveAndNewExpenseLoader).toBeFalse();
+      expect(component.saveAndNextExpenseLoader).toBeFalse();
+      expect(component.saveAndPrevExpenseLoader).toBeFalse();
+    });
+
     describe('checkIfReceiptIsInvalid()', () => {
       let customFields$: Observable<CustomField[]>;
 
@@ -695,11 +726,12 @@ export function TestCases2(getTestBed) {
 
         spyOn(component, 'getCustomFields').and.returnValue(customFields$);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+
         policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
+        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
       });
 
       it('should return true if receipt is missing and mandatory', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
         component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(invalidReceipt).toBeTrue();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
