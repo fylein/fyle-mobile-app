@@ -3385,8 +3385,8 @@ export class AddEditExpensePage implements OnInit {
             ),
             switchMap((platformPolicyExpense) => this.transactionService.checkMandatoryFields(platformPolicyExpense)),
             map((missingMandatoryFields) => !!missingMandatoryFields.missing_receipt),
-            tap((isReceiptInvalid) => {
-              this.showReceiptMandatoryError = isReceiptInvalid;
+            tap((isReceiptMissingAndMandatory) => {
+              this.showReceiptMandatoryError = isReceiptMissingAndMandatory;
             }),
             catchError(() => of(false))
           );
