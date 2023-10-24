@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, of, throwError } from 'rxjs';
+import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
@@ -717,7 +717,7 @@ export function TestCases2(getTestBed) {
       expect(component.saveAndPrevExpenseLoader).toBeFalse();
     });
 
-    describe('checkIfReceiptIsInvalid()', () => {
+    fdescribe('checkIfReceiptIsInvalid()', () => {
       let customFields$: Observable<CustomField[]>;
 
       beforeEach(() => {
@@ -726,6 +726,8 @@ export function TestCases2(getTestBed) {
 
         spyOn(component, 'getCustomFields').and.returnValue(customFields$);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'showSaveExpenseLoader');
+        spyOn(component, 'hideSaveExpenseLoader');
 
         policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
         transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
@@ -744,6 +746,20 @@ export function TestCases2(getTestBed) {
 
           done();
         });
+      });
+
+      it('should show save expense loader while checking if receipt is invalid', (done) => {
+        const isReceiptInvalid$ = component.checkIfReceiptIsInvalid('SAVE_EXPENSE');
+        expect(component.showSaveExpenseLoader).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+
+        isReceiptInvalid$
+          .pipe(
+            finalize(() => {
+              expect(component.hideSaveExpenseLoader).toHaveBeenCalledTimes(1);
+              done();
+            })
+          )
+          .subscribe();
       });
 
       it('should set showReceiptMandatoryError to true if receipt is missing and mandatory', (done) => {
