@@ -3366,7 +3366,7 @@ export class AddEditExpensePage implements OnInit {
     this.saveAndPrevExpenseLoader = false;
   }
 
-  checkIfReceiptIsInvalid(redirectedFrom: string): Observable<boolean> {
+  checkIfReceiptIsMissingAndMandatory(redirectedFrom: string): Observable<boolean> {
     this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
@@ -3497,7 +3497,7 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
-      invalidReceipt: that.checkIfReceiptIsInvalid('SAVE_EXPENSE'),
+      invalidReceipt: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
     }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
       const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
       if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !invalidReceipt)) {
@@ -3548,7 +3548,7 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode(),
-      invalidReceipt: that.checkIfReceiptIsInvalid('SAVE_AND_NEW_EXPENSE'),
+      invalidReceipt: that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEW_EXPENSE'),
     }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
       if (that.fg.valid && !invalidPaymentMode && !invalidReceipt) {
         if (that.mode === 'add') {
@@ -3575,7 +3575,7 @@ export class AddEditExpensePage implements OnInit {
   saveExpenseAndGotoPrev(): void {
     const that = this;
 
-    that.checkIfReceiptIsInvalid('SAVE_AND_PREV_EXPENSE').subscribe((invalidReceipt) => {
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_PREV_EXPENSE').subscribe((invalidReceipt) => {
       if (that.fg.valid && !invalidReceipt) {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
@@ -3603,7 +3603,7 @@ export class AddEditExpensePage implements OnInit {
 
   saveExpenseAndGotoNext(): void {
     const that = this;
-    that.checkIfReceiptIsInvalid('SAVE_AND_NEXT_EXPENSE').subscribe((invalidReceipt) => {
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEXT_EXPENSE').subscribe((invalidReceipt) => {
       if (that.fg.valid && !invalidReceipt) {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {

@@ -568,7 +568,7 @@ export function TestCases2(getTestBed) {
     describe('saveExpense():', () => {
       it('should save an expense and match as personal if created from a personal card', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         setFormValid(component);
         component.isCreatedFromPersonalCard = true;
         component.mode = 'add';
@@ -576,7 +576,7 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.saveAndMatchWithPersonalCardTxn).toHaveBeenCalledTimes(1);
       });
 
@@ -586,13 +586,13 @@ export function TestCases2(getTestBed) {
         activatedRoute.snapshot.params.dataUrl = 'url';
         spyOn(component, 'editExpense').and.returnValue(of(editExpTxn));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goBack');
         fixture.detectChanges();
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.goBack).toHaveBeenCalledOnceWith();
       });
@@ -602,21 +602,21 @@ export function TestCases2(getTestBed) {
           get: () => false,
         });
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
         fixture.detectChanges();
 
         component.saveExpense();
         tick(3500);
 
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
       }));
 
       it('should add expense in add mode', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
@@ -626,13 +626,13 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
 
       it('should return null if add expense fails', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
         component.mode = 'add';
@@ -642,7 +642,7 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
     });
@@ -651,7 +651,7 @@ export function TestCases2(getTestBed) {
       it('should save and create expense if the form is valid and is in add mode', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'reloadCurrentRoute');
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
         component.fg.clearValidators();
@@ -664,13 +664,13 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense if the form is valid and is in edit mode ', () => {
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'goBack');
@@ -682,21 +682,21 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if payment mode is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
 
         component.saveAndNewExpense();
         tick(3000);
 
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
         expect(component.invalidPaymentMode).toBeFalse();
       }));
@@ -733,7 +733,7 @@ export function TestCases2(getTestBed) {
       expect(component.saveAndPrevExpenseLoader).toBeFalse();
     });
 
-    describe('checkIfReceiptIsInvalid()', () => {
+    describe('checkIfReceiptIsMissingAndMandatory()', () => {
       let customFields$: Observable<CustomField[]>;
 
       beforeEach(() => {
@@ -750,7 +750,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should return true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(invalidReceipt).toBeTrue();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
@@ -765,7 +765,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should show save expense loader while checking if receipt is invalid', (done) => {
-        const isReceiptInvalid$ = component.checkIfReceiptIsInvalid('SAVE_EXPENSE');
+        const isReceiptInvalid$ = component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE');
         expect(component.showSaveExpenseLoader).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
 
         isReceiptInvalid$
@@ -779,7 +779,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should set showReceiptMandatoryError to true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(component.showReceiptMandatoryError).toBeTrue();
           done();
         });
@@ -787,7 +787,7 @@ export function TestCases2(getTestBed) {
 
       it('should return false if receipt is not missing or not mandatory', (done) => {
         transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(invalidReceipt).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
@@ -803,7 +803,7 @@ export function TestCases2(getTestBed) {
 
       it('should return false if offline', (done) => {
         component.isConnected$ = of(false);
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(invalidReceipt).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
@@ -816,7 +816,7 @@ export function TestCases2(getTestBed) {
 
       it('should return false if check_mandatory_fields call fails', (done) => {
         transactionService.checkMandatoryFields.and.returnValue(throwError(() => new Error()));
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
           expect(invalidReceipt).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
@@ -834,7 +834,7 @@ export function TestCases2(getTestBed) {
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -845,13 +845,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -862,13 +862,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.goToPrev).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -879,13 +879,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and go to the previous expense', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'edit';
@@ -896,25 +896,25 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.goToPrev).toHaveBeenCalledOnceWith();
       });
 
       it('should show validation errors if the form is not valid', () => {
         spyOn(component, 'showFormValidationErrors');
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
 
         component.saveExpenseAndGotoPrev();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
       });
     });
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -926,13 +926,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -944,13 +944,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -962,13 +962,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the next expense', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -980,18 +980,18 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if the form is not valid', () => {
-        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
 
         component.saveExpenseAndGotoNext();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
-        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
       });
     });
 
