@@ -750,8 +750,8 @@ export function TestCases2(getTestBed) {
       });
 
       it('should return true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeTrue();
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeTrue();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
@@ -779,7 +779,7 @@ export function TestCases2(getTestBed) {
       });
 
       it('should set showReceiptMandatoryError to true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
           expect(component.showReceiptMandatoryError).toBeTrue();
           done();
         });
@@ -787,8 +787,8 @@ export function TestCases2(getTestBed) {
 
       it('should return false if receipt is not missing or not mandatory', (done) => {
         transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
@@ -803,9 +803,22 @@ export function TestCases2(getTestBed) {
 
       it('should return false if offline', (done) => {
         component.isConnected$ = of(false);
-        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).not.toHaveBeenCalled();
+          expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
+          expect(policyService.getPlatformPolicyExpense).not.toHaveBeenCalled();
+          expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
+
+          done();
+        });
+      });
+
+      it('should return false if expense has receipts attached', (done) => {
+        component.attachedReceiptsCount = 1;
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).not.toHaveBeenCalled();
           expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
           expect(policyService.getPlatformPolicyExpense).not.toHaveBeenCalled();
           expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
@@ -816,8 +829,8 @@ export function TestCases2(getTestBed) {
 
       it('should return false if check_mandatory_fields call fails', (done) => {
         transactionService.checkMandatoryFields.and.returnValue(throwError(() => new Error()));
-        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
           expect(component.getCustomFields).toHaveBeenCalledTimes(1);
           expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
           expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
