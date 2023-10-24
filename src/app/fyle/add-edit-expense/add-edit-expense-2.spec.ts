@@ -568,6 +568,7 @@ export function TestCases2(getTestBed) {
     describe('saveExpense():', () => {
       it('should save an expense and match as personal if created from a personal card', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
         setFormValid(component);
         component.isCreatedFromPersonalCard = true;
         component.mode = 'add';
@@ -575,6 +576,7 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.saveAndMatchWithPersonalCardTxn).toHaveBeenCalledTimes(1);
       });
 
@@ -584,11 +586,13 @@ export function TestCases2(getTestBed) {
         activatedRoute.snapshot.params.dataUrl = 'url';
         spyOn(component, 'editExpense').and.returnValue(of(editExpTxn));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
         spyOn(component, 'goBack');
         fixture.detectChanges();
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.goBack).toHaveBeenCalledOnceWith();
       });
@@ -598,18 +602,21 @@ export function TestCases2(getTestBed) {
           get: () => false,
         });
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
         fixture.detectChanges();
 
         component.saveExpense();
         tick(3500);
 
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
       }));
 
       it('should add expense in add mode', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
@@ -619,11 +626,13 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
 
       it('should return null if add expense fails', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
         component.mode = 'add';
@@ -633,6 +642,7 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
     });
@@ -717,7 +727,7 @@ export function TestCases2(getTestBed) {
       expect(component.saveAndPrevExpenseLoader).toBeFalse();
     });
 
-    fdescribe('checkIfReceiptIsInvalid()', () => {
+    describe('checkIfReceiptIsInvalid()', () => {
       let customFields$: Observable<CustomField[]>;
 
       beforeEach(() => {
