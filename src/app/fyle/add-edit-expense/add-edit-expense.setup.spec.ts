@@ -104,7 +104,6 @@ describe('AddEditExpensePage', () => {
       'getETxnUnflattened',
       'getSplitExpenses',
       'checkPolicy',
-      'checkMandatoryFields',
       'upsert',
       'review',
       'matchCCCExpense',
