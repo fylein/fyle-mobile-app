@@ -346,12 +346,16 @@ export class AddEditMileagePage implements OnInit {
 
   @HostListener('keydown')
   scrollInputIntoView(): void {
-    const el = document.activeElement;
+    const el = this.getActiveElement();
     if (el && el instanceof HTMLInputElement) {
       el.scrollIntoView({
         block: 'center',
       });
     }
+  }
+
+  getActiveElement(): Element {
+    return document.activeElement;
   }
 
   getFormValues(): Partial<FormValue> {
@@ -478,7 +482,7 @@ export class AddEditMileagePage implements OnInit {
       map((categories) => {
         const mileageCategories = categories
           .filter((category) => ['Mileage'].indexOf(category.fyle_category) > -1)
-          .map((category) => category?.id?.toString());
+          .map((category) => category.id?.toString());
 
         return mileageCategories;
       })
@@ -930,8 +934,8 @@ export class AddEditMileagePage implements OnInit {
       .pipe(
         map((subCategories) =>
           subCategories
-            .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory?.name?.toLowerCase())
-            .find((subCategory) => subCategory?.id === etxn.tx.org_category_id)
+            .filter((subCategory) => subCategory.sub_category?.toLowerCase() !== subCategory.name?.toLowerCase())
+            .find((subCategory) => subCategory.id === etxn.tx.org_category_id)
         )
       );
   }
@@ -1194,10 +1198,10 @@ export class AddEditMileagePage implements OnInit {
         }).pipe(
           map(({ etxn, mileageRates }: { etxn: UnflattenedTransaction; mileageRates: PlatformMileageRates[] }) => {
             if (formValue) {
-              if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue?.vehicle_type) {
+              if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue.vehicle_type) {
                 return etxn.tx.mileage_rate;
               } else {
-                return this.getRateByVehicleType(mileageRates, formValue?.vehicle_type);
+                return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
               }
             }
           })
@@ -2518,7 +2522,7 @@ export class AddEditMileagePage implements OnInit {
               reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue?.report?.rp?.id;
+              reportId = reportValue.report.rp?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
