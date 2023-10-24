@@ -651,6 +651,7 @@ export function TestCases2(getTestBed) {
       it('should save and create expense if the form is valid and is in add mode', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'reloadCurrentRoute');
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
         component.fg.clearValidators();
@@ -663,11 +664,13 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense if the form is valid and is in edit mode ', () => {
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'goBack');
@@ -679,18 +682,21 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if payment mode is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
+        spyOn(component, 'checkIfReceiptIsInvalid').and.returnValue(of(true));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
 
         component.saveAndNewExpense();
         tick(3000);
 
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsInvalid).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
         expect(component.invalidPaymentMode).toBeFalse();
       }));
