@@ -104,6 +104,7 @@ describe('AddEditExpensePage', () => {
       'getETxnUnflattened',
       'getSplitExpenses',
       'checkPolicy',
+      'checkMandatoryFields',
       'upsert',
       'review',
       'matchCCCExpense',
@@ -114,6 +115,7 @@ describe('AddEditExpensePage', () => {
       'getCriticalPolicyRules',
       'getPolicyRules',
       'getSpenderExpensePolicyViolations',
+      'getPlatformPolicyExpense',
     ]);
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
       'parseReceipt',
