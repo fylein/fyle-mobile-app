@@ -1161,19 +1161,6 @@ export const expectedOrgCategoryByName2: OrgCategory = {
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 };
 
-export const unspecifiedCategory: OrgCategory = {
-  code: null,
-  created_at: new Date('2018-01-31T23:50:27.235056+00:00'),
-  displayName: 'Unspecified',
-  enabled: true,
-  fyle_category: 'Unspecified',
-  id: 16569,
-  name: 'Unspecified',
-  org_id: 'orNVthTo2Zyo',
-  sub_category: 'Unspecified',
-  updated_at: new Date('2022-05-05T17:45:42.092507+00:00'),
-};
-
 export const mileageCategoryWithoutId: OrgCategory[] = [
   {
     code: '93',

@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Observable, Subscription, of, throwError } from 'rxjs';
+import { Subscription, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
 import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
@@ -77,15 +77,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
-import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
-import {
-  missingMandatoryFieldsData1,
-  missingMandatoryFieldsData2,
-} from 'src/app/core/mock-data/missing-mandatory-fields.data';
-import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { CustomField } from 'src/app/core/models/custom_field.model';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -684,119 +675,6 @@ export function TestCases2(getTestBed) {
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
         expect(component.invalidPaymentMode).toBeFalse();
       }));
-    });
-
-    describe('showSaveExpenseLoader()', () => {
-      it('should set saveExpenseLoader to true if redirected from save expense flow', () => {
-        component.showSaveExpenseLoader('SAVE_EXPENSE');
-        expect(component.saveExpenseLoader).toBeTrue();
-      });
-
-      it('should set saveAndNewExpenseLoader to true if redirected from save and new expense flow', () => {
-        component.showSaveExpenseLoader('SAVE_AND_NEW_EXPENSE');
-        expect(component.saveAndNewExpenseLoader).toBeTrue();
-      });
-
-      it('should set saveAndNextExpenseLoader to true if redirected from save and next expense flow', () => {
-        component.showSaveExpenseLoader('SAVE_AND_NEXT_EXPENSE');
-        expect(component.saveAndNextExpenseLoader).toBeTrue();
-      });
-
-      it('should set saveAndPrevExpenseLoader to true if redirected from save and prev expense flow', () => {
-        component.showSaveExpenseLoader('SAVE_AND_PREV_EXPENSE');
-        expect(component.saveAndPrevExpenseLoader).toBeTrue();
-      });
-    });
-
-    it('hideSaveExpenseLoader(): it should set all the save expense loader flags to false', () => {
-      component.hideSaveExpenseLoader();
-
-      expect(component.saveExpenseLoader).toBeFalse();
-      expect(component.saveAndNewExpenseLoader).toBeFalse();
-      expect(component.saveAndNextExpenseLoader).toBeFalse();
-      expect(component.saveAndPrevExpenseLoader).toBeFalse();
-    });
-
-    describe('checkIfReceiptIsInvalid()', () => {
-      let customFields$: Observable<CustomField[]>;
-
-      beforeEach(() => {
-        customFields$ = of(customFieldData1);
-        component.isConnected$ = of(true);
-
-        spyOn(component, 'getCustomFields').and.returnValue(customFields$);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
-
-        policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
-      });
-
-      it('should return true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeTrue();
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
-          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
-            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
-          );
-          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-
-          done();
-        });
-      });
-
-      it('should set showReceiptMandatoryError to true if receipt is missing and mandatory', (done) => {
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(component.showReceiptMandatoryError).toBeTrue();
-          done();
-        });
-      });
-
-      it('should return false if receipt is not missing or not mandatory', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
-          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
-            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
-          );
-          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-
-          done();
-        });
-      });
-
-      it('should return false if offline', (done) => {
-        component.isConnected$ = of(false);
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
-          expect(policyService.getPlatformPolicyExpense).not.toHaveBeenCalled();
-          expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
-
-          done();
-        });
-      });
-
-      it('should return false if check_mandatory_fields call fails', (done) => {
-        transactionService.checkMandatoryFields.and.returnValue(throwError(() => new Error()));
-        component.checkIfReceiptIsInvalid('SAVE_EXPENSE').subscribe((invalidReceipt) => {
-          expect(invalidReceipt).toBeFalse();
-          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
-          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
-          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
-            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-            component.selectedCCCTransaction
-          );
-          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-
-          done();
-        });
-      });
     });
 
     describe('saveExpenseAndGotoPrev():', () => {
