@@ -3,24 +3,24 @@ import { Location } from '../location.model';
 import { MileageUnitEnum } from '../mileage-unit.enum';
 import { NameValuePair } from '../name-value-pair.model';
 import { ParsedResponse } from '../parsed_response.model';
-import { PerDiemRates } from '../v1/per-diem-rates.model';
+import { MatchedCorporateCardTransaction } from './matched-corporate-card-transaction.model';
 import { ExpenseRuleData } from './expense-rule-data.model';
 import { MissingMandatoryFields } from './missing-mandatory-fields.model';
 import { PlatformCategory } from './platform-category.model';
 import { PlatformCostCenter } from './platform-cost-center.model';
-import { PlatformEmployee } from './platform-employee.model';
-import { PlatformFile } from './platform-file.model';
+import { Employee } from './employee.model';
+import { File } from './file.model';
 import { PlatformMileageRates } from './platform-mileage-rates.model';
-import { PlatformProject } from './platform-project.model';
+import { Project } from './project.model';
 import { PlatformReport } from './platform-report.model';
 import { PlatformTaxGroup } from './platform-tax-group.model';
-import { PlatformUser } from './platform-user.model';
+import { User } from './user.model';
 import { PolicyChecks } from './policy-checks.model';
 import { ReportApprovals } from './report-approvals.model';
 import { AccountType } from '../../enums/account-type.enum';
-import { MatchedCorporateCardTransaction } from './matched-corporate-card-transaction.model';
+import { PlatformPerDiemRates } from './platform-per-diem-rates.model';
 
-export interface PlatformExpense {
+export interface Expense {
   // `activity_details` is not added on purpose
   added_to_report_at: Date;
   admin_amount: number;
@@ -42,7 +42,7 @@ export interface PlatformExpense {
   distance: number;
   distance_unit: MileageUnitEnum;
   employee: Pick<
-    PlatformEmployee,
+    Employee,
     | 'business_unit'
     | 'code'
     | 'custom_fields'
@@ -51,7 +51,6 @@ export interface PlatformExpense {
     | 'department_id'
     | 'id'
     | 'level'
-    | 'level_id'
     | 'location'
     | 'org_id'
     | 'org_name'
@@ -67,7 +66,7 @@ export interface PlatformExpense {
   expense_rule_id: string;
   extracted_data: ParsedResponse;
   file_ids: string[];
-  files: Pick<PlatformFile, 'id' | 'name' | 'content_type' | 'type'>[];
+  files: Pick<File, 'id' | 'name' | 'content_type' | 'type'>[];
   foreign_amount: number;
   foreign_currency: string;
   hotel_is_breakfast_provided: boolean;
@@ -94,17 +93,17 @@ export interface PlatformExpense {
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;
   mileage_rate: Pick<PlatformMileageRates, 'id' | 'code' | 'vehicle_type'>;
-  mileage_rate_id: string;
+  mileage_rate_id: number;
   missing_mandatory_fields: MissingMandatoryFields;
   org_id: string;
   per_diem_num_days: number;
-  per_diem_rate: PerDiemRates;
-  per_diem_rate_id: string;
+  per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
+  per_diem_rate_id: number;
   physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
   policy_amount: number;
   project_id: number;
-  project: Pick<PlatformProject, 'id' | 'name' | 'sub_project' | 'code' | 'display_name'>;
+  project: Pick<Project, 'id' | 'name' | 'sub_project' | 'code' | 'display_name'>;
   purpose: string;
   report:
     | Pick<
@@ -118,15 +117,14 @@ export interface PlatformExpense {
         | 'seq_num'
         | 'state'
         | 'settlement_id'
-      >
-    | {
+      > & {
         last_verified_at: Date;
         reimbursement_id: number;
-        settlement_locked_at: Date;
         reimbursement_seq_num: string;
         title: string;
       };
   report_id: string;
+  report_settlement_id: string;
   seq_num: string;
   source: string;
   source_account: {
@@ -145,7 +143,7 @@ export interface PlatformExpense {
   tax_group_id: string;
   travel_classes: string[];
   updated_at: Date;
-  user: PlatformUser;
+  user: User;
   user_id: string;
   verifier_comments: string[];
 }

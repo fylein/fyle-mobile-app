@@ -1,4 +1,4 @@
-export interface PlatformFile {
+export interface File {
   id: string;
   org_id: string;
   user_id: string;

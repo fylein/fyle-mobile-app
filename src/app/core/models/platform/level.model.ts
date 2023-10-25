@@ -1,4 +1,4 @@
-export interface PlatformLevel {
+export interface Level {
   id: string;
   org_id: string;
   created_at: Date;

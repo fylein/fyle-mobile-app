@@ -1,6 +1,6 @@
-import { PlatformUser } from './platform-user.model';
+import { User } from './user.model';
 
-export interface PlatformDepartment {
+export interface Department {
   id: string;
   org_id: string;
   created_at: Date;
@@ -11,7 +11,7 @@ export interface PlatformDepartment {
   description: string;
   sub_department: string;
   department_head_user_ids: string[];
-  department_head_users: PlatformUser[];
+  department_head_users: User[];
   doc_url: string;
   display_name: string;
 }
