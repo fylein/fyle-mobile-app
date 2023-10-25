@@ -3500,10 +3500,10 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
-      invalidReceipt: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
-    }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
+      isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
       const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-      if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !invalidReceipt)) {
+      if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory)) {
         if (that.mode === 'add') {
           if (that.isCreatedFromPersonalCard) {
             that.saveAndMatchWithPersonalCardTxn();
@@ -3551,9 +3551,9 @@ export class AddEditExpensePage implements OnInit {
 
     forkJoin({
       invalidPaymentMode: that.checkIfInvalidPaymentMode(),
-      invalidReceipt: that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEW_EXPENSE'),
-    }).subscribe(({ invalidPaymentMode, invalidReceipt }) => {
-      if (that.fg.valid && !invalidPaymentMode && !invalidReceipt) {
+      isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEW_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
+      if (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory) {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
             this.reloadCurrentRoute();
@@ -3578,8 +3578,8 @@ export class AddEditExpensePage implements OnInit {
   saveExpenseAndGotoPrev(): void {
     const that = this;
 
-    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_PREV_EXPENSE').subscribe((invalidReceipt) => {
-      if (that.fg.valid && !invalidReceipt) {
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_PREV_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+      if (that.fg.valid && !isReceiptMissingAndMandatory) {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
             if (+this.activeIndex === 0) {
@@ -3606,8 +3606,8 @@ export class AddEditExpensePage implements OnInit {
 
   saveExpenseAndGotoNext(): void {
     const that = this;
-    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEXT_EXPENSE').subscribe((invalidReceipt) => {
-      if (that.fg.valid && !invalidReceipt) {
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEXT_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+      if (that.fg.valid && !isReceiptMissingAndMandatory) {
         if (that.mode === 'add') {
           that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
             if (+this.activeIndex === this.reviewList.length - 1) {
