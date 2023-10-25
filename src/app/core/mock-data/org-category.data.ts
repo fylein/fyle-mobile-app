@@ -1160,3 +1160,18 @@ export const expectedOrgCategoryByName2: OrgCategory = {
   sub_category: 'Business',
   updated_at: new Date('2022-07-01T05:51:31.800Z'),
 };
+
+export const mileageCategoryWithoutId: OrgCategory[] = [
+  {
+    code: '93',
+    created_at: new Date('2021-05-18T11:40:38.576Z'),
+    displayName: 'Business',
+    enabled: true,
+    fyle_category: 'Mileage',
+    id: undefined,
+    name: 'Business',
+    org_id: 'orrjqbDbeP9p',
+    sub_category: 'Business',
+    updated_at: new Date('2022-07-01T05:51:31.800Z'),
+  },
+];

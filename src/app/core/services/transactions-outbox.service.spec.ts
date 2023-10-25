@@ -1,8 +1,8 @@
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
-import { TestBed } from '@angular/core/testing';
+import { TestBed, fakeAsync, tick } from '@angular/core/testing';
 import { expenseList2 } from '../mock-data/expense.data';
-import { fileObjectData1 } from '../mock-data/file-object.data';
-import { txnData2 } from '../mock-data/transaction.data';
+import { fileObject4, fileObjectData1 } from '../mock-data/file-object.data';
+import { editUnflattenedTransaction, txnData2 } from '../mock-data/transaction.data';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
@@ -15,6 +15,9 @@ import { TransactionService } from './transaction.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
 import { cloneDeep } from 'lodash';
+import { of } from 'rxjs';
+import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
+import { fileData1 } from '../mock-data/file.data';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -33,9 +36,9 @@ describe('TransactionsOutboxService', () => {
 
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
-    const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['post', 'matchCCCExpense']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
+    const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'fixDates']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['post', 'matchCCCExpense', 'upsert']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
@@ -208,27 +211,50 @@ describe('TransactionsOutboxService', () => {
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
   });
 
-  it('addEntryAndSync(): should add entry to queue and sync', () => {
-    const mockQueue = cloneDeep(outboxQueueData1);
-    transactionsOutboxService.queue = mockQueue;
-    spyOn(transactionsOutboxService, 'addEntry').and.returnValue(Promise.resolve());
-    spyOn(transactionsOutboxService, 'syncEntry').and.returnValue(Promise.resolve(outboxQueueData1[0]));
-    transactionsOutboxService.addEntryAndSync(
-      txnData2,
-      [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-      null,
-      null,
-      false
-    );
-    expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
-      txnData2,
-      [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
-      null,
-      null,
-      false
-    );
-    expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
-    expect(transactionsOutboxService.queue.length).toEqual(0);
+  describe('addEntryAndSync():', () => {
+    beforeEach(() => {
+      const mockQueue = cloneDeep(outboxQueueData1);
+      transactionsOutboxService.queue = mockQueue;
+      spyOn(transactionsOutboxService, 'addEntry').and.returnValue(Promise.resolve());
+      spyOn(transactionsOutboxService, 'syncEntry').and.returnValue(Promise.resolve(outboxQueueData1[0]));
+    });
+
+    it('should add entry to queue and sync', () => {
+      transactionsOutboxService.addEntryAndSync(
+        txnData2,
+        [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
+        null,
+        false
+      );
+      expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
+        txnData2,
+        [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
+        null,
+        false
+      );
+      expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
+      expect(transactionsOutboxService.queue.length).toEqual(0);
+    });
+
+    it('should add entry to queue and sync if applyMagic params is not provided', () => {
+      transactionsOutboxService.addEntryAndSync(
+        txnData2,
+        [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
+        null
+      );
+      expect(transactionsOutboxService.addEntry).toHaveBeenCalledOnceWith(
+        txnData2,
+        [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' }],
+        null,
+        null,
+        false
+      );
+      expect(transactionsOutboxService.syncEntry).toHaveBeenCalledOnceWith(outboxQueueData1[0]);
+      expect(transactionsOutboxService.queue.length).toEqual(0);
+    });
   });
 
   it('getPendingTransactions(): should return pending transactions', () => {
@@ -251,11 +277,13 @@ describe('TransactionsOutboxService', () => {
   });
 
   it('deleteBulkOfflineExpenses(): should delete bulk offline expenses', () => {
-    spyOn(transactionsOutboxService, 'deleteOfflineExpense').withArgs(0).and.returnValue(null);
+    spyOn(transactionsOutboxService, 'deleteOfflineExpense').and.returnValues(null);
     const pendingTransactions = [expenseList2[0]];
-    const deleteExpenses = [expenseList2[0]];
+    const deleteExpenses = expenseList2;
     transactionsOutboxService.deleteBulkOfflineExpenses(pendingTransactions, deleteExpenses);
-    expect(transactionsOutboxService.deleteOfflineExpense).toHaveBeenCalledOnceWith(0);
+    expect(transactionsOutboxService.deleteOfflineExpense).toHaveBeenCalledTimes(2);
+    expect(transactionsOutboxService.deleteOfflineExpense).toHaveBeenCalledWith(0);
+    expect(transactionsOutboxService.deleteOfflineExpense).toHaveBeenCalledWith(-1);
   });
 
   describe('matchIfRequired(): ', () => {
@@ -264,5 +292,60 @@ describe('TransactionsOutboxService', () => {
       const res = await transactionsOutboxService.matchIfRequired(transactionId, null);
       expect(res).toBeNull();
     });
+
+    it('should match with CCC expense and return null if cccId is present', async () => {
+      const transactionId = 'txBphgnCHHeO';
+      const cccId = 'ccceWauzF1A3oS';
+      transactionService.matchCCCExpense.and.returnValue(of(null));
+      const res = await transactionsOutboxService.matchIfRequired(transactionId, cccId);
+      expect(res).toBeNull();
+    });
   });
+
+  describe('restoreQueue():', () => {
+    it('should restore queue', fakeAsync(() => {
+      const mockQueue = cloneDeep(outboxQueueData1);
+      storageService.get.and.resolveTo(mockQueue);
+      dateService.fixDates.and.returnValue(mockQueue[0].transaction);
+      transactionsOutboxService.restoreQueue();
+      tick(100);
+
+      expect(storageService.get).toHaveBeenCalledWith('outbox');
+      expect(storageService.get).toHaveBeenCalledWith('data_extraction_queue');
+      expect(transactionsOutboxService.queue).toEqual(mockQueue);
+      expect(dateService.fixDates).toHaveBeenCalledTimes(2);
+      expect(dateService.fixDates).toHaveBeenCalledWith(mockQueue[0].transaction);
+    }));
+
+    it('should restore queue and return empty array if queue is not present', fakeAsync(() => {
+      storageService.get.and.resolveTo(null);
+      transactionsOutboxService.restoreQueue();
+      tick(100);
+
+      expect(storageService.get).toHaveBeenCalledWith('outbox');
+      expect(storageService.get).toHaveBeenCalledWith('data_extraction_queue');
+      expect(transactionsOutboxService.queue).toEqual([]);
+      expect(dateService.fixDates).not.toHaveBeenCalled();
+    }));
+  });
+
+  it('processDataExtractionEntry(): should process data extraction entry', fakeAsync(() => {
+    const mockQueue = cloneDeep([...outboxQueueData1, ...outboxQueueData1, ...outboxQueueData1]);
+    transactionsOutboxService.dataExtractionQueue = cloneDeep(mockQueue);
+    transactionService.upsert.and.returnValue(of(editUnflattenedTransaction));
+    spyOn(transactionsOutboxService, 'parseReceipt').and.returnValues(
+      Promise.resolve(parsedReceiptData1),
+      Promise.resolve({ data: undefined }),
+      Promise.resolve(parsedReceiptData2)
+    );
+    spyOn(transactionsOutboxService, 'removeDataExtractionEntry').and.resolveTo();
+    spyOn(transactionsOutboxService, 'addEntryAndSync').and.resolveTo(outboxQueueData1[0]);
+
+    transactionsOutboxService.processDataExtractionEntry();
+    tick(100);
+
+    expect(transactionsOutboxService.parseReceipt).toHaveBeenCalledTimes(3);
+    expect(transactionService.upsert).toHaveBeenCalledTimes(2);
+    expect(transactionsOutboxService.removeDataExtractionEntry).toHaveBeenCalledTimes(3);
+  }));
 });
