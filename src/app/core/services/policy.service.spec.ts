@@ -22,6 +22,7 @@ import {
   platformPolicyExpenseData3,
   platformPolicyExpenseData4,
   platformPolicyExpenseData5,
+  platformPolicyExpenseData1,
 } from '../mock-data/platform-policy-expense.data';
 import { of } from 'rxjs';
 import { CategoriesService } from './categories.service';
@@ -268,6 +269,22 @@ describe('PolicyService', () => {
         expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
         done();
       });
+    });
+  });
+
+  it('getPlatformPolicyExpense(): should get platform policy expense', () => {
+    spyOn(policyService, 'prepareEtxnForPolicyCheck').and.returnValue(of(publicPolicyExpenseData1));
+    spyOn(policyService, 'transformTo').and.returnValue(platformPolicyExpenseData1);
+
+    const etxn = {
+      tx: publicPolicyExpenseData1,
+      dataUrls: fileObject4,
+    };
+
+    policyService.getPlatformPolicyExpense(etxn, null).subscribe((res) => {
+      expect(res).toEqual(platformPolicyExpenseData1);
+      expect(policyService.prepareEtxnForPolicyCheck).toHaveBeenCalledOnceWith(etxn, null);
+      expect(policyService.transformTo).toHaveBeenCalledOnceWith(publicPolicyExpenseData1);
     });
   });
 });
