@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { Observable, map } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
-import { Expense } from 'src/app/core/models/expense.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Injectable({
   providedIn: 'root',

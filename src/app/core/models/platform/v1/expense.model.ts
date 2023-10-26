@@ -1,28 +1,25 @@
-import { ExpenseState } from '../expense-state.enum';
-import { Location } from '../location.model';
-import { MileageUnitEnum } from '../mileage-unit.enum';
-import { NameValuePair } from '../name-value-pair.model';
-import { ParsedResponse } from '../parsed_response.model';
-import { MatchedCorporateCardTransaction } from './matched-corporate-card-transaction.model';
-import { ExpenseRuleData } from './expense-rule-data.model';
+import { ExpenseState } from '../../expense-state.enum';
+import { Location } from '../../location.model';
+import { MileageUnitEnum } from '../../mileage-unit.enum';
+import { NameValuePair } from '../../name-value-pair.model';
+import { ParsedResponse as ExtractedData } from '../../parsed_response.model';
 import { MissingMandatoryFields } from './missing-mandatory-fields.model';
-import { PlatformCategory } from './platform-category.model';
-import { PlatformCostCenter } from './platform-cost-center.model';
+import { PlatformCategory } from '../platform-category.model';
+import { PlatformCostCenter } from '../platform-cost-center.model';
 import { Employee } from './employee.model';
 import { File } from './file.model';
-import { PlatformMileageRates } from './platform-mileage-rates.model';
+import { PlatformMileageRates } from '../platform-mileage-rates.model';
 import { Project } from './project.model';
-import { PlatformReport } from './platform-report.model';
-import { PlatformTaxGroup } from './platform-tax-group.model';
+import { PlatformTaxGroup } from '../platform-tax-group.model';
 import { User } from './user.model';
-import { PolicyChecks } from './policy-checks.model';
-import { ReportApprovals } from './report-approvals.model';
-import { AccountType } from '../../enums/account-type.enum';
-import { PlatformPerDiemRates } from './platform-per-diem-rates.model';
+import { ReportApprovals } from '../report-approvals.model';
+import { AccountType } from '../../../enums/account-type.enum';
+import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
+import { ReportState } from '../../report-state.enum';
 
 export interface Expense {
   // `activity_details` is not added on purpose
-  added_to_report_at: Date;
+  added_to_report_at: string;
   admin_amount: number;
   approvals: ReportApprovals[];
   amount: number;
@@ -33,7 +30,7 @@ export interface Expense {
   code: string;
   cost_center_id: number;
   cost_center: Pick<PlatformCostCenter, 'id' | 'name' | 'code'>;
-  created_at: Date;
+  created_at: string;
   creator_user_id: string;
   currency: string;
   custom_fields: NameValuePair[];
@@ -61,10 +58,10 @@ export interface Expense {
     | 'user_id'
   >;
   employee_id: string;
-  ended_at: Date;
+  ended_at: string;
   expense_rule_data: ExpenseRuleData;
   expense_rule_id: string;
-  extracted_data: ParsedResponse;
+  extracted_data: ExtractedData;
   file_ids: string[];
   files: Pick<File, 'id' | 'name' | 'content_type' | 'type'>[];
   foreign_amount: number;
@@ -82,9 +79,9 @@ export interface Expense {
   is_split: boolean;
   is_verified: boolean;
   is_weekend_spend: boolean;
-  last_exported_at: Date;
-  last_settled_at: Date;
-  last_verified_at: Date;
+  last_exported_at: string;
+  last_settled_at: string;
+  last_verified_at: string;
   locations: Location[];
   matched_corporate_card_transaction_ids: string[];
   matched_corporate_card_transactions: MatchedCorporateCardTransaction[];
@@ -99,51 +96,91 @@ export interface Expense {
   per_diem_num_days: number;
   per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
   per_diem_rate_id: number;
-  physical_bill_submitted_at: Date;
+  physical_bill_submitted_at: string;
   policy_checks: PolicyChecks;
   policy_amount: number;
   project_id: number;
   project: Pick<Project, 'id' | 'name' | 'sub_project' | 'code' | 'display_name'>;
   purpose: string;
-  report:
-    | Pick<
-        PlatformReport,
-        | 'amount'
-        | 'approvals'
-        | 'id'
-        | 'last_approved_at'
-        | 'last_paid_at'
-        | 'last_submitted_at'
-        | 'seq_num'
-        | 'state'
-        | 'settlement_id'
-      > & {
-        last_verified_at: Date;
-        reimbursement_id: number;
-        reimbursement_seq_num: string;
-        title: string;
-      };
+  report: Report;
   report_id: string;
   report_settlement_id: string;
   seq_num: string;
   source: string;
-  source_account: {
-    id: string;
-    type: AccountType;
-  };
+  source_account: SourceAccount;
   source_account_id: string;
-  spent_at: Date;
+  spent_at: string;
   split_group_amount: number;
   split_group_id: string;
-  started_at: Date;
+  started_at: string;
   state: ExpenseState;
   state_display_name: string;
   tax_amount: number;
   tax_group: Pick<PlatformTaxGroup, 'name' | 'percentage'>;
   tax_group_id: string;
   travel_classes: string[];
-  updated_at: Date;
+  updated_at: string;
   user: User;
   user_id: string;
   verifier_comments: string[];
+}
+
+interface MatchedCorporateCardTransaction {
+  id: string;
+  corporate_card_id: string;
+  corporate_card_number: string;
+  masked_corporate_card_number: string;
+  bank_name: string;
+  cardholder_name: string;
+  amount: number;
+  currency: string;
+  spent_at: string;
+  posted_at: string;
+  description: string;
+  foreign_currency: string;
+  foreign_amount: number;
+  merchant: string;
+  category: string;
+  matched_by: string;
+}
+
+interface PolicyChecks {
+  are_approvers_added: boolean;
+  is_amount_limit_applied: boolean;
+  is_flagged_ever: boolean;
+  violations: {
+    policy_rule_description: string;
+    policy_rule_id: string;
+  }[];
+}
+
+interface Report {
+  amount: number;
+  approvals: ReportApprovals[];
+  id: string;
+  last_approved_at: string;
+  last_paid_at: string;
+  last_submitted_at: string;
+  seq_num: string;
+  state: ReportState;
+  settlement_id: string;
+  last_verified_at: string;
+  reimbursement_id: string;
+  reimbursement_seq_num: string;
+  title: string;
+}
+
+interface ExpenseRuleData {
+  merchant: string;
+  is_billable: boolean;
+  purpose: string;
+  category_id: number;
+  project_id: number;
+  cost_center_id: number;
+  custom_fields: NameValuePair[];
+}
+
+interface SourceAccount {
+  id: string;
+  type: AccountType;
 }

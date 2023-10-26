@@ -1,12 +1,12 @@
-import { NameValuePair } from '../name-value-pair.model';
-import { Locale, MileageSettings } from '../org_user_settings.model';
-import { UserRole } from '../user-role.model';
+import { NameValuePair } from '../../name-value-pair.model';
+import { Locale, MileageSettings } from '../../org_user_settings.model';
+import { UserRole } from '../../user-role.model';
 import { Delegatee } from './delegatee.model';
-import { PlatformCostCenter } from './platform-cost-center.model';
+import { PlatformCostCenter } from '../platform-cost-center.model';
 import { Department } from './department.model';
 import { Level } from './level.model';
-import { PlatformMileageRates } from './platform-mileage-rates.model';
-import { PlatformPerDiemRates } from './platform-per-diem-rates.model';
+import { PlatformMileageRates } from '../platform-mileage-rates.model';
+import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
 import { Project } from './project.model';
 import { User } from './user.model';
 

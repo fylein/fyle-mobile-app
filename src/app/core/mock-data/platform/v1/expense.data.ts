@@ -1,9 +1,11 @@
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
-import { Expense } from 'src/app/core/models/platform/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ApprovalState } from 'src/app/core/models/approval-state.enum';
+import { ReportState } from 'src/app/core/models/report-state.enum';
 
-export const platformExpense1: Expense = {
-  added_to_report_at: new Date('2023-01-23T07:29:01.371000+00:00'),
+export const expenseData1: Expense = {
+  added_to_report_at: '2023-01-23T07:29:01.371000+00:00',
   admin_amount: null,
   amount: 899,
   approvals: [
@@ -14,7 +16,7 @@ export const platformExpense1: Expense = {
         id: 'usvJ3MB64C7k',
       },
       approver_user_id: 'usvJ3MB64C7k',
-      state: 'APPROVAL_DONE',
+      state: ApprovalState.APPROVAL_DONE,
     },
   ],
   approver_comments: [],
@@ -35,7 +37,7 @@ export const platformExpense1: Expense = {
     name: '01test2',
   },
   cost_center_id: 13795,
-  created_at: new Date('2023-01-23T05:15:03.797599+00:00'),
+  created_at: '2023-01-23T05:15:03.797599+00:00',
   creator_user_id: 'usvKA4X8Ugcr',
   currency: 'USD',
   custom_fields: [
@@ -267,19 +269,19 @@ export const platformExpense1: Expense = {
           id: 'usvJ3MB64C7k',
         },
         approver_user_id: 'usvJ3MB64C7k',
-        state: 'APPROVAL_DONE',
+        state: ApprovalState.APPROVAL_DONE,
       },
     ],
     id: 'rpFvmTgyeBjN',
-    last_approved_at: new Date('2023-03-01T10:35:05.479+00:00'),
+    last_approved_at: '2023-03-01T10:35:05.479+00:00',
     last_paid_at: null,
-    last_submitted_at: new Date('2023-01-23T07:29:01.856+00:00'),
+    last_submitted_at: '2023-01-23T07:29:01.856+00:00',
     last_verified_at: null,
     reimbursement_id: null,
     reimbursement_seq_num: null,
     seq_num: 'C/2023/01/R/20',
     settlement_id: null,
-    state: 'APPROVED',
+    state: ReportState.APPROVED,
     title: '#8:  Jan 2023',
   },
   report_id: 'rpFvmTgyeBjN',
@@ -291,7 +293,7 @@ export const platformExpense1: Expense = {
     type: AccountType.PERSONAL,
   },
   source_account_id: 'acc5APeygFjRd',
-  spent_at: new Date('2023-01-23T17:00:00+00:00'),
+  spent_at: '2023-01-23T17:00:00+00:00',
   split_group_amount: null,
   split_group_id: 'txOJVaaPxo9O',
   started_at: null,
@@ -304,7 +306,7 @@ export const platformExpense1: Expense = {
   },
   tax_group_id: 'tgwotEwriRB5',
   travel_classes: [],
-  updated_at: new Date('2023-03-01T10:35:05.358546+00:00'),
+  updated_at: '2023-03-01T10:35:05.358546+00:00',
   user: {
     email: 'ajain@fyle.in',
     full_name: 'Abhishek Jain',
