@@ -3,8 +3,8 @@ import { User } from './user.model';
 export interface Project {
   id: number;
   org_id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   sub_project: string;
   code: string;

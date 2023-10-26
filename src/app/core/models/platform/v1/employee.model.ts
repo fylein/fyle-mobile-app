@@ -13,8 +13,8 @@ export interface Employee {
   id: string;
   org_id: string;
   org_name: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   user_id: string;
   user: User;
   business_unit: string;
@@ -22,7 +22,7 @@ export interface Employee {
   department: Pick<Department, 'id' | 'code' | 'display_name' | 'sub_department' | 'name'>;
   department_id: string;
   is_enabled: boolean;
-  joined_at: Date;
+  joined_at: string;
   level_id: string;
   level: Pick<Level, 'id' | 'name' | 'band'>;
   location: string;
@@ -57,6 +57,6 @@ export interface Employee {
 
 interface Delegatee {
   user_id: string;
-  start_at: Date;
-  end_at: Date;
+  start_at: string;
+  end_at: string;
 }

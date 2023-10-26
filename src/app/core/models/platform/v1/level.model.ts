@@ -1,8 +1,8 @@
 export interface Level {
   id: string;
   org_id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   band: string;
   code: string;
