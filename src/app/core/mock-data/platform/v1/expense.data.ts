@@ -3,6 +3,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ApprovalState } from 'src/app/core/models/approval-state.enum';
 import { ReportState } from 'src/app/core/models/report-state.enum';
+import { FileType } from 'src/app/core/models/platform/v1/file-type.enum';
 
 export const expenseData1: Expense = {
   added_to_report_at: '2023-01-23T07:29:01.371000+00:00',
@@ -199,7 +200,7 @@ export const expenseData1: Expense = {
       content_type: 'application/pdf',
       id: 'fiGLwwPtYD8X',
       name: 'Receipt01 1 1 1.pdf',
-      type: 'RECEIPT',
+      type: FileType.RECEIPT,
     },
   ],
   foreign_amount: null,
