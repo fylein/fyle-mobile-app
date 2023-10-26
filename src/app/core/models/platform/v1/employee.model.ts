@@ -1,7 +1,6 @@
 import { NameValuePair } from '../../name-value-pair.model';
 import { Locale, MileageSettings } from '../../org_user_settings.model';
 import { UserRole } from '../../user-role.model';
-import { Delegatee } from './delegatee.model';
 import { PlatformCostCenter } from '../platform-cost-center.model';
 import { Department } from './department.model';
 import { Level } from './level.model';
@@ -54,4 +53,10 @@ export interface Employee {
     verified: boolean;
   };
   delegatees: Delegatee[];
+}
+
+interface Delegatee {
+  user_id: string;
+  start_at: Date;
+  end_at: Date;
 }
