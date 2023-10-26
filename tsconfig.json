@@ -15,11 +15,6 @@
       "es2018",
       "dom"
     ],
-    /**
-    * Remove this later
-    * @link https://github.com/ionic-team/ionicons/issues/1011#issuecomment-962038754
-    */
-  "skipLibCheck": true
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,
