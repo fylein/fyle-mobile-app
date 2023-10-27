@@ -545,3 +545,21 @@ export const virtualSelectModalControllerParams = {
   breakpoints: [0, 1],
   handle: false,
 };
+
+export const permissionDeniedPopoverParams = {
+  component: PopupAlertComponent,
+  componentProps: {
+    title: 'Photos Permission',
+    message: 'Please allow Fyle to access device photos. Click Settings and allow Photos access',
+    primaryCta: {
+      text: 'Open Settings',
+      action: 'OPEN_SETTINGS',
+    },
+    secondaryCta: {
+      text: 'Cancel',
+      action: 'CANCEL',
+    },
+  },
+  cssClass: 'pop-up-in-center',
+  backdropDismiss: false,
+};

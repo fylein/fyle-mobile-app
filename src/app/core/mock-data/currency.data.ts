@@ -215,3 +215,19 @@ export const selectedCurrencies: Currency[] = [
     longName: 'JPY',
   },
 ];
+
+export const selectedCurrencyNames: CurrencyName = {
+  INR: 'Indian Rupee',
+  USD: 'US Dollar',
+};
+
+export const selectedCurrencies2: Currency[] = [
+  {
+    shortCode: 'INR',
+    longName: 'Indian Rupee',
+  },
+  {
+    shortCode: 'USD',
+    longName: 'US Dollar',
+  },
+];
