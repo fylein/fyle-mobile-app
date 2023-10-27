@@ -26,8 +26,7 @@ import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';
-import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { properties } from 'src/app/core/mock-data/modal-properties.data';
+import { of } from 'rxjs';
 
 export function TestCases1(getTestBed) {
   return describe('test cases 1', () => {
