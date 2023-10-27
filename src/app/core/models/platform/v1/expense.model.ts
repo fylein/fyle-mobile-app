@@ -1,6 +1,5 @@
 import { ExpenseState } from '../../expense-state.enum';
 import { Location } from '../../location.model';
-import { MileageUnitEnum } from '../../mileage-unit.enum';
 import { NameValuePair } from '../../name-value-pair.model';
 import { ParsedResponse } from '../../parsed_response.model';
 import { MissingMandatoryFields } from './missing-mandatory-fields.model';
@@ -187,4 +186,9 @@ export interface ExpenseRuleData {
 export interface SourceAccount {
   id: string;
   type: AccountType;
+}
+
+export enum MileageUnitEnum {
+  KM = 'KM',
+  MILES = 'MILES',
 }
