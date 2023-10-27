@@ -33,7 +33,6 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { AdvanceRequestActions } from 'src/app/core/models/advance-request-actions.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { AdvanceRequestFile } from 'src/app/core/models/advance-request-file.model';
-import { PolicyViolationCheck } from 'src/app/core/models/policy-violation-check.model';
 import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-requests-custom-fields.model';
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';

@@ -23,8 +23,6 @@ import {
 } from 'src/app/core/mock-data/add-edit-advance-request-form-value.data';
 import { ActivatedRoute, Router } from '@angular/router';
 import { expenseFieldsMapResponse } from 'src/app/core/mock-data/expense-fields-map.data';
-import { Observable, Subscription, of, throwError } from 'rxjs';
-import { checkPolicyData } from 'src/app/core/mock-data/policy-violation-check.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { advRequestFile } from 'src/app/core/mock-data/advance-request-file.data';
 import { fileData1 } from 'src/app/core/mock-data/file.data';

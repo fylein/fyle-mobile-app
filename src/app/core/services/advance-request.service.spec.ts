@@ -40,8 +40,6 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { fileObjectData3, fileObjectData4 } from '../mock-data/file-object.data';
 import { fileData1, fileData2 } from '../mock-data/file.data';
-import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
-import { checkPolicyData } from '../mock-data/policy-violation-check.data';
 import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingDirection } from '../models/sorting-direction.model';

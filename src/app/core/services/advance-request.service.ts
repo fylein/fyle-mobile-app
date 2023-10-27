@@ -27,7 +27,6 @@ import { StatsDimensionResponse } from '../models/stats-dimension-response.model
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
-import { PolicyViolationCheck } from '../models/policy-violation-check.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
