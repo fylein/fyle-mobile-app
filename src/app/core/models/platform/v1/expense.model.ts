@@ -2,7 +2,6 @@ import { ExpenseState } from '../../expense-state.enum';
 import { Location } from '../../location.model';
 import { NameValuePair } from '../../name-value-pair.model';
 import { ParsedResponse } from '../../parsed_response.model';
-import { MissingMandatoryFields } from './missing-mandatory-fields.model';
 import { PlatformCategory } from '../platform-category.model';
 import { PlatformCostCenter } from '../platform-cost-center.model';
 import { File } from './file.model';
@@ -19,6 +18,9 @@ import { ReportState } from '../platform-report.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
+  accounting_export_summary: {} | AccountingExportSummary;
+  is_exported: boolean;
+  last_exported_at: string;
   added_to_report_at: string;
   admin_amount: number;
   approvals: ReportApprovals[];
@@ -181,4 +183,19 @@ export interface ExpenseRuleData {
   project_id: number;
   cost_center_id: number;
   custom_fields: NameValuePair[];
+}
+
+export interface MissingMandatoryFields {
+  expense_field_ids: number[];
+  amount: boolean;
+  currency: boolean;
+  receipt: boolean;
+}
+
+export interface AccountingExportSummary {
+  // TODO: Define enums for state and error type when needed in the app, not defining for now as this is not used
+  state: string;
+  error_type: string;
+  url: string;
+  tpa_id: string;
 }
