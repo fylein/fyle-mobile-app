@@ -4,8 +4,8 @@ export interface Level {
   created_at: string;
   updated_at: string;
   name: string;
-  band: string | null;
-  code: string | null;
-  description: string | null;
+  band: string;
+  code: string;
+  description: string;
   is_enabled: boolean;
 }

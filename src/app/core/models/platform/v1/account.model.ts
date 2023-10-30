@@ -2,13 +2,13 @@ export interface Account {
   id: string;
   created_at: string;
   updated_at: string;
-  user_id: string | null;
+  user_id: string;
   type: AccountType;
   currency: string;
   current_balance_amount: number;
   tentative_balance_amount: number;
   org_id: string;
-  category_id: number | null;
+  category_id: number;
 }
 
 export enum AccountType {
