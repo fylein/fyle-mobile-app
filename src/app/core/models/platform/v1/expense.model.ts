@@ -12,10 +12,10 @@ import { PlatformTaxGroup } from '../platform-tax-group.model';
 import { User } from './user.model';
 import { ReportApprovals } from '../report-approvals.model';
 import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
-import { ReportState } from '../../report-state.enum';
 import { Level } from './level.model';
 import { Department } from './department.model';
 import { Account } from './account.model';
+import { ReportState } from '../platform-report.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
