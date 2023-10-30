@@ -6,16 +6,16 @@ import { MissingMandatoryFields } from './missing-mandatory-fields.model';
 import { PlatformCategory } from '../platform-category.model';
 import { PlatformCostCenter } from '../platform-cost-center.model';
 import { File } from './file.model';
-import { PlatformMileageRates } from '../platform-mileage-rates.model';
+import { MileageUnitEnum, PlatformMileageRates } from '../platform-mileage-rates.model';
 import { Project } from './project.model';
 import { PlatformTaxGroup } from '../platform-tax-group.model';
 import { User } from './user.model';
 import { ReportApprovals } from '../report-approvals.model';
-import { AccountType } from '../../../enums/account-type.enum';
 import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
 import { ReportState } from '../../report-state.enum';
-import { Department } from './department.model';
 import { Level } from './level.model';
+import { Department } from './department.model';
+import { Account } from './account.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -88,7 +88,7 @@ export interface Expense {
   report_settlement_id: string;
   seq_num: string;
   source: string;
-  source_account: SourceAccount | null;
+  source_account: Pick<Account, 'id' | 'type'> | null;
   source_account_id: string | null;
   spent_at: string | null;
   split_group_amount: number | null;
@@ -181,14 +181,4 @@ export interface ExpenseRuleData {
   project_id: number | null;
   cost_center_id: number | null;
   custom_fields: NameValuePair[] | null;
-}
-
-export interface SourceAccount {
-  id: string;
-  type: AccountType;
-}
-
-export enum MileageUnitEnum {
-  KM = 'KM',
-  MILES = 'MILES',
 }
