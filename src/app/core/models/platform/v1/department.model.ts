@@ -7,11 +7,11 @@ export interface Department {
   updated_at: string;
   is_enabled: boolean;
   name: string;
-  code: string;
-  description: string;
-  sub_department: string;
-  department_head_user_ids: string[];
-  department_head_users: User[];
-  doc_url: string;
+  code: string | null;
+  description: string | null;
+  sub_department: string | null;
+  department_head_user_ids: string[] | null;
+  department_head_users: User[] | null;
+  doc_url: string | null;
   display_name: string;
 }
