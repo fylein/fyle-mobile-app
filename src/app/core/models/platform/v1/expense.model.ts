@@ -107,20 +107,20 @@ export interface Expense {
 }
 
 export interface Employee {
-  business_unit: string;
-  code: string;
+  business_unit: string | null;
+  code: string | null;
   custom_fields: NameValuePair[];
-  department: Pick<Department, 'id' | 'code' | 'display_name' | 'sub_department' | 'name'>;
-  department_id: string;
+  department: Pick<Department, 'id' | 'code' | 'display_name' | 'sub_department' | 'name'> | null;
+  department_id: string | null;
   flattened_custom_field: Record<string, unknown>;
   has_accepted_invite: boolean;
   id: string;
   is_enabled: boolean;
-  level: Pick<Level, 'id' | 'name' | 'band'>;
-  location: string;
+  level: Pick<Level, 'id' | 'name' | 'band'> | null;
+  location: string | null;
   org_id: string;
   org_name: string;
-  title: string;
+  title: string | null;
   user: User;
   user_id: string;
 }
