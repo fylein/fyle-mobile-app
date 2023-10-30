@@ -1,7 +1,7 @@
 export interface File {
   id: string;
   org_id: string;
-  user_id: string;
+  user_id: string | null;
   created_at: string;
   updated_at: string;
   name: string;
