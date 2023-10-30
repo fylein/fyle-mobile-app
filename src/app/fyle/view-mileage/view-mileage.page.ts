@@ -283,13 +283,11 @@ export class ViewMileagePage {
     this.mileageExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => {
-            if (this.view === ExpenseView.team) {
-              return this.approverExpensesService.getById(id);
-            }
-
-            return this.spenderExpensesService.getById(id);
-          })
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getById(id)
+              : this.spenderExpensesService.getById(id)
+          )
         )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
