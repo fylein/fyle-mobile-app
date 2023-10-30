@@ -1,10 +1,10 @@
-import { PlatformUser } from './platform-user.model';
+import { User } from './user.model';
 
-export interface PlatformProject {
+export interface Project {
   id: number;
   org_id: string;
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   name: string;
   sub_project: string;
   code: string;
@@ -13,6 +13,6 @@ export interface PlatformProject {
   is_enabled: boolean;
   restricted_spender_user_ids: string[];
   approver_user_ids: string[];
-  approver_users: PlatformUser[];
+  approver_users: User[];
   category_ids: number[];
 }
