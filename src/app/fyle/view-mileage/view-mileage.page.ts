@@ -31,8 +31,6 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
-import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
@@ -104,8 +102,6 @@ export class ViewMileagePage {
 
   mapAttachment$: Observable<FileObject>;
 
-  mileageRate$: Observable<PlatformMileageRates>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -124,7 +120,6 @@ export class ViewMileagePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private fileService: FileService,
-    private mileageRatesService: MileageRatesService,
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService
   ) {}
@@ -396,10 +391,6 @@ export class ViewMileagePage {
           return customProperties;
         })
       )
-    );
-
-    this.mileageRate$ = this.mileageExpense$.pipe(
-      switchMap((mileageExpense) => this.mileageRatesService.getRate(mileageExpense.mileage_rate_id))
     );
 
     this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
