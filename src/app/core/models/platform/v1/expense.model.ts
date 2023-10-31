@@ -36,7 +36,8 @@ export interface Expense {
   creator_user_id: string;
   currency: string;
   custom_fields: NameValuePair[];
-  custom_fields_flattened: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  custom_fields_flattened: Record<string, any>;
   distance: number;
   distance_unit: MileageUnitEnum;
   employee: Employee;
@@ -193,7 +194,6 @@ export interface MissingMandatoryFields {
 }
 
 export interface AccountingExportSummary {
-  // TODO: Define enums for state and error type when needed in the app, not defining for now as this is not used
   state: string;
   error_type: string;
   url: string;
