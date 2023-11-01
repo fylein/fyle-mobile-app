@@ -36,7 +36,8 @@ export interface Expense {
   creator_user_id: string;
   currency: string;
   custom_fields: NameValuePair[];
-  custom_fields_flattened: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  custom_fields_flattened: Record<string, any>;
   distance: number;
   distance_unit: MileageUnitEnum;
   employee: Employee;
@@ -114,7 +115,8 @@ export interface Employee {
   custom_fields: NameValuePair[];
   department: Pick<Department, 'id' | 'code' | 'display_name' | 'sub_department' | 'name'>;
   department_id: string;
-  flattened_custom_field: Record<string, unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  flattened_custom_field: Record<string, any>;
   has_accepted_invite: boolean;
   id: string;
   is_enabled: boolean;
@@ -193,7 +195,6 @@ export interface MissingMandatoryFields {
 }
 
 export interface AccountingExportSummary {
-  // TODO: Define enums for state and error type when needed in the app, not defining for now as this is not used
   state: string;
   error_type: string;
   url: string;
