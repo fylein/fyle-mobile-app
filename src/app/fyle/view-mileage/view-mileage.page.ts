@@ -353,8 +353,8 @@ export class ViewMileagePage {
       }
 
       if (
-        mileageExpense.mileage_rate.vehicle_type?.toLowerCase().indexOf('four') > -1 ||
-        mileageExpense.mileage_rate.vehicle_type?.toLowerCase().indexOf('car') > -1
+        mileageExpense.mileage_rate?.vehicle_type.toLowerCase().indexOf('four') > -1 ||
+        mileageExpense.mileage_rate?.vehicle_type.toLowerCase().indexOf('car') > -1
       ) {
         this.vehicleType = 'car';
       } else {
@@ -370,7 +370,7 @@ export class ViewMileagePage {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (!!mileageExpense.project.name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (!!mileageExpense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
