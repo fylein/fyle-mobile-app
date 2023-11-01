@@ -38,13 +38,12 @@ import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { PlatformExpenseService } from 'src/app/core/services/platform-expense.service';
-import { platformExpense1 } from 'src/app/core/mock-data/platform-expense.data';
-import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { expenseData1 as platformExpenseData1 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
-import { platformMileageRates } from 'src/app/core/mock-data/platform-mileage-rate.data';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 
 fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -65,8 +64,8 @@ fdescribe('ViewMileagePage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let fileService: jasmine.SpyObj<FileService>;
-  let platformExpenseService: jasmine.SpyObj<PlatformExpenseService>;
-  let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
+  let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
+  let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -103,8 +102,8 @@ fdescribe('ViewMileagePage', () => {
       'getDependentFieldValuesForBaseField',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
-    const platformExpenseServiceSpy = jasmine.createSpyObj('PlatformExpenseService', ['getExpense']);
-    const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', ['getRate']);
+    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getById']);
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getById']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -175,12 +174,12 @@ fdescribe('ViewMileagePage', () => {
           provide: FileService,
         },
         {
-          useValue: platformExpenseServiceSpy,
-          provide: PlatformExpenseService,
+          useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
         },
         {
-          useValue: mileageRatesServiceSpy,
-          provide: MileageRatesService,
+          useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
         },
         {
           provide: ActivatedRoute,
@@ -215,8 +214,8 @@ fdescribe('ViewMileagePage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-    platformExpenseService = TestBed.inject(PlatformExpenseService) as jasmine.SpyObj<PlatformExpenseService>;
-    mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
+    spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
+    approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -507,10 +506,10 @@ fdescribe('ViewMileagePage', () => {
         activeIndex: '0',
       };
 
-      component.mileageExpense$ = of(platformExpense1);
+      component.mileageExpense$ = of(platformExpenseData1);
       component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
-      platformExpenseService.getExpense.and.returnValue(of(platformExpense1));
+      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
       loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
@@ -521,8 +520,6 @@ fdescribe('ViewMileagePage', () => {
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
       statusService.find.and.returnValue(of(getEstatusApiResponse));
-
-      mileageRatesService.getRate.and.returnValue(of(platformMileageRates[0]));
     });
 
     it('should get all the data for extended mileage and expense fields', fakeAsync(() => {
@@ -532,9 +529,9 @@ fdescribe('ViewMileagePage', () => {
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(platformExpense1);
+        expect(data).toEqual(platformExpenseData1);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(platformExpenseService.getExpense).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+        expect(spenderExpensesService.getById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
         expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       });
@@ -545,24 +542,15 @@ fdescribe('ViewMileagePage', () => {
       });
     }));
 
-    it('should get the mileage rate details', (done) => {
-      component.ionViewWillEnter();
-      component.mileageRate$.subscribe((res) => {
-        expect(mileageRatesService.getRate).toHaveBeenCalledWith(platformExpense1.mileage_rate_id);
-        expect(res).toEqual(platformMileageRates[0]);
-        done();
-      });
-    });
-
     it('should get the project dependent custom properties', (done) => {
-      const customProps = platformExpense1.custom_fields;
+      const customProps = platformExpenseData1.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
 
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(platformExpense1.custom_fields).toBeDefined();
+        expect(platformExpenseData1.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -573,12 +561,12 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should get the cost center dependent custom properties', (done) => {
-      const customProps = platformExpense1.custom_fields;
+      const customProps = platformExpenseData1.custom_fields;
       const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(platformExpense1.custom_fields).toBeDefined();
+        expect(platformExpenseData1.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -589,15 +577,15 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should set the correct report id and set proper payment mode and icon', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         source_account: {
-          ...platformExpense1.source_account,
-          type: AccountType.ADVANCE,
+          ...platformExpenseData1.source_account,
+          type: AccountType.PERSONAL_ADVANCE_ACCOUNT,
         },
       };
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
@@ -610,12 +598,12 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should set the correct payment mode and icon when reimbursement is skipped', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         is_reimbursable: false,
       };
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
@@ -630,7 +618,7 @@ fdescribe('ViewMileagePage', () => {
     it('should set the correct payment mode and icon when the expense is reimbursement', (done) => {
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(platformExpense1);
+        expect(data).toEqual(platformExpenseData1);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
         done();
@@ -638,16 +626,16 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word four in it', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         mileage_rate: {
-          ...platformExpense1.mileage_rate,
+          ...platformExpenseData1.mileage_rate,
           vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
         },
       };
 
       component.mileageExpense$ = of(mockExtMileageData);
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
@@ -657,16 +645,16 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word car in it', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         mileage_rate: {
-          ...platformExpense1.mileage_rate,
+          ...platformExpenseData1.mileage_rate,
           vehicle_type: 'Electric Car',
         },
       };
 
       component.mileageExpense$ = of(mockExtMileageData);
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
@@ -677,15 +665,15 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         mileage_rate: {
-          ...platformExpense1.mileage_rate,
+          ...platformExpenseData1.mileage_rate,
           vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
         },
       };
       component.mileageExpense$ = of(mockExtMileageData);
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
@@ -709,8 +697,8 @@ fdescribe('ViewMileagePage', () => {
         project_id: [],
       };
 
-      platformExpenseService.getExpense.and.returnValue(of(platformExpense1));
-      component.mileageExpense$ = of(platformExpense1);
+      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      component.mileageExpense$ = of(platformExpenseData1);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -723,14 +711,14 @@ fdescribe('ViewMileagePage', () => {
     }));
 
     it('should get the project details when project name is not present', fakeAsync(() => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         project: {
-          ...platformExpense1.project,
+          ...platformExpenseData1.project,
           name: null,
         },
       };
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
 
       component.ionViewWillEnter();
@@ -744,8 +732,8 @@ fdescribe('ViewMileagePage', () => {
         ...orgSettingsGetData,
         projects: null,
       };
-      platformExpenseService.getExpense.and.returnValue(of(platformExpense1));
-      component.mileageExpense$ = of(platformExpense1);
+      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      component.mileageExpense$ = of(platformExpenseData1);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
       component.txnFields$ = of(expenseFieldsMapResponse);
       orgSettingsService.get.and.returnValue(of(mockOrgSettData));
@@ -755,8 +743,8 @@ fdescribe('ViewMileagePage', () => {
     }));
 
     it('should get the project field name and the value of project field name should be truthy', fakeAsync(() => {
-      platformExpenseService.getExpense.and.returnValue(of(platformExpense1));
-      component.mileageExpense$ = of(platformExpense1);
+      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      component.mileageExpense$ = of(platformExpenseData1);
       const mockExpFieldData = {
         ...expenseFieldsMapResponse4,
         project_id: [
@@ -816,8 +804,8 @@ fdescribe('ViewMileagePage', () => {
       component.mileageCustomFields$.subscribe((data) => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          platformExpense1.category_id,
-          platformExpense1.custom_fields,
+          platformExpenseData1.category_id,
+          platformExpenseData1.custom_fields,
           true
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
@@ -829,10 +817,10 @@ fdescribe('ViewMileagePage', () => {
 
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.mileageExpense$ = of(platformExpense1);
+      component.mileageExpense$ = of(platformExpenseData1);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
-        expect(platformExpense1.state).toEqual('APPROVED');
+        expect(platformExpenseData1.state).toEqual('APPROVED');
         expect(res).toBeTrue();
         done();
       });
@@ -840,8 +828,8 @@ fdescribe('ViewMileagePage', () => {
 
     it('expense cannot be flagged when the view is set to indivivual', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.individual;
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         state: ExpenseState.PAID,
       };
       component.mileageExpense$ = of(mockExtMileageData);
@@ -853,14 +841,14 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         state: ExpenseState.PAID,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -874,14 +862,14 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should return true if the transaction state is APPROVER_PENDING and there are more than one transactions in the report', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      approverExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -895,14 +883,14 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should not delete expense when view is individual', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
@@ -970,12 +958,12 @@ fdescribe('ViewMileagePage', () => {
 
     it('should be true if expense policy is violated', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         policy_amount: -1,
       };
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
@@ -986,15 +974,15 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         policy_amount: 1000,
         admin_amount: null,
       };
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
@@ -1007,15 +995,15 @@ fdescribe('ViewMileagePage', () => {
     });
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         admin_amount: 1000,
         policy_amount: null,
       };
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
@@ -1027,13 +1015,13 @@ fdescribe('ViewMileagePage', () => {
 
     it('should return false if the value is not of type number and check if the expense is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
-      const mockExtMileageData: PlatformExpense = {
-        ...platformExpense1,
+      const mockExtMileageData: Expense = {
+        ...platformExpenseData1,
         admin_amount: null,
         policy_amount: null,
       };
 
-      platformExpenseService.getExpense.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
