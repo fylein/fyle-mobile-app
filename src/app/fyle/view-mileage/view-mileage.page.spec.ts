@@ -45,7 +45,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
-fdescribe('ViewMileagePage', () => {
+describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
   let fixture: ComponentFixture<ViewMileagePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -542,6 +542,18 @@ fdescribe('ViewMileagePage', () => {
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
       });
     }));
+
+    it('should use the approver expense apis if in team view', (done) => {
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      component.ionViewWillEnter();
+
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(platformExpenseData1);
+        expect(approverExpensesService.getById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+        expect(spenderExpensesService.getById).not.toHaveBeenCalled();
+        done();
+      });
+    });
 
     it('should get the project dependent custom properties', (done) => {
       const customProps = platformExpenseData1.custom_fields;
