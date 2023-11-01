@@ -66,7 +66,7 @@
           {{expense.distance || 0}} {{expense.distance_unit | titlecase}}
         </div>
         <div *ngIf="isProjectShown" class="view-mileage--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ expense.project.name ? expense.project.name : 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ expense.project?.name ?? 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-mileage--card-container__block">
@@ -92,7 +92,7 @@
       </div>
     </div>
 
-    <ng-container *ngIf="expense.locations && expense.locations.length">
+    <ng-container *ngIf="expense.locations.length > 0">
       <ng-container *ngIf="mapAttachment$|async as mapAttachment">
         <app-receipt-preview-thumbnail
           [attachments]="[mapAttachment]"
@@ -147,7 +147,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Report Name</div>
-          <div class="view-mileage--value">{{ expense.report.title }}</div>
+          <div class="view-mileage--value">{{ expense.report?.title }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -257,7 +257,7 @@
     <ion-grid class="view-mileage--grid">
       <ion-row>
         <ion-col
-          *ngIf="expense.category.name && expense.category.sub_category && (expense.category.name !== expense.category.sub_category)"
+          *ngIf="expense.category?.name && expense.category?.sub_category && (expense.category.name !== expense.category.sub_category)"
           size="6"
         >
           <ion-grid>
@@ -383,12 +383,12 @@
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
                     <div class="view-mileage--label">Cost Center</div>
-                    <div class="view-mileage--value">{{ expense.cost_center.name }}</div>
+                    <div class="view-mileage--value">{{ expense.cost_center?.name }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
             </ion-col>
-            <ion-col size="6" *ngIf="expense.cost_center.code">
+            <ion-col size="6" *ngIf="expense.cost_center?.code">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-mileage--icon-container">
@@ -401,7 +401,7 @@
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
                     <div class="view-mileage--label">Cost Center Code</div>
-                    <div class="view-mileage--value">{{ expense.cost_center.code }}</div>
+                    <div class="view-mileage--value">{{ expense.cost_center?.code }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -418,7 +418,7 @@
           <app-view-dependent-fields
             parentFieldType="PROJECT"
             [parentFieldName]="txnFields.project_id[0]?.field_name"
-            [parentFieldValue]="expense.project.name"
+            [parentFieldValue]="expense.project?.name"
             [dependentCustomProperties]="projectDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
@@ -432,8 +432,8 @@
           <app-view-dependent-fields
             parentFieldType="COST_CENTER"
             [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
-            [parentFieldValue]="expense.cost_center.name"
-            [costCenterCode]="expense.cost_center.code"
+            [parentFieldValue]="expense.cost_center?.name"
+            [costCenterCode]="expense.cost_center?.code"
             [dependentCustomProperties]="costCenterDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>

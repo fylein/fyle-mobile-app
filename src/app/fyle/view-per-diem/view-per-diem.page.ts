@@ -34,7 +34,6 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
-
 @Component({
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
@@ -180,7 +179,13 @@ export class ViewPerDiemPage {
 
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.view === ExpenseView.team ? this.approverExpensesService.getById(id) : this.spenderExpensesService.getById(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getById(id)
+              : this.spenderExpensesService.getById(id)
+          )
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
@@ -238,7 +243,7 @@ export class ViewPerDiemPage {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (!!perDiemExpense.project.name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (!!perDiemExpense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -270,10 +275,7 @@ export class ViewPerDiemPage {
 
     this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map(
-        (expense) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1
-      )
+      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1)
     );
 
     this.canDelete$ = this.perDiemExpense$.pipe(
