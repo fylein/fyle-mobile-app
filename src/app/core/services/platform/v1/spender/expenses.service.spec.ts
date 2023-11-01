@@ -30,7 +30,9 @@ describe('ExpensesService', () => {
       expect(res).toEqual(expenseData1);
 
       expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
-        id: `eq.${expenseId}`,
+        params: {
+          id: `eq.${expenseId}`,
+        },
       });
       done();
     });
