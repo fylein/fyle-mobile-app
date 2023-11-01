@@ -135,7 +135,7 @@ export class MergeExpensesService {
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
 
-        if (CCCGroupIds?.length > 0) {
+        if (CCCGroupIds.length > 0) {
           const queryParams = {
             group_id: ['in.(' + CCCGroupIds + ')'],
           };
@@ -297,7 +297,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_project_id),
       map((expense) => ({
-        label: expense.tx_project_id?.toString(),
+        label: expense.tx_project_id.toString(),
         value: expense.tx_project_id,
       })),
       mergeMap((option) => this.formatProjectOptions(option)),
@@ -395,7 +395,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_locations[locationIndex]),
       map((expense) => ({
-        label: expense.tx_locations[locationIndex]?.formatted_address,
+        label: expense.tx_locations[locationIndex].formatted_address,
         value: expense.tx_locations[locationIndex],
       })),
       reduce((acc: MergeExpensesOption<Location>[], curr) => {
@@ -562,7 +562,7 @@ export class MergeExpensesService {
   getCategoryName(categoryId: string): Observable<string> {
     return this.categoriesService.getAll().pipe(
       map((categories) => {
-        const category = categories.find((category) => category?.id?.toString() === categoryId);
+        const category = categories.find((category) => category.id?.toString() === categoryId);
         return category?.name;
       })
     );
@@ -641,7 +641,7 @@ export class MergeExpensesService {
 
   getFieldValue<T>(optionsData: MergeExpensesOptionsData<T>): T {
     if (optionsData?.areSameValues) {
-      return optionsData?.options[0]?.value;
+      return optionsData.options[0]?.value;
     } else {
       return null;
     }

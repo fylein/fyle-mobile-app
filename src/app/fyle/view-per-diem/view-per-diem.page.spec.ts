@@ -329,6 +329,48 @@ describe('ViewPerDiemPage', () => {
       });
     });
 
+    it('should call dependentFieldsService.getDependentFieldValuesForBaseField with undefined if "txnFields.project_id" and "txnFields.cost_center_id" is array containing undefined', fakeAsync(() => {
+      expenseFieldsService.getAllMap.and.returnValue(
+        of({ ...expenseFieldsMapResponse4, project_id: [undefined], cost_center_id: [undefined] })
+      );
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
+          expenseData1.tx_custom_properties,
+          undefined
+        );
+        expect(projectDependentCustomProperties).toEqual(customInputData1);
+      });
+
+      component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalledOnceWith(
+          expenseData1.tx_custom_properties,
+          undefined
+        );
+        expect(costCenterDependentCustomProperties).toEqual(customInputData1);
+      });
+    }));
+
+    it('should set projectDependentCustomProperties$ and costCenterDependentCustomProperties$ to undefined if "txnFields.project_id" and "txnFields.cost_center_id" is undefined', fakeAsync(() => {
+      expenseFieldsService.getAllMap.and.returnValue(
+        of({ ...expenseFieldsMapResponse4, project_id: undefined, cost_center_id: undefined })
+      );
+      component.ionViewWillEnter();
+      tick(100);
+
+      component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
+        expect(projectDependentCustomProperties).toEqual(undefined);
+      });
+
+      component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
+        expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
+        expect(costCenterDependentCustomProperties).toEqual(undefined);
+      });
+    }));
+
     it('should set paymentMode and paymentMode icon correctly if account type is ADVANCE', fakeAsync(() => {
       const mockExpense = cloneDeep(platformExpense1);
       mockExpense.source_account.type = AccountType.ADVANCE;
@@ -376,6 +418,13 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
       expect(component.isProjectShown).toBeFalse();
+    }));
+
+    it('should set isProjectShown to undefined if orgSettings is undefined', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(undefined));
+      component.ionViewWillEnter();
+      tick(100);
+      expect(component.isProjectShown).toBeUndefined();
     }));
 
     it('should set orgSettings and isNewReportsFlowEnabled', fakeAsync(() => {

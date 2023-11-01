@@ -20,7 +20,6 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -30,8 +29,11 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
-import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
-import { PlatformExpenseService } from 'src/app/core/services/platform-expense.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+
 
 @Component({
   selector: 'app-view-per-diem',
@@ -112,7 +114,8 @@ export class ViewPerDiemPage {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
-    private platformExpenseService: PlatformExpenseService
+    private spenderExpensesService: SpenderExpensesService,
+    private approverExpensesService: ApproverExpensesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -173,9 +176,11 @@ export class ViewPerDiemPage {
   ionViewWillEnter(): void {
     const id = this.activatedRoute.snapshot.params.id as string;
 
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
     this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.platformExpenseService.getExpense(id)))
+        from(this.loaderService.showLoader()).pipe(switchMap(() => this.view === ExpenseView.team ? this.approverExpensesService.getById(id) : this.spenderExpensesService.getById(id)))
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
@@ -213,7 +218,7 @@ export class ViewPerDiemPage {
     this.perDiemExpense$.subscribe((perDiemExpense) => {
       this.reportId = perDiemExpense.report_id;
 
-      if (perDiemExpense.source_account.type === AccountType.ADVANCE) {
+      if (perDiemExpense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (!perDiemExpense.is_reimbursable) {
@@ -257,13 +262,11 @@ export class ViewPerDiemPage {
     );
 
     this.perDiemRate$ = this.perDiemExpense$.pipe(
-      switchMap((res) => {
-        const perDiemRateId = res.per_diem_rate_id;
+      switchMap((perDiemExpense) => {
+        const perDiemRateId = perDiemExpense.per_diem_rate_id;
         return this.perDiemService.getRate(perDiemRateId);
       })
     );
-
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),

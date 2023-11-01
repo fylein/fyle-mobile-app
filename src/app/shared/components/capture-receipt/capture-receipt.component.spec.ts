@@ -26,6 +26,8 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { CUSTOM_ELEMENTS_SCHEMA, Component, NO_ERRORS_SCHEMA } from '@angular/core';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { PerfTrackers } from 'src/app/core/models/perf-trackers.enum';
+import { permissionDeniedPopoverParams } from 'src/app/core/mock-data/modal-controller.data';
 
 class MatSnackBarStub {
   openFromComponent(props: any) {
@@ -359,28 +361,47 @@ describe('CaptureReceiptComponent', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
   });
 
-  it('navigateToExpenseForm(): should navigate to expense form', () => {
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-    component.base64ImagesWithSource = [
-      {
-        source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.000.jpeg',
-        base64Image: 'base64encodedcontent',
-      },
-    ];
+  describe('navigateToExpenseForm():', () => {
+    beforeEach(() => {
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      component.base64ImagesWithSource = [
+        {
+          source: '2023-02-23/orNVthTo2Zyo/receipts/fi1w2IE6JeqS.000.jpeg',
+          base64Image: 'base64encodedcontent',
+        },
+      ];
 
-    fixture.detectChanges();
+      fixture.detectChanges();
+    });
 
-    component.navigateToExpenseForm();
-    expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'add_edit_expense',
-      {
-        dataUrl: component.base64ImagesWithSource[0]?.base64Image,
-        canExtractData: true,
-      },
-    ]);
+    it('should navigate to expense form', () => {
+      component.navigateToExpenseForm();
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          dataUrl: component.base64ImagesWithSource[0]?.base64Image,
+          canExtractData: true,
+        },
+      ]);
+    });
+
+    it('should navigate to expense form with dataUrl params as undefined if base64ImagesWithSource is undefined', () => {
+      component.base64ImagesWithSource = [];
+      component.navigateToExpenseForm();
+      expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        {
+          dataUrl: undefined,
+          canExtractData: true,
+        },
+      ]);
+    });
   });
 
   describe('saveSingleCapture():', () => {
@@ -435,6 +456,36 @@ describe('CaptureReceiptComponent', () => {
       component.openReceiptPreviewModal();
       expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
       expect(component.setUpAndStartCamera).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set lastCapturedReceipt as base 64 image if number of receipts is 1', () => {
+      spyOn(component, 'showReceiptPreview').and.returnValue(
+        of({
+          base64ImagesWithSource: [images[0]],
+          continueCaptureReceipt: true,
+        })
+      );
+      spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
+
+      component.openReceiptPreviewModal();
+      expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
+      expect(component.setUpAndStartCamera).toHaveBeenCalledTimes(1);
+      expect(component.lastCapturedReceipt).toEqual(images[0].base64Image);
+    });
+
+    it('should set lastCapturedReceipt as undefined if base64ImagesWithSource is undefined', () => {
+      spyOn(component, 'showReceiptPreview').and.returnValue(
+        of({
+          base64ImagesWithSource: [undefined],
+          continueCaptureReceipt: true,
+        })
+      );
+      spyOn(component, 'setUpAndStartCamera').and.returnValue(null);
+
+      component.openReceiptPreviewModal();
+      expect(component.showReceiptPreview).toHaveBeenCalledTimes(1);
+      expect(component.setUpAndStartCamera).toHaveBeenCalledTimes(1);
+      expect(component.lastCapturedReceipt).toEqual(undefined);
     });
   });
 
@@ -598,26 +649,48 @@ describe('CaptureReceiptComponent', () => {
         backdropDismiss: false,
       });
     });
+
+    it('should set galleryPermissionName as Photos if device is ios', () => {
+      popoverController.create.and.callThrough();
+      Object.defineProperty(component, 'devicePlatform', { value: 'ios' });
+
+      component.setupPermissionDeniedPopover('GALLERY');
+      expect(popoverController.create).toHaveBeenCalledOnceWith(permissionDeniedPopoverParams);
+    });
   });
 
-  it('showPermissionDeniedPopover(): should show permission denied popvoer', fakeAsync(() => {
-    spyOn(component, 'onDismissCameraPreview').and.returnValue(null);
-    component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
-    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
+  describe('showPermissionDeniedPopover():', () => {
+    let popoverSpy: jasmine.SpyObj<HTMLIonPopoverElement>;
+    beforeEach(() => {
+      spyOn(component, 'onDismissCameraPreview').and.returnValue(null);
+      component.nativeSettings = jasmine.createSpyObj('NativeSettings', ['open']);
+      popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
+      popoverSpy.onWillDismiss.and.resolveTo({
         data: {
           action: 'OPEN_SETTINGS',
         },
-      })
-    );
-    spyOn(component, 'setupPermissionDeniedPopover').and.returnValue(Promise.resolve(popoverSpy));
+      });
+    });
 
-    component.showPermissionDeniedPopover('CAMERA');
-    tick(1000);
-    expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
-    expect(component.nativeSettings.open).toHaveBeenCalledTimes(1);
-  }));
+    it('should show permission denied popvoer', fakeAsync(() => {
+      spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
+      component.showPermissionDeniedPopover('CAMERA');
+      tick(1000);
+      expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
+      expect(component.nativeSettings.open).toHaveBeenCalledTimes(1);
+    }));
+
+    it('should not call "nativeSettings.open" if data is undefined', fakeAsync(() => {
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: undefined,
+      });
+      spyOn(component, 'setupPermissionDeniedPopover').and.resolveTo(popoverSpy);
+      component.showPermissionDeniedPopover('CAMERA');
+      tick(100);
+      expect(component.setupPermissionDeniedPopover).toHaveBeenCalledOnceWith('CAMERA');
+      expect(component.nativeSettings.open).not.toHaveBeenCalled();
+    }));
+  });
 
   describe('onGalleryUpload():', () => {
     it('should upload images to gallery if permission graneted', () => {
@@ -630,6 +703,25 @@ describe('CaptureReceiptComponent', () => {
       expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
       expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
     });
+
+    it('should request camera permission if permission is denied', fakeAsync(() => {
+      cameraService.requestCameraPermissions.and.resolveTo({
+        photos: 'denied',
+        camera: 'denied',
+      });
+      spyOn(component, 'showPermissionDeniedPopover');
+      imagePicker.hasReadPermission.and.returnValue(Promise.resolve(false));
+
+      fixture.detectChanges();
+
+      component.onGalleryUpload();
+      tick(100);
+
+      expect(trackingService.instafyleGalleryUploadOpened).toHaveBeenCalledOnceWith({});
+      expect(imagePicker.hasReadPermission).toHaveBeenCalledTimes(1);
+      expect(cameraService.requestCameraPermissions).toHaveBeenCalledOnceWith(['photos']);
+      expect(component.showPermissionDeniedPopover).toHaveBeenCalledOnceWith('GALLERY');
+    }));
   });
 
   it('setUpAndStartCamera(): should setup and start camera', () => {
@@ -703,5 +795,61 @@ describe('CaptureReceiptComponent', () => {
     component.ngAfterViewInit();
 
     expect(component.setUpAndStartCamera).toHaveBeenCalledTimes(1);
+  });
+
+  describe('trackOrgLaunchTime()', () => {
+    beforeEach(() => {
+      orgService.getOrgs.and.returnValue(of(orgData1));
+    });
+
+    it('should track org launch time if getEntriesByName() returns empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine
+          .createSpy('getEntriesByName')
+          .and.returnValues([], [], [{ duration: 12000 }], [{ detail: true }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.addPerformanceTrackers();
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.captureSingleReceiptTime,
+        PerfTrackers.appLaunchStartTime
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
+      expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({
+        'Capture receipt time': '12.000',
+        'Is logged in': true,
+        'Is multi org': false,
+      });
+    });
+
+    it('should track org launch time and call appLaunchTime with NaN if getEntriesByName(appLaunchTime) returns empty array', () => {
+      const performance = {
+        mark: jasmine.createSpy('mark'),
+        measure: jasmine.createSpy('measure'),
+        getEntriesByName: jasmine.createSpy('getEntriesByName').and.returnValues([], [], [], [{ detail: true }]),
+        now: jasmine.createSpy('now'),
+      };
+      Object.defineProperty(window, 'performance', {
+        value: performance,
+      });
+      component.addPerformanceTrackers();
+      expect(performance.mark).toHaveBeenCalledOnceWith(PerfTrackers.captureSingleReceiptTime);
+      expect(performance.measure).toHaveBeenCalledOnceWith(
+        PerfTrackers.captureSingleReceiptTime,
+        PerfTrackers.appLaunchStartTime
+      );
+      expect(performance.getEntriesByName).toHaveBeenCalledTimes(4);
+      expect(trackingService.captureSingleReceiptTime).toHaveBeenCalledOnceWith({
+        'Capture receipt time': 'NaN',
+        'Is logged in': true,
+        'Is multi org': false,
+      });
+    });
   });
 });
