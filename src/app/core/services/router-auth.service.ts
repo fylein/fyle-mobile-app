@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { RouterApiService } from './router-api.service';
-import { tap, switchMap, map } from 'rxjs/operators';
+import { switchMap, map } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
@@ -15,6 +15,10 @@ import { PushNotificationService } from './push-notification.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { ApproverService } from './platform/v1/approver/approver.service';
+import { EmailExistsResponse } from '../models/email-exists-response.model';
+import { ResendEmailVerification } from '../models/resend-email-verification.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,11 +37,13 @@ export class RouterAuthService {
     private pushNotificationService: PushNotificationService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private expenseAggregationService: ExpenseAggregationService
+    private expenseAggregationService: ExpenseAggregationService,
+    private spenderService: SpenderService,
+    private approverService: ApproverService
   ) {}
 
-  checkEmailExists(email: string) {
-    return this.routerApiService.post('/auth/basic/email_exists', {
+  checkEmailExists(email: string): Observable<EmailExistsResponse> {
+    return this.routerApiService.post<EmailExistsResponse>('/auth/basic/email_exists', {
       email,
     });
   }
@@ -46,13 +52,13 @@ export class RouterAuthService {
     return !!(await this.tokenService.getAccessToken()) && !!(await this.tokenService.getRefreshToken());
   }
 
-  async newRefreshToken(refreshToken: string) {
+  async newRefreshToken(refreshToken: string): Promise<void> {
     await this.storageService.delete('user');
     await this.storageService.delete('role');
     await this.tokenService.setRefreshToken(refreshToken);
   }
 
-  async setClusterDomain(domain) {
+  async setClusterDomain(domain: string): Promise<void> {
     this.apiService.setRoot(domain);
     this.advanceRequestPolicyService.setRoot(domain);
     this.apiv2Service.setRoot(domain);
@@ -64,32 +70,34 @@ export class RouterAuthService {
     this.approverPlatformApiService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);
     this.expenseAggregationService.setRoot(domain);
+    this.spenderService.setRoot(domain);
+    this.approverService.setRoot(domain);
 
     await this.tokenService.setClusterDomain(domain);
   }
 
-  async newAccessToken(accessToken) {
+  async newAccessToken(accessToken: string): Promise<void> {
     await this.tokenService.setAccessToken(accessToken);
   }
 
-  async fetchAccessToken(refreshToken): Promise<AuthResponse> {
+  async fetchAccessToken(refreshToken: string): Promise<AuthResponse> {
     // this function is called from multiple places, token should be returned and not saved from here
     const accessToken = await this.tokenService.getAccessToken();
     return await this.routerApiService
-      .post('/auth/access_token', {
+      .post<AuthResponse>('/auth/access_token', {
         refresh_token: refreshToken,
         access_token: accessToken,
       })
       .toPromise();
   }
 
-  sendResetPassword(email: string) {
-    return this.routerApiService.post('/auth/send_reset_password', {
+  sendResetPassword(email: string): Observable<{}> {
+    return this.routerApiService.post<{}>('/auth/send_reset_password', {
       email,
     });
   }
 
-  async handleSignInResponse(data) {
+  async handleSignInResponse(data: AuthResponse): Promise<AuthResponse> {
     // if (environment.NAME === 'dev') {
     //   data.cluster_domain = environment.CLUSTER_DOMAIN;
     //   data.redirect_url = data.redirect_url.replace('https://staging.fyle.in', data.cluster_domain);
@@ -103,7 +111,7 @@ export class RouterAuthService {
 
   basicSignin(email: string, password: string): Observable<AuthResponse> {
     return this.routerApiService
-      .post('/auth/basic/signin', {
+      .post<AuthResponse>('/auth/basic/signin', {
         email,
         password,
       })
@@ -112,31 +120,31 @@ export class RouterAuthService {
 
   googleSignin(accessToken: string): Observable<AuthResponse> {
     return this.routerApiService
-      .post('/auth/google/signin', {
+      .post<AuthResponse>('/auth/google/signin', {
         access_token: accessToken,
       })
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
   }
 
-  emailVerify(verificationCode: string) {
+  emailVerify(verificationCode: string): Observable<AuthResponse> {
     return this.routerApiService
-      .post('/auth/email_verify', {
+      .post<AuthResponse>('/auth/email_verify', {
         verification_code: verificationCode,
       })
       .pipe(switchMap((res) => from(this.handleSignInResponse(res)).pipe(map(() => res))));
   }
 
-  resetPassword(refreshToken: string, newPassword: string) {
+  resetPassword(refreshToken: string, newPassword: string): Observable<AuthResponse> {
     return this.routerApiService
-      .post('/auth/reset_password', {
+      .post<AuthResponse>('/auth/reset_password', {
         refresh_token: refreshToken,
         password: newPassword,
       })
       .pipe(switchMap((data) => this.handleSignInResponse(data)));
   }
 
-  resendVerificationLink(email: string, orgId: string) {
-    return this.routerApiService.post('/auth/resend_email_verification', {
+  resendVerificationLink(email: string, orgId: string): Observable<ResendEmailVerification> {
+    return this.routerApiService.post<ResendEmailVerification>('/auth/resend_email_verification', {
       email: email?.trim().toLowerCase(),
       org_id: orgId,
     });

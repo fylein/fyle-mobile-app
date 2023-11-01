@@ -12,7 +12,7 @@ import { actionSheetOptionsData } from 'src/app/core/mock-data/action-sheet-opti
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCenterApiRes1, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
 import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
-import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
+import { expenseFieldObjData, txnFieldData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { txnFieldsMap2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { apiExpenseRes, expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -445,7 +445,7 @@ export function TestCases1(getTestBed) {
         component.etxn$ = of(unflattenedExpData);
         component.fg.controls.paymentMode.setValue({
           ...unflattenedAccount1Data,
-          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'acc5APeygFjRd' },
+          acc: { ...unflattenedAccount1Data.acc, type: AccountType.ADVANCE, id: 'accZ1IWjhjLv4' },
         });
         component.fg.controls.currencyObj.setValue({
           currency: 'USD',
@@ -707,6 +707,24 @@ export function TestCases1(getTestBed) {
         expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
           ToastContent: 'Successfully removed the card details from the expense.',
         });
+      }));
+
+      it('should go back to my expenses page if etxn is undefined', fakeAsync(() => {
+        component.etxn$ = of(undefined);
+        spyOn(component, 'goBack');
+        transactionService.getRemoveCardExpenseDialogBody.and.returnValue('removed');
+        spyOn(component, 'getRemoveCCCExpModalParams');
+        spyOn(component, 'showSnackBarToast');
+
+        const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+        deletePopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+
+        popoverController.create.and.resolveTo(deletePopoverSpy);
+
+        component.removeCorporateCardExpense();
+        tick(500);
+
+        expect(component.goBack).toHaveBeenCalledTimes(1);
       }));
 
       it('navigate back to report if redirected from report after removing txn', fakeAsync(() => {
@@ -1038,6 +1056,57 @@ export function TestCases1(getTestBed) {
         actionSheetOptions[5].handler();
         expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
         done();
+      });
+
+      it('should get all action sheet options and call titleCasePipe transform method if project_id is defined', (done) => {
+        orgSettingsService.get.and.returnValue(
+          of({
+            ...orgSettingsData,
+            expense_settings: { ...orgSettingsData.expense_settings, split_expense_settings: { enabled: true } },
+          })
+        );
+        component.costCenters$ = of(expectedCCdata);
+        projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+        component.filteredCategories$ = of(categorieListRes);
+        component.txnFields$ = of(txnFieldData);
+        component.isCccExpense = 'tx3qHxFNgRcZ';
+        component.canDismissCCCE = true;
+        component.isCorporateCreditCardEnabled = true;
+        component.canRemoveCardExpense = true;
+        component.isExpenseMatchedForDebitCCCE = true;
+        spyOn(component, 'splitExpCategoryHandler');
+        spyOn(component, 'splitExpProjectHandler');
+        spyOn(component, 'splitExpCostCenterHandler');
+        spyOn(component, 'markPersonalHandler');
+        spyOn(component, 'markDismissHandler');
+        spyOn(component, 'removeCCCHandler');
+        launchDarklyService.getVariation.and.returnValue(of(true));
+        fixture.detectChanges();
+
+        component.getActionSheetOptions().subscribe((actionSheetOptionsResponse) => {
+          const actionSheetOptions = actionSheetOptionsResponse;
+          expect(actionSheetOptionsResponse.length).toEqual(6);
+          expect(titleCasePipe.transform).toHaveBeenCalledOnceWith('Project');
+          expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+          expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
+          expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
+            'show_project_mapped_categories_in_split_expense',
+            false
+          );
+          actionSheetOptions[0].handler();
+          expect(component.splitExpCategoryHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[1].handler();
+          expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[2].handler();
+          expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[3].handler();
+          expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[4].handler();
+          expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
+          actionSheetOptions[5].handler();
+          expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
 
       it('should get action sheet options when split expense is not allowed', (done) => {
