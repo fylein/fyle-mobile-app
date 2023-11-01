@@ -355,9 +355,9 @@ describe('ViewExpensePage', () => {
         ...expenseData1,
         source_account_type: 'PERSONAL_ADVANCE_ACCOUNT',
       };
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(res.source_account_type).toEqual('PERSONAL_ADVANCE_ACCOUNT');
         expect(component.paymentMode).toEqual('Advance');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
@@ -371,9 +371,9 @@ describe('ViewExpensePage', () => {
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
       };
 
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(res.source_account_type).toEqual('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
         expect(component.paymentMode).toEqual('Corporate Card');
         expect(component.paymentModeIcon).toEqual('fy-unmatched');
@@ -386,9 +386,9 @@ describe('ViewExpensePage', () => {
         ...expenseData1,
         tx_skip_reimbursement: true,
       };
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(res.tx_skip_reimbursement).toBeTrue();
         expect(component.paymentMode).toEqual('Paid by Company');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
@@ -401,9 +401,9 @@ describe('ViewExpensePage', () => {
         source_account_type: 'PERSONAL_ACCOUNT',
         tx_skip_reimbursement: false,
       };
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(res.source_account_type).toEqual('PERSONAL_ACCOUNT');
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
@@ -434,7 +434,7 @@ describe('ViewExpensePage', () => {
         ...expenseData1,
         tx_custom_properties: null,
       };
-      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       transactionService.getEtxn.and.returnValue(of(expenseData1));
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
@@ -443,7 +443,7 @@ describe('ViewExpensePage', () => {
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
-      component.etxn$ = of(expenseData1);
+      component.expense$ = of(expenseData1);
       component.txnFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
@@ -470,7 +470,7 @@ describe('ViewExpensePage', () => {
       expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
-      component.etxnWithoutCustomProperties$.subscribe((res) => {
+      component.expenseWithoutCustomProperties$.subscribe((res) => {
         expect(res).toEqual(expenseData1);
         expect(component.reportId).toEqual(res.tx_report_id);
       });
@@ -534,9 +534,9 @@ describe('ViewExpensePage', () => {
         tx_split_group_id: 'tx5fBcNgRxJk',
       };
       transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.ionViewWillEnter();
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(res.tx_split_group_id).not.toEqual(res.tx_id);
         done();
       });
@@ -563,7 +563,7 @@ describe('ViewExpensePage', () => {
       };
       component.isCCCTransaction = true;
       transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
-      component.etxn$ = of(mockExchangeRateExpData);
+      component.expense$ = of(mockExchangeRateExpData);
       component.ionViewWillEnter();
       component.matchingCCCTransaction$.subscribe((res) => {
         expect(component.paymentModeIcon).toEqual('fy-matched');
@@ -583,7 +583,7 @@ describe('ViewExpensePage', () => {
         project_id: [],
       };
       transactionService.getEtxn.and.returnValue(of(expenseData1));
-      component.etxn$ = of(expenseData1);
+      component.expense$ = of(expenseData1);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
 
@@ -599,7 +599,7 @@ describe('ViewExpensePage', () => {
       };
       transactionService.getEtxn.and.returnValue(of(mockExpData));
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
-      component.etxn$ = of(mockExpData);
+      component.expense$ = of(mockExpData);
 
       component.ionViewWillEnter();
       expect(component.projectFieldName).toEqual('Project ID');
@@ -638,9 +638,9 @@ describe('ViewExpensePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
-      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.etxn$ = of(etxnData);
+      component.expense$ = of(etxnData);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
         expect(etxnData.tx_state).toEqual('APPROVED');
@@ -658,7 +658,7 @@ describe('ViewExpensePage', () => {
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
       transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
-      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
@@ -676,7 +676,7 @@ describe('ViewExpensePage', () => {
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamReportPaginated1.data[3]));
       transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
-      component.etxnWithoutCustomProperties$ = of(mockWithoutCustPropData);
+      component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
@@ -695,7 +695,7 @@ describe('ViewExpensePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
-      component.etxn$ = of(mockExpenseData);
+      component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -712,7 +712,7 @@ describe('ViewExpensePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
-      component.etxn$ = of(mockExpenseData);
+      component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -730,7 +730,7 @@ describe('ViewExpensePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
-      component.etxn$ = of(mockExpenseData);
+      component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();
@@ -797,7 +797,7 @@ describe('ViewExpensePage', () => {
         tx_policy_amount: -1,
       };
       transactionService.getEtxn.and.returnValue(of(mockExpenseData));
-      component.etxn$ = of(mockExpenseData);
+      component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -820,7 +820,7 @@ describe('ViewExpensePage', () => {
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       component.ionViewWillEnter();
       tick(500);
-      component.etxn$.subscribe((res) => {
+      component.expense$.subscribe((res) => {
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(res.tx_id);
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
         expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);

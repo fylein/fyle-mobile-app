@@ -24,16 +24,18 @@ import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
 @Component({
   selector: 'app-view-expense',
@@ -43,7 +45,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  etxn$: Observable<Expense>;
+  expense$: Observable<PlatformExpense>;
 
   policyViloations$: Observable<ExtendedStatus[]>;
 
@@ -53,7 +55,7 @@ export class ViewExpensePage {
 
   customProperties$: Observable<CustomField[]>;
 
-  etxnWithoutCustomProperties$: Observable<Expense>;
+  expenseWithoutCustomProperties$: Observable<PlatformExpense>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
@@ -146,7 +148,9 @@ export class ViewExpensePage {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private spenderExpensesService: SpenderExpensesService,
+    private approverExpensesService: ApproverExpensesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -232,15 +236,15 @@ export class ViewExpensePage {
     }
   }
 
-  setPaymentModeandIcon(etxn: Expense): void {
-    if (etxn.source_account_type === AccountType.ADVANCE) {
+  setPaymentModeandIcon(etxn: PlatformExpense): void {
+    if (etxn.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
       this.paymentMode = 'Advance';
       this.paymentModeIcon = 'fy-non-reimbursable';
-    } else if (etxn.source_account_type === AccountType.CCC) {
+    } else if (etxn.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
       this.paymentModeIcon = 'fy-unmatched';
       this.isCCCTransaction = true;
-    } else if (etxn.tx_skip_reimbursement) {
+    } else if (!etxn.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
       this.paymentModeIcon = 'fy-non-reimbursable';
     } else {
@@ -253,29 +257,35 @@ export class ViewExpensePage {
     this.setupNetworkWatcher();
     const txId = this.activatedRoute.snapshot.params.id as string;
 
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
     this.breakfastSystemCategories = this.categoriesService.getBreakfastSystemCategories();
     this.travelSystemCategories = this.categoriesService.getTravelSystemCategories();
     this.flightSystemCategories = this.categoriesService.getFlightSystemCategories();
 
-    this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => this.transactionService.getEtxn(txId)),
-      shareReplay(1)
-    );
-
-    this.etxnWithoutCustomProperties$.subscribe((res) => {
-      this.reportId = res.tx_report_id;
-    });
-
-    this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap((etxn) =>
-        this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
+    this.expenseWithoutCustomProperties$ = this.updateFlag$.pipe(
+      switchMap(() =>
+        this.view === ExpenseView.team
+          ? this.approverExpensesService.getById(txId)
+          : this.spenderExpensesService.getById(txId)
       ),
       shareReplay(1)
     );
 
-    this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
+    this.expenseWithoutCustomProperties$.subscribe((res) => {
+      this.reportId = res.report_id;
+    });
+
+    this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
+      concatMap((expense) =>
+        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+      ),
+      shareReplay(1)
+    );
+
+    this.expense$ = this.expenseWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
@@ -283,99 +293,89 @@ export class ViewExpensePage {
     this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
-      etxn: this.etxn$.pipe(take(1)),
+      expense: this.expense$.pipe(take(1)),
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
-      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.project_id?.length > 0),
-      switchMap(({ etxn, txnFields }) =>
+      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.project_id?.length > 0),
+      switchMap(({ expense, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          etxn.tx_custom_properties,
+          expense.custom_fields,
           txnFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
-      etxn: this.etxn$.pipe(take(1)),
+      expense: this.expense$.pipe(take(1)),
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
-      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.cost_center_id?.length > 0),
-      switchMap(({ etxn, txnFields }) =>
+      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.cost_center_id?.length > 0),
+      switchMap(({ expense, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          etxn.tx_custom_properties,
+          expense.custom_fields,
           txnFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
     );
 
-    this.etxn$.subscribe((etxn) => {
-      this.isSplitExpense = etxn.tx_split_group_id !== etxn.tx_id;
+    this.expense$.subscribe((expense) => {
+      this.isSplitExpense = expense.is_split;
 
-      if (etxn.tx_amount && etxn.tx_orig_amount) {
-        this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
+      if (expense.amount && expense.foreign_amount) {
+        this.exchangeRate = expense.amount / expense.foreign_amount;
       }
 
-      this.setPaymentModeandIcon(etxn);
+      this.setPaymentModeandIcon(expense);
 
-      if (this.isCCCTransaction) {
-        this.matchingCCCTransaction$ = this.corporateCreditCardExpenseService
-          .getEccceByGroupId(etxn.tx_corporate_credit_card_expense_group_id)
-          .pipe(
-            map(
-              (matchedExpense: CCCExpUnflattened[]) =>
-                matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
-            )
-          );
-        this.matchingCCCTransaction$.subscribe((cardTxn) => {
-          this.cardNumber = cardTxn?.card_or_account_number;
-        });
+      if (this.isCCCTransaction && expense.matched_corporate_card_transactions[0]) {
+        this.paymentModeIcon = 'fy-matched';
+        this.cardNumber = expense.matched_corporate_card_transactions[0].corporate_card_number;
       }
-      this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
-      this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
+      this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
+      this.etxnCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.etxn$.pipe(take(1))])
+    forkJoin([this.txnFields$, this.expense$.pipe(take(1))])
       .pipe(
-        map(([expenseFieldsMap, etxn]) => {
+        map(([expenseFieldsMap, expense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown = this.orgSettings.projects?.enabled && (!!etxn.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
 
-    this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap((etxn) => this.statusService.find('transactions', etxn.tx_id)),
+    this.policyViloations$ = this.expenseWithoutCustomProperties$.pipe(
+      concatMap((expense) => this.statusService.find('transactions', expense.id)),
       map((comments) => comments.filter(this.isPolicyComment))
     );
 
     this.comments$ = this.statusService.find('transactions', txId);
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
-    this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
+    this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+        (expense) =>
+          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1
       )
     );
 
-    this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
+    this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
-      switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      switchMap((expense) =>
+        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, etxn }) => {
+      map(({ report, expense }) => {
         if (report?.rp_num_transactions === 1) {
           return false;
         }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.state) < 0;
       })
     );
 
-    this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
+    this.isAmountCapped$ = this.expense$.pipe(
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
@@ -392,15 +392,15 @@ export class ViewExpensePage {
       )
       .subscribe(noop);
 
-    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
+    this.isCriticalPolicyViolated$ = this.expense$.pipe(
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
     this.getPolicyDetails(txId);
 
-    const editExpenseAttachments = this.etxn$.pipe(
+    const editExpenseAttachments = this.expense$.pipe(
       take(1),
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
+      switchMap((expense) => this.fileService.findByTransactionId(expense.id)),
       switchMap((fileObjs) => from(fileObjs)),
       concatMap((fileObj: FileObject) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
