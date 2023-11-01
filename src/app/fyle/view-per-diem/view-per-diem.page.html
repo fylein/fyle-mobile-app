@@ -64,8 +64,7 @@
           {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
         </div>
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project.name ? perDiemExpense.project.name :
-          'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name ?? 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-per-diem--card-container__block">
@@ -100,7 +99,7 @@
         </ion-col>
         <ion-col class="view-per-diem--content-container">
           <div class="view-per-diem--label">Report Name</div>
-          <div class="view-per-diem--value">{{ perDiemExpense.report.title }}</div>
+          <div class="view-per-diem--value">{{ perDiemExpense.report?.title }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -225,7 +224,7 @@
     </ion-grid>
 
     <ion-grid
-      *ngIf="perDiemExpense.category.name && perDiemExpense.category.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
+      *ngIf="perDiemExpense.category?.name && perDiemExpense.category?.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
       class="view-per-diem--grid"
     >
       <ion-row>
@@ -264,7 +263,7 @@
           class="view-per-diem--grid"
         >
           <ion-row>
-            <ion-col *ngIf="perDiemExpense.cost_center.name" size="6">
+            <ion-col *ngIf="perDiemExpense.cost_center?.name" size="6">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-per-diem--icon-container">
@@ -277,12 +276,12 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Cost Center</div>
-                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center.name }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center?.name }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
             </ion-col>
-            <ion-col size="6" *ngIf="perDiemExpense.cost_center.code">
+            <ion-col size="6" *ngIf="perDiemExpense.cost_center?.code">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-per-diem--icon-container">
@@ -295,7 +294,7 @@
                   </ion-col>
                   <ion-col class="view-per-diem--content-container">
                     <div class="view-per-diem--label">Cost Center Code</div>
-                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center.code }}</div>
+                    <div class="view-per-diem--value">{{ perDiemExpense.cost_center?.code }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -312,7 +311,7 @@
           <app-view-dependent-fields
             parentFieldType="PROJECT"
             [parentFieldName]="txnFields.project_id[0]?.field_name"
-            [parentFieldValue]="perDiemExpense.project.name"
+            [parentFieldValue]="perDiemExpense.project?.name"
             [dependentCustomProperties]="projectDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
@@ -326,8 +325,8 @@
           <app-view-dependent-fields
             parentFieldType="COST_CENTER"
             [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
-            [parentFieldValue]="perDiemExpense.cost_center.name"
-            [costCenterCode]="perDiemExpense.cost_center.code"
+            [parentFieldValue]="perDiemExpense.cost_center?.name"
+            [costCenterCode]="perDiemExpense.cost_center?.code"
             [dependentCustomProperties]="costCenterDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
