@@ -86,16 +86,4 @@ export class MileageRatesService {
   filterEnabledMileageRates(allMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {
     return allMileageRates.filter((rate) => !!rate.is_enabled);
   }
-
-  getRate(id: string): Observable<PlatformMileageRates> {
-    const data = {
-      params: {
-        id: 'eq.' + id,
-      },
-    };
-
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
-      .pipe(map((res) => res.data[0]));
-  }
 }

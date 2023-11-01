@@ -77,10 +77,6 @@ export class FileService {
     return this.apiService.post<File>('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
-  uploadComplete(fileId: string): Observable<File> {
-    return this.apiService.post<File>('/files/' + fileId + '/upload_completed');
-  }
-
   findByTransactionId(txnId: string): Observable<FileObject[]> {
     return this.apiService.get('/files', {
       params: {

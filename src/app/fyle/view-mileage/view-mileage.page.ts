@@ -20,7 +20,6 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -32,10 +31,10 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
-import { PlatformExpenseService } from 'src/app/core/services/platform-expense.service';
-import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
-import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
-import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -103,13 +102,10 @@ export class ViewMileagePage {
 
   mapAttachment$: Observable<FileObject>;
 
-  mileageRate$: Observable<PlatformMileageRates>;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private transactionService: TransactionService,
-    private platformExpenseService: PlatformExpenseService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
     private reportService: ReportService,
@@ -124,7 +120,8 @@ export class ViewMileagePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private fileService: FileService,
-    private mileageRatesService: MileageRatesService
+    private approverExpensesService: ApproverExpensesService,
+    private spenderExpensesService: SpenderExpensesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -276,9 +273,17 @@ export class ViewMileagePage {
     this.setupNetworkWatcher();
     const id = this.activatedRoute.snapshot.params.id as string;
 
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
     this.mileageExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.platformExpenseService.getExpense(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getById(id)
+              : this.spenderExpensesService.getById(id)
+          )
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
@@ -336,7 +341,7 @@ export class ViewMileagePage {
     this.mileageExpense$.subscribe((mileageExpense) => {
       this.reportId = mileageExpense.report_id;
 
-      if (mileageExpense.source_account.type === AccountType.ADVANCE) {
+      if (mileageExpense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else if (!mileageExpense.is_reimbursable) {
@@ -388,19 +393,10 @@ export class ViewMileagePage {
       )
     );
 
-    this.mileageRate$ = this.mileageExpense$.pipe(
-      switchMap((mileageExpense) => this.mileageRatesService.getRate(mileageExpense.mileage_rate_id))
-    );
-
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
-
     this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
-      map(
-        (expense) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1
-      )
+      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1)
     );
 
     this.canDelete$ = this.mileageExpense$.pipe(
@@ -435,7 +431,7 @@ export class ViewMileagePage {
     this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.mileageExpense$.pipe(
-      map((res) => this.isNumber(res.admin_amount) || this.isNumber(res.admin_amount))
+      map((res) => this.isNumber(res.admin_amount) || this.isNumber(res.policy_amount))
     );
 
     this.updateFlag$.next(null);
