@@ -43,7 +43,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
-import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 fdescribe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -510,6 +510,7 @@ fdescribe('ViewMileagePage', () => {
       component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
       spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      approverExpensesService.getById.and.returnValue(of(platformExpenseData1));
       loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
@@ -820,7 +821,7 @@ fdescribe('ViewMileagePage', () => {
       component.mileageExpense$ = of(platformExpenseData1);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
-        expect(platformExpenseData1.state).toEqual('APPROVED');
+        expect(platformExpenseData1.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
