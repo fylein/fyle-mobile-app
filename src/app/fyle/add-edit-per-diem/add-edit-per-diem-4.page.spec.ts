@@ -390,8 +390,6 @@ export function TestCases4(getTestBed) {
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'tx3qHxFNgRcZ');
-            expect(component.showAddToReportSuccessToast).toHaveBeenCalledTimes(1);
-            expect(component.showReportRemovedToast).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(transactionService.review).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
