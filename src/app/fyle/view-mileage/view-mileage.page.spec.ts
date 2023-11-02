@@ -38,7 +38,7 @@ import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { expenseData1 as platformExpenseData1 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
@@ -506,11 +506,11 @@ describe('ViewMileagePage', () => {
         activeIndex: '0',
       };
 
-      component.mileageExpense$ = of(platformExpenseData1);
+      component.mileageExpense$ = of(mileageExpense);
       component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
-      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
-      approverExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      spenderExpensesService.getById.and.returnValue(of(mileageExpense));
+      approverExpensesService.getById.and.returnValue(of(mileageExpense));
       loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
@@ -530,7 +530,7 @@ describe('ViewMileagePage', () => {
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(platformExpenseData1);
+        expect(data).toEqual(mileageExpense);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(spenderExpensesService.getById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
         expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
@@ -544,14 +544,14 @@ describe('ViewMileagePage', () => {
     }));
 
     it('should get the project dependent custom properties', (done) => {
-      const customProps = platformExpenseData1.custom_fields;
+      const customProps = mileageExpense.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
 
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(platformExpenseData1.custom_fields).toBeDefined();
+        expect(mileageExpense.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -562,12 +562,12 @@ describe('ViewMileagePage', () => {
     });
 
     it('should get the cost center dependent custom properties', (done) => {
-      const customProps = platformExpenseData1.custom_fields;
+      const customProps = mileageExpense.custom_fields;
       const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(platformExpenseData1.custom_fields).toBeDefined();
+        expect(mileageExpense.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -579,9 +579,9 @@ describe('ViewMileagePage', () => {
 
     it('should set the correct report id and set proper payment mode and icon', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         source_account: {
-          ...platformExpenseData1.source_account,
+          ...mileageExpense.source_account,
           type: AccountType.PERSONAL_ADVANCE_ACCOUNT,
         },
       };
@@ -600,7 +600,7 @@ describe('ViewMileagePage', () => {
 
     it('should set the correct payment mode and icon when reimbursement is skipped', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         is_reimbursable: false,
       };
 
@@ -619,7 +619,7 @@ describe('ViewMileagePage', () => {
     it('should set the correct payment mode and icon when the expense is reimbursement', (done) => {
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(platformExpenseData1);
+        expect(data).toEqual(mileageExpense);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
         done();
@@ -628,9 +628,9 @@ describe('ViewMileagePage', () => {
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word four in it', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         mileage_rate: {
-          ...platformExpenseData1.mileage_rate,
+          ...mileageExpense.mileage_rate,
           vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
         },
       };
@@ -647,9 +647,9 @@ describe('ViewMileagePage', () => {
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word car in it', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         mileage_rate: {
-          ...platformExpenseData1.mileage_rate,
+          ...mileageExpense.mileage_rate,
           vehicle_type: 'Electric Car',
         },
       };
@@ -667,9 +667,9 @@ describe('ViewMileagePage', () => {
 
     it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         mileage_rate: {
-          ...platformExpenseData1.mileage_rate,
+          ...mileageExpense.mileage_rate,
           vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
         },
       };
@@ -698,8 +698,8 @@ describe('ViewMileagePage', () => {
         project_id: [],
       };
 
-      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
-      component.mileageExpense$ = of(platformExpenseData1);
+      spenderExpensesService.getById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -713,9 +713,9 @@ describe('ViewMileagePage', () => {
 
     it('should get the project details when project name is not present', fakeAsync(() => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         project: {
-          ...platformExpenseData1.project,
+          ...mileageExpense.project,
           name: null,
         },
       };
@@ -733,8 +733,8 @@ describe('ViewMileagePage', () => {
         ...orgSettingsGetData,
         projects: null,
       };
-      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
-      component.mileageExpense$ = of(platformExpenseData1);
+      spenderExpensesService.getById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
       component.txnFields$ = of(expenseFieldsMapResponse);
       orgSettingsService.get.and.returnValue(of(mockOrgSettData));
@@ -744,8 +744,8 @@ describe('ViewMileagePage', () => {
     }));
 
     it('should get the project field name and the value of project field name should be truthy', fakeAsync(() => {
-      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
-      component.mileageExpense$ = of(platformExpenseData1);
+      spenderExpensesService.getById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       const mockExpFieldData = {
         ...expenseFieldsMapResponse4,
         project_id: [
@@ -805,8 +805,8 @@ describe('ViewMileagePage', () => {
       component.mileageCustomFields$.subscribe((data) => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          platformExpenseData1.category_id,
-          platformExpenseData1.custom_fields,
+          mileageExpense.category_id,
+          mileageExpense.custom_fields,
           true
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
@@ -818,10 +818,10 @@ describe('ViewMileagePage', () => {
 
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.mileageExpense$ = of(platformExpenseData1);
+      component.mileageExpense$ = of(mileageExpense);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
-        expect(platformExpenseData1.state).toEqual(ExpenseState.APPROVER_PENDING);
+        expect(mileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
@@ -830,7 +830,7 @@ describe('ViewMileagePage', () => {
     it('expense cannot be flagged when the view is set to indivivual', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.individual;
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         state: ExpenseState.PAID,
       };
       component.mileageExpense$ = of(mockExtMileageData);
@@ -843,7 +843,7 @@ describe('ViewMileagePage', () => {
 
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         state: ExpenseState.PAID,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
@@ -864,7 +864,7 @@ describe('ViewMileagePage', () => {
 
     it('should return true if the transaction state is APPROVER_PENDING and there are more than one transactions in the report', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
@@ -885,7 +885,7 @@ describe('ViewMileagePage', () => {
 
     it('should not delete expense when view is individual', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
@@ -960,7 +960,7 @@ describe('ViewMileagePage', () => {
     it('should be true if expense policy is violated', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         policy_amount: -1,
       };
 
@@ -976,7 +976,7 @@ describe('ViewMileagePage', () => {
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         policy_amount: 1000,
         admin_amount: null,
       };
@@ -997,7 +997,7 @@ describe('ViewMileagePage', () => {
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         admin_amount: 1000,
         policy_amount: null,
       };
@@ -1017,7 +1017,7 @@ describe('ViewMileagePage', () => {
     it('should return false if the value is not of type number and check if the expense is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
       const mockExtMileageData: Expense = {
-        ...platformExpenseData1,
+        ...mileageExpense,
         admin_amount: null,
         policy_amount: null,
       };
