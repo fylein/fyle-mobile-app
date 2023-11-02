@@ -20,6 +20,7 @@ import {
   forkJoin,
   from,
   iif,
+  noop,
   of,
   throwError,
 } from 'rxjs';
@@ -4138,12 +4139,9 @@ export class AddEditExpensePage implements OnInit {
                       )
                     );
                   } else {
-                    this.transactionOutboxService.addEntry(
-                      etxn.tx,
-                      etxn.dataUrls as { url: string; type: string }[],
-                      comments,
-                      reportId
-                    );
+                    this.transactionOutboxService
+                      .addEntry(etxn.tx, etxn.dataUrls as { url: string; type: string }[], comments, reportId)
+                      .then(noop);
 
                     return of(null);
                   }
