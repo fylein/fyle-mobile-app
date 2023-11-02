@@ -94,7 +94,7 @@ import { projectsV1Data } from '../test-data/projects.spec.data';
 import { corporateCardExpenseData } from '../mock-data/corporate-card-expense.data';
 import { customInputData } from '../test-data/custom-inputs.spec.data';
 import * as dayjs from 'dayjs';
-import { orgCategoryData1 } from '../mock-data/org-category.data';
+import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
 
 describe('MergeExpensesService', () => {
@@ -412,6 +412,15 @@ describe('MergeExpensesService', () => {
       });
     });
 
+    it('should return the project options with label as project name if id matches with option', (done) => {
+      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      // @ts-ignore
+      mergeExpensesService.formatProjectOptions({ ...projectOptionsData, value: 257528 }).subscribe((res) => {
+        expect(res).toEqual({ label: 'Customer Mapped Project', value: 257528 });
+        done();
+      });
+    });
+
     it('should return the project options when project is not present', (done) => {
       projectService.getAllActive.and.returnValue(of([]));
       // @ts-ignore
@@ -447,7 +456,7 @@ describe('MergeExpensesService', () => {
   });
 
   describe('getCorporateCardTransactions(): ', () => {
-    it('should return the corportate card transactions', (done) => {
+    it('should return the corporate card transactions', (done) => {
       const params = {
         queryParams: {
           group_id: ['in.(,)'],
@@ -462,6 +471,29 @@ describe('MergeExpensesService', () => {
         .and.returnValue(of(corporateCardExpenseData));
 
       mergeExpensesService.getCorporateCardTransactions(expensesDataWithCC).subscribe((res) => {
+        expect(res).toEqual(corporateCardExpenseData.data);
+        expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
+        expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
+        done();
+      });
+    });
+
+    it('should return the corporate card transactions if expenses are undefined', (done) => {
+      const params = {
+        queryParams: {
+          group_id: ['in.(,)'],
+        },
+        offset: 0,
+        limit: 1,
+      };
+
+      customInputsService.getAll.withArgs(true).and.returnValue(of(customInputData));
+      corporateCreditCardExpenseService.getv2CardTransactions
+        .withArgs(params)
+        .and.returnValue(of(corporateCardExpenseData));
+
+      const mockExpense = [undefined, undefined];
+      mergeExpensesService.getCorporateCardTransactions(mockExpense).subscribe((res) => {
         expect(res).toEqual(corporateCardExpenseData.data);
         expect(corporateCreditCardExpenseService.getv2CardTransactions).toHaveBeenCalledOnceWith(params);
         expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
@@ -669,6 +701,16 @@ describe('MergeExpensesService', () => {
     it('should return null when options are not passed', () => {
       expect(mergeExpensesService.getFieldValue(optionsData13)).toBeNull();
     });
+
+    it('should return null when optionsData is null', () => {
+      expect(mergeExpensesService.getFieldValue(null)).toBeNull();
+    });
+
+    it('should return undefined if option is empty array', () => {
+      expect(
+        mergeExpensesService.getFieldValue({ ...optionsData13, areSameValues: true, options: [] })
+      ).toBeUndefined();
+    });
   });
 
   it('generateLocationOptions(): should return the location options', (done) => {
@@ -782,12 +824,32 @@ describe('MergeExpensesService', () => {
     });
   });
 
-  it('getCategoryName(): should return the category name', () => {
-    categoriesService.getAll.and.returnValue(of(orgCategoryData1));
-    const categoryId = '201952';
-    mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
-      expect(res).toEqual('Food');
-      expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+  describe('getCategoryName():', () => {
+    it('should return the category name', () => {
+      categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      const categoryId = '201952';
+      mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
+        expect(res).toEqual('Food');
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should return undefined if category id does not match with params', () => {
+      categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      const categoryId = '201951';
+      mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
+        expect(res).toEqual(undefined);
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      });
+    });
+
+    it('should return undefined if category id is undefined', () => {
+      categoriesService.getAll.and.returnValue(of([expectedOrgCategoryByName2]));
+      const categoryId = '201951';
+      mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
+        expect(res).toEqual(undefined);
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+      });
     });
   });
 
@@ -815,6 +877,16 @@ describe('MergeExpensesService', () => {
       expect(res).toEqual(mergeExpensesOptionData4[0].value);
     });
 
+    it('should return the field value on change when value is untouched and optionsData is undefined', () => {
+      const res = mergeExpensesService.getFieldValueOnChange(
+        undefined,
+        null,
+        mergeExpensesOptionData4[0].value,
+        mergeExpensesOptionData4[0].value
+      );
+      expect(res).toEqual(mergeExpensesOptionData4[0].value);
+    });
+
     it('should return the field value on change when value is touched', () => {
       const res = mergeExpensesService.getFieldValueOnChange(
         mergeExpensesOptionData4[0],
@@ -826,13 +898,29 @@ describe('MergeExpensesService', () => {
     });
   });
 
-  it('formatTaxGroupOption(): should return the formatted tax group option', (done) => {
-    taxGroupService.get.and.returnValue(of(taxGroupData));
-    // @ts-ignore
-    mergeExpensesService.formatTaxGroupOption(optionsData11.options[0]).subscribe((res) => {
-      expect(res).toEqual(mergeExpensesOptionData5[0]);
-      expect(taxGroupService.get).toHaveBeenCalledTimes(1);
-      done();
+  describe('formatTaxGroupOption():', () => {
+    it('formatTaxGroupOption(): should return the formatted tax group option', (done) => {
+      taxGroupService.get.and.returnValue(of(taxGroupData));
+      // @ts-ignore
+      mergeExpensesService.formatTaxGroupOption(optionsData11.options[0]).subscribe((res) => {
+        expect(res).toEqual(mergeExpensesOptionData5[0]);
+        expect(taxGroupService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('formatTaxGroupOption(): should return the formatted tax group option with label as undefined if id does not matches with options', (done) => {
+      taxGroupService.get.and.returnValue(of(taxGroupData));
+      const mockOptions = { ...optionsData11.options[0], value: 'tgp6JA6tgoZ1' };
+      // @ts-ignore
+      mergeExpensesService.formatTaxGroupOption(mockOptions).subscribe((res) => {
+        expect(res).toEqual({
+          label: undefined,
+          value: 'tgp6JA6tgoZ1',
+        });
+        expect(taxGroupService.get).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 
@@ -911,5 +999,35 @@ describe('MergeExpensesService', () => {
   it('setformattedDate(): should return formatted date', () => {
     const mockDate = '2021-03-10T05:31:00.000Z';
     expect(mergeExpensesService.setFormattedDate(mockDate)).toEqual(dayjs(mockDate).format('MMM DD, YYYY'));
+  });
+
+  describe('formatCategoryOption():', () => {
+    beforeEach(() => {
+      categoriesService.getAll.and.returnValue(of(orgCategoryData1));
+      categoriesService.filterRequired.and.returnValue(orgCategoryData1);
+    });
+
+    it('should return the formatted category option', (done) => {
+      // @ts-ignore
+      mergeExpensesService.formatCategoryOption(mergeExpensesOptionData4[0]).subscribe((res) => {
+        expect(res).toEqual(mergeExpensesOptionData4[0]);
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(orgCategoryData1);
+        done();
+      });
+    });
+
+    it('should return the formatted category option with label as Unspecified if id does not matches with options', (done) => {
+      // @ts-ignore
+      mergeExpensesService.formatCategoryOption({ ...mergeExpensesOptionData4[0], value: 201951 }).subscribe((res) => {
+        expect(res).toEqual({
+          label: 'Unspecified',
+          value: 201951,
+        });
+        expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
+        expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(orgCategoryData1);
+        done();
+      });
+    });
   });
 });
