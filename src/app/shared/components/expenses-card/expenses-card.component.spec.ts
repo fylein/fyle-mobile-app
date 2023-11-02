@@ -836,4 +836,36 @@ describe('ExpensesCardComponent', () => {
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
   });
+
+  describe('isPerDiemWithNoAmount():', () => {
+    it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: 0,
+        tx_org_category: 'Per Diem',
+      };
+      const result = component.isPerDiemWithNoAmount();
+      expect(result).toBeTrue();
+    });
+
+    it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: 0,
+        tx_org_category: 'Per Diem',
+      };
+      const result = component.isPerDiemWithNoAmount();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if org category is null', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_org_category: null,
+      };
+      const result = component.isPerDiemWithNoAmount();
+      expect(result).toBeFalse();
+    });
+  });
 });
