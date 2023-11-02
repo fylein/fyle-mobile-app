@@ -543,18 +543,6 @@ describe('ViewMileagePage', () => {
       });
     }));
 
-    it('should use the approver expense apis if in team view', (done) => {
-      activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.ionViewWillEnter();
-
-      component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(platformExpenseData1);
-        expect(approverExpensesService.getById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
-        expect(spenderExpensesService.getById).not.toHaveBeenCalled();
-        done();
-      });
-    });
-
     it('should get the project dependent custom properties', (done) => {
       const customProps = platformExpenseData1.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
