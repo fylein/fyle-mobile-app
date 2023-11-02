@@ -23,7 +23,7 @@ import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { Router } from '@angular/router';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-fdescribe('TransactionsOutboxService', () => {
+describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
   let transactionsOutboxService: TransactionsOutboxService;
   let storageService: jasmine.SpyObj<StorageService>;

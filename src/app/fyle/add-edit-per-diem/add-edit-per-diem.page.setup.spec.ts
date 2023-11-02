@@ -40,7 +40,7 @@ import { TestCases3 } from './add-edit-per-diem-3.page.spec';
 import { TestCases4 } from './add-edit-per-diem-4.page.spec';
 import { TestCases5 } from './add-edit-per-diem-5.page.spec';
 
-fdescribe('AddEditPerDiemPage', () => {
+describe('AddEditPerDiemPage', () => {
   const getTestBed = () => {
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', [
       'getEMyAccounts',
