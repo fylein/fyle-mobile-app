@@ -18,8 +18,12 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackbarPropertiesService } from './snackbar-properties.service';
+import { Router } from '@angular/router';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
-describe('TransactionsOutboxService', () => {
+fdescribe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
   let transactionsOutboxService: TransactionsOutboxService;
   let storageService: jasmine.SpyObj<StorageService>;
@@ -33,6 +37,9 @@ describe('TransactionsOutboxService', () => {
   const singleCaptureCountInSession = 0;
   let httpMock: HttpTestingController;
   let httpTestingController: HttpTestingController;
+  let matSnackBar: jasmine.SpyObj<MatSnackBar>;
+  let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
+  let router: jasmine.SpyObj<Router>;
 
   beforeEach(() => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
@@ -41,8 +48,11 @@ describe('TransactionsOutboxService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post', 'showToastMessage']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post']);
+    const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
+    const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
 
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
@@ -56,6 +66,9 @@ describe('TransactionsOutboxService', () => {
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
+        { provide: MatSnackBar, useValue: matSnackBarSpy },
+        { provide: SnackbarPropertiesService, useValue: snackbarPropertiesSpy },
+        { provide: Router, useValue: routerSpy },
       ],
     });
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService);
@@ -69,6 +82,9 @@ describe('TransactionsOutboxService', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
     httpTestingController = TestBed.inject(HttpTestingController);
+    matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
+    snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService.setRoot(rootUrl);
   });
 
@@ -91,6 +107,47 @@ describe('TransactionsOutboxService', () => {
   it('incrementSingleCaptureCount(): should increment single capture count', () => {
     transactionsOutboxService.incrementSingleCaptureCount();
     expect(transactionsOutboxService.singleCaptureCount).toEqual(singleCaptureCountInSession + 1);
+  });
+
+  it('showSnackBarToast(): should show snackbar with relevant properties', () => {
+    const properties = {
+      data: {
+        icon: 'tick-square-filled',
+        showCloseButton: true,
+        message: 'Message',
+      },
+      duration: 3000,
+    };
+    snackbarProperties.setSnackbarProperties.and.returnValue(properties);
+
+    transactionsOutboxService.showSnackBarToast({ message: 'Message' }, 'success', ['panel-class']);
+
+    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+      ...properties,
+      panelClass: ['panel-class'],
+    });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message: 'Message' });
+  });
+
+  it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
+    const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
+    modalSpy.onAction.and.returnValue(of(true));
+    matSnackBar.openFromComponent.and.returnValue(modalSpy);
+
+    transactionsOutboxService.showAddToReportSuccessToast('rpFE5X1Pqi9P', 'Expense added to report successfully');
+    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+      ToastContent: 'Expense added to report successfully',
+    });
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+      message: 'Expense added to report successfully',
+      redirectionText: 'View Report',
+    });
+    expect(router.navigate).toHaveBeenCalledOnceWith([
+      '/',
+      'enterprise',
+      'my_view_report',
+      { id: 'rpFE5X1Pqi9P', navigateBack: true },
+    ]);
   });
 
   it('saveQueue(): should save queue', () => {

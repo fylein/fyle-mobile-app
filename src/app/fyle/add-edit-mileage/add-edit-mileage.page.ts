@@ -1761,6 +1761,19 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  showReportRemovedToast(): void {
+    const toastMessageData = {
+      message: 'Mileage expense removed from report',
+    };
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
   showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Mileage expense added to report successfully',
@@ -2268,7 +2281,10 @@ export class AddEditMileagePage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
@@ -2276,14 +2292,20 @@ export class AddEditMileagePage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showReportRemovedToast();
+                        return of(tx);
+                      })
                     );
                   }
                 }

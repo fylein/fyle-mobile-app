@@ -18,6 +18,10 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from './snackbar-properties.service';
+import { Router } from '@angular/router';
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +52,10 @@ export class TransactionsOutboxService {
     private reportService: ReportService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private router: Router
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -64,6 +71,35 @@ export class TransactionsOutboxService {
 
   setRoot(rootUrl: string): void {
     this.ROOT_ENDPOINT = rootUrl;
+  }
+
+  showSnackBarToast(
+    toastMessageData: { message: string; redirectionText?: string },
+    type: 'success' | 'information' | 'failure',
+    panelClass: string[]
+  ): MatSnackBarRef<ToastMessageComponent> {
+    return this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, toastMessageData),
+      panelClass,
+    });
+  }
+
+  showAddToReportSuccessToast(reportId: string, message: string): void {
+    const toastMessageData = {
+      message,
+      redirectionText: 'View Report',
+    };
+    const expensesAddedToReportSnackBar = this.showSnackBarToast(toastMessageData, 'success', [
+      'msb-success-with-camera-icon',
+    ]) as {
+      onAction: () => Observable<unknown>;
+    };
+
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+
+    expensesAddedToReportSnackBar.onAction().subscribe(() => {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
+    });
   }
 
   async saveQueue(): Promise<void> {
@@ -401,6 +437,20 @@ export class TransactionsOutboxService {
                   .addTransactions(reportId, txnIds)
                   .toPromise()
                   .then(() => {
+                    if (entry.transaction.org_category?.toLowerCase() === 'per diem') {
+                      this.showAddToReportSuccessToast(reportId, 'Per diem expense added to report successfully');
+                      this.trackingService.showToastMessage({
+                        ToastContent: 'Per Diem expense added to report successfully',
+                      });
+                    } else if (entry.transaction.org_category?.toLowerCase() === 'mileage') {
+                      this.showAddToReportSuccessToast(reportId, 'Mileage expense added to report successfully');
+                      this.trackingService.showToastMessage({
+                        ToastContent: 'Mileage expense added to report successfully',
+                      });
+                    } else {
+                      this.showAddToReportSuccessToast(reportId, 'Expense added to report successfully');
+                      this.trackingService.showToastMessage({ ToastContent: 'Expense added to report successfully' });
+                    }
                     this.trackingService.addToExistingReportAddEditExpense();
                     resolve(entry);
                   })
