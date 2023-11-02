@@ -15,7 +15,7 @@ import { TransactionService } from './transaction.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
 import { cloneDeep } from 'lodash';
-import { of } from 'rxjs';
+import { combineLatest, of } from 'rxjs';
 import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -150,6 +150,44 @@ describe('TransactionsOutboxService', () => {
     ]);
   });
 
+  describe('formatToastMessage():', () => {
+    beforeEach(() => {
+      spyOn(transactionsOutboxService, 'showAddToReportSuccessToast');
+    });
+
+    it('should show success message on adding expense to report', () => {
+      const message = 'Expense added to report successfully';
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.org_category = 'Travel';
+      transactionsOutboxService.formatToastMessage('rpFE5X1Pqi9P', mockQueue);
+      expect(transactionsOutboxService.showAddToReportSuccessToast).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', message);
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+
+    it('should show success message on adding mileage expense to report', () => {
+      const message = 'Mileage expense added to report successfully';
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.org_category = 'Mileage';
+      transactionsOutboxService.formatToastMessage('rpFE5X1Pqi9P', mockQueue);
+      expect(transactionsOutboxService.showAddToReportSuccessToast).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', message);
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+
+    it('should show success message on adding per diem expense to report', () => {
+      const message = 'Per Diem expense added to report successfully';
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.org_category = 'Per Diem';
+      transactionsOutboxService.formatToastMessage('rpFE5X1Pqi9P', mockQueue);
+      expect(transactionsOutboxService.showAddToReportSuccessToast).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', message);
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: message,
+      });
+    });
+  });
   it('saveQueue(): should save queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;

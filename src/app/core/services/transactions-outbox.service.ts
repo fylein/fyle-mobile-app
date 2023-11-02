@@ -102,6 +102,23 @@ export class TransactionsOutboxService {
     });
   }
 
+  formatToastMessage(reportId: string, entry: OutboxQueue): void {
+    if (entry.transaction.org_category?.toLowerCase() === 'per diem') {
+      this.showAddToReportSuccessToast(reportId, 'Per Diem expense added to report successfully');
+      this.trackingService.showToastMessage({
+        ToastContent: 'Per Diem expense added to report successfully',
+      });
+    } else if (entry.transaction.org_category?.toLowerCase() === 'mileage') {
+      this.showAddToReportSuccessToast(reportId, 'Mileage expense added to report successfully');
+      this.trackingService.showToastMessage({
+        ToastContent: 'Mileage expense added to report successfully',
+      });
+    } else {
+      this.showAddToReportSuccessToast(reportId, 'Expense added to report successfully');
+      this.trackingService.showToastMessage({ ToastContent: 'Expense added to report successfully' });
+    }
+  }
+
   async saveQueue(): Promise<void> {
     await this.storageService.set('outbox', this.queue);
   }
@@ -437,20 +454,7 @@ export class TransactionsOutboxService {
                   .addTransactions(reportId, txnIds)
                   .toPromise()
                   .then(() => {
-                    if (entry.transaction.org_category?.toLowerCase() === 'per diem') {
-                      this.showAddToReportSuccessToast(reportId, 'Per diem expense added to report successfully');
-                      this.trackingService.showToastMessage({
-                        ToastContent: 'Per Diem expense added to report successfully',
-                      });
-                    } else if (entry.transaction.org_category?.toLowerCase() === 'mileage') {
-                      this.showAddToReportSuccessToast(reportId, 'Mileage expense added to report successfully');
-                      this.trackingService.showToastMessage({
-                        ToastContent: 'Mileage expense added to report successfully',
-                      });
-                    } else {
-                      this.showAddToReportSuccessToast(reportId, 'Expense added to report successfully');
-                      this.trackingService.showToastMessage({ ToastContent: 'Expense added to report successfully' });
-                    }
+                    this.formatToastMessage(reportId, entry);
                     this.trackingService.addToExistingReportAddEditExpense();
                     resolve(entry);
                   })
