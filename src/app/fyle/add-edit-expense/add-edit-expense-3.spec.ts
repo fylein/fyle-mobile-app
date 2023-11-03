@@ -106,6 +106,11 @@ import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-d
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
+import {
+  missingMandatoryFieldsData1,
+  missingMandatoryFieldsData2,
+} from 'src/app/core/mock-data/missing-mandatory-fields.data';
+import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -252,35 +257,20 @@ export function TestCases3(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    describe('checkPolicyViolation():', () => {
-      it('should check if there are any policy violations and in case category is present', (done) => {
-        policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
-        transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
-          expect(res).toEqual(expensePolicyData);
-          expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          done();
-        });
-      });
+    it('checkPolicyViolation(): should check for policy violations', (done) => {
+      const etxn = {
+        tx: publicPolicyExpenseData1,
+        dataUrls: fileObject4,
+      };
 
-      it('should check for policy violations and populate category if not present in expense', (done) => {
-        policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
-        transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-        categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
-        component
-          .checkPolicyViolation({ tx: { ...publicPolicyExpenseData1, org_category_id: null }, dataUrls: fileObject4 })
-          .subscribe((res) => {
-            expect(res).toEqual(expensePolicyData);
-            expect(policyService.transformTo).toHaveBeenCalledOnceWith({
-              ...publicPolicyExpenseData1,
-              num_files: 1,
-              org_category_id: 16566,
-            });
-            expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-            expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
-            done();
-          });
+      policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
+      transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
+
+      component.checkPolicyViolation(etxn).subscribe((res) => {
+        expect(res).toEqual(expensePolicyData);
+        expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(etxn, component.selectedCCCTransaction);
+        expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+        done();
       });
     });
 
