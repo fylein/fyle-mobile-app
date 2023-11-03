@@ -67,7 +67,7 @@
   <ng-container *ngIf="fg">
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
-        <div *ngIf="showReceiptMandatoryError" class="add-edit-expense--alert-offline">
+        <div *ngIf="showReceiptMandatoryError" class="add-edit-expense--alert-offline receipt-mandatory-error">
           <app-fy-alert-info message="Please upload the receipt." type="error"></app-fy-alert-info>
         </div>
 
