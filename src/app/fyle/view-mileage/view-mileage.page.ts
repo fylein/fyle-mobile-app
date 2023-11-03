@@ -352,13 +352,13 @@ export class ViewMileagePage {
         this.paymentModeIcon = 'fy-reimbursable';
       }
 
-      if (
-        mileageExpense.mileage_rate?.vehicle_type.toLowerCase().indexOf('four') > -1 ||
-        mileageExpense.mileage_rate?.vehicle_type.toLowerCase().indexOf('car') > -1
-      ) {
-        this.vehicleType = 'car';
-      } else {
-        this.vehicleType = 'bike';
+      if (mileageExpense.mileage_rate) {
+        const vehicleType = mileageExpense.mileage_rate.vehicle_type.toLowerCase();
+        if (vehicleType.includes('four') || vehicleType.includes('car')) {
+          this.vehicleType = 'car';
+        } else {
+          this.vehicleType = 'bike';
+        }
       }
 
       this.etxnCurrencySymbol = getCurrencySymbol(mileageExpense.currency, 'wide');

@@ -711,13 +711,10 @@ describe('ViewMileagePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     }));
 
-    it('should get the project details when project name is not present', fakeAsync(() => {
+    it('should show the project details when project is not present but mandatory', fakeAsync(() => {
       const mockExtMileageData: Expense = {
         ...mileageExpense,
-        project: {
-          ...mileageExpense.project,
-          name: null,
-        },
+        project: null,
       };
       spenderExpensesService.getById.and.returnValue(of(mockExtMileageData));
       component.mileageExpense$ = of(mockExtMileageData);
