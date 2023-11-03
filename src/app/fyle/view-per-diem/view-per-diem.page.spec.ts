@@ -413,9 +413,9 @@ describe('ViewPerDiemPage', () => {
       expect(component.isProjectShown).toBeTrue();
     }));
 
-    it('should set isProjectShown to false if project name and is empty string and project is not mandatory', fakeAsync(() => {
+    it('should set isProjectShown to false if project does not exist and project is not mandatory', fakeAsync(() => {
       const mockExpense = cloneDeep(perDiemExpense);
-      mockExpense.project.name = '';
+      mockExpense.project = null;
 
       spenderExpensesService.getById.and.returnValue(of(mockExpense));
       const mockExpenseField = cloneDeep(expenseFieldsMapResponse4);
