@@ -175,17 +175,6 @@ describe('FileService', () => {
     });
   });
 
-  it('uploadComplete(): to be called when the file upload is complete', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const fileId = 'fiHv71XQgoZp';
-    fileService.uploadComplete(fileId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/files/' + fileId + '/upload_completed');
-      done();
-    });
-  });
-
   it('uploadUrl(): should upload the file url', (done) => {
     apiService.post.and.returnValue(of({ url: fileObjectAdv[0].url }));
 

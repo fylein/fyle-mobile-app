@@ -157,10 +157,6 @@ export class OrgSettingsService {
           incoming.policy_settings &&
           incoming.policy_settings.allowed &&
           incoming.policy_settings.is_trip_request_policy_enabled,
-        advance_request_policy_enabled:
-          incoming.policy_settings &&
-          incoming.policy_settings.allowed &&
-          incoming.policy_settings.is_advance_request_policy_enabled,
         duplicate_detection_enabled:
           incoming.duplicate_detection_settings &&
           incoming.duplicate_detection_settings.allowed &&
@@ -489,7 +485,6 @@ export class OrgSettingsService {
         enable_individual_mileage_rates: outgoing.mileage.enable_individual_mileage_rates,
       },
       policy_settings: {
-        is_advance_request_policy_enabled: outgoing.policies.advance_request_policy_enabled,
         allowed: outgoing.policies.allowed,
         is_duplicate_detection_enabled: outgoing.policies.duplicate_detection_enabled,
         is_enabled: outgoing.policies.enabled,
