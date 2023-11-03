@@ -7,7 +7,6 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
-import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
@@ -28,7 +27,6 @@ import { StatsDimensionResponse } from '../models/stats-dimension-response.model
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
-import { PolicyViolationCheck } from '../models/policy-violation-check.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -63,7 +61,6 @@ export class AdvanceRequestService {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
-    private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
     private fileService: FileService
@@ -236,20 +233,6 @@ export class AdvanceRequestService {
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
-      })
-    );
-  }
-
-  testPolicy(advanceRequest: Partial<AdvanceRequests>): Observable<PolicyViolationCheck> {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (advanceRequest.created_at) {
-          advanceRequest.created_at = this.timezoneService.convertToUtc(
-            advanceRequest.created_at,
-            orgUserSettings.locale.offset
-          );
-        }
-        return this.advanceRequestPolicyService.servicePost<PolicyViolationCheck>('/policy_check/test', advanceRequest);
       })
     );
   }
