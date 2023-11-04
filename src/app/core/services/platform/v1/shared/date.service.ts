@@ -14,10 +14,14 @@ export class DateService {
   }
 
   fixDates<T>(object: T): T {
+    if (!object || typeof object !== 'object') {
+      return object;
+    }
+
     const clone = cloneDeep(object);
 
     for (const key in clone) {
-      if (Object.prototype.hasOwnProperty(key)) {
+      if (clone.hasOwnProperty(key)) {
         const valueType = typeof clone[key];
         if ((key.endsWith('_at') || this.dateFields.includes(key)) && valueType === 'string') {
           // @ts-expect-error
