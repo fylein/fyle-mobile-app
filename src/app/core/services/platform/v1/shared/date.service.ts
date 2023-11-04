@@ -21,7 +21,7 @@ export class DateService {
         const valueType = typeof clone[key];
         if ((key.endsWith('_at') || this.dateFields.includes(key)) && valueType === 'string') {
           // @ts-expect-error
-          clone[key] = this.getUTCDate(new Date(clone[key] as string));
+          clone[key] = this.getUTCDate(new Date(clone[key]));
         } else if (valueType === 'object') {
           clone[key] = this.fixDates(clone[key]);
         }
