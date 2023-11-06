@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 export class InvitationRequestsService {
   constructor(private routerApiService: RouterApiService) {}
 
-  upsertRouter(email: string): Observable<null> {
-    return this.routerApiService.post<null>('/invitation_requests/invite', { email });
+  upsertRouter(email: string): Observable<void> {
+    return this.routerApiService.post<void>('/invitation_requests/invite', { email });
   }
 }

@@ -40,13 +40,10 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { fileObjectData3, fileObjectData4 } from '../mock-data/file-object.data';
 import { fileData1, fileData2 } from '../mock-data/file.data';
-import { orgUserSettingsData } from '../mock-data/org-user-settings.data';
-import { checkPolicyData } from '../mock-data/policy-violation-check.data';
 import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
-import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { AdvanceRequestService } from './advance-request.service';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -62,7 +59,6 @@ describe('AdvanceRequestService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
   let authService: jasmine.SpyObj<AuthService>;
-  let advanceRequestPolicyService: jasmine.SpyObj<AdvanceRequestPolicyService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
   let fileService: jasmine.SpyObj<FileService>;
@@ -73,7 +69,6 @@ describe('AdvanceRequestService', () => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const advanceRequestPolicyServiceSpy = jasmine.createSpyObj('AdvanceRequestPolicyService', ['servicePost']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
@@ -94,10 +89,6 @@ describe('AdvanceRequestService', () => {
         {
           provide: AuthService,
           useValue: authServiceSpy,
-        },
-        {
-          provide: AdvanceRequestPolicyService,
-          useValue: advanceRequestPolicyServiceSpy,
         },
         {
           provide: DataTransformService,
@@ -122,9 +113,6 @@ describe('AdvanceRequestService', () => {
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    advanceRequestPolicyService = TestBed.inject(
-      AdvanceRequestPolicyService
-    ) as jasmine.SpyObj<AdvanceRequestPolicyService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -552,26 +540,6 @@ describe('AdvanceRequestService', () => {
 
       //@ts-ignore
       expect(advanceRequestService.getSortOrder({}, sortingDirection)).toEqual('areq_created_at.asc,areq_id.desc');
-    });
-  });
-
-  it('testPolicy(): should test policy violations', (done) => {
-    const date = '2023-02-23T19:37:01.207Z';
-    orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
-    advanceRequestPolicyService.servicePost.and.returnValue(of(checkPolicyData));
-    timezoneService.convertToUtc.and.returnValue(new Date(date));
-
-    advanceRequestService.testPolicy(checkPolicyAdvReqParam).subscribe((res) => {
-      expect(res).toEqual(checkPolicyData);
-      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(
-        checkPolicyAdvReqParam.created_at,
-        orgUserSettingsData.locale.offset
-      );
-      expect(advanceRequestPolicyService.servicePost).toHaveBeenCalledOnceWith(
-        '/policy_check/test',
-        checkPolicyAdvReqParam
-      );
-      done();
     });
   });
 

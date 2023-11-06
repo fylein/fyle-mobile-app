@@ -40,7 +40,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-per-diem--container" *ngIf="perDiemExpense$|async as perDiemExpense">
+  <div *ngIf="perDiemExpense$|async as perDiemExpense" class="view-per-diem--container">
     <ng-container *ngIf="perDiemExpense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
@@ -64,7 +64,7 @@
           {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
         </div>
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name ?? 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name || 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-per-diem--card-container__block">
@@ -224,7 +224,7 @@
     </ion-grid>
 
     <ion-grid
-      *ngIf="perDiemExpense.category?.name && perDiemExpense.category?.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
+      *ngIf="perDiemExpense.category && perDiemExpense.category.name && perDiemExpense.category.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
       class="view-per-diem--grid"
     >
       <ion-row>

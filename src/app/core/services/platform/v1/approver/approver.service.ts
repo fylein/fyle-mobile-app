@@ -2,6 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs/internal/Observable';
 import { environment } from 'src/environments/environment';
+import { DateService } from '../shared/date.service';
+import { map } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -9,7 +11,7 @@ import { environment } from 'src/environments/environment';
 export class ApproverService {
   ROOT_ENDPOINT: string;
 
-  constructor(private httpClient: HttpClient) {
+  constructor(private httpClient: HttpClient, private dateService: DateService) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
   }
 
@@ -18,10 +20,14 @@ export class ApproverService {
   }
 
   get<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/platform/v1/approver' + url, config);
+    return this.httpClient
+      .get<T>(this.ROOT_ENDPOINT + '/platform/v1/approver' + url, config)
+      .pipe(map((response) => this.dateService.fixDates(response)));
   }
 
   post<T>(url: string, config = {}): Observable<T> {
-    return this.httpClient.post<T>(this.ROOT_ENDPOINT + '/platform/v1/approver' + url, config);
+    return this.httpClient
+      .post<T>(this.ROOT_ENDPOINT + '/platform/v1/approver' + url, config)
+      .pipe(map((response) => this.dateService.fixDates(response)));
   }
 }
