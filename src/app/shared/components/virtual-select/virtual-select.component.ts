@@ -57,8 +57,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   private onTouchedCallback: () => void = noop;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private onChangeCallback: (_: any) => void = noop;
+  private onChangeCallback: (_: VirtualSelectOptions) => void = noop;
 
   constructor(
     private modalController: ModalController,
@@ -162,23 +161,19 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   handleDisplayNameException(): void {
     if (this.innerValue && this.innerValue.hasOwnProperty('display_name') && !this.displayValue) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/dot-notation
-      const display_name = this.innerValue['display_name'];
-      if (display_name) {
+      const displayName = this.innerValue['display_name'];
+      if (displayName) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-        this.displayValue = display_name;
+        this.displayValue = displayName;
       }
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerOnChange(fn: any): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  registerOnChange(fn: () => void): void {
     this.onChangeCallback = fn;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  registerOnTouched(fn: any): void {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }
