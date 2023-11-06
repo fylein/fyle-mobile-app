@@ -182,8 +182,8 @@ export class ViewPerDiemPage {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() =>
             this.view === ExpenseView.team
-              ? this.approverExpensesService.getById(id)
-              : this.spenderExpensesService.getById(id)
+              ? this.approverExpensesService.getExpenseById(id)
+              : this.spenderExpensesService.getExpenseById(id)
           )
         )
       ),
@@ -277,7 +277,7 @@ export class ViewPerDiemPage {
 
     this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1)
+      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(expense.state))
     );
 
     this.canDelete$ = this.perDiemExpense$.pipe(
@@ -285,12 +285,11 @@ export class ViewPerDiemPage {
       switchMap((expense) =>
         this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, expense }) => {
-        if (report.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.state) < 0;
-      })
+      map(({ report, expense }) =>
+        report.rp_num_transactions === 1
+          ? false
+          : !['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state)
+      )
     );
 
     if (id) {
