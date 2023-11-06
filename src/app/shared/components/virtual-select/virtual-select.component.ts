@@ -157,7 +157,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  //Hack for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
+  //Hack for display_name values added to resolve BR related to merchant name not in list of options, BR: https://app.clickup.com/t/85ztztwg6;
   handleDisplayNameException(): void {
     if (this.innerValue && this.innerValue.hasOwnProperty('display_name') && !this.displayValue) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/dot-notation
