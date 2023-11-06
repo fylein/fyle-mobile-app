@@ -397,7 +397,7 @@ export class ViewMileagePage {
     this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
-      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1)
+      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(expense.state))
     );
 
     this.canDelete$ = this.mileageExpense$.pipe(
@@ -410,7 +410,7 @@ export class ViewMileagePage {
         if (report.rp_num_transactions === 1) {
           return false;
         }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.state) < 0;
+        return !['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state);
       })
     );
 
