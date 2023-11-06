@@ -17,6 +17,8 @@ export class ExpensesService {
       },
     };
 
-    return this.approverService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
+    return this.approverService
+      .get<PlatformApiResponse<Expense>>('/expenses', data)
+      .pipe(map((response) => response.data[0]));
   }
 }

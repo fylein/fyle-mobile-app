@@ -22,12 +22,12 @@ export class SpenderService {
   get<T>(url: string, config = {}): Observable<T> {
     return this.httpClient
       .get<T>(this.ROOT_ENDPOINT + '/platform/v1/spender' + url, config)
-      .pipe(map((res) => this.dateService.fixDates(res)));
+      .pipe(map((response) => this.dateService.fixDates(response)));
   }
 
   post<T>(url: string, config = {}): Observable<T> {
     return this.httpClient
       .post<T>(this.ROOT_ENDPOINT + '/platform/v1/spender' + url, config)
-      .pipe(map((res) => this.dateService.fixDates(res)));
+      .pipe(map((response) => this.dateService.fixDates(response)));
   }
 }

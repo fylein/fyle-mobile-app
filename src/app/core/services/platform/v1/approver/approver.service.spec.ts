@@ -55,8 +55,8 @@ describe('ApproverService', () => {
     httpClient.get.and.returnValue(of(apiResponse));
     dateService.fixDates.and.returnValue(apiResponse);
 
-    approverService.get('/expense_fields').subscribe((res) => {
-      expect(res).toEqual(apiResponse);
+    approverService.get('/expense_fields').subscribe((response) => {
+      expect(response).toEqual(apiResponse);
       expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/approver/expense_fields', {});
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(apiResponse);
       done();
@@ -71,8 +71,8 @@ describe('ApproverService', () => {
       .get('/expense_fields', {
         params: requestObj,
       })
-      .subscribe((res) => {
-        expect(res).toEqual(apiResponse);
+      .subscribe((response) => {
+        expect(response).toEqual(apiResponse);
         expect(httpClient.get).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/approver/expense_fields', {
           params: requestObj,
         });
@@ -85,8 +85,8 @@ describe('ApproverService', () => {
     httpClient.post.and.returnValue(of(apiResponse));
     dateService.fixDates.and.returnValue(apiResponse);
 
-    approverService.post('/expense_fields').subscribe((res) => {
-      expect(res).toEqual(apiResponse);
+    approverService.post('/expense_fields').subscribe((response) => {
+      expect(response).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledWith('https://staging.fyle.tech/platform/v1/approver/expense_fields', {});
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(apiResponse);
       done();
@@ -97,8 +97,8 @@ describe('ApproverService', () => {
     httpClient.post.and.returnValue(of(apiResponse));
     dateService.fixDates.and.returnValue(apiResponse);
 
-    approverService.post('/expense_fields', requestObj).subscribe((res) => {
-      expect(res).toEqual(apiResponse);
+    approverService.post('/expense_fields', requestObj).subscribe((response) => {
+      expect(response).toEqual(apiResponse);
       expect(httpClient.post).toHaveBeenCalledWith(
         'https://staging.fyle.tech/platform/v1/approver/expense_fields',
         requestObj

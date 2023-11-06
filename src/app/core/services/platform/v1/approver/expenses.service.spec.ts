@@ -25,9 +25,9 @@ describe('ExpensesService', () => {
     approverService.get.and.returnValue(of({ data: [expenseData] }));
     const expenseId = 'txOJVaaPxo9O';
 
-    service.getById(expenseId).subscribe((res) => {
-      expect(res).toBeTruthy();
-      expect(res).toEqual(expenseData);
+    service.getById(expenseId).subscribe((response) => {
+      expect(response).toBeTruthy();
+      expect(response).toEqual(expenseData);
 
       expect(approverService.get).toHaveBeenCalledOnceWith(`/expenses`, {
         params: {
