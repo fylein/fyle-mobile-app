@@ -256,7 +256,7 @@ describe('VirtualSelectModalComponent', () => {
       expect(component.displayValue).toBeUndefined();
     });
 
-    it('should not set the value of displayValue if innerValue is null', () => {
+    it('should not set the value of displayValue if innerValue is null or unset', () => {
       //@ts-ignore
       component.innerValue = null;
       component.handleDisplayNameException();
