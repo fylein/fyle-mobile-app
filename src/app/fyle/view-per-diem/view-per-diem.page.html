@@ -40,7 +40,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-per-diem--container" *ngIf="perDiemExpense$|async as perDiemExpense">
+  <div *ngIf="perDiemExpense$|async as perDiemExpense" class="view-per-diem--container">
     <ng-container *ngIf="perDiemExpense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
