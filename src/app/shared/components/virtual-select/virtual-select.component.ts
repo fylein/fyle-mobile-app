@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { SelectionReturnType, VirtualSelectOptionValues } from './virtual-select.model';
 
 @Component({
   selector: 'app-virtual-select',
@@ -19,7 +20,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
   ],
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
-  @Input() options: { label: string; value: any }[] = [];
+  @Input() options: { label: string; value: Partial<VirtualSelectOptionValues> }[] = [];
 
   @Input() disabled = false;
 
@@ -27,7 +28,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() mandatory = false;
 
-  @Input() selectionElement: TemplateRef<any>;
+  @Input() selectionElement: TemplateRef<unknown>;
 
   @Input() nullOption = true;
 
@@ -43,18 +44,19 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() placeholder: string;
 
-  @Input() defaultLabelProp;
+  @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: any; selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: Partial<VirtualSelectOptionValues>; selected?: boolean }[];
 
-  displayValue;
+  displayValue: string;
 
-  private innerValue;
+  private innerValue: Partial<VirtualSelectOptionValues>;
 
   private ngControl: NgControl;
 
   private onTouchedCallback: () => void = noop;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private onChangeCallback: (_: any) => void = noop;
 
   constructor(
@@ -63,7 +65,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     private modalProperties: ModalPropertiesService
   ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
     } else {
@@ -71,11 +73,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  get value(): any {
+  get value(): Partial<VirtualSelectOptionValues> {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: Partial<VirtualSelectOptionValues>) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -85,21 +87,21 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
         } else if (this.innerValue && this.defaultLabelProp) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           this.displayValue = this.innerValue[this.defaultLabelProp];
         } else {
           this.displayValue = '';
         }
       }
-
       this.onChangeCallback(v);
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const cssClass = this.label === 'Payment Mode' ? 'payment-mode-modal' : 'virtual-modal';
 
     const selectionModal = await this.modalController.create({
@@ -125,41 +127,50 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
-
+    const { data }: { data?: SelectionReturnType } = await selectionModal.onWillDismiss();
     if (data) {
       this.value = data.value;
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: Partial<VirtualSelectOptionValues>): void {
+    console.log(this.options);
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
         const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
-
         if (selectedOption && selectedOption.label) {
           this.displayValue = selectedOption.label;
         } else if (typeof this.innerValue === 'string') {
           this.displayValue = this.innerValue;
         } else if (this.innerValue && this.defaultLabelProp) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
           this.displayValue = this.innerValue[this.defaultLabelProp];
         } else {
           this.displayValue = '';
+        }
+
+        //exception for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
+        if (this.innerValue?.display_name) {
+          this.displayValue = value.display_name;
         }
       }
     }
   }
 
-  registerOnChange(fn: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnChange(fn: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  registerOnTouched(fn: any): void {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     this.onTouchedCallback = fn;
   }
 }
