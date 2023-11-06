@@ -42,7 +42,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-mileage--container" *ngIf="mileageExpense$|async as expense">
+  <div *ngIf="mileageExpense$|async as expense" class="view-mileage--container">
     <ng-container *ngIf="expense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
@@ -66,7 +66,7 @@
           {{expense.distance || 0}} {{expense.distance_unit | titlecase}}
         </div>
         <div *ngIf="isProjectShown" class="view-mileage--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ expense.project?.name ?? 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ expense.project?.name || 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-mileage--card-container__block">
@@ -257,7 +257,7 @@
     <ion-grid class="view-mileage--grid">
       <ion-row>
         <ion-col
-          *ngIf="expense.category?.name && expense.category?.sub_category && (expense.category.name !== expense.category.sub_category)"
+          *ngIf="expense.category && expense.category.name && expense.category.sub_category && (expense.category.name !== expense.category.sub_category)"
           size="6"
         >
           <ion-grid>

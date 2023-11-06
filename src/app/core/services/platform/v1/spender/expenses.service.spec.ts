@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ExpensesService } from './expenses.service';
 import { SpenderService } from './spender.service';
-import { expenseData1 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -21,13 +21,13 @@ describe('ExpensesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getById(): should return expense with the given id', (done) => {
-    spenderService.get.and.returnValue(of({ data: [expenseData1] }));
+  it('getExpenseById(): should return expense with the given id', (done) => {
+    spenderService.get.and.returnValue(of({ data: [expenseData] }));
     const expenseId = 'txOJVaaPxo9O';
 
-    service.getById(expenseId).subscribe((res) => {
-      expect(res).toBeTruthy();
-      expect(res).toEqual(expenseData1);
+    service.getExpenseById(expenseId).subscribe((response) => {
+      expect(response).toBeTruthy();
+      expect(response).toEqual(expenseData);
 
       expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
         params: {

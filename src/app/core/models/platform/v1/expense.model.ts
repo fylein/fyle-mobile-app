@@ -20,8 +20,8 @@ export interface Expense {
   // `activity_details` is not added on purpose
   accounting_export_summary: {} | AccountingExportSummary;
   is_exported: boolean;
-  last_exported_at: string;
-  added_to_report_at: string;
+  last_exported_at: Date;
+  added_to_report_at: Date;
   admin_amount: number;
   approvals: ReportApprovals[];
   amount: number;
@@ -32,7 +32,7 @@ export interface Expense {
   code: string;
   cost_center_id: number;
   cost_center: Pick<PlatformCostCenter, 'id' | 'name' | 'code'>;
-  created_at: string;
+  created_at: Date;
   creator_user_id: string;
   currency: string;
   custom_fields: NameValuePair[];
@@ -42,7 +42,7 @@ export interface Expense {
   distance_unit: MileageUnitEnum;
   employee: Employee;
   employee_id: string;
-  ended_at: string;
+  ended_at: Date;
   expense_rule_data: ExpenseRuleData;
   expense_rule_id: string;
   extracted_data: ParsedResponse;
@@ -62,8 +62,8 @@ export interface Expense {
   is_split: boolean;
   is_verified: boolean;
   is_weekend_spend: boolean;
-  last_settled_at: string;
-  last_verified_at: string;
+  last_settled_at: Date;
+  last_verified_at: Date;
   locations: Location[];
   matched_corporate_card_transaction_ids: string[];
   matched_corporate_card_transactions: MatchedCorporateCardTransaction[];
@@ -78,7 +78,7 @@ export interface Expense {
   per_diem_num_days: number;
   per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
   per_diem_rate_id: number;
-  physical_bill_submitted_at: string;
+  physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
   policy_amount: number;
   project_id: number;
@@ -91,22 +91,22 @@ export interface Expense {
   source: string;
   source_account: Pick<Account, 'id' | 'type'>;
   source_account_id: string;
-  spent_at: string;
+  spent_at: Date;
   split_group_amount: number;
   split_group_id: string;
-  started_at: string;
+  started_at: Date;
   state: ExpenseState;
   state_display_name: string;
   tax_amount: number;
   tax_group: Pick<PlatformTaxGroup, 'name' | 'percentage'>;
   tax_group_id: string;
   travel_classes: string[];
-  updated_at: string;
+  updated_at: Date;
   user: User;
   user_id: string;
   verifier_comments: string[];
-  report_last_paid_at: string;
-  report_last_approved_at: string;
+  report_last_paid_at: Date;
+  report_last_approved_at: Date;
 }
 
 export interface Employee {
@@ -138,8 +138,8 @@ export interface MatchedCorporateCardTransaction {
   cardholder_name: string;
   amount: number;
   currency: string;
-  spent_at: string;
-  posted_at: string;
+  spent_at: Date;
+  posted_at: Date;
   description: string;
   foreign_currency: string;
   status: string;
@@ -165,13 +165,13 @@ export interface Report {
   amount: number;
   approvals: ReportApprovals[];
   id: string;
-  last_approved_at: string;
-  last_paid_at: string;
-  last_submitted_at: string;
+  last_approved_at: Date;
+  last_paid_at: Date;
+  last_submitted_at: Date;
   seq_num: string;
   state: ReportState;
   settlement_id: string;
-  last_verified_at: string;
+  last_verified_at: Date;
   reimbursement_id: string;
   reimbursement_seq_num: string;
   title: string;
