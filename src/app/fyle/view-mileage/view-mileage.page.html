@@ -42,7 +42,7 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-mileage--container" *ngIf="mileageExpense$|async as expense">
+  <div *ngIf="mileageExpense$|async as expense" class="view-mileage--container">
     <ng-container *ngIf="expense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
