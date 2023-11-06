@@ -1,4 +1,4 @@
-export interface VirtualSelectOptionValues {
+interface VirtualSelectOptionValues {
   display_name: string;
   active: boolean;
   code: string;
@@ -12,10 +12,14 @@ export interface VirtualSelectOptionValues {
   enabled: boolean;
   fyle_category: string;
   sub_category: string;
+  travelClass: string;
+  vendor: string;
 }
 
 export interface SelectionReturnType {
   label: string;
   selected: boolean;
-  value: Partial<VirtualSelectOptionValues>;
+  value: Partial<VirtualSelectOptionValues> | string;
 }
+
+export type VirtualSelectOptions = Partial<VirtualSelectOptionValues> | string;

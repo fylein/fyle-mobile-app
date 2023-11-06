@@ -5,7 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { VirtualSelectModalComponent } from './virtual-select-modal/virtual-select-modal.component';
 import { isEqual } from 'lodash';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { SelectionReturnType, VirtualSelectOptionValues } from './virtual-select.model';
+import { SelectionReturnType, VirtualSelectOptions } from './virtual-select.model';
 
 @Component({
   selector: 'app-virtual-select',
@@ -20,7 +20,7 @@ import { SelectionReturnType, VirtualSelectOptionValues } from './virtual-select
   ],
 })
 export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
-  @Input() options: { label: string; value: Partial<VirtualSelectOptionValues> }[] = [];
+  @Input() options: { label: string; value: VirtualSelectOptions }[] = [];
 
   @Input() disabled = false;
 
@@ -46,11 +46,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() defaultLabelProp: string;
 
-  @Input() recentlyUsed: { label: string; value: Partial<VirtualSelectOptionValues>; selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: VirtualSelectOptions; selected?: boolean }[];
 
   displayValue: string;
 
-  private innerValue: Partial<VirtualSelectOptionValues>;
+  private innerValue: VirtualSelectOptions;
 
   private ngControl: NgControl;
 
@@ -73,11 +73,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     }
   }
 
-  get value(): Partial<VirtualSelectOptionValues> {
+  get value(): VirtualSelectOptions {
     return this.innerValue;
   }
 
-  set value(v: Partial<VirtualSelectOptionValues>) {
+  set value(v: VirtualSelectOptions) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       if (this.options) {
@@ -137,7 +137,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
     this.onTouchedCallback();
   }
 
-  writeValue(value: Partial<VirtualSelectOptionValues>): void {
+  writeValue(value: VirtualSelectOptions): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
@@ -153,9 +153,11 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
           this.displayValue = '';
         }
 
-        //exception for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
-        if (this.innerValue?.display_name) {
-          this.displayValue = value.display_name;
+        //Hack for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
+        const { display_name } = this.innerValue as { display_name: string };
+        if (display_name) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          this.displayValue = display_name;
         }
       }
     }
