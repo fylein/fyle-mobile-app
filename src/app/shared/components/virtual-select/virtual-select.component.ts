@@ -152,13 +152,19 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
         } else {
           this.displayValue = '';
         }
+        this.handleDisplayNameException();
+      }
+    }
+  }
 
-        //Hack for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
-        const { display_name } = this.innerValue as { display_name: string };
-        if (display_name) {
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          this.displayValue = display_name;
-        }
+  handleDisplayNameException(): void {
+    //Hack for display_name values added to resolve BR related to merchant name not in list, BR: https://app.clickup.com/t/85ztztwg6;
+    if (this.innerValue && this.innerValue.hasOwnProperty('display_name')) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/dot-notation
+      const display_name = this.innerValue['display_name'];
+      if (display_name) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        this.displayValue = display_name;
       }
     }
   }
