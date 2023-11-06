@@ -14,6 +14,8 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { of } from 'rxjs';
 import { apiAuthRes, authResData1 } from '../mock-data/auth-reponse.data';
 import { ExpenseAggregationService } from './expense-aggregation.service';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { ApproverService } from './platform/v1/approver/approver.service';
 
 describe('RouterAuthService', () => {
   let routerAuthService: RouterAuthService;
@@ -29,6 +31,8 @@ describe('RouterAuthService', () => {
   let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let expenseAggregationService: jasmine.SpyObj<ExpenseAggregationService>;
+  let spenderService: jasmine.SpyObj<SpenderService>;
+  let approverService: jasmine.SpyObj<ApproverService>;
 
   const access_token =
     'eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjE2Nzk5MDQ0NTQsImlzcyI6IkZ5bGVBcHAiLCJ1c2VyX2lkIjoidXN2S0E0WDhVZ2NyIiwib3JnX3VzZXJfaWQiOiJvdVg4ZHdzYkxDTHYiLCJvcmdfaWQiOiJvck5WdGhUbzJaeW8iLCJyb2xlcyI6IltcIkFETUlOXCIsXCJBUFBST1ZFUlwiLFwiRllMRVJcIixcIkhPUFwiLFwiSE9EXCIsXCJPV05FUlwiXSIsInNjb3BlcyI6IltdIiwiYWxsb3dlZF9DSURScyI6IltdIiwidmVyc2lvbiI6IjMiLCJjbHVzdGVyX2RvbWFpbiI6IlwiaHR0cHM6Ly9zdGFnaW5nLmZ5bGUudGVjaFwiIiwiZXhwIjoxNjc5OTA4MDU0fQ.z3i-MqE3NNyxPEvWFCSr3q58rLXn3LZcIBskW9BLN48';
@@ -56,6 +60,9 @@ describe('RouterAuthService', () => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['setRoot']);
     const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['setRoot']);
     const expenseAggregationServiceSpy = jasmine.createSpyObj('ExpenseAggregationService', ['setRoot']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['setRoot']);
+    const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['setRoot']);
+
     TestBed.configureTestingModule({
       providers: [
         RouterAuthService,
@@ -107,6 +114,14 @@ describe('RouterAuthService', () => {
           provide: ExpenseAggregationService,
           useValue: expenseAggregationServiceSpy,
         },
+        {
+          provide: SpenderService,
+          useValue: spenderServiceSpy,
+        },
+        {
+          provide: ApproverService,
+          useValue: approverServiceSpy,
+        },
       ],
     });
     routerAuthService = TestBed.inject(RouterAuthService);
@@ -126,6 +141,8 @@ describe('RouterAuthService', () => {
       ApproverPlatformApiService
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     expenseAggregationService = TestBed.inject(ExpenseAggregationService) as jasmine.SpyObj<ExpenseAggregationService>;
+    spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
+    approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;
   });
 
   it('should be created', () => {
@@ -159,6 +176,8 @@ describe('RouterAuthService', () => {
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledTimes(2);
       expect(tokenService.setClusterDomain).toHaveBeenCalledOnceWith(domain);
       expect(expenseAggregationService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(spenderService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(approverService.setRoot).toHaveBeenCalledOnceWith(domain);
       done();
     });
   });
