@@ -57,7 +57,7 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   private onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: VirtualSelectOptions) => void = noop;
+  private onChangeCallback: (_: () => void) => void = noop;
 
   constructor(
     private modalController: ModalController,
