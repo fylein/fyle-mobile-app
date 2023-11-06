@@ -211,7 +211,6 @@ export interface PolicySettings {
   is_enabled?: boolean;
   is_self_serve_enabled?: boolean;
   is_trip_request_policy_enabled?: boolean;
-  is_advance_request_policy_enabled?: boolean;
   is_duplicate_detection_enabled?: boolean;
   policy_approval_workflow?: boolean;
 }
@@ -449,7 +448,6 @@ export interface UiPolicySettings {
   allowed?: boolean;
   enabled?: boolean;
   self_serve_enabled?: boolean;
-  advance_request_policy_enabled?: boolean;
   duplicate_detection_enabled?: boolean;
   trip_request_policy_enabled?: boolean;
   policyApprovalWorkflow?: boolean;
