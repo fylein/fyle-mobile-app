@@ -353,8 +353,8 @@ export class ViewMileagePage {
       }
 
       if (
-        expense.mileage_rate?.vehicle_type.toLowerCase().indexOf('four') > -1 ||
-        expense.mileage_rate?.vehicle_type.toLowerCase().indexOf('car') > -1
+        expense.mileage_rate?.vehicle_type.toLowerCase().includes('four') ||
+        expense.mileage_rate?.vehicle_type.toLowerCase().includes('car')
       ) {
         this.vehicleType = 'car';
       } else {
