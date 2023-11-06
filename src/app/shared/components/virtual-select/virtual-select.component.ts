@@ -28,7 +28,8 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
 
   @Input() mandatory = false;
 
-  @Input() selectionElement: TemplateRef<unknown>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @Input() selectionElement: TemplateRef<any>;
 
   @Input() nullOption = true;
 
