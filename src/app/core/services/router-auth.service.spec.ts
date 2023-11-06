@@ -187,6 +187,8 @@ describe('RouterAuthService', () => {
       expect(spenderPlatformV1ApiService.setRoot).toHaveBeenCalledTimes(2);
       expect(tokenService.setClusterDomain).toHaveBeenCalledOnceWith(domain);
       expect(expenseAggregationService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(spenderService.setRoot).toHaveBeenCalledOnceWith(domain);
+      expect(approverService.setRoot).toHaveBeenCalledOnceWith(domain);
       done();
     });
   });
