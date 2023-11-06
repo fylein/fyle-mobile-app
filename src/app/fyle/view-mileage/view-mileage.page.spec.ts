@@ -578,7 +578,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the correct report id and set proper payment mode and icon', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         source_account: {
           ...mileageExpense.source_account,
@@ -586,12 +586,12 @@ describe('ViewMileagePage', () => {
         },
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
-        expect(component.reportId).toEqual(mockExtMileageData.report_id);
+        expect(data).toEqual(mockMileageExpense);
+        expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid from Advance');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
         done();
@@ -599,17 +599,17 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the correct payment mode and icon when reimbursement is skipped', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         is_reimbursable: false,
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
-        expect(component.reportId).toEqual(mockExtMileageData.report_id);
+        expect(data).toEqual(mockMileageExpense);
+        expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid by Company');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
         done();
@@ -627,7 +627,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word four in it', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         mileage_rate: {
           ...mileageExpense.mileage_rate,
@@ -635,18 +635,18 @@ describe('ViewMileagePage', () => {
         },
       };
 
-      component.mileageExpense$ = of(mockExtMileageData);
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('car');
         done();
       });
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word car in it', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         mileage_rate: {
           ...mileageExpense.mileage_rate,
@@ -654,30 +654,30 @@ describe('ViewMileagePage', () => {
         },
       };
 
-      component.mileageExpense$ = of(mockExtMileageData);
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
 
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('car');
         done();
       });
     });
 
     it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         mileage_rate: {
           ...mileageExpense.mileage_rate,
           vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
         },
       };
-      component.mileageExpense$ = of(mockExtMileageData);
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('bike');
         done();
       });
@@ -712,12 +712,12 @@ describe('ViewMileagePage', () => {
     }));
 
     it('should show the project details when project is not present but mandatory', fakeAsync(() => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         project: null,
       };
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
 
       component.ionViewWillEnter();
       tick(500);
@@ -826,11 +826,11 @@ describe('ViewMileagePage', () => {
 
     it('expense cannot be flagged when the view is set to indivivual', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.individual;
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         state: ExpenseState.PAID,
       };
-      component.mileageExpense$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
         expect(isEmpty).toBeTrue();
@@ -839,57 +839,57 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         state: ExpenseState.PAID,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.state).toEqual(ExpenseState.PAID);
+        expect(mockMileageExpense.state).toEqual(ExpenseState.PAID);
         expect(res).toBeFalse();
         done();
       });
     });
 
     it('should return true if the transaction state is APPROVER_PENDING and there are more than one transactions in the report', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      approverExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.state).toEqual(ExpenseState.APPROVER_PENDING);
+        expect(mockMileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
     });
 
     it('should not delete expense when view is individual', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         state: ExpenseState.APPROVER_PENDING,
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
 
@@ -956,13 +956,13 @@ describe('ViewMileagePage', () => {
 
     it('should be true if expense policy is violated', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         policy_amount: -1,
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -972,7 +972,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         policy_amount: 1000,
         admin_amount: null,
@@ -980,8 +980,8 @@ describe('ViewMileagePage', () => {
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -993,7 +993,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         admin_amount: 1000,
         policy_amount: null,
@@ -1001,8 +1001,8 @@ describe('ViewMileagePage', () => {
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -1013,14 +1013,14 @@ describe('ViewMileagePage', () => {
 
     it('should return false if the value is not of type number and check if the expense is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
-      const mockExtMileageData: Expense = {
+      const mockMileageExpense: Expense = {
         ...mileageExpense,
         admin_amount: null,
         policy_amount: null,
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExtMileageData));
-      component.mileageExpense$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();
