@@ -6,7 +6,7 @@ import { cloneDeep } from 'lodash';
 })
 export class DateService {
   // List of date fields that are not suffixed with _at
-  dateFields = ['date', 'invoice_dt'];
+  dateFields = ['date', 'invoice_dt', 'start_date', 'end_date'];
 
   getUTCDate(date: Date): Date {
     const userTimezoneOffset = date.getTimezoneOffset() * 60000;
