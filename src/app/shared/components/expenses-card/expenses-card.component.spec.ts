@@ -844,7 +844,7 @@ describe('ExpensesCardComponent', () => {
         tx_amount: 0,
         tx_org_category: 'Per Diem',
       };
-      const result = component.isPerDiemWithZeroAmount();
+      const result = component.isZeroAmountPerDiem();
       expect(result).toBeTrue();
     });
 
@@ -855,7 +855,7 @@ describe('ExpensesCardComponent', () => {
         tx_user_amount: 0,
         tx_org_category: 'Per Diem',
       };
-      const result = component.isPerDiemWithZeroAmount();
+      const result = component.isZeroAmountPerDiem();
       expect(result).toBeTrue();
     });
 
@@ -864,7 +864,7 @@ describe('ExpensesCardComponent', () => {
         ...expenseData1,
         tx_org_category: null,
       };
-      const result = component.isPerDiemWithZeroAmount();
+      const result = component.isZeroAmountPerDiem();
       expect(result).toBeFalse();
     });
   });

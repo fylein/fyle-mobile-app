@@ -172,7 +172,7 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  isPerDiemWithZeroAmount(): boolean {
+  isZeroAmountPerDiem(): boolean {
     return (
       this.expense.tx_org_category?.toLowerCase() === 'per diem' &&
       (this.expense.tx_amount === 0 || this.expense.tx_user_amount === 0)
@@ -180,7 +180,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkIfScanIsCompleted(): boolean {
-    const isPerDiem = this.isPerDiemWithZeroAmount();
+    const isPerDiem = this.isZeroAmountPerDiem();
     const hasUserManuallyEnteredData =
       isPerDiem ||
       ((this.expense.tx_amount || this.expense.tx_user_amount) &&
