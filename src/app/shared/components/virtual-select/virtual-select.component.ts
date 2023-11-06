@@ -138,7 +138,6 @@ export class VirtualSelectComponent implements ControlValueAccessor, OnInit {
   }
 
   writeValue(value: Partial<VirtualSelectOptionValues>): void {
-    console.log(this.options);
     if (value !== this.innerValue) {
       this.innerValue = value;
       if (this.options) {
