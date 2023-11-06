@@ -257,7 +257,7 @@
     <ion-grid class="view-mileage--grid">
       <ion-row>
         <ion-col
-          *ngIf="expense.category?.name && expense.category?.sub_category && (expense.category.name !== expense.category.sub_category)"
+          *ngIf="expense.category && expense.category.name && expense.category.sub_category && (expense.category.name !== expense.category.sub_category)"
           size="6"
         >
           <ion-grid>
