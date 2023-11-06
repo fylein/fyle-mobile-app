@@ -3,7 +3,7 @@ import { ApprovalState } from 'src/app/core/models/platform/report-approvals.mod
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
-export const expenseData1: Expense = {
+export const expenseData: Expense = {
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
@@ -37,7 +37,7 @@ export const expenseData1: Expense = {
     name: '80001_UKoffice',
   },
   cost_center_id: 2885,
-  created_at: '2023-10-30T06:30:23.577020+00:00',
+  created_at: new Date('2023-10-30T06:30:23.577020+00:00'),
   creator_user_id: 'us29O6z3jnd3',
   currency: 'INR',
   custom_fields: [
@@ -330,7 +330,7 @@ export const expenseData1: Expense = {
     type: AccountType.PERSONAL_CASH_ACCOUNT,
   },
   source_account_id: 'accNL82BMedrB',
-  spent_at: '2023-10-30T06:30:23.432000+00:00',
+  spent_at: new Date('2023-10-30T06:30:23.432000+00:00'),
   split_group_amount: 103500.39,
   split_group_id: 'txe0bYaJlRJf',
   started_at: null,
@@ -343,7 +343,7 @@ export const expenseData1: Expense = {
   },
   tax_group_id: null,
   travel_classes: [],
-  updated_at: '2023-10-30T06:30:28.730426+00:00',
+  updated_at: new Date('2023-10-30T06:30:28.730426+00:00'),
   user: {
     email: 'omkar.j@fyle.in',
     full_name: 'Omkar',

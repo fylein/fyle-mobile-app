@@ -39,17 +39,6 @@
             >
               {{ estatus.st_comment }}
             </div>
-            <div
-              *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-              class="view-comment--comment-detail"
-            >
-              {{ estatus.st_comment }}
-            </div>
-            <a
-              *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-              (click)="openViewExpense()"
-              >{{ this.expenseNumber }}
-            </a>
           </ion-col>
         </ion-row>
         <ion-row>
@@ -84,17 +73,6 @@
             >
               {{ estatus.st_comment }}
             </div>
-            <div
-              *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-              class="view-comment--comment-detail"
-            >
-              {{ estatus.st_comment }}
-            </div>
-            <a
-              *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
-              (click)="openViewExpense()"
-              >{{ this.expenseNumber }}
-            </a>
           </ion-col>
         </ion-row>
         <ion-row>
