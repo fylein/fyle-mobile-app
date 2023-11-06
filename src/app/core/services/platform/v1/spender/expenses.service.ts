@@ -10,7 +10,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 export class ExpensesService {
   constructor(private spenderService: SpenderService) {}
 
-  getById(id: string): Observable<Expense> {
+  getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
         id: `eq.${id}`,

@@ -3,7 +3,7 @@ import { ApprovalState } from 'src/app/core/models/platform/report-approvals.mod
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
-export const expenseData1: Expense = {
+export const expenseData: Expense = {
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
