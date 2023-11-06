@@ -497,14 +497,6 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
-  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
-    return this.apiService.get('/transactions', {
-      params: {
-        expense_number: expenseNumber,
-      },
-    });
-  }
-
   getVendorDetails(expense: Expense): string {
     const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
     let vendorDisplayName = expense.tx_vendor;
