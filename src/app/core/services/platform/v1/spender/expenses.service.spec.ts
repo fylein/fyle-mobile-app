@@ -25,9 +25,9 @@ describe('ExpensesService', () => {
     spenderService.get.and.returnValue(of({ data: [expenseData] }));
     const expenseId = 'txOJVaaPxo9O';
 
-    service.getExpenseById(expenseId).subscribe((res) => {
-      expect(res).toBeTruthy();
-      expect(res).toEqual(expenseData);
+    service.getExpenseById(expenseId).subscribe((response) => {
+      expect(response).toBeTruthy();
+      expect(response).toEqual(expenseData);
 
       expect(spenderService.get).toHaveBeenCalledOnceWith(`/expenses`, {
         params: {
