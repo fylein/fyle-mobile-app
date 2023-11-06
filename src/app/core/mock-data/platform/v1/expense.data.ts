@@ -739,7 +739,7 @@ export const mileageExpense: Expense = {
 
 export const perDiemExpense: Expense = {
   accounting_export_summary: {},
-  added_to_report_at: '2023-11-02T07:56:41.065000+00:00',
+  added_to_report_at: new Date('2023-11-02T07:56:41.065000+00:00'),
   admin_amount: null,
   amount: 440,
   approvals: [
@@ -767,7 +767,7 @@ export const perDiemExpense: Expense = {
   code: null,
   cost_center: null,
   cost_center_id: null,
-  created_at: '2023-11-02T07:46:42.549015+00:00',
+  created_at: new Date('2023-11-02T07:46:42.549015+00:00'),
   creator_user_id: 'usvKA4X8Ugcr',
   currency: 'INR',
   custom_fields: [
@@ -950,7 +950,7 @@ export const perDiemExpense: Expense = {
     user_id: 'usvKA4X8Ugcr',
   },
   employee_id: 'ouCI4UQ2G0K1',
-  ended_at: '2023-11-22T06:30:00+00:00',
+  ended_at: new Date('2023-11-22T06:30:00+00:00'),
   expense_rule_data: null,
   expense_rule_id: null,
   extracted_data: null,
@@ -1030,7 +1030,7 @@ export const perDiemExpense: Expense = {
     id: 'rpFvmTgyeBjN',
     last_approved_at: null,
     last_paid_at: null,
-    last_submitted_at: '2023-10-31T00:00:01.237+00:00',
+    last_submitted_at: new Date('2023-10-31T00:00:01.237+00:00'),
     last_verified_at: null,
     reimbursement_id: null,
     reimbursement_seq_num: null,
@@ -1050,10 +1050,10 @@ export const perDiemExpense: Expense = {
     type: AccountType.PERSONAL_CASH_ACCOUNT,
   },
   source_account_id: 'accfziaxbGFVW',
-  spent_at: '2023-11-01T06:30:00+00:00',
+  spent_at: new Date('2023-11-01T06:30:00+00:00'),
   split_group_amount: 440,
   split_group_id: 'txhlIisPqUxc',
-  started_at: '2023-11-01T06:30:00+00:00',
+  started_at: new Date('2023-11-01T06:30:00+00:00'),
   state: ExpenseState.APPROVER_PENDING,
   state_display_name: 'Submitted',
   tax_amount: null,
@@ -1063,7 +1063,7 @@ export const perDiemExpense: Expense = {
   },
   tax_group_id: null,
   travel_classes: [],
-  updated_at: '2023-11-02T07:56:41.156199+00:00',
+  updated_at: new Date('2023-11-02T07:56:41.156199+00:00'),
   user: {
     email: 'ajain@fyle.in',
     full_name: 'Abhishek Jain',

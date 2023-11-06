@@ -95,8 +95,8 @@ describe('ViewPerDiemPage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
-    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getById']);
-    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getById']);
+    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
 
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
@@ -284,8 +284,8 @@ describe('ViewPerDiemPage', () => {
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      spenderExpensesService.getById.and.returnValue(of(perDiemExpense));
-      approverExpensesService.getById.and.returnValue(of(perDiemExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -308,7 +308,7 @@ describe('ViewPerDiemPage', () => {
           })
         )
         .subscribe((extendedPerDiem) => {
-          expect(spenderExpensesService.getById).toHaveBeenCalledOnceWith('tx3qwe4ty');
+          expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qwe4ty');
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
           expect(extendedPerDiem).toEqual(perDiemExpense);
         });
@@ -381,7 +381,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.source_account.type = AccountType.PERSONAL_ADVANCE_ACCOUNT;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid from Advance');
@@ -392,7 +392,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.is_reimbursable = false;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid by Company');
@@ -417,7 +417,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.project = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       const mockExpenseField = cloneDeep(expenseFieldsMapResponse4);
       mockExpenseField.project_id[0].is_mandatory = false;
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseField));
@@ -445,7 +445,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.per_diem_rate_id = 508;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
@@ -471,7 +471,7 @@ describe('ViewPerDiemPage', () => {
     it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
-      approverExpensesService.getById.and.returnValue(of(perDiemExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       component.ionViewWillEnter();
       expect(component.view).toEqual(ExpenseView.team);
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
@@ -485,7 +485,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.state = ExpenseState.PAID;
 
-      approverExpensesService.getById.and.returnValue(of(mockExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
         expect(canFlagOrUnflag).toBeFalse();
@@ -496,7 +496,7 @@ describe('ViewPerDiemPage', () => {
     it('should set canDelete$ to false if report transaction equals 1', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
-      approverExpensesService.getById.and.returnValue(of(perDiemExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
         expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
@@ -514,7 +514,7 @@ describe('ViewPerDiemPage', () => {
       mockReport.rp_num_transactions = 2;
 
       reportService.getTeamReport.and.returnValue(of(mockReport));
-      approverExpensesService.getById.and.returnValue(of(mockExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
@@ -572,7 +572,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.policy_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
@@ -587,7 +587,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.policy_amount = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
@@ -602,7 +602,7 @@ describe('ViewPerDiemPage', () => {
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.admin_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
@@ -618,7 +618,7 @@ describe('ViewPerDiemPage', () => {
       mockExpense.admin_amount = null;
       mockExpense.policy_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
@@ -636,7 +636,7 @@ describe('ViewPerDiemPage', () => {
       mockExpense.admin_amount = null;
       mockExpense.policy_amount = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
