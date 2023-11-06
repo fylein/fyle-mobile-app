@@ -853,7 +853,7 @@ describe('ViewMileagePage', () => {
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.state).toEqual('PAID');
+        expect(mockExtMileageData.state).toEqual(ExpenseState.PAID);
         expect(res).toBeFalse();
         done();
       });
@@ -874,7 +874,7 @@ describe('ViewMileagePage', () => {
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.state).toEqual('APPROVER_PENDING');
+        expect(mockExtMileageData.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
