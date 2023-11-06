@@ -357,7 +357,7 @@ export const expenseData: Expense = {
 
 export const mileageExpense: Expense = {
   accounting_export_summary: {},
-  added_to_report_at: '2023-11-01T00:10:01.286157+00:00',
+  added_to_report_at: new Date('2023-11-01T00:10:01.286157+00:00'),
   admin_amount: null,
   amount: 459,
   approvals: [
@@ -389,7 +389,7 @@ export const mileageExpense: Expense = {
     name: '80001_UKoffice',
   },
   cost_center_id: 2885,
-  created_at: '2023-02-01T05:41:41.004325+00:00',
+  created_at: new Date('2023-02-01T05:41:41.004325+00:00'),
   creator_user_id: 'us29O6z3jnd3',
   currency: 'USD',
   custom_fields: [],
@@ -694,7 +694,7 @@ export const mileageExpense: Expense = {
     id: 'rpFvmTgyeBjN',
     last_approved_at: null,
     last_paid_at: null,
-    last_submitted_at: '2023-11-01T00:10:01.286157+00:00',
+    last_submitted_at: new Date('2023-11-01T00:10:01.286157+00:00'),
     last_verified_at: null,
     reimbursement_id: null,
     reimbursement_seq_num: null,
@@ -714,7 +714,7 @@ export const mileageExpense: Expense = {
     type: AccountType.PERSONAL_CASH_ACCOUNT,
   },
   source_account_id: 'accNL82BMedrB',
-  spent_at: '2023-02-01T06:30:00+00:00',
+  spent_at: new Date('2023-02-01T06:30:00+00:00'),
   split_group_amount: 459,
   split_group_id: 'txzPPNvxs98T',
   started_at: null,
@@ -727,7 +727,7 @@ export const mileageExpense: Expense = {
   },
   tax_group_id: null,
   travel_classes: [],
-  updated_at: '2023-11-01T00:11:02.572303+00:00',
+  updated_at: new Date('2023-11-01T00:11:02.572303+00:00'),
   user: {
     email: 'omkar.j@fyle.in',
     full_name: 'Omkar',
