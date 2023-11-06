@@ -247,6 +247,7 @@ describe('VirtualSelectModalComponent', () => {
       component.handleDisplayNameException();
       expect(component.displayValue).toEqual(value.display_name);
     });
+
     it('should not set the value of displayValue is display_name is not available', () => {
       const value = { vendor: 'Marriot Hotels' };
       //@ts-ignore
