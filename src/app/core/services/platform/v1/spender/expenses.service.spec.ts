@@ -21,11 +21,11 @@ describe('ExpensesService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('getById(): should return expense with the given id', (done) => {
+  it('getExpenseById(): should return expense with the given id', (done) => {
     spenderService.get.and.returnValue(of({ data: [expenseData] }));
     const expenseId = 'txOJVaaPxo9O';
 
-    service.getById(expenseId).subscribe((res) => {
+    service.getExpenseById(expenseId).subscribe((res) => {
       expect(res).toBeTruthy();
       expect(res).toEqual(expenseData);
 
