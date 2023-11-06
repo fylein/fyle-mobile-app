@@ -224,7 +224,7 @@
     </ion-grid>
 
     <ion-grid
-      *ngIf="perDiemExpense.category?.name && perDiemExpense.category?.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
+      *ngIf="perDiemExpense.category && perDiemExpense.category.name && perDiemExpense.category.sub_category && (perDiemExpense.category.name !== perDiemExpense.category.sub_category)"
       class="view-per-diem--grid"
     >
       <ion-row>
