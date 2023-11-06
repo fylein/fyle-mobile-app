@@ -38,6 +38,8 @@ import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
+import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -382,6 +384,16 @@ export class TransactionService {
       .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
+  checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
+    const payload = {
+      data: platformPolicyExpense,
+    };
+
+    return this.spenderPlatformV1ApiService
+      .post<PlatformMissingMandatoryFieldsResponse>('/expenses/check_mandatory_fields', payload)
+      .pipe(map((res) => res.data));
+  }
+
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
     return this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
@@ -483,14 +495,6 @@ export class TransactionService {
     };
 
     return this.apiService.post('/transactions/unmatch', data);
-  }
-
-  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
-    return this.apiService.get('/transactions', {
-      params: {
-        expense_number: expenseNumber,
-      },
-    });
   }
 
   getVendorDetails(expense: Expense): string {
