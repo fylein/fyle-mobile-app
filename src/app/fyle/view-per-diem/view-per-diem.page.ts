@@ -257,11 +257,13 @@ export class ViewPerDiemPage {
       });
 
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
-      switchMap((res) => this.customInputsService.fillCustomProperties(res.category_id, res.custom_fields, true)),
-      map((res) =>
-        res.map((customProperties) => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
+      switchMap((expense) =>
+        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+      ),
+      map((customProperties) =>
+        customProperties.map((customProperty) => {
+          customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
+          return customProperty;
         })
       )
     );
@@ -303,13 +305,13 @@ export class ViewPerDiemPage {
     this.comments$ = this.statusService.find('transactions', id);
 
     this.isCriticalPolicyViolated$ = this.perDiemExpense$.pipe(
-      map((res) => this.isNumber(res.policy_amount) && res.policy_amount < 0.0001)
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
     this.getPolicyDetails(id);
 
     this.isAmountCapped$ = this.perDiemExpense$.pipe(
-      map((res) => this.isNumber(res.admin_amount) || this.isNumber(res.policy_amount))
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
 
     this.perDiemExpense$.subscribe((expense) => {
