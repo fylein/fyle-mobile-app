@@ -44,11 +44,11 @@ describe('DateService', () => {
         ],
       };
 
-      const res = service.fixDates(mockObject);
+      const result = service.fixDates(mockObject);
 
-      expect(res.spent_at).toEqual(jasmine.any(Date));
-      expect(res.data.updated_at).toEqual(jasmine.any(Date));
-      expect(res.array[0].created_at).toEqual(jasmine.any(Date));
+      expect(result.spent_at).toEqual(jasmine.any(Date));
+      expect(result.data.updated_at).toEqual(jasmine.any(Date));
+      expect(result.array[0].created_at).toEqual(jasmine.any(Date));
     });
 
     it('should convert date strings to date objects for date, invoice_dt, start_date and end_date fields', () => {
@@ -65,12 +65,12 @@ describe('DateService', () => {
         ],
       };
 
-      const res = service.fixDates(mockObject);
+      const result = service.fixDates(mockObject);
 
-      expect(res.date).toEqual(jasmine.any(Date));
-      expect(res.data.start_date).toEqual(jasmine.any(Date));
-      expect(res.array[0].invoice_dt).toEqual(jasmine.any(Date));
-      expect(res.array[0].end_date).toEqual(jasmine.any(Date));
+      expect(result.date).toEqual(jasmine.any(Date));
+      expect(result.data.start_date).toEqual(jasmine.any(Date));
+      expect(result.array[0].invoice_dt).toEqual(jasmine.any(Date));
+      expect(result.array[0].end_date).toEqual(jasmine.any(Date));
     });
   });
 });
