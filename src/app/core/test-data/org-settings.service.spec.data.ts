@@ -64,7 +64,6 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     trip_request_policy_enabled: true,
     policyApprovalWorkflow: true,
@@ -525,7 +524,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enable_individual_mileage_rates: true,
   },
   policy_settings: {
-    is_advance_request_policy_enabled: true,
     allowed: true,
     is_duplicate_detection_enabled: true,
     is_enabled: true,
@@ -1058,7 +1056,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
