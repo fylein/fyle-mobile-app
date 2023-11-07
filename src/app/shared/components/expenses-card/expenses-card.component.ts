@@ -160,12 +160,12 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.category.name && this.expense.category.name?.toLowerCase() === 'mileage') {
+    if (this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.category.name && this.expense.category.name?.toLowerCase() === 'per diem') {
+    } else if (this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      if (!this.expense.file_ids) {
+      if (!this.expense?.file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/fy-expense.svg';
@@ -178,7 +178,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.category.name?.toLowerCase() === 'per diem' &&
+      this.expense.category?.name?.toLowerCase() === 'per diem' &&
       (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
@@ -261,7 +261,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkFlags(): void {
-    this.isDraft = this.expense.state !== 'DRAFT';
+    this.isDraft = this.expense.state === 'DRAFT';
     this.isCriticalPolicyViolated =
       typeof this.expense.policy_amount === 'number' && this.expense.policy_amount < 0.0001;
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
@@ -353,7 +353,12 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment(): boolean {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.file_ids || this.isFromPotentialDuplicates) &&
+      !(
+        this.isMileageExpense ||
+        this.isPerDiem ||
+        this.expense.file_ids.length > 0 ||
+        this.isFromPotentialDuplicates
+      ) &&
       !this.isSelectionModeEnabled
     );
   }

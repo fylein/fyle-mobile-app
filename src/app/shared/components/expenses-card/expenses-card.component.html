@@ -116,7 +116,7 @@
                   <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
-                  {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
+                  {{ expense.amount || expense?.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
                 </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
@@ -171,11 +171,11 @@
               >
                 <ng-container
                   *ngIf="
-                    expense?.category.name && expense?.category.name.toLowerCase() !== 'unspecified';
+                    expense?.category?.name && expense?.category?.name.toLowerCase() !== 'unspecified';
                     else unspecifiedCategory
                   "
                 >
-                  {{ expense?.category.name }}
+                  {{ expense?.category?.name }}
                 </ng-container>
                 <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
               </div>
@@ -197,7 +197,7 @@
               class="expenses-card--vendor"
               [ngClass]="{
                 'expenses-card--vendor__not-filled': !vendorDetails,
-                'expenses-card--distance-unit': expense.category.system_category === 'Mileage'
+                'expenses-card--distance-unit': expense?.category?.system_category === 'Mileage'
               }"
             >
               {{ vendorDetails }}
@@ -246,7 +246,7 @@
             </div>
 
             <div
-              *ngIf="isDraft && !isFromViewReports"
+              *ngIf="!isDraft && !isFromViewReports"
               class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"
             >
               <span>
