@@ -172,10 +172,19 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  isZeroAmountPerDiem(): boolean {
+    return (
+      this.expense.tx_org_category?.toLowerCase() === 'per diem' &&
+      (this.expense.tx_amount === 0 || this.expense.tx_user_amount === 0)
+    );
+  }
+
   checkIfScanIsCompleted(): boolean {
+    const isPerDiem = this.isZeroAmountPerDiem();
     const hasUserManuallyEnteredData =
-      (this.expense.tx_amount || this.expense.tx_user_amount) &&
-      isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
+      isPerDiem ||
+      ((this.expense.tx_amount || this.expense.tx_user_amount) &&
+        isNumber(this.expense.tx_amount || this.expense.tx_user_amount));
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
