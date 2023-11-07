@@ -293,7 +293,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should set extendedPerDiem$ and txnFields$ correctly', (done) => {
       component.ionViewWillEnter();
-      component.extendedPerDiem$
+      component.perDiemExpense$
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
