@@ -78,8 +78,9 @@ import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
 import { PlatformGetExpenseQueryParam } from 'src/app/core/models/platform/platform-get-expenses-query.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -221,7 +222,8 @@ export class MyExpensesPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private platformHandlerService: PlatformHandlerService,
     private categoriesService: CategoriesService,
-    private navController: NavController
+    private navController: NavController,
+    private expenseService: ExpensesService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -543,10 +545,10 @@ export class MyExpensesPage implements OnInit {
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         this.isLoadingDataInInfiniteScroll = true;
 
-        return this.transactionService.getMyExpensesPlatformCount(queryParams).pipe(
+        return this.expenseService.getExpenseCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
-              return this.transactionService.getMyExpensesPlatform({
+              return this.expenseService.getExpenses({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
                 queryParams,
@@ -578,7 +580,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
-        return this.transactionService.getMyExpensesPlatformCount(queryParams);
+        return this.expenseService.getExpenseCount(queryParams);
       }),
       shareReplay(1)
     );

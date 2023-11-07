@@ -6,7 +6,7 @@ import { isEqual, isNumber } from 'lodash';
 import { Observable, concat, from, noop } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -23,7 +23,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -38,7 +38,7 @@ type ReceiptDetail = {
 export class ExpensesCardComponent implements OnInit {
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
-  @Input() expense: PlatformExpense;
+  @Input() expense: Expense;
 
   @Input() previousExpenseTxnDate: string | Date;
 
@@ -46,7 +46,7 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isSelectionModeEnabled: boolean;
 
-  @Input() selectedElements: PlatformExpense[];
+  @Input() selectedElements: Expense[];
 
   @Input() isFirstOfflineExpense: boolean;
 
@@ -66,16 +66,16 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ etxn: PlatformExpense; etxnIndex: number }> = new EventEmitter<{
-    etxn: PlatformExpense;
+  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter<{
+    etxn: Expense;
     etxnIndex: number;
   }>();
 
-  @Output() cardClickedForSelection: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
+  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
 
-  @Output() setMultiselectMode: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
+  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
 
-  @Output() dismissed: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
+  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
 
   @Output() showCamera = new EventEmitter<boolean>();
 
@@ -257,7 +257,7 @@ export class ExpensesCardComponent implements OnInit {
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account.type === AccountType.PERSONAL && !this.expense.is_reimbursable;
+      this.expense.source_account.type === AccountType.PERSONAL_CASH_ACCOUNT && !this.expense.is_reimbursable;
   }
 
   checkFlags(): void {
@@ -323,7 +323,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account.type === AccountType.CCC) {
+    if (this.expense.source_account.type === AccountType.COMPANY_CORPORATE_CREDIT_CARD_ACCOUNT) {
       if (this.expense.matched_corporate_card_transaction_ids.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {

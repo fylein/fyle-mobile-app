@@ -40,8 +40,7 @@ import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
-import { PlatformExpense } from '../models/platform/platform-expense.model';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { Expense as PlaformExpense } from '../models/platform/v1/expense.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -146,44 +145,6 @@ export class TransactionService {
       concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
       reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  getMyExpensesPlatform(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: Record<string, string[] | string | boolean>;
-    }>
-  ): Observable<PlatformApiResponse<PlatformExpense>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.spenderPlatformAPIV1Service.get('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'spent_at.desc'},created_at.desc,id.desc`,
-            employee_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map((res) => res as PlatformApiResponse<PlatformExpense>)
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  getMyExpensesPlatformCount(queryParams: Record<string, string | string[] | boolean>): Observable<number> {
-    return this.getMyExpensesPlatform({
-      offset: 0,
-      limit: 10,
-      queryParams,
-    }).pipe(map((res) => res.count));
   }
 
   @Cacheable({
@@ -538,7 +499,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
-  getVendorDetails(expense: PlatformExpense): string {
+  getVendorDetails(expense: PlaformExpense): string {
     const fyleCategory = expense.category.system_category && expense.category.system_category.toLowerCase();
     let vendorDisplayName = expense.merchant;
 

@@ -13,8 +13,8 @@ import { ReportApprovals } from '../report-approvals.model';
 import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
 import { Level } from './level.model';
 import { Department } from './department.model';
-import { Account } from './account.model';
 import { ReportState } from '../platform-report.model';
+import { AccountType } from './account.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -89,7 +89,10 @@ export interface Expense {
   report_settlement_id: string;
   seq_num: string;
   source: string;
-  source_account: Pick<Account, 'id' | 'type'>;
+  source_account: {
+    id: string;
+    type: AccountType;
+  };
   source_account_id: string;
   spent_at: Date;
   split_group_amount: number;
