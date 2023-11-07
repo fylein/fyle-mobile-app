@@ -314,7 +314,7 @@ export class ViewPerDiemPage {
     );
 
     this.perDiemExpense$.subscribe((expense) => {
-      this.isExpenseFlagged = expense.is_manually_flagged;
+      this.isExpenseFlagged = !!expense.is_manually_flagged;
     });
 
     this.updateFlag$.next(null);
