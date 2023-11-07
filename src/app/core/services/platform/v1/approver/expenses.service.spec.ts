@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { ExpensesService } from './expenses.service';
 import { ApproverService } from './approver.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -11,7 +12,13 @@ describe('ExpensesService', () => {
   beforeEach(() => {
     const approverServiceSpy = jasmine.createSpyObj('ApproverService', ['get']);
     TestBed.configureTestingModule({
-      providers: [{ provide: ApproverService, useValue: approverServiceSpy }],
+      providers: [
+        { provide: ApproverService, useValue: approverServiceSpy },
+        {
+          provide: PAGINATION_SIZE,
+          useValue: 2,
+        },
+      ],
     });
     service = TestBed.inject(ExpensesService);
     approverService = TestBed.inject(ApproverService) as jasmine.SpyObj<ApproverService>;

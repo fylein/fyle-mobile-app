@@ -3,6 +3,7 @@ import { of } from 'rxjs';
 import { ExpensesService } from './expenses.service';
 import { SpenderService } from './spender.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -11,7 +12,13 @@ describe('ExpensesService', () => {
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get']);
     TestBed.configureTestingModule({
-      providers: [{ provide: SpenderService, useValue: spenderServiceSpy }],
+      providers: [
+        { provide: SpenderService, useValue: spenderServiceSpy },
+        {
+          provide: PAGINATION_SIZE,
+          useValue: 2,
+        },
+      ],
     });
     service = TestBed.inject(ExpensesService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;

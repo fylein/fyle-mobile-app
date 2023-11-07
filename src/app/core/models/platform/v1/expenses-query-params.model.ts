@@ -1,5 +1,5 @@
-import { PlatformAPIQueryParams } from './query-params.model';
+import { APIQueryParams } from './query-params.model';
 
-export interface ExpensesQueryParams extends PlatformAPIQueryParams {
+export interface ExpensesQueryParams extends APIQueryParams {
   report_id: string;
 }

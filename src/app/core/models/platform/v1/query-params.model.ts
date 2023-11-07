@@ -1,4 +1,4 @@
-export interface PlatformAPIQueryParams {
+export interface APIQueryParams {
   limit?: number;
   offset?: number;
   order?: string;
