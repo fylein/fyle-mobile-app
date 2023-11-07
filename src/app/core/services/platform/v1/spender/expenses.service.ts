@@ -31,7 +31,7 @@ export class ExpensesService {
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
     return this.spenderService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
-      .pipe(map((etxns) => etxns.data));
+      .pipe(map((expenses) => expenses.data));
   }
 
   getReportExpenses(reportId: string): Observable<Expense[]> {
