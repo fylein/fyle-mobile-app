@@ -148,6 +148,7 @@
                 </div>
               </div>
               <div *ngIf="isDraft && !isFromViewReports">
+                {{ expense.state }}
                 <div
                   class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
                     expense.state | expenseState | lowercase
@@ -244,7 +245,6 @@
               ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
               {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
             </div>
-
             <div
               *ngIf="!isDraft && !isFromViewReports"
               class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"

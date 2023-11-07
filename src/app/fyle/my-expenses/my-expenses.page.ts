@@ -104,9 +104,7 @@ export class MyExpensesPage implements OnInit {
 
   currentPageNumber = 1;
 
-  acc: Expense[] = [];
-
-  platformAcc: PlatformExpense[] = [];
+  acc: PlatformExpense[] = [];
 
   filters: Partial<ExpenseFilters>;
 
@@ -563,10 +561,10 @@ export class MyExpensesPage implements OnInit {
           map((res) => {
             this.isLoadingDataInInfiniteScroll = false;
             if (this.currentPageNumber === 1) {
-              this.platformAcc = [];
+              this.acc = [];
             }
-            this.platformAcc = this.platformAcc.concat(res.data);
-            return this.platformAcc;
+            this.acc = this.acc.concat(res.data);
+            return this.acc;
           })
         );
       })

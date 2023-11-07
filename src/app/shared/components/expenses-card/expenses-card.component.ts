@@ -257,7 +257,7 @@ export class ExpensesCardComponent implements OnInit {
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account.type === AccountType.PERSONAL_CASH_ACCOUNT && !this.expense.is_reimbursable;
+      this.expense.source_account.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
   }
 
   checkFlags(): void {
@@ -323,7 +323,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account.type === AccountType.COMPANY_CORPORATE_CREDIT_CARD_ACCOUNT) {
+    if (this.expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       if (this.expense.matched_corporate_card_transaction_ids.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {

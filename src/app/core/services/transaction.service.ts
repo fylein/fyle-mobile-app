@@ -500,7 +500,7 @@ export class TransactionService {
   }
 
   getVendorDetails(expense: PlaformExpense): string {
-    const fyleCategory = expense.category.system_category && expense.category.system_category.toLowerCase();
+    const fyleCategory = expense?.category?.system_category.toLowerCase();
     let vendorDisplayName = expense.merchant;
 
     if (fyleCategory === 'mileage') {
