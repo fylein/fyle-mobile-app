@@ -352,13 +352,9 @@ export class ViewMileagePage {
         this.paymentModeIcon = 'fy-reimbursable';
       }
 
-      if (
-        expense.mileage_rate?.vehicle_type.toLowerCase().includes('four') ||
-        expense.mileage_rate?.vehicle_type.toLowerCase().includes('car')
-      ) {
-        this.vehicleType = 'car';
-      } else {
-        this.vehicleType = 'bike';
+      if (expense.mileage_rate) {
+        const vehicleType = expense.mileage_rate.vehicle_type.toLowerCase();
+        this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'bike';
       }
 
       this.etxnCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
