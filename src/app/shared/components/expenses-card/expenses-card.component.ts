@@ -7,7 +7,6 @@ import { Observable, concat, from, noop } from 'rxjs';
 import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
 import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import { Expense } from 'src/app/core/models/expense.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -24,6 +23,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -38,7 +38,7 @@ type ReceiptDetail = {
 export class ExpensesCardComponent implements OnInit {
   @ViewChild('fileUpload') fileUpload: ElementRef;
 
-  @Input() expense: Expense;
+  @Input() expense: PlatformExpense;
 
   @Input() previousExpenseTxnDate: string | Date;
 
@@ -46,7 +46,7 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isSelectionModeEnabled: boolean;
 
-  @Input() selectedElements: Expense[];
+  @Input() selectedElements: PlatformExpense[];
 
   @Input() isFirstOfflineExpense: boolean;
 
@@ -66,16 +66,16 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter<{
-    etxn: Expense;
+  @Output() goToTransaction: EventEmitter<{ etxn: PlatformExpense; etxnIndex: number }> = new EventEmitter<{
+    etxn: PlatformExpense;
     etxnIndex: number;
   }>();
 
-  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
+  @Output() cardClickedForSelection: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
 
-  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
+  @Output() setMultiselectMode: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
 
-  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
+  @Output() dismissed: EventEmitter<PlatformExpense> = new EventEmitter<PlatformExpense>();
 
   @Output() showCamera = new EventEmitter<boolean>();
 
@@ -86,10 +86,6 @@ export class ExpensesCardComponent implements OnInit {
   receiptIcon: string;
 
   receipt: string;
-
-  isPolicyViolated: boolean;
-
-  isCriticalPolicyViolated: boolean;
 
   homeCurrency: string;
 
@@ -119,6 +115,14 @@ export class ExpensesCardComponent implements OnInit {
 
   showPaymentModeIcon: boolean;
 
+  isDraft: boolean;
+
+  isCriticalPolicyViolated: boolean;
+
+  isPolicyViolated: boolean;
+
+  vendorDetails: string;
+
   isIos = false;
 
   constructor(
@@ -140,8 +144,8 @@ export class ExpensesCardComponent implements OnInit {
 
   get isSelected(): boolean {
     if (this.selectedElements) {
-      if (this.expense.tx_id) {
-        return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
+      if (this.expense.id) {
+        return this.selectedElements.some((txn) => this.expense.id === txn.id);
       } else {
         return this.selectedElements.some((txn) => isEqual(this.expense, txn));
       }
@@ -156,12 +160,12 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
+    if (this.expense.category.name && this.expense.category.name?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
+    } else if (this.expense.category.name && this.expense.category.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      if (!this.expense.tx_file_ids) {
+      if (!this.expense.file_ids) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/fy-expense.svg';
@@ -174,8 +178,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.tx_org_category?.toLowerCase() === 'per diem' &&
-      (this.expense.tx_amount === 0 || this.expense.tx_user_amount === 0)
+      this.expense.category.name?.toLowerCase() === 'per diem' &&
+      (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
 
@@ -183,13 +187,13 @@ export class ExpensesCardComponent implements OnInit {
     const isPerDiem = this.isZeroAmountPerDiem();
     const hasUserManuallyEnteredData =
       isPerDiem ||
-      ((this.expense.tx_amount || this.expense.tx_user_amount) &&
-        isNumber(this.expense.tx_amount || this.expense.tx_user_amount));
-    const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
+      ((this.expense.amount || this.expense.claim_amount) &&
+        isNumber(this.expense.amount || this.expense.claim_amount));
+    const isRequiredExtractedDataPresent = this.expense.extracted_data && this.expense.extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
     // also transcription kicks in within 15-24 hours, so only post that we should revert to default state
-    const hasScanExpired = this.expense.tx_created_at && dayjs(this.expense.tx_created_at).diff(Date.now(), 'day') < 0;
+    const hasScanExpired = this.expense.created_at && dayjs(this.expense.created_at).diff(Date.now(), 'day') < 0;
     return !!(hasUserManuallyEnteredData || isRequiredExtractedDataPresent || hasScanExpired);
   }
 
@@ -204,7 +208,7 @@ export class ExpensesCardComponent implements OnInit {
   pollDataExtractionStatus(callback: Function): void {
     const that = this;
     setTimeout(() => {
-      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+      const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.id);
       if (!isPresentInQueue) {
         callback();
       } else {
@@ -227,15 +231,15 @@ export class ExpensesCardComponent implements OnInit {
         ) {
           that.isScanCompleted = that.checkIfScanIsCompleted();
           that.isScanInProgress =
-            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
+            !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
+              that.transactionService.getETxnUnflattened(that.expense.id).subscribe((etxn) => {
                 const extractedData = etxn.tx.extracted_data;
                 if (!!extractedData) {
                   that.isScanCompleted = true;
                   that.isScanInProgress = false;
-                  that.expense.tx_extracted_data = extractedData;
+                  that.expense.extracted_data = extractedData;
                 } else {
                   that.isScanInProgress = false;
                   that.isScanCompleted = false;
@@ -253,7 +257,14 @@ export class ExpensesCardComponent implements OnInit {
 
   canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
-      this.expense.source_account_type === AccountType.PERSONAL && !this.expense.tx_skip_reimbursement;
+      this.expense.source_account.type === AccountType.PERSONAL && !this.expense.is_reimbursable;
+  }
+
+  checkFlags(): void {
+    this.isDraft = this.expense.state !== 'DRAFT';
+    this.isCriticalPolicyViolated =
+      typeof this.expense.policy_amount === 'number' && this.expense.policy_amount < 0.0001;
+    this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
   }
 
   ngOnInit(): void {
@@ -264,14 +275,14 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem';
+    this.isMileageExpense = this.expense.category.name && this.expense.category.name?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.category.name && this.expense.category.name?.toLowerCase() === 'per diem';
 
-    this.category = this.expense.tx_org_category?.toLowerCase();
-    this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = this.expense.tx_manual_flag || this.expense.tx_policy_flag;
-    this.expense.isCriticalPolicyViolated = this.transactionService.getIsCriticalPolicyViolated(this.expense);
-    this.expense.vendorDetails = this.transactionService.getVendorDetails(this.expense);
+    this.category = this.expense.category.name?.toLowerCase();
+    this.vendorDetails = this.transactionService.getVendorDetails(this.expense);
+
+    this.checkFlags();
+
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
@@ -290,10 +301,10 @@ export class ExpensesCardComponent implements OnInit {
       shareReplay(1)
     );
 
-    if (!this.expense.tx_id) {
+    if (!this.expense.id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
+      const currentDate = this.expense && new Date(this.expense.spent_at || this.expense.created_at).toDateString();
       const previousDate = new Date(
         (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
       ).toDateString();
@@ -312,14 +323,14 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account_type === AccountType.CCC) {
-      if (this.expense.tx_corporate_credit_card_expense_group_id) {
+    if (this.expense.source_account.type === AccountType.CCC) {
+      if (this.expense.matched_corporate_card_transaction_ids.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
         this.paymentModeIcon = 'fy-unmatched';
       }
     } else {
-      if (!this.expense.tx_skip_reimbursement) {
+      if (!this.expense.is_reimbursable) {
         this.paymentModeIcon = 'fy-reimbursable';
       } else {
         this.paymentModeIcon = 'fy-non-reimbursable';
@@ -342,7 +353,7 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment(): boolean {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
+      !(this.isMileageExpense || this.isPerDiem || this.expense.file_ids || this.isFromPotentialDuplicates) &&
       !this.isSelectionModeEnabled
     );
   }
@@ -434,9 +445,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   matchReceiptWithEtxn(fileObj: FileObject): void {
-    this.expense.tx_file_ids = [];
-    this.expense.tx_file_ids.push(fileObj.id);
-    fileObj.transaction_id = this.expense.tx_id;
+    this.expense.file_ids = [];
+    this.expense.file_ids.push(fileObj.id);
+    fileObj.transaction_id = this.expense.id;
   }
 
   attachReceipt(receiptDetails: ReceiptDetail): void {

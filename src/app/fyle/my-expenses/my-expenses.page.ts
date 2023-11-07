@@ -27,7 +27,6 @@ import {
   switchMap,
   take,
   takeUntil,
-  tap,
   filter,
 } from 'rxjs/operators';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -79,6 +78,8 @@ import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
+import { PlatformExpense } from 'src/app/core/models/platform/platform-expense.model';
+import { PlatformGetExpenseQueryParam } from 'src/app/core/models/platform/platform-get-expenses-query.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -90,7 +91,7 @@ export class MyExpensesPage implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  myExpenses$: Observable<Expense[]>;
+  myExpenses$: Observable<PlatformExpense[]>;
 
   count$: Observable<number>;
 
@@ -98,9 +99,13 @@ export class MyExpensesPage implements OnInit {
 
   loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
+  loadExpenses$: BehaviorSubject<Partial<PlatformGetExpenseQueryParam>>;
+
   currentPageNumber = 1;
 
   acc: Expense[] = [];
+
+  platformAcc: PlatformExpense[] = [];
 
   filters: Partial<ExpenseFilters>;
 
@@ -491,6 +496,10 @@ export class MyExpensesPage implements OnInit {
       pageNumber: 1,
     });
 
+    this.loadExpenses$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
     this.selectionMode = false;
     this.selectedElements = [];
 
@@ -525,19 +534,19 @@ export class MyExpensesPage implements OnInit {
         this.loadData$.next(currentParams);
       });
 
-    const paginatedPipe = this.loadData$.pipe(
+    const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        queryParams.report_id = queryParams.report_id || 'is.null';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         this.isLoadingDataInInfiniteScroll = true;
-        return this.transactionService.getMyExpensesCount(queryParams).pipe(
+
+        return this.transactionService.getMyExpensesPlatformCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
-              return this.transactionService.getMyExpenses({
+              return this.transactionService.getMyExpensesPlatform({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
                 queryParams,
@@ -548,32 +557,28 @@ export class MyExpensesPage implements OnInit {
                 data: [],
               });
             }
+          }),
+          map((res) => {
+            this.isLoadingDataInInfiniteScroll = false;
+            if (this.currentPageNumber === 1) {
+              this.platformAcc = [];
+            }
+            this.platformAcc = this.platformAcc.concat(res.data);
+            return this.platformAcc;
           })
         );
-      }),
-      map((res) => {
-        this.isLoadingDataInInfiniteScroll = false;
-        if (this.currentPageNumber === 1) {
-          this.acc = [];
-        }
-        this.acc = this.acc.concat(res.data);
-        return this.acc;
-      }),
-      tap(() => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
     this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
 
-    this.count$ = this.loadData$.pipe(
+    this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.transactionService.getMyExpensesCount(queryParams);
+        queryParams.report_id = queryParams.report_id || 'is.null';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        return this.transactionService.getMyExpensesPlatformCount(queryParams);
       }),
       shareReplay(1)
     );
@@ -584,7 +589,7 @@ export class MyExpensesPage implements OnInit {
       switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
 
     this.setAllExpensesCountAndAmount();
 
@@ -690,9 +695,9 @@ export class MyExpensesPage implements OnInit {
   loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
 
-    const params = this.loadData$.getValue();
+    const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
 
     setTimeout(() => {
       event?.target?.complete();
