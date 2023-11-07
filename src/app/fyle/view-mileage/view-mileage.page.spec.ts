@@ -491,7 +491,7 @@ describe('ViewMileagePage', () => {
         activeIndex: '0',
       };
 
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(etxncData.data[0]);
       component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
@@ -513,7 +513,7 @@ describe('ViewMileagePage', () => {
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(etxncData.data[0]);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
@@ -570,7 +570,7 @@ describe('ViewMileagePage', () => {
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
 
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
         expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
         expect(component.paymentMode).toEqual('Paid from Advance');
@@ -588,7 +588,7 @@ describe('ViewMileagePage', () => {
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
 
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
         expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
         expect(component.paymentMode).toEqual('Paid by Company');
@@ -599,7 +599,7 @@ describe('ViewMileagePage', () => {
 
     it('should set the correct payment mode and icon when the expense is reimbursement', (done) => {
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(etxncData.data[0]);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
@@ -612,10 +612,10 @@ describe('ViewMileagePage', () => {
         ...etxncData.data[0],
         tx_mileage_vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
       };
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
         expect(component.vehicleType).toEqual('car');
         done();
@@ -627,10 +627,10 @@ describe('ViewMileagePage', () => {
         ...etxncData.data[0],
         tx_mileage_vehicle_type: 'Electric Car',
       };
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
         expect(component.vehicleType).toEqual('car');
         done();
@@ -642,10 +642,10 @@ describe('ViewMileagePage', () => {
         ...etxncData.data[0],
         tx_mileage_vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
       };
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
         expect(component.vehicleType).toEqual('bike');
         done();
@@ -654,7 +654,7 @@ describe('ViewMileagePage', () => {
 
     it('should get the correct currency symbol', (done) => {
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
+      component.mileageExpense$.subscribe((data) => {
         expect(data.tx_currency).toEqual('USD');
         expect(component.etxnCurrencySymbol).toEqual('$');
         done();
@@ -668,7 +668,7 @@ describe('ViewMileagePage', () => {
       };
 
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(etxncData.data[0]);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -686,7 +686,7 @@ describe('ViewMileagePage', () => {
         tx_project_name: null,
       };
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
 
       component.ionViewWillEnter();
       tick(500);
@@ -700,7 +700,7 @@ describe('ViewMileagePage', () => {
         projects: null,
       };
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(etxncData.data[0]);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
       component.txnFields$ = of(expenseFieldsMapResponse);
       orgSettingsService.get.and.returnValue(of(mockOrgSettData));
@@ -711,7 +711,7 @@ describe('ViewMileagePage', () => {
 
     it('should get the project field name and the value of project field name should be truthy', fakeAsync(() => {
       transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(etxncData.data[0]);
       const mockExpFieldData = {
         ...expenseFieldsMapResponse4,
         project_id: [
@@ -784,7 +784,7 @@ describe('ViewMileagePage', () => {
 
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(etxncData.data[0]);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
         expect(etxncData.data[0].tx_state).toEqual('APPROVER_PENDING');
@@ -799,7 +799,7 @@ describe('ViewMileagePage', () => {
         ...etxncData.data[0],
         tx_state: 'PAID',
       };
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
         expect(isEmpty).toBeTrue();
@@ -816,7 +816,7 @@ describe('ViewMileagePage', () => {
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
@@ -837,7 +837,7 @@ describe('ViewMileagePage', () => {
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
@@ -858,7 +858,7 @@ describe('ViewMileagePage', () => {
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
 
@@ -931,7 +931,7 @@ describe('ViewMileagePage', () => {
       };
 
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -950,7 +950,7 @@ describe('ViewMileagePage', () => {
       spyOn(component, 'isNumber').and.callThrough();
 
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -971,7 +971,7 @@ describe('ViewMileagePage', () => {
       spyOn(component, 'isNumber').and.callThrough();
 
       transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -989,7 +989,7 @@ describe('ViewMileagePage', () => {
       };
 
       transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockExtMileageData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();

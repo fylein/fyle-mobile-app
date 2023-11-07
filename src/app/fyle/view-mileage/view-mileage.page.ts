@@ -20,7 +20,6 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
@@ -32,6 +31,10 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -41,7 +44,7 @@ import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-p
 export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  extendedMileage$: Observable<Expense>;
+  mileageExpense$: Observable<PlatformExpense>;
 
   orgSettings: OrgSettings;
 
@@ -116,7 +119,9 @@ export class ViewMileagePage {
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
-    private fileService: FileService
+    private fileService: FileService,
+    private approverExpensesService: ApproverExpensesService,
+    private spenderExpensesService: SpenderExpensesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -268,28 +273,37 @@ export class ViewMileagePage {
     this.setupNetworkWatcher();
     const id = this.activatedRoute.snapshot.params.id as string;
 
-    this.extendedMileage$ = this.updateFlag$.pipe(
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
+    this.mileageExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getExpenseById(id)
+              : this.spenderExpensesService.getExpenseById(id)
+          )
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.mapAttachment$ = this.extendedMileage$.pipe(
+    this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
+      map((expense) => expense.files),
       map((fileObjs) => fileObjs[0]),
       concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj);
+            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
+            const fileObjWithDetails: FileObject = {
+              url: downloadUrl,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
 
-            fileObj.url = downloadUrl;
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-
-            return fileObj;
+            return fileObjWithDetails;
           })
         )
       )
@@ -298,43 +312,39 @@ export class ViewMileagePage {
     this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
+      expense: this.mileageExpense$.pipe(take(1)),
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.project_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
+      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.project_id?.length > 0),
+      switchMap(({ expense, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
+          expense.custom_fields,
           txnFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
+      expense: this.mileageExpense$.pipe(take(1)),
       txnFields: this.txnFields$.pipe(take(1)),
     }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.cost_center_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
+      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.cost_center_id?.length > 0),
+      switchMap(({ expense, txnFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
+          expense.custom_fields,
           txnFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
     );
 
-    this.extendedMileage$.subscribe((extendedMileage) => {
-      this.reportId = extendedMileage.tx_report_id;
+    this.mileageExpense$.subscribe((expense) => {
+      this.reportId = expense.report_id;
 
-      if (extendedMileage.source_account_type === AccountType.ADVANCE) {
+      if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
         this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedMileage.tx_skip_reimbursement) {
+      } else if (!expense.is_reimbursable) {
         this.paymentMode = 'Paid by Company';
         this.paymentModeIcon = 'fy-non-reimbursable';
       } else {
@@ -343,24 +353,23 @@ export class ViewMileagePage {
       }
 
       if (
-        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.toLowerCase().indexOf('car') > -1
+        expense.mileage_rate?.vehicle_type.toLowerCase().includes('four') ||
+        expense.mileage_rate?.vehicle_type.toLowerCase().includes('car')
       ) {
         this.vehicleType = 'car';
       } else {
         this.vehicleType = 'bike';
       }
 
-      this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
+      this.etxnCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.extendedMileage$.pipe(take(1))])
+    forkJoin([this.txnFields$, this.mileageExpense$.pipe(take(1))])
       .pipe(
-        map(([expenseFieldsMap, extendedMileage]) => {
+        map(([expenseFieldsMap, expense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (!!extendedMileage.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings?.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -373,40 +382,35 @@ export class ViewMileagePage {
         this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
-    this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap((res) =>
-        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+    this.mileageCustomFields$ = this.mileageExpense$.pipe(
+      switchMap((expense) =>
+        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
       ),
-      map((res) =>
-        res.map((customProperties) => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
+      map((customProperties) =>
+        customProperties.map((customProperty) => {
+          customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
+          return customProperty;
         })
       )
     );
 
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
-
-    this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
+    this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
-      map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
-      )
+      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(expense.state))
     );
 
-    this.canDelete$ = this.extendedMileage$.pipe(
+    this.canDelete$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
-      switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      switchMap((expense) =>
+        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, etxn }) => {
+      map(({ report, expense }) => {
         if (report.rp_num_transactions === 1) {
           return false;
         }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+        return !['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state);
       })
     );
 
@@ -421,14 +425,14 @@ export class ViewMileagePage {
 
     this.comments$ = this.statusService.find('transactions', id);
 
-    this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+    this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
     this.getPolicyDetails(id);
 
-    this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+    this.isAmountCapped$ = this.mileageExpense$.pipe(
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
 
     this.updateFlag$.next(null);
