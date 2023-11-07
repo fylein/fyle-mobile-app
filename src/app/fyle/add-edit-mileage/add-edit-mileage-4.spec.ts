@@ -714,6 +714,20 @@ export function TestCases4(getTestBed) {
       });
     });
 
+    it('showReportRemovedToast(): should show toast message on removing expense from report', () => {
+      matSnackBar.openFromComponent.and.returnValue(undefined);
+
+      component.showReportRemovedToast();
+
+      expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+        ToastContent: 'Mileage expense removed from report',
+      });
+
+      expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', {
+        message: 'Mileage expense removed from report',
+      });
+    });
+
     it('showAddToReportSuccessToast(): should show success message on adding expense to report', () => {
       const modalSpy = jasmine.createSpyObj('expensesAddedToReportSnackBar', ['onAction']);
       modalSpy.onAction.and.returnValue(of(true));

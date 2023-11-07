@@ -3476,6 +3476,16 @@ export class AddEditExpensePage implements OnInit {
     await this.router.navigate(['/', 'enterprise', 'add_edit_expense']);
   }
 
+  showReportRemovedToast(): void {
+    const toastMessageData = {
+      message: 'Expense removed from report',
+    };
+
+    this.showSnackBarToast(toastMessageData, 'success', ['msb-success-with-camera-icon']);
+
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
   showAddToReportSuccessToast(reportId: string): void {
     const toastMessageData = {
       message: 'Expense added to report successfully',
@@ -3810,7 +3820,10 @@ export class AddEditExpensePage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
@@ -3818,14 +3831,20 @@ export class AddEditExpensePage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showReportRemovedToast();
+                        return of(tx);
+                      })
                     );
                   }
                 }
@@ -4066,7 +4085,6 @@ export class AddEditExpensePage implements OnInit {
           })
         )
       ),
-
       catchError(
         (err: {
           status?: number;

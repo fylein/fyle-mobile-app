@@ -2034,7 +2034,10 @@ export class AddEditPerDiemPage implements OnInit {
                   if (!txnCopy.tx.report_id && selectedReportId) {
                     return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
@@ -2042,14 +2045,20 @@ export class AddEditPerDiemPage implements OnInit {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showAddToReportSuccessToast(selectedReportId);
+                        return of(tx);
+                      })
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
                     return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
-                      map(() => tx)
+                      switchMap(() => {
+                        this.showReportRemovedToast();
+                        return of(tx);
+                      })
                     );
                   }
                 }
@@ -2089,6 +2098,19 @@ export class AddEditPerDiemPage implements OnInit {
         this.saveAndPrevPerDiemLoader = false;
       })
     );
+  }
+
+  showReportRemovedToast(): void {
+    const toastMessageData = {
+      message: 'Per Diem expense removed from report',
+    };
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
+      panelClass: ['msb-success-with-camera-icon'],
+    });
+
+    this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
   }
 
   showAddToReportSuccessToast(reportId: string): void {

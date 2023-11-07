@@ -573,6 +573,8 @@ export function TestCases3(getTestBed) {
     const mileageControl = new FormControl();
     describe('editExpense():', () => {
       beforeEach(() => {
+        spyOn(component, 'showAddToReportSuccessToast');
+        spyOn(component, 'showReportRemovedToast');
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
         const mileageControl = new FormControl();
         mileageControl.setValue({
@@ -624,6 +626,8 @@ export function TestCases3(getTestBed) {
           expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErpt[0].rp.id, [
             unflattenedTxnData.tx.id,
           ]);
+          expect(component.showAddToReportSuccessToast).toHaveBeenCalledTimes(1);
+          expect(component.showReportRemovedToast).not.toHaveBeenCalled();
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
           done();
         });
@@ -667,6 +671,8 @@ export function TestCases3(getTestBed) {
             unflattenedTxnDataWithReportID.tx.id
           );
           expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txbO4Xaj4N53']);
+          expect(component.showAddToReportSuccessToast).toHaveBeenCalledTimes(1);
+          expect(component.showReportRemovedToast).not.toHaveBeenCalled();
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
           done();
         });
@@ -711,6 +717,8 @@ export function TestCases3(getTestBed) {
             unflattenedTxnDataWithReportID2UserReview.tx.report_id,
             unflattenedTxnDataWithReportID2UserReview.tx.id
           );
+          expect(component.showAddToReportSuccessToast).not.toHaveBeenCalled();
+          expect(component.showReportRemovedToast).toHaveBeenCalledTimes(1);
           expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
           expect(transactionService.review).toHaveBeenCalledTimes(1);
           done();
