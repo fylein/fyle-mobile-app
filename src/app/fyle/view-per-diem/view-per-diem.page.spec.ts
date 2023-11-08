@@ -43,7 +43,6 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
