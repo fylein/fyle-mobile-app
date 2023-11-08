@@ -23,30 +23,31 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { etxncListData, etxnData, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { getApiResponse, getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
+import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import {
   ApproverExpensePolicyStatesData,
   expensePolicyStatesData,
 } from 'src/app/core/mock-data/platform-policy-expense.data';
-import { fileObjectAdv, fileObjectAdv1, fileObjectData } from 'src/app/core/mock-data/file-object.data';
-import {
-  individualExpPolicyStateData1,
-  individualExpPolicyStateData3,
-} from 'src/app/core/mock-data/individual-expense-policy-state.data';
-import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { fileObjectData } from 'src/app/core/mock-data/file-object.data';
+import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiTeamReportPaginated1, apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
+import { apiTeamReportPaginated1, apiTeamRptSingleRes } from 'src/app/core/mock-data/api-reports.data';
 import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -69,6 +70,8 @@ describe('ViewExpensePage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
+  let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
+  let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -80,7 +83,7 @@ describe('ViewExpensePage', () => {
       'fillCustomProperties',
     ]);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', ['getReceiptsDetails', 'downloadUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -115,6 +118,8 @@ describe('ViewExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
+    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
 
     TestBed.configureTestingModule({
       declarations: [ViewExpensePage],
@@ -193,6 +198,14 @@ describe('ViewExpensePage', () => {
           provide: DependentFieldsService,
         },
         {
+          useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
+        },
+        {
+          useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -231,6 +244,8 @@ describe('ViewExpensePage', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
+    approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
+    spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -351,30 +366,37 @@ describe('ViewExpensePage', () => {
 
   describe('setPaymentModeandIcon', () => {
     it('should set the payment mode and icon accordingly when the source account type is ADVANCE', () => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_ADVANCE_ACCOUNT',
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_ADVANCE_ACCOUNT,
+        },
       };
+
       component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.expense$.subscribe((res) => {
-        expect(res.source_account_type).toEqual('PERSONAL_ADVANCE_ACCOUNT');
+        expect(res.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
         expect(component.paymentMode).toEqual('Advance');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
       });
     });
 
     it('should set the payment mode and icon accordingly when the source account type is CCC', () => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        tx_skip_reimbursement: false,
-        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        is_reimbursable: true,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
+        },
       };
 
       component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.expense$.subscribe((res) => {
-        expect(res.source_account_type).toEqual('PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT');
+        expect(res.source_account.type).toEqual(AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT);
         expect(component.paymentMode).toEqual('Corporate Card');
         expect(component.paymentModeIcon).toEqual('fy-unmatched');
         expect(component.isCCCTransaction).toBeTrue();
@@ -382,29 +404,38 @@ describe('ViewExpensePage', () => {
     });
 
     it('should set the payment mode and icon accordingly when the expense is non-reimbursable', () => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        tx_skip_reimbursement: true,
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        is_reimbursable: false,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CASH_ACCOUNT,
+        },
       };
+
       component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.expense$.subscribe((res) => {
-        expect(res.tx_skip_reimbursement).toBeTrue();
+        expect(res.is_reimbursable).toBeFalse();
         expect(component.paymentMode).toEqual('Paid by Company');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
       });
     });
 
     it('the amount is reimbursable if non of the conditions match', () => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_ACCOUNT',
-        tx_skip_reimbursement: false,
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        source_account: {
+          ...expenseData.source_account,
+          type: AccountType.PERSONAL_CASH_ACCOUNT,
+        },
+        is_reimbursable: true,
       };
+
       component.expense$ = of(mockExchangeRateExpData);
       component.setPaymentModeandIcon(mockExchangeRateExpData);
       component.expense$.subscribe((res) => {
-        expect(res.source_account_type).toEqual('PERSONAL_ACCOUNT');
+        expect(res.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
       });
@@ -430,12 +461,14 @@ describe('ViewExpensePage', () => {
       categoriesService.getTravelSystemCategories.and.returnValue(['Bus', 'Airlines', 'Train']);
       categoriesService.getFlightSystemCategories.and.returnValue(['Airlines']);
 
-      const mockWithoutCustPropData = {
-        ...expenseData1,
-        tx_custom_properties: null,
+      const mockWithoutCustPropData: Expense = {
+        ...expenseData,
+        custom_fields: null,
       };
+
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
+      spenderExpensesService.getExpenseById.and.returnValue(of(expenseData));
+      approverExpensesService.getExpenseById.and.returnValue(of(expenseData));
 
       customInputsService.fillCustomProperties.and.returnValue(of(filledCustomProperties));
       loaderService.showLoader.and.resolveTo();
@@ -443,7 +476,7 @@ describe('ViewExpensePage', () => {
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
-      component.expense$ = of(expenseData1);
+      component.expense$ = of(expenseData);
       component.txnFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
@@ -456,7 +489,7 @@ describe('ViewExpensePage', () => {
       const mockDownloadUrl = {
         url: 'mock-url',
       };
-      fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
     });
@@ -471,10 +504,10 @@ describe('ViewExpensePage', () => {
       expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
       component.expenseWithoutCustomProperties$.subscribe((res) => {
-        expect(res).toEqual(expenseData1);
-        expect(component.reportId).toEqual(res.tx_report_id);
+        expect(res).toEqual(expenseData);
+        expect(component.reportId).toEqual(res.report_id);
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
       component.txnFields$.subscribe((res) => {
         expect(res).toEqual(expenseFieldsMapResponse4);
@@ -487,8 +520,8 @@ describe('ViewExpensePage', () => {
       component.customProperties$.subscribe((res) => {
         expect(res).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          expenseData1.tx_org_category_id,
-          expenseData1.tx_custom_properties,
+          expenseData.category_id,
+          expenseData.custom_fields,
           true
         );
         done();
@@ -496,12 +529,12 @@ describe('ViewExpensePage', () => {
     });
 
     it('should get the project dependent custom properties', (done) => {
-      const customProps = expenseData1.tx_custom_properties;
+      const customProps = expenseData.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((res) => {
         expect(res).toEqual(dependentFieldValues);
-        expect(expenseData1.tx_custom_properties).toBeDefined();
+        expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -512,12 +545,12 @@ describe('ViewExpensePage', () => {
     });
 
     it('should get the cost center dependent custom properties', (done) => {
-      const customProps = expenseData1.tx_custom_properties;
+      const customProps = expenseData.custom_fields;
       const costCenterId = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((res) => {
         expect(res).toEqual(dependentFieldValues);
-        expect(expenseData1.tx_custom_properties).toBeDefined();
+        expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -528,52 +561,52 @@ describe('ViewExpensePage', () => {
     });
 
     it('should set the correct value for split expenses and expense rate', (done) => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        ou_org_name: 'Test',
-        tx_split_group_id: 'tx5fBcNgRxJk',
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        employee: {
+          ...expenseData.employee,
+          org_name: 'Test',
+        },
+        split_group_id: 'tx5fBcNgRxJk',
       };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
+
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
       component.expense$ = of(mockExchangeRateExpData);
       component.ionViewWillEnter();
       component.expense$.subscribe((res) => {
-        expect(res.tx_split_group_id).not.toEqual(res.tx_id);
+        expect(res.split_group_id).not.toEqual(res.id);
         done();
       });
     });
 
     it('should set the correct exchange rate', () => {
       component.exchangeRate = 0;
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        tx_split_group_id: 'tx5fBcNgRxJk',
-        tx_amount: 500,
-        tx_orig_amount: 1000,
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        split_group_id: 'tx5fBcNgRxJk',
+        amount: 500,
+        foreign_amount: 1000,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
+
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
       component.ionViewWillEnter();
       expect(component.exchangeRate).toBe(0.5);
     });
 
-    it('should set the matchingCCCTxnIds and the correct card number and set foreign and expense transaction currency symbol', (done) => {
-      const mockExchangeRateExpData = {
-        ...expenseData1,
-        tx_skip_reimbursement: false,
-        tx_corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+    it('should set the correct card number and set foreign and expense transaction currency symbol', () => {
+      const mockExchangeRateExpData: Expense = {
+        ...expenseData,
+        is_reimbursable: true,
       };
+
       component.isCCCTransaction = true;
-      transactionService.getEtxn.and.returnValue(of(mockExchangeRateExpData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
       component.expense$ = of(mockExchangeRateExpData);
       component.ionViewWillEnter();
-      component.matchingCCCTransaction$.subscribe((res) => {
-        expect(component.paymentModeIcon).toEqual('fy-matched');
-        expect(component.cardNumber).toEqual(res.card_or_account_number);
-        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith(
-          mockExchangeRateExpData.tx_corporate_credit_card_expense_group_id
-        );
-        done();
-      });
-      expect(component.foreignCurrencySymbol).toEqual(expenseData1.tx_orig_currency);
+
+      expect(component.paymentModeIcon).toEqual('fy-matched');
+      expect(component.cardNumber).toEqual(expenseData.matched_corporate_card_transactions[0].corporate_card_number);
+      expect(component.foreignCurrencySymbol).toEqual(expenseData.foreign_currency);
       expect(component.etxnCurrencySymbol).toEqual('$');
     });
 
@@ -582,8 +615,9 @@ describe('ViewExpensePage', () => {
         ...expenseFieldsMapResponse,
         project_id: [],
       };
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
-      component.expense$ = of(expenseData1);
+
+      spenderExpensesService.getExpenseById.and.returnValue(of(expenseData));
+      component.expense$ = of(expenseData);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
       component.txnFields$ = of(mockExpFieldData);
 
@@ -592,12 +626,12 @@ describe('ViewExpensePage', () => {
       expect(component.isProjectShown).toBeTruthy();
     });
 
-    it('should get the project details when project name is not present', () => {
-      const mockExpData = {
-        ...expenseData1,
-        tx_project_name: null,
+    it('should get the project details when project is not present', () => {
+      const mockExpData: Expense = {
+        ...expenseData,
+        project: null,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExpData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpData));
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       component.expense$ = of(mockExpData);
 
@@ -610,7 +644,7 @@ describe('ViewExpensePage', () => {
       spyOn(component, 'isPolicyComment').and.returnValue(true);
       component.ionViewWillEnter();
       component.policyViloations$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledWith('transactions', expenseData1.tx_id);
+        expect(statusService.find).toHaveBeenCalledWith('transactions', expenseData.id);
         expect(statusService.find).toHaveBeenCalledTimes(2);
         expect(component.isPolicyComment).toHaveBeenCalledTimes(5);
         done();
@@ -632,69 +666,71 @@ describe('ViewExpensePage', () => {
     });
 
     it('should get the flag status', (done) => {
-      const mockWithoutCustPropData = {
-        ...etxnData,
-        tx_custom_properties: null,
+      const mockWithoutCustPropData: Expense = {
+        ...expenseData,
+        custom_fields: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.expense$ = of(etxnData);
+      component.expense$ = of(expenseData);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
-        expect(etxnData.tx_state).toEqual('APPROVED');
+        expect(mockWithoutCustPropData.state).toEqual(ExpenseState.APPROVED);
         expect(res).toBeTrue();
         done();
       });
     });
 
     it('should return false if there is only one transaction in the report and the state is PAID', () => {
-      const mockWithoutCustPropData = {
-        ...etxnData,
-        tx_state: 'PAID',
-        tx_report_id: 'rphNNUiCISkD',
-        tx_custom_properties: null,
+      const mockWithoutCustPropData: Expense = {
+        ...expenseData,
+        state: ExpenseState.PAID,
+        report_id: 'rphNNUiCISkD',
+        custom_fields: null,
       };
+
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
-      transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockWithoutCustPropData.tx_state).toEqual('PAID');
+        expect(mockWithoutCustPropData.state).toEqual(ExpenseState.PAID);
         expect(res).toBeFalse();
       });
     });
 
     it('should return true if the transaction state is DRAFT and there are more than one transactions in the report', () => {
-      const mockWithoutCustPropData = {
-        ...expenseData1,
-        tx_report_id: 'rphNNUiCISkD',
-        tx_custom_properties: null,
+      const mockWithoutCustPropData: Expense = {
+        ...expenseData,
+        report_id: 'rphNNUiCISkD',
+        state: ExpenseState.DRAFT,
+        custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamReportPaginated1.data[3]));
-      transactionService.getEtxn.and.returnValue(of(mockWithoutCustPropData));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockWithoutCustPropData.tx_state).toEqual('DRAFT');
+        expect(mockWithoutCustPropData.state).toEqual(ExpenseState.DRAFT);
         expect(res).toBeTrue();
       });
     });
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_policy_amount: 1000,
-        tx_admin_amount: null,
+      const mockExpenseData: Expense = {
+        ...expenseData,
+        policy_amount: 1000,
+        admin_amount: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
@@ -705,36 +741,36 @@ describe('ViewExpensePage', () => {
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_admin_amount: 1000,
-        tx_policy_amount: null,
+      const mockExpenseData: Expense = {
+        ...expenseData,
+        admin_amount: 1000,
+        policy_amount: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
-        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.tx_admin_amount);
+        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.admin_amount);
         done();
       });
     });
 
     it('should return false if the value is not of type number and check if the expense is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_admin_amount: null,
-        tx_policy_amount: null,
+      const mockExpenseData: Expense = {
+        ...expenseData,
+        admin_amount: null,
+        policy_amount: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();
-        expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.tx_policy_amount);
+        expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.policy_amount);
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         done();
       });
@@ -792,38 +828,36 @@ describe('ViewExpensePage', () => {
 
     it('should be true if expense policy is violated', () => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_policy_amount: -1,
+      const mockExpenseData: Expense = {
+        ...expenseData,
+        policy_amount: -1,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
-        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.tx_policy_amount);
+        expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.policy_amount);
       });
     });
 
     it('should be able to edit expense attachments', fakeAsync(() => {
-      spyOn(component, 'getReceiptDetails').and.returnValue({
+      spyOn(component.updateFlag$, 'next');
+
+      fileService.getReceiptsDetails.and.returnValue({
         type: 'image',
         thumbnail: 'mock-thumbnail',
       });
 
-      spyOn(component.updateFlag$, 'next');
-
       const mockDownloadUrl = {
         url: 'mock-url',
       };
-      fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       component.ionViewWillEnter();
       tick(500);
       component.expense$.subscribe((res) => {
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(res.tx_id);
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObjectData);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObjectData.name, fileObjectData.url);
       });
       tick(500);
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
@@ -897,75 +931,6 @@ describe('ViewExpensePage', () => {
         'my_view_report',
         { id: component.reportId, navigate_back: true },
       ]);
-    });
-  });
-
-  describe('getReceiptExtension():', () => {
-    it('should return the receipt extention if present', () => {
-      const res = component.getReceiptExtension('dummyFile.pdf');
-      expect(res).toEqual('pdf');
-    });
-
-    it('should return null when a file name without extension is provided', () => {
-      const res = component.getReceiptExtension('dummyFile');
-      expect(res).toEqual(null);
-    });
-  });
-
-  describe('getReceiptDetails', () => {
-    it('should get the receipt details when the file extention is of type pdf', () => {
-      spyOn(component, 'getReceiptExtension').and.returnValue('pdf');
-      const res = component.getReceiptDetails(fileObjectAdv1);
-      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv1.name);
-      expect(res.type).toEqual('pdf');
-      expect(res.thumbnail).toEqual('img/fy-pdf.svg');
-    });
-
-    it('should get the receipt details when the it is an image with jpeg as extention', () => {
-      spyOn(component, 'getReceiptExtension').and.returnValue('jpeg');
-      const res = component.getReceiptDetails(fileObjectAdv[0]);
-      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(fileObjectAdv[0].name);
-      expect(res.type).toEqual('image');
-      expect(res.thumbnail).toEqual(fileObjectAdv[0].url);
-    });
-
-    it('should get the receipt details when the it is an image with jpg as extention', () => {
-      const mockFileData = {
-        ...fileObjectAdv[0],
-        name: 'dummyFile.jpg',
-        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.jpg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
-      };
-      spyOn(component, 'getReceiptExtension').and.returnValue('jpg');
-      const res = component.getReceiptDetails(mockFileData);
-      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
-      expect(res.type).toEqual('image');
-      expect(res.thumbnail).toEqual(mockFileData.url);
-    });
-
-    it('should get the receipt details when the it is an image with png as extention', () => {
-      const mockFileData = {
-        ...fileObjectAdv[0],
-        name: 'dummyFile.png',
-        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
-      };
-      spyOn(component, 'getReceiptExtension').and.returnValue('png');
-      const res = component.getReceiptDetails(mockFileData);
-      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
-      expect(res.type).toEqual('image');
-      expect(res.thumbnail).toEqual(mockFileData.url);
-    });
-
-    it('should get the receipt details when the it is an image with gif as extention', () => {
-      const mockFileData = {
-        ...fileObjectAdv[0],
-        name: 'dummyFile.gif',
-        url: 'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.gif?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
-      };
-      spyOn(component, 'getReceiptExtension').and.returnValue('gif');
-      const res = component.getReceiptDetails(mockFileData);
-      expect(component.getReceiptExtension).toHaveBeenCalledOnceWith(mockFileData.name);
-      expect(res.type).toEqual('image');
-      expect(res.thumbnail).toEqual(mockFileData.url);
     });
   });
 
