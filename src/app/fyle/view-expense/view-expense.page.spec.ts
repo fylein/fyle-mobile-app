@@ -386,7 +386,6 @@ describe('ViewExpensePage', () => {
     it('should set the payment mode and icon accordingly when the source account type is CCC', () => {
       const mockExpense: Expense = {
         ...expenseData,
-        is_reimbursable: true,
         source_account: {
           ...expenseData.source_account,
           type: AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
@@ -588,7 +587,6 @@ describe('ViewExpensePage', () => {
     it('should set the correct card number and set foreign and expense transaction currency symbol', () => {
       const mockExpense: Expense = {
         ...expenseData,
-        is_reimbursable: true,
       };
 
       component.isCCCTransaction = true;
