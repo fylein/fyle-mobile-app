@@ -40,7 +40,6 @@ import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
-import { Expense as PlaformExpense } from '../models/platform/v1/expense.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -497,25 +496,6 @@ export class TransactionService {
     };
 
     return this.apiService.post('/transactions/unmatch', data);
-  }
-
-  getVendorDetails(expense: PlaformExpense): string {
-    const fyleCategory = expense?.category?.system_category.toLowerCase();
-    let vendorDisplayName = expense.merchant;
-
-    if (fyleCategory === 'mileage') {
-      vendorDisplayName = (expense.distance || 0).toString();
-      vendorDisplayName += ' ' + expense.distance_unit;
-    } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.per_diem_num_days.toString();
-      if (expense.per_diem_num_days > 1) {
-        vendorDisplayName += ' Days';
-      } else {
-        vendorDisplayName += ' Day';
-      }
-    }
-
-    return vendorDisplayName;
   }
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
