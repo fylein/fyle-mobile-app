@@ -490,6 +490,10 @@ describe('ViewExpensePage', () => {
       };
 
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+      fileService.getReceiptsDetails.and.returnValue({
+        type: 'image',
+        thumbnail: 'mock-thumbnail',
+      });
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
     });
 

@@ -4,6 +4,7 @@ import { ReportState } from 'src/app/core/models/platform/platform-report.model'
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { FileType } from 'src/app/core/models/platform/v1/file.model';
 
 export const expenseData: Expense = {
   accounting_export_summary: {},
@@ -88,8 +89,15 @@ export const expenseData: Expense = {
   expense_rule_data: null,
   expense_rule_id: null,
   extracted_data: null,
-  file_ids: [],
-  files: [],
+  file_ids: ['fi1w2IE6JeqS'],
+  files: [
+    {
+      id: 'fi1w2IE6JeqS',
+      name: '000.jpeg',
+      content_type: 'image/jpeg',
+      type: FileType.RECEIPT,
+    },
+  ],
   foreign_amount: null,
   foreign_currency: null,
   hotel_is_breakfast_provided: false,
