@@ -1,6 +1,5 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -32,7 +31,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
@@ -44,7 +43,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  expense$: Observable<PlatformExpense>;
+  expense$: Observable<Expense>;
 
   policyViloations$: Observable<ExtendedStatus[]>;
 
@@ -54,13 +53,15 @@ export class ViewExpensePage {
 
   customProperties$: Observable<CustomField[]>;
 
-  expenseWithoutCustomProperties$: Observable<PlatformExpense>;
+  expenseWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
 
   orgSettings: OrgSettings;
+
+  expenseId: string;
 
   reportId: string;
 
@@ -177,12 +178,11 @@ export class ViewExpensePage {
   }
 
   async openCommentsModal(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
-        objectId: etxn.tx_id,
+        objectId: this.expenseId,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -232,15 +232,15 @@ export class ViewExpensePage {
     }
   }
 
-  setPaymentModeandIcon(etxn: PlatformExpense): void {
-    if (etxn.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
+  setPaymentModeandIcon(expense: Expense): void {
+    if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
       this.paymentMode = 'Advance';
       this.paymentModeIcon = 'fy-non-reimbursable';
-    } else if (etxn.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+    } else if (expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
       this.paymentModeIcon = 'fy-unmatched';
       this.isCCCTransaction = true;
-    } else if (!etxn.is_reimbursable) {
+    } else if (!expense.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
       this.paymentModeIcon = 'fy-non-reimbursable';
     } else {
@@ -251,8 +251,8 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const txId = this.activatedRoute.snapshot.params.id as string;
 
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.systemCategories = this.categoriesService.getSystemCategories();
@@ -264,8 +264,8 @@ export class ViewExpensePage {
     this.expenseWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() =>
         this.view === ExpenseView.team
-          ? this.approverExpensesService.getExpenseById(txId)
-          : this.spenderExpensesService.getExpenseById(txId)
+          ? this.approverExpensesService.getExpenseById(this.expenseId)
+          : this.spenderExpensesService.getExpenseById(this.expenseId)
       ),
       shareReplay(1)
     );
@@ -349,7 +349,7 @@ export class ViewExpensePage {
       map((comments) => comments.filter(this.isPolicyComment))
     );
 
-    this.comments$ = this.statusService.find('transactions', txId);
+    this.comments$ = this.statusService.find('transactions', this.expenseId);
 
     this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -397,7 +397,7 @@ export class ViewExpensePage {
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(txId);
+    this.getPolicyDetails(this.expenseId);
 
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
@@ -432,7 +432,7 @@ export class ViewExpensePage {
     }
   }
 
-  getDeleteDialogProps(etxn: Expense): {
+  getDeleteDialogProps(): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -455,27 +455,23 @@ export class ViewExpensePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
       },
     };
   }
 
   async removeExpenseFromReport(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
-    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps());
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
   }
 
   async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    const etxn = await this.transactionService.getEtxn(id).toPromise();
-
     const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
@@ -496,12 +492,12 @@ export class ViewExpensePage {
             const comment = {
               comment: data.comment,
             };
-            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+            return this.statusService.post('transactions', this.expenseId, comment, true);
           }),
           concatMap(() =>
-            etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+            isExpenseFlagged
+              ? this.transactionService.manualUnflag(this.expenseId)
+              : this.transactionService.manualFlag(this.expenseId)
           ),
           finalize(() => {
             this.updateFlag$.next(null);
