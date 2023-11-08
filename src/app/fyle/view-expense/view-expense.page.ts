@@ -17,7 +17,6 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
@@ -144,7 +143,6 @@ export class ViewExpensePage {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
@@ -268,8 +266,8 @@ export class ViewExpensePage {
     this.expenseWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() =>
         this.view === ExpenseView.team
-          ? this.approverExpensesService.getById(txId)
-          : this.spenderExpensesService.getById(txId)
+          ? this.approverExpensesService.getExpenseById(txId)
+          : this.spenderExpensesService.getExpenseById(txId)
       ),
       shareReplay(1)
     );
