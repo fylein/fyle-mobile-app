@@ -543,7 +543,7 @@ export class MyExpensesPage implements OnInit {
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         this.isLoadingDataInInfiniteScroll = true;
 
-        return this.expenseService.getExpenseCount(queryParams).pipe(
+        return this.expenseService.getExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.expenseService.getExpenses({
@@ -563,7 +563,7 @@ export class MyExpensesPage implements OnInit {
             if (this.currentPageNumber === 1) {
               this.acc = [];
             }
-            this.acc = this.acc.concat(res.data);
+            this.acc = this.acc.concat(res as PlatformExpense[]);
             return this.acc;
           })
         );
@@ -578,7 +578,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
-        return this.expenseService.getExpenseCount(queryParams);
+        return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1)
     );

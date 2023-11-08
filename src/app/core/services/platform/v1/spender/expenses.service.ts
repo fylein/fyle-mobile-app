@@ -1,16 +1,16 @@
-import { Injectable } from '@angular/core';
-import { Observable, from, map, switchMap } from 'rxjs';
+import { Inject, Injectable } from '@angular/core';
+import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
-import { AuthService } from '../../../auth.service';
+import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(private spenderService: SpenderService, private authServie: AuthService) {}
+  constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
 
   getExpenseById(id: string): Observable<Expense> {
     const data = {
@@ -22,34 +22,31 @@ export class ExpensesService {
     return this.spenderService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
   }
 
-  getExpenses(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: ExpenseParams;
-    }>
-  ): Observable<PlatformApiResponse<Expense>> {
-    return from(this.authServie.getEou()).pipe(
-      switchMap((eou) =>
-        this.spenderService.get<PlatformApiResponse<Expense>>('/expenses', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            employee_id: `eq.${eou.ou.id}`,
-            order: `${config.order || 'spent_at.desc'},created_at.desc,id.desc`,
-            ...config.queryParams,
-          },
-        })
-      )
-    );
+  getExpensesCount(params: ExpensesQueryParams): Observable<number> {
+    return this.spenderService
+      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .pipe(map((response) => response.count));
   }
 
-  getExpenseCount(queryParams: ExpenseParams): Observable<number> {
-    return this.getExpenses({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
+  getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .pipe(map((expenses) => expenses.data));
+  }
+
+  getReportExpenses(reportId: string): Observable<Expense[]> {
+    const params = {
+      report_id: `eq.${reportId}`,
+    };
+    return this.getExpensesCount(params).pipe(
+      switchMap((expensesCount) => {
+        const numBatches = expensesCount > this.paginationSize ? Math.ceil(expensesCount / this.paginationSize) : 1;
+        return range(0, numBatches);
+      }),
+      concatMap((batchNum) =>
+        this.getExpenses({ offset: this.paginationSize * batchNum, limit: this.paginationSize, ...params })
+      ),
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+    );
   }
 }
