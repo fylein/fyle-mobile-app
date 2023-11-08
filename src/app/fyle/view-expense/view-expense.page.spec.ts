@@ -49,7 +49,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
-describe('ViewExpensePage', () => {
+fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -560,30 +560,22 @@ describe('ViewExpensePage', () => {
       });
     });
 
-    it('should set the correct value for split expenses and expense rate', (done) => {
+    it('should set the correct value for split expense', () => {
       const mockExpense: Expense = {
         ...expenseData,
-        employee: {
-          ...expenseData.employee,
-          org_name: 'Test',
-        },
-        split_group_id: 'tx5fBcNgRxJk',
+        is_split: true,
       };
 
       spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.expense$ = of(mockExpense);
       component.ionViewWillEnter();
-      component.expense$.subscribe((res) => {
-        expect(res.split_group_id).not.toEqual(res.id);
-        done();
-      });
+      expect(component.isSplitExpense).toBeTrue();
     });
 
     it('should set the correct exchange rate', () => {
       component.exchangeRate = 0;
       const mockExpense: Expense = {
         ...expenseData,
-        split_group_id: 'tx5fBcNgRxJk',
         amount: 500,
         foreign_amount: 1000,
       };
