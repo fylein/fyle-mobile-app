@@ -1,4 +1,4 @@
-export interface PlatformGetExpenseQueryParam {
+export interface GetExpenseQueryParam {
   pageNumber: number;
   sortParam: string;
   sortDir: string;

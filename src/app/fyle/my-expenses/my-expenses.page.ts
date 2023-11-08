@@ -78,7 +78,7 @@ import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { PlatformGetExpenseQueryParam } from 'src/app/core/models/platform/platform-get-expenses-query.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
@@ -100,7 +100,7 @@ export class MyExpensesPage implements OnInit {
 
   loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
-  loadExpenses$: BehaviorSubject<Partial<PlatformGetExpenseQueryParam>>;
+  loadExpenses$: BehaviorSubject<Partial<GetExpenseQueryParam>>;
 
   currentPageNumber = 1;
 
