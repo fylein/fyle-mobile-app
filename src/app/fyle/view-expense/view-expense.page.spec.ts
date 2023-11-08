@@ -962,18 +962,6 @@ describe('ViewExpensePage', () => {
         id: 'tx5fBcPBAxLv',
       };
 
-      const testComment = {
-        id: 'stjIdPp8BX8O',
-        created_at: '2022-11-17T06:07:38.590Z',
-        org_user_id: 'ouX8dwsbLCLv',
-        comment: 'This is a comment for flagging',
-        diff: null,
-        state: null,
-        transaction_id: null,
-        report_id: 'rpkpSa8guCuR',
-        advance_request_id: null,
-      };
-
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -985,7 +973,7 @@ describe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
-      component.flagUnflagExpense(expenseData.is_manually_flagged);
+      component.flagUnflagExpense(false);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -1012,23 +1000,6 @@ describe('ViewExpensePage', () => {
         id: 'tx5fBcPBAxLv',
       };
 
-      const mockExpense: Expense = {
-        ...expenseData,
-        is_manually_flagged: true,
-      };
-
-      const testComment = {
-        id: 'stjIdPp8BX8O',
-        created_at: '2022-11-17T06:07:38.590Z',
-        org_user_id: 'ouX8dwsbLCLv',
-        comment: 'a comment',
-        diff: null,
-        state: null,
-        transaction_id: null,
-        report_id: 'rpkpSa8guCuR',
-        advance_request_id: null,
-      };
-
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -1040,7 +1011,7 @@ describe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
-      component.flagUnflagExpense(mockExpense.is_manually_flagged);
+      component.flagUnflagExpense(true);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
