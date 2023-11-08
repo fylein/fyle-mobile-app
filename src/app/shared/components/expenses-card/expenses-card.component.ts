@@ -24,6 +24,9 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -139,7 +142,9 @@ export class ExpensesCardComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private expenseService: ExpensesService,
+    private sharedExpenseService: SharedExpenseService
   ) {}
 
   get isSelected(): boolean {
@@ -261,7 +266,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   checkFlags(): void {
-    this.isDraft = this.expense.state === 'DRAFT';
+    this.isDraft = this.expense.state === ExpenseState.DRAFT;
     this.isCriticalPolicyViolated =
       typeof this.expense.policy_amount === 'number' && this.expense.policy_amount < 0.0001;
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
@@ -275,11 +280,11 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.category.name && this.expense.category.name?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.category.name && this.expense.category.name?.toLowerCase() === 'per diem';
+    this.isMileageExpense = this.expense?.category?.name.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense?.category?.name.toLowerCase() === 'per diem';
 
-    this.category = this.expense.category.name?.toLowerCase();
-    this.vendorDetails = this.transactionService.getVendorDetails(this.expense);
+    this.category = this.expense?.category?.name?.toLowerCase();
+    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
 
     this.checkFlags();
 
@@ -330,7 +335,7 @@ export class ExpensesCardComponent implements OnInit {
         this.paymentModeIcon = 'fy-unmatched';
       }
     } else {
-      if (!this.expense.is_reimbursable) {
+      if (this.expense.is_reimbursable) {
         this.paymentModeIcon = 'fy-reimbursable';
       } else {
         this.paymentModeIcon = 'fy-non-reimbursable';

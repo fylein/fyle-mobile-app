@@ -78,7 +78,7 @@ import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { PlatformGetExpenseQueryParam } from 'src/app/core/models/platform/platform-get-expenses-query.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 
@@ -100,7 +100,7 @@ export class MyExpensesPage implements OnInit {
 
   loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
-  loadExpenses$: BehaviorSubject<Partial<PlatformGetExpenseQueryParam>>;
+  loadExpenses$: BehaviorSubject<Partial<GetExpenseQueryParam>>;
 
   currentPageNumber = 1;
 
@@ -545,16 +545,19 @@ export class MyExpensesPage implements OnInit {
         if (params.searchString) {
           queryParams.q = params.searchString;
         }
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams =
+          params.sortParam && params.sortDir
+            ? `${params.sortParam}.${params.sortDir}`
+            : 'spent_at.desc,created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
 
-        return this.expenseService.getExpenseCount(queryParams).pipe(
+        return this.expenseService.getExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.expenseService.getExpenses({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
-                queryParams,
+                ...queryParams,
                 order: orderByParams,
               });
             } else {
@@ -568,7 +571,7 @@ export class MyExpensesPage implements OnInit {
             if (this.currentPageNumber === 1) {
               this.acc = [];
             }
-            this.acc = this.acc.concat(res.data);
+            this.acc = this.acc.concat(res as PlatformExpense[]);
             return this.acc;
           })
         );
@@ -583,7 +586,7 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
-        return this.expenseService.getExpenseCount(queryParams);
+        return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1)
     );
