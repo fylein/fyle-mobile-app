@@ -540,7 +540,10 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams =
+          params.sortParam && params.sortDir
+            ? `${params.sortParam}.${params.sortDir}`
+            : 'spent_at.desc,created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
 
         return this.expenseService.getExpensesCount(queryParams).pipe(
@@ -549,7 +552,7 @@ export class MyExpensesPage implements OnInit {
               return this.expenseService.getExpenses({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
-                queryParams,
+                ...queryParams,
                 order: orderByParams,
               });
             } else {
