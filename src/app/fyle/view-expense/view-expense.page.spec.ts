@@ -366,7 +366,7 @@ describe('ViewExpensePage', () => {
 
   describe('setPaymentModeandIcon', () => {
     it('should set the payment mode and icon accordingly when the source account type is ADVANCE', () => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         source_account: {
           ...expenseData.source_account,
@@ -374,8 +374,8 @@ describe('ViewExpensePage', () => {
         },
       };
 
-      component.expense$ = of(mockExchangeRateExpData);
-      component.setPaymentModeandIcon(mockExchangeRateExpData);
+      component.expense$ = of(mockExpense);
+      component.setPaymentModeandIcon(mockExpense);
       component.expense$.subscribe((res) => {
         expect(res.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
         expect(component.paymentMode).toEqual('Advance');
@@ -384,7 +384,7 @@ describe('ViewExpensePage', () => {
     });
 
     it('should set the payment mode and icon accordingly when the source account type is CCC', () => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         is_reimbursable: true,
         source_account: {
@@ -393,8 +393,8 @@ describe('ViewExpensePage', () => {
         },
       };
 
-      component.expense$ = of(mockExchangeRateExpData);
-      component.setPaymentModeandIcon(mockExchangeRateExpData);
+      component.expense$ = of(mockExpense);
+      component.setPaymentModeandIcon(mockExpense);
       component.expense$.subscribe((res) => {
         expect(res.source_account.type).toEqual(AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT);
         expect(component.paymentMode).toEqual('Corporate Card');
@@ -404,7 +404,7 @@ describe('ViewExpensePage', () => {
     });
 
     it('should set the payment mode and icon accordingly when the expense is non-reimbursable', () => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         is_reimbursable: false,
         source_account: {
@@ -413,8 +413,8 @@ describe('ViewExpensePage', () => {
         },
       };
 
-      component.expense$ = of(mockExchangeRateExpData);
-      component.setPaymentModeandIcon(mockExchangeRateExpData);
+      component.expense$ = of(mockExpense);
+      component.setPaymentModeandIcon(mockExpense);
       component.expense$.subscribe((res) => {
         expect(res.is_reimbursable).toBeFalse();
         expect(component.paymentMode).toEqual('Paid by Company');
@@ -423,7 +423,7 @@ describe('ViewExpensePage', () => {
     });
 
     it('the amount is reimbursable if non of the conditions match', () => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         source_account: {
           ...expenseData.source_account,
@@ -432,8 +432,8 @@ describe('ViewExpensePage', () => {
         is_reimbursable: true,
       };
 
-      component.expense$ = of(mockExchangeRateExpData);
-      component.setPaymentModeandIcon(mockExchangeRateExpData);
+      component.expense$ = of(mockExpense);
+      component.setPaymentModeandIcon(mockExpense);
       component.expense$.subscribe((res) => {
         expect(res.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
         expect(component.paymentMode).toEqual('Paid by Employee');
@@ -561,7 +561,7 @@ describe('ViewExpensePage', () => {
     });
 
     it('should set the correct value for split expenses and expense rate', (done) => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         employee: {
           ...expenseData.employee,
@@ -570,8 +570,8 @@ describe('ViewExpensePage', () => {
         split_group_id: 'tx5fBcNgRxJk',
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
-      component.expense$ = of(mockExchangeRateExpData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
+      component.expense$ = of(mockExpense);
       component.ionViewWillEnter();
       component.expense$.subscribe((res) => {
         expect(res.split_group_id).not.toEqual(res.id);
@@ -581,27 +581,27 @@ describe('ViewExpensePage', () => {
 
     it('should set the correct exchange rate', () => {
       component.exchangeRate = 0;
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         split_group_id: 'tx5fBcNgRxJk',
         amount: 500,
         foreign_amount: 1000,
       };
 
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       expect(component.exchangeRate).toBe(0.5);
     });
 
     it('should set the correct card number and set foreign and expense transaction currency symbol', () => {
-      const mockExchangeRateExpData: Expense = {
+      const mockExpense: Expense = {
         ...expenseData,
         is_reimbursable: true,
       };
 
       component.isCCCTransaction = true;
-      spenderExpensesService.getExpenseById.and.returnValue(of(mockExchangeRateExpData));
-      component.expense$ = of(mockExchangeRateExpData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
+      component.expense$ = of(mockExpense);
       component.ionViewWillEnter();
 
       expect(component.paymentModeIcon).toEqual('fy-matched');
