@@ -106,7 +106,6 @@ export const expensesWithDependentFields: Expense[] = [
     tx_id: 'txfCdl3TEZ7K',
     tx_invoice_number: null,
     tx_is_duplicate_expense: null,
-    tx_is_holiday_expense: null,
     tx_is_implicit_merge_blocked: false,
     tx_is_split_expense: false,
     tx_location_column1: {
@@ -329,7 +328,6 @@ export const expensesWithDependentFields: Expense[] = [
     tx_id: 'txCYDX0peUw5',
     tx_invoice_number: null,
     tx_is_duplicate_expense: null,
-    tx_is_holiday_expense: null,
     tx_is_implicit_merge_blocked: false,
     tx_is_split_expense: false,
     tx_location_column1: {
@@ -538,7 +536,6 @@ export const expensesWithSameProject: Expense[] = [
     tx_id: 'txfCdl3TEZ7K',
     tx_invoice_number: null,
     tx_is_duplicate_expense: null,
-    tx_is_holiday_expense: null,
     tx_is_implicit_merge_blocked: false,
     tx_is_split_expense: false,
     tx_location_column1: {
@@ -757,7 +754,6 @@ export const expensesWithSameProject: Expense[] = [
     tx_id: 'txCYDX0peUw5',
     tx_invoice_number: null,
     tx_is_duplicate_expense: null,
-    tx_is_holiday_expense: null,
     tx_is_implicit_merge_blocked: false,
     tx_is_split_expense: false,
     tx_location_column1: {
