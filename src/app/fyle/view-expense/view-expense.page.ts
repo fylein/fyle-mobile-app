@@ -251,7 +251,7 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const txId = this.activatedRoute.snapshot.params.id as string;
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
@@ -264,8 +264,8 @@ export class ViewExpensePage {
     this.expenseWithoutCustomProperties$ = this.updateFlag$.pipe(
       switchMap(() =>
         this.view === ExpenseView.team
-          ? this.approverExpensesService.getExpenseById(txId)
-          : this.spenderExpensesService.getExpenseById(txId)
+          ? this.approverExpensesService.getExpenseById(id)
+          : this.spenderExpensesService.getExpenseById(id)
       ),
       shareReplay(1)
     );
@@ -349,7 +349,7 @@ export class ViewExpensePage {
       map((comments) => comments.filter(this.isPolicyComment))
     );
 
-    this.comments$ = this.statusService.find('transactions', txId);
+    this.comments$ = this.statusService.find('transactions', id);
 
     this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
@@ -397,7 +397,7 @@ export class ViewExpensePage {
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(txId);
+    this.getPolicyDetails(id);
 
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
