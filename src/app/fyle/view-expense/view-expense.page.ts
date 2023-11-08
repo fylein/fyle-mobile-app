@@ -19,7 +19,6 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
-import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
@@ -85,8 +84,6 @@ export class ViewExpensePage {
   paymentMode: string;
 
   isCCCTransaction = false;
-
-  matchingCCCTransaction$: Observable<MatchedCCCTransaction>;
 
   numEtxnsInReport: number;
 
@@ -328,7 +325,9 @@ export class ViewExpensePage {
 
       if (this.isCCCTransaction && expense.matched_corporate_card_transactions[0]) {
         this.paymentModeIcon = 'fy-matched';
-        this.cardNumber = expense.matched_corporate_card_transactions[0].corporate_card_number;
+
+        const matchedCCCTransaction = expense.matched_corporate_card_transactions[0];
+        this.cardNumber = matchedCCCTransaction.corporate_card_number;
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.etxnCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
@@ -398,16 +397,18 @@ export class ViewExpensePage {
 
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
-      switchMap((expense) => this.fileService.findByTransactionId(expense.id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: FileObject) =>
+      switchMap((expense) => from(expense.files)),
+      concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
+            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
+            const fileObjWithDetails: FileObject = {
+              url: downloadUrl,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return fileObjWithDetails;
           })
         )
       ),
