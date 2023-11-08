@@ -40,7 +40,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { expenseData1 as platformExpenseData1 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
@@ -95,8 +95,8 @@ describe('ViewPerDiemPage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
-    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getById']);
-    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getById']);
+    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
 
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
@@ -284,8 +284,8 @@ describe('ViewPerDiemPage', () => {
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      spenderExpensesService.getById.and.returnValue(of(platformExpenseData1));
-      approverExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      spenderExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(customInputData1));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -308,9 +308,9 @@ describe('ViewPerDiemPage', () => {
           })
         )
         .subscribe((extendedPerDiem) => {
-          expect(spenderExpensesService.getById).toHaveBeenCalledOnceWith('tx3qwe4ty');
+          expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith('tx3qwe4ty');
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(extendedPerDiem).toEqual(platformExpenseData1);
+          expect(extendedPerDiem).toEqual(perDiemExpense);
         });
 
       component.txnFields$.subscribe((txnFields) => {
@@ -344,7 +344,7 @@ describe('ViewPerDiemPage', () => {
 
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
-          platformExpenseData1.custom_fields,
+          perDiemExpense.custom_fields,
           undefined
         );
         expect(projectDependentCustomProperties).toEqual(customInputData1);
@@ -352,7 +352,7 @@ describe('ViewPerDiemPage', () => {
 
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalledOnceWith(
-          platformExpenseData1.custom_fields,
+          perDiemExpense.custom_fields,
           undefined
         );
         expect(costCenterDependentCustomProperties).toEqual(customInputData1);
@@ -378,10 +378,10 @@ describe('ViewPerDiemPage', () => {
     }));
 
     it('should set paymentMode and paymentMode icon correctly if account type is ADVANCE', fakeAsync(() => {
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.source_account.type = AccountType.PERSONAL_ADVANCE_ACCOUNT;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid from Advance');
@@ -389,10 +389,10 @@ describe('ViewPerDiemPage', () => {
     }));
 
     it('should set paymentMode and paymentMode icon correctly if tx_skip_reimbursement is true', fakeAsync(() => {
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.is_reimbursable = false;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid by Company');
@@ -413,11 +413,11 @@ describe('ViewPerDiemPage', () => {
       expect(component.isProjectShown).toBeTrue();
     }));
 
-    it('should set isProjectShown to false if project name and is empty string and project is not mandatory', fakeAsync(() => {
-      const mockExpense = cloneDeep(platformExpenseData1);
-      mockExpense.project.name = '';
+    it('should set isProjectShown to false if project does not exist and project is not mandatory', fakeAsync(() => {
+      const mockExpense = cloneDeep(perDiemExpense);
+      mockExpense.project = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       const mockExpenseField = cloneDeep(expenseFieldsMapResponse4);
       mockExpenseField.project_id[0].is_mandatory = false;
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpenseField));
@@ -442,16 +442,16 @@ describe('ViewPerDiemPage', () => {
     }));
 
     it('should set perDiemCustomFields$ and perDiemRate$', (done) => {
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.per_diem_rate_id = 508;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          platformExpenseData1.category_id,
-          platformExpenseData1.custom_fields,
+          perDiemExpense.category_id,
+          perDiemExpense.custom_fields,
           true
         );
         // Called twice because of the two custom fields
@@ -471,7 +471,7 @@ describe('ViewPerDiemPage', () => {
     it('should set view and canFlagOrUnflag$ to true if expense state is APPROVER_PENDING', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
-      approverExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       component.ionViewWillEnter();
       expect(component.view).toEqual(ExpenseView.team);
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
@@ -482,10 +482,10 @@ describe('ViewPerDiemPage', () => {
 
     it('should set canFlagOrUnflag$ to false if state is PAID', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.state = ExpenseState.PAID;
 
-      approverExpensesService.getById.and.returnValue(of(mockExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
         expect(canFlagOrUnflag).toBeFalse();
@@ -496,7 +496,7 @@ describe('ViewPerDiemPage', () => {
     it('should set canDelete$ to false if report transaction equals 1', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
-      approverExpensesService.getById.and.returnValue(of(platformExpenseData1));
+      approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
         expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
@@ -508,13 +508,13 @@ describe('ViewPerDiemPage', () => {
     it('should set canDelete$ to true if expense state is APPROVER_PENDING', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.state = ExpenseState.APPROVER_PENDING;
       const mockReport = cloneDeep(apiExtendedReportRes[0]);
       mockReport.rp_num_transactions = 2;
 
       reportService.getTeamReport.and.returnValue(of(mockReport));
-      approverExpensesService.getById.and.returnValue(of(mockExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
@@ -569,10 +569,10 @@ describe('ViewPerDiemPage', () => {
 
     it('should set isCriticalPolicyViolated$ to true if policy amount is number and less than 0.0001', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.policy_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
@@ -584,10 +584,10 @@ describe('ViewPerDiemPage', () => {
 
     it('should set isCriticalPolicyViolated$ to false if policy amount is not a number', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.policy_amount = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
@@ -599,10 +599,10 @@ describe('ViewPerDiemPage', () => {
 
     it('should set isAmountCapped$ to true if admin amount is number', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.admin_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
@@ -614,11 +614,11 @@ describe('ViewPerDiemPage', () => {
 
     it('should set isAmountCapped$ to true if policy amount is number', (done) => {
       spyOn(component, 'isNumber').and.returnValues(false, true);
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.admin_amount = null;
       mockExpense.policy_amount = 0;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {
@@ -632,11 +632,11 @@ describe('ViewPerDiemPage', () => {
 
     it('should set isAmountCapped$ to false if policy amount and admin amount are not a number', (done) => {
       spyOn(component, 'isNumber').and.returnValues(false, false);
-      const mockExpense = cloneDeep(platformExpenseData1);
+      const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.admin_amount = null;
       mockExpense.policy_amount = null;
 
-      spenderExpensesService.getById.and.returnValue(of(mockExpense));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockExpense));
       component.ionViewWillEnter();
 
       component.isAmountCapped$.subscribe((isAmountCapped) => {

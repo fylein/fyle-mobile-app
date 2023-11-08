@@ -10,13 +10,15 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 export class ExpensesService {
   constructor(private approverService: ApproverService) {}
 
-  getById(id: string): Observable<Expense> {
+  getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
         id: `eq.${id}`,
       },
     };
 
-    return this.approverService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
+    return this.approverService
+      .get<PlatformApiResponse<Expense>>('/expenses', data)
+      .pipe(map((response) => response.data[0]));
   }
 }

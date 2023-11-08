@@ -428,6 +428,9 @@ export class SplitExpensePage {
         return;
       }
       let canCreateNegativeExpense = true;
+
+      this.saveSplitExpenseLoading = true;
+
       this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
         canCreateNegativeExpense = (this.splitExpensesFormArray.value as SplitExpense[]).reduce(
           (defaultValue: boolean, splitExpenseValue) => {
@@ -448,8 +451,6 @@ export class SplitExpensePage {
           }, 2500);
           return;
         }
-
-        this.saveSplitExpenseLoading = true;
 
         const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
           this.generateSplitEtxnFromFg(splitExpenseValue)
@@ -532,12 +533,7 @@ export class SplitExpensePage {
             if (showProjectMappedCategories && this.transaction.project_id) {
               return this.projectsService
                 .getbyId(this.transaction.project_id)
-                .pipe(
-                  map(
-                    (project) =>
-                      this.projectsService.getAllowedOrgCategoryIds(project, activeCategories) as OrgCategory[]
-                  )
-                );
+                .pipe(map((project) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)));
             }
 
             return of(activeCategories);

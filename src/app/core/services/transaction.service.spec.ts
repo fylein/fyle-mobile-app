@@ -275,21 +275,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getTransactionByExpenseNumber(): should get transaction by expense number', (done) => {
-    const expenseNumber = 'E/2022/11/T/62';
-    apiService.get.and.returnValue(of(expenseData1));
-
-    transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/transactions', {
-        params: {
-          expense_number: expenseNumber,
-        },
-      });
-      done();
-    });
-  });
-
   describe('getIsCriticalPolicyViolated():', () => {
     it('should return false if critical policy is not violated', () => {
       expect(transactionService.getIsCriticalPolicyViolated(expenseData1)).toBeFalse();

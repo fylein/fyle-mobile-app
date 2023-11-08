@@ -3,8 +3,8 @@ import { User } from './user.model';
 export interface Department {
   id: string;
   org_id: string;
-  created_at: string;
-  updated_at: string;
+  created_at: Date;
+  updated_at: Date;
   is_enabled: boolean;
   name: string;
   code: string;

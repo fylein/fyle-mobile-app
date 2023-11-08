@@ -84,10 +84,13 @@ export class AppVersionService {
       eou: from(this.authService.getEou()),
     }).pipe(
       filter(
-        (res: { appSupportDetails: AppSupportedDetails; lastLoggedInVersion: string; eou: ExtendedOrgUser }) =>
-          !res.appSupportDetails.supported && environment.production
+        (appVersionDetails: {
+          appSupportDetails: AppSupportedDetails;
+          lastLoggedInVersion: string;
+          eou: ExtendedOrgUser;
+        }) => !appVersionDetails.appSupportDetails.supported && environment.production
       ),
-      map((res) => ({ ...res, deviceInfo }))
+      map((appVersionDetails) => ({ ...appVersionDetails, deviceInfo }))
     );
   }
 

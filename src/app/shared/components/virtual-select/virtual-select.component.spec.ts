@@ -238,4 +238,29 @@ describe('VirtualSelectModalComponent', () => {
     //@ts-ignore
     expect(component.onTouchedCallback).toEqual(onTouched);
   });
+
+  describe('handleDisplayNameException():', () => {
+    it('should set the value and update the displayValue if innerValue is defined', () => {
+      const value = { display_name: 'Marriot Hotels' };
+      //@ts-ignore
+      component.innerValue = value;
+      component.handleDisplayNameException();
+      expect(component.displayValue).toEqual(value.display_name);
+    });
+
+    it('should not set the value of displayValue is display_name is not available', () => {
+      const value = { vendor: 'Marriot Hotels' };
+      //@ts-ignore
+      component.innerValue = value;
+      component.handleDisplayNameException();
+      expect(component.displayValue).toBeUndefined();
+    });
+
+    it('should not set the value of displayValue if innerValue is null or unset', () => {
+      //@ts-ignore
+      component.innerValue = null;
+      component.handleDisplayNameException();
+      expect(component.displayValue).toBeUndefined();
+    });
+  });
 });

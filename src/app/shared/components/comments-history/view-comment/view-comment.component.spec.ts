@@ -2,7 +2,6 @@ import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from 
 import { IonicModule } from '@ionic/angular';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { TransactionService } from '../../../../core/services/transaction.service';
 import { Router } from '@angular/router';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { TrackingService } from '../../../../core/services/tracking.service';
@@ -16,7 +15,6 @@ import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { of } from 'rxjs';
 
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
 import {
   apiCommentsResponse,
   getEstatusApiResponse,
@@ -30,7 +28,6 @@ describe('ViewCommentComponent', () => {
   let authService: jasmine.SpyObj<AuthService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let elementRef: jasmine.SpyObj<ElementRef>;
@@ -41,7 +38,6 @@ describe('ViewCommentComponent', () => {
     authService = jasmine.createSpyObj('AuthService', ['getEou']);
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     popoverController = jasmine.createSpyObj('PopoverController', ['create']);
-    transactionService = jasmine.createSpyObj('TransactionService', ['getTransactionByExpenseNumber']);
     router = jasmine.createSpyObj('Router', ['navigate']);
     trackingService = jasmine.createSpyObj('TrackingService', ['addComment', 'viewComment', 'commentsHistoryActions']);
     elementRef = jasmine.createSpyObj('ElementRef', ['nativeElement']);
@@ -56,7 +52,6 @@ describe('ViewCommentComponent', () => {
         { provide: AuthService, useValue: authService },
         { provide: ModalController, useValue: modalController },
         { provide: PopoverController, useValue: popoverController },
-        { provide: TransactionService, useValue: transactionService },
         { provide: Router, useValue: router },
         { provide: TrackingService, useValue: trackingService },
         { provide: ElementRef, useValue: elementRef },
@@ -68,7 +63,6 @@ describe('ViewCommentComponent', () => {
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     statusService.find.and.returnValue(of(apiCommentsResponse));
     statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
-    transactionService.getTransactionByExpenseNumber.and.returnValue(of(expenseData1));
 
     fixture = TestBed.createComponent(ViewCommentComponent);
     component = fixture.componentInstance;
@@ -76,8 +70,6 @@ describe('ViewCommentComponent', () => {
     component.objectType = 'transactions';
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
-    component.expenseNumber = 'E/2022/11/T/62';
-    component.matchedExpense = expenseData1;
     fixture.detectChanges();
   }));
 
@@ -213,21 +205,6 @@ describe('ViewCommentComponent', () => {
     });
   });
 
-  it('openViewExpense(): should show th expenses', fakeAsync(() => {
-    component.matchedExpense = expenseData1;
-    component.openViewExpense();
-    tick(1000);
-    expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'view_expense',
-      {
-        id: component.matchedExpense.tx_id,
-      },
-    ]);
-  }));
-
   describe('onInit():', () => {
     it('should set estatuses$ and totalCommentsCount$ properties correctly', fakeAsync(() => {
       const updatedApiCommentsResponse = apiCommentsResponse.map((comment) => ({
@@ -262,18 +239,6 @@ describe('ViewCommentComponent', () => {
       component.objectType = 'Expenses';
       component.ngOnInit();
       expect(component.type).toEqual('Expense');
-    });
-
-    it('should set reversal comment, expense number, and matched expense if reversal status exists', () => {
-      statusService.find.and.returnValue(of(apiCommentsResponse));
-      component.estatuses$ = of(apiCommentsResponse);
-      statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
-      component.ngOnInit();
-      fixture.detectChanges();
-
-      expect(component.reversalComment).toEqual('created');
-      expect(transactionService.getTransactionByExpenseNumber).toHaveBeenCalledOnceWith(component.expenseNumber);
-      expect(component.matchedExpense).toEqual(expenseData1);
     });
   });
 });
