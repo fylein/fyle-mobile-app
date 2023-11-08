@@ -94,8 +94,17 @@ describe('ExpenseFieldsService', () => {
 
   it('should return correct mapping for column name', () => {
     expect(expenseFieldsService.getColumnName('spent_at')).toBe('txn_dt');
+    expect(expenseFieldsService.getColumnName('category_id')).toBe('org_category_id');
+    expect(expenseFieldsService.getColumnName('merchant')).toBe('vendor_id');
+    expect(expenseFieldsService.getColumnName('is_billable')).toBe('billable');
+    expect(expenseFieldsService.getColumnName('started_at')).toBe('from_dt');
+    expect(expenseFieldsService.getColumnName('ended_at')).toBe('to_dt');
+    expect(expenseFieldsService.getColumnName('per_diem_num_days')).toBe('num_days');
     expect(expenseFieldsService.getColumnName('locations[0]')).toBe('location1');
+    expect(expenseFieldsService.getColumnName('locations[1]')).toBe('location2');
+    expect(expenseFieldsService.getColumnName('travel_classes[0]', 1)).toBe('flight_journey_travel_class');
     expect(expenseFieldsService.getColumnName('travel_classes[0]', 2)).toBe('bus_travel_class');
+    expect(expenseFieldsService.getColumnName('travel_classes[0]', 3)).toBe('train_travel_class');
     expect(expenseFieldsService.getColumnName('travel_classes[1]', 1)).toBe('flight_return_travel_class');
 
     //For other fields, the column_name should remain the same
