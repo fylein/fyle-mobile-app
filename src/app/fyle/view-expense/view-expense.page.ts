@@ -34,6 +34,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
 @Component({
   selector: 'app-view-expense',
@@ -352,9 +353,13 @@ export class ViewExpensePage {
 
     this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map(
-        (expense) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(expense.state) > -1
+      map((expense) =>
+        [
+          ExpenseState.COMPLETE,
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+        ].includes(expense.state)
       )
     );
 
@@ -363,12 +368,11 @@ export class ViewExpensePage {
       switchMap((expense) =>
         this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, expense }) => {
-        if (report?.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(expense.state) < 0;
-      })
+      map(({ report, expense }) =>
+        report?.rp_num_transactions === 1
+          ? false
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
+      )
     );
 
     this.isAmountCapped$ = this.expense$.pipe(
@@ -426,39 +430,6 @@ export class ViewExpensePage {
       this.numEtxnsInReport = etxnIds.length;
       this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     }
-  }
-
-  getReceiptExtension(name: string): string {
-    let res: string = null;
-
-    if (name) {
-      const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
-
-      if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
-      }
-    }
-
-    return res;
-  }
-
-  getReceiptDetails(file: FileObject): { type: string; thumbnail: string } {
-    const ext = this.getReceiptExtension(file.name);
-    const res = {
-      type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg',
-    };
-
-    if (ext && ['pdf'].indexOf(ext) > -1) {
-      res.type = 'pdf';
-      res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
-      res.type = 'image';
-      res.thumbnail = file.url;
-    }
-
-    return res;
   }
 
   getDeleteDialogProps(etxn: Expense): {
