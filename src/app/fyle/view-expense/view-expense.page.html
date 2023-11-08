@@ -368,7 +368,7 @@
 
       <ng-container *ngIf="systemCategoriesWithTaxi?.includes(expense.category?.system_category)">
         <div class="view-expense--divider"></div>
-        <ng-container *ngIf="expense.category?.system_category === 'Taxi'">
+        <ng-container *ngIf="expense.category.system_category === 'Taxi'">
           <ion-grid *ngIf="expense.distance" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
@@ -561,7 +561,7 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">City</div>
-                <div class="view-expense--value">{{ expense.locations[0]?.display }}</div>
+                <div class="view-expense--value">{{ expense.locations[0].display }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
