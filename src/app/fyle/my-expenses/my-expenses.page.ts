@@ -527,11 +527,12 @@ export class MyExpensesPage implements OnInit {
         debounceTime(400)
       )
       .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
+        const currentParams = this.loadExpenses$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
+
+        this.loadExpenses$.next(currentParams);
       });
 
     const paginatedPipe = this.loadExpenses$.pipe(
@@ -540,6 +541,10 @@ export class MyExpensesPage implements OnInit {
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
+
+        if (params.searchString) {
+          queryParams.q = params.searchString;
+        }
         const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
         this.isLoadingDataInInfiniteScroll = true;
 
@@ -912,19 +917,19 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense }: { etxn: Expense; etxnIndex: number }): void {
+  goToTransaction({ etxn: expense }: { etxn: PlatformExpense; etxnIndex: number }): void {
     let category: string;
 
-    if (expense.tx_org_category) {
-      category = expense.tx_org_category.toLowerCase();
+    if (expense.category?.name) {
+      category = expense.category?.name.toLowerCase();
     }
 
     if (category === 'mileage') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.id, persist_filters: true }]);
     } else if (category === 'per diem') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.id, persist_filters: true }]);
     } else {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
     }
   }
 
