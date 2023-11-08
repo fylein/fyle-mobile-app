@@ -32,6 +32,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -276,7 +277,14 @@ export class ViewPerDiemPage {
 
     this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(expense.state))
+      map((expense) =>
+        [
+          ExpenseState.COMPLETE,
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+        ].includes(expense.state)
+      )
     );
 
     this.canDelete$ = this.perDiemExpense$.pipe(
@@ -287,7 +295,7 @@ export class ViewPerDiemPage {
       map(({ report, expense }) =>
         report.rp_num_transactions === 1
           ? false
-          : !['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state)
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )
     );
 
