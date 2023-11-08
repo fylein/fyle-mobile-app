@@ -76,7 +76,7 @@ describe('ViewExpensePage', () => {
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getEtxn', 'manualUnflag', 'manualFlag']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport', 'removeTransaction']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
@@ -287,7 +287,6 @@ describe('ViewExpensePage', () => {
   describe('openCommentsModal', () => {
     it('on opening the comments modal it should add a comment if the data is updated', fakeAsync(() => {
       component.view = ExpenseView.individual;
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modalController.create.and.resolveTo(modalSpy);
       modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } } as any);
@@ -297,11 +296,10 @@ describe('ViewExpensePage', () => {
         component: ViewCommentComponent,
         componentProps: {
           objectType: 'transactions',
-          objectId: expenseData1.tx_id,
+          objectId: component.expenseId,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.addComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
@@ -309,7 +307,6 @@ describe('ViewExpensePage', () => {
 
     it('on opening the comments modal it should show the comments if the data not updated', fakeAsync(() => {
       component.view = ExpenseView.individual;
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modalController.create.and.resolveTo(modalSpy);
       modalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } } as any);
@@ -319,11 +316,10 @@ describe('ViewExpensePage', () => {
         component: ViewCommentComponent,
         componentProps: {
           objectType: 'transactions',
-          objectId: expenseData1.tx_id,
+          objectId: component.expenseId,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
@@ -443,7 +439,9 @@ describe('ViewExpensePage', () => {
 
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
-      component.reportId = 'rpT7x1BFlLOi';
+      component.expenseId = 'tx5fBcPBAxLv';
+      component.reportId = 'rp96APY6Efph';
+
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
       spyOn(component, 'setPaymentModeandIcon');
@@ -653,7 +651,7 @@ describe('ViewExpensePage', () => {
       };
       component.ionViewWillEnter();
       component.comments$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id);
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', component.expenseId);
         done();
       });
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
@@ -904,7 +902,6 @@ describe('ViewExpensePage', () => {
 
   describe('goBack', () => {
     it('should go to view team report if the expense is a team expense', () => {
-      component.reportId = 'rpWDg3QX3';
       component.view = ExpenseView.team;
       component.goBack();
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -916,7 +913,6 @@ describe('ViewExpensePage', () => {
     });
 
     it('should go to view report if the expense is an individual expense', () => {
-      component.reportId = 'rpJFg3Da4';
       component.view = ExpenseView.individual;
       component.goBack();
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -929,9 +925,9 @@ describe('ViewExpensePage', () => {
   });
 
   it('getDeleteDialogProps(): should return the props', () => {
-    const props = component.getDeleteDialogProps(expenseData1);
+    const props = component.getDeleteDialogProps();
     props.componentProps.deleteMethod();
-    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
   });
 
   describe('removeExpenseFromReport', () => {
@@ -939,7 +935,6 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
       };
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
 
       spyOn(component, 'getDeleteDialogProps');
       const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
@@ -948,8 +943,7 @@ describe('ViewExpensePage', () => {
 
       component.removeExpenseFromReport();
       tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
-      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps(expenseData1));
+      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps());
       expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
@@ -957,14 +951,14 @@ describe('ViewExpensePage', () => {
         '/',
         'enterprise',
         'view_team_report',
-        { id: expenseData1.tx_report_id, navigate_back: true },
+        { id: component.reportId, navigate_back: true },
       ]);
     }));
   });
 
   describe('flagUnflagExpense', () => {
     it('should flag,unflagged expense', fakeAsync(() => {
-      activateRouteMock.snapshot.queryParams = {
+      activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
       };
 
@@ -980,7 +974,6 @@ describe('ViewExpensePage', () => {
         advance_request_id: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -992,9 +985,7 @@ describe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
-      component.flagUnflagExpense(expenseData1.tx_manual_flag);
-      tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      component.flagUnflagExpense(expenseData.is_manually_flagged);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -1009,8 +1000,8 @@ describe('ViewExpensePage', () => {
       expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
+      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
@@ -1021,10 +1012,11 @@ describe('ViewExpensePage', () => {
         id: 'tx5fBcPBAxLv',
       };
 
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_manual_flag: true,
+      const mockExpense: Expense = {
+        ...expenseData,
+        is_manually_flagged: true,
       };
+
       const testComment = {
         id: 'stjIdPp8BX8O',
         created_at: '2022-11-17T06:07:38.590Z',
@@ -1036,7 +1028,7 @@ describe('ViewExpensePage', () => {
         report_id: 'rpkpSa8guCuR',
         advance_request_id: null,
       };
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
+
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -1048,9 +1040,7 @@ describe('ViewExpensePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
-      component.flagUnflagExpense(mockExpenseData.tx_manual_flag);
-      tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      component.flagUnflagExpense(mockExpense.is_manually_flagged);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -1065,8 +1055,8 @@ describe('ViewExpensePage', () => {
       expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', mockExpenseData.tx_id, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
+      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
