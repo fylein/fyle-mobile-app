@@ -20,7 +20,7 @@ export class ExpenseFieldsService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private authService: AuthService,
-    private dateService: DateService,
+    private dateService: DateService
   ) {}
 
   @Cacheable()
@@ -33,10 +33,10 @@ export class ExpenseFieldsService {
             is_enabled: 'eq.true',
             is_custom: 'eq.false',
           },
-        }),
+        })
       ),
       map((res) => this.transformFrom(res.data)),
-      map((res) => this.dateService.fixDates(res)),
+      map((res) => this.dateService.fixDates(res))
     );
   }
 
@@ -48,6 +48,7 @@ export class ExpenseFieldsService {
       merchant: 'vendor_id',
       is_billable: 'billable',
       started_at: 'from_dt',
+      per_diem_num_days: 'num_days',
       ended_at: 'to_dt',
       'locations[0]': 'location1',
       'locations[1]': 'location2',
@@ -131,14 +132,14 @@ export class ExpenseFieldsService {
           expenseFieldMap[expenseField.column_name] = expenseFieldsList;
         });
         return expenseFieldMap;
-      }),
+      })
     );
   }
 
   filterByOrgCategoryId(
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
-    orgCategory: OrgCategory,
+    orgCategory: OrgCategory
   ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
@@ -171,7 +172,7 @@ export class ExpenseFieldsService {
             }
             return filteredField;
           })
-          .filter((filteredField) => !!filteredField),
+          .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
       map((field) => ({
@@ -180,7 +181,7 @@ export class ExpenseFieldsService {
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
-      }, {}),
+      }, {})
     );
   }
 
@@ -194,7 +195,7 @@ export class ExpenseFieldsService {
       To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
   */
   getDefaultTxnFieldValues(
-    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>,
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
   ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
