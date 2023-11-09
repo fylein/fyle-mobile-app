@@ -352,3 +352,5 @@ export const expenseData: Expense = {
   user_id: 'us29O6z3jnd3',
   verifier_comments: [],
 };
+
+export const expenseResponseData = [expenseData];
