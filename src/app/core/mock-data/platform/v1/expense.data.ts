@@ -351,4 +351,8 @@ export const expenseData: Expense = {
   },
   user_id: 'us29O6z3jnd3',
   verifier_comments: [],
+  isDraft: false,
+  isPolicyViolated: false,
+  isCriticalPolicyViolated: false,
+  vendorDetails: 'test',
 };
