@@ -475,7 +475,7 @@ describe('ViewMileagePage', () => {
       loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -498,7 +498,7 @@ describe('ViewMileagePage', () => {
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       });
 
-      component.txnFields$.subscribe((data) => {
+      component.expenseFields$.subscribe((data) => {
         expect(data).toEqual(expenseFieldsMapResponse4);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
       });
@@ -508,7 +508,7 @@ describe('ViewMileagePage', () => {
       const customProps = mileageExpense.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
 
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
@@ -648,7 +648,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
         expect(data.currency).toEqual('USD');
-        expect(component.etxnCurrencySymbol).toEqual('$');
+        expect(component.expenseCurrencySymbol).toEqual('$');
         done();
       });
     });
@@ -662,7 +662,7 @@ describe('ViewMileagePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
       component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-      component.txnFields$ = of(mockExpFieldData);
+      component.expenseFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
 
       component.ionViewWillEnter();
@@ -694,7 +694,7 @@ describe('ViewMileagePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
       component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
-      component.txnFields$ = of(expenseFieldsMapResponse);
+      component.expenseFields$ = of(expenseFieldsMapResponse);
       orgSettingsService.get.and.returnValue(of(mockOrgSettData));
       component.ionViewWillEnter();
       tick(500);
@@ -714,7 +714,7 @@ describe('ViewMileagePage', () => {
         ],
       };
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-      component.txnFields$ = of(mockExpFieldData);
+      component.expenseFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
       component.ionViewWillEnter();
       tick(500);
@@ -809,7 +809,7 @@ describe('ViewMileagePage', () => {
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
@@ -830,7 +830,7 @@ describe('ViewMileagePage', () => {
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
@@ -851,7 +851,7 @@ describe('ViewMileagePage', () => {
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
 
       component.ionViewWillEnter();
@@ -1001,8 +1001,8 @@ describe('ViewMileagePage', () => {
       };
       component.ionViewWillEnter();
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.numEtxnsInReport).toEqual(3);
-      expect(component.activeEtxnIndex).toEqual(2);
+      expect(component.numExpensesInReport).toEqual(3);
+      expect(component.activeExpenseIndex).toEqual(2);
     });
   });
 
