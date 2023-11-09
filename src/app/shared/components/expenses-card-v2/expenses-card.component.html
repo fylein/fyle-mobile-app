@@ -147,14 +147,14 @@
                   Scan failed
                 </div>
               </div>
-              <div *ngIf="expense.isDraft && !isFromViewReports">
+              <div *ngIf="isDraft && !isFromViewReports">
                 <div
                   class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
-                    expense.state_display_name | lowercase
+                    expense.state | expenseState | lowercase
                   }}"
                 >
                   <span>
-                    {{ expense.state_display_name | titlecase }}
+                    {{ expense.state | expenseState | titlecase }}
                   </span>
                 </div>
               </div>
@@ -163,7 +163,7 @@
         </ng-template>
 
         <ng-template #expenseCardDefaultView>
-          <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
+          <div *ngIf="!isDraft" class="expenses-card--category-vendor-project-container">
             <div class="d-flex expenses-card--category-icon-container">
               <div
                 class="expenses-card--category"
@@ -181,7 +181,7 @@
               </div>
               <div class="expenses-card--icons">
                 <mat-icon
-                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                  *ngIf="isCriticalPolicyViolated || isPolicyViolated"
                   class="expenses-card--icons__policy-violated-icon"
                   >error</mat-icon
                 >
@@ -196,11 +196,11 @@
             <div
               class="expenses-card--vendor"
               [ngClass]="{
-                'expenses-card--vendor__not-filled': !expense.vendorDetails,
+                'expenses-card--vendor__not-filled': !vendorDetails,
                 'expenses-card--distance-unit': expense.category?.system_category === 'Mileage'
               }"
             >
-              {{ expense.vendorDetails }}
+              {{ vendorDetails }}
             </div>
             <div
               *ngIf="expenseFields && isProjectEnabled$ | async"
@@ -214,7 +214,7 @@
             </div>
           </div>
           <div
-            *ngIf="expense.isDraft"
+            *ngIf="isDraft"
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information</div>
@@ -246,15 +246,15 @@
             </div>
 
             <div
-              *ngIf="expense.isDraft && !isFromViewReports"
-              class="expenses-card--state-container state-pill state-{{ expense.state_display_name }}"
+              *ngIf="isDraft && !isFromViewReports"
+              class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"
             >
               <span>
-                {{ expense.state_display_name | titlecase }}
+                {{ expense.state | expenseState | titlecase }}
               </span>
             </div>
 
-            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+            <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
               Critical Policy violations
             </div>
           </div>

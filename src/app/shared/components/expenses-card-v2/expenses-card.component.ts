@@ -122,6 +122,10 @@ export class ExpensesCardComponent implements OnInit {
 
   isIos = false;
 
+  isDraft: boolean;
+
+  vendorDetails: string;
+
   constructor(
     private transactionService: TransactionService,
     private sharedExpenseService: SharedExpenseService,
@@ -270,10 +274,10 @@ export class ExpensesCardComponent implements OnInit {
     this.isPerDiem = this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'per diem';
 
     this.category = this.expense.category?.name?.toLowerCase();
-    this.expense.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
-    this.expense.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
-    this.expense.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
-    this.expense.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
+    this.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
+    this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
+    this.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
+    this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });

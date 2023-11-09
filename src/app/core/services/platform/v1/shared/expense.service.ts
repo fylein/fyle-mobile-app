@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Injectable({
@@ -7,15 +8,15 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 export class ExpenseService {
   constructor() {}
 
-  getIsDraft(expense: Partial<Expense>): boolean {
-    return expense.state && expense.state === 'DRAFT';
+  getIsDraft(expense: Expense): boolean {
+    return expense.state && expense.state === ExpenseState.DRAFT;
   }
 
-  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
+  getIsCriticalPolicyViolated(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
-  getVendorDetails(expense: Partial<Expense>): string {
+  getVendorDetails(expense: Expense): string {
     const systemCategory = expense.category?.system_category?.toLocaleLowerCase();
     let vendorDisplayName = expense.merchant;
 

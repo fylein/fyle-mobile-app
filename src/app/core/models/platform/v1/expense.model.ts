@@ -107,10 +107,6 @@ export interface Expense {
   verifier_comments: string[];
   report_last_paid_at: Date;
   report_last_approved_at: Date;
-  isDraft: boolean;
-  isPolicyViolated: boolean;
-  isCriticalPolicyViolated: boolean;
-  vendorDetails: string;
 }
 
 export interface Employee {
