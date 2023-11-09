@@ -5,6 +5,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-navigation-footer',
@@ -45,12 +46,7 @@ export class NavigationFooterComponent implements OnInit {
     this.trackingService.expenseNavClicked({ to: 'prev' });
 
     const expenseId = this.reportExpenseIds[prevIndex];
-    const expense$ =
-      this.view === ExpenseView.team
-        ? this.approverExpensesService.getExpenseById(expenseId)
-        : this.spenderExpensesService.getExpenseById(expenseId);
-
-    expense$.subscribe((expense) => {
+    this.getExpense(expenseId).subscribe((expense) => {
       this.goToExpense(expense, prevIndex);
     });
   }
@@ -64,18 +60,19 @@ export class NavigationFooterComponent implements OnInit {
     this.trackingService.expenseNavClicked({ to: 'next' });
 
     const expenseId = this.reportExpenseIds[nextIndex];
-    const expense$ =
-      this.view === ExpenseView.team
-        ? this.approverExpensesService.getExpenseById(expenseId)
-        : this.spenderExpensesService.getExpenseById(expenseId);
-
-    expense$.subscribe((expense) => {
+    this.getExpense(expenseId).subscribe((expense) => {
       this.goToExpense(expense, nextIndex);
     });
   }
 
+  getExpense(expenseId: string): Observable<Expense> {
+    return this.view === ExpenseView.team
+      ? this.approverExpensesService.getExpenseById(expenseId)
+      : this.spenderExpensesService.getExpenseById(expenseId);
+  }
+
   goToExpense(expense: Expense, expenseIndex: number): void {
-    const category = expense?.category?.name.toLowerCase();
+    const category = expense.category?.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {
