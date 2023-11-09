@@ -36,11 +36,13 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { DebugElement, EventEmitter } from '@angular/core';
 import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let fileService: jasmine.SpyObj<FileService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -57,8 +59,8 @@ describe('ExpensesCardComponent', () => {
   let componentElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getETxnUnflattened',
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
+    const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'getIsDraft',
       'getIsCriticalPolicyViolated',
       'getVendorDetails',
@@ -98,6 +100,7 @@ describe('ExpensesCardComponent', () => {
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
@@ -131,19 +134,20 @@ describe('ExpensesCardComponent', () => {
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
 
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
-    transactionService.getVendorDetails.and.returnValue('asd');
+    sharedExpenseService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
-    transactionService.getIsCriticalPolicyViolated.and.returnValue(false);
+    sharedExpenseService.getIsCriticalPolicyViolated.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
     transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     networkService.isOnline.and.returnValue(of(true));
-    transactionService.getIsDraft.and.returnValue(true);
+    sharedExpenseService.getIsDraft.and.returnValue(true);
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);

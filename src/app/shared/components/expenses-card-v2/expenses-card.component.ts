@@ -348,7 +348,12 @@ export class ExpensesCardComponent implements OnInit {
   canAddAttachment(): boolean {
     return (
       !this.isFromViewReports &&
-      !(this.isMileageExpense || this.isPerDiem || this.expense.file_ids || this.isFromPotentialDuplicates) &&
+      !(
+        this.isMileageExpense ||
+        this.isPerDiem ||
+        this.expense.file_ids?.length > 0 ||
+        this.isFromPotentialDuplicates
+      ) &&
       !this.isSelectionModeEnabled
     );
   }
