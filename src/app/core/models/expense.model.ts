@@ -89,7 +89,6 @@ export interface Expense {
   tx_id: string;
   tx_invoice_number?: number;
   tx_is_duplicate_expense?: boolean;
-  tx_is_holiday_expense?: boolean;
   tx_location_column1?: Destination;
   tx_location_column10?: Destination;
   tx_location_column2?: Destination;
