@@ -11,7 +11,7 @@ import {
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
-fdescribe('ExpenseService', () => {
+describe('ExpenseService', () => {
   let service: ExpenseService;
 
   beforeEach(() => {
