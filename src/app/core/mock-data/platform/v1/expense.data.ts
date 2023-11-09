@@ -1,4 +1,6 @@
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
@@ -354,3 +356,54 @@ export const expenseData: Expense = {
 };
 
 export const expenseResponseData = [expenseData];
+
+export const criticalPolicyViolatedExpense: Expense = {
+  ...expenseData,
+  policy_amount: 0.00009,
+};
+
+type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
+
+const mileageCategory: Category = {
+  code: null,
+  display_name: 'Mileage display',
+  id: 267841,
+  name: 'Mileage test',
+  sub_category: 'Others',
+  system_category: 'Mileage',
+};
+
+const perDiemCategory: Category = {
+  code: null,
+  display_name: 'Per Diem display',
+  id: 267841,
+  name: 'Per Diem test',
+  sub_category: 'Others',
+  system_category: 'Per Diem',
+};
+
+export const mileageExpenseWithDistance: Expense = {
+  ...expenseData,
+  distance: 25,
+  distance_unit: MileageUnitEnum.KM,
+  category: mileageCategory,
+};
+
+export const mileageExpenseWithoutDistance: Expense = {
+  ...expenseData,
+  distance: 0,
+  distance_unit: MileageUnitEnum.KM,
+  category: mileageCategory,
+};
+
+export const perDiemExpenseWithSingleNumDays: Expense = {
+  ...expenseData,
+  category: perDiemCategory,
+  per_diem_num_days: 1,
+};
+
+export const perDiemExpenseWithMultipleNumDays: Expense = {
+  ...expenseData,
+  category: perDiemCategory,
+  per_diem_num_days: 3,
+};
