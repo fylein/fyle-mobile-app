@@ -1,28 +1,24 @@
-import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-fy-nav-footer',
   templateUrl: './fy-nav-footer.component.html',
   styleUrls: ['./fy-nav-footer.component.scss'],
 })
-export class FyNavFooterComponent implements OnInit {
-  @Input() activeEtxnIndex: number;
+export class FyNavFooterComponent {
+  @Input() activeExpenseIndex: number;
 
-  @Input() numEtxnsInReport: number;
+  @Input() numExpensesInReport: number;
 
   @Output() nextClicked = new EventEmitter<void>();
 
   @Output() prevClicked = new EventEmitter<void>();
 
-  constructor() {}
-
-  ngOnInit() {}
-
-  goToNext() {
+  goToNext(): void {
     this.nextClicked.emit();
   }
 
-  goToPrev() {
+  goToPrev(): void {
     this.prevClicked.emit();
   }
 }

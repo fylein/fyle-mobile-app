@@ -354,9 +354,8 @@
   </div>
 </ion-content>
 
-<!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
   *ngIf="numExpensesInReport > 1"
-  [activeEtxnIndex]="activeExpenseIndex"
-  [numEtxnsInReport]="numExpensesInReport"
+  [activeExpenseIndex]="activeExpenseIndex"
+  [numExpensesInReport]="numExpensesInReport"
 ></app-navigation-footer>

@@ -53,8 +53,8 @@ describe('NavigationFooterComponent', () => {
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    component.numEtxnsInReport = 3;
-    component.activeEtxnIndex = 1;
+    component.numExpensesInReport = 3;
+    component.activeExpenseIndex = 1;
     fixture.detectChanges();
   }));
 
@@ -63,7 +63,7 @@ describe('NavigationFooterComponent', () => {
   });
 
   describe('goToPrev():', () => {
-    it('should go to the previous txn', () => {
+    it('should go to the previous expense', () => {
       spyOn(component, 'goToTransaction');
       transactionService.getEtxn.and.returnValue(of(etxncData.data[0]));
       fixture.detectChanges();
@@ -71,7 +71,7 @@ describe('NavigationFooterComponent', () => {
       component.goToPrev(1);
       expect(trackingService.expenseNavClicked).toHaveBeenCalledOnceWith({ to: 'prev' });
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxncData.data[0], 0, 'prev');
+      expect(component.goToExpense).toHaveBeenCalledOnceWith(etxncData.data[0], 0, 'prev');
     });
 
     it('should not run if current index is 0', () => {
@@ -81,7 +81,7 @@ describe('NavigationFooterComponent', () => {
       component.goToPrev(0);
       expect(transactionService.getEtxn).not.toHaveBeenCalled();
       expect(trackingService.expenseNavClicked).not.toHaveBeenCalled();
-      expect(component.goToTransaction).not.toHaveBeenCalled();
+      expect(component.goToExpense).not.toHaveBeenCalled();
     });
 
     it('should go to the previous txn if txn index not provided', () => {
@@ -92,7 +92,7 @@ describe('NavigationFooterComponent', () => {
       component.goToPrev();
       expect(trackingService.expenseNavClicked).toHaveBeenCalledOnceWith({ to: 'prev' });
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxncData.data[0], 0, 'prev');
+      expect(component.goToExpense).toHaveBeenCalledOnceWith(etxncData.data[0], 0, 'prev');
     });
   });
 
@@ -105,7 +105,7 @@ describe('NavigationFooterComponent', () => {
       component.goToNext(1);
       expect(trackingService.expenseNavClicked).toHaveBeenCalledOnceWith({ to: 'next' });
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx3nHShG60zq');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(apiExpenseRes[0], 2, 'next');
+      expect(component.goToExpense).toHaveBeenCalledOnceWith(apiExpenseRes[0], 2, 'next');
     });
 
     it('should not go to next txn if provided index is the last txn', () => {
@@ -115,7 +115,7 @@ describe('NavigationFooterComponent', () => {
       component.goToNext(2);
       expect(transactionService.getEtxn).not.toHaveBeenCalled();
       expect(trackingService.expenseNavClicked).not.toHaveBeenCalled();
-      expect(component.goToTransaction).not.toHaveBeenCalled();
+      expect(component.goToExpense).not.toHaveBeenCalled();
     });
 
     it('should go to next txn if the current index is not provided', () => {
@@ -126,14 +126,14 @@ describe('NavigationFooterComponent', () => {
       component.goToNext();
       expect(trackingService.expenseNavClicked).toHaveBeenCalledOnceWith({ to: 'next' });
       expect(transactionService.getEtxn).toHaveBeenCalledOnceWith('tx3nHShG60zq');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(apiExpenseRes[0], 2, 'next');
+      expect(component.goToExpense).toHaveBeenCalledOnceWith(apiExpenseRes[0], 2, 'next');
     });
   });
 
   describe('goToTransaction():', () => {
     it('should go to transaction', () => {
       router.navigate.and.returnValue(Promise.resolve(null));
-      component.goToTransaction(expenseData1, 0, 'next');
+      component.goToExpense(expenseData1, 0, 'next');
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/enterprise/view_expense',
@@ -147,7 +147,7 @@ describe('NavigationFooterComponent', () => {
 
     it('should go to mileage', () => {
       router.navigate.and.returnValue(Promise.resolve(null));
-      component.goToTransaction({ ...expenseData1, tx_org_category: 'mileage' }, 0, 'next');
+      component.goToExpense({ ...expenseData1, tx_org_category: 'mileage' }, 0, 'next');
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/enterprise/view_mileage',
@@ -161,7 +161,7 @@ describe('NavigationFooterComponent', () => {
 
     it('should go to per-diem', () => {
       router.navigate.and.returnValue(Promise.resolve(null));
-      component.goToTransaction({ ...expenseData1, tx_org_category: 'per diem' }, 0, 'next');
+      component.goToExpense({ ...expenseData1, tx_org_category: 'per diem' }, 0, 'next');
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/enterprise/view_per_diem',

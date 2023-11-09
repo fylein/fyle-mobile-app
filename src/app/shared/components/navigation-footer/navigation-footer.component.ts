@@ -1,8 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Expense } from 'src/app/core/models/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 @Component({
   selector: 'app-navigation-footer',
@@ -10,50 +12,70 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   styleUrls: ['./navigation-footer.component.scss'],
 })
 export class NavigationFooterComponent implements OnInit {
-  @Input() numEtxnsInReport: number;
+  @Input() numExpensesInReport: number;
 
-  @Input() activeEtxnIndex: number;
+  @Input() activeExpenseIndex: number;
 
-  reportEtxnIds: string[];
+  reportExpenseIds: string[];
+
+  view: ExpenseView;
 
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private transactionService: TransactionService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private approverExpensesService: ApproverExpensesService,
+    private spenderExpensesService: SpenderExpensesService
   ) {}
 
-  ngOnInit() {
-    this.reportEtxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+  ngOnInit(): void {
+    const expenseIds = this.activatedRoute.snapshot.params.txnIds as string;
+
+    this.reportExpenseIds = expenseIds && (JSON.parse(expenseIds) as string[]);
+
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
   }
 
-  goToPrev(etxnIndex?: number) {
-    if (etxnIndex === 0) {
+  goToPrev(expenseIndex?: number): void {
+    if (expenseIndex === 0) {
       return;
     }
 
-    const prevIndex = etxnIndex ? etxnIndex - 1 : this.activeEtxnIndex - 1;
+    const prevIndex = expenseIndex ? expenseIndex - 1 : this.activeExpenseIndex - 1;
     this.trackingService.expenseNavClicked({ to: 'prev' });
-    this.transactionService.getEtxn(this.reportEtxnIds[prevIndex]).subscribe((etxn) => {
-      this.goToTransaction(etxn, prevIndex, 'prev');
+
+    const expenseId = this.reportExpenseIds[prevIndex];
+    const expense$ =
+      this.view === ExpenseView.team
+        ? this.approverExpensesService.getExpenseById(expenseId)
+        : this.spenderExpensesService.getExpenseById(expenseId);
+
+    expense$.subscribe((expense) => {
+      this.goToExpense(expense, prevIndex);
     });
   }
 
-  goToNext(etxnIndex?: number) {
-    if (etxnIndex === this.numEtxnsInReport - 1) {
+  goToNext(expenseIndex?: number): void {
+    if (expenseIndex === this.numExpensesInReport - 1) {
       return;
     }
 
-    const nextIndex = etxnIndex ? etxnIndex + 1 : this.activeEtxnIndex + 1;
+    const nextIndex = expenseIndex ? expenseIndex + 1 : this.activeExpenseIndex + 1;
     this.trackingService.expenseNavClicked({ to: 'next' });
-    this.transactionService.getEtxn(this.reportEtxnIds[nextIndex]).subscribe((etxn) => {
-      this.goToTransaction(etxn, nextIndex, 'next');
+
+    const expenseId = this.reportExpenseIds[nextIndex];
+    const expense$ =
+      this.view === ExpenseView.team
+        ? this.approverExpensesService.getExpenseById(expenseId)
+        : this.spenderExpensesService.getExpenseById(expenseId);
+
+    expense$.subscribe((expense) => {
+      this.goToExpense(expense, nextIndex);
     });
   }
 
-  goToTransaction(etxn: Expense, etxnIndex: number, goTo: 'prev' | 'next') {
-    const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+  goToExpense(expense: Expense, expenseIndex: number): void {
+    const category = expense?.category?.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {
@@ -63,6 +85,9 @@ export class NavigationFooterComponent implements OnInit {
     } else {
       route = '/enterprise/view_expense';
     }
-    this.router.navigate([route, { ...this.activatedRoute.snapshot.params, id: etxn.tx_id, activeIndex: etxnIndex }]);
+    this.router.navigate([
+      route,
+      { ...this.activatedRoute.snapshot.params, id: expense.id, activeIndex: expenseIndex },
+    ]);
   }
 }
