@@ -59,6 +59,18 @@ export class SharedExpenseService {
     }
   }
 
+  hasCriticalPolicyViolation(expense: Partial<Expense>): boolean {
+    return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
+  }
+
+  isDraftExpense(expense: Partial<Expense>): boolean {
+    return expense.state && expense.state === 'DRAFT';
+  }
+
+  // getDeletableExpenes(expenses: Partial<Expense>[]): Partial<Expense>[] {
+  //   return expenses.filter((expense) => expense && expense.tx_user_can_delete);
+  // }
+
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'

@@ -44,8 +44,8 @@ export class ExpensesService {
         this.getExpenses({
           offset: this.paginationSize * page,
           limit: this.paginationSize,
-          queryParams: params.queryParams,
-          order: params.order,
+          ...params.queryParams,
+          order: params.order || 'spent_at.desc,created_at.desc,id.desc',
         })
       ),
       reduce((acc, curr) => acc.concat(curr), [] as Expense[])

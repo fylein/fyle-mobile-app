@@ -24,7 +24,6 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
 
@@ -143,7 +142,7 @@ export class ExpensesCardComponent implements OnInit {
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private expenseService: ExpensesService,
+
     private sharedExpenseService: SharedExpenseService
   ) {}
 
