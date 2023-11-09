@@ -1,0 +1,268 @@
+<div
+  *ngIf="expense && showDt"
+  class="expenses-card--date"
+  [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }"
+>
+  <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
+    <ng-container *ngIf="expense.id && data.isConnected; else isOffline">
+      {{ expense.spent_at || expense.created_at | dateFormat }}
+    </ng-container>
+
+    <ng-template #isOffline> Offline Expenses </ng-template>
+  </ng-container>
+</div>
+
+<div
+  class="expenses-card--body"
+  [ngClass]="{ 'expenses-card--body__with-border': !showDt }"
+  (click)="onGoToTransaction()"
+  (tap)="onTapTransaction()"
+  (press)="onSetMultiselectMode()"
+>
+  <div class="expenses-card--divider" *ngIf="!showDt"></div>
+  <ng-container>
+    <div class="d-flex">
+      <div *ngIf="isSelectionModeEnabled" class="expenses-card--checkbox-container">
+        <mat-checkbox class="custom-mat-checkbox expenses-card--checkbox" [checked]="isSelected" disabled>
+        </mat-checkbox>
+      </div>
+      <ng-container *ngIf="!isReceiptPresent && !attachmentUploadInProgress">
+        <div
+          class="expenses-card--receipt-container"
+          *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
+          (click)="addAttachments($event)"
+        >
+          <input
+            *ngIf="isIos"
+            type="file"
+            id="ios-file-upload"
+            #fileUpload
+            accept="application/pdf,image/*"
+            class="d-none"
+          />
+          <ion-icon
+            class="expenses-card--receipt-icon"
+            [src]="receiptIcon"
+            [ngClass]="{ 'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg' }"
+          ></ion-icon>
+        </div>
+      </ng-container>
+
+      <div
+        class="expenses-card--receipt-image-container expenses-card--with-image"
+        [ngStyle]="{
+          'background-image': isScanInProgress ? imageTransperencyOverlay : ''
+        }"
+        *ngIf="isReceiptPresent"
+      >
+        <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
+        <ion-icon *ngIf="isScanInProgress" class="expenses-card--scanning-icon" src="assets/svg/fy-scan.svg"></ion-icon>
+      </div>
+
+      <div
+        class="expenses-card--receipt-container expenses-card--with-image"
+        *ngIf="attachmentUploadInProgress"
+        [ngStyle]="{
+          'background-image':
+            inlineReceiptDataUrl &&
+            imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
+        }"
+      >
+        <div class="expenses-card--spinner-placeholder">
+          <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
+        </div>
+      </div>
+
+      <ng-template #outboxExpenseDisplay>
+        <ng-container *ngIf="isSycing$ | async; else defaultState">
+          <div
+            class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image':
+                expense.file_ids?.length > 0 &&
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
+            }"
+          >
+            <div class="expenses-card--spinner-placeholder">
+              <ion-spinner class="expenses-card--spinner-icon" icon="circles"></ion-spinner>
+            </div>
+          </div>
+        </ng-container>
+        <ng-template #defaultState>
+          <div
+            class="expenses-card--receipt-container expenses-card--with-image"
+            [ngStyle]="{
+              'background-image':
+                expense.file_ids?.length > 0 &&
+                imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
+            }"
+          >
+            <ion-icon
+              class="expenses-card--receipt-icon"
+              *ngIf="!expense.file_ids?.length"
+              [src]="'../../../../assets/svg/fy-expense.svg'"
+            ></ion-icon>
+          </div>
+        </ng-template>
+      </ng-template>
+
+      <div class="d-flex expenses-card--deatils-block">
+        <ng-container *ngIf="isConnected$ | async; else expenseCardDefaultView">
+          <ng-container *ngIf="isSycing$ | async; else expenseCardScanning">
+            <div class="expenses-card--scaning-receipt__container">
+              <div class="expenses-card--scaning-receipt__header">
+                <ng-container *ngIf="category === 'mileage'; else uploadPerDiem"> Syncing Mileage </ng-container>
+                <ng-template #uploadPerDiem>
+                  <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
+                </ng-template>
+                <ng-template #uploadDefault>
+                  {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
+                </ng-template>
+              </div>
+              <div class="expenses-card--scaning-receipt__content">
+                Your
+                <ng-container *ngIf="category === 'mileage' || category === 'per diem'; else receiptContent">
+                  {{ category }}
+                </ng-container>
+                <ng-template #receiptContent> receipt </ng-template>
+                will be added shortly.
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+
+        <ng-template #expenseCardScanning>
+          <ng-container *ngIf="!isScanCompleted; else expenseCardDefaultView">
+            <ng-container *ngIf="isScanInProgress; else scanFailed">
+              <div class="expenses-card--scaning-receipt__container">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-scanning">
+                  Scanning Receipt...
+                </div>
+                <div class="expenses-card--scaning-receipt__content">This takes a short while</div>
+              </div>
+            </ng-container>
+            <ng-template #scanFailed>
+              <div class="expenses-card--scaning-receipt__container expenses-card--scaning-receipt__container-error">
+                <div class="expenses-card--scaning-receipt__header expenses-card--scaning-receipt__header-failed">
+                  Scan failed
+                </div>
+              </div>
+              <div *ngIf="expense.isDraft && !isFromViewReports">
+                <div
+                  class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
+                    expense.state_display_name | lowercase
+                  }}"
+                >
+                  <span>
+                    {{ expense.state_display_name | titlecase }}
+                  </span>
+                </div>
+              </div>
+            </ng-template>
+          </ng-container>
+        </ng-template>
+
+        <ng-template #expenseCardDefaultView>
+          <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
+            <div class="d-flex expenses-card--category-icon-container">
+              <div
+                class="expenses-card--category"
+                [ngClass]="{ 'expenses-card--category__small': isSelectionModeEnabled }"
+              >
+                <ng-container
+                  *ngIf="
+                    expense?.category?.name && expense?.category?.name.toLowerCase() !== 'unspecified';
+                    else unspecifiedCategory
+                  "
+                >
+                  {{ expense?.category?.name }}
+                </ng-container>
+                <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
+              </div>
+              <div class="expenses-card--icons">
+                <mat-icon
+                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                  class="expenses-card--icons__policy-violated-icon"
+                  >error</mat-icon
+                >
+                <mat-icon
+                  *ngIf="expense.is_split"
+                  class="expenses-card--icons__split-icon"
+                  svgIcon="split-new"
+                ></mat-icon>
+              </div>
+            </div>
+
+            <div
+              class="expenses-card--vendor"
+              [ngClass]="{
+                'expenses-card--vendor__not-filled': !expense.vendorDetails,
+                'expenses-card--distance-unit': expense.category?.system_category === 'Mileage'
+              }"
+            >
+              {{ expense.vendorDetails }}
+            </div>
+            <div
+              *ngIf="expenseFields && isProjectEnabled$ | async"
+              class="expenses-card--project"
+              [ngClass]="{ 'expenses-card--project__not-filled': !expense.project?.display_name }"
+            >
+              <div *ngIf="expense?.project?.display_name?.length > 0">
+                <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
+                {{ expense?.project?.display_name ? expense?.project?.display_name : 'Unspecified' }}
+              </div>
+            </div>
+          </div>
+          <div
+            *ngIf="expense.isDraft"
+            class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
+          >
+            <div>Expense information</div>
+            <div>missing</div>
+          </div>
+          <div class="expenses-card--default-view-container">
+            <div class="expenses-card--currency-amount-container ion-text-right">
+              <span class="expenses-card--currency">
+                {{ (expense.currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
+              </span>
+
+              <span class="expenses-card--amount">
+                <ng-container *ngIf="expense.currency">
+                  {{ expense.amount | humanizeCurrency : expense.currency : true }}
+                </ng-container>
+                <ng-container *ngIf="!expense.currency">
+                  {{ expense.amount | humanizeCurrency : homeCurrency : true }}
+                </ng-container>
+              </span>
+              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="fy-reimbursable"></mat-icon>
+            </div>
+
+            <div
+              *ngIf="expense.foreign_currency && expense.foreign_amount"
+              class="expenses-card--exchange-rate ion-text-right"
+            >
+              ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
+              {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
+            </div>
+
+            <div
+              *ngIf="expense.isDraft && !isFromViewReports"
+              class="expenses-card--state-container state-pill state-{{ expense.state_display_name }}"
+            >
+              <span>
+                {{ expense.state_display_name | titlecase }}
+              </span>
+            </div>
+
+            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+              Critical Policy violations
+            </div>
+          </div>
+        </ng-template>
+      </div>
+      <div *ngIf="isDismissable" (click)="dismiss($event)">
+        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
+      </div>
+    </div>
+  </ng-container>
+</div>
