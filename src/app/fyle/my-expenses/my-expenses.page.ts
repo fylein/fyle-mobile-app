@@ -81,6 +81,7 @@ import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -130,7 +131,7 @@ export class MyExpensesPage implements OnInit {
 
   selectionMode = false;
 
-  selectedElements: Partial<Expense>[];
+  selectedElements: Partial<PlatformExpense>[];
 
   syncing = false;
 
@@ -182,7 +183,7 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Partial<Expense>[];
+  expensesToBeDeleted: Partial<PlatformExpense>[];
 
   cccExpenses: number;
 
@@ -221,7 +222,8 @@ export class MyExpensesPage implements OnInit {
     private platformHandlerService: PlatformHandlerService,
     private categoriesService: CategoriesService,
     private navController: NavController,
-    private expenseService: ExpensesService
+    private expenseService: ExpensesService,
+    private sharedExpenseService: SharedExpenseService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -258,7 +260,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  switchSelectionMode(expense?: Expense): void {
+  switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
       if (this.loadData$.getValue().searchString) {
@@ -879,33 +881,34 @@ export class MyExpensesPage implements OnInit {
   setExpenseStatsOnSelect(): void {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,
-      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
+      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.amount, 0),
     });
   }
 
-  selectExpense(expense: Expense): void {
+  selectExpense(expense: PlatformExpense): void {
     let isSelectedElementsIncludesExpense = false;
-    if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+    if (expense.id) {
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.id === txn.id);
     } else {
       isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
-      if (expense.tx_id) {
-        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+      if (expense.id) {
+        this.selectedElements = this.selectedElements.filter((txn) => txn.id !== expense.id);
       } else {
         this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
       }
     } else {
       this.selectedElements.push(expense);
     }
-    this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+    this.isReportableExpensesSelected =
+      this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
 
     if (this.selectedElements.length > 0) {
-      this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+      // this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
-      this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+      this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
 
       this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
     }
@@ -917,7 +920,7 @@ export class MyExpensesPage implements OnInit {
       this.selectAll = false;
     }
     this.setExpenseStatsOnSelect();
-    this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
+    this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
   }
 
   goToTransaction({ etxn: expense }: { etxn: PlatformExpense; etxnIndex: number }): void {
@@ -984,15 +987,15 @@ export class MyExpensesPage implements OnInit {
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter((expense) => expense.tx_id);
+    selectedElements = selectedElements.filter((expense) => expense.id);
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
       return;
     }
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.transactionService.getIsCriticalPolicyViolated(expense)
+      this.sharedExpenseService.getIsCriticalPolicyViolated(expense)
     );
-    const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
+    const expensesInDraftState = selectedElements.filter((expense) => this.sharedExpenseService.getIsDraft(expense));
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
@@ -1009,7 +1012,7 @@ export class MyExpensesPage implements OnInit {
       this.trackingService.addToReport();
       const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce(
         (prev, current) => {
-          const amount = current.tx_amount || current.tx_user_amount;
+          const amount = current.amount || current.claim_amount;
           return prev + amount;
         },
         0
@@ -1047,7 +1050,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   async showNewReportModal(): Promise<void> {
-    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(this.selectedElements);
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
@@ -1106,7 +1109,7 @@ export class MyExpensesPage implements OnInit {
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
-          const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+          const txnIds = this.selectedElements.map((expense) => expense.id);
           return iif(() => this.selectedElements.length === 0, allDataPipe$, of(txnIds));
         }),
         switchMap((selectedIds) => {
@@ -1221,8 +1224,8 @@ export class MyExpensesPage implements OnInit {
   }
 
   showOldReportsMatBottomSheet(): void {
-    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
-    const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.tx_id);
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(this.selectedElements);
+    const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.id);
 
     this.openReports$
       .pipe(
@@ -1265,23 +1268,28 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
+  deleteOutboxExpense(offlineExpenses: Partial<Expense>[]): void {
     this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+  }
 
-    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
+  deleteSelectedExpenses(): Observable<Transaction[]> {
+    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
     if (this.selectedElements.length > 0) {
-      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.tx_id));
+      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
     } else {
       return of(null);
     }
   }
 
   async openDeleteExpensesPopover(): Promise<void> {
-    const offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
+    const offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.id);
 
-    const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+    const expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
-    const cccExpensesMessage = this.transactionService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+    const cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(
+      this.expensesToBeDeleted,
+      this.cccExpenses
+    );
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -1289,7 +1297,7 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: this.transactionService.getDeleteDialogBody(
+        body: this.sharedExpenseService.getDeleteDialogBody(
           this.expensesToBeDeleted,
           this.cccExpenses,
           expenseDeletionMessage,
@@ -1297,7 +1305,10 @@ export class MyExpensesPage implements OnInit {
         ),
         ctaText: this.expensesToBeDeleted.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
         disableDelete: this.expensesToBeDeleted.length > 0 ? false : true,
-        deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
+        deleteMethod: () => {
+          this.deleteSelectedExpenses();
+          // this.deleteOutboxExpense(offlineExpenses);
+        },
       },
     });
 
@@ -1341,44 +1352,47 @@ export class MyExpensesPage implements OnInit {
     if (checked) {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
-        this.selectedElements = this.pendingTransactions;
+        // this.selectedElements = this.pendingTransactions;
         this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected =
-          this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+          this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
         this.setExpenseStatsOnSelect();
       }
 
-      this.loadData$
+      this.loadExpenses$
         .pipe(
           take(1),
           map((params) => {
-            let queryParams = params.queryParams || {};
+            const queryParams = params.queryParams || {};
 
-            queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-            queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+            queryParams.report_id = queryParams.report_id || 'is.null';
+            queryParams.state = 'in.(COMPLETE,DRAFT)';
+            if (params.searchString) {
+              queryParams.q = params?.searchString;
+            }
+
             return queryParams;
           }),
-          switchMap((queryParams) => this.transactionService.getAllExpenses({ queryParams }))
+          switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
         )
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
           if (this.selectedElements.length > 0) {
-            this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+            // this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
 
-            this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
+            this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
 
             this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
           }
           this.allExpensesCount = this.selectedElements.length;
           this.isReportableExpensesSelected =
-            this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+            this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
           this.setExpenseStatsOnSelect();
         });
     } else {
       this.selectedElements = [];
       this.isReportableExpensesSelected =
-        this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+        this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }

@@ -34,6 +34,24 @@ export class ExpensesService {
       .pipe(map((expenses) => expenses.data));
   }
 
+  getAllExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
+    return this.getExpensesCount(params.queryParams).pipe(
+      switchMap((count) => {
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
+        return range(0, count);
+      }),
+      concatMap((page) =>
+        this.getExpenses({
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+          queryParams: params.queryParams,
+          order: params.order,
+        })
+      ),
+      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
+    );
+  }
+
   getReportExpenses(reportId: string): Observable<Expense[]> {
     const params = {
       report_id: `eq.${reportId}`,
