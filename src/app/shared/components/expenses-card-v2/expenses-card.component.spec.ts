@@ -37,7 +37,7 @@ import { DebugElement, EventEmitter } from '@angular/core';
 import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
-fdescribe('ExpensesCardComponent', () => {
+describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -520,7 +520,8 @@ fdescribe('ExpensesCardComponent', () => {
         id: 'tx12341',
         spent_at: null,
       };
-      (component.expense.category.name = 'mileage'), component.ngOnInit();
+      component.expense.category.name = 'mileage';
+      component.ngOnInit();
       expect(component.isMileageExpense).toBeTrue();
     });
 
@@ -530,7 +531,8 @@ fdescribe('ExpensesCardComponent', () => {
         id: 'tx12341',
         spent_at: null,
       };
-      (component.expense.category.name = 'per diem'), component.ngOnInit();
+      component.expense.category.name = 'per diem';
+      component.ngOnInit();
       expect(component.isPerDiem).toBeTrue();
     });
 
