@@ -104,6 +104,7 @@ export interface Expense {
   updated_at: Date;
   user: User;
   user_id: string;
+  vendorName: string | number;
   verifier_comments: string[];
   report_last_paid_at: Date;
   report_last_approved_at: Date;

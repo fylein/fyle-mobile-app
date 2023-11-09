@@ -31,6 +31,8 @@ import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -43,7 +45,7 @@ export class ViewTeamReportPage implements OnInit {
 
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<Expense[]>;
+  expenses$: Observable<PlatformExpense[]>
 
   sharedWith$: Observable<any[]>;
 
@@ -132,6 +134,7 @@ export class ViewTeamReportPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
+    private approverExpensesService: ApproverExpensesService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
@@ -170,15 +173,15 @@ export class ViewTeamReportPage implements OnInit {
     });
   }
 
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
+  getVendorName(expense: PlatformExpense) {
+    const category = expense.category?.name?.toLowerCase();
+    let vendorName = expense.merchant || 'Expense';
 
     if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
-      vendorName += ' ' + etxn.tx_distance_unit;
+      vendorName = expense.distance;
+      vendorName += ' ' + expense.distance_unit;
     } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
+      vendorName = expense.per_diem_num_days;
       vendorName += ' Days';
     }
 
@@ -189,11 +192,11 @@ export class ViewTeamReportPage implements OnInit {
     return reportApprovals.map((approver) => approver.approver_email);
   }
 
-  getShowViolation(etxn) {
+  getShowViolation(expense: PlatformExpense) {
     return (
-      etxn.tx_id &&
-      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
-      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
+      expense.id &&
+      (expense.is_manually_flagged || expense.is_policy_flagged) &&
+      !(typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001)
     );
   }
 
@@ -324,18 +327,18 @@ export class ViewTeamReportPage implements OnInit {
       )
     );
 
-    this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
-      map((etxns) =>
-        etxns.map((etxn) => {
-          etxn.vendor = this.getVendorName(etxn);
-          etxn.violation = this.getShowViolation(etxn);
-          return etxn;
+    this.expenses$ = this.approverExpensesService.getReportExpenses(this.activatedRoute.snapshot.params.id)
+      .pipe(
+        map((expenses) =>
+        expenses.map((expense) => {
+          expense.vendorName = this.getVendorName(expense);
+          expense.violation = this.getShowViolation(expense);
+          return expense;
         })
       ),
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
-    );
+      )
 
     this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
 
