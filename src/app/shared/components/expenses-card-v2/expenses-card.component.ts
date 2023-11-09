@@ -167,7 +167,7 @@ export class ExpensesCardComponent implements OnInit {
     } else if (this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      if (!this.expense.file_ids) {
+      if (!this.expense.file_ids?.length) {
         this.receiptIcon = 'assets/svg/add-receipt.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
           this.receiptIcon = 'assets/svg/fy-expense.svg';
@@ -299,7 +299,7 @@ export class ExpensesCardComponent implements OnInit {
     if (!this.expense.id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = this.expense && new Date(this.expense.spent_at || this.expense.created_at).toDateString();
+      const currentDate = (this.expense?.spent_at || this.expense?.created_at).toDateString();
       const previousDate = new Date(
         (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
       ).toDateString();
@@ -318,8 +318,8 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account?.type === AccountType.COMPANY_CORPORATE_CREDIT_CARD_ACCOUNT) {
-      if (this.expense.matched_corporate_card_transaction_ids) {
+    if (this.expense.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
         this.paymentModeIcon = 'fy-unmatched';
