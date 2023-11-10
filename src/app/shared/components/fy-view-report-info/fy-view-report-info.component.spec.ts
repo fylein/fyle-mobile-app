@@ -18,6 +18,7 @@ import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.dat
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { cloneDeep } from 'lodash';
+import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -123,7 +124,7 @@ describe('FyViewReportInfoComponent', () => {
     transactionService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     transactionService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
     component.erpt$ = of(reportParam);
-    component.etxns$ = of(expenseList);
+    component.expenses$ = of(expenseResponseData);
     fixture.detectChanges();
     component.ionViewWillEnter();
     expect(component.reportDetails).toEqual(erpt);
@@ -161,7 +162,7 @@ describe('FyViewReportInfoComponent', () => {
     transactionService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     transactionService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
     component.erpt$ = of(reportParam);
-    component.etxns$ = of(expenseList);
+    component.expenses$ = of(expenseResponseData);
     fixture.detectChanges();
     component.ionViewWillEnter();
     expect(component.reportDetails).toEqual(erpt);

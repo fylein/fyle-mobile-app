@@ -36,7 +36,7 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { DebugElement, EventEmitter } from '@angular/core';
 import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
@@ -161,7 +161,7 @@ describe('ExpensesCardComponent', () => {
     component.isSycing$ = of(true);
     component.isPerDiem = true;
     component.isSelectionModeEnabled = false;
-    component.etxnIndex = 1;
+    component.expenseIndex = 1;
     componentElement = fixture.debugElement;
     fixture.detectChanges();
   }));
@@ -196,7 +196,7 @@ describe('ExpensesCardComponent', () => {
       component.onGoToTransaction();
       expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
         expense: component.expense,
-        expenseIndex: component.etxnIndex,
+        expenseIndex: component.expenseIndex,
       });
     });
 

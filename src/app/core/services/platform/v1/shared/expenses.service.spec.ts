@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ExpenseService } from './expense.service';
+import { ExpensesService } from './expenses.service';
 import {
   criticalPolicyViolatedExpense,
   expenseData,
@@ -11,12 +11,12 @@ import {
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
-describe('ExpenseService', () => {
-  let service: ExpenseService;
+describe('ExpensesService', () => {
+  let service: ExpensesService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(ExpenseService);
+    service = TestBed.inject(ExpensesService);
   });
 
   it('should be created', () => {
