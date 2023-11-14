@@ -1,11 +1,11 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 @Component({
   selector: 'app-popup-alert',
   templateUrl: './popup-alert.component.html',
   styleUrls: ['./popup-alert.component.scss'],
 })
-export class PopupAlertComponent implements OnInit {
+export class PopupAlertComponent {
   @Input() title: string;
 
   @Input() message: string;
@@ -17,8 +17,6 @@ export class PopupAlertComponent implements OnInit {
   @Input() flaggedExpensesCount = 0;
 
   constructor(private popoverController: PopoverController) {}
-
-  ngOnInit() {}
 
   ctaClickedEvent(action) {
     this.popoverController.dismiss({
