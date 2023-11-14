@@ -76,7 +76,7 @@ export class ViewMileagePage {
 
   isDeviceWidthSmall = window.innerWidth < 330;
 
-  numExpensesInReport: number;
+  reportExpenseCount: number;
 
   activeExpenseIndex: number;
 
@@ -435,7 +435,7 @@ export class ViewMileagePage {
     const expenseIds =
       this.activatedRoute.snapshot.params.txnIds &&
       (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
-    this.numExpensesInReport = expenseIds.length;
+    this.reportExpenseCount = expenseIds.length;
     this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 

@@ -74,7 +74,7 @@ export class ViewPerDiemPage {
 
   isExpenseFlagged: boolean;
 
-  numExpensesInReport: number;
+  reportExpenseCount: number;
 
   activeExpenseIndex: number;
 
@@ -333,7 +333,7 @@ export class ViewPerDiemPage {
     const expenseIds =
       this.activatedRoute.snapshot.params.txnIds &&
       (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
-    this.numExpensesInReport = expenseIds.length;
+    this.reportExpenseCount = expenseIds.length;
     this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 

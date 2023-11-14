@@ -8,11 +8,11 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-mileage--title': numExpensesInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{'view-mileage--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
     >
       View Mileage
-      <p class="view-mileage--subtitle" *ngIf="numExpensesInReport > 1">
-        Showing {{ activeExpenseIndex + 1 }} of {{ numExpensesInReport }} expenses
+      <p class="view-mileage--subtitle" *ngIf="reportExpenseCount > 1">
+        Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-mileage--header-btn-container" slot="end">
@@ -462,7 +462,7 @@
 </ion-content>
 
 <app-navigation-footer
-  *ngIf="numExpensesInReport > 1"
+  *ngIf="reportExpenseCount > 1"
   [activeExpenseIndex]="activeExpenseIndex"
-  [numExpensesInReport]="numExpensesInReport"
+  [numExpensesInReport]="reportExpenseCount"
 ></app-navigation-footer>
