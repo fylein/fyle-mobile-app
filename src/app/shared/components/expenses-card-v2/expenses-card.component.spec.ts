@@ -37,8 +37,9 @@ import { DebugElement, EventEmitter } from '@angular/core';
 import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -185,6 +186,15 @@ describe('ExpensesCardComponent', () => {
       component.expense = {
         ...expenseData,
         id: null,
+      };
+      expect(component.isSelected).toBeFalse();
+    });
+
+    it('should return false if there are no selectedElements', () => {
+      component.selectedElements = null;
+      component.expense = {
+        ...expenseData,
+        id: 'txe0bYaJlRJf',
       };
       expect(component.isSelected).toBeFalse();
     });
@@ -691,26 +701,61 @@ describe('ExpensesCardComponent', () => {
     }));
   });
 
-  it('onFileUpload(): should add attachment when file is selected', fakeAsync(() => {
-    const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
-    const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-    fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
-    const mockNativeElement = {
-      files: [mockFile],
-    };
+  describe('onFileUPload()', () => {
+    it('should add attachment when file is selected', fakeAsync(() => {
+      const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+      fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
+      const mockNativeElement = {
+        files: [mockFile],
+      };
 
-    spyOn(component, 'attachReceipt');
+      spyOn(component, 'attachReceipt');
 
-    component.onFileUpload(mockNativeElement as any);
-    fixture.detectChanges();
+      component.onFileUpload(mockNativeElement as any);
+      fixture.detectChanges();
+      tick(500);
+      expect(fileService.readFile).toHaveBeenCalledOnceWith(mockFile);
+      expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ type: 'image/png' });
+      expect(component.attachReceipt).toHaveBeenCalledOnceWith({
+        type: 'image/png',
+        dataUrl,
+        actionSource: 'gallery_upload',
+      });
+    }));
+
+    it('should show size limit exceeded popover if the file size is more than 5MB', fakeAsync(() => {
+      const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
+      Object.defineProperty(mockFile, 'size', { value: 5000001 });
+      const mockNativeElement = {
+        files: [mockFile],
+      };
+
+      spyOn(component, 'showSizeLimitExceededPopover');
+
+      component.onFileUpload(mockNativeElement as any);
+      expect(component.showSizeLimitExceededPopover).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  it('showSizeLimitExceededPopover', fakeAsync(() => {
+    const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+    popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
+    component.showSizeLimitExceededPopover();
+
     tick(500);
-    expect(fileService.readFile).toHaveBeenCalledOnceWith(mockFile);
-    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ type: 'image/png' });
-    expect(component.attachReceipt).toHaveBeenCalledOnceWith({
-      type: 'image/png',
-      dataUrl,
-      actionSource: 'gallery_upload',
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
     });
+    expect(popOverSpy.present).toHaveBeenCalledTimes(1);
   }));
 
   describe('addAttachments():', () => {
