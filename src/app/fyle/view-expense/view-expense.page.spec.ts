@@ -10,7 +10,6 @@ import { NetworkService } from '../../core/services/network.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -37,7 +36,6 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { apiTeamReportPaginated1, apiTeamRptSingleRes } from 'src/app/core/mock-data/api-reports.data';
-import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
@@ -65,7 +63,6 @@ describe('ViewExpensePage', () => {
   let policyService: jasmine.SpyObj<PolicyService>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
-  let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
@@ -102,9 +99,6 @@ describe('ViewExpensePage', () => {
       'addComment',
       'viewComment',
       'expenseFlagUnflagClicked',
-    ]);
-    const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
-      'getEccceByGroupId',
     ]);
     const expenseFieldsServiceSpy = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -178,10 +172,6 @@ describe('ViewExpensePage', () => {
           provide: TrackingService,
         },
         {
-          useValue: corporateCreditCardExpenseServiceSpy,
-          provide: CorporateCreditCardExpenseService,
-        },
-        {
           useValue: expenseFieldsServiceSpy,
           provide: ExpenseFieldsService,
         },
@@ -236,9 +226,6 @@ describe('ViewExpensePage', () => {
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    corporateCreditCardExpenseService = TestBed.inject(
-      CorporateCreditCardExpenseService
-    ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
@@ -476,6 +463,10 @@ describe('ViewExpensePage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
       component.expense$ = of(expenseData);
+      component.txnFields$ = of(expenseFieldsMapResponse4);
+
+      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
+
       statusService.find.and.returnValue(of(getEstatusApiResponse));
 
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
