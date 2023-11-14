@@ -370,7 +370,7 @@ const mileageCategory: Category = {
   code: null,
   display_name: 'Mileage display',
   id: 267841,
-  name: 'Mileage test',
+  name: 'Mileage',
   sub_category: 'Others',
   system_category: 'Mileage',
 };
@@ -379,9 +379,14 @@ const perDiemCategory: Category = {
   code: null,
   display_name: 'Per Diem display',
   id: 267841,
-  name: 'Per Diem test',
+  name: 'Per Diem',
   sub_category: 'Others',
   system_category: 'Per Diem',
+};
+
+export const mileageExpense: Expense = {
+  ...expenseData,
+  category: mileageCategory,
 };
 
 export const mileageExpenseWithDistance: Expense = {
