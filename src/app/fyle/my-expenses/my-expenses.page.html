@@ -175,8 +175,8 @@
         <app-expense-card
           [expense]="pendingTransactions"
           [isFirstOfflineExpense]="i === 0"
-          [previousExpenseTxnDate]="list[i-1]?.spent_at"
-          [previousExpenseCreatedAt]="list[i-1]?.created_at"
+          [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
           [isOutboxExpense]="true"
