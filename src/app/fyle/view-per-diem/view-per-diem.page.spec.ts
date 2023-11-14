@@ -661,7 +661,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.numExpensesInReport).toEqual(3);
+      expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(0);
     }));
   });

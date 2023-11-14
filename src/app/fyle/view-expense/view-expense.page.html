@@ -8,10 +8,10 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-expense--title': numExpensesInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
       >View Expense
-      <p class="view-expense--subtitle" *ngIf="numExpensesInReport > 1">
-        Showing {{ activeExpenseIndex + 1 }} of {{ numExpensesInReport }} expenses
+      <p class="view-expense--subtitle" *ngIf="reportExpenseCount > 1">
+        Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-expense--header-btn-container" slot="end">
@@ -679,7 +679,7 @@
 
 <!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
-  *ngIf="numExpensesInReport > 1"
+  *ngIf="reportExpenseCount > 1"
   [activeEtxnIndex]="activeExpenseIndex"
-  [numEtxnsInReport]="numExpensesInReport"
+  [numEtxnsInReport]="reportExpenseCount"
 ></app-navigation-footer>

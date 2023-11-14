@@ -87,7 +87,7 @@ export class ViewExpensePage {
 
   isCCCTransaction = false;
 
-  numExpensesInReport: number;
+  reportExpenseCount: number;
 
   activeExpenseIndex: number;
 
@@ -427,7 +427,7 @@ export class ViewExpensePage {
 
     if (this.activatedRoute.snapshot.params.txnIds) {
       const expenseIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
-      this.numExpensesInReport = expenseIds.length;
+      this.reportExpenseCount = expenseIds.length;
       this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     }
   }

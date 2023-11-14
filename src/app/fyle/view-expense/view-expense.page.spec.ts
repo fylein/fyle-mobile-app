@@ -863,7 +863,7 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.txnIds = '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]';
       activateRouteMock.snapshot.params.activeIndex = '20';
       component.ionViewWillEnter();
-      expect(component.numExpensesInReport).toEqual(3);
+      expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(20);
     });
   });

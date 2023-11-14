@@ -1001,7 +1001,7 @@ describe('ViewMileagePage', () => {
       };
       component.ionViewWillEnter();
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.numExpensesInReport).toEqual(3);
+      expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(2);
     });
   });
