@@ -39,7 +39,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
-fdescribe('ExpensesCardComponent', () => {
+describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
