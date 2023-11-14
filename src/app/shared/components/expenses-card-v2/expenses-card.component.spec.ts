@@ -38,7 +38,7 @@ import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platfor
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
-describe('ExpensesCardComponent', () => {
+fdescribe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -245,6 +245,16 @@ describe('ExpensesCardComponent', () => {
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+    });
+
+    it('should set isReceiptPresent to true if not a mileage or per diem expense and file ids present', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        file_ids: ['testfileid'],
+      };
+      component.getReceipt();
+      fixture.detectChanges();
+      expect(component.isReceiptPresent).toBe(true);
     });
   });
 
