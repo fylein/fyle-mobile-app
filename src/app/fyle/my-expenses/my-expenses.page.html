@@ -189,10 +189,10 @@
 
     <ng-container *ngIf="isConnected$|async">
       <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
-        <app-expense-card
+        <app-expense-card-v2
           [expense]="expense"
-          [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-          [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+          [previousExpenseTxnDate]="list[i-1]?.spent_at"
+          [previousExpenseCreatedAt]="list[i-1]?.created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
           (goToTransaction)="goToTransaction($event)"
@@ -200,7 +200,7 @@
           (cardClickedForSelection)="selectExpense($event)"
           (showCamera)="showCamera($event)"
         >
-        </app-expense-card>
+        </app-expense-card-v2>
       </div>
     </ng-container>
     <ng-container *ngIf="isConnected$|async">

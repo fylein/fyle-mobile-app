@@ -498,6 +498,25 @@ export class TransactionService {
     return this.apiService.post('/transactions/unmatch', data);
   }
 
+  getVendorDetails(expense: Expense): string {
+    const fyleCategory = expense.tx_fyle_category && expense.tx_fyle_category.toLowerCase();
+    let vendorDisplayName = expense.tx_vendor;
+
+    if (fyleCategory === 'mileage') {
+      vendorDisplayName = (expense.tx_distance || 0).toString();
+      vendorDisplayName += ' ' + expense.tx_distance_unit;
+    } else if (fyleCategory === 'per diem') {
+      vendorDisplayName = expense.tx_num_days.toString();
+      if (expense.tx_num_days > 1) {
+        vendorDisplayName += ' Days';
+      } else {
+        vendorDisplayName += ' Day';
+      }
+    }
+
+    return vendorDisplayName;
+  }
+
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
