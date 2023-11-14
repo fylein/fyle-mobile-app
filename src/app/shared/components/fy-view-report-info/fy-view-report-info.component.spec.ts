@@ -2,10 +2,8 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
 import { reportParam } from 'src/app/core/mock-data/report.data';
-import { expenseList } from 'src/app/core/mock-data/expense.data';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -21,10 +19,9 @@ import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
-fdescribe('FyViewReportInfoComponent', () => {
+describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
   let fixture: ComponentFixture<FyViewReportInfoComponent>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -34,10 +31,6 @@ fdescribe('FyViewReportInfoComponent', () => {
   let datePipe: DatePipe;
 
   beforeEach(waitForAsync(() => {
-    const mockTransactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getPaymentModeWiseSummary',
-      'getCurrenyWiseSummary',
-    ]);
     const mockOrgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'get',
       'getAllowedCostCentersByOuId',
@@ -54,10 +47,6 @@ fdescribe('FyViewReportInfoComponent', () => {
     TestBed.configureTestingModule({
       declarations: [FyViewReportInfoComponent],
       providers: [
-        {
-          provide: TransactionService,
-          useValue: mockTransactionServiceSpy,
-        },
         {
           provide: SharedExpensesService,
           useValue: mockSharedExpensesServiceSpy,
@@ -90,7 +79,6 @@ fdescribe('FyViewReportInfoComponent', () => {
 
     fixture = TestBed.createComponent(FyViewReportInfoComponent);
     component = fixture.componentInstance;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
