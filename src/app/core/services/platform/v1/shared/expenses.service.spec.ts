@@ -4,6 +4,7 @@ import {
   criticalPolicyViolatedExpense,
   expenseData,
   expenseResponseData2,
+  expenseResponseData3,
   mileageExpenseWithDistance,
   mileageExpenseWithoutDistance,
   perDiemExpenseWithMultipleNumDays,
@@ -14,7 +15,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 
-fdescribe('ExpensesService', () => {
+describe('ExpensesService', () => {
   let service: ExpensesService;
 
   beforeEach(() => {
@@ -117,8 +118,7 @@ fdescribe('ExpensesService', () => {
     expect(service.getPaymentModeForExpense).toHaveBeenCalledWith(expenseResponseData2[0], paymentModes);
     // @ts-ignore
     expect(service.getPaymentModeForExpense).toHaveBeenCalledWith(expenseResponseData2[1], paymentModes);
-    // @ts-ignore
-    // expect(service.getPaymentModeForExpense).toHaveBeenCalledWith(expenseList4[2], paymentModes);
+
     // @ts-ignore
     expect(service.getPaymentModeForExpense).toHaveBeenCalledTimes(2);
   });
@@ -133,7 +133,7 @@ fdescribe('ExpensesService', () => {
       EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
     };
 
-    expect(service.getCurrenyWiseSummary(expenseResponseData2)).toEqual(currencySummaryData);
+    expect(service.getCurrenyWiseSummary(expenseResponseData3)).toEqual(currencySummaryData);
     // @ts-ignore
     expect(service.addExpenseToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
     // @ts-ignore
