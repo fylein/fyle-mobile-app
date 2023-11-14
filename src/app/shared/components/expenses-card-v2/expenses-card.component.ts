@@ -24,7 +24,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -162,9 +162,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'mileage') {
+    if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'per diem') {
+    } else if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.file_ids?.length) {
@@ -180,7 +180,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.category?.name?.toLowerCase() === 'per diem' &&
+      this.expense.category.name?.toLowerCase() === 'per diem' &&
       (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
@@ -270,10 +270,10 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.category?.name && this.expense.category?.name?.toLowerCase() === 'per diem';
+    this.category = this.expense.category.name && this.expense.category.name.toLowerCase();
+    this.isMileageExpense = this.category === 'mileage';
+    this.isPerDiem = this.category === 'per diem';
 
-    this.category = this.expense.category?.name?.toLowerCase();
     this.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
     this.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
@@ -299,7 +299,7 @@ export class ExpensesCardComponent implements OnInit {
     if (!this.expense.id) {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
-      const currentDate = (this.expense?.spent_at || this.expense?.created_at).toDateString();
+      const currentDate = (this.expense.spent_at || this.expense.created_at).toDateString();
       const previousDate = new Date(
         (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
       ).toDateString();
@@ -318,7 +318,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+    if (this.expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       if (this.expense.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
