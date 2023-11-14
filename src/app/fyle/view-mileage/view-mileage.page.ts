@@ -1,6 +1,5 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -33,8 +32,9 @@ import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
 @Component({
   selector: 'app-view-mileage',
@@ -44,7 +44,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  mileageExpense$: Observable<PlatformExpense>;
+  mileageExpense$: Observable<Expense>;
 
   orgSettings: OrgSettings;
 
@@ -61,6 +61,8 @@ export class ViewMileagePage {
   canDelete$: Observable<boolean>;
 
   updateFlag$ = new Subject();
+
+  expenseId: string;
 
   reportId: string;
 
@@ -178,12 +180,11 @@ export class ViewMileagePage {
   }
 
   async openCommentsModal(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
-        objectId: etxn.tx_id,
+        objectId: this.expenseId,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -198,7 +199,7 @@ export class ViewMileagePage {
     }
   }
 
-  getDeleteDialogProps(etxn: Expense): ExpenseDeletePopoverParams {
+  getDeleteDialogProps(): ExpenseDeletePopoverParams {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -209,29 +210,24 @@ export class ViewMileagePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
       },
     };
   }
 
   async removeExpenseFromReport(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
-
-    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps());
 
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
   }
 
   async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    const etxn = await this.transactionService.getEtxn(id).toPromise();
-
     const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
@@ -252,12 +248,12 @@ export class ViewMileagePage {
             const comment = {
               comment: data.comment,
             };
-            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+            return this.statusService.post('transactions', this.expenseId, comment, true);
           }),
           concatMap(() =>
-            etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+            isExpenseFlagged
+              ? this.transactionService.manualUnflag(this.expenseId)
+              : this.transactionService.manualFlag(this.expenseId)
           ),
           finalize(() => {
             this.updateFlag$.next(null);
@@ -271,8 +267,8 @@ export class ViewMileagePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const id = this.activatedRoute.snapshot.params.id as string;
 
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.mileageExpense$ = this.updateFlag$.pipe(
@@ -280,8 +276,8 @@ export class ViewMileagePage {
         from(this.loaderService.showLoader()).pipe(
           switchMap(() =>
             this.view === ExpenseView.team
-              ? this.approverExpensesService.getExpenseById(id)
-              : this.spenderExpensesService.getExpenseById(id)
+              ? this.approverExpensesService.getExpenseById(this.expenseId)
+              : this.spenderExpensesService.getExpenseById(this.expenseId)
           )
         )
       ),
@@ -393,7 +389,11 @@ export class ViewMileagePage {
     this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
       take(1),
       filter(() => this.view === ExpenseView.team),
-      map((expense) => ['COMPLETE', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].includes(expense.state))
+      map((expense) =>
+        [ExpenseState.COMPLETE, ExpenseState.APPROVER_PENDING, ExpenseState.APPROVED, ExpenseState.PAID].includes(
+          expense.state
+        )
+      )
     );
 
     this.canDelete$ = this.mileageExpense$.pipe(
@@ -402,30 +402,29 @@ export class ViewMileagePage {
       switchMap((expense) =>
         this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, expense }) => {
-        if (report.rp_num_transactions === 1) {
-          return false;
-        }
-        return !['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state);
-      })
+      map(({ report, expense }) =>
+        report.rp_num_transactions === 1
+          ? false
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
+      )
     );
 
-    if (id) {
+    if (this.expenseId) {
       this.policyViloations$ =
         this.view === ExpenseView.team
-          ? this.policyService.getApproverExpensePolicyViolations(id)
-          : this.policyService.getSpenderExpensePolicyViolations(id);
+          ? this.policyService.getApproverExpensePolicyViolations(this.expenseId)
+          : this.policyService.getSpenderExpensePolicyViolations(this.expenseId);
     } else {
       this.policyViloations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', id);
+    this.comments$ = this.statusService.find('transactions', this.expenseId);
 
     this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
       map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(id);
+    this.getPolicyDetails(this.expenseId);
 
     this.isAmountCapped$ = this.mileageExpense$.pipe(
       map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
