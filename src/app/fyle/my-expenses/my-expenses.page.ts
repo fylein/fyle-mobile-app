@@ -81,7 +81,7 @@ import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
-import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
 @Component({
   selector: 'app-my-expenses',
