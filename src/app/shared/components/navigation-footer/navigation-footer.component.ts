@@ -13,7 +13,7 @@ import { Observable } from 'rxjs';
   styleUrls: ['./navigation-footer.component.scss'],
 })
 export class NavigationFooterComponent implements OnInit {
-  @Input() numExpensesInReport: number;
+  @Input() reportExpenseCount: number;
 
   @Input() activeExpenseIndex: number;
 
@@ -52,7 +52,7 @@ export class NavigationFooterComponent implements OnInit {
   }
 
   goToNext(expenseIndex?: number): void {
-    if (expenseIndex === this.numExpensesInReport - 1) {
+    if (expenseIndex === this.reportExpenseCount - 1) {
       return;
     }
 

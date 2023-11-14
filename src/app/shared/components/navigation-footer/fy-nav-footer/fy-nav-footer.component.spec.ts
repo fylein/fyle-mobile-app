@@ -21,7 +21,7 @@ describe('FyNavFooterComponent', () => {
     mockActiveEtxnIndex = 0;
     mockNumEtxnsInReport = 2;
     component.activeExpenseIndex = mockActiveEtxnIndex;
-    component.numExpensesInReport = mockNumEtxnsInReport;
+    component.reportExpenseCount = mockNumEtxnsInReport;
     fixture.detectChanges();
   }));
 

@@ -8,7 +8,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
 export class FyNavFooterComponent {
   @Input() activeExpenseIndex: number;
 
-  @Input() numExpensesInReport: number;
+  @Input() reportExpenseCount: number;
 
   @Output() nextClicked = new EventEmitter<void>();
 

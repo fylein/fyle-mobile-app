@@ -64,7 +64,7 @@ describe('NavigationFooterComponent', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
-    component.numExpensesInReport = 3;
+    component.reportExpenseCount = 3;
     component.activeExpenseIndex = 1;
     fixture.detectChanges();
   }));

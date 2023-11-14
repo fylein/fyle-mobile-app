@@ -12,11 +12,7 @@
         ></ion-icon>
         Previous
       </ion-button>
-      <ion-button
-        class="btn-secondary"
-        (click)="goToNext()"
-        [disabled]="activeExpenseIndex === numExpensesInReport - 1"
-      >
+      <ion-button class="btn-secondary" (click)="goToNext()" [disabled]="activeExpenseIndex === reportExpenseCount - 1">
         Next
         <ion-icon
           class="icon--navigate nav-footer__footer__icon"

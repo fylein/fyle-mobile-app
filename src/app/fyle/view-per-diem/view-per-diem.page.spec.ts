@@ -657,7 +657,7 @@ describe('ViewPerDiemPage', () => {
       });
     }));
 
-    it('should set numExpensesInReport and activeExpenseIndex', fakeAsync(() => {
+    it('should set reportExpenseCount and activeExpenseIndex', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
 
