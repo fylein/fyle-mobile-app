@@ -23,19 +23,19 @@ describe('ExpensesService', () => {
     expect(service).toBeTruthy();
   });
 
-  describe('getIsCriticalPolicyViolated():', () => {
+  describe('isCriticalPolicyViolatedExpense():', () => {
     it('should return false if critical policy is not violated', () => {
-      expect(service.getIsCriticalPolicyViolated(expenseData)).toBeFalse();
+      expect(service.isCriticalPolicyViolatedExpense(expenseData)).toBeFalse();
     });
 
     it('should return true if critical policy is violated', () => {
-      expect(service.getIsCriticalPolicyViolated(criticalPolicyViolatedExpense)).toBeTrue();
+      expect(service.isCriticalPolicyViolatedExpense(criticalPolicyViolatedExpense)).toBeTrue();
     });
   });
 
-  describe('getIsDraft():', () => {
+  describe('isExpenseInDraft():', () => {
     it('should return true if transaction is draft', () => {
-      expect(service.getIsDraft(expenseData)).toBeTrue();
+      expect(service.isExpenseInDraft(expenseData)).toBeTrue();
     });
 
     it('should return false if transaction is not draft', () => {
@@ -43,7 +43,7 @@ describe('ExpensesService', () => {
         ...expenseData,
         state: ExpenseState.COMPLETE,
       };
-      expect(service.getIsDraft(expense)).toBeFalse();
+      expect(service.isExpenseInDraft(expense)).toBeFalse();
     });
   });
 

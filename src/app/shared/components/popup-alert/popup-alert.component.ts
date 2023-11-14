@@ -14,7 +14,7 @@ export class PopupAlertComponent implements OnInit {
 
   @Input() secondaryCta: { text: string; action: string; type?: string };
 
-  @Input() numIssues = 0;
+  @Input() flaggedExpensesCount = 0;
 
   constructor(private popoverController: PopoverController) {}
 

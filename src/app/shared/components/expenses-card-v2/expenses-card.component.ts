@@ -274,9 +274,9 @@ export class ExpensesCardComponent implements OnInit {
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';
 
-    this.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
+    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
-    this.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
+    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
     this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;

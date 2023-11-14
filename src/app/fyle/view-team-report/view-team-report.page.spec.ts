@@ -359,8 +359,8 @@ describe('ViewTeamReportPage', () => {
 
       expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
 
-      component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+      component.expensesAmountSum$.subscribe((amountSum) => {
+        expect(amountSum).toEqual(310.65);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -469,8 +469,8 @@ describe('ViewTeamReportPage', () => {
 
       expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
 
-      component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+      component.expensesAmountSum$.subscribe((amountSum) => {
+        expect(amountSum).toEqual(310.65);
       });
 
       component.sharedWith$.subscribe((res) => {
