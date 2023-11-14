@@ -476,11 +476,6 @@ describe('ViewExpensePage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
       component.expense$ = of(expenseData);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
-
-      dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
-
-      corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
       statusService.find.and.returnValue(of(getEstatusApiResponse));
 
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
