@@ -376,8 +376,8 @@ describe('ViewExpensePage', () => {
 
       component.expense$ = of(mockExpense);
       component.setPaymentModeandIcon(mockExpense);
-      component.expense$.subscribe((res) => {
-        expect(res.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
+      component.expense$.subscribe((expense) => {
+        expect(expense.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
         expect(component.paymentMode).toEqual('Advance');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
       });
@@ -394,8 +394,8 @@ describe('ViewExpensePage', () => {
 
       component.expense$ = of(mockExpense);
       component.setPaymentModeandIcon(mockExpense);
-      component.expense$.subscribe((res) => {
-        expect(res.source_account.type).toEqual(AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT);
+      component.expense$.subscribe((expense) => {
+        expect(expense.source_account.type).toEqual(AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT);
         expect(component.paymentMode).toEqual('Corporate Card');
         expect(component.paymentModeIcon).toEqual('fy-unmatched');
         expect(component.isCCCTransaction).toBeTrue();
@@ -414,8 +414,8 @@ describe('ViewExpensePage', () => {
 
       component.expense$ = of(mockExpense);
       component.setPaymentModeandIcon(mockExpense);
-      component.expense$.subscribe((res) => {
-        expect(res.is_reimbursable).toBeFalse();
+      component.expense$.subscribe((expense) => {
+        expect(expense.is_reimbursable).toBeFalse();
         expect(component.paymentMode).toEqual('Paid by Company');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
       });
@@ -433,8 +433,8 @@ describe('ViewExpensePage', () => {
 
       component.expense$ = of(mockExpense);
       component.setPaymentModeandIcon(mockExpense);
-      component.expense$.subscribe((res) => {
-        expect(res.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
+      component.expense$.subscribe((expense) => {
+        expect(expense.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
       });
@@ -506,22 +506,22 @@ describe('ViewExpensePage', () => {
       expect(categoriesService.getBreakfastSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getTravelSystemCategories).toHaveBeenCalledTimes(1);
       expect(categoriesService.getFlightSystemCategories).toHaveBeenCalledTimes(1);
-      component.expenseWithoutCustomProperties$.subscribe((res) => {
-        expect(res).toEqual(expenseData);
-        expect(component.reportId).toEqual(res.report_id);
+      component.expenseWithoutCustomProperties$.subscribe((expense) => {
+        expect(expense).toEqual(expenseData);
+        expect(component.reportId).toEqual(expense.report_id);
       });
       expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
-      component.txnFields$.subscribe((res) => {
-        expect(res).toEqual(expenseFieldsMapResponse4);
+      component.txnFields$.subscribe((expenseFields) => {
+        expect(expenseFields).toEqual(expenseFieldsMapResponse4);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
       });
     }));
 
     it('should get the custom properties', (done) => {
       component.ionViewWillEnter();
-      component.customProperties$.subscribe((res) => {
-        expect(res).toEqual(filledCustomProperties);
+      component.customProperties$.subscribe((customProperties) => {
+        expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           expenseData.category_id,
           expenseData.custom_fields,
@@ -535,8 +535,8 @@ describe('ViewExpensePage', () => {
       const customProps = expenseData.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
       component.ionViewWillEnter();
-      component.projectDependentCustomProperties$.subscribe((res) => {
-        expect(res).toEqual(dependentFieldValues);
+      component.projectDependentCustomProperties$.subscribe((customProperties) => {
+        expect(customProperties).toEqual(dependentFieldValues);
         expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
@@ -551,8 +551,8 @@ describe('ViewExpensePage', () => {
       const customProps = expenseData.custom_fields;
       const costCenterId = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
-      component.costCenterDependentCustomProperties$.subscribe((res) => {
-        expect(res).toEqual(dependentFieldValues);
+      component.costCenterDependentCustomProperties$.subscribe((customProperties) => {
+        expect(customProperties).toEqual(dependentFieldValues);
         expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
@@ -670,9 +670,9 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
       component.expense$ = of(expenseData);
       component.ionViewWillEnter();
-      component.canFlagOrUnflag$.subscribe((res) => {
+      component.canFlagOrUnflag$.subscribe((canFlagOrUnflag) => {
         expect(mockWithoutCustPropData.state).toEqual(ExpenseState.APPROVED);
-        expect(res).toBeTrue();
+        expect(canFlagOrUnflag).toBeTrue();
         done();
       });
     });
@@ -691,9 +691,9 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
-      component.canDelete$.subscribe((res) => {
+      component.canDelete$.subscribe((canDelete) => {
         expect(mockWithoutCustPropData.state).toEqual(ExpenseState.PAID);
-        expect(res).toBeFalse();
+        expect(canDelete).toBeFalse();
       });
     });
 
@@ -710,9 +710,9 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
-      component.canDelete$.subscribe((res) => {
+      component.canDelete$.subscribe((canDelete) => {
         expect(mockWithoutCustPropData.state).toEqual(ExpenseState.DRAFT);
-        expect(res).toBeTrue();
+        expect(canDelete).toBeTrue();
       });
     });
 
@@ -727,8 +727,8 @@ describe('ViewExpensePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
-      component.isAmountCapped$.subscribe((res) => {
-        expect(res).toBeTrue();
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(isAmountCapped).toBeTrue();
         done();
       });
     });
@@ -744,8 +744,8 @@ describe('ViewExpensePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
-      component.isAmountCapped$.subscribe((res) => {
-        expect(res).toBeTrue();
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(isAmountCapped).toBeTrue();
         expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.admin_amount);
         done();
       });
@@ -762,8 +762,8 @@ describe('ViewExpensePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
-      component.isAmountCapped$.subscribe((res) => {
-        expect(res).toBeFalse();
+      component.isAmountCapped$.subscribe((isAmountCapped) => {
+        expect(isAmountCapped).toBeFalse();
         expect(component.isNumber).toHaveBeenCalledWith(mockExpenseData.policy_amount);
         expect(component.isNumber).toHaveBeenCalledTimes(2);
         done();
@@ -829,8 +829,8 @@ describe('ViewExpensePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(mockExpenseData));
       component.expense$ = of(mockExpenseData);
       component.ionViewWillEnter();
-      component.isCriticalPolicyViolated$.subscribe((res) => {
-        expect(res).toBeTrue();
+      component.isCriticalPolicyViolated$.subscribe((isCriticalPolicyViolated) => {
+        expect(isCriticalPolicyViolated).toBeTrue();
         expect(component.isNumber).toHaveBeenCalledOnceWith(mockExpenseData.policy_amount);
       });
     });
@@ -849,14 +849,14 @@ describe('ViewExpensePage', () => {
       fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
       component.ionViewWillEnter();
       tick(500);
-      component.expense$.subscribe((res) => {
+      component.expense$.subscribe((expense) => {
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObjectData.name, fileObjectData.url);
       });
       tick(500);
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      component.attachments$.subscribe((res) => {
-        expect(res).toEqual([fileObjectData]);
+      component.attachments$.subscribe((attachments) => {
+        expect(attachments).toEqual([fileObjectData]);
         expect(component.isLoading).toBeFalse();
       });
     }));
