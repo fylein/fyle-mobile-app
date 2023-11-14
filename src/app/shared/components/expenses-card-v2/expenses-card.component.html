@@ -4,8 +4,8 @@
   [ngClass]="{ 'expenses-card--date__from-reports': isFromReports }"
 >
   <ng-container *ngIf="{ isConnected: isConnected$ | async } as data">
-    <ng-container *ngIf="expense.tx_id && data.isConnected; else isOffline">
-      {{ expense.tx_txn_dt || expense.tx_created_at | dateFormat }}
+    <ng-container *ngIf="expense.id && data.isConnected; else isOffline">
+      {{ expense.spent_at || expense.created_at | dateFormat }}
     </ng-container>
 
     <ng-template #isOffline> Offline Expenses </ng-template>
@@ -79,7 +79,7 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls?.length > 0 &&
+                expense.file_ids?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
@@ -93,13 +93,13 @@
             class="expenses-card--receipt-container expenses-card--with-image"
             [ngStyle]="{
               'background-image':
-                expense.tx_dataUrls?.length > 0 &&
+                expense.file_ids?.length > 0 &&
                 imageTransperencyOverlay + 'url(' + '../../../../assets/images/pdf-receipt-placeholder.png' + ')'
             }"
           >
             <ion-icon
               class="expenses-card--receipt-icon"
-              *ngIf="!expense.tx_dataUrls?.length"
+              *ngIf="!expense.file_ids?.length"
               [src]="'../../../../assets/svg/fy-expense.svg'"
             ></ion-icon>
           </div>
@@ -116,7 +116,7 @@
                   <ng-container *ngIf="category === 'per diem'; else uploadDefault"> Syncing Per Diem </ng-container>
                 </ng-template>
                 <ng-template #uploadDefault>
-                  {{ expense.tx_amount || expense.tx_user_amount ? 'Syncing' : 'Uploading' }} receipt...
+                  {{ expense.amount || expense.claim_amount ? 'Syncing' : 'Uploading' }} receipt...
                 </ng-template>
               </div>
               <div class="expenses-card--scaning-receipt__content">
@@ -147,14 +147,14 @@
                   Scan failed
                 </div>
               </div>
-              <div *ngIf="expense.isDraft && !isFromViewReports">
+              <div *ngIf="isDraft && !isFromViewReports">
                 <div
                   class="expenses-card--state-container expenses-card--state-container__center state-pill state-{{
-                    expense.tx_state | expenseState | lowercase
+                    expense.state | expenseState | lowercase
                   }}"
                 >
                   <span>
-                    {{ expense.tx_state | expenseState | titlecase }}
+                    {{ expense.state | expenseState | titlecase }}
                   </span>
                 </div>
               </div>
@@ -163,7 +163,7 @@
         </ng-template>
 
         <ng-template #expenseCardDefaultView>
-          <div *ngIf="!expense.isDraft" class="expenses-card--category-vendor-project-container">
+          <div *ngIf="!isDraft" class="expenses-card--category-vendor-project-container">
             <div class="d-flex expenses-card--category-icon-container">
               <div
                 class="expenses-card--category"
@@ -171,22 +171,22 @@
               >
                 <ng-container
                   *ngIf="
-                    expense?.tx_org_category && expense?.tx_org_category.toLowerCase() !== 'unspecified';
+                    expense?.category?.name && expense?.category?.name.toLowerCase() !== 'unspecified';
                     else unspecifiedCategory
                   "
                 >
-                  {{ expense?.tx_org_category }}
+                  {{ expense?.category?.name }}
                 </ng-container>
                 <ng-template #unspecifiedCategory> Unspecified Category </ng-template>
               </div>
               <div class="expenses-card--icons">
                 <mat-icon
-                  *ngIf="expense.isCriticalPolicyViolated || expense.isPolicyViolated"
+                  *ngIf="isCriticalPolicyViolated || isPolicyViolated"
                   class="expenses-card--icons__policy-violated-icon"
                   >error</mat-icon
                 >
                 <mat-icon
-                  *ngIf="expense.tx_is_split_expense"
+                  *ngIf="expense.is_split"
                   class="expenses-card--icons__split-icon"
                   svgIcon="split-new"
                 ></mat-icon>
@@ -196,25 +196,25 @@
             <div
               class="expenses-card--vendor"
               [ngClass]="{
-                'expenses-card--vendor__not-filled': !expense.vendorDetails,
-                'expenses-card--distance-unit': expense.tx_fyle_category === 'Mileage'
+                'expenses-card--vendor__not-filled': !vendorDetails,
+                'expenses-card--distance-unit': expense.category?.system_category === 'Mileage'
               }"
             >
-              {{ expense.vendorDetails }}
+              {{ vendorDetails }}
             </div>
             <div
               *ngIf="expenseFields && isProjectEnabled$ | async"
               class="expenses-card--project"
-              [ngClass]="{ 'expenses-card--project__not-filled': !expense.tx_project_name }"
+              [ngClass]="{ 'expenses-card--project__not-filled': !expense.project?.display_name }"
             >
-              <div *ngIf="expense?.tx_project_name?.length > 0">
+              <div *ngIf="expense?.project?.display_name?.length > 0">
                 <span class="text-capitalize"> {{ expenseFields?.project_id[0]?.field_name }}: </span>
-                {{ expense?.tx_project_name ? expense?.tx_project_name : 'Unspecified' }}
+                {{ expense?.project?.display_name ? expense?.project?.display_name : 'Unspecified' }}
               </div>
             </div>
           </div>
           <div
-            *ngIf="expense.isDraft"
+            *ngIf="isDraft"
             class="expenses-card--category-vendor-project-container expenses-card--category-vendor-project-container__align-vertical-center expenses-card--category-vendor-project-container__error"
           >
             <div>Expense information</div>
@@ -223,38 +223,38 @@
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">
               <span class="expenses-card--currency">
-                {{ (expense.tx_currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
+                {{ (expense.currency | currencySymbol : 'wide') || (homeCurrency | currencySymbol : 'wide') }}
               </span>
 
               <span class="expenses-card--amount">
-                <ng-container *ngIf="expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency : expense.tx_currency : true }}
+                <ng-container *ngIf="expense.currency">
+                  {{ expense.amount | humanizeCurrency : expense.currency : true }}
                 </ng-container>
-                <ng-container *ngIf="!expense.tx_currency">
-                  {{ expense.tx_amount | humanizeCurrency : homeCurrency : true }}
+                <ng-container *ngIf="!expense.currency">
+                  {{ expense.amount | humanizeCurrency : homeCurrency : true }}
                 </ng-container>
               </span>
               <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="fy-reimbursable"></mat-icon>
             </div>
 
             <div
-              *ngIf="expense.tx_orig_currency && expense.tx_orig_amount"
+              *ngIf="expense.foreign_currency && expense.foreign_amount"
               class="expenses-card--exchange-rate ion-text-right"
             >
-              ({{ expense.tx_orig_amount | humanizeCurrency : expense.tx_orig_currency }} at
-              {{ expense.tx_amount / expense.tx_orig_amount | currency : expense.tx_currency : 'code' }})
+              ({{ expense.foreign_amount | humanizeCurrency : expense.foreign_currency }} at
+              {{ expense.amount / expense.foreign_amount | currency : expense.currency : 'code' }})
             </div>
 
             <div
-              *ngIf="expense.isDraft && !isFromViewReports"
-              class="expenses-card--state-container state-pill state-{{ expense.tx_state | expenseState }}"
+              *ngIf="isDraft && !isFromViewReports"
+              class="expenses-card--state-container state-pill state-{{ expense.state | expenseState }}"
             >
               <span>
-                {{ expense.tx_state | expenseState | titlecase }}
+                {{ expense.state | expenseState | titlecase }}
               </span>
             </div>
 
-            <div class="expenses-card--critical-policy-violatios" *ngIf="expense.isCriticalPolicyViolated">
+            <div class="expenses-card--critical-policy-violatios" *ngIf="isCriticalPolicyViolated">
               Critical Policy violations
             </div>
           </div>
