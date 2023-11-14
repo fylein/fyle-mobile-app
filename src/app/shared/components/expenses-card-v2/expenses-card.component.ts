@@ -162,9 +162,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.category.name?.toLowerCase() === 'mileage') {
+    if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.category.name?.toLowerCase() === 'per diem') {
+    } else if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.file_ids?.length) {
@@ -270,10 +270,10 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.category.name?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.category.name?.toLowerCase() === 'per diem';
+    this.category = this.expense.category.name && this.expense.category.name.toLowerCase();
+    this.isMileageExpense = this.category === 'mileage';
+    this.isPerDiem = this.category === 'per diem';
 
-    this.category = this.expense.category.name?.toLowerCase();
     this.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
     this.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
@@ -318,7 +318,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+    if (this.expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       if (this.expense.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
