@@ -1,87 +1,88 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
-  concat,
   EMPTY,
+  Observable,
+  Subject,
+  Subscription,
+  concat,
   forkJoin,
   from,
   fromEvent,
   iif,
   noop,
-  Observable,
   of,
-  Subject,
-  Subscription,
 } from 'rxjs';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController, NavController } from '@ionic/angular';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
   catchError,
   debounceTime,
   distinctUntilChanged,
+  filter,
   finalize,
   map,
   shareReplay,
   switchMap,
   take,
   takeUntil,
-  filter,
 } from 'rxjs/operators';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { Expense } from 'src/app/core/models/expense.model';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { TrackingService } from '../../core/services/tracking.service';
-import { StorageService } from '../../core/services/storage.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, isEqual } from 'lodash';
-import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ExtendedReport } from 'src/app/core/models/report.model';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { TokenService } from 'src/app/core/services/token.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { environment } from 'src/environments/environment';
-import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
-import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
-import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
-import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
-import { getCurrencySymbol } from '@angular/common';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { TasksService } from 'src/app/core/services/tasks.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { MyExpensesService } from './my-expenses.service';
-import { ExpenseFilters } from './expense-filters.model';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
+import { Expense } from 'src/app/core/models/expense.model';
+import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
 import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
+import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { Datum } from 'src/app/core/models/v2/stats-response.model';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
-import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
-import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
-import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { UniqueCards } from 'src/app/core/models/unique-cards.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { environment } from 'src/environments/environment';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { StorageService } from '../../core/services/storage.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
+import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
+import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
+import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { MyExpensesService } from './my-expenses.service';
+import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -766,7 +767,7 @@ export class MyExpensesPage implements OnInit {
       this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter.type?.length > 0) {
+    if (filter?.type?.length > 0) {
       this.myExpensesService.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -785,26 +786,26 @@ export class MyExpensesPage implements OnInit {
     return filterPills;
   }
 
-  addNewFiltersToParams(): Partial<GetExpensesQueryParamsWithFilters> {
-    let currentParams = this.loadData$.getValue();
+  addNewFiltersToParams(): Partial<GetExpenseQueryParam> {
+    let currentParams = this.loadExpenses$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: FilterQueryParams = {
+    let newQueryParams: Partial<ExpenseParams> = {
       or: [],
     };
 
-    newQueryParams = this.transactionService.generateCardNumberParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateCardNumberParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateDateParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateDateParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateReceiptAttachedParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateReceiptAttachedParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateStateFilters(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateStateFilters(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateTypeFilters(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateTypeFilters(newQueryParams, this.filters);
 
-    currentParams = this.transactionService.setSortParams(currentParams, this.filters);
+    currentParams = this.sharedExpenseService.setSortParams(currentParams, this.filters);
 
-    newQueryParams = this.transactionService.generateSplitExpenseParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateSplitExpenseParams(newQueryParams, this.filters);
 
     currentParams.queryParams = newQueryParams;
 
@@ -835,11 +836,13 @@ export class MyExpensesPage implements OnInit {
       } as FilterOptions<string>);
     }
 
+    const selectedFilters = this.myExpensesService.generateSelectedFilters(this.filters);
+
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
         filterOptions: filterMain,
-        selectedFilterValues: this.myExpensesService.generateSelectedFilters(this.filters),
+        selectedFilterValues: selectedFilters,
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -848,11 +851,16 @@ export class MyExpensesPage implements OnInit {
     await filterPopover.present();
 
     const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
+
     if (data) {
-      this.filters = this.myExpensesService.convertFilters(data);
+      const filters1 = this.myExpensesService.convertFilters(data);
+      this.filters = filters1;
+
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
+
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
         ...this.filters,
@@ -864,7 +872,7 @@ export class MyExpensesPage implements OnInit {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
@@ -872,7 +880,7 @@ export class MyExpensesPage implements OnInit {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     setTimeout(() => {
       this.isLoading = false;
     }, 500);

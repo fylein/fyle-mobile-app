@@ -40,13 +40,7 @@ import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
-
-enum FilterState {
-  READY_TO_REPORT = 'READY_TO_REPORT',
-  POLICY_VIOLATED = 'POLICY_VIOLATED',
-  CANNOT_REPORT = 'CANNOT_REPORT',
-  DRAFT = 'DRAFT',
-}
+import { FilterState } from '../enums/filter-state.enum';
 
 export const transactionsCacheBuster$ = new Subject<void>();
 

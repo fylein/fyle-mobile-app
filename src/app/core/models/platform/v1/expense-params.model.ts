@@ -7,4 +7,7 @@ export interface ExpenseParams {
   order?: string;
   scalar?: boolean;
   id?: string;
+  is_receipt_mandatory?: string;
+  masked_corporate_card_number?: string;
+  and?: string;
 }

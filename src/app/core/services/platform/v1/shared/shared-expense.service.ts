@@ -1,12 +1,21 @@
 import { Injectable } from '@angular/core';
+import { cloneDeep } from 'lodash';
+import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
+import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { DateService } from '../../../date.service';
+import { FilterState } from 'src/app/core/enums/filter-state.enum';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class SharedExpenseService {
+  constructor(private dateService: DateService) {}
+
   getVendorDetails(expense: Expense): string {
-    const fyleCategory = expense?.category?.system_category.toLowerCase();
+    const fyleCategory = expense?.category?.system_category?.toLowerCase();
     let vendorDisplayName = expense.merchant;
 
     if (fyleCategory === 'mileage') {
@@ -112,5 +121,184 @@ export class SharedExpenseService {
     }
 
     return dialogBody;
+  }
+
+  generateCardNumberParams(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.cardNumbers?.length > 0) {
+      let cardNumberString = '';
+      filters.cardNumbers.forEach((cardNumber) => {
+        cardNumberString += cardNumber + ',';
+      });
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      newQueryParamsCopy.masked_corporate_card_number = 'in.(' + cardNumberString + ')';
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateDateParams(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    let newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date) {
+      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
+      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
+      if (filters.date === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${thisMonth.from.toISOString()},spent_at.lt.${thisMonth.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${thisWeek.from.toISOString()},spent_at.lt.${thisWeek.to.toISOString()})`;
+      }
+
+      if (filters.date === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${lastMonth.from.toISOString()},spent_at.lt.${lastMonth.to.toISOString()})`;
+      }
+
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateCustomDateParams(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters.customDateStart?.toISOString();
+      const endDate = filters.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(spent_at.gte.${startDate},spent_at.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(spent_at.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(spent_at.lt.${endDate})`;
+      }
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateReceiptAttachedParams(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.receiptsAttached) {
+      if (filters.receiptsAttached === 'YES') {
+        newQueryParamsCopy.is_receipt_mandatory = 'is.true';
+      }
+
+      if (filters.receiptsAttached === 'NO') {
+        newQueryParamsCopy.is_receipt_mandatory = 'is.false';
+      }
+    }
+    return newQueryParamsCopy;
+  }
+
+  generateStateFilters(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
+    const or_arr = [];
+
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      or_arr.push(combinedStateOrFilter);
+      newQueryParamsCopy.or = or_arr;
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: ExpenseParams): string[] {
+    const stateOrFilter: string[] = [];
+    if (filters.state) {
+      newQueryParamsCopy.report_id = 'is.null';
+      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
+        stateOrFilter.push('and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
+        stateOrFilter.push('and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))');
+      }
+
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+        stateOrFilter.push('policy_amount.lt.0.0001');
+      }
+
+      if (filters.state.includes(FilterState.DRAFT)) {
+        stateOrFilter.push('state.in.(DRAFT)');
+      }
+    }
+
+    return stateOrFilter;
+  }
+
+  generateTypeFilters(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const typeOrFilter = this.generateTypeOrFilter(filters);
+    const type_or_arr = [];
+
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      type_or_arr.push(combinedTypeOrFilter);
+      newQueryParamsCopy.or = type_or_arr;
+    }
+
+    return newQueryParamsCopy;
+  }
+
+  generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
+    const typeOrFilter: string[] = [];
+    if (filters.type) {
+      if (filters.type.includes('Mileage')) {
+        typeOrFilter.push('category->system_category.eq.Mileage');
+      }
+
+      if (filters.type.includes('PerDiem')) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('category->system_category.eq.Per Diem');
+      }
+
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('and(category->system_category.not.eq.Mileage, category->system_category.not.eq.Per Diem)');
+      }
+    }
+
+    return typeOrFilter;
+  }
+
+  setSortParams(
+    currentParams: Partial<GetExpenseQueryParam>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<GetExpenseQueryParam> {
+    const currentParamsCopy = cloneDeep(currentParams);
+    if (filters.sortParam && filters.sortDir) {
+      currentParamsCopy.sortParam = filters.sortParam;
+      currentParamsCopy.sortDir = filters.sortDir;
+    } else {
+      currentParamsCopy.sortParam = 'spent_at';
+      currentParamsCopy.sortDir = 'desc';
+    }
+
+    return currentParamsCopy;
+  }
+
+  generateSplitExpenseParams(newQueryParams: ExpenseParams, filters: Partial<ExpenseFilters>): ExpenseParams {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const split_or_arr = [];
+    if (filters.splitExpense) {
+      if (filters.splitExpense === 'YES') {
+        split_or_arr.push('(is_split.eq.true)');
+        newQueryParamsCopy.or = split_or_arr;
+      }
+
+      if (filters.splitExpense === 'NO') {
+        split_or_arr.push('(is_split.eq.false)');
+        newQueryParamsCopy.or = split_or_arr;
+      }
+    }
+
+    return newQueryParamsCopy;
   }
 }
