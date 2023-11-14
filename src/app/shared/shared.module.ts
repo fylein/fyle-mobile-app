@@ -74,6 +74,7 @@ import { FyCriticalPolicyViolationComponent } from './components/fy-critical-pol
 import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
+import { ExpensesCardComponent as ExpensesCardComponentV2 } from './components/expenses-card-v2/expenses-card.component';
 import { ToastMessageComponent } from './components/toast-message/toast-message.component';
 import { FyHeaderComponent } from './components/fy-header/fy-header.component';
 import { FyDeleteDialogComponent } from './components/fy-delete-dialog/fy-delete-dialog.component';
@@ -195,6 +196,7 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
+    ExpensesCardComponentV2,
     ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
@@ -332,6 +334,7 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     PopupAlertComponent,
     CreateNewReportComponent,
     ExpensesCardComponent,
+    ExpensesCardComponentV2,
     ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,

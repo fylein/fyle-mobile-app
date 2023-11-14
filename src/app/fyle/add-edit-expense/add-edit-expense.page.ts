@@ -414,6 +414,8 @@ export class AddEditExpensePage implements OnInit {
 
   _isExpandedView = false;
 
+  recentCategoriesOriginal: OrgCategoryListItem[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1663,6 +1665,8 @@ export class AddEditExpensePage implements OnInit {
           recentCostCenters,
           taxGroups,
         }) => {
+          this.recentCategoriesOriginal = recentCategories;
+
           if (project) {
             this.selectedProject$.next(project);
           }
@@ -2476,11 +2480,6 @@ export class AddEditExpensePage implements OnInit {
       };
     };
 
-    const categoryControl = this.fg.value as {
-      category: {
-        id: number;
-      };
-    };
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -2512,13 +2511,27 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
+    this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
+      if (project && project.project_org_category_ids.length !== 0) {
+        this.recentCategories = this.recentCategoriesOriginal.filter((originalCategory) =>
+          project.project_org_category_ids.includes(originalCategory.value.id)
+        );
+      } else {
+        this.recentCategories = this.recentCategoriesOriginal;
+      }
+    });
+
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.fg.value as {
+        category: {
+          id: number;
+        };
+      };
       if (
-        categoryControl.category &&
-        categoryControl.category.id &&
+        formValue.category &&
+        formValue.category.id &&
         !categories.some(
-          (category: { value: { id: number } }) =>
-            categoryControl.category && categoryControl.category.id === category.value.id
+          (category: { value: { id: number } }) => formValue.category && formValue.category.id === category.value.id
         )
       ) {
         this.fg.controls.category.reset();

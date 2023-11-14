@@ -42,7 +42,7 @@
 
 <ion-content>
   <ng-container *ngIf="!isLoading; else loading">
-    <div class="view-expense--container" *ngIf="expense$|async as expense">
+    <div *ngIf="expense$|async as expense" class="view-expense--container">
       <ng-container *ngIf="expense.is_policy_flagged">
         <ng-container *ngIf="policyDetails">
           <app-fy-policy-violation-info
@@ -96,7 +96,7 @@
             ></ion-icon>
           </div>
 
-          <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
+          <div *ngIf="foreignCurrencySymbol" class="view-expense--card-container__exchange-rate">
             {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
             expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
           </div>
@@ -677,6 +677,7 @@
   </ng-template>
 </ion-content>
 
+<!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
   *ngIf="reportExpenseCount > 1"
   [activeExpenseIndex]="activeExpenseIndex"
