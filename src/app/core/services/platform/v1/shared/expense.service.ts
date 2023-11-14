@@ -1,28 +1,37 @@
 import { Injectable } from '@angular/core';
 import { cloneDeep } from 'lodash';
+import { FilterState } from 'src/app/core/enums/filter-state.enum';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
-import { FilterState } from 'src/app/core/enums/filter-state.enum';
-import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SharedExpenseService {
+export class ExpenseService {
   constructor(private dateService: DateService) {}
 
+  getIsDraft(expense: Partial<Expense>): boolean {
+    return expense.state && expense.state === ExpenseState.DRAFT;
+  }
+
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
+    return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
+  }
+
   getVendorDetails(expense: Expense): string {
-    const fyleCategory = expense?.category?.system_category?.toLowerCase();
+    const systemCategory = expense.category?.system_category?.toLocaleLowerCase();
     let vendorDisplayName = expense.merchant;
 
-    if (fyleCategory === 'mileage') {
+    if (systemCategory === 'mileage') {
       vendorDisplayName = (expense.distance || 0).toString();
       vendorDisplayName += ' ' + expense.distance_unit;
-    } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.per_diem_num_days.toString();
+    } else if (systemCategory === 'per diem') {
+      vendorDisplayName = expense.per_diem_num_days?.toString();
       if (expense.per_diem_num_days > 1) {
         vendorDisplayName += ' Days';
       } else {
@@ -31,14 +40,6 @@ export class SharedExpenseService {
     }
 
     return vendorDisplayName;
-  }
-
-  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
-    return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
-  }
-
-  getIsDraft(expense: Partial<Expense>): boolean {
-    return expense.state && expense.state === 'DRAFT';
   }
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
@@ -71,14 +72,6 @@ export class SharedExpenseService {
   hasCriticalPolicyViolation(expense: Partial<Expense>): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
-
-  isDraftExpense(expense: Partial<Expense>): boolean {
-    return expense.state && expense.state === 'DRAFT';
-  }
-
-  // getDeletableExpenes(expenses: Partial<Expense>[]): Partial<Expense>[] {
-  //   return expenses.filter((expense) => expense && expense.tx_user_can_delete);
-  // }
 
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${

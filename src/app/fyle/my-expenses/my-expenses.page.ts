@@ -39,6 +39,7 @@ import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expen
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
@@ -57,7 +58,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { SharedExpenseService } from 'src/app/core/services/platform/v1/shared/shared-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -82,7 +82,7 @@ import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filter
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
 @Component({
   selector: 'app-my-expenses',
