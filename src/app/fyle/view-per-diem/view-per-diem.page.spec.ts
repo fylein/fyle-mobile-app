@@ -312,7 +312,7 @@ describe('ViewPerDiemPage', () => {
           expect(extendedPerDiem).toEqual(perDiemExpense);
         });
 
-      component.txnFields$.subscribe((txnFields) => {
+      component.expenseFields$.subscribe((txnFields) => {
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
         expect(txnFields).toEqual(expenseFieldsMapResponse4);
         done();
@@ -657,12 +657,12 @@ describe('ViewPerDiemPage', () => {
       });
     }));
 
-    it('should set numEtxnsInReport and activeEtxnIndex', fakeAsync(() => {
+    it('should set numExpensesInReport and activeExpenseIndex', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
 
-      expect(component.numEtxnsInReport).toEqual(3);
-      expect(component.activeEtxnIndex).toEqual(0);
+      expect(component.reportExpenseCount).toEqual(3);
+      expect(component.activeExpenseIndex).toEqual(0);
     }));
   });
 

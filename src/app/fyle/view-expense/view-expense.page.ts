@@ -87,13 +87,13 @@ export class ViewExpensePage {
 
   isCCCTransaction = false;
 
-  numEtxnsInReport: number;
+  reportExpenseCount: number;
 
-  activeEtxnIndex: number;
+  activeExpenseIndex: number;
 
   paymentModeIcon: string;
 
-  etxnCurrencySymbol: string;
+  expenseCurrencySymbol: string;
 
   foreignCurrencySymbol: string;
 
@@ -121,7 +121,7 @@ export class ViewExpensePage {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+  expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
@@ -286,30 +286,30 @@ export class ViewExpensePage {
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+    this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
       expense: this.expense$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.project_id?.length > 0),
-      switchMap(({ expense, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields,
-          txnFields.project_id[0]?.id
+          expenseFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
       expense: this.expense$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ expense, txnFields }) => expense.custom_fields && txnFields.cost_center_id?.length > 0),
-      switchMap(({ expense, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           expense.custom_fields,
-          txnFields.cost_center_id[0]?.id
+          expenseFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
@@ -331,10 +331,10 @@ export class ViewExpensePage {
         this.cardNumber = matchedCCCTransaction.corporate_card_number;
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
-      this.etxnCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
+      this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.expense$.pipe(take(1))])
+    forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, expense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
@@ -426,9 +426,9 @@ export class ViewExpensePage {
     });
 
     if (this.activatedRoute.snapshot.params.txnIds) {
-      const etxnIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
-      this.numEtxnsInReport = etxnIds.length;
-      this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
+      const expenseIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
+      this.reportExpenseCount = expenseIds.length;
+      this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     }
   }
 

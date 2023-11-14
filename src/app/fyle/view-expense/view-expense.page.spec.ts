@@ -461,7 +461,7 @@ describe('ViewExpensePage', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
 
       component.expense$ = of(expenseData);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
 
@@ -481,7 +481,7 @@ describe('ViewExpensePage', () => {
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
     });
 
-    it('should get all the system categories and get the correct value of report is by subscribing to etxnWithoutCustomProperties$', fakeAsync(() => {
+    it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
@@ -496,7 +496,7 @@ describe('ViewExpensePage', () => {
       });
       expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       tick(500);
-      component.txnFields$.subscribe((expenseFields) => {
+      component.expenseFields$.subscribe((expenseFields) => {
         expect(expenseFields).toEqual(expenseFieldsMapResponse4);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(2);
       });
@@ -585,7 +585,7 @@ describe('ViewExpensePage', () => {
       expect(component.paymentModeIcon).toEqual('fy-matched');
       expect(component.cardNumber).toEqual(expenseData.matched_corporate_card_transactions[0].corporate_card_number);
       expect(component.foreignCurrencySymbol).toEqual(expenseData.foreign_currency);
-      expect(component.etxnCurrencySymbol).toEqual('$');
+      expect(component.expenseCurrencySymbol).toEqual('$');
     });
 
     it('should get the project details', () => {
@@ -597,7 +597,7 @@ describe('ViewExpensePage', () => {
       spenderExpensesService.getExpenseById.and.returnValue(of(expenseData));
       component.expense$ = of(expenseData);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-      component.txnFields$ = of(mockExpFieldData);
+      component.expenseFields$ = of(mockExpFieldData);
 
       component.ionViewWillEnter();
       expect(component.projectFieldName).toBeUndefined();
@@ -849,8 +849,8 @@ describe('ViewExpensePage', () => {
       activateRouteMock.snapshot.params.txnIds = '["tx3qwe4ty","tx6sd7gh","txD3cvb6"]';
       activateRouteMock.snapshot.params.activeIndex = '20';
       component.ionViewWillEnter();
-      expect(component.numEtxnsInReport).toEqual(3);
-      expect(component.activeEtxnIndex).toEqual(20);
+      expect(component.reportExpenseCount).toEqual(3);
+      expect(component.activeExpenseIndex).toEqual(20);
     });
   });
 

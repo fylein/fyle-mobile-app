@@ -8,11 +8,11 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-per-diem--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{'view-per-diem--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
     >
       View Per Diem
-      <p class="view-per-diem--subtitle" *ngIf="numEtxnsInReport > 1">
-        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      <p class="view-per-diem--subtitle" *ngIf="reportExpenseCount > 1">
+        Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-per-diem--header-btn-container" slot="end">
@@ -69,7 +69,7 @@
       </div>
       <div class="ion-text-right view-per-diem--card-container__block">
         <div>
-          <span>{{ etxnCurrencySymbol }}</span>
+          <span>{{ expenseCurrencySymbol }}</span>
           <span class="view-per-diem--card-container__amount">
             {{ perDiemExpense.amount || 0 | humanizeCurrency: perDiemExpense.currency:true }}
           </span>
@@ -306,11 +306,11 @@
 
     <!-- Project dependent fields -->
     <ng-container *ngIf="projectDependentCustomProperties$ | async as projectDependentCustomProperties">
-      <ng-container *ngIf="txnFields$ | async as txnFields">
-        <ng-container *ngIf="txnFields?.project_id?.length">
+      <ng-container *ngIf="expenseFields$ | async as expenseFields">
+        <ng-container *ngIf="expenseFields?.project_id?.length">
           <app-view-dependent-fields
             parentFieldType="PROJECT"
-            [parentFieldName]="txnFields.project_id[0]?.field_name"
+            [parentFieldName]="expenseFields.project_id[0]?.field_name"
             [parentFieldValue]="perDiemExpense.project?.name"
             [dependentCustomProperties]="projectDependentCustomProperties"
           ></app-view-dependent-fields>
@@ -320,11 +320,11 @@
 
     <!-- Cost center dependent fields -->
     <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
-      <ng-container *ngIf="txnFields$ | async as txnFields">
-        <ng-container *ngIf="txnFields?.cost_center_id?.length">
+      <ng-container *ngIf="expenseFields$ | async as expenseFields">
+        <ng-container *ngIf="expenseFields?.cost_center_id?.length">
           <app-view-dependent-fields
             parentFieldType="COST_CENTER"
-            [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
+            [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
             [parentFieldValue]="perDiemExpense.cost_center?.name"
             [costCenterCode]="perDiemExpense.cost_center?.code"
             [dependentCustomProperties]="costCenterDependentCustomProperties"
@@ -354,8 +354,9 @@
   </div>
 </ion-content>
 
+<!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
-  *ngIf="numEtxnsInReport > 1"
-  [activeEtxnIndex]="activeEtxnIndex"
-  [numEtxnsInReport]="numEtxnsInReport"
+  *ngIf="reportExpenseCount > 1"
+  [activeEtxnIndex]="activeExpenseIndex"
+  [numEtxnsInReport]="reportExpenseCount"
 ></app-navigation-footer>

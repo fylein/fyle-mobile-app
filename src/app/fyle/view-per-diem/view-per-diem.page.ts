@@ -74,15 +74,15 @@ export class ViewPerDiemPage {
 
   isExpenseFlagged: boolean;
 
-  numEtxnsInReport: number;
+  reportExpenseCount: number;
 
-  activeEtxnIndex: number;
+  activeExpenseIndex: number;
 
   paymentMode: string;
 
   paymentModeIcon: string;
 
-  etxnCurrencySymbol: string;
+  expenseCurrencySymbol: string;
 
   view: ExpenseView;
 
@@ -92,7 +92,7 @@ export class ViewPerDiemPage {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+  expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
@@ -191,30 +191,34 @@ export class ViewPerDiemPage {
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+    this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
       perDiemExpense: this.perDiemExpense$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ perDiemExpense, txnFields }) => perDiemExpense.custom_fields && txnFields.project_id?.length > 0),
-      switchMap(({ perDiemExpense, txnFields }) =>
+      filter(
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.project_id?.length > 0
+      ),
+      switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           perDiemExpense.custom_fields,
-          txnFields.project_id[0]?.id
+          expenseFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
       perDiemExpense: this.perDiemExpense$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ perDiemExpense, txnFields }) => perDiemExpense.custom_fields && txnFields.cost_center_id?.length > 0),
-      switchMap(({ perDiemExpense, txnFields }) =>
+      filter(
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.cost_center_id?.length > 0
+      ),
+      switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
           perDiemExpense.custom_fields,
-          txnFields.cost_center_id[0]?.id
+          expenseFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
@@ -234,10 +238,10 @@ export class ViewPerDiemPage {
         this.paymentModeIcon = 'fy-reimbursable';
       }
 
-      this.etxnCurrencySymbol = getCurrencySymbol(perDiemExpense.currency, 'wide');
+      this.expenseCurrencySymbol = getCurrencySymbol(perDiemExpense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.perDiemExpense$.pipe(take(1))])
+    forkJoin([this.expenseFields$, this.perDiemExpense$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, perDiemExpense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
@@ -326,11 +330,11 @@ export class ViewPerDiemPage {
 
     this.updateFlag$.next(null);
 
-    const etxnIds =
+    const expenseIds =
       this.activatedRoute.snapshot.params.txnIds &&
       (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
-    this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
+    this.reportExpenseCount = expenseIds.length;
+    this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
   getDeleteDialogProps(): ExpenseDeletePopoverParams {
