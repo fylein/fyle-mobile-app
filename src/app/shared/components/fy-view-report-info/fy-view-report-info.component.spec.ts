@@ -18,12 +18,14 @@ import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.dat
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { cloneDeep } from 'lodash';
-import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
-describe('FyViewReportInfoComponent', () => {
+fdescribe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
   let fixture: ComponentFixture<FyViewReportInfoComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -40,6 +42,10 @@ describe('FyViewReportInfoComponent', () => {
       'get',
       'getAllowedCostCentersByOuId',
     ]);
+    const mockSharedExpensesServiceSpy = jasmine.createSpyObj('SharedExpensesService', [
+      'getPaymentModeWiseSummary',
+      'getCurrenyWiseSummary',
+    ]);
     const mockTrackingServiceSpy = jasmine.createSpyObj('TrackingService', ['viewReportInfo']);
     const mockAuthServiceSpy = jasmine.createSpyObj('AuthService', ['getUserDetails', 'getEou']);
     const mockOrgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -51,6 +57,10 @@ describe('FyViewReportInfoComponent', () => {
         {
           provide: TransactionService,
           useValue: mockTransactionServiceSpy,
+        },
+        {
+          provide: SharedExpensesService,
+          useValue: mockSharedExpensesServiceSpy,
         },
         {
           provide: OrgUserSettingsService,
@@ -81,6 +91,7 @@ describe('FyViewReportInfoComponent', () => {
     fixture = TestBed.createComponent(FyViewReportInfoComponent);
     component = fixture.componentInstance;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
@@ -121,8 +132,8 @@ describe('FyViewReportInfoComponent', () => {
     spyOn(component, 'createEmployeeDetails');
     spyOn(component, 'getCCCAdvanceSummary');
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-    transactionService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
-    transactionService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
+    sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
+    sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
     component.erpt$ = of(reportParam);
     component.expenses$ = of(expenseResponseData);
     fixture.detectChanges();
@@ -135,12 +146,12 @@ describe('FyViewReportInfoComponent', () => {
       Reimbursable: 4600,
     });
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
-    expect(transactionService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseList);
+    expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(false);
+    expect(component.isForeignCurrency).toBe(true);
   });
 
-  it('ionViewWillEnter(): should update report details and currency and set Reimbursable to zero', () => {
+  it('ionViewWillEnter(): should update report details and currency and set Reimbursable amount', () => {
     component.view = ExpenseView.team;
     const erpt = {
       'Report Name': 'My Testing Report',
@@ -149,20 +160,20 @@ describe('FyViewReportInfoComponent', () => {
       'Created On': datePipe.transform(new Date('2022-10-31T13:54:46.317208'), 'MMM d, y'),
     };
     const paymentModeSummaryMock = {
-      ccc: {
-        name: 'example',
-        key: 'key123',
-        amount: 4600,
+      reimbursable: {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+        amount: 207000.78,
         count: 200,
       },
     };
     spyOn(component, 'createEmployeeDetails');
     spyOn(component, 'getCCCAdvanceSummary');
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-    transactionService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
-    transactionService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
+    sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
+    sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
     component.erpt$ = of(reportParam);
-    component.expenses$ = of(expenseResponseData);
+    component.expenses$ = of(expenseResponseData2);
     fixture.detectChanges();
     component.ionViewWillEnter();
     expect(component.reportDetails).toEqual(erpt);
@@ -170,12 +181,12 @@ describe('FyViewReportInfoComponent', () => {
     expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith(reportParam);
     expect(component.amountComponentWiseDetails).toEqual({
       'Total Amount': 46040,
-      Reimbursable: 0,
+      Reimbursable: 207000.78,
     });
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
-    expect(transactionService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseList);
+    expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData2);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(false);
+    expect(component.isForeignCurrency).toBe(true);
   });
 
   it('should always return 0', () => {

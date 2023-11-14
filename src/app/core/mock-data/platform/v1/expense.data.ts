@@ -357,6 +357,8 @@ export const expenseData: Expense = {
 
 export const expenseResponseData = [expenseData];
 
+export const expenseResponseData2 = [expenseData, expenseData];
+
 export const criticalPolicyViolatedExpense: Expense = {
   ...expenseData,
   policy_amount: 0.00009,
