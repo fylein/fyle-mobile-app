@@ -20,8 +20,6 @@ import { FormsModule } from '@angular/forms';
 import { ExpenseState } from '../../pipes/expense-state.pipe';
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { of, take } from 'rxjs';
-import { expenseData1 } from 'src/app/core/mock-data/expense.data';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { DateFormatPipe } from 'src/app/shared/pipes/date-format.pipe';
@@ -36,11 +34,15 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
+import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
 
 describe('ExpensesCardComponent', () => {
   let component: ExpensesCardComponent;
   let fixture: ComponentFixture<ExpensesCardComponent>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let fileService: jasmine.SpyObj<FileService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -57,8 +59,8 @@ describe('ExpensesCardComponent', () => {
   let componentElement: DebugElement;
 
   beforeEach(waitForAsync(() => {
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getETxnUnflattened',
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
+    const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'getIsDraft',
       'getIsCriticalPolicyViolated',
       'getVendorDetails',
@@ -98,6 +100,7 @@ describe('ExpensesCardComponent', () => {
       imports: [IonicModule.forRoot(), MatIconModule, MatIconTestingModule, MatCheckboxModule, FormsModule],
       providers: [
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
@@ -131,19 +134,20 @@ describe('ExpensesCardComponent', () => {
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
 
     orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
     transactionsOutboxService.isSyncInProgress.and.returnValue(true);
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
-    transactionService.getVendorDetails.and.returnValue('asd');
+    sharedExpenseService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
-    transactionService.getIsCriticalPolicyViolated.and.returnValue(false);
+    sharedExpenseService.getIsCriticalPolicyViolated.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
     transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     networkService.isOnline.and.returnValue(of(true));
-    transactionService.getIsDraft.and.returnValue(true);
+    sharedExpenseService.getIsDraft.and.returnValue(true);
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
@@ -151,8 +155,8 @@ describe('ExpensesCardComponent', () => {
 
     component.receiptIcon = 'assets/svg/pdf.svg';
     component.isOutboxExpense = true;
-    component.selectedElements = apiExpenseRes;
-    component.expense = cloneDeep(expenseData1);
+    component.selectedElements = expenseResponseData;
+    component.expense = cloneDeep(expenseData);
     component.isConnected$ = of(true);
     component.isSycing$ = of(true);
     component.isPerDiem = true;
@@ -168,19 +172,19 @@ describe('ExpensesCardComponent', () => {
 
   describe('isSelected getter', () => {
     it('should return true if the expense is selected', () => {
-      component.selectedElements = apiExpenseRes;
+      component.selectedElements = expenseResponseData;
       component.expense = {
-        ...expenseData1,
-        tx_id: 'tx3nHShG60zq',
+        ...expenseData,
+        id: 'txe0bYaJlRJf',
       };
       expect(component.isSelected).toBeTrue();
     });
 
     it('should return false if the expense is not selected', () => {
-      component.selectedElements = apiExpenseRes;
+      component.selectedElements = expenseResponseData;
       component.expense = {
-        ...expenseData1,
-        tx_id: null,
+        ...expenseData,
+        id: null,
       };
       expect(component.isSelected).toBeFalse();
     });
@@ -191,8 +195,8 @@ describe('ExpensesCardComponent', () => {
       spyOn(component.goToTransaction, 'emit');
       component.onGoToTransaction();
       expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
-        etxn: component.expense,
-        etxnIndex: component.etxnIndex,
+        expense: component.expense,
+        expenseIndex: component.etxnIndex,
       });
     });
 
@@ -206,20 +210,16 @@ describe('ExpensesCardComponent', () => {
 
   describe('getReceipt', () => {
     it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_org_category: 'mileage',
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.category.name = 'mileage';
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
     });
 
     it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_org_category: 'per diem',
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.category.name = 'per diem';
       component.getReceipt();
       fixture.detectChanges();
       expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
@@ -227,8 +227,8 @@ describe('ExpensesCardComponent', () => {
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
       component.expense = {
-        ...expenseData1,
-        tx_file_ids: null,
+        ...cloneDeep(expenseData),
+        file_ids: null,
       };
       component.getReceipt();
       fixture.detectChanges();
@@ -239,8 +239,8 @@ describe('ExpensesCardComponent', () => {
       component.isFromReports = true;
       component.isFromPotentialDuplicates = true;
       component.expense = {
-        ...expenseData1,
-        tx_file_ids: null,
+        ...expenseData,
+        file_ids: null,
       };
       component.getReceipt();
       fixture.detectChanges();
@@ -251,10 +251,10 @@ describe('ExpensesCardComponent', () => {
   describe('checkIfScanIsCompleted():', () => {
     it('should check if scan is complete and return true if the transaction amount is not null and no other data is present', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: 100,
-        tx_user_amount: null,
-        tx_extracted_data: null,
+        ...expenseData,
+        amount: 100,
+        claim_amount: null,
+        extracted_data: null,
       };
       const result = component.checkIfScanIsCompleted();
       fixture.detectChanges();
@@ -263,10 +263,10 @@ describe('ExpensesCardComponent', () => {
 
     it('should check if scan is complete and return true if the transaction user amount is present and no extracted data is available', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: 7500,
-        tx_extracted_data: null,
+        ...expenseData,
+        amount: null,
+        claim_amount: 7500,
+        extracted_data: null,
       };
       const result = component.checkIfScanIsCompleted();
       fixture.detectChanges();
@@ -275,15 +275,15 @@ describe('ExpensesCardComponent', () => {
 
     it('should check if scan is complete and return true if the required extracted data is present', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: null,
-        tx_extracted_data: {
+        ...expenseData,
+        amount: null,
+        claim_amount: null,
+        extracted_data: {
           amount: 84.12,
           currency: 'USD',
           category: 'Professional Services',
           date: null,
-          vendor: null,
+          vendor_name: null,
           invoice_dt: null,
         },
       };
@@ -294,12 +294,12 @@ describe('ExpensesCardComponent', () => {
 
     it('should return true if the scan has expired', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: null,
-        tx_extracted_data: null,
+        ...expenseData,
+        amount: null,
+        claim_amount: null,
+        extracted_data: null,
       };
-      const oneDaysAfter = dayjs(component.expense.tx_created_at).add(1, 'day').toDate();
+      const oneDaysAfter = dayjs(component.expense.created_at).add(1, 'day').toDate();
       jasmine.clock().mockDate(oneDaysAfter);
 
       const result = component.checkIfScanIsCompleted();
@@ -337,7 +337,7 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('handleScanStatus():', () => {
-    it('should handle status when the syncing is in progress and the extracted adata is present', fakeAsync(() => {
+    it('should handle status when the syncing is in progress and the extracted data is present', fakeAsync(() => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
       const unflattenRes = {
@@ -354,6 +354,7 @@ describe('ExpensesCardComponent', () => {
           },
         },
       };
+      component.expense.id = 'tx5fBcPBAxLv';
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenRes));
@@ -372,10 +373,10 @@ describe('ExpensesCardComponent', () => {
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
       expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
       tick(500);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.id);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
-      expect(component.expense.tx_extracted_data).toEqual(unflattenRes.tx.extracted_data);
+      expect(component.expense.extracted_data).toEqual(unflattenRes.tx.extracted_data);
     }));
 
     it('should handle status when the sync is in progress and there is no extracted data present', fakeAsync(() => {
@@ -387,6 +388,7 @@ describe('ExpensesCardComponent', () => {
           extracted_data: null,
         },
       };
+      component.expense.id = 'tx5fBcPBAxLv';
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       const isScanCompletedSpy = spyOn(component, 'checkIfScanIsCompleted').and.returnValue(false);
       transactionService.getETxnUnflattened.and.returnValue(of(unflattenRes));
@@ -406,7 +408,7 @@ describe('ExpensesCardComponent', () => {
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('tx5fBcPBAxLv');
       expect(pollDataSpy).toHaveBeenCalledTimes(1);
       tick(500);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.tx_id);
+      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(component.expense.id);
       expect(component.isScanCompleted).toBeFalse();
       expect(component.isScanInProgress).toBeFalse();
     }));
@@ -436,8 +438,8 @@ describe('ExpensesCardComponent', () => {
   describe('canShowPaymentModeIcon', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
       component.expense = {
-        ...expenseData1,
-        tx_skip_reimbursement: false,
+        ...expenseData,
+        is_reimbursable: true,
       };
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
@@ -446,8 +448,8 @@ describe('ExpensesCardComponent', () => {
 
     it('should not show payment mode icon if it is a personal expense and is not reimbersable', () => {
       component.expense = {
-        ...expenseData1,
-        tx_skip_reimbursement: true,
+        ...expenseData,
+        is_reimbursable: false,
       };
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
@@ -456,9 +458,12 @@ describe('ExpensesCardComponent', () => {
 
     it('should not show payment mode icon if it is not a personal expense and is reimbersable', () => {
       component.expense = {
-        ...expenseData1,
-        source_account_type: 'COMPANY_ACCOUNT',
-        tx_skip_reimbursement: false,
+        ...expenseData,
+        source_account: {
+          id: 'testId',
+          type: AccountType.COMPANY_EXPENSE_ACCOUNT,
+        },
+        is_reimbursable: true,
       };
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
@@ -479,8 +484,8 @@ describe('ExpensesCardComponent', () => {
 
     it('should set showDt to isFirstOfflineExpense when tx_id is falsy', () => {
       component.expense = {
-        ...expenseData1,
-        tx_id: null,
+        ...expenseData,
+        id: null,
       };
       component.isFirstOfflineExpense = true;
       component.ngOnInit();
@@ -489,9 +494,9 @@ describe('ExpensesCardComponent', () => {
 
     it('should set showDt based on date comparison when previousExpenseTxnDate is truthy', () => {
       component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
+        ...expenseData,
+        id: 'tx12341',
+        spent_at: null,
       };
       component.previousExpenseTxnDate = new Date('2023-01-28T17:00:00');
       component.previousExpenseCreatedAt = null;
@@ -503,8 +508,8 @@ describe('ExpensesCardComponent', () => {
 
     it('should set showDt based on date comparison when previousExpenseCreatedAt is truthy', () => {
       component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
+        ...expenseData,
+        id: 'tx12341',
       };
       component.previousExpenseTxnDate = null;
       component.previousExpenseCreatedAt = new Date('2023-01-29T07:29:02.966116');
@@ -515,22 +520,22 @@ describe('ExpensesCardComponent', () => {
 
     it('should set isMileageExpense to true of the fyle category is mileage', () => {
       component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
-        tx_org_category: 'mileage',
+        ...cloneDeep(expenseData),
+        id: 'tx12341',
+        spent_at: null,
       };
+      component.expense.category.name = 'mileage';
       component.ngOnInit();
       expect(component.isMileageExpense).toBeTrue();
     });
 
     it('should set isPerDiem to true if the fyle category is per diem', () => {
       component.expense = {
-        ...expenseData1,
-        tx_id: 'tx12341',
-        tx_txn_dt: null,
-        tx_org_category: 'per diem',
+        ...cloneDeep(expenseData),
+        id: 'tx12341',
+        spent_at: null,
       };
+      component.expense.category.name = 'per diem';
       component.ngOnInit();
       expect(component.isPerDiem).toBeTrue();
     });
@@ -553,21 +558,19 @@ describe('ExpensesCardComponent', () => {
   describe('setOtherData():', () => {
     it('should set icon to fy-matched if the source account type is corporate credit card', () => {
       component.expense = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-        tx_corporate_credit_card_expense_group_id: 'cccet1B17R8gWZ',
+        ...cloneDeep(expenseData),
+        matched_corporate_card_transaction_ids: ['btxnMy43OZokde'],
       };
+      component.expense.source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
 
       component.setOtherData();
       fixture.detectChanges();
       expect(component.paymentModeIcon).toEqual('fy-matched');
     });
 
-    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
-      component.expense = {
-        ...expenseData1,
-        source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
-      };
+    it('should set icon to fy-unmatched if the source account type is corporate credit card but matched_corporate_card_transaction_ids is not present', () => {
+      component.expense = cloneDeep(expenseData);
+      component.expense.source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
 
       component.setOtherData();
       fixture.detectChanges();
@@ -575,6 +578,11 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
+      component.expense = {
+        ...expenseData,
+        matched_corporate_card_transaction_ids: [],
+        is_reimbursable: true,
+      };
       component.setOtherData();
       fixture.detectChanges();
       expect(component.paymentModeIcon).toEqual('fy-reimbursable');
@@ -582,8 +590,8 @@ describe('ExpensesCardComponent', () => {
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
       component.expense = {
-        ...expenseData1,
-        tx_skip_reimbursement: true,
+        ...expenseData,
+        is_reimbursable: false,
       };
       component.setOtherData();
       fixture.detectChanges();
@@ -607,16 +615,16 @@ describe('ExpensesCardComponent', () => {
 
   it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
     component.matchReceiptWithEtxn(fileObjectData);
-    expect(component.expense.tx_file_ids).toBeDefined();
-    expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
-    expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
+    expect(component.expense.file_ids).toBeDefined();
+    expect(component.expense.file_ids).toContain(fileObjectData.id);
+    expect(fileObjectData.transaction_id).toBe(component.expense.id);
   });
 
   describe('canAddAttchment():', () => {
     it('should return true when none of the conditions are met', () => {
       component.isFromViewReports = false;
       component.isMileageExpense = false;
-      component.expense.tx_file_ids = null;
+      component.expense.file_ids = null;
       component.isFromPotentialDuplicates = false;
       component.isSelectionModeEnabled = false;
       const result = component.canAddAttachment();
@@ -626,7 +634,7 @@ describe('ExpensesCardComponent', () => {
     it('should return false when isFromViewReports is true', () => {
       component.isFromViewReports = true;
       component.isMileageExpense = false;
-      component.expense.tx_file_ids = null;
+      component.expense.file_ids = null;
       component.isFromPotentialDuplicates = false;
       component.isSelectionModeEnabled = false;
       const result = component.canAddAttachment();
@@ -840,30 +848,28 @@ describe('ExpensesCardComponent', () => {
   describe('isPerDiemWithZeroAmount():', () => {
     it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: 0,
-        tx_org_category: 'Per Diem',
+        ...cloneDeep(expenseData),
+        amount: 0,
       };
+      component.expense.category.name = 'Per Diem';
       const result = component.isZeroAmountPerDiem();
       expect(result).toBeTrue();
     });
 
     it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
       component.expense = {
-        ...expenseData1,
-        tx_amount: null,
-        tx_user_amount: 0,
-        tx_org_category: 'Per Diem',
+        ...cloneDeep(expenseData),
+        amount: null,
+        claim_amount: 0,
       };
+      component.expense.category.name = 'Per Diem';
       const result = component.isZeroAmountPerDiem();
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
-      component.expense = {
-        ...expenseData1,
-        tx_org_category: null,
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.category.name = null;
       const result = component.isZeroAmountPerDiem();
       expect(result).toBeFalse();
     });
