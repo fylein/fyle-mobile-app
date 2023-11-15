@@ -255,7 +255,7 @@ export class ExpenseService {
       }
 
       if (filters.type.includes('RegularExpenses')) {
-        typeOrFilter.push('and(category->system_category.not.eq.Mileage, category->system_category.not.eq.Per Diem)');
+        typeOrFilter.push('category->system_category.not_in.(Mileage,Per Diem)');
       }
     }
 

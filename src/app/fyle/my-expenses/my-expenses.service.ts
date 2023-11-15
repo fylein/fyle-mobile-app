@@ -7,7 +7,7 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { ExpenseFilters } from './expense-filters.model';
+import { ExpenseFilters } from '../../core/models/platform/expense-filters.model';
 
 @Injectable({
   providedIn: 'root',
@@ -124,9 +124,8 @@ export class MyExpensesService {
   }
 
   generateDateFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): FilterPill[] {
-    let filterPillsCopy = cloneDeep(filterPills);
     if (filter.date === DateFilters.thisWeek) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'this Week',
@@ -134,7 +133,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.thisMonth) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'this Month',
@@ -142,7 +141,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.all) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'All',
@@ -150,7 +149,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.lastMonth) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'Last Month',
@@ -158,10 +157,10 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.custom) {
-      filterPillsCopy = this.generateCustomDatePill(filter, filterPillsCopy);
+      filterPills = this.generateCustomDatePill(filter, filterPills);
     }
 
-    return filterPillsCopy;
+    return filterPills;
   }
 
   generateCustomDatePill(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): FilterPill[] {

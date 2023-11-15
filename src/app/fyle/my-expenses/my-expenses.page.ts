@@ -275,7 +275,7 @@ export class MyExpensesPage implements OnInit {
       }
 
       this.selectedElements = [];
-      this.setAllExpensesCountAndAmount();
+      // this.setAllExpensesCountAndAmount();
     } else {
       this.headerState = HeaderState.multiselect;
       // setting Expense amount & count stats to zero on select init
@@ -606,7 +606,7 @@ export class MyExpensesPage implements OnInit {
 
     this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
 
-    this.setAllExpensesCountAndAmount();
+    // this.setAllExpensesCountAndAmount();
 
     this.allExpenseCountHeader$ = this.loadData$.pipe(
       switchMap(() =>
@@ -636,7 +636,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.loadData$.subscribe(() => {
+    this.loadExpenses$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -656,25 +656,27 @@ export class MyExpensesPage implements OnInit {
       );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'needsreceipt') {
-        filters = { tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT' };
+        filters = { is_reciept_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
           tx_policy_flag: 'eq.true',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
           state: 'POLICY_VIOLATED',
         };
       } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'cannotreport') {
-        filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
+        filters = { policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else {
       this.clearFilters();
@@ -971,19 +973,19 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense }: { etxn: PlatformExpense; etxnIndex: number }): void {
+  goToTransaction(event: { expense: PlatformExpense; extnIndex: number }): void {
     let category: string;
 
-    if (expense.category?.name) {
-      category = expense.category?.name.toLowerCase();
+    if (event.expense?.category?.name) {
+      category = event.expense.category.name.toLowerCase();
     }
 
     if (category === 'mileage') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: event.expense.id, persist_filters: true }]);
     } else if (category === 'per diem') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: event.expense.id, persist_filters: true }]);
     } else {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: event.expense.id, persist_filters: true }]);
     }
   }
 
@@ -1487,7 +1489,7 @@ export class MyExpensesPage implements OnInit {
     }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
