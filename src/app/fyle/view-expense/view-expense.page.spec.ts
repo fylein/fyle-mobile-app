@@ -47,6 +47,7 @@ import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expe
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -784,6 +785,55 @@ fdescribe('ViewExpensePage', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
       component.ionViewWillEnter();
       expect(component.isNewReportsFlowEnabled).toBeFalse();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isRTFEnabled to true if visa rtf is enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        mastercard_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isRTFEnabled to true if mastercard rtf is enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        visa_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isRTFEnabled to false if both visa/mastercard rtf are not enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        visa_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+        mastercard_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeFalse();
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
