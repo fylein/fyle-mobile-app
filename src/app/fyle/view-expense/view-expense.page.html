@@ -102,6 +102,7 @@
               {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
               expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
             </div>
+
             <div
               class="view-expense--card-container__state-pill ion-text-right"
               [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
