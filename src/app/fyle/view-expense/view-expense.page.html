@@ -128,6 +128,7 @@
               >{{ matchedTransaction.status | titlecase }}</span
             >
             <ion-icon
+              (click)="openTransactionStatusInfoModal(matchedTransaction.status)"
               src=".../../../../../assets/svg/info-circle-outline.svg"
               class="view-expense--card-container__transaction-status-info-icon"
             ></ion-icon>

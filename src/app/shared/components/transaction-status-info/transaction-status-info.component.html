@@ -1,0 +1,23 @@
+<ion-header mode="md">
+  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <ion-toolbar mode="md" class="fy-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="closePopover()" class="transaction-status-info__toolbar-close-btn">
+        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title class="text-center transaction-status-info__toolbar-title"
+      >Transaction Status: {{ transactionStatus === 'POSTED' ? 'Posted' : 'Pending' }}</ion-title
+    >
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="transaction-status-info__content">
+  <div class="transaction-status-info__body">
+    <ng-container *ngIf="transactionStatus === 'PENDING'; else posted">
+      Your transaction status is Pending until your bank processes the transaction.
+    </ng-container>
+
+    <ng-template #posted> The transaction has been processed by your bank. </ng-template>
+  </div>
+</ion-content>

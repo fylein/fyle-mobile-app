@@ -34,6 +34,7 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -531,5 +532,17 @@ export class ViewExpensePage {
 
         await attachmentsModal.present();
       });
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: string): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }
