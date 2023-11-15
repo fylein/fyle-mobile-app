@@ -129,6 +129,9 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
+import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
 
 type FormValue = {
   currencyObj: {
@@ -182,6 +185,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<UnflattenedTransaction>;
+
+  expense$: Observable<PlatformExpense>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -461,8 +466,13 @@ export class AddEditExpensePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
+    private expensesService: ExpensesService
   ) {}
+
+  get TransactionStatus(): typeof TransactionStatus {
+    return TransactionStatus;
+  }
 
   get isExpandedView(): boolean {
     return this._isExpandedView;
@@ -3016,6 +3026,11 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     ) as Observable<UnflattenedTransaction>;
 
+    if (this.activatedRoute.snapshot.params.id) {
+      const id = this.activatedRoute.snapshot.params.id as string;
+      this.expense$ = this.expensesService.getExpenseById(id);
+    }
+
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
@@ -4935,5 +4950,17 @@ export class AddEditExpensePage implements OnInit {
     });
 
     await sizeLimitExceededPopover.present();
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }
