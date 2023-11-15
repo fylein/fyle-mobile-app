@@ -190,7 +190,7 @@ describe('TransactionService', () => {
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService,
+      SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
@@ -466,36 +466,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
-    spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
-    const paymentModeList = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
-    const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
-    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledOnceWith(
-      expenseData1.tx_skip_reimbursement,
-      expenseData1.source_account_type,
-      etxnPaymentMode.key,
-    );
-  });
-
   describe('setSortParams():', () => {
     const currentParams = { pageNumber: 1 };
     const filters = { sortParam: 'tx_txn_dt', sortDir: 'desc' };
@@ -584,14 +554,14 @@ describe('TransactionService', () => {
     it('should return custom date params with start date only', () => {
       // @ts-ignore
       expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithStartDateOnly)).toEqual(
-        customDateParamsWithStartDateOnly,
+        customDateParamsWithStartDateOnly
       );
     });
 
     it('should return custom date params with end date only', () => {
       // @ts-ignore
       expect(transactionService.generateCustomDateParams(newQueryParams, filtersWithEndDateOnly)).toEqual(
-        customDateParamsWithEndDateOnly,
+        customDateParamsWithEndDateOnly
       );
     });
 
@@ -972,13 +942,13 @@ describe('TransactionService', () => {
   describe('getExpenseDeletionMessage():', () => {
     it('should return expense deletion message for single', () => {
       expect(transactionService.getExpenseDeletionMessage(apiExpenseRes)).toEqual(
-        'You are about to permanently delete 1 selected expense.',
+        'You are about to permanently delete 1 selected expense.'
       );
     });
 
     it('getExpenseDeletionMessage(): should return expense deletion message for multiple expenses', () => {
       expect(transactionService.getExpenseDeletionMessage(expenseList2)).toEqual(
-        'You are about to permanently delete 2 selected expenses.',
+        'You are about to permanently delete 2 selected expenses.'
       );
     });
   });
@@ -986,19 +956,19 @@ describe('TransactionService', () => {
   describe('getCCCExpenseMessage():', () => {
     it('should return ccc expense message for single ccc expense', () => {
       expect(transactionService.getCCCExpenseMessage(apiExpenseRes, 1)).toEqual(
-        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.",
+        "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection."
       );
     });
 
     it('should return ccc expense message for multiple ccc expenses', () => {
       expect(transactionService.getCCCExpenseMessage(expenseList2, 2)).toEqual(
-        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.",
+        "There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection."
       );
     });
 
     it('should return ccc expense message for with only ccc expenses selected', () => {
       expect(transactionService.getCCCExpenseMessage(null, 3)).toEqual(
-        "There are 3 corporate card expenses from the selection which can't be deleted. ",
+        "There are 3 corporate card expenses from the selection which can't be deleted. "
       );
     });
   });
@@ -1009,13 +979,13 @@ describe('TransactionService', () => {
         "There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.";
       const deletableExpensesMessage = 'You are about to permanently delete 1 selected expense.';
       expect(
-        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage),
+        transactionService.getDeleteDialogBody(apiExpenseRes, 1, deletableExpensesMessage, cccExpensesMessage)
       ).toEqual(
         `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
-        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
       );
     });
 
@@ -1026,7 +996,7 @@ describe('TransactionService', () => {
       <li>${deletableExpensesMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`,
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`
       );
     });
 
@@ -1036,7 +1006,7 @@ describe('TransactionService', () => {
       expect(transactionService.getDeleteDialogBody([], 1, null, cccExpensesMessage)).toEqual(
         `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
-      </ul>`,
+      </ul>`
       );
     });
   });
@@ -1151,136 +1121,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('isEtxnInPaymentMode():', () => {
-    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'reimbursable';
-      const txnSourceAccountType = AccountType.PERSONAL;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
-      const txnSkipReimbursement = true;
-      const txnPaymentMode = 'nonReimbursable';
-      const txnSourceAccountType = AccountType.PERSONAL;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with advance payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'advance';
-      const txnSourceAccountType = AccountType.ADVANCE;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with advance payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'ccc';
-      const txnSourceAccountType = AccountType.CCC;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode),
-      ).toBeTrue();
-    });
-  });
-
-  describe('addEtxnToCurrencyMap():', () => {
-    it('should add a new currency to the map when the currencyMap does not exist', () => {
-      const currencyMap = {};
-      const txCurrency = 'USD';
-      const txAmount = 10;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      });
-    });
-
-    it('should add a new currency to the map with the orig currency', () => {
-      const currencyMap = {};
-      const txCurrency = 'USD';
-      const txAmount = 10;
-      const txOrigAmount = 200;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 200,
-          count: 1,
-        },
-      });
-    });
-
-    it('should add the transaction amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const txCurrency = 'USD';
-      const txAmount = 20;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 30,
-          count: 2,
-        },
-      });
-    });
-
-    it('should add the transaction amount and original amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const txCurrency = 'USD';
-      const txAmount = 20;
-      const txOrigAmount = 30;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 40,
-          count: 2,
-        },
-      });
-    });
-  });
-
   it('getTxnAccount(): should get the default txn account', (done) => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     accountsService.getEMyAccounts.and.returnValue(of(accountsData));
@@ -1298,7 +1138,7 @@ describe('TransactionService', () => {
       expect(paymentModesService.getDefaultAccount).toHaveBeenCalledOnceWith(
         orgSettingsData,
         accountsData,
-        orgUserSettingsData,
+        orgUserSettingsData
       );
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
@@ -1332,73 +1172,6 @@ describe('TransactionService', () => {
     expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
     expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
     expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
-  });
-
-  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
-    // @ts-ignore
-    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
-
-    const currencyMap = {
-      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
-      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
-      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
-    };
-
-    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
-  });
-
-  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
-    // @ts-ignore
-    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
-      name: 'Reimbursable',
-      key: 'reimbursable',
-    });
-
-    const paymentModes = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
-
-    const summary = {
-      reimbursable: {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-        amount: 49475.76,
-        count: 3,
-      },
-    };
-
-    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
   });
 
   it('matchCCCExpense(): should match ccc expense', (done) => {
