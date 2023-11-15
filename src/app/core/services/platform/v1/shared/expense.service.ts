@@ -6,8 +6,6 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   providedIn: 'root',
 })
 export class ExpenseService {
-  constructor() {}
-
   getIsDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;
   }

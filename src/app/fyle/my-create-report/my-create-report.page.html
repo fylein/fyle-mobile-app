@@ -60,16 +60,17 @@
 
     <div *ngIf="readyToReportEtxns">
       <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
-        <app-expense-card
+        <app-expense-card-v2
           [expense]="etxn"
-          [previousExpenseTxnDate]="readyToReportEtxns[i - 1]?.tx_txn_dt"
-          [previousExpenseCreatedAt]="readyToReportEtxns[i - 1]?.tx_created_at"
+          [previousExpenseTxnDate]="readyToReportEtxns[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="readyToReportEtxns[i - 1]?.created_at"
+          [showDt]="checkShowDt(etxn,i)"
           [isSelectionModeEnabled]="true"
           [selectedElements]="selectedElements"
           (cardClickedForSelection)="selectExpense($event)"
           [isFromReports]="true"
         >
-        </app-expense-card>
+        </app-expense-card-v2>
       </div>
     </div>
   </div>
