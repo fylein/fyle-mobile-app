@@ -7,7 +7,7 @@
       </ion-button>
     </ion-buttons>
     <ion-title class="text-center transaction-status-info__toolbar-title"
-      >Transaction Status: {{ transactionStatus === 'POSTED' ? 'Posted' : 'Pending' }}</ion-title
+      >Transaction Status: {{ transactionStatus | titlecase }}</ion-title
     >
   </ion-toolbar>
 </ion-header>
