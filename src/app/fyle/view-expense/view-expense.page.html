@@ -98,7 +98,7 @@
               ></ion-icon>
             </div>
 
-            <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
+            <div *ngIf="foreignCurrencySymbol" class="view-expense--card-container__exchange-rate">
               {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
               expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
             </div>
