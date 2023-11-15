@@ -1040,22 +1040,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('getReportETxnc(): should get report transactions', (done) => {
-    apiService.get.and.returnValue(of(apiExpenseRes));
-    const reportID = 'rp1xCiq5WA1R';
-    const orgUserID = 'ouCI4UQ2G0K1';
-
-    reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}/etxns`, {
-        params: {
-          approver_id: orgUserID,
-        },
-      });
-      done();
-    });
-  });
-
   it('addApprovers(): add approvers to reports', () => {
     const res = reportService.addApprovers(addApproverERpts, approversData1);
 
