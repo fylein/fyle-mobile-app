@@ -788,7 +788,7 @@ describe('ViewExpensePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should set isRTFEnabled to true if visa rtf is enabled', () => {
+    it('should set isRTFEnabled to true if only visa rtf is enabled', () => {
       const mockOrgSettings: OrgSettings = {
         ...orgSettingsGetData,
         mastercard_enrollment_settings: {
@@ -803,7 +803,7 @@ describe('ViewExpensePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should set isRTFEnabled to true if mastercard rtf is enabled', () => {
+    it('should set isRTFEnabled to true if only mastercard rtf is enabled', () => {
       const mockOrgSettings: OrgSettings = {
         ...orgSettingsGetData,
         visa_enrollment_settings: {
