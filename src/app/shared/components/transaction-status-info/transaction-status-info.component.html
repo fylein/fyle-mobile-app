@@ -14,7 +14,7 @@
 
 <ion-content class="transaction-status-info__content">
   <div class="transaction-status-info__body">
-    <ng-container *ngIf="transactionStatus === 'PENDING'; else posted">
+    <ng-container *ngIf="transactionStatus === TransactionStatus.PENDING; else posted">
       Your transaction status is Pending until your bank processes the transaction.
     </ng-container>
 

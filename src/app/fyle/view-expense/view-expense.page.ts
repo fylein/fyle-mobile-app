@@ -31,7 +31,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
@@ -534,7 +534,7 @@ export class ViewExpensePage {
       });
   }
 
-  async openTransactionStatusInfoModal(transactionStatus: string): Promise<void> {
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
     const popover = await this.popoverController.create({
       component: TransactionStatusInfoComponent,
       componentProps: {
