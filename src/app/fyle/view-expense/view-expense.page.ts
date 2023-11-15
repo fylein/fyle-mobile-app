@@ -127,6 +127,8 @@ export class ViewExpensePage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
+  isRTFEnabled: boolean;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -381,6 +383,9 @@ export class ViewExpensePage {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isRTFEnabled =
+        (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+        (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
       this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
     });
 
