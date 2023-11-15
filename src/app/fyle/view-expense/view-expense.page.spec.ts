@@ -49,7 +49,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
-fdescribe('ViewExpensePage', () => {
+describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
