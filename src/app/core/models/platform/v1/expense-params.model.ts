@@ -8,6 +8,6 @@ export interface ExpenseParams {
   scalar?: boolean;
   id?: string;
   is_receipt_mandatory?: string;
-  masked_corporate_card_number?: string;
+  'matched_corporate_card_transactions->0->corporate_card_number'?: string;
   and?: string;
 }

@@ -49,7 +49,7 @@ export class ExpenseService {
   }
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter((expense) => expense && expense.matched_corporate_card_transaction_ids.length > 0);
+    return expenses.filter((expense) => expense && expense.matched_corporate_card_transaction_ids.length === 0);
   }
 
   isMergeAllowed(expenses: Partial<Expense>[]): boolean {
@@ -88,26 +88,26 @@ export class ExpenseService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Partial<Expense>[],
+    expensesToBeDeletedLength: number,
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
   ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeletedLength > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeletedLength > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeletedLength === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -124,7 +124,8 @@ export class ExpenseService {
         cardNumberString += cardNumber + ',';
       });
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
-      newQueryParamsCopy.masked_corporate_card_number = 'in.(' + cardNumberString + ')';
+      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
+        'in.(' + cardNumberString + ')';
     }
 
     return newQueryParamsCopy;
