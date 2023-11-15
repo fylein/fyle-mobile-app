@@ -182,27 +182,29 @@
               </ion-row>
             </ng-container>
 
-            <ng-container *ngIf="expense$ | async as expense">
-              <div
-                *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction"
-                class="add-edit-expense--card-container__transaction-status-container"
-              >
+            <ng-container *ngIf="isRTFEnabled$ | async">
+              <ng-container *ngIf="expense$ | async as expense">
                 <div
-                  class="add-edit-expense--card-container__transaction-status-indicator"
-                  [ngClass]="{'pending': matchedTransaction.status === TransactionStatus.PENDING, 'posted': matchedTransaction.status === TransactionStatus.POSTED}"
-                ></div>
-
-                Transaction Status:
-                <span class="add-edit-expense--card-container__transaction-status"
-                  >{{ matchedTransaction.status | titlecase }}</span
+                  *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction"
+                  class="add-edit-expense--card-container__transaction-status-container"
                 >
+                  <div
+                    class="add-edit-expense--card-container__transaction-status-indicator"
+                    [ngClass]="{'pending': matchedTransaction.status === TransactionStatus.PENDING, 'posted': matchedTransaction.status === TransactionStatus.POSTED}"
+                  ></div>
 
-                <ion-icon
-                  (click)="openTransactionStatusInfoModal(matchedTransaction.status)"
-                  src="../../../assets/svg/info-circle-outline.svg"
-                  class="add-edit-expense--card-container__transaction-status-info-icon"
-                ></ion-icon>
-              </div>
+                  Transaction Status:
+                  <span class="add-edit-expense--card-container__transaction-status"
+                    >{{ matchedTransaction.status | titlecase }}</span
+                  >
+
+                  <ion-icon
+                    (click)="openTransactionStatusInfoModal(matchedTransaction.status)"
+                    src="../../../assets/svg/info-circle-outline.svg"
+                    class="add-edit-expense--card-container__transaction-status-info-icon"
+                  ></ion-icon>
+                </div>
+              </ng-container>
             </ng-container>
           </ion-grid>
         </ng-container>

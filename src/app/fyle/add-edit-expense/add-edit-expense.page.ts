@@ -421,6 +421,8 @@ export class AddEditExpensePage implements OnInit {
 
   recentCategoriesOriginal: OrgCategoryListItem[];
 
+  isRTFEnabled$: Observable<boolean>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -2891,6 +2893,14 @@ export class AddEditExpensePage implements OnInit {
     this.orgUserSettings$ = this.orgUserSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
+
+    this.isRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled)
+      )
+    );
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
