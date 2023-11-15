@@ -275,7 +275,7 @@ export class MyExpensesPage implements OnInit {
       }
 
       this.selectedElements = [];
-      // this.setAllExpensesCountAndAmount();
+      this.setAllExpensesCountAndAmount();
     } else {
       this.headerState = HeaderState.multiselect;
       // setting Expense amount & count stats to zero on select init
@@ -306,18 +306,22 @@ export class MyExpensesPage implements OnInit {
   }
 
   setAllExpensesCountAndAmount(): void {
-    this.allExpensesStats$ = this.loadData$.pipe(
+    this.allExpensesStats$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams: FilterQueryParams =
-          (JSON.parse(JSON.stringify(params.queryParams)) as FilterQueryParams) || {};
+        const queryParams: Record<string, string | string[] | boolean> =
+          (JSON.parse(JSON.stringify(params.queryParams)) as Record<string, string | string[] | boolean>) || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        const newQueryParams: FilterQueryParams = {};
 
-        if (queryParams.corporate_credit_card_account_number) {
-          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number)) as string;
-          queryParams.or = queryParams.or || [];
-          queryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
+        newQueryParams.tx_report_id = (queryParams.report_id || 'is.null') as string;
+        newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+
+        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = JSON.parse(
+            JSON.stringify(queryParams['matched_corporate_card_transactions->0->corporate_card_number'])
+          ) as string;
+          newQueryParams.or = (queryParams.or || []) as string[];
+          newQueryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
           delete queryParams.corporate_credit_card_account_number;
         }
 
@@ -606,9 +610,9 @@ export class MyExpensesPage implements OnInit {
 
     this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
 
-    // this.setAllExpensesCountAndAmount();
+    this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadData$.pipe(
+    this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -622,7 +626,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.draftExpensesCount$ = this.loadData$.pipe(
+    this.draftExpensesCount$ = this.loadExpenses$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -896,6 +900,13 @@ export class MyExpensesPage implements OnInit {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,
       amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.amount, 0),
+    });
+  }
+
+  setOutboxExpenseStatsOnSelect(): void {
+    this.allExpensesStats$ = of({
+      count: this.selectedOutboxExpenses.length,
+      amount: this.selectedOutboxExpenses.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
     });
   }
 
@@ -1410,11 +1421,11 @@ export class MyExpensesPage implements OnInit {
     if (checked) {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
-        // this.selectedElements = this.pendingTransactions;
+        this.selectedOutboxExpenses = this.pendingTransactions;
         this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected =
-          this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
-        this.setExpenseStatsOnSelect();
+          this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
+        this.setOutboxExpenseStatsOnSelect();
       }
 
       this.loadExpenses$
