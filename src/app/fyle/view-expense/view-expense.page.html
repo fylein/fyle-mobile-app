@@ -121,15 +121,17 @@
           >
             <div
               class="view-expense--card-container__transaction-status-indicator"
-              [ngClass]="{'pending': matchedTransaction.status === 'PENDING', 'posted': matchedTransaction.status === 'POSTED'}"
+              [ngClass]="{'pending': matchedTransaction.status === TransactionStatus.PENDING, 'posted': matchedTransaction.status === TransactionStatus.POSTED}"
             ></div>
+
             Transaction Status:
             <span class="view-expense--card-container__transaction-status"
               >{{ matchedTransaction.status | titlecase }}</span
             >
+
             <ion-icon
               (click)="openTransactionStatusInfoModal(matchedTransaction.status)"
-              src=".../../../../../assets/svg/info-circle-outline.svg"
+              src="../../../assets/svg/info-circle-outline.svg"
               class="view-expense--card-container__transaction-status-info-icon"
             ></ion-icon>
           </div>
