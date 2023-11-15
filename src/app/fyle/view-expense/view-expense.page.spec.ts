@@ -43,11 +43,12 @@ import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
 
-describe('ViewExpensePage', () => {
+fdescribe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -1059,4 +1060,22 @@ describe('ViewExpensePage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
   });
+
+  it('openTransactionStatusInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+    popoverController.create.and.resolveTo(popoverSpy);
+
+    component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+
+    tick();
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: TransactionStatusInfoComponent,
+      componentProps: {
+        transactionStatus: TransactionStatus.PENDING,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+  }));
 });
