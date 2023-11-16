@@ -186,7 +186,7 @@ export class AddEditExpensePage implements OnInit {
 
   etxn$: Observable<UnflattenedTransaction>;
 
-  expense$: Observable<PlatformExpense>;
+  platformExpense$: Observable<PlatformExpense>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -3036,9 +3036,12 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     ) as Observable<UnflattenedTransaction>;
 
+    /**
+     * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
+     */
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
-      this.expense$ = this.expensesService.getExpenseById(id);
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
     }
 
     this.attachments$ = this.loadAttachments$.pipe(
