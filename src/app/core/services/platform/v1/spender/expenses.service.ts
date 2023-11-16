@@ -6,7 +6,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
-import { transactionsCacheBuster$ } from '../../../transaction.service';
+import { expensesCacheBuster$ } from '../../../transaction.service';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +37,7 @@ export class ExpensesService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getReportExpenses(reportId: string): Observable<Expense[]> {
     const params = {
