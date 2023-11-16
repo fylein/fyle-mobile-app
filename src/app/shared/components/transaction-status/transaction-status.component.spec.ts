@@ -5,7 +5,7 @@ import { TransactionStatusComponent } from './transaction-status.component';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 
-fdescribe('TransactionStatusComponent', () => {
+describe('TransactionStatusComponent', () => {
   let component: TransactionStatusComponent;
   let fixture: ComponentFixture<TransactionStatusComponent>;
 
