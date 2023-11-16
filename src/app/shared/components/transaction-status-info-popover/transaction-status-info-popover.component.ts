@@ -3,11 +3,11 @@ import { PopoverController } from '@ionic/angular';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
-  selector: 'app-transaction-status-info',
-  templateUrl: './transaction-status-info.component.html',
-  styleUrls: ['./transaction-status-info.component.scss'],
+  selector: 'app-transaction-status-info-popover',
+  templateUrl: './transaction-status-info-popover.component.html',
+  styleUrls: ['./transaction-status-info-popover.component.scss'],
 })
-export class TransactionStatusInfoComponent {
+export class TransactionStatusInfoPopoverComponent {
   @Input() transactionStatus: TransactionStatus;
 
   constructor(private popoverController: PopoverController) {}

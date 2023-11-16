@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
-import { TransactionStatusInfoComponent } from './transaction-status-info.component';
+import { TransactionStatusInfoPopoverComponent } from './transaction-status-info-popover.component';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 
 describe('TransactionStatusInfoComponent', () => {
-  let component: TransactionStatusInfoComponent;
+  let component: TransactionStatusInfoPopoverComponent;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let fixture: ComponentFixture<TransactionStatusInfoComponent>;
+  let fixture: ComponentFixture<TransactionStatusInfoPopoverComponent>;
 
   beforeEach(waitForAsync(() => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [TransactionStatusInfoComponent],
+      declarations: [TransactionStatusInfoPopoverComponent],
       imports: [IonicModule.forRoot()],
       providers: [
         {
@@ -24,7 +24,7 @@ describe('TransactionStatusInfoComponent', () => {
       ],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(TransactionStatusInfoComponent);
+    fixture = TestBed.createComponent(TransactionStatusInfoPopoverComponent);
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     component = fixture.componentInstance;
     fixture.detectChanges();

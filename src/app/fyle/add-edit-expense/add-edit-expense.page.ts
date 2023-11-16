@@ -131,7 +131,7 @@ import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-d
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 
 type FormValue = {
   currencyObj: {
@@ -4964,7 +4964,7 @@ export class AddEditExpensePage implements OnInit {
 
   async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
     const popover = await this.popoverController.create({
-      component: TransactionStatusInfoComponent,
+      component: TransactionStatusInfoPopoverComponent,
       componentProps: {
         transactionStatus,
       },
