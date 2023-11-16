@@ -144,6 +144,7 @@ import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
 import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
 import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoComponent } from './components/transaction-status-info/transaction-status-info.component';
+import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 
 @NgModule({
   declarations: [
@@ -264,6 +265,7 @@ import { TransactionStatusInfoComponent } from './components/transaction-status-
     ArrayToCommaListPipe,
     CorporateCardComponent,
     AutofocusDirective,
+    TransactionStatusComponent,
     TransactionStatusInfoComponent,
   ],
   imports: [
@@ -390,6 +392,7 @@ import { TransactionStatusInfoComponent } from './components/transaction-status-
     ArrayToCommaListPipe,
     CorporateCardComponent,
     AutofocusDirective,
+    TransactionStatusComponent,
     TransactionStatusInfoComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
