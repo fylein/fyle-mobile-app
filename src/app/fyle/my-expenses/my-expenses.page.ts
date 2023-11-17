@@ -39,7 +39,6 @@ import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expen
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
-import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
@@ -789,7 +788,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams(): Partial<GetExpenseQueryParam> {
     let currentParams = this.loadExpenses$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: Partial<ExpenseParams> = {
+    let newQueryParams: Record<string, string | string[] | boolean> = {
       or: [],
     };
 
@@ -853,7 +852,7 @@ export class MyExpensesPage implements OnInit {
     const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
 
     if (data) {
-      const filters1 = this.myExpensesService.convertFilters(data);
+      const filters1 = this.myExpensesService.convertSelectedOptionsToExpenseFilters(data);
       this.filters = filters1;
 
       this.currentPageNumber = 1;

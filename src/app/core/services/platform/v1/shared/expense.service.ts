@@ -7,6 +7,7 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -128,9 +129,7 @@ export class ExpenseService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
-      filters.cardNumbers.forEach((cardNumber) => {
-        cardNumberString += cardNumber + ',';
-      });
+      cardNumberString = filters.cardNumbers.join(',');
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
       newQueryParamsCopy.masked_corporate_card_number = 'in.(' + cardNumberString + ')';
     }
@@ -194,11 +193,11 @@ export class ExpenseService {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
-        newQueryParamsCopy.is_receipt_mandatory = 'is.true';
+        newQueryParamsCopy.file_ids = 'not_like.[]';
       }
 
       if (filters.receiptsAttached === 'NO') {
-        newQueryParamsCopy.is_receipt_mandatory = 'is.false';
+        newQueryParamsCopy.file_ids = 'like.[]';
       }
     }
     return newQueryParamsCopy;
@@ -270,16 +269,16 @@ export class ExpenseService {
   generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
     const typeOrFilter: string[] = [];
     if (filters.type) {
-      if (filters.type.includes('Mileage')) {
+      if (filters.type.includes(ExpenseType.MILEAGE)) {
         typeOrFilter.push('category->system_category.eq.Mileage');
       }
 
-      if (filters.type.includes('PerDiem')) {
+      if (filters.type.includes(ExpenseType.PER_DIEM)) {
         // The space encoding is done by angular into %20 so no worries here
         typeOrFilter.push('category->system_category.eq.Per Diem');
       }
 
-      if (filters.type.includes('RegularExpenses')) {
+      if (filters.type.includes(ExpenseType.EXPENSE)) {
         typeOrFilter.push('and(category->system_category.not.eq.Mileage, category->system_category.not.eq.Per Diem)');
       }
     }
@@ -313,9 +312,7 @@ export class ExpenseService {
       if (filters.splitExpense === 'YES') {
         split_or_arr.push('(is_split.eq.true)');
         newQueryParamsCopy.or = split_or_arr;
-      }
-
-      if (filters.splitExpense === 'NO') {
+      } else if (filters.splitExpense === 'NO') {
         split_or_arr.push('(is_split.eq.false)');
         newQueryParamsCopy.or = split_or_arr;
       }
