@@ -6,11 +6,11 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
   providedIn: 'root',
 })
 export class ExpenseService {
-  getIsDraft(expense: Partial<Expense>): boolean {
+  getIsDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;
   }
 
-  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
+  getIsCriticalPolicyViolated(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
@@ -33,23 +33,29 @@ export class ExpenseService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
+  getReportableExpenses(expenses: Expense[]): Expense[] {
     return expenses.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.id
     );
   }
 
-  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter((expense) => expense && expense.matched_corporate_card_transaction_ids.length > 0);
+  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter((expense) => expense.matched_corporate_card_transaction_ids?.length > 0);
   }
 
-  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
+  isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses.length === 2) {
-      const areSomeMileageOrPerDiemExpenses = expenses.some(
-        (expense) => expense.category?.system_category === 'Mileage' || expense.category?.system_category === 'Per Diem'
+      const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
+        ['Mileage', 'Per Diem'].includes(expense.category?.system_category)
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
-        ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.state)
+        [
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+          ExpenseState.PAYMENT_PROCESSING,
+          ExpenseState.PAID,
+        ].includes(expense.state)
       );
       const areAllCCCMatchedExpenses = expenses.every(
         (expense) => expense.matched_corporate_card_transactions.length > 0
@@ -60,17 +66,17 @@ export class ExpenseService {
     }
   }
 
-  hasCriticalPolicyViolation(expense: Partial<Expense>): boolean {
+  hasCriticalPolicyViolation(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
-  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
     return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
@@ -79,7 +85,7 @@ export class ExpenseService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Partial<Expense>[],
+    expensesToBeDeleted: Expense[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
