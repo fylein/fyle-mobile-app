@@ -51,7 +51,7 @@
 
       <ng-container *ngIf="needAdditionalApproval && approverEmailsRequiredMsg">
         <app-policy-violation-action
-          [icon]="'../../../../assets/svg/2-users.svg'"
+          [icon]="'../../../../assets/svg/user-two.svg'"
           [message]="approverEmailsRequiredMsg"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>
