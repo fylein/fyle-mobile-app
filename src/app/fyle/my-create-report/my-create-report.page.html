@@ -36,7 +36,7 @@
     </div>
     <div class="my-create-report--error-message" *ngIf="showReportNameError">Please enter report name.</div>
 
-    <div *ngIf="readyToReportEtxns?.length === 0" class="my-create-report--zero-state">
+    <div *ngIf="readyToReportExpenses?.length === 0" class="my-create-report--zero-state">
       <div>
         <img
           alt="Create First Expenses"
@@ -47,8 +47,8 @@
       </div>
     </div>
 
-    <div *ngIf="readyToReportEtxns?.length > 0" class="my-create-report--heading">EXPENSES</div>
-    <div *ngIf="readyToReportEtxns?.length > 0" class="my-create-report--select-all-checkbox">
+    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--heading">EXPENSES</div>
+    <div *ngIf="readyToReportExpenses?.length > 0" class="my-create-report--select-all-checkbox">
       <mat-checkbox
         class="custom-mat-checkbox create-new-report--checkbox"
         [(ngModel)]="isSelectedAll"
@@ -58,12 +58,12 @@
       >
     </div>
 
-    <div *ngIf="readyToReportEtxns">
-      <div *ngFor="let etxn of readyToReportEtxns as list; let i = index">
+    <div *ngIf="readyToReportExpenses">
+      <div *ngFor="let etxn of readyToReportExpenses as list; let i = index">
         <app-expense-card-v2
           [expense]="etxn"
-          [previousExpenseTxnDate]="readyToReportEtxns[i - 1]?.spent_at"
-          [previousExpenseCreatedAt]="readyToReportEtxns[i - 1]?.created_at"
+          [previousExpenseTxnDate]="readyToReportExpenses[i - 1]?.spent_at"
+          [previousExpenseCreatedAt]="readyToReportExpenses[i - 1]?.created_at"
           [showDt]="checkShowDt(etxn,i)"
           [isSelectionModeEnabled]="true"
           [selectedElements]="selectedElements"

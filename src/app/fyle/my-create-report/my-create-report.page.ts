@@ -22,7 +22,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 export class MyCreateReportPage implements OnInit {
   @ViewChild('reportTitleInput') reportTitleInput: NgModel;
 
-  readyToReportEtxns: PlatformExpense[];
+  readyToReportExpenses: PlatformExpense[];
 
   selectedElements: PlatformExpense[];
 
@@ -34,7 +34,7 @@ export class MyCreateReportPage implements OnInit {
 
   selectedTotalTxns = 0;
 
-  selectedTxnIds: string[];
+  selectedExpenseIDs: string[];
 
   saveDraftReportLoading = false;
 
@@ -73,7 +73,7 @@ export class MyCreateReportPage implements OnInit {
   }
 
   cancel(): void {
-    if (this.selectedTxnIds.length > 0) {
+    if (this.selectedExpenseIDs.length > 0) {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -86,11 +86,11 @@ export class MyCreateReportPage implements OnInit {
     if (!isFirstReportCreated) {
       this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
         if (allReportsCount === 0) {
-          const etxns = this.readyToReportEtxns?.filter((etxn) => this.selectedElements.includes(etxn));
-          const txnIds = etxns.map((etxn) => etxn.id);
-          const selectedTotalAmount = etxns.reduce((acc, obj) => acc + (obj.is_reimbursable ? 0 : obj.amount), 0);
+          const expenses = this.readyToReportExpenses?.filter((etxn) => this.selectedElements.includes(etxn));
+          const expenesIDs = expenses.map((expense) => expense.id);
+          const selectedTotalAmount = expenses.reduce((acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount), 0);
           this.trackingService.createFirstReport({
-            Expense_Count: txnIds.length,
+            Expense_Count: expenesIDs.length,
             Report_Value: selectedTotalAmount,
           });
           await this.storageService.set('isFirstReportCreated', true);
@@ -114,7 +114,7 @@ export class MyCreateReportPage implements OnInit {
 
       this.sendFirstReportCreated();
 
-      const txnIds = this.selectedElements?.map((expense) => expense.id);
+      const expenseIDs = this.selectedElements?.map((expense) => expense.id);
 
       if (reportActionType === 'create_draft_report') {
         this.saveDraftReportLoading = true;
@@ -123,13 +123,13 @@ export class MyCreateReportPage implements OnInit {
           .pipe(
             tap(() =>
               this.trackingService.createReport({
-                Expense_Count: txnIds.length,
+                Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
               })
             ),
             switchMap((report: ReportV1) => {
-              if (txnIds.length > 0) {
-                return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
+              if (expenseIDs.length > 0) {
+                return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
               }
@@ -143,11 +143,11 @@ export class MyCreateReportPage implements OnInit {
       } else {
         this.saveReportLoading = true;
         this.reportService
-          .create(report, txnIds)
+          .create(report, expenseIDs)
           .pipe(
             tap(() =>
               this.trackingService.createReport({
-                Expense_Count: txnIds.length,
+                Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
               })
             ),
@@ -164,49 +164,34 @@ export class MyCreateReportPage implements OnInit {
   }
 
   selectExpense(expense: PlatformExpense): void {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.id === txn.id);
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((ele) => expense.id === ele.id);
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter((txn) => txn.id !== expense.id);
+      this.selectedElements = this.selectedElements.filter((ele) => ele.id !== expense.id);
     } else {
       this.selectedElements.push(expense);
     }
     this.getReportTitle();
-    this.isSelectedAll = this.selectedElements.length === this.readyToReportEtxns.length;
+    this.isSelectedAll = this.selectedElements.length === this.readyToReportExpenses.length;
   }
 
   toggleSelectAll(value: boolean): void {
     if (value) {
-      this.selectedElements = this.readyToReportEtxns;
+      this.selectedElements = this.readyToReportExpenses;
     } else {
       this.selectedElements = [];
     }
     this.getReportTitle();
   }
 
-  getVendorDetails(expense: Expense): string {
-    const category = expense.tx_org_category && expense.tx_org_category.toLowerCase();
-    let vendorName: string | number = expense.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = expense.tx_distance.toString();
-      vendorName += ' ' + expense.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = expense.tx_num_days.toString();
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
   getReportTitle(): Subscription {
-    const txnIds = this.selectedElements.map((etxn) => etxn.id);
+    const expenseIDs = this.selectedElements.map((ele) => ele.id);
     this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (obj.is_reimbursable ? 1 : obj.amount),
+      (acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount),
       0
     );
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty) {
-      return this.reportService.getReportPurpose({ ids: txnIds }).subscribe((res) => {
+      return this.reportService.getReportPurpose({ ids: expenseIDs }).subscribe((res) => {
         this.reportTitle = res;
       });
     }
@@ -218,8 +203,8 @@ export class MyCreateReportPage implements OnInit {
   }
 
   checkTxnIds(): void {
-    const txn_ids = this.activatedRoute.snapshot.params.txn_ids as string;
-    this.selectedTxnIds = (txn_ids ? JSON.parse(txn_ids) : []) as string[];
+    const expenseIDs = this.activatedRoute.snapshot.params.txn_ids as string;
+    this.selectedExpenseIDs = (expenseIDs ? JSON.parse(expenseIDs) : []) as string[];
   }
 
   ionViewWillEnter(): void {
@@ -240,8 +225,8 @@ export class MyCreateReportPage implements OnInit {
           this.expensesService.getAllExpenses({ queryParams }).pipe(
             map((etxns) => {
               etxns.forEach((etxn) => {
-                if (this.selectedTxnIds.length > 0) {
-                  if (this.selectedTxnIds.indexOf(etxn.id) === -1) {
+                if (this.selectedExpenseIDs.length > 0) {
+                  if (this.selectedExpenseIDs.indexOf(etxn.id) === -1) {
                     this.selectedElements.filter((element) => element.id !== etxn.id);
                   }
                 }
@@ -254,8 +239,8 @@ export class MyCreateReportPage implements OnInit {
         shareReplay(1)
       )
       .subscribe((res) => {
-        this.readyToReportEtxns = res;
-        this.selectedElements = this.readyToReportEtxns;
+        this.readyToReportExpenses = res;
+        this.selectedElements = this.readyToReportExpenses;
         this.getReportTitle();
       });
 
@@ -266,8 +251,8 @@ export class MyCreateReportPage implements OnInit {
     if (
       i > 0 &&
       expense.spent_at &&
-      this.readyToReportEtxns[i - 1].spent_at &&
-      expense.spent_at.toDateString() === this.readyToReportEtxns[i - 1].spent_at.toDateString()
+      this.readyToReportExpenses[i - 1].spent_at &&
+      expense.spent_at.toDateString() === this.readyToReportExpenses[i - 1].spent_at.toDateString()
     ) {
       return false;
     }
