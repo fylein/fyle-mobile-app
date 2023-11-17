@@ -248,11 +248,13 @@ export class MyCreateReportPage implements OnInit {
   }
 
   checkShowDt(expense: PlatformExpense, i: number): boolean {
+    const spentAtDt = expense.spent_at;
+    const prevExpenseSpentAtDt = this.readyToReportExpenses[i - 1].spent_at;
     if (
       i > 0 &&
-      expense.spent_at &&
-      this.readyToReportExpenses[i - 1].spent_at &&
-      expense.spent_at.toDateString() === this.readyToReportExpenses[i - 1].spent_at.toDateString()
+      spentAtDt &&
+      prevExpenseSpentAtDt &&
+      spentAtDt.toDateString() === prevExpenseSpentAtDt.toDateString()
     ) {
       return false;
     }
