@@ -6,7 +6,7 @@
       </div>
       <ion-icon
         (click)="presentPopover($event)"
-        [src]="'assets/svg/action-menu.svg'"
+        [src]="'assets/svg/vertical-dots-menu.svg'"
         slot="icon-only"
         class="personal-card--action-icon"
       ></ion-icon>
@@ -18,7 +18,7 @@
       </ion-col>
     </ion-row>
   </ion-grid>
-  <div class="personal-card--sync-detail">Last fetch: {{ lastSyncedAt | date: 'MMM d, y | h:mm a' }}</div>
+  <div class="personal-card--sync-detail">Last fetch: {{ lastSyncedAt | date : 'MMM d, y | h:mm a' }}</div>
 </div>
 
 <div class="personal-card--card-details-minimal" *ngIf="minimal">
