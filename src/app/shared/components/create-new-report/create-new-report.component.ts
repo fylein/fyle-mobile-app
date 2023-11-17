@@ -52,7 +52,7 @@ export class CreateNewReportComponent implements OnInit {
   getReportTitle(): Subscription {
     const txnIds = this.selectedElements.map((etxn) => etxn.id);
     this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (obj.is_reimbursable ? 1 : obj.amount),
+      (acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount),
       0
     );
 

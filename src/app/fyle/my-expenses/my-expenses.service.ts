@@ -7,7 +7,8 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { ExpenseFilters } from '../../core/models/platform/expense-filters.model';
+import { ExpenseFilters } from './expense-filters.model';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +24,9 @@ export class MyExpensesService {
     this.generateSortCategoryPills(filter, filterPills);
   }
 
-  convertFilters(selectedFilters: SelectedFilters<string | string[]>[]): Partial<ExpenseFilters> {
+  convertSelectedOptionsToExpenseFilters(
+    selectedFilters: SelectedFilters<string | string[]>[]
+  ): Partial<ExpenseFilters> {
     const generatedFilters: Partial<ExpenseFilters> = {};
 
     const typeFilter = selectedFilters.find((filter) => filter.name === 'Type');
@@ -104,11 +107,11 @@ export class MyExpensesService {
   generateTypeFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): void {
     const combinedValue = filter.type
       .map((type) => {
-        if (type === 'RegularExpenses') {
+        if (type === 'EXPENSE') {
           return 'Regular Expenses';
-        } else if (type === 'PerDiem') {
+        } else if (type === 'PER_DIEM') {
           return 'Per Diem';
-        } else if (type === 'Mileage') {
+        } else if (type === 'MILEAGE') {
           return 'Mileage';
         } else {
           return type;
@@ -334,15 +337,15 @@ export class MyExpensesService {
         options: [
           {
             label: 'Mileage',
-            value: 'Mileage',
+            value: ExpenseType.MILEAGE,
           },
           {
             label: 'Per Diem',
-            value: 'PerDiem',
+            value: ExpenseType.PER_DIEM,
           },
           {
             label: 'Regular Expenses',
-            value: 'RegularExpenses',
+            value: ExpenseType.EXPENSE,
           },
         ],
       } as FilterOptions<string>,

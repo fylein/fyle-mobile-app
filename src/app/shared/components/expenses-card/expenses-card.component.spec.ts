@@ -232,7 +232,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/add-receipt.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/list-plus.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
