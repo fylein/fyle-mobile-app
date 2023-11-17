@@ -972,7 +972,7 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction(event: { expense: PlatformExpense; extnIndex: number }): void {
+  goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
     let category: string;
 
     if (event.expense?.category?.name) {
