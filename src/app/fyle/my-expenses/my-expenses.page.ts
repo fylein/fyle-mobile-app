@@ -132,7 +132,7 @@ export class MyExpensesPage implements OnInit {
 
   selectionMode = false;
 
-  selectedElements: Partial<PlatformExpense>[];
+  selectedElements: PlatformExpense[];
 
   syncing = false;
 
@@ -184,7 +184,7 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Partial<PlatformExpense>[];
+  expensesToBeDeleted: PlatformExpense[];
 
   cccExpenses: number;
 
