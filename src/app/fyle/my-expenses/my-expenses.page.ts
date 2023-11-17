@@ -661,7 +661,7 @@ export class MyExpensesPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'needsreceipt') {
-        filters = { is_reciept_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
+        filters = { is_receipt_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
           tx_policy_flag: 'eq.true',
