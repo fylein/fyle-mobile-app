@@ -28,7 +28,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
-fdescribe('MyCreateReportPage', () => {
+describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
