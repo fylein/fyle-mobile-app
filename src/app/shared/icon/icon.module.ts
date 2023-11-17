@@ -15,8 +15,6 @@ export class IconModule {
   svgImageArray = [
     'arrow-prev.svg',
     'arrow-next.svg',
-    'add-report.svg',
-    'add-to-list.svg',
     'attachment.svg',
     'bike.svg',
     'bulk.svg',
@@ -170,6 +168,7 @@ export class IconModule {
     'list-plus.svg',
     'user-two.svg',
     'vertical-dots-menu.svg',
+    'wallet.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
