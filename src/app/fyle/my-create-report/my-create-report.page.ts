@@ -86,9 +86,9 @@ export class MyCreateReportPage implements OnInit {
     if (!isFirstReportCreated) {
       this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
         if (allReportsCount === 0) {
-          const expenses = this.readyToReportExpenses?.filter((etxn) => this.selectedElements.includes(etxn));
+          const expenses = this.readyToReportExpenses.filter((expense) => this.selectedElements.includes(expense));
           const expenesIDs = expenses.map((expense) => expense.id);
-          const selectedTotalAmount = expenses.reduce((acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount), 0);
+          const selectedTotalAmount = this.getTotalSelectedExpensesAmount(expenses);
           this.trackingService.createFirstReport({
             Expense_Count: expenesIDs.length,
             Report_Value: selectedTotalAmount,
@@ -114,7 +114,8 @@ export class MyCreateReportPage implements OnInit {
 
       this.sendFirstReportCreated();
 
-      const expenseIDs = this.selectedElements?.map((expense) => expense.id);
+      let expenseIDs: string[] = [];
+      expenseIDs = this.selectedElements?.map((expense) => expense.id);
 
       if (reportActionType === 'create_draft_report') {
         this.saveDraftReportLoading = true;
@@ -123,12 +124,12 @@ export class MyCreateReportPage implements OnInit {
           .pipe(
             tap(() =>
               this.trackingService.createReport({
-                Expense_Count: expenseIDs.length,
+                Expense_Count: expenseIDs?.length,
                 Report_Value: this.selectedTotalAmount,
               })
             ),
             switchMap((report: ReportV1) => {
-              if (expenseIDs.length > 0) {
+              if (expenseIDs?.length > 0) {
                 return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
@@ -185,10 +186,7 @@ export class MyCreateReportPage implements OnInit {
 
   getReportTitle(): Subscription {
     const expenseIDs = this.selectedElements.map((ele) => ele.id);
-    this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount),
-      0
-    );
+    this.selectedTotalAmount = this.getTotalSelectedExpensesAmount(this.selectedElements);
 
     if (this.reportTitleInput && !this.reportTitleInput.dirty) {
       return this.reportService.getReportPurpose({ ids: expenseIDs }).subscribe((res) => {
@@ -209,6 +207,7 @@ export class MyCreateReportPage implements OnInit {
 
   ionViewWillEnter(): void {
     this.isSelectedAll = true;
+    this.selectedElements = [];
 
     this.checkTxnIds();
 
@@ -223,15 +222,16 @@ export class MyCreateReportPage implements OnInit {
       .pipe(
         switchMap(() =>
           this.expensesService.getAllExpenses({ queryParams }).pipe(
-            map((etxns) => {
-              etxns.forEach((etxn) => {
+            map((expenses) => {
+              this.selectedElements = expenses;
+              expenses.forEach((expense) => {
                 if (this.selectedExpenseIDs.length > 0) {
-                  if (this.selectedExpenseIDs.indexOf(etxn.id) === -1) {
-                    this.selectedElements.filter((element) => element.id !== etxn.id);
+                  if (this.selectedExpenseIDs.indexOf(expense.id) === -1) {
+                    this.selectedElements.filter((element) => element.id !== expense.id);
                   }
                 }
               });
-              return etxns;
+              return expenses;
             })
           )
         ),
@@ -240,7 +240,6 @@ export class MyCreateReportPage implements OnInit {
       )
       .subscribe((res) => {
         this.readyToReportExpenses = res;
-        this.selectedElements = this.readyToReportExpenses;
         this.getReportTitle();
       });
 
@@ -249,7 +248,7 @@ export class MyCreateReportPage implements OnInit {
 
   checkShowDt(expense: PlatformExpense, i: number): boolean {
     const spentAtDt = expense.spent_at;
-    const prevExpenseSpentAtDt = this.readyToReportExpenses[i - 1].spent_at;
+    const prevExpenseSpentAtDt = this.readyToReportExpenses[i - 1]?.spent_at;
     if (
       i > 0 &&
       spentAtDt &&
@@ -265,5 +264,9 @@ export class MyCreateReportPage implements OnInit {
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.homeCurrency = homeCurrency;
     });
+  }
+
+  getTotalSelectedExpensesAmount(expenses: PlatformExpense[]): number {
+    return expenses.reduce((acc, obj) => acc + (!obj.is_reimbursable ? 0 : obj.amount), 0);
   }
 }

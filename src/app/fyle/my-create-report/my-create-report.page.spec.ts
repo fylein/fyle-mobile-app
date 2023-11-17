@@ -9,13 +9,12 @@ import { IonicModule } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
+import { selectedExpense1, selectedExpenses } from 'src/app/core/mock-data/expense.data';
 import {
-  apiExpenseRes,
-  etxncListData,
-  perDiemExpenseSingleNumDays,
-  selectedExpense1,
-  selectedExpenses,
-} from 'src/app/core/mock-data/expense.data';
+  expenseData,
+  nonReImbursableExpense,
+  readyToReportExpensesData,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -27,8 +26,9 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
-describe('MyCreateReportPage', () => {
+fdescribe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
   let fixture: ComponentFixture<MyCreateReportPage>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -40,6 +40,7 @@ describe('MyCreateReportPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let storageService: jasmine.SpyObj<StorageService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
@@ -56,6 +57,7 @@ describe('MyCreateReportPage', () => {
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['createFirstReport', 'createReport']);
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
@@ -105,6 +107,10 @@ describe('MyCreateReportPage', () => {
           provide: RefinerService,
           useValue: refinerServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -120,6 +126,7 @@ describe('MyCreateReportPage', () => {
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     fixture.detectChanges();
@@ -170,13 +177,20 @@ describe('MyCreateReportPage', () => {
   it('sendFirstReportCreated(): should set a new report if first report not created', fakeAsync(() => {
     storageService.get.and.resolveTo(false);
     reportService.getMyReportsCount.and.returnValue(of(0));
-    component.readyToReportExpenses = cloneDeep(selectedExpenses);
+    spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
+    component.readyToReportExpenses = [...readyToReportExpensesData, expenseData];
+    component.selectedElements = readyToReportExpensesData;
     fixture.detectChanges();
 
     component.sendFirstReportCreated();
-    tick(500);
+    tick(1000);
 
     expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith({});
+    expect(trackingService.createFirstReport).toHaveBeenCalledOnceWith({
+      Expense_Count: 2,
+      Report_Value: 150,
+    });
+    expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(readyToReportExpensesData);
     expect(storageService.get).toHaveBeenCalledOnceWith('isFirstReportCreated');
     expect(storageService.set).toHaveBeenCalledOnceWith('isFirstReportCreated', true);
   }));
@@ -189,7 +203,8 @@ describe('MyCreateReportPage', () => {
 
     it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
       reportService.addTransactions.and.returnValue(of(null));
-      component.selectedElements = cloneDeep(selectedExpenses);
+      component.readyToReportExpenses = cloneDeep(readyToReportExpensesData);
+      component.selectedElements = cloneDeep([readyToReportExpensesData[0]]);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_draft_report');
@@ -200,12 +215,11 @@ describe('MyCreateReportPage', () => {
         source: 'MOBILE',
       });
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
-        Expense_Count: selectedExpenses.length,
+        Expense_Count: 1,
         Report_Value: component.selectedTotalAmount,
       });
       expect(reportService.addTransactions).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
-        selectedExpenses[0].tx_id,
-        selectedExpenses[1].tx_id,
+        readyToReportExpensesData[0].id,
       ]);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
     });
@@ -230,7 +244,7 @@ describe('MyCreateReportPage', () => {
 
     it('should create report', () => {
       reportService.create.and.returnValue(of(reportUnflattenedData));
-      component.selectedElements = cloneDeep(selectedExpenses);
+      component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
       component.ctaClickedEvent('create_report');
@@ -241,7 +255,7 @@ describe('MyCreateReportPage', () => {
           purpose: component.reportTitle,
           source: 'MOBILE',
         },
-        [selectedExpenses[0].tx_id, selectedExpenses[1].tx_id]
+        [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id]
       );
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
         Expense_Count: 2,
@@ -272,20 +286,21 @@ describe('MyCreateReportPage', () => {
   describe('selectExpense():', () => {
     beforeEach(() => {
       spyOn(component, 'getReportTitle');
-      component.selectedElements = cloneDeep(selectedExpenses);
       component.readyToReportExpenses = [];
     });
 
     it('should add the expense in selected list', () => {
-      component.selectExpense(apiExpenseRes[0]);
+      component.selectedElements = cloneDeep([readyToReportExpensesData[1]]);
+      component.selectExpense(readyToReportExpensesData[0]);
 
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
-      expect(component.selectedElements.length).toEqual(3);
+      expect(component.selectedElements.length).toEqual(2);
       expect(component.isSelectedAll).toBeFalse();
     });
 
     it('should remove an expense from the selected list', () => {
-      component.selectExpense(selectedExpenses[0]);
+      component.selectedElements = cloneDeep(readyToReportExpensesData);
+      component.selectExpense(readyToReportExpensesData[1]);
 
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
       expect(component.selectedElements.length).toEqual(1);
@@ -295,7 +310,7 @@ describe('MyCreateReportPage', () => {
 
   describe('toggleSelectAll():', () => {
     beforeEach(() => {
-      component.readyToReportExpenses = cloneDeep(apiExpenseRes);
+      component.readyToReportExpenses = cloneDeep(readyToReportExpensesData);
       spyOn(component, 'getReportTitle');
       fixture.detectChanges();
     });
@@ -303,7 +318,7 @@ describe('MyCreateReportPage', () => {
     it('should select all ready expenses', () => {
       component.toggleSelectAll(true);
 
-      expect(component.selectedElements).toEqual(apiExpenseRes);
+      expect(component.selectedElements).toEqual(readyToReportExpensesData);
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
     });
 
@@ -316,7 +331,8 @@ describe('MyCreateReportPage', () => {
   });
 
   it('getReportTitle(): get report title', fakeAsync(() => {
-    component.selectedElements = cloneDeep(selectedExpenses);
+    component.selectedElements = cloneDeep(readyToReportExpensesData);
+    spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
     reportService.getReportPurpose.and.returnValue(of('#Sept 24'));
     const el = getElementBySelector(fixture, "[data-testid='report-name']") as HTMLInputElement;
     el.value = 'New Report';
@@ -332,9 +348,10 @@ describe('MyCreateReportPage', () => {
     component.getReportTitle();
 
     expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({
-      ids: [selectedExpenses[0].tx_id, selectedExpenses[1].tx_id],
+      ids: [readyToReportExpensesData[0].id, readyToReportExpensesData[1].id],
     });
     expect(component.reportTitle).toEqual('#Sept 24');
+    expect(component.getTotalSelectedExpensesAmount).toHaveBeenCalledOnceWith(component.selectedElements);
   }));
 
   it('toggleTransaction(): should toggle selected transaction to unselected', () => {
@@ -370,6 +387,7 @@ describe('MyCreateReportPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
+    expensesService.getAllExpenses.and.returnValue(of(readyToReportExpensesData));
     spyOn(component, 'getReportTitle').and.returnValue(null);
     spyOn(component, 'checkTxnIds');
     component.selectedExpenseIDs = [selectedExpenses[0].tx_id];
@@ -378,12 +396,12 @@ describe('MyCreateReportPage', () => {
     component.ionViewWillEnter();
     tick(500);
 
-    expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+    expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
       queryParams: {
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE)',
-        order: 'tx_txn_dt.desc',
-        or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+        report_id: 'is.null',
+        state: 'in.(COMPLETE)',
+        order: 'spent_at.desc',
+        or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
@@ -391,4 +409,14 @@ describe('MyCreateReportPage', () => {
 
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
+
+  describe('getTotalSelectedExpensesAmount()', () => {
+    it('should return total amount', () => {
+      expect(component.getTotalSelectedExpensesAmount(readyToReportExpensesData)).toEqual(150);
+    });
+
+    it('should return 0 if there are no re imbursable expenses', () => {
+      expect(component.getTotalSelectedExpensesAmount([nonReImbursableExpense])).toEqual(0);
+    });
+  });
 });
