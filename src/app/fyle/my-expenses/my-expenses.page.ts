@@ -39,7 +39,6 @@ import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expen
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
-import { ExpenseParams } from 'src/app/core/models/platform/v1/expense-params.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
@@ -132,7 +131,7 @@ export class MyExpensesPage implements OnInit {
 
   selectionMode = false;
 
-  selectedElements: Partial<PlatformExpense>[];
+  selectedElements: PlatformExpense[];
 
   selectedOutboxExpenses: Partial<Expense>[];
 
@@ -186,7 +185,7 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Partial<PlatformExpense>[];
+  expensesToBeDeleted: PlatformExpense[];
 
   outboxExpensesToBeDeleted: Partial<Expense>[];
 
@@ -666,7 +665,7 @@ export class MyExpensesPage implements OnInit {
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
       if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'needsreceipt') {
-        filters = { is_reciept_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
+        filters = { is_receipt_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
           tx_policy_flag: 'eq.true',
@@ -799,7 +798,7 @@ export class MyExpensesPage implements OnInit {
   addNewFiltersToParams(): Partial<GetExpenseQueryParam> {
     let currentParams = this.loadExpenses$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: Partial<ExpenseParams> = {
+    let newQueryParams: Record<string, string | string[] | boolean> = {
       or: [],
     };
 
@@ -863,7 +862,7 @@ export class MyExpensesPage implements OnInit {
     const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
 
     if (data) {
-      const filters1 = this.myExpensesService.convertFilters(data);
+      const filters1 = this.myExpensesService.convertSelectedOptionsToExpenseFilters(data);
       this.filters = filters1;
 
       this.currentPageNumber = 1;
@@ -984,7 +983,7 @@ export class MyExpensesPage implements OnInit {
     this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction(event: { expense: PlatformExpense; extnIndex: number }): void {
+  goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
     let category: string;
 
     if (event.expense?.category?.name) {

@@ -13,14 +13,9 @@ export class IconModule {
   path = '../../assets/svg';
 
   svgImageArray = [
-    'add-advance.svg',
-    'add-expense.svg',
-    'add-mileage.svg',
-    'add-per-diem.svg',
     'arrow-prev.svg',
     'arrow-next.svg',
     'add-report.svg',
-    'auto_fyle.svg',
     'add-to-list.svg',
     'attachment.svg',
     'bike.svg',
@@ -129,7 +124,6 @@ export class IconModule {
     'gallery.svg',
     'hotel.svg',
     'insta-fyle.svg',
-    'instafyle.svg',
     'ionic-log-out-outline.svg',
     'information.svg',
     'logo-icon-white.svg',
@@ -173,6 +167,9 @@ export class IconModule {
     'fy-merge.svg',
     'split-evenly.svg',
     'split-new.svg',
+    'list-plus.svg',
+    'user-two.svg',
+    'vertical-dots-menu.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
