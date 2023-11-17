@@ -307,8 +307,7 @@ export class MyExpensesPage implements OnInit {
   setAllExpensesCountAndAmount(): void {
     this.allExpensesStats$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams: Record<string, string | string[] | boolean> =
-          (JSON.parse(JSON.stringify(params.queryParams)) as Record<string, string | string[] | boolean>) || {};
+        const queryParams: Record<string, string | string[] | boolean> = cloneDeep(params.queryParams) || {};
 
         const newQueryParams: FilterQueryParams = {};
 
@@ -316,9 +315,10 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
         if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = JSON.parse(
-            JSON.stringify(queryParams['matched_corporate_card_transactions->0->corporate_card_number'])
-          ) as string;
+          const cardParamsCopy = cloneDeep(
+            queryParams['matched_corporate_card_transactions->0->corporate_card_number']
+          );
+
           newQueryParams.or = (queryParams.or || []) as string[];
           newQueryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
           delete queryParams.corporate_credit_card_account_number;
