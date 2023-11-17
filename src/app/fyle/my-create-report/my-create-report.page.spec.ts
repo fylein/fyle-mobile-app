@@ -151,7 +151,7 @@ describe('MyCreateReportPage', () => {
 
   describe('cancel():', () => {
     it('should navigate to my expenses if there are any selected txns', () => {
-      component.selectedTxnIds = ['txfCdl3TEZ7K'];
+      component.selectedExpenseIDs = ['txfCdl3TEZ7K'];
       fixture.detectChanges();
 
       component.cancel();
@@ -159,7 +159,7 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should navigate to my reports if there are no selected txns', () => {
-      component.selectedTxnIds = [];
+      component.selectedExpenseIDs = [];
       fixture.detectChanges();
 
       component.cancel();
@@ -170,7 +170,7 @@ describe('MyCreateReportPage', () => {
   it('sendFirstReportCreated(): should set a new report if first report not created', fakeAsync(() => {
     storageService.get.and.resolveTo(false);
     reportService.getMyReportsCount.and.returnValue(of(0));
-    component.readyToReportEtxns = cloneDeep(selectedExpenses);
+    component.readyToReportExpenses = cloneDeep(selectedExpenses);
     fixture.detectChanges();
 
     component.sendFirstReportCreated();
@@ -241,7 +241,7 @@ describe('MyCreateReportPage', () => {
           purpose: component.reportTitle,
           source: 'MOBILE',
         },
-        [selectedExpenses[0].tx_id, selectedExpenses[1].tx_id],
+        [selectedExpenses[0].tx_id, selectedExpenses[1].tx_id]
       );
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
         Expense_Count: 2,
@@ -273,7 +273,7 @@ describe('MyCreateReportPage', () => {
     beforeEach(() => {
       spyOn(component, 'getReportTitle');
       component.selectedElements = cloneDeep(selectedExpenses);
-      component.readyToReportEtxns = [];
+      component.readyToReportExpenses = [];
     });
 
     it('should add the expense in selected list', () => {
@@ -295,7 +295,7 @@ describe('MyCreateReportPage', () => {
 
   describe('toggleSelectAll():', () => {
     beforeEach(() => {
-      component.readyToReportEtxns = cloneDeep(apiExpenseRes);
+      component.readyToReportExpenses = cloneDeep(apiExpenseRes);
       spyOn(component, 'getReportTitle');
       fixture.detectChanges();
     });
@@ -312,20 +312,6 @@ describe('MyCreateReportPage', () => {
 
       expect(component.selectedElements).toEqual([]);
       expect(component.getReportTitle).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('getVendorDetails():', () => {
-    it('should return distance with units if expense is of type mileage', () => {
-      const result = component.getVendorDetails(etxncListData.data[0]);
-
-      expect(result).toEqual('13.17 KM');
-    });
-
-    it('should return number of days if expense is of type per diem', () => {
-      const result = component.getVendorDetails(perDiemExpenseSingleNumDays);
-
-      expect(result).toEqual('1 Days');
     });
   });
 
@@ -367,7 +353,7 @@ describe('MyCreateReportPage', () => {
 
       component.checkTxnIds();
 
-      expect(component.selectedTxnIds).toEqual([selectedExpenses[0].tx_id, null]);
+      expect(component.selectedExpenseIDs).toEqual([selectedExpenses[0].tx_id, null]);
     });
 
     it('should set selected txn IDs as empty array if not found in route', () => {
@@ -376,7 +362,7 @@ describe('MyCreateReportPage', () => {
 
       component.checkTxnIds();
 
-      expect(component.selectedTxnIds).toEqual([]);
+      expect(component.selectedExpenseIDs).toEqual([]);
     });
   });
 
@@ -384,10 +370,9 @@ describe('MyCreateReportPage', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo();
     transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
-    spyOn(component, 'getVendorDetails').and.returnValue('vendor');
     spyOn(component, 'getReportTitle').and.returnValue(null);
     spyOn(component, 'checkTxnIds');
-    component.selectedTxnIds = [selectedExpenses[0].tx_id];
+    component.selectedExpenseIDs = [selectedExpenses[0].tx_id];
     fixture.detectChanges();
 
     component.ionViewWillEnter();
@@ -403,7 +388,7 @@ describe('MyCreateReportPage', () => {
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
     expect(component.getReportTitle).toHaveBeenCalledTimes(1);
-    expect(component.getVendorDetails).toHaveBeenCalledTimes(2);
+
     expect(component.checkTxnIds).toHaveBeenCalledTimes(1);
   }));
 });
