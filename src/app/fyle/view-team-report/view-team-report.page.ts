@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -30,21 +30,21 @@ import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
-import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
-import { Expense, Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
 })
-export class ViewTeamReportPage implements OnInit {
+export class ViewTeamReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
-  expenses$: Observable<PlatformExpense[]>;
+  expenses$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -133,7 +133,7 @@ export class ViewTeamReportPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private approverExpensesService: ApproverExpensesService,
+    private expensesService: ExpensesService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
@@ -150,8 +150,6 @@ export class ViewTeamReportPage implements OnInit {
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService
   ) {}
-
-  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next(null);
@@ -303,7 +301,7 @@ export class ViewTeamReportPage implements OnInit {
       )
     );
 
-    this.expenses$ = this.approverExpensesService.getReportExpenses(this.activatedRoute.snapshot.params.id).pipe(
+    this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
     );
@@ -323,11 +321,11 @@ export class ViewTeamReportPage implements OnInit {
       eou: this.eou$,
       approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe((res) => {
-      this.reportExpensesIds = res.expenses.map((expense) => expense.id);
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(res.orgSettings);
+    }).subscribe(({ expenses, eou, approvals, orgSettings }) => {
+      this.reportExpensesIds = expenses.map((expense) => expense.id);
+      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
-        ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
+        ? this.isUserActiveInCurrentSeqApprovalQueue(eou, approvals)
         : true;
       this.canShowTooltip = true;
     });
@@ -390,10 +388,12 @@ export class ViewTeamReportPage implements OnInit {
       const expenses = await this.expenses$.toPromise();
 
       const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
-      const numIssues = expenses.filter((expense) => expense.is_policy_flagged || expense.is_manually_flagged).length;
+      const flaggedExpensesCount = expenses.filter(
+        (expense) => expense.is_policy_flagged || expense.is_manually_flagged
+      ).length;
       const popover = await this.popoverController.create({
         componentProps: {
-          numIssues,
+          flaggedExpensesCount,
           title: 'Approve Report',
           message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
           primaryCta: {
