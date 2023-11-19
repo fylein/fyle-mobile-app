@@ -525,7 +525,7 @@ export class MyViewReportPage {
   }
 
   canEditExpense(expenseState: ExpenseState): boolean {
-    return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(expenseState) > -1;
+    return this.canEdit$ && ['DRAFT', 'COMPLETE', 'APPROVER_PENDING'].indexOf(expenseState) > -1;
   }
 
   segmentChanged(event: SegmentCustomEvent): void {

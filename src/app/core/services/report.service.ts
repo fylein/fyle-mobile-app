@@ -292,7 +292,7 @@ export class ReportService {
   getUserReportParams(state: keyof ReportStateMap): Record<'state', string[]> {
     const stateMap: ReportStateMap = {
       draft: {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       },
       pending: {
         state: ['APPROVER_PENDING'],
@@ -315,7 +315,6 @@ export class ReportService {
       all: {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',

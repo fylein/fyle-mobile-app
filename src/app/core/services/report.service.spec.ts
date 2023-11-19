@@ -948,7 +948,7 @@ describe('ReportService', () => {
       const params = 'draft';
 
       const expectedRes = {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       };
 
       const result = reportService.getUserReportParams(params);
@@ -1022,7 +1022,6 @@ describe('ReportService', () => {
       const expectedRes = {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',
