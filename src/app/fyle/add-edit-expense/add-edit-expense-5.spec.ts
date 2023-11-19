@@ -24,6 +24,7 @@ import {
   orgCategoryData,
   sortedCategory,
   transformedOrgCategories,
+  unspecifiedCategory,
 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsWithProjectAndAutofill,
@@ -457,6 +458,7 @@ export function TestCases5(getTestBed) {
     describe('setupCustomFields():', () => {
       it('should setup custom fields using category', fakeAsync(() => {
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         component.mode = 'add';
         spyOn(component, 'getCategoryOnAdd').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomProperties);
@@ -820,6 +822,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -858,7 +861,11 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -882,6 +889,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
@@ -905,7 +913,12 @@ export function TestCases5(getTestBed) {
         tick(1000);
 
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -928,6 +941,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -969,7 +983,12 @@ export function TestCases5(getTestBed) {
         component.setupFormInit();
         tick(1000);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1003,6 +1022,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
@@ -1042,7 +1062,12 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
         expect(component.setCategoryOnValueChange).toHaveBeenCalledTimes(1);
         expect(component.parseFile).toHaveBeenCalledTimes(1);
         expect(component.attachedReceiptsCount).toEqual(1);
@@ -1060,12 +1085,14 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         loaderService.hideLoader.and.resolveTo();
         loaderService.showLoader.and.resolveTo();
         component.etxn$ = of(setupFormExpenseWoCurrency);
         component.taxGroups$ = of(taxGroupData);
+
         component.orgUserSettings$ = of(orgUserSettingsData);
         component.recentlyUsedValues$ = of(recentlyUsedRes);
         component.recentlyUsedProjects$ = of(recentlyUsedProjectRes);
@@ -1097,7 +1124,12 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, undefined);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          undefined,
+          unspecifiedCategory
+        );
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1119,6 +1151,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -1157,7 +1190,12 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1179,6 +1217,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -1217,7 +1256,12 @@ export function TestCases5(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,
@@ -1239,6 +1283,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getDefaultPaymentModes').and.returnValue(of(accountOptionData1[1].value));
         spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
         spyOn(component, 'getReceiptCount').and.returnValue(of(1));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
         orgSettingsService.get.and.returnValue(of(orgSettingsWithProjectAndAutofill));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -1263,7 +1308,12 @@ export function TestCases5(getTestBed) {
         tick(1000);
 
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledTimes(1);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getAutofillCategory).toHaveBeenCalledOnceWith({
           isAutofillsEnabled: true,
           recentValue: recentlyUsedRes,

@@ -19,7 +19,7 @@ import {
   unfilteredMileageRatesData,
 } from 'src/app/core/mock-data/mileage-rate.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
-import { mileageCategories2, unsortedCategories1 } from 'src/app/core/mock-data/org-category.data';
+import { mileageCategories2, unsortedCategories1, unspecifiedCategory } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsOrgAutofill, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData, orgUserSettingsWoProjects } from 'src/app/core/mock-data/org-user-settings.data';
 import {
@@ -339,6 +339,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qHxFNgRcZ', 'txbO4Xaj4N53', 'tx053DOHz9pU']);
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         fixture.detectChanges();
 
         component.ionViewWillEnter();
@@ -429,7 +430,11 @@ export function TestCases5(getTestBed) {
         });
 
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
         expect(projectsService.getProjectCount).toHaveBeenCalledTimes(1);
@@ -445,6 +450,7 @@ export function TestCases5(getTestBed) {
         orgSettingsService.get.and.returnValue(of(orgSettingsOrgAutofill));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsWoProjects));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData6);
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         fixture.detectChanges();
 
         component.ionViewWillEnter();
@@ -528,7 +534,11 @@ export function TestCases5(getTestBed) {
         });
 
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith(unfilteredMileageRatesData, null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));
@@ -539,6 +549,7 @@ export function TestCases5(getTestBed) {
         activatedRoute.snapshot.params.activeIndex = 0;
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
         spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         statusService.find.and.returnValue(of(getEstatusApiResponse));
         mileageRatesService.getAllMileageRates.and.returnValue(of([]));
         mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
@@ -631,7 +642,11 @@ export function TestCases5(getTestBed) {
         });
 
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], transformedResponse);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16577,
+          unspecifiedCategory
+        );
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith([], null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));

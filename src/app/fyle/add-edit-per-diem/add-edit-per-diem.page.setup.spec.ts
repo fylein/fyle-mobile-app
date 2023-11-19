@@ -123,7 +123,7 @@ describe('AddEditPerDiemPage', () => {
       'showInvalidPaymentModeToast',
       'checkIfPaymentModeConfigurationsIsEnabled',
     ]);
-    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'getCategoryByName']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', [
       'getAllowedPaymentModes',
       'get',

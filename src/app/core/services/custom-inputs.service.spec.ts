@@ -14,6 +14,7 @@ import {
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
+import { unspecifiedCategory } from '../mock-data/org-category.data';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
@@ -54,7 +55,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should filter expense fields by category', () => {
-    const result = customInputsService.filterByCategory(filterTestData, orgCatId);
+    const result = customInputsService.filterByCategory(filterTestData, orgCatId, unspecifiedCategory);
     expect(result).toEqual(responseAfterAppliedFilter);
   });
 

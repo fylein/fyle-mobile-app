@@ -2,18 +2,31 @@
 /* eslint-disable complexity */
 
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormGroup,
+  ValidationErrors,
+  ValidatorFn,
+  Validators,
+} from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
   combineLatest,
   concat,
   forkJoin,
   from,
   iif,
-  Observable,
   of,
-  Subject,
-  Subscription,
   throwError,
 } from 'rxjs';
 import {
@@ -30,84 +43,70 @@ import {
   takeUntil,
   tap,
 } from 'rxjs/operators';
-import {
-  AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
-  ValidationErrors,
-  ValidatorFn,
-  Validators,
-} from '@angular/forms';
-import { AccountsService } from 'src/app/core/services/accounts.service';
-import { DateService } from 'src/app/core/services/date.service';
-import * as dayjs from 'dayjs';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
-import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ProjectsService } from 'src/app/core/services/projects.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { AuthService } from 'src/app/core/services/auth.service';
-import { PolicyService } from 'src/app/core/services/policy.service';
-import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
-import { ModalController, NavController, PopoverController, Platform } from '@ionic/angular';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { StatusService } from 'src/app/core/services/status.service';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { TrackingService } from '../../core/services/tracking.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
-import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
-import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
-import { AccountOption } from 'src/app/core/models/account-option.model';
-import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
-import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { CategoriesService } from 'src/app/core/services/categories.service';
-import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
-import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { AccountOption } from 'src/app/core/models/account-option.model';
+import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
-import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
-import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
-import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
-import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
-import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
+import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { OrgUser } from 'src/app/core/models/org-user.model';
-import { PerDiemCustomInputs } from 'src/app/core/models/per-diem-custom-inputs.model';
-import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
-import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
-import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
-import { TransactionState } from 'src/app/core/models/transaction-state.enum';
-import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { Expense } from 'src/app/core/models/expense.model';
+import { PerDiemCustomInputs } from 'src/app/core/models/per-diem-custom-inputs.model';
+import { PerDiemFormValue } from 'src/app/core/models/per-diem-form-value.model';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
-import { unspecifiedCategory } from 'src/app/core/mock-data/org-category.data';
+import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
+import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-policy.model';
+import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
+import { TransactionState } from 'src/app/core/models/transaction-state.enum';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { AccountsService } from 'src/app/core/services/accounts.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { DateService } from 'src/app/core/services/date.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { PerDiemService } from 'src/app/core/services/per-diem.service';
+import { PolicyService } from 'src/app/core/services/policy.service';
+import { ProjectsService } from 'src/app/core/services/projects.service';
+import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StatusService } from 'src/app/core/services/status.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
+import { DependentFieldsComponent } from 'src/app/shared/components/dependent-fields/dependent-fields.component';
+import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy-critical-policy-violation/fy-critical-policy-violation.component';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
+import { TrackingService } from '../../core/services/tracking.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',

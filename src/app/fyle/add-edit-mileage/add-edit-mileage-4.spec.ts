@@ -23,6 +23,7 @@ import {
   mileageCategories3,
   orgCategoryData,
   unsortedCategories1,
+  unspecifiedCategory,
 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCDisabled,
@@ -277,6 +278,7 @@ export function TestCases4(getTestBed) {
         });
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData);
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         fixture.detectChanges();
 
         component.getCustomInputs().subscribe((res) => {
@@ -287,13 +289,18 @@ export function TestCases4(getTestBed) {
           customPropertiesData,
           expenseFieldWithBillable
         );
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16566,
+          unspecifiedCategory
+        );
         done();
       });
 
       it('should get custom inputs if no previous custom inputs are assigned', (done) => {
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
         customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData3);
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         spyOn(component, 'getFormValues').and.returnValue({
           custom_inputs: null,
         });
@@ -304,7 +311,11 @@ export function TestCases4(getTestBed) {
         });
         expect(component.setupDependentFields).toHaveBeenCalledOnceWith(jasmine.any(Observable));
         expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], expenseFieldWithBillable);
-        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16566);
+        expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+          expenseFieldResponse,
+          16566,
+          unspecifiedCategory
+        );
         expect(component.getFormValues).toHaveBeenCalledTimes(1);
         done();
       });

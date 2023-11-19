@@ -31,7 +31,12 @@ import { FormArray, FormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
-import { orgCategoryData, orgCategoryData1, perDiemCategory } from 'src/app/core/mock-data/org-category.data';
+import {
+  orgCategoryData,
+  orgCategoryData1,
+  perDiemCategory,
+  unspecifiedCategory,
+} from 'src/app/core/mock-data/org-category.data';
 import { BehaviorSubject, finalize, of, skip, take, tap } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { unflattenedTxnDataPerDiem } from 'src/app/core/mock-data/unflattened-expense.data';
@@ -197,7 +202,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        }),
+        })
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -257,7 +262,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          }),
+          })
         );
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getAll.and.returnValue(of([mockCategoryData]));
@@ -275,14 +280,19 @@ export function TestCases2(getTestBed) {
 
       it('should return custom inputs if etxn.tx.org_category_id is defined', () => {
         component.fg.value.custom_inputs = dependentCustomProperties;
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         component.getCustomInputs().subscribe((res) => {
           expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
-          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+            expenseFieldResponse,
+            16577,
+            unspecifiedCategory
+          );
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
             ...otherProps,
@@ -298,6 +308,7 @@ export function TestCases2(getTestBed) {
       it('should return custom inputs if etxn.tx.org_category_id is undefined', () => {
         component.fg.value.custom_inputs = undefined;
         const mockEtxn = cloneDeep(unflattenedTxnData);
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         mockEtxn.tx.org_category_id = undefined;
         component.etxn$ = of(mockEtxn);
         categoriesService.getAll.and.returnValue(of([orgCategoryData]));
@@ -305,7 +316,11 @@ export function TestCases2(getTestBed) {
           expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith([], expenseFieldResponse);
-          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+            expenseFieldResponse,
+            38912,
+            unspecifiedCategory
+          );
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           expect(expenseFieldWithoutControl).toEqual(expectedExpenseFieldWithoutControl);
           const controlValues = res.map(({ control }) => control.value);
@@ -315,6 +330,7 @@ export function TestCases2(getTestBed) {
 
       it('should return custom inputs if initialFetch is false', () => {
         component.fg.value.custom_inputs = dependentCustomProperties;
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         const getCustomInputs$ = component.getCustomInputs();
         component.initialFetch = false;
         getCustomInputs$.subscribe((res) => {
@@ -322,10 +338,14 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
           expect(component.getPerDiemCategories).not.toHaveBeenCalled();
-          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+            expenseFieldResponse,
+            247980,
+            unspecifiedCategory
+          );
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
             ...otherProps,
@@ -342,16 +362,21 @@ export function TestCases2(getTestBed) {
         component.fg.value.custom_inputs = dependentCustomProperties;
         component.fg.value.sub_category = undefined;
         const getCustomInputs$ = component.getCustomInputs();
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         component.initialFetch = false;
         getCustomInputs$.subscribe((res) => {
           expect(customInputsService.getAll).toHaveBeenCalledOnceWith(true);
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
-          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
+          expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(
+            expenseFieldResponse,
+            38912,
+            unspecifiedCategory
+          );
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
           const expectedExpenseFieldWithControl = perDiemCustomInputsData1.map(({ control, ...otherProps }) => ({
             ...otherProps,
@@ -384,6 +409,7 @@ export function TestCases2(getTestBed) {
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
         accountsService.getEtxnSelectedPaymentMode.and.returnValue(paymentModeDataCCC);
+        categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
         const mockPerDiem = allowedPerDiem.map((mockPerDiem) => ({
           ...mockPerDiem,
           created_at: new Date('2020-08-12T16:09:14.551Z'),
@@ -415,7 +441,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          }),
+          })
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -445,7 +471,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -519,7 +545,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
@@ -538,7 +564,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -557,7 +583,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -578,7 +604,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -688,7 +714,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes,
+            recentlyUsedRes
           );
           expect(res).toEqual(expectedCCdata2);
         });
