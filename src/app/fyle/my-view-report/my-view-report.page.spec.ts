@@ -57,6 +57,14 @@ import { MyViewReportPage } from './my-view-report.page';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expenseData,
+  expenseResponseData2,
+  mileageExpense,
+  perDiemExpense,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -64,6 +72,7 @@ describe('MyViewReportPage', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let reportService: jasmine.SpyObj<ReportService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
@@ -91,7 +100,12 @@ describe('MyViewReportPage', () => {
       'downloadSummaryPdfUrl',
       'addTransactions',
     ]);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllETxnc', 'getAllExpenses']);
+    const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
+      'getReportExpenses',
+      'getExpenses',
+      'getExpensesCount',
+    ]);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -142,6 +156,10 @@ describe('MyViewReportPage', () => {
         {
           provide: ReportService,
           useValue: reportServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expnesesServicespy,
         },
         {
           provide: TransactionService,
@@ -208,6 +226,7 @@ describe('MyViewReportPage', () => {
 
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -329,9 +348,8 @@ describe('MyViewReportPage', () => {
       statusService.find.and.returnValue(of(newEstatusData1));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      transactionService.getAllETxnc.and.returnValue(of(newExpenseViewReport));
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
       reportService.actions.and.returnValue(of(apiReportActions));
       transactionService.getAllExpenses.and.returnValue(of(newExpenseViewReport));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -344,7 +362,7 @@ describe('MyViewReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.erpt$.subscribe((res) => {
@@ -376,21 +394,9 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual(approversData1);
       });
 
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({
-        tx_org_user_id: 'eq.' + apiEouRes.ou.id,
-        tx_report_id: 'eq.' + component.reportId,
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      });
+      expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(component.getVendorName).toHaveBeenCalledTimes(6);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[2]);
-
-      expect(component.getShowViolation).toHaveBeenCalledTimes(3);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[2]);
+      expect(component.getVendorName).toHaveBeenCalledTimes(3);
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -406,7 +412,7 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportEtxnIds).toEqual(['tx5fBcPBAxLv', 'txz2vohKxBXu', 'tx3qHxFNgRcZ']);
+      expect(component.reportExpenseIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {
@@ -437,9 +443,8 @@ describe('MyViewReportPage', () => {
       statusService.find.and.returnValue(of(newEstatusData1));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      transactionService.getAllETxnc.and.returnValue(of(newExpenseViewReport));
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
       reportService.actions.and.returnValue(of(apiReportActions));
       transactionService.getAllExpenses.and.returnValue(of(newExpenseViewReport));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -452,7 +457,7 @@ describe('MyViewReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.erpt$.subscribe((res) => {
@@ -483,21 +488,9 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual(approversData1);
       });
 
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({
-        tx_org_user_id: 'eq.' + apiEouRes.ou.id,
-        tx_report_id: 'eq.' + component.reportId,
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      });
+      expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(component.getVendorName).toHaveBeenCalledTimes(6);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[2]);
-
-      expect(component.getShowViolation).toHaveBeenCalledTimes(3);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[2]);
+      expect(component.getVendorName).toHaveBeenCalledTimes(3);
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -513,7 +506,7 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportEtxnIds).toEqual(['tx5fBcPBAxLv', 'txz2vohKxBXu', 'tx3qHxFNgRcZ']);
+      expect(component.reportExpenseIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {
@@ -723,37 +716,37 @@ describe('MyViewReportPage', () => {
 
   describe('goToTransaction():', () => {
     it('should go to view expense page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: expenseData1,
-        etxnIndex: 0,
+        expense: expenseData,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_expense';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.individual,
-        category: expenseData1.tx_org_category.toLowerCase(),
+        category: expenseData.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: expenseData.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(expenseData1.tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(expenseData.state);
     });
     it('should go to view edit expense page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: expenseData1,
-        etxnIndex: 0,
+        expense: expenseData,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_expense';
@@ -761,7 +754,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
+          id: expenseData.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -769,10 +762,10 @@ describe('MyViewReportPage', () => {
     });
 
     it('should go to view mileage page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: etxncListData.data[0],
-        etxnIndex: 0,
+        expense: mileageExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_mileage';
@@ -784,23 +777,23 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: mileageExpense.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(etxncListData.data[0].tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(mileageExpense.state);
     });
 
     it('should go to edit mileage page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: etxncListData.data[0],
-        etxnIndex: 0,
+        expense: mileageExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_mileage';
@@ -808,7 +801,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
+          id: mileageExpense.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -816,40 +809,38 @@ describe('MyViewReportPage', () => {
     });
 
     it('should go to view per diem page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
-      const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: perDiemTxn,
-        etxnIndex: 0,
+        expense: perDiemExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_per_diem';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.individual,
-        category: perDiemTxn.tx_org_category.toLowerCase(),
+        category: perDiemExpense.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: perDiemTxn.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: perDiemExpense.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(perDiemTxn.tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(perDiemExpense.state);
     });
 
     it('should go to edit per diem page', () => {
-      const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: perDiemTxn,
-        etxnIndex: 0,
+        expense: perDiemExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_per_diem';
@@ -857,7 +848,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: perDiemTxn.tx_id,
+          id: perDiemExpense.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -923,7 +914,7 @@ describe('MyViewReportPage', () => {
       component: FyViewReportInfoComponent,
       componentProps: {
         erpt$: component.erpt$,
-        etxns$: component.etxns$,
+        expenses$: component.expenses$,
         view: ExpenseView.individual,
       },
       ...fyModalProperties,
@@ -937,7 +928,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('DRAFT');
+      const result = component.canEditExpense(ExpenseState.DRAFT);
       expect(result).toBeTrue();
     });
 
@@ -945,7 +936,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(false);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('SENT_BACK');
+      const result = component.canEditExpense(ExpenseState.APPROVED);
       expect(result).toBeFalse();
     });
 
@@ -953,7 +944,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('SENT_BACK');
+      const result = component.canEditExpense(ExpenseState.APPROVED);
       expect(result).toBeFalse();
     });
   });

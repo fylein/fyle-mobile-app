@@ -62,8 +62,8 @@ describe('ExpensesCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
-      'getIsDraft',
-      'getIsCriticalPolicyViolated',
+      'isExpenseInDraft',
+      'isCriticalPolicyViolatedExpense',
       'getVendorDetails',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
@@ -142,13 +142,13 @@ describe('ExpensesCardComponent', () => {
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
     sharedExpenseService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
-    sharedExpenseService.getIsCriticalPolicyViolated.and.returnValue(false);
+    sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
     transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     networkService.isOnline.and.returnValue(of(true));
-    sharedExpenseService.getIsDraft.and.returnValue(true);
+    sharedExpenseService.isExpenseInDraft.and.returnValue(true);
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);

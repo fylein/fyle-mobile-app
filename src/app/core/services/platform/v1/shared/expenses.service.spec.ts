@@ -164,7 +164,10 @@ describe('ExpensesService', () => {
         key: 'ccc',
       },
     ];
-    const expensePaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
+    const expensePaymentMode: { name: string; key: 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc' } = {
+      name: 'Reimbursable',
+      key: 'reimbursable',
+    };
     // @ts-ignore
     expect(service.getPaymentModeForExpense(expenseData, paymentModeList)).toEqual(expensePaymentMode);
     expect(service.isExpenseInPaymentMode).toHaveBeenCalledOnceWith(
