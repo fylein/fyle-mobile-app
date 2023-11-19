@@ -16,14 +16,12 @@ import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-fi
 import {
   etxncListData,
   expenseData1,
-  expenseData2,
   newExpenseViewReport,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { apiReportUpdatedDetails } from 'src/app/core/mock-data/report-v1.data';
 import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
