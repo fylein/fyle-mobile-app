@@ -9,7 +9,6 @@ import { IonicModule, ModalController, PopoverController } from '@ionic/angular'
 import { finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
-import { etxncListData, expenseData1 } from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { expectedAllReports, expectedReportSingleResponse, newReportParam } from 'src/app/core/mock-data/report.data';
