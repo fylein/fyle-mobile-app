@@ -291,25 +291,6 @@ describe('MyViewReportPage', () => {
     });
   });
 
-  describe('getShowViolation():', () => {
-    it('should show expense violation', () => {
-      const result = component.getShowViolation(expenseData2);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should show the policy flag in expense', () => {
-      const result = component.getShowViolation({
-        ...expenseData2,
-        tx_policy_flag: true,
-        tx_manual_flag: false,
-        tx_policy_amount: 1000,
-      });
-
-      expect(result).toBeTrue();
-    });
-  });
-
   describe('getSimplifyReportSettings():', () => {
     it('should return simplify report settings', () => {
       const result = component.getSimplifyReportSettings({

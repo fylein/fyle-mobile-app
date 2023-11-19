@@ -49,14 +49,18 @@ import { platformReportData } from 'src/app/core/mock-data/platform-report.data'
 import {
   expenseData,
   expenseResponseData,
+  expenseResponseData2,
+  mileageExpense,
   perDiemExpenseWithSingleNumDays,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let reportService: jasmine.SpyObj<ReportService>;
+  let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
@@ -74,12 +78,16 @@ describe('ViewTeamReportPage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
+      'getReportExpenses',
+      'getExpenses',
+      'getExpensesCount',
+    ]);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
       'getTeamReport',
       'getExports',
       'getApproversByReportId',
-      'getReportETxnc',
       'actions',
       'delete',
       'approve',
@@ -128,6 +136,10 @@ describe('ViewTeamReportPage', () => {
         {
           provide: ReportService,
           useValue: reportServiceSpy,
+        },
+        {
+          provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
         },
         {
           provide: AuthService,
@@ -197,6 +209,7 @@ describe('ViewTeamReportPage', () => {
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+    approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -306,7 +319,7 @@ describe('ViewTeamReportPage', () => {
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
 
       component.ionViewWillEnter();
@@ -319,7 +332,7 @@ describe('ViewTeamReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
@@ -357,10 +370,10 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+        expect(res).toEqual(207000.78);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -391,7 +404,7 @@ describe('ViewTeamReportPage', () => {
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
 
-      expect(component.reportExpensesIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.reportExpensesIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
       expect(component.canApprove).toBeNull();
       expect(component.canShowTooltip).toBeTrue();
@@ -417,7 +430,7 @@ describe('ViewTeamReportPage', () => {
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       fixture.detectChanges();
 
@@ -431,7 +444,7 @@ describe('ViewTeamReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
@@ -467,10 +480,10 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
+      expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+        expect(res).toEqual(207000.78);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -500,7 +513,7 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
 
-      expect(component.reportExpensesIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.reportExpensesIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
       expect(component.isSequentialApprovalEnabled).toBeFalse();
       expect(component.canApprove).toBeTrue();
       expect(component.canShowTooltip).toBeTrue();
@@ -609,9 +622,9 @@ describe('ViewTeamReportPage', () => {
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          expenses: expenseResponseData,
           title: 'Approve Report',
           message: '3 expenses of amount undefined will be approved',
+          numIssues: 0,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -665,12 +678,12 @@ describe('ViewTeamReportPage', () => {
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.team,
-        category: 'groceries',
+        category: 'entertainment',
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
+          id: expenseData.id,
           txnIds: JSON.stringify(component.reportExpensesIds),
           activeIndex: 0,
           view: ExpenseView.team,
@@ -683,7 +696,7 @@ describe('ViewTeamReportPage', () => {
       fixture.detectChanges();
 
       component.goToTransaction({
-        expense: expenseData,
+        expense: mileageExpense,
         expenseIndex: 0,
       });
 
@@ -696,7 +709,7 @@ describe('ViewTeamReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
+          id: mileageExpense.id,
           txnIds: JSON.stringify(component.reportExpensesIds),
           activeIndex: 0,
           view: ExpenseView.team,
