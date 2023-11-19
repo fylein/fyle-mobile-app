@@ -81,6 +81,7 @@ describe('ExpensesService', () => {
     const reportId = 'rpSGcIEwzxDd';
     const params = {
       report_id: `eq.${reportId}`,
+      order: 'spent_at.desc,id.desc',
     };
 
     service.getReportExpenses(reportId).subscribe((response) => {

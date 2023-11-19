@@ -37,7 +37,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import { transactionsCacheBuster$ } from './transaction.service';
+import { expensesCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
@@ -204,7 +204,7 @@ describe('TransactionService', () => {
   });
 
   it('clearCache(): should clear cache', (done) => {
-    const notifierSpy = spyOn(transactionsCacheBuster$, 'next').and.callThrough();
+    const notifierSpy = spyOn(expensesCacheBuster$, 'next').and.callThrough();
     transactionService.clearCache().subscribe((res) => {
       expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();

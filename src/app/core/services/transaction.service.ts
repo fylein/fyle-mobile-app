@@ -16,7 +16,6 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
-import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -48,7 +47,7 @@ enum FilterState {
   DRAFT = 'DRAFT',
 }
 
-export const transactionsCacheBuster$ = new Subject<void>();
+export const expensesCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
@@ -78,7 +77,7 @@ export class TransactionService {
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService
   ) {
-    transactionsCacheBuster$.subscribe(() => {
+    expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
   }
@@ -89,7 +88,7 @@ export class TransactionService {
     Ref: https://www.npmjs.com/package/ts-cacheable#:~:text=need%20to%20set-,isInstant%3A%20true,-on%20CacheBuster%20configuration
   */
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
   clearCache(): Observable<null> {
@@ -97,7 +96,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
@@ -118,21 +117,21 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualFlag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualUnflag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getAllETxnc(params: EtxnParams): Observable<Expense[]> {
     return this.getETxnCount(params).pipe(
@@ -146,7 +145,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
@@ -185,7 +184,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
@@ -207,7 +206,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
@@ -226,14 +225,14 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
     return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
@@ -250,7 +249,7 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
@@ -316,7 +315,7 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   createTxnWithFiles(
     txn: Partial<Transaction>,

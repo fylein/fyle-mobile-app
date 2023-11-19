@@ -5,7 +5,6 @@ import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operato
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
-import { Expense } from '../models/expense.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { PlatformReport } from '../models/platform/platform-report.model';
