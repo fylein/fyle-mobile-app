@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-rates.model';
@@ -357,6 +358,32 @@ export const expenseData: Expense = {
 
 export const expenseResponseData = [expenseData];
 
+export const expenseResponseData2 = [expenseData, expenseData];
+
+export const expenseResponseData3: Expense[] = [
+  {
+    ...cloneDeep(expenseData),
+    amount: 89,
+    currency: 'INR',
+    foreign_currency: null,
+    foreign_amount: null,
+  },
+  {
+    ...cloneDeep(expenseData),
+    amount: 33611,
+    foreign_amount: 12,
+    currency: 'INR',
+    foreign_currency: 'CLF',
+  },
+  {
+    ...cloneDeep(expenseData),
+    amount: 15775.76,
+    foreign_amount: 178,
+    currency: 'INR',
+    foreign_currency: 'EUR',
+  },
+];
+
 export const criticalPolicyViolatedExpense: Expense = {
   ...expenseData,
   policy_amount: 0.00009,
@@ -368,7 +395,7 @@ const mileageCategory: Category = {
   code: null,
   display_name: 'Mileage display',
   id: 267841,
-  name: 'Mileage test',
+  name: 'Mileage',
   sub_category: 'Others',
   system_category: 'Mileage',
 };
@@ -377,9 +404,14 @@ const perDiemCategory: Category = {
   code: null,
   display_name: 'Per Diem display',
   id: 267841,
-  name: 'Per Diem test',
+  name: 'Per Diem',
   sub_category: 'Others',
   system_category: 'Per Diem',
+};
+
+export const mileageExpense: Expense = {
+  ...expenseData,
+  category: mileageCategory,
 };
 
 export const mileageExpenseWithDistance: Expense = {

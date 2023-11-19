@@ -4,7 +4,6 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -62,7 +61,6 @@ export class FyViewReportInfoComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private transactionService: TransactionService,
     private sharedExpensesService: SharedExpensesService,
     private datePipe: DatePipe,
     private orgUserSettingsService: OrgUserSettingsService,
