@@ -11,21 +11,25 @@ import {
   customProperties,
   filterTestData,
   filledDependentFields,
+  responseAfterAppliedFilter2,
 } from '../test-data/custom-inputs.spec.data';
 import { CustomInputsService } from './custom-inputs.service';
 import { expensesWithDependentFields } from '../mock-data/dependent-field-expenses.data';
 import { unspecifiedCategory } from '../mock-data/org-category.data';
+import { CategoriesService } from './categories.service';
 
 describe('CustomInputsService', () => {
   let customInputsService: CustomInputsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
 
   const orgCatId = 110351;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getCategoryByName']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -39,6 +43,10 @@ describe('CustomInputsService', () => {
           provide: AuthService,
           useValue: authServiceSpy,
         },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
         DatePipe,
       ],
     });
@@ -48,6 +56,7 @@ describe('CustomInputsService', () => {
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
   });
 
   it('should be created', () => {
@@ -56,7 +65,8 @@ describe('CustomInputsService', () => {
 
   it('should filter expense fields by category', () => {
     const result = customInputsService.filterByCategory(filterTestData, orgCatId, unspecifiedCategory);
-    expect(result).toEqual(responseAfterAppliedFilter);
+
+    expect(result).toEqual(responseAfterAppliedFilter2);
   });
 
   it('should get custom property to be displayed | USER LIST without value', () => {
@@ -281,10 +291,12 @@ describe('CustomInputsService', () => {
 
   it('should fill custom properties', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(authRespone));
+    categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
     const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
     result.subscribe((res) => {
       expect(res).toEqual(filledCustomProperties);
+      expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('unspecified');
       done();
     });
   });

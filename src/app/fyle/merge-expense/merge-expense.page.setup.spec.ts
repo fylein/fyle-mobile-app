@@ -28,7 +28,10 @@ describe('MergeExpensePage', () => {
         params: {},
       },
     };
-    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getSystemCategories']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
+      'getSystemCategories',
+      'getCategoryByName',
+    ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
