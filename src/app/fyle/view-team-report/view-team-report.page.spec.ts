@@ -623,7 +623,7 @@ describe('ViewTeamReportPage', () => {
         componentProps: {
           title: 'Approve Report',
           message: '3 expenses of amount undefined will be approved',
-          numIssues: 0,
+          flaggedExpensesCount: 0,
           primaryCta: {
             text: 'Approve',
             action: 'approve',

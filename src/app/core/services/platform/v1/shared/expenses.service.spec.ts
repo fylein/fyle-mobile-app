@@ -171,7 +171,7 @@ describe('ExpensesService', () => {
     // @ts-ignore
     expect(service.getPaymentModeForExpense(expenseData, paymentModeList)).toEqual(expensePaymentMode);
     expect(service.isExpenseInPaymentMode).toHaveBeenCalledOnceWith(
-      !expenseData.is_reimbursable,
+      expenseData.is_reimbursable,
       expenseData.source_account.type,
       expensePaymentMode.key
     );
@@ -271,38 +271,38 @@ describe('ExpensesService', () => {
 
   describe('isExpenseInPaymentMode():', () => {
     it('should return isExpenseInPaymentMode with reimbursable payment mode', () => {
-      const expenseSkipReimbursement = false;
+      const isExpenseReimbursable = true;
       const expensePaymentMode = 'reimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(expenseSkipReimbursement, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
       ).toBeTrue();
     });
 
     it('should return isExpenseInPaymentMode with non-reimbursable payment mode', () => {
-      const expenseSkipReimbursement = true;
+      const isExpenseReimbursable = false;
       const expensePaymentMode = 'nonReimbursable';
       const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(expenseSkipReimbursement, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
       ).toBeTrue();
     });
 
     it('should return isExpenseInPaymentMode with advance payment mode', () => {
-      const expenseSkipReimbursement = false;
+      const isExpenseReimbursable = true;
       const expensePaymentMode = 'advance';
       const expenseSourceAccountType = AccountType.PERSONAL_ADVANCE_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(expenseSkipReimbursement, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
       ).toBeTrue();
     });
 
     it('should return isExpenseInPaymentMode with advance payment mode', () => {
-      const expenseSkipReimbursement = false;
+      const isExpenseReimbursable = true;
       const expensePaymentMode = 'ccc';
       const expenseSourceAccountType = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
       expect(
-        service.isExpenseInPaymentMode(expenseSkipReimbursement, expenseSourceAccountType, expensePaymentMode)
+        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
       ).toBeTrue();
     });
   });
