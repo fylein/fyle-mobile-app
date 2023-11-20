@@ -46,7 +46,7 @@ import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
-import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 describe('ViewExpensePage', () => {
@@ -1120,7 +1120,7 @@ describe('ViewExpensePage', () => {
     tick();
 
     expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: TransactionStatusInfoComponent,
+      component: TransactionStatusInfoPopoverComponent,
       componentProps: {
         transactionStatus: TransactionStatus.PENDING,
       },

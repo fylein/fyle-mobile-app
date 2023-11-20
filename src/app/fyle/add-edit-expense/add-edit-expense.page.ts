@@ -129,6 +129,9 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
+import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 
 type FormValue = {
   currencyObj: {
@@ -182,6 +185,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<UnflattenedTransaction>;
+
+  platformExpense$: Observable<PlatformExpense>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -416,6 +421,8 @@ export class AddEditExpensePage implements OnInit {
 
   recentCategoriesOriginal: OrgCategoryListItem[];
 
+  isRTFEnabled$: Observable<boolean>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -461,8 +468,13 @@ export class AddEditExpensePage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
+    private expensesService: ExpensesService
   ) {}
+
+  get TransactionStatus(): typeof TransactionStatus {
+    return TransactionStatus;
+  }
 
   get isExpandedView(): boolean {
     return this._isExpandedView;
@@ -2882,6 +2894,14 @@ export class AddEditExpensePage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
 
+    this.isRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled)
+      )
+    );
+
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
@@ -3015,6 +3035,14 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id as boolean, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     ) as Observable<UnflattenedTransaction>;
+
+    /**
+     * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
+     */
+    if (this.activatedRoute.snapshot.params.id) {
+      const id = this.activatedRoute.snapshot.params.id as string;
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
+    }
 
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
@@ -4935,5 +4963,17 @@ export class AddEditExpensePage implements OnInit {
     });
 
     await sizeLimitExceededPopover.present();
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoPopoverComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }
