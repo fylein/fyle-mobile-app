@@ -4,7 +4,7 @@ import { MileageUnitEnum } from 'src/app/core/models/platform/platform-mileage-r
 import { ReportState } from 'src/app/core/models/platform/platform-report.model';
 import { ApprovalState } from 'src/app/core/models/platform/report-approvals.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 
 export const expenseData: Expense = {
@@ -137,7 +137,7 @@ export const expenseData: Expense = {
       merchant: 'Merchant1',
       posted_at: null,
       spent_at: new Date('2023-10-15T00:00:00+00:00'),
-      status: 'PENDING',
+      status: TransactionStatus.PENDING,
     },
   ],
   merchant: null,

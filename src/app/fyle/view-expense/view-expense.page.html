@@ -63,52 +63,75 @@
         <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
       </div>
 
-      <div class="d-flex view-expense--card-container">
-        <div class="view-expense--card-container__block">
-          <div class="view-expense--card-container__category">
-            {{ expense.category?.display_name || 'Unspecified' }}
-          </div>
-          <div class="view-expense--card-container__merchant">
-            {{ expense.merchant || merchantFieldName + ' Unspecified'}}
-          </div>
-          <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-            {{ projectFieldName | titlecase }}: {{ expense.project?.name || 'Unspecified' }}
-          </div>
-          <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
-        </div>
-        <div class="ion-text-right view-expense--card-container__block">
-          <div class="view-expense--card-container__amount-section">
-            <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
-            <span class="view-expense--card-container__amount">
-              {{ expense.amount | humanizeCurrency: expense.currency:true }}
-            </span>
-            <div *ngIf="isCCCTransaction">
-              <div
-                class="view-expense--card-container__txn-type"
-                [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
-              >
-                {{ expense.amount > 0 ? 'DR' : 'CR' }}
-              </div>
+      <div class="view-expense--card-container">
+        <div class="d-flex">
+          <div class="view-expense--card-container__block">
+            <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
+            <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+            <div *ngIf="isProjectShown" class="view-expense--card-container__project">
+              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
-            <ion-icon
-              class="view-expense--card-container__icon"
-              [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-            ></ion-icon>
+            <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
           </div>
 
-          <div *ngIf="foreignCurrencySymbol" class="view-expense--card-container__exchange-rate">
-            {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
-            expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
-          </div>
-          <div
-            class="view-expense--card-container__state-pill ion-text-right"
-            [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
-          >
-            <div class="state-pill state-{{expense.state | expenseState}}">
-              {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+          <div class="ion-text-right view-expense--card-container__block">
+            <div class="view-expense--card-container__amount-section">
+              <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
+              <span class="view-expense--card-container__amount">
+                {{ expense.amount | humanizeCurrency: expense.currency:true }}
+              </span>
+              <div *ngIf="isCCCTransaction">
+                <div
+                  class="view-expense--card-container__txn-type"
+                  [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
+                >
+                  {{ expense.amount > 0 ? 'DR' : 'CR' }}
+                </div>
+              </div>
+              <ion-icon
+                class="view-expense--card-container__icon"
+                [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+              ></ion-icon>
+            </div>
+
+            <div *ngIf="foreignCurrencySymbol" class="view-expense--card-container__exchange-rate">
+              {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
+              expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
+            </div>
+
+            <div
+              class="view-expense--card-container__state-pill ion-text-right"
+              [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
+            >
+              <div class="state-pill state-{{expense.state | expenseState}}">
+                {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+              </div>
             </div>
           </div>
         </div>
+
+        <ng-container *ngIf="isRTFEnabled && isCCCTransaction">
+          <div
+            *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction"
+            class="view-expense--card-container__transaction-status-container"
+          >
+            <div
+              class="view-expense--card-container__transaction-status-indicator"
+              [ngClass]="{'pending': matchedTransaction.status === TransactionStatus.PENDING, 'posted': matchedTransaction.status === TransactionStatus.POSTED}"
+            ></div>
+
+            Transaction Status:
+            <span class="view-expense--card-container__transaction-status"
+              >{{ matchedTransaction.status | titlecase }}</span
+            >
+
+            <ion-icon
+              (click)="openTransactionStatusInfoModal(matchedTransaction.status)"
+              src="../../../assets/svg/info-circle-outline.svg"
+              class="view-expense--card-container__transaction-status-info-icon"
+            ></ion-icon>
+          </div>
+        </ng-container>
       </div>
 
       <ng-container *ngIf="attachments$|async as attachments">

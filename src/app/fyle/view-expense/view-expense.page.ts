@@ -31,9 +31,10 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { TransactionStatusInfoComponent } from 'src/app/shared/components/transaction-status-info/transaction-status-info.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -127,6 +128,8 @@ export class ViewExpensePage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
+  isRTFEnabled: boolean;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -152,6 +155,10 @@ export class ViewExpensePage {
 
   get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
+  }
+
+  get TransactionStatus(): typeof TransactionStatus {
+    return TransactionStatus;
   }
 
   ionViewWillLeave(): void {
@@ -381,6 +388,9 @@ export class ViewExpensePage {
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isRTFEnabled =
+        (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+        (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
       this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
     });
 
@@ -526,5 +536,17 @@ export class ViewExpensePage {
 
         await attachmentsModal.present();
       });
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }
