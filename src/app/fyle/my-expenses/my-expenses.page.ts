@@ -554,6 +554,7 @@ export class MyExpensesPage implements OnInit {
 
         if (params.searchString) {
           queryParams.q = params.searchString;
+          queryParams.q = queryParams.q + ':*';
         }
         const orderByParams =
           params.sortParam && params.sortDir
