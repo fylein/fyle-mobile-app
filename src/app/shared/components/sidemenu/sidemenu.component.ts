@@ -239,7 +239,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Advances',
         isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
-        icon: 'advances',
+        icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },

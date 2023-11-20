@@ -51,7 +51,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Advances',
     isVisible: true,
-    icon: 'advances',
+    icon: 'wallet',
     route: ['/', 'enterprise', 'my_advances'],
     disabled: false,
   },
@@ -110,7 +110,7 @@ export const getPrimarySidemenuOptionsRes1 = [
   {
     title: 'Advances',
     isVisible: true,
-    icon: 'advances',
+    icon: 'wallet',
     route: ['/', 'enterprise', 'my_advances'],
     disabled: false,
   },
@@ -177,7 +177,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Advances',
     isVisible: true,
-    icon: 'advances',
+    icon: 'wallet',
     route: ['/', 'enterprise', 'my_advances'],
     disabled: false,
   },

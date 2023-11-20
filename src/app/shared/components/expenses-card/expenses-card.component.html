@@ -43,7 +43,10 @@
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
-            [ngClass]="{ 'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg' }"
+            [ngClass]="{
+              'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg',
+              'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
+            }"
           ></ion-icon>
         </div>
       </ng-container>
