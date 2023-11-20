@@ -31,7 +31,6 @@ import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
-import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
@@ -174,7 +173,6 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     FyPopupComponent,
     FyApproverComponent,
     ApproverDialogComponent,
-    FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
@@ -314,7 +312,6 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     FyZeroStateComponent,
     FyPopupComponent,
     FyApproverComponent,
-    FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
