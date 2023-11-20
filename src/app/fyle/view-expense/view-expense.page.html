@@ -66,14 +66,10 @@
       <div class="view-expense--card-container">
         <div class="d-flex">
           <div class="view-expense--card-container__block">
-            <div class="view-expense--card-container__category">
-              {{ expense.category?.display_name || 'Unspecified' }}
-            </div>
-            <div class="view-expense--card-container__merchant">
-              {{ expense.merchant || merchantFieldName + ' Unspecified'}}
-            </div>
+            <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
+            <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
             <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-              {{ projectFieldName | titlecase }}: {{ expense.project?.name || 'Unspecified' }}
+              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
             <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
           </div>

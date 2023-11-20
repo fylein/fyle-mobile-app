@@ -64,7 +64,7 @@
           {{perDiemExpense.per_diem_num_days}} {{perDiemExpense.per_diem_num_days === 1 ? 'Day' : 'Days'}}
         </div>
         <div *ngIf="isProjectShown" class="view-per-diem--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name || 'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ perDiemExpense.project?.name || '-' }}
         </div>
       </div>
       <div class="ion-text-right view-per-diem--card-container__block">
