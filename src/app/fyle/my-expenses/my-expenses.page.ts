@@ -305,21 +305,22 @@ export class MyExpensesPage implements OnInit {
   }
 
   setAllExpensesCountAndAmount(): void {
-    this.allExpensesStats$ = this.loadExpenses$.pipe(
+    this.allExpensesStats$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams: Record<string, string | string[] | boolean> = cloneDeep(params.queryParams) || {};
+        const queryParams: FilterQueryParams = cloneDeep(params.queryParams) || {};
+        const platformQueryParams = this.loadExpenses$.getValue();
 
         const newQueryParams: FilterQueryParams = {};
 
-        newQueryParams.tx_report_id = (queryParams.report_id || 'is.null') as string;
+        newQueryParams.tx_report_id = (platformQueryParams.queryParams.report_id || 'is.null') as string;
         newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
-        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = cloneDeep(
-            queryParams['matched_corporate_card_transactions->0->corporate_card_number']
-          );
+        if (platformQueryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = platformQueryParams[
+            'matched_corporate_card_transactions->0->corporate_card_number'
+          ] as string;
 
-          newQueryParams.or = (queryParams.or || []) as string[];
+          newQueryParams.or = queryParams.or || [];
           newQueryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
           delete queryParams.corporate_credit_card_account_number;
         }
@@ -327,7 +328,7 @@ export class MyExpensesPage implements OnInit {
         return this.transactionService
           .getTransactionStats('count(tx_id),sum(tx_amount)', {
             scalar: true,
-            ...queryParams,
+            ...newQueryParams,
           })
           .pipe(
             catchError(() => EMPTY),
@@ -555,6 +556,8 @@ export class MyExpensesPage implements OnInit {
         if (params.searchString) {
           queryParams.q = params.searchString;
           queryParams.q = queryParams.q + ':*';
+        } else if (params.searchString === '') {
+          delete queryParams.q;
         }
         const orderByParams =
           params.sortParam && params.sortDir
@@ -572,9 +575,7 @@ export class MyExpensesPage implements OnInit {
                 order: orderByParams,
               });
             } else {
-              return of({
-                data: [],
-              });
+              return of([]);
             }
           }),
           map((res) => {
@@ -612,7 +613,7 @@ export class MyExpensesPage implements OnInit {
 
     this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
+    this.allExpenseCountHeader$ = this.loadData$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
@@ -626,7 +627,7 @@ export class MyExpensesPage implements OnInit {
       })
     );
 
-    this.draftExpensesCount$ = this.loadExpenses$.pipe(
+    this.draftExpensesCount$ = this.loadData$.pipe(
       switchMap(() =>
         this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
           scalar: true,
