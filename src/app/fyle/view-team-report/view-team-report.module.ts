@@ -7,7 +7,6 @@ import { ViewTeamReportPage } from './view-team-report.page';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { ViewTeamReportEtxnCardComponent } from './view-team-report-etxn-card/view-team-report-etxn-card.component';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -26,6 +25,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatFormFieldModule,
     MatSnackBarModule,
   ],
-  declarations: [ViewTeamReportPage, ViewTeamReportEtxnCardComponent, ShareReportComponent],
+  declarations: [ViewTeamReportPage, ShareReportComponent],
 })
 export class ViewTeamReportPageModule {}
