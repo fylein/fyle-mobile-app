@@ -1138,18 +1138,21 @@ export class MyExpensesPage implements OnInit {
   }
 
   openReviewExpenses(): void {
-    const allDataPipe$ = this.loadData$.pipe(
+    const allDataPipe$ = this.loadExpenses$.pipe(
       take(1),
       switchMap((params) => {
         const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams =
+          params.sortParam && params.sortDir
+            ? `${params.sortParam}.${params.sortDir}`
+            : 'spent_at.desc,created_at.desc,id.desc';
 
-        return this.transactionService
+        return this.expenseService
           .getAllExpenses({
             queryParams,
             order: orderByParams,
@@ -1166,7 +1169,7 @@ export class MyExpensesPage implements OnInit {
             )
           );
       }),
-      map((etxns) => etxns.map((etxn) => etxn.tx_id))
+      map((etxns) => etxns.map((etxn) => etxn.id))
     );
     from(this.loaderService.showLoader())
       .pipe(
@@ -1178,9 +1181,9 @@ export class MyExpensesPage implements OnInit {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expenseService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: expense,
               allIds,
             }))
           );
@@ -1190,8 +1193,8 @@ export class MyExpensesPage implements OnInit {
       .subscribe(({ inital, allIds }) => {
         let category: string;
 
-        if (inital.tx.org_category) {
-          category = inital.tx.org_category.toLowerCase();
+        if (inital.category.name) {
+          category = inital.category.name.toLowerCase();
         }
 
         if (category === 'mileage') {
@@ -1200,7 +1203,7 @@ export class MyExpensesPage implements OnInit {
             'enterprise',
             'add_edit_mileage',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
@@ -1211,7 +1214,7 @@ export class MyExpensesPage implements OnInit {
             'enterprise',
             'add_edit_per_diem',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
@@ -1222,7 +1225,7 @@ export class MyExpensesPage implements OnInit {
             'enterprise',
             'add_edit_expense',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
@@ -1231,9 +1234,9 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  filterExpensesBySearchString(expense: Expense, searchString: string): boolean {
+  filterExpensesBySearchString(expense: PlatformExpense, searchString: string): boolean {
     return Object.values(expense)
-      .map((value: keyof Expense) => value && value.toString().toLowerCase())
+      .map((value: keyof PlatformExpense) => value && value.toString().toLowerCase())
       .filter((value) => !!value)
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
