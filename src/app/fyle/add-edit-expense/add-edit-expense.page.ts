@@ -472,10 +472,6 @@ export class AddEditExpensePage implements OnInit {
     private expensesService: ExpensesService
   ) {}
 
-  get TransactionStatus(): typeof TransactionStatus {
-    return TransactionStatus;
-  }
-
   get isExpandedView(): boolean {
     return this._isExpandedView;
   }
