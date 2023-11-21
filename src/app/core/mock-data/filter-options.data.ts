@@ -121,15 +121,15 @@ export const filterOptions2: FilterOptions<string>[] = [
     options: [
       {
         label: 'Mileage',
-        value: 'Mileage',
+        value: 'MILEAGE',
       },
       {
         label: 'Per Diem',
-        value: 'PerDiem',
+        value: 'PER_DIEM',
       },
       {
         label: 'Regular Expenses',
-        value: 'RegularExpenses',
+        value: 'EXPENSE',
       },
     ],
   },
