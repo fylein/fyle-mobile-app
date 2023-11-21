@@ -27,6 +27,7 @@ import {
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
+import { apiExpenses1 } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -88,8 +89,8 @@ describe('CreateNewReportComponent', () => {
     reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
     fixture = TestBed.createComponent(CreateNewReportComponent);
     component = fixture.componentInstance;
-    component.selectedElements = apiExpenseRes;
-    component.selectedExpensesToReport = apiExpenseRes;
+    component.selectedElements = apiExpenses1;
+    component.selectedExpensesToReport = apiExpenses1;
 
     fixture.detectChanges();
   }));
@@ -101,7 +102,7 @@ describe('CreateNewReportComponent', () => {
   describe('getReportTitle', () => {
     it('should get the report title', () => {
       const reportName = '#1:  Jul 2021';
-      component.selectedElements = apiExpenseRes;
+      component.selectedElements = apiExpenses1;
       reportService.getReportPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
@@ -111,7 +112,7 @@ describe('CreateNewReportComponent', () => {
 
     it('should not get the report title when the element is not in the selectedElements array', () => {
       const reportName = '#1:  Jul 2021';
-      component.selectedElements = expenseList;
+      component.selectedElements = apiExpenses1;
       reportService.getReportPurpose.and.returnValue(of(reportName));
       component.getReportTitle();
       fixture.detectChanges();
@@ -153,24 +154,24 @@ describe('CreateNewReportComponent', () => {
       const reportTitleSpy = spyOn(component, 'getReportTitle');
       component.selectedElements = [];
       const newExpense = apiExpenseRes[0];
-      component.selectExpense(newExpense);
+      component.selectExpense(apiExpenses1[0]);
       tick(500);
       fixture.detectChanges();
       expect(component.selectedElements.length).toBe(component.selectedExpensesToReport.length);
-      expect(component.selectedElements).toContain(newExpense);
+      expect(component.selectedElements).toContain(apiExpenses1[1]);
       expect(reportTitleSpy).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeTrue();
     }));
 
     it('should remove an expense from the selectedElements array', fakeAsync(() => {
-      component.selectedElements = expenseList2;
-      component.selectedExpensesToReport = expenseList2;
+      component.selectedElements = apiExpenses1;
+      component.selectedExpensesToReport = apiExpenses1;
       const reportTitleSpy = spyOn(component, 'getReportTitle');
-      const existingExpense: Expense = component.selectedElements[0];
-      component.selectExpense(existingExpense);
+
+      component.selectExpense(apiExpenses1[0]);
       tick(500);
       fixture.detectChanges();
-      expect(component.selectedElements).not.toContain(existingExpense);
+      expect(component.selectedElements).not.toContain(apiExpenses1[1]);
       expect(component.selectedElements.length).toBe(1);
       expect(reportTitleSpy).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeFalse();

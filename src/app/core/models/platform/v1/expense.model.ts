@@ -15,6 +15,7 @@ import { Level } from './level.model';
 import { Department } from './department.model';
 import { ReportState } from '../platform-report.model';
 import { Account } from './account.model';
+import { CustomFields } from '../custom-fields.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -35,7 +36,7 @@ export interface Expense {
   created_at: Date;
   creator_user_id: string;
   currency: string;
-  custom_fields: NameValuePair[];
+  custom_fields: CustomFields[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   custom_fields_flattened: Record<string, any>;
   distance: number;
