@@ -19,6 +19,7 @@ import { RouterTestingModule } from '@angular/router/testing';
 import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
 import { TestCases3 } from './merge-expense-3.page.spec';
+import { TransactionService } from 'src/app/core/services/transaction.service';
 
 describe('MergeExpensePage', () => {
   const getTestBed = () => {
@@ -79,6 +80,7 @@ describe('MergeExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldsForBaseField',
     ]);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnc']);
 
     TestBed.configureTestingModule({
       declarations: [MergeExpensePage],
@@ -105,6 +107,10 @@ describe('MergeExpensePage', () => {
         {
           provide: DependentFieldsService,
           useValue: dependentFieldsServiceSpy,
+        },
+        {
+          provide: TransactionService,
+          useValue: transactionServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
