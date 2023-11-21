@@ -72,7 +72,7 @@ export class NavigationFooterComponent implements OnInit {
   }
 
   goToExpense(expense: Expense, expenseIndex: number): void {
-    const category = expense.category?.name.toLowerCase();
+    const category = expense.category.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {
