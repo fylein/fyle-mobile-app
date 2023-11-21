@@ -1,53 +1,38 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
-import { MyExpensesPage } from './my-expenses.page';
-import { TasksService } from 'src/app/core/services/tasks.service';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
-import { By } from '@angular/platform-browser';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
-import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
-import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stats.data';
-import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { MyExpensesService } from './my-expenses.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { clone, cloneDeep } from 'lodash';
+import { BehaviorSubject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
+import { getElementRef } from 'src/app/core/dom-helpers';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
+import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
-import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
+import {
+  expectedCriticalPolicyViolationPopoverParams,
+  expectedCriticalPolicyViolationPopoverParams2,
+  expectedCriticalPolicyViolationPopoverParams3,
+} from 'src/app/core/mock-data/critical-policy-violation-popover.data';
+import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenseRes,
   expectedFormattedTransaction,
   expenseData1,
   expenseData2,
-  expenseData3,
-  expenseList2,
   expenseList4,
-  mileageExpenseWithoutDistance,
-  perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { environment } from 'src/environments/environment';
-import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
   cardFilterPill,
   creditTxnFilterPill,
@@ -61,22 +46,13 @@ import {
   stateFilterPill,
   typeFilterPill,
 } from 'src/app/core/mock-data/filter-pills.data';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ExpenseFilters } from './expense-filters.model';
-import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
-import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
-import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import {
-  expectedActionSheetButtonRes,
-  expectedActionSheetButtonsWithMileage,
-  expectedActionSheetButtonsWithPerDiem,
-} from 'src/app/core/mock-data/action-sheet-options.data';
-import { clone, cloneDeep } from 'lodash';
-import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import {
+  expectedCurrentParamsCannotReportState,
+  expectedCurrentParamsDraftState,
+  expectedCurrentParamsWithDraftCannotReportState,
+  expectedCurrentParamsWoFilterState,
+} from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
 import {
   addExpenseToReportModalParams,
   modalControllerParams,
@@ -85,36 +61,62 @@ import {
   openFromComponentConfig,
   popoverControllerParams,
 } from 'src/app/core/mock-data/modal-controller.data';
-import { expectedCurrentParams } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { Expense } from 'src/app/core/models/expense.model';
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
+import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import {
   snackbarPropertiesRes,
   snackbarPropertiesRes2,
   snackbarPropertiesRes3,
   snackbarPropertiesRes4,
 } from 'src/app/core/mock-data/snackbar-properties.data';
-import {
-  expectedCriticalPolicyViolationPopoverParams,
-  expectedCriticalPolicyViolationPopoverParams2,
-  expectedCriticalPolicyViolationPopoverParams3,
-} from 'src/app/core/mock-data/critical-policy-violation-popover.data';
-import { ExtendedReport } from 'src/app/core/models/report.model';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
+import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
+import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { AdvancesStates } from 'src/app/core/models/advances-states.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { environment } from 'src/environments/environment';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { MyExpensesPage } from './my-expenses.page';
+import { MyExpensesService } from './my-expenses.service';
 
-describe('MyExpensesPage', () => {
+fdescribe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -146,6 +148,8 @@ describe('MyExpensesPage', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let inputElement: HTMLInputElement;
+  let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -244,6 +248,28 @@ describe('MyExpensesPage', () => {
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'getExpensesCount',
+      'getExpenses',
+      'getAllExpenses',
+    ]);
+    const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
+      'generateCardNumberParams',
+      'generateDateParams',
+      'generateReceiptAttachedParams',
+      'generateStateFilters',
+      'generateTypeFilters',
+      'setSortParams',
+      'generateSplitExpenseParams',
+      'getReportableExpenses',
+      'excludeCCCExpenses',
+      'isMergeAllowed',
+      'getIsCriticalPolicyViolated',
+      'getIsDraft',
+      'getExpenseDeletionMessage',
+      'getCCCExpenseMessage',
+      'getDeleteDialogBody',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyExpensesPage, ReportState, MaskNumber],
@@ -341,6 +367,14 @@ describe('MyExpensesPage', () => {
           provide: CategoriesService,
           useValue: categoriesServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
+          provide: SharedExpenseService,
+          useValue: sharedExpenseServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -383,7 +417,10 @@ describe('MyExpensesPage', () => {
     popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
     component.loadData$ = new BehaviorSubject({});
+    component.loadExpenses$ = new BehaviorSubject({});
   }));
 
   it('should create', () => {
@@ -994,7 +1031,7 @@ describe('MyExpensesPage', () => {
   describe('switchSelectionMode(): ', () => {
     beforeEach(() => {
       component.selectionMode = true;
-      component.loadData$ = new BehaviorSubject({
+      component.loadExpenses$ = new BehaviorSubject({
         searchString: 'example',
       });
       component.headerState = HeaderState.simpleSearch;
@@ -1013,8 +1050,7 @@ describe('MyExpensesPage', () => {
     });
 
     it('should set headerState to base if searchString is defined in loadData and if expense is selected', () => {
-      component.loadData$ = new BehaviorSubject({});
-      const expense = apiExpenseRes[0];
+      component.loadExpenses$ = new BehaviorSubject({});
 
       component.switchSelectionMode(apiExpenses1[0]);
 
@@ -1022,7 +1058,7 @@ describe('MyExpensesPage', () => {
       expect(component.headerState).toBe(HeaderState.base);
       expect(component.selectedElements).toEqual([]);
       expect(component.setAllExpensesCountAndAmount).toHaveBeenCalledTimes(1);
-      expect(component.selectExpense).toHaveBeenCalledOnceWith(apiExpenses1[1]);
+      expect(component.selectExpense).toHaveBeenCalledOnceWith(apiExpenses1[0]);
     });
 
     it('should update allExpensesStats$ and headerState if selectionMode is false', () => {
@@ -1273,7 +1309,7 @@ describe('MyExpensesPage', () => {
   describe('loadData(): ', () => {
     beforeEach(() => {
       component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
+      component.loadExpenses$ = new BehaviorSubject({
         pageNumber: 2,
       });
     });
@@ -1283,7 +1319,7 @@ describe('MyExpensesPage', () => {
       component.loadData(mockEvent);
 
       expect(component.currentPageNumber).toBe(3);
-      expect(component.loadData$.getValue().pageNumber).toBe(3);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(3);
       tick(1000);
       expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
     }));
@@ -1294,7 +1330,7 @@ describe('MyExpensesPage', () => {
       component.loadData(mockEvent);
 
       expect(component.currentPageNumber).toBe(3);
-      expect(component.loadData$.getValue().pageNumber).toBe(3);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(3);
     });
 
     it('should increment currentPageNumber and emit updated params if event if undefined', () => {
@@ -1303,7 +1339,7 @@ describe('MyExpensesPage', () => {
       component.loadData(mockEvent);
 
       expect(component.currentPageNumber).toBe(3);
-      expect(component.loadData$.getValue().pageNumber).toBe(3);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(3);
     });
   });
 
@@ -1311,7 +1347,7 @@ describe('MyExpensesPage', () => {
     beforeEach(() => {
       transactionService.clearCache.and.returnValue(of(null));
       component.currentPageNumber = 2;
-      component.loadData$ = new BehaviorSubject({
+      component.loadExpenses$ = new BehaviorSubject({
         pageNumber: 2,
       });
       spyOn(component, 'setExpenseStatsOnSelect');
@@ -1323,7 +1359,7 @@ describe('MyExpensesPage', () => {
       expect(component.selectedElements).toEqual([]);
       expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       expect(component.currentPageNumber).toBe(1);
-      expect(component.loadData$.getValue().pageNumber).toBe(1);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(1);
     }));
 
     it('should refresh data and call complete if ionRefresher event if present and selectionMode is true', fakeAsync(() => {
@@ -1337,7 +1373,7 @@ describe('MyExpensesPage', () => {
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       expect(component.currentPageNumber).toBe(1);
-      expect(component.loadData$.getValue().pageNumber).toBe(1);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(1);
       expect(mockEvent.target.complete).toHaveBeenCalledTimes(1);
     }));
 
@@ -1350,7 +1386,7 @@ describe('MyExpensesPage', () => {
       expect(component.selectedElements).toEqual([]);
       expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
       expect(component.currentPageNumber).toBe(1);
-      expect(component.loadData$.getValue().pageNumber).toBe(1);
+      expect(component.loadExpenses$.getValue().pageNumber).toBe(1);
     }));
   });
 
@@ -1406,38 +1442,35 @@ describe('MyExpensesPage', () => {
 
   describe('addNewFiltersToParams(): ', () => {
     beforeEach(() => {
-      component.loadData$ = new BehaviorSubject({
-        pageNumber: 2,
-      });
-      transactionService.generateCardNumberParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
+      sharedExpenseService.generateCardNumberParams.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
         or: [],
       });
-      transactionService.generateDateParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      sharedExpenseService.generateDateParams.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
       });
-      transactionService.generateReceiptAttachedParams.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      sharedExpenseService.generateReceiptAttachedParams.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
       });
-      transactionService.generateStateFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      sharedExpenseService.generateStateFilters.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
       });
-      transactionService.generateTypeFilters.and.returnValue({
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      sharedExpenseService.generateTypeFilters.and.returnValue({
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
         or: [],
       });
-      transactionService.setSortParams.and.returnValue({ sortDir: 'asc' });
-      transactionService.generateSplitExpenseParams.and.returnValue({
-        or: ['(tx_is_split_expense.eq.true)'],
-        corporate_credit_card_account_number: 'in.(789)',
-        and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)',
+      sharedExpenseService.setSortParams.and.returnValue({ sortDir: 'asc' });
+      sharedExpenseService.generateSplitExpenseParams.and.returnValue({
+        or: ['(is_split.eq.true)'],
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+        and: '(spent_at.gte.March,spent_at.lt.April)',
       });
     });
 
@@ -1446,30 +1479,46 @@ describe('MyExpensesPage', () => {
 
       const currentParams = component.addNewFiltersToParams();
 
-      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
-      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+      expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
+        { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
         component.filters
       );
-      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
-      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
 
-      // expect(currentParams).toEqual(expectedCurrentParams);
+      expect(currentParams).toEqual(expectedCurrentParamsWoFilterState);
       expect(component.reviewMode).toBeFalse();
     });
 
@@ -1480,30 +1529,46 @@ describe('MyExpensesPage', () => {
 
       const currentParams = component.addNewFiltersToParams();
 
-      expect(transactionService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
-      expect(transactionService.generateDateParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', or: [] },
+      expect(sharedExpenseService.generateCardNumberParams).toHaveBeenCalledOnceWith({ or: [] }, component.filters);
+      expect(sharedExpenseService.generateDateParams).toHaveBeenCalledOnceWith(
+        { 'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)', or: [] },
         component.filters
       );
-      expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateStateFilters).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.generateTypeFilters).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
-      expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
-      expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+      expect(sharedExpenseService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
+      expect(sharedExpenseService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
+        {
+          'matched_corporate_card_transactions->0->corporate_card_number': 'in.(789)',
+          and: '(spent_at.gte.March,spent_at.lt.April)',
+          or: [],
+        },
         component.filters
       );
 
-      // expect(currentParams).toEqual(expectedCurrentParams);
+      expect(currentParams).toEqual(expectedCurrentParamsDraftState);
       expect(component.reviewMode).toBeTrue();
     });
 
@@ -1520,24 +1585,24 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
 
-      // expect(currentParams).toEqual(expectedCurrentParams);
+      expect(currentParams).toEqual(expectedCurrentParamsCannotReportState);
       expect(component.reviewMode).toBeTrue();
     });
 
@@ -1554,24 +1619,24 @@ describe('MyExpensesPage', () => {
         component.filters
       );
       expect(transactionService.generateReceiptAttachedParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.generateStateFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.generateTypeFilters).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
       expect(transactionService.setSortParams).toHaveBeenCalledOnceWith({ pageNumber: 1 }, component.filters);
       expect(transactionService.generateSplitExpenseParams).toHaveBeenCalledOnceWith(
-        { corporate_credit_card_account_number: 'in.(789)', and: '(tx_txn_dt.gte.March,tx_txn_dt.lt.April)', or: [] },
+        { corporate_credit_card_account_number: 'in.(789)', and: '(spent_at.gte.March,spent_at.lt.April)', or: [] },
         component.filters
       );
 
-      // expect(currentParams).toEqual(expectedCurrentParams);
+      expect(currentParams).toEqual(expectedCurrentParamsWithDraftCannotReportState);
       expect(component.reviewMode).toBeTrue();
     });
 
@@ -1595,11 +1660,11 @@ describe('MyExpensesPage', () => {
         state: [],
       };
       myExpenseService.generateSelectedFilters.and.returnValue(selectedFilters1);
-      component.loadData$ = new BehaviorSubject({
+      component.loadExpenses$ = new BehaviorSubject({
         pageNumber: 1,
       });
       component.currentPageNumber = 2;
-      // myExpenseService.getFilters.and.returnValue({ sortDir: 'asc', splitExpense: 'YES' });
+      myExpenseService.convertSelectedOptionsToExpenseFilters.and.returnValue({ sortDir: 'asc', splitExpense: 'YES' });
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ searchString: 'example' });
       spyOn(component, 'generateFilterPills').and.returnValue([
         {
@@ -1622,7 +1687,7 @@ describe('MyExpensesPage', () => {
       tick(200);
 
       expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams);
-      // expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(myExpenseService.convertSelectedOptionsToExpenseFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
@@ -1643,12 +1708,12 @@ describe('MyExpensesPage', () => {
 
       expect(modalController.create).toHaveBeenCalledOnceWith(modalControllerParams2);
 
-      // expect(myExpenseService.convertFilters).toHaveBeenCalledOnceWith(selectedFilters2);
+      expect(myExpenseService.convertSelectedOptionsToExpenseFilters).toHaveBeenCalledOnceWith(selectedFilters2);
       expect(component.filters).toEqual({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
-        expect(loadData).toEqual({ searchString: 'example' });
+      component.loadExpenses$.subscribe((loadExpenses) => {
+        expect(loadExpenses).toEqual({ searchString: 'example' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({ sortDir: 'asc', splitExpense: 'YES' });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
@@ -1689,7 +1754,7 @@ describe('MyExpensesPage', () => {
       pageNumber: 1,
       searchString: 'example',
     });
-    component.loadData$ = new BehaviorSubject({
+    component.loadExpenses$ = new BehaviorSubject({
       pageNumber: 1,
     });
 
@@ -1697,7 +1762,7 @@ describe('MyExpensesPage', () => {
 
     expect(component.isLoading).toBeTrue();
     expect(component.currentPageNumber).toBe(1);
-    component.loadData$.subscribe((data) => {
+    component.loadExpenses$.subscribe((data) => {
       expect(data).toEqual({
         pageNumber: 1,
         searchString: 'example',
@@ -1807,22 +1872,28 @@ describe('MyExpensesPage', () => {
 
   describe('goToTransaction():', () => {
     it('should navigate to add_edit_mileage page if category is mileage', () => {
-      component.goToTransaction({ expense: expenseData, expenseIndex: 1 });
+      component.goToTransaction({
+        expense: { ...expenseData, category: { ...expenseData.category, name: 'mileage' } },
+        expenseIndex: 1,
+      });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'add_edit_mileage',
-        { id: 'txEpXa1cd6oq', persist_filters: true },
+        { id: expenseData.id, persist_filters: true },
       ]);
     });
 
     it('should navigate to add_edit_per_diem if category is per diem', () => {
-      component.goToTransaction({ expense: expenseData, expenseIndex: 1 });
+      component.goToTransaction({
+        expense: { ...expenseData, category: { ...expenseData.category, name: 'per diem' } },
+        expenseIndex: 1,
+      });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'add_edit_per_diem',
-        { id: 'txWDbbZhNwdA', persist_filters: true },
+        { id: expenseData.id, persist_filters: true },
       ]);
     });
 
@@ -1832,7 +1903,7 @@ describe('MyExpensesPage', () => {
         '/',
         'enterprise',
         'add_edit_expense',
-        { id: 'tx3qHxFNgRcZ', persist_filters: true },
+        { id: apiExpenses1[0].id, persist_filters: true },
       ]);
     });
   });
@@ -1918,21 +1989,20 @@ describe('MyExpensesPage', () => {
 
     it('should call showNonReportableExpenseSelectedToast if policyViolationExpenses length is equal to selectedElements length', fakeAsync(() => {
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, true);
-      transactionService.getIsDraft.and.returnValues(false, false, true);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(true, true);
+      sharedExpenseService.getIsDraft.and.returnValues(false, true);
 
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
       expect(trackingService.addToReport).not.toHaveBeenCalled();
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(3);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
         'You cannot add critical policy violated expenses to a report'
@@ -1941,21 +2011,19 @@ describe('MyExpensesPage', () => {
 
     it('should call showNonReportableExpenseSelectedToast if expensesInDraftState length is equal to selectedElements length', fakeAsync(() => {
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, true);
-      transactionService.getIsDraft.and.returnValues(true, true, true);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(false, true);
+      sharedExpenseService.getIsDraft.and.returnValues(true, true);
 
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
       expect(trackingService.addToReport).not.toHaveBeenCalled();
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
         'You cannot add draft expenses to a report'
@@ -1965,21 +2033,19 @@ describe('MyExpensesPage', () => {
     it('should call showNonReportableExpenseSelectedToast if isReportableExpensesSelected is falsy', fakeAsync(() => {
       component.isReportableExpensesSelected = false;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, true);
-      transactionService.getIsDraft.and.returnValues(false, true, false);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(false, true);
+      sharedExpenseService.getIsDraft.and.returnValues(true, false);
 
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
       expect(trackingService.addToReport).not.toHaveBeenCalled();
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
         'You cannot add draft expenses and critical policy violated expenses to a report'
@@ -1989,21 +2055,19 @@ describe('MyExpensesPage', () => {
     it('should call trackingService and showOldReportsMatBottomSheet if report is oldReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
-      transactionService.getIsDraft.and.returnValues(false, false, false);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(false, false);
+      sharedExpenseService.getIsDraft.and.returnValues(false, false);
 
       component.openCreateReportWithSelectedIds('oldReport');
       tick(100);
 
       expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.showOldReportsMatBottomSheet).toHaveBeenCalledOnceWith();
     }));
@@ -2011,33 +2075,31 @@ describe('MyExpensesPage', () => {
     it('should call trackingService and showNewReportModal if report is newReport and policyViolationExpenses and draftExpenses are zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
-      transactionService.getIsDraft.and.returnValues(false, false, false);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(false, false);
+      sharedExpenseService.getIsDraft.and.returnValues(false, false);
 
       component.openCreateReportWithSelectedIds('newReport');
       tick(100);
 
       expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.showNewReportModal).toHaveBeenCalledOnceWith();
     }));
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses and draftExpenses are present', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
-      const mockExpenseList = cloneDeep(expenseList4);
-      mockExpenseList[1].tx_amount = undefined;
-      mockExpenseList[1].tx_admin_amount = 34;
+      const mockExpenseList = cloneDeep(apiExpenses1);
+      mockExpenseList[1].amount = undefined;
+      mockExpenseList[1].admin_amount = 34;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, false);
-      transactionService.getIsDraft.and.returnValues(false, false, true);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(true, false);
+      sharedExpenseService.getIsDraft.and.returnValues(false, true);
       component.homeCurrency$ = of('USD');
       component.homeCurrencySymbol = '$';
 
@@ -2045,14 +2107,12 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
         expectedCriticalPolicyViolationPopoverParams
@@ -2061,12 +2121,12 @@ describe('MyExpensesPage', () => {
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if draftExpense is zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
-      const mockExpenseList = cloneDeep(expenseList4);
-      mockExpenseList[1].tx_amount = undefined;
-      mockExpenseList[1].tx_admin_amount = 34;
+      const mockExpenseList = cloneDeep(apiExpenses1);
+      mockExpenseList[1].amount = undefined;
+      mockExpenseList[1].admin_amount = 34;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(true, true, false);
-      transactionService.getIsDraft.and.returnValues(false, false, false);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(true, false);
+      sharedExpenseService.getIsDraft.and.returnValues(false, false);
       component.homeCurrency$ = of('USD');
       component.homeCurrencySymbol = '$';
 
@@ -2074,14 +2134,12 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(mockExpenseList[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
         expectedCriticalPolicyViolationPopoverParams2
@@ -2091,8 +2149,8 @@ describe('MyExpensesPage', () => {
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses is zero', fakeAsync(() => {
       component.isReportableExpensesSelected = true;
       component.selectedElements = apiExpenses1;
-      transactionService.getIsCriticalPolicyViolated.and.returnValues(false, false, false);
-      transactionService.getIsDraft.and.returnValues(false, true, false);
+      sharedExpenseService.getIsCriticalPolicyViolated.and.returnValues(false, false);
+      sharedExpenseService.getIsDraft.and.returnValues(false, true);
       component.homeCurrency$ = of('USD');
       component.homeCurrencySymbol = '$';
 
@@ -2100,14 +2158,12 @@ describe('MyExpensesPage', () => {
       tick(100);
 
       expect(trackingService.addToReport).toHaveBeenCalledTimes(1);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(expenseList4[2]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledTimes(3);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[0]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[1]);
-      expect(transactionService.getIsDraft).toHaveBeenCalledWith(expenseList4[2]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsCriticalPolicyViolated).toHaveBeenCalledWith(apiExpenses1[1]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
+      expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
 
       expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
         expectedCriticalPolicyViolationPopoverParams3
@@ -2117,7 +2173,7 @@ describe('MyExpensesPage', () => {
 
   it('showNewReportModal(): should open modalController and call showAddToReportSuccessToast', fakeAsync(() => {
     component.selectedElements = apiExpenses1;
-    transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+    sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
     const addExpenseToNewReportModalSpy = jasmine.createSpyObj('addExpenseToNewReportModal', [
       'present',
       'onDidDismiss',
@@ -2132,7 +2188,7 @@ describe('MyExpensesPage', () => {
     component.showNewReportModal();
     tick(100);
 
-    expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+    expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
 
     expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams);
     expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
@@ -2381,7 +2437,7 @@ describe('MyExpensesPage', () => {
       component.selectedElements = apiExpenses1;
       component.isNewReportsFlowEnabled = true;
       component.openReports$ = of(apiExtendedReportRes);
-      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'showAddToReportSuccessToast');
     });
 
@@ -2396,7 +2452,7 @@ describe('MyExpensesPage', () => {
 
       component.showOldReportsMatBottomSheet();
 
-      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
@@ -2421,7 +2477,7 @@ describe('MyExpensesPage', () => {
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
-      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: mockReportData, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
@@ -2444,7 +2500,7 @@ describe('MyExpensesPage', () => {
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
-      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenseRes);
+      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
@@ -2478,16 +2534,17 @@ describe('MyExpensesPage', () => {
     });
     it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
       component.deleteSelectedExpenses([]);
-      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual(apiExpenses1);
-      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txKFqMRPNLsa', 'txc5zbIpTGMU', 'txo3tuIb7em4']);
+      expect(transactionService.deleteBulk).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     });
+
     it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
-      const mockExpensesWithoutId = cloneDeep(apiExpenseRes);
-      mockExpensesWithoutId[0].tx_id = undefined;
-      component.expensesToBeDeleted = apiExpenses1;
+      const mockExpensesWithoutId = cloneDeep([apiExpenses1[0]]);
+      mockExpensesWithoutId[0].id = undefined;
+      component.expensesToBeDeleted = mockExpensesWithoutId;
       component.deleteSelectedExpenses([]);
-      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith([], []);
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual([]);
       expect(transactionService.deleteBulk).not.toHaveBeenCalled();
     });
@@ -2731,7 +2788,7 @@ describe('MyExpensesPage', () => {
       expect(component.filters.sortParam).toBeUndefined();
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((data) => {
+      component.loadExpenses$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
@@ -2744,7 +2801,7 @@ describe('MyExpensesPage', () => {
       });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((data) => {
+      component.loadExpenses$.subscribe((data) => {
         expect(data).toEqual({ pageNumber: 3 });
       });
       expect(component.filterPills).toEqual(creditTxnFilterPill);

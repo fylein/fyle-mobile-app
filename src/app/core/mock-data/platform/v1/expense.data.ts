@@ -367,7 +367,7 @@ type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' |
 
 const mileageCategory: Category = {
   code: null,
-  display_name: 'Mileage display',
+  display_name: 'mileage display',
   id: 267841,
   name: 'Mileage test',
   sub_category: 'Others',

@@ -3,7 +3,6 @@ import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { apiExpenseRes } from './expense.data';
 import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
@@ -20,6 +19,7 @@ import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
+import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -56,7 +56,7 @@ export const modalControllerParams2 = {
 export const newReportModalParams = {
   component: CreateNewReportComponent,
   componentProps: {
-    selectedExpensesToReport: apiExpenseRes,
+    selectedExpensesToReport: apiExpenses1,
   },
   mode: <Mode>'ios',
   ...fyModalProperties,
