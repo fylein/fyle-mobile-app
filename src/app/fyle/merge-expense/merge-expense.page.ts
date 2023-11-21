@@ -201,8 +201,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     this.systemCategories = this.categoriesService.getSystemCategories();
 
-    expenses$.subscribe((expenses) => (this.expenses = expenses));
-
     expenses$
       .pipe(switchMap((expenses) => this.mergeExpensesService.generateReceiptOptions(expenses)))
       .subscribe((receiptOptions) => {
@@ -210,108 +208,87 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       });
 
     this.amountOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateAmountOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateAmountOptions(expenses))
     );
 
     this.dateOfSpendOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateDateOfSpendOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateDateOfSpendOptions(expenses))
     );
 
     this.paymentModeOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generatePaymentModeOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generatePaymentModeOptions(expenses))
     );
 
     this.projectOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateProjectOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateProjectOptions(expenses))
     );
 
     this.billableOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateBillableOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateBillableOptions(expenses))
     );
 
     this.vendorOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateVendorOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateVendorOptions(expenses))
     );
 
     this.categoryOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateCategoryOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateCategoryOptions(expenses))
     );
 
     this.taxGroupOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateTaxGroupOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateTaxGroupOptions(expenses))
     );
 
     this.taxAmountOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateTaxAmountOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateTaxAmountOptions(expenses))
     );
 
     this.constCenterOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateCostCenterOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateCostCenterOptions(expenses))
     );
 
     this.purposeOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generatePurposeOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generatePurposeOptions(expenses))
     );
 
     this.location1OptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 0)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 0))
     );
 
     this.location2OptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 1)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 1))
     );
 
     this.onwardDateOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateOnwardDateOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateOnwardDateOptions(expenses))
     );
 
     this.returnDateOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateReturnDateOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateReturnDateOptions(expenses))
     );
 
     this.flightJourneyTravelClassOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateFlightJourneyTravelClassOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateFlightJourneyTravelClassOptions(expenses))
     );
 
     this.flightReturnTravelClassOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateFlightReturnTravelClassOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateFlightReturnTravelClassOptions(expenses))
     );
 
     this.trainTravelClassOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateTrainTravelClassOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateTrainTravelClassOptions(expenses))
     );
 
     this.busTravelClassOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateBusTravelClassOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateBusTravelClassOptions(expenses))
     );
 
     this.distanceOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateDistanceOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateDistanceOptions(expenses))
     );
 
     this.distanceUnitOptionsData$ = expenses$.pipe(
-      switchMap((expenses) => this.mergeExpensesService.generateDistanceUnitOptions(expenses)),
-      shareReplay(1)
+      switchMap((expenses) => this.mergeExpensesService.generateDistanceUnitOptions(expenses))
     );
 
     this.genericFieldsOptions$ = forkJoin({
@@ -338,9 +315,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     let customProperties;
 
-    expenses$
-      .pipe(switchMap((expenses) => this.mergeExpensesService.getCustomInputValues(expenses)))
-      .subscribe((customProps) => (customProperties = customProps));
+    expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.getCustomInputValues(expenses)),
+      map((customProps) => (customProperties = customProps))
+    );
+
+    expenses$.subscribe((expenses) => (this.expenses = expenses));
 
     this.combinedCustomProperties = this.generateCustomInputOptions(customProperties as Partial<CustomInput>[][]);
   }

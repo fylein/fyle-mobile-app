@@ -26,7 +26,9 @@ describe('MergeExpensePage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const activatedRouteSpy = {
       snapshot: {
-        params: {},
+        params: {
+          txnIDs: JSON.stringify(['txBphgnCHHeO', 'tx3nHShG60zq']),
+        },
       },
     };
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getSystemCategories']);
