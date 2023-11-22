@@ -348,7 +348,7 @@ export class ViewMileagePage {
       ) {
         this.vehicleType = 'car';
       } else {
-        this.vehicleType = 'bike';
+        this.vehicleType = 'scooter';
       }
 
       this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
