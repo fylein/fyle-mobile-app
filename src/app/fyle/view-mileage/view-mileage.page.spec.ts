@@ -44,6 +44,8 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -66,6 +68,7 @@ describe('ViewMileagePage', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
+  let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -104,6 +107,10 @@ describe('ViewMileagePage', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
+    const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', [
+      'getSpenderMileageRateById',
+      'getApproverMileageRateById',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -182,6 +189,10 @@ describe('ViewMileagePage', () => {
           provide: ApproverExpensesService,
         },
         {
+          useValue: mileageRatesServiceSpy,
+          provide: MileageRatesService,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -216,6 +227,7 @@ describe('ViewMileagePage', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
+    mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -770,6 +782,31 @@ describe('ViewMileagePage', () => {
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
           mockfilledCustomProperties.length
         );
+        done();
+      });
+    });
+
+    it('should get the mileage rate for spenders', (done) => {
+      mileageRatesService.getSpenderMileageRateById.and.returnValue(of(platformMileageRatesSingleData.data[0]));
+      component.mileageExpense$ = of(mileageExpense);
+      component.ionViewWillEnter();
+
+      component.mileageRate$.subscribe((mileageRate) => {
+        expect(mileageRate).toEqual(platformMileageRatesSingleData.data[0]);
+        expect(mileageRatesService.getSpenderMileageRateById).toHaveBeenCalledOnceWith(mileageExpense.mileage_rate_id);
+        done();
+      });
+    });
+
+    it('should get the mileage rate for approvers', (done) => {
+      mileageRatesService.getApproverMileageRateById.and.returnValue(of(platformMileageRatesSingleData.data[0]));
+      component.mileageExpense$ = of(mileageExpense);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      component.ionViewWillEnter();
+
+      component.mileageRate$.subscribe((mileageRate) => {
+        expect(mileageRate).toEqual(platformMileageRatesSingleData.data[0]);
+        expect(mileageRatesService.getApproverMileageRateById).toHaveBeenCalledOnceWith(mileageExpense.mileage_rate_id);
         done();
       });
     });
