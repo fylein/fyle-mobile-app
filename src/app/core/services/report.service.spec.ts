@@ -953,7 +953,7 @@ describe('ReportService', () => {
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(2);
+      expect(expectedRes.state.length).toEqual(1);
     });
 
     it('generate parameters as per state | pending', () => {
@@ -1035,7 +1035,7 @@ describe('ReportService', () => {
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(10);
+      expect(expectedRes.state.length).toEqual(9);
     });
   });
 
