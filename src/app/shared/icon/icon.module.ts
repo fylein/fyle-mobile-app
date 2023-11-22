@@ -149,6 +149,7 @@ export class IconModule {
     'user-two.svg',
     'vertical-dots-menu.svg',
     'wallet.svg',
+    'scooter.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
