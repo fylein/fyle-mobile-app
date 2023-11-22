@@ -17,7 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -509,7 +509,7 @@ export class MyViewReportPage {
 
   async openViewReportInfoModal(): Promise<void> {
     const viewInfoModal = await this.modalController.create({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: this.erpt$,
         expenses$: this.expenses$,
