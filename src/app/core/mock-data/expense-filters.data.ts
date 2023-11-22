@@ -1,4 +1,4 @@
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses-v2/expense-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 
 export const expenseFiltersData1: Partial<ExpenseFilters> = {
