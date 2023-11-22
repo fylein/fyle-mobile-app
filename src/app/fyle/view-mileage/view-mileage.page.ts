@@ -355,7 +355,7 @@ export class ViewMileagePage {
 
       if (expense.mileage_rate) {
         const vehicleType = expense.mileage_rate.vehicle_type.toLowerCase();
-        this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'bike';
+        this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'scooter';
       }
 
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
