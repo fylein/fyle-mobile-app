@@ -1265,11 +1265,11 @@ export const orgSettingsWoTax: OrgSettings = {
 export const orgSettingsWoTaxAndRtf: OrgSettings = {
   ...orgSettingsWoTax,
   visa_enrollment_settings: {
-    allowed: false,
+    allowed: true,
     enabled: false,
   },
   mastercard_enrollment_settings: {
-    allowed: false,
+    allowed: true,
     enabled: false,
   },
 };
