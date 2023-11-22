@@ -603,7 +603,7 @@ export class MyExpensesPage implements OnInit {
       shareReplay(1)
     );
 
-    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(map((res) => res.count === 0));
+    this.isNewUser$ = this.expenseService.getExpensesCount({ offset: 0, limit: 200 }).pipe(map((res) => res === 0));
 
     const paginatedScroll$ = this.myExpenses$.pipe(
       switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
@@ -670,7 +670,7 @@ export class MyExpensesPage implements OnInit {
         filters = { is_receipt_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
       } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
-          tx_policy_flag: 'eq.true',
+          is_policy_flagged: 'eq.true',
           or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
           state: 'POLICY_VIOLATED',
         };

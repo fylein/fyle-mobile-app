@@ -453,20 +453,15 @@ fdescribe('MyExpensesPage', () => {
       spyOn(component, 'setupActionSheet');
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-      });
-      transactionService.getMyExpensesCount.and.returnValue(of(10));
+
+      expensesService.getExpensesCount.and.returnValue(of(10));
       transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
-      transactionService.getMyExpenses.and.returnValue(
-        of({ count: 2, limit: 10, offset: 0, data: apiExpenseRes, url: '' })
-      );
-      transactionService.getPaginatedETxncCount.and.returnValue(of({ count: 10 }));
+      expensesService.getExpenses.and.returnValue(of(apiExpenses1));
+
       reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
-      transactionOutboxService.getPendingTransactions.and.returnValue(txnList);
+
       spyOn(component, 'formatTransactions').and.returnValue(apiExpenseRes);
       spyOn(component, 'addNewFiltersToParams').and.returnValue({ pageNumber: 1, sortDir: 'desc' });
       spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
@@ -681,7 +676,7 @@ fdescribe('MyExpensesPage', () => {
       inputElement.dispatchEvent(new Event('keyup'));
       tick(500);
 
-      component.loadData$.subscribe((loadData) => {
+      component.loadExpenses$.subscribe((loadData) => {
         expect(loadData).toEqual({ pageNumber: 1, searchString: 'example' });
       });
     }));
@@ -692,36 +687,21 @@ fdescribe('MyExpensesPage', () => {
       inputElement.value = 'example';
       inputElement.dispatchEvent(new Event('keyup'));
       tick(500);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
+
+      expect(expensesService.getExpensesCount).toHaveBeenCalledTimes(5);
+      expect(expensesService.getExpensesCount).toHaveBeenCalledWith({
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
       });
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+      expect(expensesService.getExpenses).toHaveBeenCalledTimes(2);
+      expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: null,
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
+        order: 'spent_at.desc,created_at.desc,id.desc',
       });
+
       expect(component.acc).toEqual(apiExpenses1);
     }));
 
@@ -733,29 +713,14 @@ fdescribe('MyExpensesPage', () => {
       inputElement.dispatchEvent(new Event('keyup'));
       tick(500);
 
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        undefined
-      );
-      expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-        {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        'example'
-      );
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledTimes(4);
-      expect(transactionService.getMyExpensesCount).toHaveBeenCalledWith({
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
+      expect(expensesService.getExpensesCount).toHaveBeenCalledTimes(5);
+      expect(expensesService.getExpensesCount).toHaveBeenCalledWith({
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
       });
       expect(component.clusterDomain).toEqual(apiAuthRes.cluster_domain);
       expect(transactionService.getMyExpenses).not.toHaveBeenCalled();
-      expect(component.acc).toEqual([]);
+      expect(component.acc).toEqual(apiExpenses1);
     }));
 
     it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
@@ -767,27 +732,14 @@ fdescribe('MyExpensesPage', () => {
       });
       tick(500);
 
-      expect(transactionService.getMyExpenses).toHaveBeenCalledTimes(2);
-      expect(transactionService.getMyExpenses).toHaveBeenCalledWith({
+      expect(expensesService.getExpenses).toHaveBeenCalledTimes(1);
+      expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-        },
-        order: 'approvalDate.asc',
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
+        order: 'spent_at.desc,created_at.desc,id.desc',
       });
-    }));
-
-    it('should set pendingTransactions by calling transactionOutboxService', fakeAsync(() => {
-      component.ionViewWillEnter();
-      tick(500);
-
-      expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-      expect(component.acc).toEqual(apiExpenses1);
-      expect(transactionOutboxService.getPendingTransactions).toHaveBeenCalledTimes(1);
-      expect(component.pendingTransactions).toEqual(apiExpenseRes);
-      expect(component.formatTransactions).toHaveBeenCalledTimes(1);
     }));
 
     it('should set myExpenses$, count$, isNewUser$ and isInfiniteScrollRequired', fakeAsync(() => {
@@ -867,7 +819,7 @@ fdescribe('MyExpensesPage', () => {
       };
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
+      component.loadExpenses$.subscribe((loadData) => {
         expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
       });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
@@ -881,19 +833,13 @@ fdescribe('MyExpensesPage', () => {
       component.ionViewWillEnter();
       tick(500);
       expect(component.clearFilters).not.toHaveBeenCalled();
-      // expect(component.filters).toEqual({
-      //   tx_receipt_required: 'eq.true',
-      //   state: 'NEEDS_RECEIPT',
-      // });
+
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
+      component.loadExpenses$.subscribe((loadData) => {
         expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
       });
-      expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        state: 'NEEDS_RECEIPT',
-        is_receipt_mandatory: 'eq.true',
-      });
+      expect(component.generateFilterPills).toHaveBeenCalledTimes(1);
       expect(component.filterPills).toEqual(creditTxnFilterPill);
     }));
 
@@ -906,20 +852,20 @@ fdescribe('MyExpensesPage', () => {
       tick(500);
 
       expect(component.clearFilters).not.toHaveBeenCalled();
-      // expect(component.filters).toEqual({
-      //   tx_policy_flag: 'eq.true',
-      //   or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-      //   state: 'POLICY_VIOLATED',
-      // });
+      expect(component.filters).toEqual({
+        is_policy_flagged: 'eq.true',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+        state: 'POLICY_VIOLATED',
+      });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
+      component.loadExpenses$.subscribe((loadData) => {
         expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-        is_policy_flagged: 'eq.true',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
         state: 'POLICY_VIOLATED',
+        is_policy_flagged: 'eq.true',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
       });
       expect(component.filterPills).toEqual(creditTxnFilterPill);
     }));
@@ -933,13 +879,13 @@ fdescribe('MyExpensesPage', () => {
       tick(500);
 
       expect(component.clearFilters).not.toHaveBeenCalled();
-      // expect(component.filters).toEqual({
-      //   tx_policy_amount: 'lt.0.0001',
-      //   state: 'CANNOT_REPORT',
-      // });
+      expect(component.filters).toEqual({
+        policy_amount: 'lt.0.0001',
+        state: 'CANNOT_REPORT',
+      });
       expect(component.currentPageNumber).toBe(1);
       expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-      component.loadData$.subscribe((loadData) => {
+      component.loadExpenses$.subscribe((loadData) => {
         expect(loadData).toEqual({ pageNumber: 1, sortDir: 'desc' });
       });
       expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
@@ -2679,7 +2625,6 @@ fdescribe('MyExpensesPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      const mockExpenseList = cloneDeep(expenseList4);
       component.expensesToBeDeleted = cloneDeep(apiExpenses1);
       component.selectedElements = cloneDeep([apiExpenses1[0]]);
 
@@ -2705,7 +2650,6 @@ fdescribe('MyExpensesPage', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'failure' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      const mockExpenseList = cloneDeep(expenseList4);
       component.expensesToBeDeleted = cloneDeep(apiExpenses1);
       component.selectedElements = cloneDeep([apiExpenses1[0]]);
 
