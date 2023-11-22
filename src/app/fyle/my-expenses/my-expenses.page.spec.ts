@@ -65,7 +65,12 @@ import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data'
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
 import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  apiExpenses1,
+  expenseData,
+  mileageExpenseWithDistance,
+  perDiemExpenseWithSingleNumDays,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
@@ -253,6 +258,7 @@ fdescribe('MyExpensesPage', () => {
       'getExpensesCount',
       'getExpenses',
       'getAllExpenses',
+      'getExpenseById',
     ]);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'generateCardNumberParams',
@@ -2181,19 +2187,18 @@ fdescribe('MyExpensesPage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_create_report']);
   });
 
-  /*Disabling this test here will fix it in a
-  separate PR as an extension to the PR where I fixed this method*/
-  xdescribe('openReviewExpenses(): ', () => {
-    let mockExpense: Expense[];
+  describe('openReviewExpenses(): ', () => {
     beforeEach(() => {
-      component.loadData$ = new BehaviorSubject({ pageNumber: 1 });
-      mockExpense = cloneDeep(apiExpenseRes);
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1 });
+
       component.selectedElements = apiExpenses1;
-      transactionService.getAllExpenses.and.returnValue(of(mockExpense));
+      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
       spyOn(component, 'filterExpensesBySearchString').and.returnValue(true);
+
+      expensesService.getExpenseById.withArgs(apiExpenses1[0].id).and.returnValue(of(apiExpenses1[0]));
+      expensesService.getExpenseById.withArgs(apiExpenses1[1].id).and.returnValue(of(apiExpenses1[1]));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo(true);
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     });
 
     it('should call getAllExpenses if sortParams and sortDir is undefined in loadData$ and selectedElement length is zero', fakeAsync(() => {
@@ -2201,104 +2206,96 @@ fdescribe('MyExpensesPage', () => {
       component.openReviewExpenses();
       tick(100);
 
-      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
-        order: null,
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' }),
+        order: 'spent_at.desc,created_at.desc,id.desc',
       });
       expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
     }));
 
     it('should call getAllExpenses and filterExpensesBySearchString if searchString, sortParams and sortDir are defined in loadData$ and selectedElement length is zero', fakeAsync(() => {
-      component.loadData$ = new BehaviorSubject({
+      component.loadExpenses$ = new BehaviorSubject({
         sortDir: 'asc',
-        sortParam: 'tx_org_category',
+        sortParam: 'category->name',
         searchString: 'example',
       });
       component.selectedElements = [];
       component.openReviewExpenses();
       tick(100);
 
-      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
-        order: 'tx_org_category.asc',
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' },
+        order: 'category->name.asc',
       });
-      expect(component.filterExpensesBySearchString).toHaveBeenCalledOnceWith(mockExpense[0], 'example');
+      expect(component.filterExpensesBySearchString).toHaveBeenCalledTimes(2);
+      expect(component.filterExpensesBySearchString).toHaveBeenCalledWith(apiExpenses1[0], 'example');
     }));
 
     it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
-      const mockUnflattedData = cloneDeep(unflattenedTxnData);
-      mockUnflattedData.tx.org_category = 'Mileage';
-      transactionService.getETxnUnflattened.and.returnValue(of(mockUnflattedData));
+      component.selectedElements = [mileageExpenseWithDistance, apiExpenses1[1]];
+      expensesService.getAllExpenses.and.returnValue(of([mileageExpenseWithDistance, apiExpenses1[1]]));
+      expensesService.getExpenseById.and.returnValue(of(mileageExpenseWithDistance));
       component.openReviewExpenses();
       tick(100);
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(mileageExpenseWithDistance.id);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'add_edit_mileage',
-        {
-          id: 'tx3qHxFNgRcZ',
-          txnIds: JSON.stringify(['tx3nHShG60zq']),
-          activeIndex: 0,
-        },
+        { id: 'txe0bYaJlRJf', txnIds: '["txe0bYaJlRJf","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
 
     it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
-      const mockUnflattedData = cloneDeep(unflattenedTxnData);
-      mockUnflattedData.tx.org_category = 'Per Diem';
-      transactionService.getETxnUnflattened.and.returnValue(of(mockUnflattedData));
+      component.selectedElements = [perDiemExpenseWithSingleNumDays, apiExpenses1[1]];
+      expensesService.getAllExpenses.and.returnValue(of([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]));
+      expensesService.getExpenseById.and.returnValue(of(perDiemExpenseWithSingleNumDays));
+
       component.openReviewExpenses();
       tick(100);
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(perDiemExpenseWithSingleNumDays.id);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'add_edit_per_diem',
-        {
-          id: 'tx3qHxFNgRcZ',
-          txnIds: JSON.stringify(['tx3nHShG60zq']),
-          activeIndex: 0,
-        },
+        { id: 'txe0bYaJlRJf', txnIds: '["txe0bYaJlRJf","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
 
     it('should navigate to add_edit_expense if org_category is not amongst mileage and per diem and selectedElement length is greater than zero', fakeAsync(() => {
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      component.selectedElements = apiExpenses1;
+      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getExpenseById.and.returnValue(of(apiExpenses1[0]));
       component.openReviewExpenses();
       tick(100);
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx3nHShG60zq');
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(apiExpenses1[0].id);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'add_edit_expense',
-        {
-          id: 'tx3qHxFNgRcZ',
-          txnIds: JSON.stringify(['tx3nHShG60zq']),
-          activeIndex: 0,
-        },
+        { id: 'txDDLtRaflUW', txnIds: '["txDDLtRaflUW","tx5WDG9lxBDT"]', activeIndex: 0 },
       ]);
     }));
   });
 
   describe('filterExpensesBySearchString(): ', () => {
     it('should return true if expense consist of searchString', () => {
-      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData1, 'Groc');
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'RECURRENCE_WEBAPP');
 
       expect(expectedFilteredExpenseRes).toBeTrue();
     });
 
     it('should return false if expense does not consist of searchString', () => {
-      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData1, 'Software');
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'Software');
 
       expect(expectedFilteredExpenseRes).toBeFalse();
     });
