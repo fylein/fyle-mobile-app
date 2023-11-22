@@ -1,16 +1,13 @@
 export const expectedCriticalPolicyViolationPopoverParams = {
-  title: `2 Critical Policy and \
-              1 Draft Expenses blocking the way`,
-  message: `Critical policy blocking these 2 expenses worth \
-              $33700 from being submitted. \
-              Also 1 other expenses are in draft states.`,
+  title: '1 Critical Policy and               1 Draft Expenses blocking the way',
+  message:
+    'Critical policy blocking these 1 expenses worth               $10 from being submitted.               Also 1 other expenses are in draft states.',
   reportType: 'newReport',
 };
 
 export const expectedCriticalPolicyViolationPopoverParams2 = {
-  title: '2 Critical Policy Expenses blocking the way',
-  message: `Critical policy blocking these 2 expenses worth \
-              $33700 from being submitted.`,
+  title: '1 Critical Policy Expenses blocking the way',
+  message: 'Critical policy blocking these 1 expenses worth               $10 from being submitted.',
   reportType: 'newReport',
 };
 

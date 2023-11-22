@@ -312,7 +312,7 @@ export class MyExpensesPage implements OnInit {
 
         const newQueryParams: FilterQueryParams = {};
 
-        newQueryParams.tx_report_id = (platformQueryParams.queryParams.report_id || 'is.null') as string;
+        newQueryParams.tx_report_id = (platformQueryParams.queryParams?.report_id || 'is.null') as string;
         newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
         if (platformQueryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
