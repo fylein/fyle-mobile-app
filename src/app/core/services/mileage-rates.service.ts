@@ -36,6 +36,36 @@ export class MileageRatesService {
     );
   }
 
+  @Cacheable({
+    cacheBusterObserver: mileageRateCacheBuster$,
+  })
+  getSpenderMileageRateById(id: number): Observable<PlatformMileageRates> {
+    const data = {
+      params: {
+        id: `eq.${id}`,
+      },
+    };
+
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .pipe(map((response) => response.data[0]));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: mileageRateCacheBuster$,
+  })
+  getApproverMileageRateById(id: number): Observable<PlatformMileageRates> {
+    const data = {
+      params: {
+        id: `eq.${id}`,
+      },
+    };
+
+    return this.approverPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .pipe(map((response) => response.data[0]));
+  }
+
   getAllMileageRatesCount(): Observable<number> {
     const data = {
       params: {
@@ -87,13 +117,5 @@ export class MileageRatesService {
 
   filterEnabledMileageRates(allMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {
     return allMileageRates.filter((rate) => !!rate.is_enabled);
-  }
-
-  getSpenderMileageRateById(id: number): Observable<PlatformMileageRates> {
-    return this.spenderPlatformV1ApiService.get<PlatformMileageRates>('/mileage_rates/' + id);
-  }
-
-  getApproverMileageRateById(id: number): Observable<PlatformMileageRates> {
-    return this.approverPlatformV1ApiService.get<PlatformMileageRates>('/mileage_rates/' + id);
   }
 }
