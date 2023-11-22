@@ -35,6 +35,8 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -104,6 +106,8 @@ export class ViewMileagePage {
 
   mapAttachment$: Observable<FileObject>;
 
+  mileageRate$: Observable<PlatformMileageRates>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -123,7 +127,8 @@ export class ViewMileagePage {
     private dependentFieldsService: DependentFieldsService,
     private fileService: FileService,
     private approverExpensesService: ApproverExpensesService,
-    private spenderExpensesService: SpenderExpensesService
+    private spenderExpensesService: SpenderExpensesService,
+    private mileageRatesService: MileageRatesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -384,6 +389,15 @@ export class ViewMileagePage {
           return customProperty;
         })
       )
+    );
+
+    this.mileageRate$ = this.mileageExpense$.pipe(
+      switchMap((expense) => {
+        const id = expense.mileage_rate_id;
+        return this.view === ExpenseView.team
+          ? this.mileageRatesService.getApproverMileageRateById(id)
+          : this.mileageRatesService.getSpenderMileageRateById(id);
+      })
     );
 
     this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
