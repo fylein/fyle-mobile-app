@@ -32,6 +32,7 @@ import {
   expenseData1,
   expenseData2,
   expenseList4,
+  expenseListwithoutID,
 } from 'src/app/core/mock-data/expense.data';
 import {
   cardFilterPill,
@@ -121,7 +122,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 
-fdescribe('MyExpensesPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -932,6 +933,24 @@ fdescribe('MyExpensesPage', () => {
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
+
+    it('should return an empty array if no expenses are found and search is empty', fakeAsync(() => {
+      expensesService.getExpensesCount.and.returnValue(of(0));
+      component.ionViewWillEnter();
+      component.loadExpenses$.next({
+        pageNumber: 1,
+        searchString: '',
+        sortParam: 'category->name',
+        sortDir: 'asc',
+      });
+      tick(500);
+
+      component.myExpenses$.subscribe((res) => {
+        expect(res).toEqual([]);
+      });
+
+      expect(expensesService.getExpenses).not.toHaveBeenCalled();
+    }));
   });
 
   it('HeaderState(): should return the headerState', () => {
@@ -1050,6 +1069,7 @@ fdescribe('MyExpensesPage', () => {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
+      component.loadData$ = new BehaviorSubject({});
       transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
@@ -1057,6 +1077,7 @@ fdescribe('MyExpensesPage', () => {
           scalar: true,
           tx_report_id: 'is.null',
           tx_state: 'in.(COMPLETE,DRAFT)',
+          or: ['(corporate_credit_card_account_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
           count: 4,
@@ -1101,6 +1122,7 @@ fdescribe('MyExpensesPage', () => {
         scalar: true,
         tx_report_id: 'is.null',
         tx_state: 'in.(COMPLETE,DRAFT)',
+        or: ['(corporate_credit_card_account_number.8698)'],
       });
     });
   });
@@ -2151,6 +2173,17 @@ fdescribe('MyExpensesPage', () => {
         expectedCriticalPolicyViolationPopoverParams3
       );
     }));
+
+    it('should show non reportable expense toast if no expenses are selected', fakeAsync(() => {
+      component.selectedElements = [];
+
+      component.openCreateReportWithSelectedIds('newReport');
+      tick(1000);
+
+      expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
+        'Please select one or more expenses to be reported'
+      );
+    }));
   });
 
   it('showNewReportModal(): should open modalController and call showAddToReportSuccessToast', fakeAsync(() => {
@@ -2524,10 +2557,19 @@ fdescribe('MyExpensesPage', () => {
       const mockExpensesWithoutId = cloneDeep([apiExpenses1[0]]);
       mockExpensesWithoutId[0].id = undefined;
       component.expensesToBeDeleted = mockExpensesWithoutId;
-      component.deleteSelectedExpenses([]);
+      component.deleteSelectedExpenses(null);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);
       expect(component.selectedElements).toEqual([]);
       expect(transactionService.deleteBulk).not.toHaveBeenCalled();
+    });
+
+    it('should delete outbox expenses', () => {
+      component.deleteSelectedExpenses(expenseList4);
+
+      expect(transactionOutboxService.deleteBulkOfflineExpenses).toHaveBeenCalledOnceWith(
+        component.pendingTransactions,
+        expenseList4
+      );
     });
   });
 
@@ -2589,6 +2631,29 @@ fdescribe('MyExpensesPage', () => {
           body: 'Once deleted, the action cannot be undone',
           ctaText: 'Delete',
           disableDelete: true,
+          deleteMethod: jasmine.any(Function),
+        },
+      });
+    }));
+
+    it('should open a popover and delete offline expenses', fakeAsync(() => {
+      component.outboxExpensesToBeDeleted = expenseListwithoutID;
+      const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
+      deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
+      popoverController.create.and.resolveTo(deletePopOverSpy);
+
+      component.openDeleteExpensesPopover();
+      tick(1000);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: FyDeleteDialogComponent,
+        cssClass: 'delete-dialog',
+        backdropDismiss: false,
+        componentProps: {
+          header: 'Delete Expense',
+          body: 'Once deleted, the action cannot be undone',
+          ctaText: 'Exclude and Delete',
+          disableDelete: false,
           deleteMethod: jasmine.any(Function),
         },
       });
@@ -2676,7 +2741,7 @@ fdescribe('MyExpensesPage', () => {
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'setExpenseStatsOnSelect');
-      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1 });
+      component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1, searchString: 'Bus' });
     });
 
     it('should set selectedElement to empty array if checked is false', () => {
@@ -2689,6 +2754,18 @@ fdescribe('MyExpensesPage', () => {
       expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
     });
 
+    it('should select all pending transactions and update stats', () => {
+      component.pendingTransactions = expenseList4;
+      transactionService.getReportableExpenses.and.returnValue(expenseList4);
+      spyOn(component, 'setOutboxExpenseStatsOnSelect');
+
+      component.onSelectAll(true);
+
+      expect(transactionService.getReportableExpenses).toHaveBeenCalledOnceWith(expenseList4);
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.isReportableExpensesSelected).toBeTrue();
+    });
+
     it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
       expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
       component.pendingTransactions = cloneDeep([]);
@@ -2696,7 +2773,7 @@ fdescribe('MyExpensesPage', () => {
       expect(component.isReportableExpensesSelected).toBeTrue();
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' },
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)', q: 'Bus:*' },
       });
       expect(sharedExpenseService.excludeCCCExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(component.cccExpenses).toBe(0);
@@ -2847,6 +2924,107 @@ fdescribe('MyExpensesPage', () => {
       component.isCameraPreviewStarted = false;
       component.showCamera(true);
       expect(component.isCameraPreviewStarted).toBeTrue();
+    });
+  });
+
+  it('setOutboxExpenseStatsOnSelect(): should update stats on selecting outbox expenses', (done) => {
+    component.selectedOutboxExpenses = expenseList4;
+
+    component.setOutboxExpenseStatsOnSelect();
+
+    component.allExpensesStats$.subscribe((res) => {
+      expect(res).toEqual({
+        count: 3,
+        amount: 49475.76,
+      });
+      done();
+    });
+  });
+
+  describe('selectExpense(): ', () => {
+    beforeEach(() => {
+      transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
+      component.allExpensesCount = 1;
+      spyOn(component, 'setExpenseStatsOnSelect');
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
+      transactionService.isMergeAllowed.and.returnValue(true);
+      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
+      transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
+    });
+
+    it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      const expense = apiExpenseRes[0];
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
+
+      component.selectOutboxExpense(expense);
+
+      expect(component.selectedOutboxExpenses).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      component.allExpensesCount = 4;
+      const expense = apiExpenseRes[0];
+      component.selectedOutboxExpenses = cloneDeep(cloneDeep(expenseList4));
+
+      component.selectOutboxExpense(expense);
+
+      expect(component.selectedOutboxExpenses).toEqual([...expenseList4, expense]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeFalse();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([...expenseList4, expense]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and allExpenseCount is not equal to length of selectedOutboxExpenses', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      const expense = apiExpenseRes[0];
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
+
+      component.selectOutboxExpense(expense);
+
+      expect(component.selectedOutboxExpenses).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeTrue();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
+    });
+
+    it('should update expenseToBeDeleted if selectedOutboxExpenses is an array of atleast 1', () => {
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
+      component.selectOutboxExpense(expenseData2);
+
+      const expectedSelectedElements = [...apiExpenseRes, expenseData2];
+      expect(component.selectedOutboxExpenses).toEqual(expectedSelectedElements);
+      expect(component.outboxExpensesToBeDeleted).toEqual(apiExpenseRes);
+      expect(component.cccExpenses).toBe(1);
+      expect(component.selectAll).toBeTrue();
+    });
+
+    it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and tx_id is not present in expense', () => {
+      transactionService.getReportableExpenses.and.returnValue([]);
+      component.allExpensesCount = 0;
+      const expense = cloneDeep(apiExpenseRes[0]);
+      expense.tx_id = undefined;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
+      component.selectedOutboxExpenses[0].tx_id = undefined;
+
+      component.selectOutboxExpense(expense);
+
+      expect(component.selectedOutboxExpenses).toEqual([]);
+      expect(component.isReportableExpensesSelected).toBeFalse();
+      expect(component.selectAll).toBeFalse();
+      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
+      expect(component.isMergeAllowed).toBeTrue();
     });
   });
 });

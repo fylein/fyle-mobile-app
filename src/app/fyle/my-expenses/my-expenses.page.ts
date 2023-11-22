@@ -308,14 +308,14 @@ export class MyExpensesPage implements OnInit {
     this.allExpensesStats$ = this.loadData$.pipe(
       switchMap((params) => {
         const queryParams: FilterQueryParams = cloneDeep(params.queryParams) || {};
-        const platformQueryParams = this.loadExpenses$.getValue();
+        const platformQueryParams = this.loadExpenses$.getValue().queryParams;
 
         const newQueryParams: FilterQueryParams = {};
 
-        newQueryParams.tx_report_id = (platformQueryParams.queryParams?.report_id || 'is.null') as string;
+        newQueryParams.tx_report_id = (platformQueryParams?.report_id || 'is.null') as string;
         newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
-        if (platformQueryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+        if (platformQueryParams?.['matched_corporate_card_transactions->0->corporate_card_number']) {
           const cardParamsCopy = platformQueryParams[
             'matched_corporate_card_transactions->0->corporate_card_number'
           ] as string;
@@ -931,7 +931,7 @@ export class MyExpensesPage implements OnInit {
     this.isReportableExpensesSelected =
       this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
 
-    if (this.selectedElements.length > 0) {
+    if (this.selectOutboxExpense.length > 0) {
       this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
 
       this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
@@ -940,7 +940,7 @@ export class MyExpensesPage implements OnInit {
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectedElements.length) {
+    if (this.allExpensesCount === this.selectOutboxExpense.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -1387,6 +1387,7 @@ export class MyExpensesPage implements OnInit {
       this.trackingService.myExpensesBulkDeleteExpenses({
         count: this.selectedElements.length,
       });
+
       if (data.status === 'success') {
         let totalNoOfSelectedExpenses = 0;
         if (offlineExpenses?.length > 0) {
@@ -1441,7 +1442,7 @@ export class MyExpensesPage implements OnInit {
             queryParams.report_id = queryParams.report_id || 'is.null';
             queryParams.state = 'in.(COMPLETE,DRAFT)';
             if (params.searchString) {
-              queryParams.q = params?.searchString;
+              queryParams.q = params?.searchString + ':*';
             }
 
             return queryParams;
