@@ -3,6 +3,7 @@ import { Cacheable } from 'ts-cacheable';
 import { Observable, range, Subject } from 'rxjs';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CurrencyPipe } from '@angular/common';
 import { switchMap, concatMap, map, reduce } from 'rxjs/operators';
@@ -17,6 +18,7 @@ export class MileageRatesService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private approverPlatformV1ApiService: ApproverPlatformApiService,
     private currencyPipe: CurrencyPipe
   ) {}
 
@@ -85,5 +87,13 @@ export class MileageRatesService {
 
   filterEnabledMileageRates(allMileageRates: PlatformMileageRates[]): PlatformMileageRates[] {
     return allMileageRates.filter((rate) => !!rate.is_enabled);
+  }
+
+  getSpenderMileageRateById(id: number): Observable<PlatformMileageRates> {
+    return this.spenderPlatformV1ApiService.get<PlatformMileageRates>('/mileage_rates/' + id);
+  }
+
+  getApproverMileageRateById(id: number): Observable<PlatformMileageRates> {
+    return this.approverPlatformV1ApiService.get<PlatformMileageRates>('/mileage_rates/' + id);
   }
 }
