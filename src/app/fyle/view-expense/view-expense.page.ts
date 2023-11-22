@@ -157,10 +157,6 @@ export class ViewExpensePage {
     return ExpenseView;
   }
 
-  get TransactionStatus(): typeof TransactionStatus {
-    return TransactionStatus;
-  }
-
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
