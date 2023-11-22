@@ -778,7 +778,7 @@ export class MyExpensesPage implements OnInit {
       this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter?.type?.length > 0) {
+    if (filter.type?.length > 0) {
       this.myExpensesService.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -988,7 +988,7 @@ export class MyExpensesPage implements OnInit {
   goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
     let category: string;
 
-    if (event.expense?.category?.name) {
+    if (event.expense.category.name) {
       category = event.expense.category.name.toLowerCase();
     }
 
@@ -1390,8 +1390,8 @@ export class MyExpensesPage implements OnInit {
 
       if (data.status === 'success') {
         let totalNoOfSelectedExpenses = 0;
-        if (offlineExpenses?.length > 0) {
-          totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements.length;
+        if (offlineExpenses && offlineExpenses.length > 0) {
+          totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
         } else {
           totalNoOfSelectedExpenses = this.selectedElements.length;
         }
@@ -1442,7 +1442,7 @@ export class MyExpensesPage implements OnInit {
             queryParams.report_id = queryParams.report_id || 'is.null';
             queryParams.state = 'in.(COMPLETE,DRAFT)';
             if (params.searchString) {
-              queryParams.q = params?.searchString + ':*';
+              queryParams.q = params.searchString + ':*';
             }
 
             return queryParams;
