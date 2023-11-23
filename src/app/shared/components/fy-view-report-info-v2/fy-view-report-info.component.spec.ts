@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
-import { FyViewReportInfoComponent } from './fy-view-report-info.component';
+import { FyViewReportInfoComponentV2 } from './fy-view-report-info.component';
 import { reportParam } from 'src/app/core/mock-data/report.data';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
@@ -19,9 +19,9 @@ import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
-describe('FyViewReportInfoComponent', () => {
-  let component: FyViewReportInfoComponent;
-  let fixture: ComponentFixture<FyViewReportInfoComponent>;
+describe('FyViewReportInfoComponentV2', () => {
+  let component: FyViewReportInfoComponentV2;
+  let fixture: ComponentFixture<FyViewReportInfoComponentV2>;
   let sharedExpensesService: jasmine.SpyObj<SharedExpensesService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
@@ -45,7 +45,7 @@ describe('FyViewReportInfoComponent', () => {
     const mockModalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
 
     TestBed.configureTestingModule({
-      declarations: [FyViewReportInfoComponent],
+      declarations: [FyViewReportInfoComponentV2],
       providers: [
         {
           provide: SharedExpensesService,
@@ -77,7 +77,7 @@ describe('FyViewReportInfoComponent', () => {
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(FyViewReportInfoComponent);
+    fixture = TestBed.createComponent(FyViewReportInfoComponentV2);
     component = fixture.componentInstance;
     sharedExpensesService = TestBed.inject(SharedExpensesService) as jasmine.SpyObj<SharedExpensesService>;
     datePipe = TestBed.inject(DatePipe);

@@ -40,7 +40,6 @@ import {
   systemComments1,
   systemCommentsWithSt,
 } from 'src/app/core/test-data/status.service.spec.data';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -63,6 +62,7 @@ import {
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -909,7 +909,7 @@ describe('MyViewReportPage', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: component.erpt$,
         expenses$: component.expenses$,
