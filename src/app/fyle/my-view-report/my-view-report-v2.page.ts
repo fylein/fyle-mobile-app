@@ -17,7 +17,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -26,25 +26,28 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { Expense } from 'src/app/core/models/expense.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 @Component({
-  selector: 'app-my-view-report',
-  templateUrl: './my-view-report.page.html',
+  selector: 'app-my-view-report-v2',
+  templateUrl: './my-view-report-v2.page.html',
   styleUrls: ['./my-view-report.page.scss'],
 })
-export class MyViewReportPage {
+export class MyViewReportPageV2 {
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<Expense[]>;
+  expenses$: Observable<PlatformExpense[]>;
 
   reportApprovals$: Observable<Approver[]>;
 
@@ -84,7 +87,7 @@ export class MyViewReportPage {
 
   unReportedEtxns: Expense[];
 
-  reportEtxnIds: string[];
+  reportExpenseIds: string[];
 
   isExpensesLoading: boolean;
 
@@ -110,6 +113,7 @@ export class MyViewReportPage {
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
     private transactionService: TransactionService,
+    private expensesService: ExpensesService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
@@ -161,14 +165,6 @@ export class MyViewReportPage {
     }
 
     return vendorName;
-  }
-
-  getShowViolation(etxn: Expense): boolean {
-    return (
-      etxn.tx_id &&
-      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
-      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
-    );
   }
 
   getSimplifyReportSettings(orgSettings: OrgSettings): boolean {
@@ -251,24 +247,10 @@ export class MyViewReportPage {
       .getApproversByReportId(this.reportId)
       .pipe(map((reportApprovals) => reportApprovals));
 
-    this.etxns$ = this.loadReportTxns$.pipe(
+    this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
-      switchMap(() => this.authService.getEou()),
-      switchMap((eou) =>
-        this.transactionService
-          .getAllETxnc({
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            tx_report_id: 'eq.' + this.reportId,
-            order: 'tx_txn_dt.desc,tx_id.desc',
-          })
-          .pipe(finalize(() => (this.isExpensesLoading = false)))
-      ),
-      map((etxns) =>
-        etxns.map((etxn) => {
-          etxn.vendor = this.getVendorName(etxn);
-          etxn.violation = this.getShowViolation(etxn);
-          return etxn;
-        })
+      switchMap(() =>
+        this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
       ),
       shareReplay(1)
     );
@@ -279,7 +261,7 @@ export class MyViewReportPage {
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
-    this.etxns$.subscribe((etxns) => (this.reportEtxnIds = etxns.map((etxn) => etxn.tx_id)));
+    this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
     const queryParams = {
       tx_report_id: 'is.null',
@@ -444,12 +426,12 @@ export class MyViewReportPage {
     });
   }
 
-  goToTransaction({ etxn, etxnIndex }: { etxn: Expense; etxnIndex: number }): void {
-    const canEdit = this.canEditTxn(etxn.tx_state);
+  goToTransaction({ expense, expenseIndex }: { expense: PlatformExpense; expenseIndex: number }): void {
+    const canEdit = this.canEditExpense(expense.state);
     let category: string;
 
-    if (etxn.tx_org_category) {
-      category = etxn.tx_org_category.toLowerCase();
+    if (expense.category) {
+      category = expense.category.name?.toLowerCase();
     }
 
     let route: string;
@@ -475,7 +457,7 @@ export class MyViewReportPage {
         this.router.navigate([
           route,
           {
-            id: etxn.tx_id,
+            id: expense.id,
             navigate_back: true,
             remove_from_report: erpt.rp_num_transactions > 1,
           },
@@ -486,9 +468,9 @@ export class MyViewReportPage {
       this.router.navigate([
         route,
         {
-          id: etxn.tx_id,
-          txnIds: JSON.stringify(this.reportEtxnIds),
-          activeIndex: etxnIndex,
+          id: expense.id,
+          txnIds: JSON.stringify(this.reportExpenseIds),
+          activeIndex: expenseIndex,
           view: ExpenseView.individual,
         },
       ]);
@@ -527,10 +509,10 @@ export class MyViewReportPage {
 
   async openViewReportInfoModal(): Promise<void> {
     const viewInfoModal = await this.modalController.create({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: this.erpt$,
-        etxns$: this.etxns$,
+        expenses$: this.expenses$,
         view: ExpenseView.individual,
       },
       ...this.modalProperties.getModalDefaultProperties(),
@@ -542,8 +524,8 @@ export class MyViewReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
 
-  canEditTxn(txState: string): boolean {
-    return this.canEdit$ && ['DRAFT', 'DRAFT_INQUIRY', 'COMPLETE', 'APPROVER_PENDING'].indexOf(txState) > -1;
+  canEditExpense(expenseState: ExpenseState): boolean {
+    return this.canEdit$ && ['DRAFT', 'COMPLETE', 'APPROVER_PENDING'].indexOf(expenseState) > -1;
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
