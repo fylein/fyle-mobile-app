@@ -637,7 +637,7 @@ describe('ViewMileagePage', () => {
       });
     });
 
-    it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
+    it('should set the vehicle type to scooter if the mileage_vehicle type has neither of htese words - car or four', (done) => {
       const mockExtMileageData = {
         ...etxncData.data[0],
         tx_mileage_vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
@@ -647,7 +647,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.extendedMileage$.subscribe((data) => {
         expect(data).toEqual(mockExtMileageData);
-        expect(component.vehicleType).toEqual('bike');
+        expect(component.vehicleType).toEqual('scooter');
         done();
       });
     });
