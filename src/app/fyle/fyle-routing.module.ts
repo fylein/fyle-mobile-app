@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { MyExpensesGuardGuard } from '../core/guards/my-expenses-guard.guard';
 
 const routes: Routes = [
   {
@@ -9,6 +10,7 @@ const routes: Routes = [
   {
     path: 'my_expenses-v2',
     loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
+    canActivate: [MyExpensesGuardGuard],
   },
   {
     path: 'my_expenses',
