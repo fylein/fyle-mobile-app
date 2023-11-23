@@ -12,6 +12,9 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseFieldsService } from './expense-fields.service';
 import { CustomInput } from '../models/custom-input.model';
+import { OrgCategory } from '../models/v1/org-category.model';
+import { CategoriesService } from './categories.service';
+
 const customInputssCacheBuster$ = new Subject<void>();
 
 @Injectable({
@@ -23,7 +26,8 @@ export class CustomInputsService {
     private datePipe: DatePipe,
     private authService: AuthService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private categoryService: CategoriesService
   ) {}
 
   @Cacheable({
@@ -44,11 +48,16 @@ export class CustomInputsService {
     );
   }
 
-  filterByCategory(customInputs: ExpenseField[], orgCategoryId: string | {}): ExpenseField[] {
+  filterByCategory(
+    customInputs: ExpenseField[],
+    orgCategoryId: string | {},
+    unspecifiedCategory: OrgCategory
+  ): ExpenseField[] {
     return customInputs
       .filter((customInput) =>
         customInput.org_category_ids
-          ? customInput.org_category_ids && customInput.org_category_ids.some((id) => id === orgCategoryId)
+          ? customInput.org_category_ids &&
+            customInput.org_category_ids.some((id) => id === orgCategoryId || unspecifiedCategory.id)
           : true
       )
       .sort();
@@ -69,52 +78,55 @@ export class CustomInputsService {
   ): Observable<CustomField[]> {
     return this.getAll(active).pipe(
       map((allCustomInputs) => allCustomInputs.filter((customInput) => customInput.type !== 'DEPENDENT_SELECT')),
-      map((allCustomInputs) => {
-        const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId);
+      switchMap((allCustomInputs) =>
+        this.categoryService.getCategoryByName('unspecified').pipe(
+          map((unspecifiedCategory) => {
+            const customInputs = this.filterByCategory(allCustomInputs, orgCategoryId, unspecifiedCategory);
 
-        // this should be by rank eventually
-        customInputs.sort(this.sortByRank);
+            // this should be by rank eventually
+            customInputs.sort(this.sortByRank);
 
-        const filledCustomProperties: CustomField[] = [];
-        // eslint-disable-next-line @typescript-eslint/prefer-for-of
-        for (let i = 0; i < customInputs.length; i++) {
-          const customInput = customInputs[i];
-          const property = {
-            name: customInput.field_name,
-            value: null,
-            type: customInput.type,
-            mandatory: customInput.is_mandatory,
-            options: customInput.options,
-          };
-          // defaults for types
-          if (customInput.type === 'BOOLEAN') {
-            property.value = false;
-          }
-
-          this.setSelectMultiselectValue(customInput, property);
-
-          if (customInput.type === 'USER_LIST') {
-            property.value = [];
-          }
-
-          if (customProperties) {
-            // see if value is available
+            const filledCustomProperties: CustomField[] = [];
             // eslint-disable-next-line @typescript-eslint/prefer-for-of
-            for (let j = 0; j < customProperties.length; j++) {
-              if (customProperties[j].name === customInput.field_name) {
-                this.setCustomPropertyValue(property, customProperties, j);
-                break;
+            for (let i = 0; i < customInputs.length; i++) {
+              const customInput = customInputs[i];
+              const property = {
+                name: customInput.field_name,
+                value: null,
+                type: customInput.type,
+                mandatory: customInput.is_mandatory,
+                options: customInput.options,
+              };
+              // defaults for types
+              if (customInput.type === 'BOOLEAN') {
+                property.value = false;
               }
-            }
-          }
-          filledCustomProperties.push({
-            ...property,
-            displayValue: this.getCustomPropertyDisplayValue(property),
-          });
-        }
 
-        return filledCustomProperties;
-      })
+              this.setSelectMultiselectValue(customInput, property);
+
+              if (customInput.type === 'USER_LIST') {
+                property.value = [];
+              }
+
+              if (customProperties) {
+                // see if value is available
+                // eslint-disable-next-line @typescript-eslint/prefer-for-of
+                for (let j = 0; j < customProperties.length; j++) {
+                  if (customProperties[j].name === customInput.field_name) {
+                    this.setCustomPropertyValue(property, customProperties, j);
+                    break;
+                  }
+                }
+              }
+              filledCustomProperties.push({
+                ...property,
+                displayValue: this.getCustomPropertyDisplayValue(property),
+              });
+            }
+            return filledCustomProperties;
+          })
+        )
+      )
     );
   }
 

@@ -591,15 +591,19 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       switchMap((categoryId: string) =>
         allCustomFields$.pipe(
           map((fields) => fields.filter((field) => field.type !== 'DEPENDENT_SELECT')),
-          switchMap((fields) => {
-            const customFields = this.customFieldsService.standardizeCustomFields(
-              this.customInputsFormValues?.fields || [],
-              this.customInputsService.filterByCategory(fields, categoryId)
-            );
-            return customFields;
-          }),
+          switchMap((fields) =>
+            this.categoriesService.getCategoryByName('unspecified').pipe(
+              map((unspecifiedCategory) => {
+                const customFields = this.customFieldsService.standardizeCustomFields(
+                  this.customInputsFormValues?.fields || [],
+                  this.customInputsService.filterByCategory(fields, categoryId, unspecifiedCategory)
+                );
+                return customFields;
+              })
+            )
+          ),
           reduce((acc: TxnCustomProperties[], curr) => {
-            acc.push(curr);
+            acc.concat(curr);
             return acc;
           }, [])
         )

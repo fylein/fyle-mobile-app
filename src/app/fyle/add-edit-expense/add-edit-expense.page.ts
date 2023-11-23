@@ -1640,6 +1640,7 @@ export class AddEditExpensePage implements OnInit {
             recentCostCenters: this.recentlyUsedCostCenters$,
             recentCategories: this.recentlyUsedCategories$,
             taxGroups: this.taxGroups$,
+            unspecifiedCategory: this.categoriesService.getCategoryByName('unspecified'),
           })
         ),
         finalize(() => from(this.loaderService.hideLoader()))
@@ -1664,6 +1665,7 @@ export class AddEditExpensePage implements OnInit {
           recentCurrencies,
           recentCostCenters,
           taxGroups,
+          unspecifiedCategory,
         }) => {
           this.recentCategoriesOriginal = recentCategories;
 
@@ -1677,7 +1679,7 @@ export class AddEditExpensePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id, unspecifiedCategory)
           );
 
           const customInputValues: {
@@ -2110,7 +2112,7 @@ export class AddEditExpensePage implements OnInit {
 
     const customInputsFeilds$: Observable<TxnCustomProperties[]> = categoryControl.valueChanges.pipe(
       filter((category) => !!category),
-      startWith({}),
+      startWith(null),
       distinctUntilChanged(),
       switchMap((category) =>
         iif(
@@ -2127,11 +2129,21 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')
           ),
-          map((customFields: ExpenseField[]) =>
-            this.customFieldsService.standardizeCustomFields(
-              formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
+          switchMap((customFields: ExpenseField[]) =>
+            this.categoriesService
+              .getCategoryByName('unspecified')
+              .pipe(
+                map((unspecifiedCategory) =>
+                  this.customFieldsService.standardizeCustomFields(
+                    formValue.custom_inputs || [],
+                    this.customInputsService.filterByCategory(
+                      customFields,
+                      category && category.id,
+                      unspecifiedCategory
+                    )
+                  )
+                )
+              )
           )
         );
       }),
@@ -3416,18 +3428,15 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  /* Expense creation has not moved to platform yet and since policy is moved to platform,
+   * it expects the expense object in terms of platform world. Until then, the method
+   * `transformTo` act as a bridge by translating the public expense object to platform
+   * expense.
+   */
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
-      switchMap((platformPolicyExpense) =>
-        /* Expense creation has not moved to platform yet and since policy is moved to platform,
-         * it expects the expense object in terms of platform world. Until then, the method
-         * `transformTo` act as a bridge by translating the public expense object to platform
-         * expense.
-         */
-
-        this.transactionService.checkPolicy(platformPolicyExpense)
-      )
-    );
+    return this.policyService
+      .getPlatformPolicyExpense(etxn, this.selectedCCCTransaction)
+      .pipe(switchMap((platformPolicyExpense) => this.transactionService.checkPolicy(platformPolicyExpense)));
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {

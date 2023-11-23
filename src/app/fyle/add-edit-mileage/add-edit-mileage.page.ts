@@ -662,11 +662,21 @@ export class AddEditMileagePage implements OnInit {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
-          map((customFields) =>
-            this.customFieldsService.standardizeCustomFields(
-              formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
+          switchMap((customFields) =>
+            this.categoriesService
+              .getCategoryByName('unspecified')
+              .pipe(
+                map((unspecifiedCategory) =>
+                  this.customFieldsService.standardizeCustomFields(
+                    formValue.custom_inputs || [],
+                    this.customInputsService.filterByCategory(
+                      customFields,
+                      category && category.id,
+                      unspecifiedCategory
+                    )
+                  )
+                )
+              )
           )
         );
       }),
@@ -1505,6 +1515,7 @@ export class AddEditMileagePage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
+            unspecifiedCategory: this.categoriesService.getCategoryByName('unspecified'),
           })
         ),
         take(1),
@@ -1526,6 +1537,7 @@ export class AddEditMileagePage implements OnInit {
           recentValue,
           recentProjects,
           recentCostCenters,
+          unspecifiedCategory,
         }) => {
           if (project) {
             this.selectedProject$.next(project);
@@ -1537,7 +1549,7 @@ export class AddEditMileagePage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id, unspecifiedCategory)
           );
 
           const customInputValues = customInputs

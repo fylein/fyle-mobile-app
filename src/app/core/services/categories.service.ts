@@ -1,14 +1,12 @@
 import { Inject, Injectable } from '@angular/core';
 import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Cacheable } from 'ts-cacheable';
-import { Observable, range, Subject } from 'rxjs';
+import { Observable, range } from 'rxjs';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
-
-const categoriesCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -21,9 +19,7 @@ export class CategoriesService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  @Cacheable({
-    cacheBusterObserver: categoriesCacheBuster$,
-  })
+  @Cacheable()
   getAll(): Observable<OrgCategory[]> {
     return this.getActiveCategoriesCount().pipe(
       switchMap((count) => {
@@ -48,6 +44,19 @@ export class CategoriesService {
       map((res) => this.addDisplayName(res)),
       map((responses) => responses[0])
     );
+  }
+
+  @Cacheable()
+  getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
+    const data = {
+      params: {
+        is_enabled: 'eq.true',
+        system_category: 'in.(Mileage, Per Diem)',
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .pipe(map((res) => res.data));
   }
 
   getActiveCategoriesCount(): Observable<number> {
@@ -76,19 +85,6 @@ export class CategoriesService {
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))
     );
-  }
-
-  @Cacheable()
-  getMileageOrPerDiemCategories(): Observable<PlatformCategory[]> {
-    const data = {
-      params: {
-        is_enabled: 'eq.true',
-        system_category: 'in.(Mileage, Per Diem)',
-      },
-    };
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
-      .pipe(map((res) => res.data));
   }
 
   transformFrom(platformCategory: PlatformCategory[]): OrgCategory[] {

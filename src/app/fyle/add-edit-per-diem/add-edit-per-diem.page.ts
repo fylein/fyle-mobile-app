@@ -107,6 +107,7 @@ import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
+import { unspecifiedCategory } from 'src/app/core/mock-data/org-category.data';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -731,11 +732,21 @@ export class AddEditPerDiemPage implements OnInit {
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
-          map((customFields) =>
-            this.customFieldsService.standardizeCustomFields(
-              formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
-            )
+          switchMap((customFields) =>
+            this.categoriesService
+              .getCategoryByName('unspecified')
+              .pipe(
+                map((unspecifiedCategory) =>
+                  this.customFieldsService.standardizeCustomFields(
+                    formValue.custom_inputs || [],
+                    this.customInputsService.filterByCategory(
+                      customFields,
+                      category && category.id,
+                      unspecifiedCategory
+                    )
+                  )
+                )
+              )
           )
         );
       }),
@@ -1414,6 +1425,7 @@ export class AddEditPerDiemPage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
+            unspecifiedCategory: this.categoriesService.getCategoryByName('unspecified'),
           })
         ),
         take(1),
@@ -1435,6 +1447,7 @@ export class AddEditPerDiemPage implements OnInit {
           recentValue,
           recentProjects,
           recentCostCenters,
+          unspecifiedCategory,
         }) => {
           if (project) {
             this.selectedProject$.next(project);
@@ -1446,7 +1459,7 @@ export class AddEditPerDiemPage implements OnInit {
 
           const customInputs = this.customFieldsService.standardizeCustomFields(
             [],
-            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id)
+            this.customInputsService.filterByCategory(customExpenseFields, etxn.tx.org_category_id, unspecifiedCategory)
           );
 
           const customInputValues = customInputs
