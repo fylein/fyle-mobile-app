@@ -1,8 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { Expense } from 'src/app/core/models/expense.model';
 import { Router, ActivatedRoute } from '@angular/router';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-navigation-footer',
@@ -19,41 +19,41 @@ export class NavigationFooterComponent implements OnInit {
   constructor(
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private transactionService: TransactionService,
+    private expenseService: ExpensesService,
     private trackingService: TrackingService
   ) {}
 
-  ngOnInit() {
-    this.reportEtxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
+  ngOnInit(): void {
+    this.reportEtxnIds = (this.activatedRoute.snapshot.params.txnIds &&
+      JSON.parse(this.activatedRoute.snapshot.params.txnIds as string)) as string[];
   }
 
-  goToPrev(etxnIndex?: number) {
-    if (etxnIndex === 0) {
+  goToPrev(expenseIndex?: number): void {
+    if (expenseIndex === 0) {
       return;
     }
 
-    const prevIndex = etxnIndex ? etxnIndex - 1 : this.activeEtxnIndex - 1;
+    const prevIndex = expenseIndex ? expenseIndex - 1 : this.activeEtxnIndex - 1;
     this.trackingService.expenseNavClicked({ to: 'prev' });
-    this.transactionService.getEtxn(this.reportEtxnIds[prevIndex]).subscribe((etxn) => {
-      this.goToTransaction(etxn, prevIndex, 'prev');
+    this.expenseService.getExpenseById(this.reportEtxnIds[prevIndex]).subscribe((expense) => {
+      this.goToTransaction(expense, prevIndex);
     });
   }
 
-  goToNext(etxnIndex?: number) {
-    if (etxnIndex === this.numEtxnsInReport - 1) {
+  goToNext(expenseIndex?: number): void {
+    if (expenseIndex === this.numEtxnsInReport - 1) {
       return;
     }
 
-    const nextIndex = etxnIndex ? etxnIndex + 1 : this.activeEtxnIndex + 1;
+    const nextIndex = expenseIndex ? expenseIndex + 1 : this.activeEtxnIndex + 1;
     this.trackingService.expenseNavClicked({ to: 'next' });
-    this.transactionService.getEtxn(this.reportEtxnIds[nextIndex]).subscribe((etxn) => {
-      this.goToTransaction(etxn, nextIndex, 'next');
+    this.expenseService.getExpenseById(this.reportEtxnIds[nextIndex]).subscribe((expense) => {
+      this.goToTransaction(expense, nextIndex);
     });
   }
 
-  goToTransaction(etxn: Expense, etxnIndex: number, goTo: 'prev' | 'next') {
-    const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+  goToTransaction(expense: Expense, expenseIndex: number): void {
+    const category = expense && expense.category.name && expense.category.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {
@@ -63,6 +63,9 @@ export class NavigationFooterComponent implements OnInit {
     } else {
       route = '/enterprise/view_expense';
     }
-    this.router.navigate([route, { ...this.activatedRoute.snapshot.params, id: etxn.tx_id, activeIndex: etxnIndex }]);
+    this.router.navigate([
+      route,
+      { ...this.activatedRoute.snapshot.params, id: expense.id, activeIndex: expenseIndex },
+    ]);
   }
 }
