@@ -2505,7 +2505,11 @@ export class AddEditExpensePage implements OnInit {
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
           ),
-          map((categories) => categories.map((category) => ({ label: category.displayName, value: category })))
+          map((categories) =>
+            categories
+              .map((category) => ({ label: category.displayName, value: category }))
+              .filter((category) => category.value.name !== 'Unspecified')
+          )
         )
       ),
       shareReplay(1)
