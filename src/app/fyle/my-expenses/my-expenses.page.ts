@@ -925,11 +925,7 @@ export class MyExpensesPage implements OnInit {
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectedElements.length) {
-      this.selectAll = true;
-    } else {
-      this.selectAll = false;
-    }
+    this.selectAll = this.allExpensesCount === this.selectedElements.length;
     this.setExpenseStatsOnSelect();
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedOutboxExpenses);
   }
@@ -1356,7 +1352,7 @@ export class MyExpensesPage implements OnInit {
           cccExpensesMessage
         ),
         ctaText: totalDeleteLength > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
-        disableDelete: totalDeleteLength === 0 ? true : false,
+        disableDelete: totalDeleteLength === 0,
         deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
       },
     });
