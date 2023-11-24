@@ -675,7 +675,11 @@ export class AddEditPerDiemPage implements OnInit {
           map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
         )
       ),
-      map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
+      map((categories) =>
+        categories
+          .map((category) => ({ label: category.sub_category, value: category }))
+          .filter((category) => category.value.name !== 'Unspecified')
+      )
     );
     const formValue = this.getFormValues();
     this.filteredCategories$.subscribe((categories) => {
