@@ -2967,7 +2967,7 @@ describe('MyExpensesPage', () => {
       expect(component.isMergeAllowed).toBeTrue();
     });
 
-    it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses', () => {
+    it('should remove an expense from selectedOutboxExpenses if already present', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 4;
       const expense = apiExpenseRes[0];
