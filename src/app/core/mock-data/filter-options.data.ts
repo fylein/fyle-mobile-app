@@ -3,6 +3,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingValue } from '../models/sorting-value.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
 
 export const filterOptions: FilterOptions<string>[] = [
   {
@@ -121,15 +122,15 @@ export const filterOptions2: FilterOptions<string>[] = [
     options: [
       {
         label: 'Mileage',
-        value: 'MILEAGE',
+        value: ExpenseType.MILEAGE,
       },
       {
         label: 'Per Diem',
-        value: 'PER_DIEM',
+        value: ExpenseType.PER_DIEM,
       },
       {
         label: 'Regular Expenses',
-        value: 'EXPENSE',
+        value: ExpenseType.EXPENSE,
       },
     ],
   },
