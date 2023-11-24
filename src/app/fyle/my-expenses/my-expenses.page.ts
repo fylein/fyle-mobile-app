@@ -1547,13 +1547,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   mergeExpenses(): void {
-    const txnIDs = this.selectedElements.map((expense) => expense.id);
+    const expenseIDs = this.selectedElements.map((expense) => expense.id);
     this.router.navigate([
       '/',
       'enterprise',
       'merge_expense',
       {
-        txnIDs: JSON.stringify(txnIDs),
+        selectedExpenseIDs: JSON.stringify(expenseIDs),
         from: 'MY_EXPENSES',
       },
     ]);
