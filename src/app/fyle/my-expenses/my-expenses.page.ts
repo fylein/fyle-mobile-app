@@ -1197,7 +1197,7 @@ export class MyExpensesPage implements OnInit {
           category = inital.category.name.toLowerCase();
         }
 
-        if (category.includes('mileage')) {
+        if (category === 'mileage') {
           this.router.navigate([
             '/',
             'enterprise',
@@ -1208,7 +1208,7 @@ export class MyExpensesPage implements OnInit {
               activeIndex: 0,
             },
           ]);
-        } else if (category.includes('per diem')) {
+        } else if (category === 'per diem') {
           this.router.navigate([
             '/',
             'enterprise',

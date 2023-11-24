@@ -2207,7 +2207,7 @@ fdescribe('MyExpensesPage', () => {
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-        queryParams: Object({ report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' }),
+        queryParams: { report_id: 'is.null', state: 'in.(COMPLETE,DRAFT)' },
         order: 'spent_at.desc,created_at.desc,id.desc',
       });
       expect(component.filterExpensesBySearchString).not.toHaveBeenCalled();
