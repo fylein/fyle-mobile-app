@@ -116,7 +116,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 
-fdescribe('MyExpensesPage', () => {
+describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
   let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
