@@ -638,7 +638,7 @@ describe('ViewMileagePage', () => {
       });
     });
 
-    it('should set the vehicle type to bike if the mileage_vehicle type has neither of htese words - car or four', (done) => {
+    it('should set the vehicle type to scooter if the mileage_vehicle type has neither of htese words - car or four', (done) => {
       const mockMileageExpense: Expense = {
         ...mileageExpense,
         mileage_rate: {
@@ -651,7 +651,7 @@ describe('ViewMileagePage', () => {
       component.ionViewWillEnter();
       component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mockMileageExpense);
-        expect(component.vehicleType).toEqual('bike');
+        expect(component.vehicleType).toEqual('scooter');
         done();
       });
     });

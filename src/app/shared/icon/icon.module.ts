@@ -16,9 +16,7 @@ export class IconModule {
     'arrow-prev.svg',
     'arrow-next.svg',
     'attachment.svg',
-    'bulk.svg',
     'building.svg',
-    'bulk-mode.svg',
     'car.svg',
     'chevron-right.svg',
     'create-expense.svg',
@@ -149,6 +147,7 @@ export class IconModule {
     'user-two.svg',
     'vertical-dots-menu.svg',
     'wallet.svg',
+    'scooter.svg',
   ];
 
   constructor(private domSanitizer: DomSanitizer, private matIconRegistry: MatIconRegistry) {
