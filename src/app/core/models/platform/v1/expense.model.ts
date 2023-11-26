@@ -142,11 +142,16 @@ export interface MatchedCorporateCardTransaction {
   posted_at: Date;
   description: string;
   foreign_currency: string;
-  status: string;
+  status: TransactionStatus;
   foreign_amount: number;
   merchant: string;
   category: string;
   matched_by: string;
+}
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  POSTED = 'POSTED',
 }
 
 export interface PolicyChecks {

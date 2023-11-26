@@ -1,0 +1,22 @@
+@import '../../../../theme/colors.scss';
+
+.transaction-status-info-popover {
+  position: relative;
+
+  &__toolbar-title {
+    color: $black;
+    font-size: 18px;
+    line-height: normal;
+    font-weight: 500;
+  }
+
+  &__toolbar-close-btn {
+    position: absolute;
+  }
+
+  &__body {
+    font-size: 16px;
+    color: $black;
+    padding: 28px 16px;
+  }
+}

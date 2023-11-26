@@ -43,9 +43,11 @@ import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
-import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -786,6 +788,55 @@ describe('ViewExpensePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
+    it('should set isRTFEnabled to true if only visa rtf is enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        mastercard_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isRTFEnabled to true if only mastercard rtf is enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        visa_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeTrue();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
+    it('should set isRTFEnabled to false if both visa/mastercard rtf are not enabled', () => {
+      const mockOrgSettings: OrgSettings = {
+        ...orgSettingsGetData,
+        visa_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+        mastercard_enrollment_settings: {
+          allowed: false,
+          enabled: false,
+        },
+      };
+
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+      component.ionViewWillEnter();
+      expect(component.isRTFEnabled).toBeFalse();
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+    });
+
     it('should get the merchant field name', () => {
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
       component.ionViewWillEnter();
@@ -1059,4 +1110,22 @@ describe('ViewExpensePage', () => {
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
     }));
   });
+
+  it('openTransactionStatusInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+    const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+    popoverController.create.and.resolveTo(popoverSpy);
+
+    component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+
+    tick();
+
+    expect(popoverController.create).toHaveBeenCalledOnceWith({
+      component: TransactionStatusInfoPopoverComponent,
+      componentProps: {
+        transactionStatus: TransactionStatus.PENDING,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+    expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+  }));
 });
