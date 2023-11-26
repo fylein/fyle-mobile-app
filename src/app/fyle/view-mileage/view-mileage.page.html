@@ -8,11 +8,11 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-mileage--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{'view-mileage--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
     >
       View Mileage
-      <p class="view-mileage--subtitle" *ngIf="numEtxnsInReport > 1">
-        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      <p class="view-mileage--subtitle" *ngIf="reportExpenseCount > 1">
+        Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-mileage--header-btn-container" slot="end">
@@ -21,11 +21,11 @@
       </ion-button>
 
       <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ng-container *ngIf="extendedMileage$|async as etxn">
+        <ng-container *ngIf="mileageExpense$|async as expense">
           <ion-button
             class="view-mileage--header-btn-container__btn"
-            (click)="flagUnflagExpense(etxn.tx_manual_flag)"
-            [ngClass]="etxn.tx_manual_flag ? 'icon--flagged' : 'icon--unflagged'"
+            (click)="flagUnflagExpense(expense.is_manually_flagged)"
+            [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
           >
             <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
           </ion-button>
@@ -42,8 +42,8 @@
 </ion-header>
 
 <ion-content>
-  <div class="view-mileage--container" *ngIf="extendedMileage$|async as extendedMileage">
-    <ng-container *ngIf="extendedMileage.tx_policy_flag">
+  <div *ngIf="mileageExpense$|async as expense" class="view-mileage--container">
+    <ng-container *ngIf="expense.is_policy_flagged">
       <ng-container *ngIf="policyDetails">
         <app-fy-policy-violation-info
           [policyDetails]="policyDetails"
@@ -54,8 +54,8 @@
 
     <div class="view-mileage--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
       <span class="info-text m-0">
-        Claimed amount {{ extendedMileage.tx_user_amount | currency:extendedMileage.tx_currency: 'symbol-narrow' }} was
-        capped to {{ extendedMileage.tx_amount | currency:extendedMileage.tx_currency: 'symbol-narrow'}} due to policy.
+        Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
+        expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
       </span>
     </div>
 
@@ -63,18 +63,17 @@
       <div class="view-mileage--card-container__block">
         <div class="view-mileage--card-container__category">Mileage</div>
         <div class="view-mileage--card-container__merchant">
-          {{extendedMileage.tx_distance || 0}} {{extendedMileage.tx_distance_unit | titlecase}}
+          {{expense.distance || 0}} {{expense.distance_unit | titlecase}}
         </div>
         <div *ngIf="isProjectShown" class="view-mileage--card-container__project">
-          {{ projectFieldName | titlecase }} : {{ extendedMileage.tx_project_name ? extendedMileage.tx_project_name :
-          'Unspecified' }}
+          {{ projectFieldName | titlecase }} : {{ expense.project?.name || 'Unspecified' }}
         </div>
       </div>
       <div class="ion-text-right view-mileage--card-container__block">
         <div>
-          <span>{{ etxnCurrencySymbol }}</span>
+          <span>{{ expenseCurrencySymbol }}</span>
           <span class="view-mileage--card-container__amount">
-            {{ extendedMileage.tx_amount || 0 | humanizeCurrency: extendedMileage.tx_currency:true }}
+            {{ expense.amount || 0 | humanizeCurrency: expense.currency:true }}
           </span>
           <ion-icon
             class="view-mileage--card-container__icon"
@@ -86,14 +85,14 @@
           class="view-mileage--card-container__state-pill ion-text-right"
           [ngClass]="{'view-mileage--card-container__state-pill--with-project': isProjectShown}"
         >
-          <div class="state-pill state-{{extendedMileage.tx_state | expenseState}}">
-            {{ extendedMileage.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+          <div class="state-pill state-{{expense.state | expenseState}}">
+            {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
           </div>
         </div>
       </div>
     </div>
 
-    <ng-container *ngIf="extendedMileage.tx_locations && extendedMileage.tx_locations.length">
+    <ng-container *ngIf="expense.locations.length > 0">
       <ng-container *ngIf="mapAttachment$|async as mapAttachment">
         <app-receipt-preview-thumbnail
           [attachments]="[mapAttachment]"
@@ -106,7 +105,7 @@
 
       <div class="view-mileage--route-block">
         <div
-          *ngFor="let control of extendedMileage.tx_locations; index as i; first as isFirst; last as isLast"
+          *ngFor="let control of expense.locations; index as i; first as isFirst; last as isLast"
           class="view-mileage--route-block__div"
         >
           <div>
@@ -122,7 +121,7 @@
         </div>
       </div>
 
-      <ion-grid *ngIf="extendedMileage.tx_mileage_is_round_trip" class="view-mileage--grid">
+      <ion-grid *ngIf="expense.mileage_is_round_trip" class="view-mileage--grid">
         <ion-row>
           <ion-col class="view-mileage--icon-container">
             <div class="view-mileage--icon-container__background">
@@ -131,7 +130,7 @@
           </ion-col>
           <ion-col class="view-mileage--content-container">
             <div class="view-mileage--label">Round Trip</div>
-            <div class="view-mileage--value">{{ extendedMileage.tx_mileage_is_round_trip ? 'Yes' : 'No' }}</div>
+            <div class="view-mileage--value">{{ expense.mileage_is_round_trip ? 'Yes' : 'No' }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -148,7 +147,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Report Name</div>
-          <div class="view-mileage--value">{{ extendedMileage.rp_purpose }}</div>
+          <div class="view-mileage--value">{{ expense.report?.title }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -162,7 +161,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Employee</div>
-          <div class="view-mileage--value">{{ extendedMileage.us_full_name }}</div>
+          <div class="view-mileage--value">{{ expense.user.full_name }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -176,7 +175,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Expense ID</div>
-          <div class="view-mileage--value">{{ extendedMileage.tx_expense_number }}</div>
+          <div class="view-mileage--value">{{ expense.seq_num }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -198,12 +197,12 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Created Date</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_created_at | date: 'MMM dd, YYYY' }}</div>
+                <div class="view-mileage--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col *ngIf="extendedMileage.tx_txn_dt">
+        <ion-col *ngIf="expense.spent_at">
           <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
@@ -216,7 +215,7 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Spend Date</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_txn_dt | date: 'MMM dd, YYYY' }}</div>
+                <div class="view-mileage--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -241,7 +240,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="extendedMileage.tx_purpose" class="view-mileage--grid">
+    <ion-grid *ngIf="expense.purpose" class="view-mileage--grid">
       <ion-row>
         <ion-col class="view-mileage--icon-container">
           <div class="view-mileage--icon-container__background">
@@ -250,7 +249,7 @@
         </ion-col>
         <ion-col class="view-mileage--content-container">
           <div class="view-mileage--label">Purpose</div>
-          <div class="view-mileage--value">{{ extendedMileage.tx_purpose }}</div>
+          <div class="view-mileage--value">{{ expense.purpose }}</div>
         </ion-col>
       </ion-row>
     </ion-grid>
@@ -258,7 +257,7 @@
     <ion-grid class="view-mileage--grid">
       <ion-row>
         <ion-col
-          *ngIf="extendedMileage.tx_org_category && extendedMileage.tx_sub_category && (extendedMileage.tx_org_category !== extendedMileage.tx_sub_category)"
+          *ngIf="expense.category && expense.category.name && expense.category.sub_category && (expense.category.name !== expense.category.sub_category)"
           size="6"
         >
           <ion-grid>
@@ -270,7 +269,7 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Subcategory</div>
-                <div class="view-mileage--value">{{ extendedMileage.tx_sub_category }}</div>
+                <div class="view-mileage--value">{{ expense.category.sub_category }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -278,7 +277,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="extendedMileage.tx_mileage_rate" class="view-mileage--grid">
+    <ion-grid *ngIf="mileageRate$ | async as mileageRate" class="view-mileage--grid">
       <ion-row>
         <ion-col>
           <ion-grid>
@@ -294,9 +293,8 @@
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Mileage Rate</div>
                 <div class="view-mileage--value">
-                  {{ extendedMileage.tx_mileage_vehicle_type | mileageRateName }} ({{extendedMileage.tx_mileage_rate |
-                  currency:extendedMileage.tx_currency: 'symbol-narrow'}} / {{extendedMileage.tx_distance_unit |
-                  titlecase}})
+                  {{ mileageRate.vehicle_type | mileageRateName }} ({{ mileageRate.rate | currency:expense.currency:
+                  'symbol-narrow'}} / {{ mileageRate.unit | titlecase}})
                 </div>
               </ion-col>
             </ion-row>
@@ -305,12 +303,9 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid
-      *ngIf="extendedMileage.tx_distance || extendedMileage.tx_mileage_calculated_distance"
-      class="view-mileage--grid"
-    >
+    <ion-grid *ngIf="expense.distance || expense.mileage_calculated_distance" class="view-mileage--grid">
       <ion-row>
-        <ion-col *ngIf="extendedMileage.tx_distance" size="6">
+        <ion-col *ngIf="expense.distance" size="6">
           <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
@@ -320,14 +315,12 @@
               </ion-col>
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Claimed Distance</div>
-                <div class="view-mileage--value">
-                  {{extendedMileage.tx_distance}} {{extendedMileage.tx_distance_unit | titlecase}}
-                </div>
+                <div class="view-mileage--value">{{expense.distance}} {{expense.distance_unit | titlecase}}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ion-col>
-        <ion-col *ngIf="extendedMileage.tx_mileage_calculated_distance">
+        <ion-col *ngIf="expense.mileage_calculated_distance">
           <ion-grid>
             <ion-row>
               <ion-col class="view-mileage--icon-container">
@@ -338,7 +331,7 @@
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Calculated Distance</div>
                 <div class="view-mileage--value">
-                  {{extendedMileage.tx_mileage_calculated_distance}} {{extendedMileage.tx_distance_unit | titlecase}}
+                  {{expense.mileage_calculated_distance}} {{expense.distance_unit | titlecase}}
                 </div>
               </ion-col>
             </ion-row>
@@ -347,7 +340,7 @@
       </ion-row>
     </ion-grid>
 
-    <ion-grid *ngIf="extendedMileage.tx_mileage_calculated_amount" class="view-mileage--grid">
+    <ion-grid *ngIf="expense.mileage_calculated_amount" class="view-mileage--grid">
       <ion-row>
         <ion-col size="6">
           <ion-grid>
@@ -363,8 +356,7 @@
               <ion-col class="view-mileage--content-container">
                 <div class="view-mileage--label">Calculated Amount</div>
                 <div class="view-mileage--value">
-                  {{extendedMileage.tx_mileage_calculated_amount | currency:extendedMileage.tx_currency:
-                  'symbol-narrow'}}
+                  {{expense.mileage_calculated_amount | currency:expense.currency: 'symbol-narrow'}}
                 </div>
               </ion-col>
             </ion-row>
@@ -375,10 +367,7 @@
 
     <ng-container *ngIf="{ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async} as data">
       <ng-container *ngIf="!data.costCenterDependentCustomProperties?.length">
-        <ion-grid
-          *ngIf="orgSettings?.cost_centers?.enabled && extendedMileage.tx_cost_center_id"
-          class="view-mileage--grid"
-        >
+        <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && expense.cost_center_id" class="view-mileage--grid">
           <ion-row>
             <ion-col size="6">
               <ion-grid>
@@ -393,12 +382,12 @@
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
                     <div class="view-mileage--label">Cost Center</div>
-                    <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_name }}</div>
+                    <div class="view-mileage--value">{{ expense.cost_center?.name }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
             </ion-col>
-            <ion-col size="6" *ngIf="extendedMileage.tx_cost_center_code">
+            <ion-col size="6" *ngIf="expense.cost_center?.code">
               <ion-grid>
                 <ion-row>
                   <ion-col class="view-mileage--icon-container">
@@ -411,7 +400,7 @@
                   </ion-col>
                   <ion-col class="view-mileage--content-container">
                     <div class="view-mileage--label">Cost Center Code</div>
-                    <div class="view-mileage--value">{{ extendedMileage.tx_cost_center_code }}</div>
+                    <div class="view-mileage--value">{{ expense.cost_center?.code }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -423,12 +412,12 @@
 
     <!-- Project dependent fields -->
     <ng-container *ngIf="projectDependentCustomProperties$ | async as projectDependentCustomProperties">
-      <ng-container *ngIf="txnFields$ | async as txnFields">
-        <ng-container *ngIf="txnFields?.project_id?.length">
+      <ng-container *ngIf="expenseFields$ | async as expenseFields">
+        <ng-container *ngIf="expenseFields?.project_id?.length">
           <app-view-dependent-fields
             parentFieldType="PROJECT"
-            [parentFieldName]="txnFields.project_id[0]?.field_name"
-            [parentFieldValue]="extendedMileage.tx_project_name"
+            [parentFieldName]="expenseFields.project_id[0]?.field_name"
+            [parentFieldValue]="expense.project?.name"
             [dependentCustomProperties]="projectDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
@@ -437,13 +426,13 @@
 
     <!-- Cost center dependent fields -->
     <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
-      <ng-container *ngIf="txnFields$ | async as txnFields">
-        <ng-container *ngIf="txnFields?.cost_center_id?.length">
+      <ng-container *ngIf="expenseFields$ | async as expenseFields">
+        <ng-container *ngIf="expenseFields?.cost_center_id?.length">
           <app-view-dependent-fields
             parentFieldType="COST_CENTER"
-            [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
-            [parentFieldValue]="extendedMileage.tx_cost_center_name"
-            [costCenterCode]="extendedMileage.tx_cost_center_code"
+            [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
+            [parentFieldValue]="expense.cost_center?.name"
+            [costCenterCode]="expense.cost_center?.code"
             [dependentCustomProperties]="costCenterDependentCustomProperties"
           ></app-view-dependent-fields>
         </ng-container>
@@ -471,8 +460,9 @@
   </div>
 </ion-content>
 
+<!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
-  *ngIf="numEtxnsInReport > 1"
-  [activeEtxnIndex]="activeEtxnIndex"
-  [numEtxnsInReport]="numEtxnsInReport"
+  *ngIf="reportExpenseCount > 1"
+  [activeExpenseIndex]="activeExpenseIndex"
+  [reportExpenseCount]="reportExpenseCount"
 ></app-navigation-footer>

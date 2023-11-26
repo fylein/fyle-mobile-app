@@ -15,14 +15,17 @@ import { platformMileageRates, platformMileageRatesSingleData } from '../mock-da
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { cloneDeep } from 'lodash';
+import { ApproverPlatformApiService } from './approver-platform-api.service';
 
 describe('MileageRatesService', () => {
   let mileageRatesService: MileageRatesService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
   let currencyPipe: jasmine.SpyObj<CurrencyPipe>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
     const currencyPipeSpy = jasmine.createSpyObj('CurrencyPipe', ['transform']);
 
     TestBed.configureTestingModule({
@@ -31,6 +34,10 @@ describe('MileageRatesService', () => {
         {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformV1ApiServiceSpy,
+        },
+        {
+          provide: ApproverPlatformApiService,
+          useValue: approverPlatformApiServiceSpy,
         },
         {
           provide: CurrencyPipe,
@@ -46,6 +53,9 @@ describe('MileageRatesService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    approverPlatformApiService = TestBed.inject(
+      ApproverPlatformApiService
+    ) as jasmine.SpyObj<ApproverPlatformApiService>;
 
     currencyPipe = TestBed.inject(CurrencyPipe) as jasmine.SpyObj<CurrencyPipe>;
   });
@@ -158,6 +168,34 @@ describe('MileageRatesService', () => {
       expect(spyGetMileageRates).toHaveBeenCalledTimes(2);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams1);
       expect(spyGetMileageRates).toHaveBeenCalledWith(testParams2);
+      done();
+    });
+  });
+
+  it('getSpenderMileageRateById(): should get spender mileage rate by id', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformMileageRatesSingleData));
+    const id = 1234;
+    mileageRatesService.getSpenderMileageRateById(id).subscribe((response) => {
+      expect(response).toEqual(platformMileageRatesSingleData.data[0]);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', {
+        params: {
+          id: `eq.${id}`,
+        },
+      });
+      done();
+    });
+  });
+
+  it('getApproverMileageRateById(): should get approver mileage rate by id', (done) => {
+    approverPlatformApiService.get.and.returnValue(of(platformMileageRatesSingleData));
+    const id = 1234;
+    mileageRatesService.getApproverMileageRateById(id).subscribe((response) => {
+      expect(response).toEqual(platformMileageRatesSingleData.data[0]);
+      expect(approverPlatformApiService.get).toHaveBeenCalledOnceWith('/mileage_rates', {
+        params: {
+          id: `eq.${id}`,
+        },
+      });
       done();
     });
   });
