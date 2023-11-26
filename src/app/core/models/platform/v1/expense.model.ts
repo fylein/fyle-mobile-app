@@ -134,8 +134,8 @@ export interface MatchedCorporateCardTransaction {
   corporate_card_id: string;
   corporate_card_number: string;
   masked_corporate_card_number: string;
+  corporate_card_user_full_name: string;
   bank_name: string;
-  cardholder_name: string;
   amount: number;
   currency: string;
   spent_at: Date;

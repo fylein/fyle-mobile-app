@@ -18,7 +18,7 @@ import { PopoverController, ModalController } from '@ionic/angular';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { EventEmitter } from '@angular/core';
 import { of } from 'rxjs';
-import { etxncData, expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { individualExpPolicyStateData3 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import {
@@ -38,6 +38,14 @@ import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
+import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -58,16 +66,14 @@ describe('ViewMileagePage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let fileService: jasmine.SpyObj<FileService>;
+  let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
+  let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
+  let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getEtxn',
-      'manualUnflag',
-      'manualFlag',
-      'getExpenseV2',
-    ]);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport', 'removeTransaction']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
@@ -99,6 +105,12 @@ describe('ViewMileagePage', () => {
       'getDependentFieldValuesForBaseField',
     ]);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
+    const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', [
+      'getSpenderMileageRateById',
+      'getApproverMileageRateById',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -169,6 +181,18 @@ describe('ViewMileagePage', () => {
           provide: FileService,
         },
         {
+          useValue: spenderExpensesServiceSpy,
+          provide: SpenderExpensesService,
+        },
+        {
+          useValue: approverExpensesServiceSpy,
+          provide: ApproverExpensesService,
+        },
+        {
+          useValue: mileageRatesServiceSpy,
+          provide: MileageRatesService,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -201,6 +225,9 @@ describe('ViewMileagePage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
+    approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
+    mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -263,7 +290,6 @@ describe('ViewMileagePage', () => {
 
   describe('goBack', () => {
     it('should go to view team report if the expense is a team expense', () => {
-      component.reportId = 'rpWDg3QX3';
       component.view = ExpenseView.team;
       component.goBack();
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -275,7 +301,6 @@ describe('ViewMileagePage', () => {
     });
 
     it('should go to view report if the expense is an individual expense', () => {
-      component.reportId = 'rpJFg3Da4';
       component.view = ExpenseView.individual;
       component.goBack();
       expect(router.navigate).toHaveBeenCalledOnceWith([
@@ -290,7 +315,6 @@ describe('ViewMileagePage', () => {
   describe('openCommentsModal', () => {
     it('on opening the comments modal it should add a comment if the data is updated', fakeAsync(() => {
       component.view = ExpenseView.individual;
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modalController.create.and.resolveTo(modalSpy);
       modalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } } as any);
@@ -300,11 +324,10 @@ describe('ViewMileagePage', () => {
         component: ViewCommentComponent,
         componentProps: {
           objectType: 'transactions',
-          objectId: expenseData1.tx_id,
+          objectId: component.expenseId,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.addComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
@@ -312,7 +335,6 @@ describe('ViewMileagePage', () => {
 
     it('on opening the comments modal it should show the comments if the data not updated', fakeAsync(() => {
       component.view = ExpenseView.individual;
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       const modalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onDidDismiss']);
       modalController.create.and.resolveTo(modalSpy);
       modalSpy.onDidDismiss.and.resolveTo({ data: { updated: false } } as any);
@@ -322,11 +344,10 @@ describe('ViewMileagePage', () => {
         component: ViewCommentComponent,
         componentProps: {
           objectType: 'transactions',
-          objectId: expenseData1.tx_id,
+          objectId: component.expenseId,
         },
         ...modalProperties.getModalDefaultProperties(),
       });
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
       expect(modalSpy.present).toHaveBeenCalledTimes(1);
       expect(modalSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.viewComment).toHaveBeenCalledOnceWith({ view: 'Individual' });
@@ -334,9 +355,9 @@ describe('ViewMileagePage', () => {
   });
 
   it('getDeleteDialogProps(): should return the props', () => {
-    const props = component.getDeleteDialogProps(expenseData1);
+    const props = component.getDeleteDialogProps();
     props.componentProps.deleteMethod();
-    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(expenseData1.tx_report_id, expenseData1.tx_id);
+    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
   });
 
   describe('removeExpenseFromReport', () => {
@@ -344,7 +365,6 @@ describe('ViewMileagePage', () => {
       activateRouteMock.snapshot.params = {
         id: 'tx5fBcPBAxLv',
       };
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
 
       spyOn(component, 'getDeleteDialogProps');
       const deletePopoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onDidDismiss']);
@@ -353,8 +373,7 @@ describe('ViewMileagePage', () => {
 
       component.removeExpenseFromReport();
       tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
-      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps(expenseData1));
+      expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteDialogProps());
       expect(deletePopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(deletePopoverSpy.onDidDismiss).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseRemovedByApprover).toHaveBeenCalledTimes(1);
@@ -362,7 +381,7 @@ describe('ViewMileagePage', () => {
         '/',
         'enterprise',
         'view_team_report',
-        { id: expenseData1.tx_report_id, navigate_back: true },
+        { id: component.reportId, navigate_back: true },
       ]);
     }));
   });
@@ -373,19 +392,6 @@ describe('ViewMileagePage', () => {
         id: 'tx5fBcPBAxLv',
       };
 
-      const testComment = {
-        id: 'stjIdPp8BX8O',
-        created_at: '2022-11-17T06:07:38.590Z',
-        org_user_id: 'ouX8dwsbLCLv',
-        comment: 'This is a comment for flagging',
-        diff: null,
-        state: null,
-        transaction_id: null,
-        report_id: 'rpkpSa8guCuR',
-        advance_request_id: null,
-      };
-
-      transactionService.getEtxn.and.returnValue(of(expenseData1));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -397,9 +403,7 @@ describe('ViewMileagePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualFlag.and.returnValue(of(expenseData2));
 
-      component.flagUnflagExpense(expenseData1.tx_manual_flag);
-      tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      component.flagUnflagExpense(false);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -414,8 +418,8 @@ describe('ViewMileagePage', () => {
       expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id, data, true);
-      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
+      expect(transactionService.manualFlag).toHaveBeenCalledOnceWith(component.expenseId);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
@@ -426,22 +430,6 @@ describe('ViewMileagePage', () => {
         id: 'tx5fBcPBAxLv',
       };
 
-      const mockExpenseData = {
-        ...expenseData1,
-        tx_manual_flag: true,
-      };
-      const testComment = {
-        id: 'stjIdPp8BX8O',
-        created_at: '2022-11-17T06:07:38.590Z',
-        org_user_id: 'ouX8dwsbLCLv',
-        comment: 'a comment',
-        diff: null,
-        state: null,
-        transaction_id: null,
-        report_id: 'rpkpSa8guCuR',
-        advance_request_id: null,
-      };
-      transactionService.getEtxn.and.returnValue(of(mockExpenseData));
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
@@ -453,9 +441,7 @@ describe('ViewMileagePage', () => {
       statusService.post.and.returnValue(of(txnStatusData));
       transactionService.manualUnflag.and.returnValue(of(expenseData1));
 
-      component.flagUnflagExpense(mockExpenseData.tx_manual_flag);
-      tick(500);
-      expect(transactionService.getEtxn).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+      component.flagUnflagExpense(true);
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -470,8 +456,8 @@ describe('ViewMileagePage', () => {
       expect(flagPopoverSpy.present).toHaveBeenCalledTimes(1);
       expect(flagPopoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Please wait');
-      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', mockExpenseData.tx_id, data, true);
-      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(mockExpenseData.tx_id);
+      expect(statusService.post).toHaveBeenCalledOnceWith('transactions', component.expenseId, data, true);
+      expect(transactionService.manualUnflag).toHaveBeenCalledOnceWith(component.expenseId);
       tick(500);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(trackingService.expenseFlagUnflagClicked).toHaveBeenCalledOnceWith({ action: title });
@@ -480,7 +466,9 @@ describe('ViewMileagePage', () => {
 
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
-      component.reportId = 'rpFvmTgyeBjN';
+      component.expenseId = 'tx5fBcPBAxLv';
+      component.reportId = 'rpynbzxa3psU';
+
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getPolicyDetails');
 
@@ -491,14 +479,15 @@ describe('ViewMileagePage', () => {
         activeIndex: '0',
       };
 
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(mileageExpense);
       component.view = activateRouteMock.snapshot.params.view;
       loaderService.showLoader.and.resolveTo();
-      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
+      approverExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
       loaderService.hideLoader.and.resolveTo();
 
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse4));
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
 
       dependentFieldsService.getDependentFieldValuesForBaseField.and.returnValue(of(dependentFieldValues));
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
@@ -513,29 +502,29 @@ describe('ViewMileagePage', () => {
       tick(500);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
 
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(etxncData.data[0]);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mileageExpense);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(transactionService.getExpenseV2).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
+        expect(spenderExpensesService.getExpenseById).toHaveBeenCalledOnceWith(activateRouteMock.snapshot.params.id);
         expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       });
 
-      component.txnFields$.subscribe((data) => {
+      component.expenseFields$.subscribe((data) => {
         expect(data).toEqual(expenseFieldsMapResponse4);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
       });
     }));
 
     it('should get the project dependent custom properties', (done) => {
-      const customProps = etxncData.data[0].tx_custom_properties;
+      const customProps = mileageExpense.custom_fields;
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
 
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       component.ionViewWillEnter();
       component.projectDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(etxncData.data[0].tx_custom_properties).toBeDefined();
+        expect(mileageExpense.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -546,12 +535,12 @@ describe('ViewMileagePage', () => {
     });
 
     it('should get the cost center dependent custom properties', (done) => {
-      const customProps = etxncData.data[0].tx_custom_properties;
+      const customProps = mileageExpense.custom_fields;
       const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((data) => {
         expect(data).toEqual(dependentFieldValues);
-        expect(etxncData.data[0].tx_custom_properties).toBeDefined();
+        expect(mileageExpense.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.cost_center_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
           customProps,
@@ -562,17 +551,20 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the correct report id and set proper payment mode and icon', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        source_account_type: 'PERSONAL_ADVANCE_ACCOUNT',
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        source_account: {
+          ...mileageExpense.source_account,
+          type: AccountType.PERSONAL_ADVANCE_ACCOUNT,
+        },
       };
 
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
 
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
-        expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mockMileageExpense);
+        expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid from Advance');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
         done();
@@ -580,17 +572,17 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the correct payment mode and icon when reimbursement is skipped', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_skip_reimbursement: true,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        is_reimbursable: false,
       };
 
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
 
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
-        expect(component.reportId).toEqual(mockExtMileageData.tx_report_id);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mockMileageExpense);
+        expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid by Company');
         expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
         done();
@@ -599,8 +591,8 @@ describe('ViewMileagePage', () => {
 
     it('should set the correct payment mode and icon when the expense is reimbursement', (done) => {
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(etxncData.data[0]);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mileageExpense);
         expect(component.paymentMode).toEqual('Paid by Employee');
         expect(component.paymentModeIcon).toEqual('fy-reimbursable');
         done();
@@ -608,45 +600,57 @@ describe('ViewMileagePage', () => {
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word four in it', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_mileage_vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        mileage_rate: {
+          ...mileageExpense.mileage_rate,
+          vehicle_type: 'Four Wheeler - Type 1 (₹11.00/km)',
+        },
       };
-      component.extendedMileage$ = of(mockExtMileageData);
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('car');
         done();
       });
     });
 
     it('should set the vehicle type to car if the mileage_vehicle type has the word car in it', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_mileage_vehicle_type: 'Electric Car',
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        mileage_rate: {
+          ...mileageExpense.mileage_rate,
+          vehicle_type: 'Electric Car',
+        },
       };
-      component.extendedMileage$ = of(mockExtMileageData);
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('car');
         done();
       });
     });
 
     it('should set the vehicle type to scooter if the mileage_vehicle type has neither of htese words - car or four', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_mileage_vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        mileage_rate: {
+          ...mileageExpense.mileage_rate,
+          vehicle_type: 'Two Wheeler - Type 1 (₹11.00/km)',
+        },
       };
-      component.extendedMileage$ = of(mockExtMileageData);
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
+      component.mileageExpense$ = of(mockMileageExpense);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data).toEqual(mockExtMileageData);
+      component.mileageExpense$.subscribe((data) => {
+        expect(data).toEqual(mockMileageExpense);
         expect(component.vehicleType).toEqual('scooter');
         done();
       });
@@ -654,9 +658,9 @@ describe('ViewMileagePage', () => {
 
     it('should get the correct currency symbol', (done) => {
       component.ionViewWillEnter();
-      component.extendedMileage$.subscribe((data) => {
-        expect(data.tx_currency).toEqual('USD');
-        expect(component.etxnCurrencySymbol).toEqual('$');
+      component.mileageExpense$.subscribe((data) => {
+        expect(data.currency).toEqual('USD');
+        expect(component.expenseCurrencySymbol).toEqual('$');
         done();
       });
     });
@@ -667,10 +671,10 @@ describe('ViewMileagePage', () => {
         project_id: [],
       };
 
-      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-      component.txnFields$ = of(mockExpFieldData);
+      component.expenseFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
 
       component.ionViewWillEnter();
@@ -680,13 +684,13 @@ describe('ViewMileagePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     }));
 
-    it('should get the project details when project name is not present', fakeAsync(() => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_project_name: null,
+    it('should show the project details when project is not present but mandatory', fakeAsync(() => {
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        project: null,
       };
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
 
       component.ionViewWillEnter();
       tick(500);
@@ -699,10 +703,10 @@ describe('ViewMileagePage', () => {
         ...orgSettingsGetData,
         projects: null,
       };
-      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse));
-      component.txnFields$ = of(expenseFieldsMapResponse);
+      component.expenseFields$ = of(expenseFieldsMapResponse);
       orgSettingsService.get.and.returnValue(of(mockOrgSettData));
       component.ionViewWillEnter();
       tick(500);
@@ -710,8 +714,8 @@ describe('ViewMileagePage', () => {
     }));
 
     it('should get the project field name and the value of project field name should be truthy', fakeAsync(() => {
-      transactionService.getExpenseV2.and.returnValue(of(etxncData.data[0]));
-      component.extendedMileage$ = of(etxncData.data[0]);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mileageExpense));
+      component.mileageExpense$ = of(mileageExpense);
       const mockExpFieldData = {
         ...expenseFieldsMapResponse4,
         project_id: [
@@ -722,7 +726,7 @@ describe('ViewMileagePage', () => {
         ],
       };
       expenseFieldsService.getAllMap.and.returnValue(of(mockExpFieldData));
-      component.txnFields$ = of(mockExpFieldData);
+      component.expenseFields$ = of(mockExpFieldData);
       orgSettingsService.get.and.returnValue(of(orgSettingsGetData));
       component.ionViewWillEnter();
       tick(500);
@@ -763,7 +767,7 @@ describe('ViewMileagePage', () => {
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
     });
 
-    it('should get the custom mileage fileds', (done) => {
+    it('should get the custom mileage fields', (done) => {
       const mockfilledCustomProperties = cloneDeep(slice(filledCustomProperties, 0, 1));
       customInputsService.fillCustomProperties.and.returnValue(of(mockfilledCustomProperties));
       customInputsService.getCustomPropertyDisplayValue.and.returnValue(mockfilledCustomProperties[0].displayValue);
@@ -771,8 +775,8 @@ describe('ViewMileagePage', () => {
       component.mileageCustomFields$.subscribe((data) => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
-          etxncData.data[0].tx_org_category_id,
-          etxncData.data[0].tx_custom_properties,
+          mileageExpense.category_id,
+          mileageExpense.custom_fields,
           true
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
@@ -782,12 +786,37 @@ describe('ViewMileagePage', () => {
       });
     });
 
+    it('should get the mileage rate for spenders', (done) => {
+      mileageRatesService.getSpenderMileageRateById.and.returnValue(of(platformMileageRatesSingleData.data[0]));
+      component.mileageExpense$ = of(mileageExpense);
+      component.ionViewWillEnter();
+
+      component.mileageRate$.subscribe((mileageRate) => {
+        expect(mileageRate).toEqual(platformMileageRatesSingleData.data[0]);
+        expect(mileageRatesService.getSpenderMileageRateById).toHaveBeenCalledOnceWith(mileageExpense.mileage_rate_id);
+        done();
+      });
+    });
+
+    it('should get the mileage rate for approvers', (done) => {
+      mileageRatesService.getApproverMileageRateById.and.returnValue(of(platformMileageRatesSingleData.data[0]));
+      component.mileageExpense$ = of(mileageExpense);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      component.ionViewWillEnter();
+
+      component.mileageRate$.subscribe((mileageRate) => {
+        expect(mileageRate).toEqual(platformMileageRatesSingleData.data[0]);
+        expect(mileageRatesService.getApproverMileageRateById).toHaveBeenCalledOnceWith(mileageExpense.mileage_rate_id);
+        done();
+      });
+    });
+
     it('should get the flag status when the expense can be flagged', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.team;
-      component.extendedMileage$ = of(etxncData.data[0]);
+      component.mileageExpense$ = of(mileageExpense);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.subscribe((res) => {
-        expect(etxncData.data[0].tx_state).toEqual('APPROVER_PENDING');
+        expect(mileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
@@ -795,11 +824,11 @@ describe('ViewMileagePage', () => {
 
     it('expense cannot be flagged when the view is set to indivivual', (done) => {
       activateRouteMock.snapshot.params.view = ExpenseView.individual;
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_state: 'PAID',
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        state: ExpenseState.PAID,
       };
-      component.extendedMileage$ = of(mockExtMileageData);
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.canFlagOrUnflag$.pipe(isEmpty()).subscribe((isEmpty) => {
         expect(isEmpty).toBeTrue();
@@ -808,58 +837,58 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return false if there is only one transaction in the report and the state is PAID', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_state: 'PAID',
-        tx_report_id: 'rphNNUiCISkD',
-        tx_custom_properties: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        state: ExpenseState.PAID,
+        report_id: 'rphNNUiCISkD',
+        custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.tx_state).toEqual('PAID');
+        expect(mockMileageExpense.state).toEqual(ExpenseState.PAID);
         expect(res).toBeFalse();
         done();
       });
     });
 
     it('should return true if the transaction state is APPROVER_PENDING and there are more than one transactions in the report', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_state: 'APPROVER_PENDING',
-        tx_report_id: 'rphNNUiCISkD',
-        tx_custom_properties: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        state: ExpenseState.APPROVER_PENDING,
+        report_id: 'rphNNUiCISkD',
+        custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((res) => {
-        expect(mockExtMileageData.tx_state).toEqual('APPROVER_PENDING');
+        expect(mockMileageExpense.state).toEqual(ExpenseState.APPROVER_PENDING);
         expect(res).toBeTrue();
         done();
       });
     });
 
     it('should not delete expense when view is individual', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_state: 'APPROVER_PENDING',
-        tx_report_id: 'rphNNUiCISkD',
-        tx_custom_properties: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        state: ExpenseState.APPROVER_PENDING,
+        report_id: 'rphNNUiCISkD',
+        custom_fields: null,
       };
       reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
-      component.txnFields$ = of(expenseFieldsMapResponse4);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
+      component.expenseFields$ = of(expenseFieldsMapResponse4);
       component.view = ExpenseView.individual;
 
       component.ionViewWillEnter();
@@ -917,7 +946,7 @@ describe('ViewMileagePage', () => {
       };
       component.ionViewWillEnter();
       component.comments$.subscribe(() => {
-        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', expenseData1.tx_id);
+        expect(statusService.find).toHaveBeenCalledOnceWith('transactions', component.expenseId);
         done();
       });
       expect(component.view).toEqual(activateRouteMock.snapshot.params.view);
@@ -925,13 +954,13 @@ describe('ViewMileagePage', () => {
 
     it('should be true if expense policy is violated', (done) => {
       spyOn(component, 'isNumber').and.returnValue(true);
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_policy_amount: -1,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        policy_amount: -1,
       };
 
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isCriticalPolicyViolated$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -941,16 +970,16 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return true if the policy amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_policy_amount: 1000,
-        tx_admin_amount: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        policy_amount: 1000,
+        admin_amount: null,
       };
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -962,16 +991,16 @@ describe('ViewMileagePage', () => {
     });
 
     it('should return true if the admin amount value is of type number should check if the amount is capped', (done) => {
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_admin_amount: 1000,
-        tx_policy_amount: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        admin_amount: 1000,
+        policy_amount: null,
       };
 
       spyOn(component, 'isNumber').and.callThrough();
 
-      transactionService.getExpenseV2.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -982,14 +1011,14 @@ describe('ViewMileagePage', () => {
 
     it('should return false if the value is not of type number and check if the expense is capped', (done) => {
       spyOn(component, 'isNumber').and.returnValue(false);
-      const mockExtMileageData = {
-        ...etxncData.data[0],
-        tx_admin_amount: null,
-        tx_policy_amount: null,
+      const mockMileageExpense: Expense = {
+        ...mileageExpense,
+        admin_amount: null,
+        policy_amount: null,
       };
 
-      transactionService.getEtxn.and.returnValue(of(mockExtMileageData));
-      component.extendedMileage$ = of(mockExtMileageData);
+      spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
+      component.mileageExpense$ = of(mockMileageExpense);
       component.ionViewWillEnter();
       component.isAmountCapped$.subscribe((res) => {
         expect(res).toBeFalse();
@@ -1009,8 +1038,8 @@ describe('ViewMileagePage', () => {
       };
       component.ionViewWillEnter();
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
-      expect(component.numEtxnsInReport).toEqual(3);
-      expect(component.activeEtxnIndex).toEqual(2);
+      expect(component.reportExpenseCount).toEqual(3);
+      expect(component.activeExpenseIndex).toEqual(2);
     });
   });
 
