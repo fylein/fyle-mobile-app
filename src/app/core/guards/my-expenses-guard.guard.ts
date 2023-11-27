@@ -7,6 +7,8 @@ import { OrgSettingsService } from '../services/org-settings.service';
   providedIn: 'root',
 })
 export class MyExpensesGuardGuard implements CanActivate {
+  redirectToNewPage = true;
+
   constructor(private orgSettingsSerivce: OrgSettingsService, private router: Router) {}
 
   canActivate(
@@ -14,10 +16,14 @@ export class MyExpensesGuardGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     this.orgSettingsSerivce.get().subscribe((orgSettings) => {
-      if (!orgSettings?.mobile_app_my_expenses_beta_enabled) {
-        this.router.navigate(['/', 'enterprise', 'my_expenses']);
+      if (!orgSettings.mobile_app_my_expenses_beta_enabled) {
+        this.redirectToNewPage = false;
       }
     });
-    return true;
+
+    if (!this.redirectToNewPage) {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    }
+    return this.redirectToNewPage;
   }
 }
