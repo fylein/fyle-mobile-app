@@ -314,7 +314,10 @@ export class MyExpensesPage implements OnInit {
         newQueryParams.tx_report_id = (queryParams.report_id || 'is.null') as string;
         newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
 
-        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+        if (
+          queryParams['matched_corporate_card_transactions->0->corporate_card_number'] &&
+          queryParams['matched_corporate_card_transactions->0->corporate_card_number'] !== 'in.()'
+        ) {
           const cardParamsCopy = cloneDeep(
             queryParams['matched_corporate_card_transactions->0->corporate_card_number']
           );
