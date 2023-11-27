@@ -65,7 +65,6 @@ export class PotentialDuplicatesPage {
             return this.expensesService
               .getExpenses({
                 offset: 0,
-
                 ...queryParams,
               })
               .pipe(
