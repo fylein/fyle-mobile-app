@@ -1,9 +1,0 @@
-<div
-  class="alert"
-  [ngClass]="{ alert__info: type === 'information', alert__warning: type === 'warning', alert__card: type === 'card' }"
->
-  <mat-icon *ngIf="type === 'information'" class="alert--icon alert--icon__info"> info </mat-icon>
-  <mat-icon *ngIf="type === 'warning'" class="alert--icon alert--icon__warning"> warning </mat-icon>
-  <mat-icon *ngIf="type === 'card'" class="alert--icon alert--icon__card" svgIcon="fy-cards-new"> </mat-icon>
-  <div>{{ message }}</div>
-</div>
