@@ -2224,8 +2224,8 @@ describe('MyExpensesPage', () => {
     beforeEach(() => {
       component.loadExpenses$ = new BehaviorSubject({ pageNumber: 1 });
 
-      component.selectedElements = apiExpenses1;
-      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      component.selectedElements = cloneDeep(apiExpenses1);
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
       spyOn(component, 'filterExpensesBySearchString').and.returnValue(true);
 
       expensesService.getExpenseById.withArgs(apiExpenses1[0].id).and.returnValue(of(apiExpenses1[0]));
@@ -2265,7 +2265,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = [mileageExpenseWithDistance, apiExpenses1[1]];
+      component.selectedElements = cloneDeep([mileageExpenseWithDistance, apiExpenses1[1]]);
       expensesService.getAllExpenses.and.returnValue(of([mileageExpenseWithDistance, apiExpenses1[1]]));
       expensesService.getExpenseById.and.returnValue(of(mileageExpenseWithDistance));
       component.openReviewExpenses();
@@ -2283,7 +2283,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = [perDiemExpenseWithSingleNumDays, apiExpenses1[1]];
+      component.selectedElements = cloneDeep([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]);
       expensesService.getAllExpenses.and.returnValue(of([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]));
       expensesService.getExpenseById.and.returnValue(of(perDiemExpenseWithSingleNumDays));
 
