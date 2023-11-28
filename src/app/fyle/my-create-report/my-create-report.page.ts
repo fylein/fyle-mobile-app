@@ -164,9 +164,9 @@ export class MyCreateReportPage implements OnInit {
   }
 
   selectExpense(expense: PlatformExpense): void {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some((ele) => expense.id === ele.id);
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((expense) => expense.id === expense.id);
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter((ele) => ele.id !== expense.id);
+      this.selectedElements = this.selectedElements.filter((expense) => expense.id !== expense.id);
     } else {
       this.selectedElements.push(expense);
     }
@@ -226,7 +226,7 @@ export class MyCreateReportPage implements OnInit {
             map((etxns) => {
               etxns.forEach((etxn) => {
                 if (this.selectedExpenseIDs.length > 0) {
-                  if (this.selectedExpenseIDs.indexOf(etxn.id) === -1) {
+                  if (!this.selectedExpenseIDs.includes(etxn.id)) {
                     this.selectedElements.filter((element) => element.id !== etxn.id);
                   }
                 }
@@ -249,7 +249,7 @@ export class MyCreateReportPage implements OnInit {
 
   checkShowDt(expense: PlatformExpense, i: number): boolean {
     const spentAtDt = expense.spent_at;
-    const prevExpenseSpentAtDt = this.readyToReportExpenses[i - 1].spent_at;
+    const prevExpenseSpentAtDt = this.readyToReportExpenses[i - 1]?.spent_at;
     if (
       i > 0 &&
       spentAtDt &&
