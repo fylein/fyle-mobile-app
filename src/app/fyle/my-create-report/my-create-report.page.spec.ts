@@ -12,7 +12,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { selectedExpense1, selectedExpenses } from 'src/app/core/mock-data/expense.data';
 import {
   expenseData,
-  nonReImbursableExpense,
+  nonReimbursableExpense,
   readyToReportExpensesData,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
@@ -416,7 +416,7 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should return 0 if there are no re imbursable expenses', () => {
-      expect(component.getTotalSelectedExpensesAmount([nonReImbursableExpense])).toEqual(0);
+      expect(component.getTotalSelectedExpensesAmount([nonReimbursableExpense])).toEqual(0);
     });
   });
 });

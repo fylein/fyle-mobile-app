@@ -421,7 +421,7 @@ export const readyToReportExpensesData: Expense[] = [
   },
 ];
 
-export const nonReImbursableExpense: Expense = {
+export const nonReimbursableExpense: Expense = {
   ...expenseData,
   is_reimbursable: false,
 };

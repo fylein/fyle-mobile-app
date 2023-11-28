@@ -129,7 +129,7 @@ export class MyCreateReportPage implements OnInit {
               })
             ),
             switchMap((report: ReportV1) => {
-              if (expenseIDs?.length > 0) {
+              if (expenseIDs?.length) {
                 return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
