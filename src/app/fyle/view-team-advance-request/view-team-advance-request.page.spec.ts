@@ -284,7 +284,7 @@ describe('ViewTeamAdvanceRequestPage', () => {
     fileService.downloadUrl.and.returnValue(of('mockdownloadurl.png'));
     fileService.findByAdvanceRequestId.and.returnValue(of([mockFileObject]));
     component.getAttachedReceipts('areqR1cyLgXdND').subscribe((res) => {
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject.name, 'mockdownloadurl.png');
       expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiSSsy2Bf4Se');
       expect(fileService.findByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
       expect(res).toEqual(fileObject10);

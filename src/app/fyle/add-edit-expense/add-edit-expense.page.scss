@@ -689,6 +689,12 @@
       color: $green;
       font-weight: 500;
     }
+
+    &__transaction-status {
+      border-top: 1px solid $grey;
+      padding-top: 12px;
+      margin-top: 12px;
+    }
   }
 
   &--icon-dots {

@@ -74,6 +74,8 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { multiplePaymentModesData, orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -1120,5 +1122,23 @@ export function TestCases6(getTestBed) {
         expect(result).toBeTrue();
       });
     });
+
+    it('openTransactionStatusInfoModal(): should open the transaction status info modal', fakeAsync(() => {
+      const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
+      popoverController.create.and.resolveTo(popoverSpy);
+
+      component.openTransactionStatusInfoModal(TransactionStatus.PENDING);
+
+      tick();
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: TransactionStatusInfoPopoverComponent,
+        componentProps: {
+          transactionStatus: TransactionStatus.PENDING,
+        },
+        cssClass: 'fy-dialog-popover',
+      });
+      expect(popoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
   });
 }

@@ -1,0 +1,37 @@
+@import '../../../../theme/colors.scss';
+
+.transaction-status {
+  &__container {
+    display: flex;
+    align-items: center;
+  }
+
+  &__status-indicator {
+    width: 2px;
+    height: 14px;
+    border-radius: 1px;
+    margin-right: 6px;
+
+    &.posted {
+      background-color: $green;
+    }
+
+    &.pending {
+      background-color: $red;
+    }
+  }
+
+  &__status-value {
+    color: $blue-black;
+    font-weight: 500;
+    margin-left: 6px;
+    margin-right: 2px;
+    line-height: 1.4;
+  }
+
+  &__info-icon {
+    color: $blue-black;
+    width: 16px;
+    height: 16px;
+  }
+}

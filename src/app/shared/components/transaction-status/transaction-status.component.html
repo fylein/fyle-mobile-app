@@ -1,0 +1,19 @@
+<div class="transaction-status__container">
+  <div
+    class="transaction-status__status-indicator"
+    [ngClass]="{
+      pending: transactionStatus === TransactionStatus.PENDING,
+      posted: transactionStatus === TransactionStatus.POSTED
+    }"
+  ></div>
+
+  Transaction Status:
+  <span class="transaction-status__status-value" data-testid="status-value">{{ transactionStatus | titlecase }}</span>
+
+  <ion-icon
+    src="../../../assets/svg/info-circle-outline.svg"
+    class="transaction-status__info-icon"
+    (click)="infoClick.emit(transactionStatus)"
+    data-testid="info-icon"
+  ></ion-icon>
+</div>

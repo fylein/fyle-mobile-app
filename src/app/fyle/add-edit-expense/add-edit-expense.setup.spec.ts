@@ -58,6 +58,7 @@ import { TestCases4 } from './add-edit-expense-4.spec';
 import { TestCases5 } from './add-edit-expense-5.spec';
 import { TestCases6 } from './add-edit-expense-6.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -208,6 +209,7 @@ describe('AddEditExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -397,6 +399,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: PlatformHandlerService,
           useValue: platformHandlerServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
