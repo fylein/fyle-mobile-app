@@ -31,7 +31,7 @@ import {
   EnrollingNonRTFCardProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses-v2/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { ReportFilters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
