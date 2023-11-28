@@ -2265,7 +2265,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = cloneDeep([mileageExpenseWithDistance, apiExpenses1[1]]);
+      component.selectedElements = [cloneDeep(mileageExpenseWithDistance), cloneDeep(apiExpenses1[1])];
       expensesService.getAllExpenses.and.returnValue(of([mileageExpenseWithDistance, apiExpenses1[1]]));
       expensesService.getExpenseById.and.returnValue(of(mileageExpenseWithDistance));
       component.openReviewExpenses();
@@ -2283,7 +2283,7 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = cloneDeep([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]);
+      component.selectedElements = [cloneDeep(perDiemExpenseWithSingleNumDays), cloneDeep(apiExpenses1[1])];
       expensesService.getAllExpenses.and.returnValue(of([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]));
       expensesService.getExpenseById.and.returnValue(of(perDiemExpenseWithSingleNumDays));
 
