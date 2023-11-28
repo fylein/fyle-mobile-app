@@ -165,9 +165,9 @@ export class MyCreateReportPage implements OnInit {
   }
 
   selectExpense(expense: PlatformExpense): void {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some((expense) => expense.id === expense.id);
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((exp) => exp.id === expense.id);
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter((expense) => expense.id !== expense.id);
+      this.selectedElements = this.selectedElements.filter((exp) => exp.id !== expense.id);
     } else {
       this.selectedElements.push(expense);
     }
