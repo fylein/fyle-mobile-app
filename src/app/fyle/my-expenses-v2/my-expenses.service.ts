@@ -7,8 +7,8 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { ExpenseFilters } from './expense-filters.model';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 
 @Injectable({
   providedIn: 'root',
