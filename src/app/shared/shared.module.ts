@@ -27,7 +27,6 @@ import { FyLocationModalComponent } from './components/fy-location/fy-location-m
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -165,7 +164,6 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     FyLocationModalComponent,
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
-    FyAlertComponent,
     DelegatedAccMessageComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
@@ -302,7 +300,6 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     FyLocationComponent,
     FyMultiselectComponent,
     FyUserlistComponent,
-    FyAlertComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
     InitialsPipe,

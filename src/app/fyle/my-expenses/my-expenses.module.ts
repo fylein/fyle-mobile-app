@@ -12,7 +12,6 @@ import { MatNativeDateModule, MatRippleModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatIconModule } from '@angular/material/icon';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { AddExpensePopoverComponent } from './add-expense-popover/add-expense-popover.component';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ReportStates } from '../dashboard/stat-badge/report-states';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
@@ -42,6 +41,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [MyExpensesPage, AddExpensePopoverComponent, AddTxnToReportDialogComponent],
+  declarations: [MyExpensesPage, AddTxnToReportDialogComponent],
 })
 export class MyExpensesPageModule {}
