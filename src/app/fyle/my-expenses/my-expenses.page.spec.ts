@@ -69,8 +69,8 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import {
   apiExpenses1,
   expenseData,
-  mileageExpenseWithDistance,
-  perDiemExpenseWithSingleNumDays,
+  mileageExpenseWithDistance2,
+  perDiemExpenseWithSingleNumDays2,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
@@ -2254,6 +2254,7 @@ describe('MyExpensesPage', () => {
       });
       component.selectedElements = [];
       component.openReviewExpenses();
+
       tick(100);
 
       expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
@@ -2265,14 +2266,15 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_mileage if org_category is mileage and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = [cloneDeep(mileageExpenseWithDistance), cloneDeep(apiExpenses1[1])];
-      expensesService.getAllExpenses.and.returnValue(of([mileageExpenseWithDistance, apiExpenses1[1]]));
-      expensesService.getExpenseById.and.returnValue(of(mileageExpenseWithDistance));
+      component.selectedElements = [cloneDeep(mileageExpenseWithDistance2), cloneDeep(apiExpenses1[1])];
+      expensesService.getAllExpenses.and.returnValue(of([mileageExpenseWithDistance2, apiExpenses1[1]]));
+      expensesService.getExpenseById.and.returnValue(of(mileageExpenseWithDistance2));
+
       component.openReviewExpenses();
       tick(100);
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(mileageExpenseWithDistance.id);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(mileageExpenseWithDistance2.id);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
@@ -2283,15 +2285,15 @@ describe('MyExpensesPage', () => {
     }));
 
     it('should navigate to add_edit_per_diem if org_category is Per Diem and selectedElement length is greater than zero', fakeAsync(() => {
-      component.selectedElements = [cloneDeep(perDiemExpenseWithSingleNumDays), cloneDeep(apiExpenses1[1])];
-      expensesService.getAllExpenses.and.returnValue(of([perDiemExpenseWithSingleNumDays, apiExpenses1[1]]));
-      expensesService.getExpenseById.and.returnValue(of(perDiemExpenseWithSingleNumDays));
+      component.selectedElements = [cloneDeep(perDiemExpenseWithSingleNumDays2), cloneDeep(apiExpenses1[1])];
+      expensesService.getAllExpenses.and.returnValue(of([perDiemExpenseWithSingleNumDays2, apiExpenses1[1]]));
+      expensesService.getExpenseById.and.returnValue(of(perDiemExpenseWithSingleNumDays2));
 
       component.openReviewExpenses();
       tick(100);
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(perDiemExpenseWithSingleNumDays.id);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(perDiemExpenseWithSingleNumDays2.id);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
