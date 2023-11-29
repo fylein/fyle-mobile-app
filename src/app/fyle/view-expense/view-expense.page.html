@@ -411,7 +411,7 @@
         </ng-container>
 
         <ng-container *ngIf="travelSystemCategories?.includes(expense.category?.system_category)">
-          <ion-grid *ngIf="expense.locations.length > 0 && expense.locations[0].display" class="view-expense--grid">
+          <ion-grid *ngIf="expense.locations.length > 0 && expense.locations[0].city" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
                 <ion-grid>
@@ -426,12 +426,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">From</div>
-                      <div class="view-expense--value">{{ expense.locations[0].display }}</div>
+                      <div class="view-expense--value">{{ expense.locations[0].city }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col *ngIf="expense.locations[1]?.display" size="6">
+              <ion-col *ngIf="expense.locations[1]?.city" size="6">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -444,7 +444,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">To</div>
-                      <div class="view-expense--value">{{ expense.locations[1].display }}</div>
+                      <div class="view-expense--value">{{ expense.locations[1].city }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -559,9 +559,9 @@
         </ng-container>
 
         <ng-container
-          *ngIf="breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.display || expense.started_at || expense.ended_at)"
+          *ngIf="breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.city || expense.started_at || expense.ended_at)"
         >
-          <ion-grid *ngIf="expense.locations[0]?.display" class="view-expense--grid">
+          <ion-grid *ngIf="expense.locations[0]?.city" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -573,7 +573,7 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">City</div>
-                <div class="view-expense--value">{{ expense.locations[0].display }}</div>
+                <div class="view-expense--value">{{ expense.locations[0].city }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
