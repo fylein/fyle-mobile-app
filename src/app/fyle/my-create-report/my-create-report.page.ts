@@ -115,7 +115,7 @@ export class MyCreateReportPage implements OnInit {
       this.sendFirstReportCreated();
 
       let expenseIDs: string[] = [];
-      expenseIDs = this.selectedElements?.map((expense) => expense.id);
+      expenseIDs = this.selectedElements.map((expense) => expense.id);
 
       if (reportActionType === 'create_draft_report') {
         this.saveDraftReportLoading = true;
@@ -129,7 +129,7 @@ export class MyCreateReportPage implements OnInit {
               })
             ),
             switchMap((report: ReportV1) => {
-              if (expenseIDs?.length) {
+              if (expenseIDs.length) {
                 return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
