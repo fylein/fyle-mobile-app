@@ -40,14 +40,19 @@
             accept="application/pdf,image/*"
             class="d-none"
           />
-          <ion-icon
-            class="expenses-card--receipt-icon"
-            [src]="receiptIcon"
-            [ngClass]="{
-              'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg',
-              'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
-            }"
-          ></ion-icon>
+          <ng-container *ngIf="isIconReceipt; else imageReceipt">
+            <ion-icon
+              class="expenses-card--receipt-icon"
+              [src]="receiptIcon"
+              [ngClass]="{
+                'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg',
+                'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
+              }"
+            ></ion-icon>
+          </ng-container>
+          <ng-template #imageReceipt>
+            <img class="expenses-card--receipt-icon" [src]="expense.logo" alt="receiptIcon" />
+          </ng-template>
         </div>
       </ng-container>
 
@@ -222,6 +227,7 @@
           >
             <div>Expense information</div>
             <div>missing</div>
+            {{ expense.tx_vendor }} - {{ expense.logo }}
           </div>
           <div class="expenses-card--default-view-container">
             <div class="expenses-card--currency-amount-container ion-text-right">

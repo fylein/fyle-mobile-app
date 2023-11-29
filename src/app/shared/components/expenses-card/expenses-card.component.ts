@@ -19,11 +19,13 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { merchantLogoMapping } from 'src/app/fyle/my-expenses/merchant-logo.data';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import * as Fuse from 'fuse.js';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -121,6 +123,8 @@ export class ExpensesCardComponent implements OnInit {
 
   isIos = false;
 
+  isIconReceipt = false;
+
   constructor(
     private transactionService: TransactionService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -155,20 +159,47 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
+  setLogo(): void {
+    if (this.expense.tx_vendor) {
+      const directlyFoundLogo = merchantLogoMapping.find(
+        (mapping) => mapping.raw_name === this.expense.tx_vendor
+      )?.logo;
+      if (directlyFoundLogo) {
+        this.expense.logo = directlyFoundLogo;
+      } else {
+        const options = {
+          includeScore: true,
+          keys: ['raw_name'],
+        };
+
+        const fuse = new Fuse.default(merchantLogoMapping, options);
+        const result = fuse.search(this.expense.tx_vendor);
+        if (result.length > 0 && result[0].score < 0.2) {
+          this.expense.logo = result[0].item.logo;
+        } else {
+          this.setDefaultLogo();
+        }
+      }
+    } else {
+      this.setDefaultLogo();
+    }
+  }
+
+  setDefaultLogo(): void {
+    this.isIconReceipt = true;
+    this.receiptIcon = 'assets/svg/list-plus.svg';
+    if (this.isFromPotentialDuplicates || this.isFromViewReports) {
+      this.receiptIcon = 'assets/svg/fy-expense.svg';
+    }
+  }
+
   getReceipt(): void {
     if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
     } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
-      if (!this.expense.tx_file_ids) {
-        this.receiptIcon = 'assets/svg/list-plus.svg';
-        if (this.isFromPotentialDuplicates || this.isFromViewReports) {
-          this.receiptIcon = 'assets/svg/fy-expense.svg';
-        }
-      } else {
-        this.isReceiptPresent = true;
-      }
+      this.setLogo();
     }
   }
 
