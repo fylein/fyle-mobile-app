@@ -101,7 +101,7 @@ export class MyCreateReportPage implements OnInit {
 
   ctaClickedEvent(reportActionType): Subscription {
     this.showReportNameError = false;
-    if (!this.reportTitle && this.reportTitle?.trim().length <= 0 && this.emptyInput) {
+    if (!this.reportTitle && this.reportTitle.trim().length <= 0 && this.emptyInput) {
       this.showReportNameError = true;
       return;
     }
@@ -124,7 +124,7 @@ export class MyCreateReportPage implements OnInit {
           .pipe(
             tap(() =>
               this.trackingService.createReport({
-                Expense_Count: expenseIDs?.length,
+                Expense_Count: expenseIDs.length,
                 Report_Value: this.selectedTotalAmount,
               })
             ),
