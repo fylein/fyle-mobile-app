@@ -7,7 +7,7 @@
           [svgIcon]="estatus.st.icon"
           *ngIf="!estatus.us_full_name"
           [ngClass]="{
-            'audit-history--circle': estatus.st.icon === 'circle',
+            'audit-history--circle': estatus.st.icon === 'radio-circle-outline',
             'audit-history--delete': estatus.st.icon === 'fy-delete',
             'icon--alert-warning': estatus.st.icon === 'danger',
             'icon--flagged': estatus.st.category === 'Flagged',
