@@ -1182,7 +1182,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Card Transaction Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1202,7 +1202,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Unmatched',
-      icon: 'fy-corporate-card',
+      icon: 'card',
     },
   },
   {
@@ -1222,7 +1222,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {

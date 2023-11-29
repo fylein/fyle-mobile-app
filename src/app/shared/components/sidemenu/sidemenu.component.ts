@@ -224,7 +224,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Cards',
         isVisible: cardOptions.length ? true : false,
-        icon: 'fy-corporate-card',
+        icon: 'card',
         disabled: !isConnected,
         isDropdownOpen: false,
         dropdownOptions: cardOptions,
@@ -239,7 +239,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Advances',
         isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
-        icon: 'advances',
+        icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },
@@ -258,7 +258,7 @@ export class SidemenuComponent implements OnInit {
     if (cardOptions.length === 1) {
       this.updateSidemenuOption(primaryOptions, 'Cards', {
         ...cardOptions[0],
-        icon: 'fy-corporate-card',
+        icon: 'card',
         disabled: !isConnected,
       });
     }

@@ -181,6 +181,20 @@
                 </ion-col>
               </ion-row>
             </ng-container>
+
+            <ng-container *ngIf="isRTFEnabled$ | async">
+              <ng-container *ngIf="platformExpense$ | async as expense">
+                <div
+                  *ngIf="expense.matched_corporate_card_transactions[0]?.status as transactionStatus"
+                  class="add-edit-expense--card-container__transaction-status"
+                >
+                  <app-transaction-status
+                    [transactionStatus]="transactionStatus"
+                    (infoClick)="openTransactionStatusInfoModal($event)"
+                  ></app-transaction-status>
+                </div>
+              </ng-container>
+            </ng-container>
           </ion-grid>
         </ng-container>
 
@@ -198,7 +212,7 @@
                 class="add-edit-expense--receipt-image"
               >
                 <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
-                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
+                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
               </div>
 
               <div
