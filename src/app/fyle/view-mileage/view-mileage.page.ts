@@ -292,8 +292,7 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      map((expense) => expense.files),
-      map((fileObjs) => fileObjs[0]),
+      switchMap((expense) => from(expense.files)),
       concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
