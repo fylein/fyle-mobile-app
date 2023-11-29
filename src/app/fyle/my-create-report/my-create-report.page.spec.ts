@@ -14,6 +14,7 @@ import {
   expenseData,
   nonReimbursableExpense,
   readyToReportExpensesData,
+  readyToReportExpensesData2,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -412,7 +413,7 @@ describe('MyCreateReportPage', () => {
 
   describe('getTotalSelectedExpensesAmount()', () => {
     it('should return total amount', () => {
-      expect(component.getTotalSelectedExpensesAmount(cloneDeep(readyToReportExpensesData))).toEqual(150);
+      expect(component.getTotalSelectedExpensesAmount(cloneDeep(readyToReportExpensesData2))).toEqual(150);
     });
 
     it('should return 0 if there are no re imbursable expenses', () => {

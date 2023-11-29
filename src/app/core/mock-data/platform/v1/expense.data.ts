@@ -1017,6 +1017,19 @@ export const readyToReportExpensesData: Expense[] = [
   },
 ];
 
+export const readyToReportExpensesData2: Expense[] = [
+  {
+    ...expenseData,
+    amount: 100,
+    id: 'tx3rb9ZcrTRn',
+  },
+  {
+    ...expenseData,
+    amount: 100,
+    id: 'txWjW9qT2Vf1',
+  },
+];
+
 export const nonReimbursableExpense: Expense = {
   ...expenseData,
   is_reimbursable: false,
