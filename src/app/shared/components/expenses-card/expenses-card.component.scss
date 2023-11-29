@@ -107,6 +107,9 @@
     height: 74px;
     padding: 20px;
     min-width: 74px;
+    &__no-border {
+      padding: 0;
+    }
   }
 
   &--receipt-image-container {
@@ -128,6 +131,12 @@
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
+  }
+
+  &--receipt-image {
+    height: 74px;
+    width: 74px;
+    border-radius: 8px;
   }
 
   &--receipt-icon {

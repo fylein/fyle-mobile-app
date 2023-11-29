@@ -31,6 +31,9 @@
           class="expenses-card--receipt-container"
           *ngIf="!isOutboxExpense; else outboxExpenseDisplay"
           (click)="addAttachments($event)"
+          [ngClass]="{
+            'expenses-card--receipt-container__no-border': expense.logo
+          }"
         >
           <input
             *ngIf="isIos"
@@ -51,7 +54,7 @@
             ></ion-icon>
           </ng-container>
           <ng-template #imageReceipt>
-            <img class="expenses-card--receipt-icon" [src]="expense.logo" alt="receiptIcon" />
+            <img class="expenses-card--receipt-image" [src]="expense.logo" alt="receiptIcon" />
           </ng-template>
         </div>
       </ng-container>

@@ -174,7 +174,7 @@ export class ExpensesCardComponent implements OnInit {
 
         const fuse = new Fuse.default(merchantLogoMapping, options);
         const result = fuse.search(this.expense.tx_vendor);
-        if (result.length > 0 && result[0].score < 0.2) {
+        if (result.length > 0 && result[0].score < 0.5) {
           this.expense.logo = result[0].item.logo;
         } else {
           this.setDefaultLogo();
