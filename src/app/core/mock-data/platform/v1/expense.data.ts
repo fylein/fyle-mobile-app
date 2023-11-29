@@ -1021,11 +1021,13 @@ export const readyToReportExpensesData2: Expense[] = [
   {
     ...expenseData,
     amount: 100,
+    is_reimbursable: true,
     id: 'tx3rb9ZcrTRn',
   },
   {
     ...expenseData,
     amount: 100,
+    is_reimbursable: true,
     id: 'txWjW9qT2Vf1',
   },
 ];

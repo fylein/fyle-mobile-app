@@ -413,7 +413,7 @@ describe('MyCreateReportPage', () => {
 
   describe('getTotalSelectedExpensesAmount()', () => {
     it('should return total amount', () => {
-      expect(component.getTotalSelectedExpensesAmount(cloneDeep(readyToReportExpensesData2))).toEqual(150);
+      expect(component.getTotalSelectedExpensesAmount(cloneDeep(readyToReportExpensesData2))).toEqual(200);
     });
 
     it('should return 0 if there are no re imbursable expenses', () => {
