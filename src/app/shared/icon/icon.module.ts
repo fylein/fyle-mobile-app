@@ -15,6 +15,7 @@ export class IconModule {
   svgImageArray = [
     'arrow-prev.svg',
     'arrow-next.svg',
+    'arrow-up',
     'attachment.svg',
     'building.svg',
     'car.svg',
@@ -22,7 +23,6 @@ export class IconModule {
     'chevron-right.svg',
     'curve.svg',
     'comments-zero-state',
-    'circle.svg',
     'close.svg',
     'danger.svg',
     'duplicate.svg',
@@ -111,6 +111,7 @@ export class IconModule {
     'plus.svg',
     'plus-minus.svg',
     'profile.svg',
+    'radio-circle-outline.svg',
     'rectangle.svg',
     'return-home.svg',
     'search.svg',
