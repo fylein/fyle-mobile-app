@@ -1003,3 +1003,36 @@ export const perDiemExpenseWithMultipleNumDays: Expense = {
   category: perDiemCategory,
   per_diem_num_days: 3,
 };
+
+export const readyToReportExpensesData: Expense[] = [
+  {
+    ...expenseData,
+    amount: 50,
+    id: 'tx3rb9ZcrTRn',
+  },
+  {
+    ...expenseData,
+    amount: 100,
+    id: 'txWjW9qT2Vf1',
+  },
+];
+
+export const readyToReportExpensesData2: Expense[] = [
+  {
+    ...expenseData,
+    amount: 100,
+    is_reimbursable: true,
+    id: 'tx3rb9ZcrTRn',
+  },
+  {
+    ...expenseData,
+    amount: 100,
+    is_reimbursable: true,
+    id: 'txWjW9qT2Vf1',
+  },
+];
+
+export const nonReimbursableExpense: Expense = {
+  ...expenseData,
+  is_reimbursable: false,
+};

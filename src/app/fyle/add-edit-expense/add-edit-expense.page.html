@@ -185,11 +185,11 @@
             <ng-container *ngIf="isRTFEnabled$ | async">
               <ng-container *ngIf="platformExpense$ | async as expense">
                 <div
-                  *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction"
+                  *ngIf="expense.matched_corporate_card_transactions[0]?.status as transactionStatus"
                   class="add-edit-expense--card-container__transaction-status"
                 >
                   <app-transaction-status
-                    [transactionStatus]="matchedTransaction.status"
+                    [transactionStatus]="transactionStatus"
                     (infoClick)="openTransactionStatusInfoModal($event)"
                   ></app-transaction-status>
                 </div>
