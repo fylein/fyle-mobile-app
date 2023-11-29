@@ -1,11 +1,12 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { noop } from 'rxjs';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
@@ -13,22 +14,20 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   templateUrl: './suggested-duplicates.component.html',
   styleUrls: ['./suggested-duplicates.component.scss'],
 })
-export class SuggestedDuplicatesComponent implements OnInit {
-  @Input() duplicateExpenses = [];
+export class SuggestedDuplicatesComponent {
+  @Input() duplicateExpenses: Expense[] = [];
 
   constructor(
     private modalController: ModalController,
     private handleDuplicates: HandleDuplicatesService,
-    private transaction: TransactionService,
+    private expensesService: ExpensesService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar
   ) {}
 
-  ngOnInit() {}
-
-  dismissAll() {
-    const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id);
+  dismissAll(): void {
+    const txnIds = this.duplicateExpenses.map((expense) => expense.id);
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       this.showDismissedSuccessToast();
       this.modalController.dismiss({
@@ -37,26 +36,27 @@ export class SuggestedDuplicatesComponent implements OnInit {
     });
   }
 
-  mergeExpenses() {
-    const txnIds = this.duplicateExpenses.map((expense) => expense.tx_id).join(',');
-    const params = {
-      tx_id: `in.(${txnIds})`,
+  mergeExpenses(): void {
+    const txnIds = this.duplicateExpenses.map((expense) => expense.id).join(',');
+    const queryParams = {
+      id: `in.(${txnIds})`,
     };
-    this.transaction.getETxnc({ offset: 0, limit: 10, params }).subscribe((selectedExpenses) => {
+    this.expensesService.getExpenses({ offset: 0, limit: 10, queryParams }).subscribe((selectedExpenses) => {
       this.modalController.dismiss();
+      const expenseIDs = selectedExpenses.map((expense) => expense.id);
       this.router.navigate([
         '/',
         'enterprise',
         'merge_expense',
         {
-          selectedElements: JSON.stringify(selectedExpenses),
+          expenseIDs: JSON.stringify(expenseIDs),
           from: 'EDIT_EXPENSE',
         },
       ]);
     });
   }
 
-  showDismissedSuccessToast() {
+  showDismissedSuccessToast(): void {
     const toastMessageData = {
       message: 'Duplicates was successfully dismissed',
     };
