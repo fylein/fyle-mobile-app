@@ -9,7 +9,7 @@ import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model
 export class TransactionStatusComponent {
   @Input() transactionStatus: TransactionStatus;
 
-  @Output() infoClick: EventEmitter<TransactionStatus> = new EventEmitter<TransactionStatus>();
+  @Output() statusClick: EventEmitter<TransactionStatus> = new EventEmitter<TransactionStatus>();
 
   get TransactionStatus(): typeof TransactionStatus {
     return TransactionStatus;

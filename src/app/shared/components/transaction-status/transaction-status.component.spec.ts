@@ -24,13 +24,13 @@ describe('TransactionStatusComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should emit the infoClick event when clicked on the info icon', () => {
-    spyOn(component.infoClick, 'emit');
+  it('should emit the statusClick event when clicked on the info icon', () => {
+    spyOn(component.statusClick, 'emit');
 
     const infoIcon = getElementBySelector(fixture, '[data-testid="info-icon"]') as HTMLButtonElement;
     infoIcon.click();
 
-    expect(component.infoClick.emit).toHaveBeenCalledTimes(1);
+    expect(component.statusClick.emit).toHaveBeenCalledTimes(1);
   });
 
   describe('template', () => {
