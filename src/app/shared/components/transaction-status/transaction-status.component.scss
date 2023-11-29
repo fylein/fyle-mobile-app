@@ -21,6 +21,11 @@
     }
   }
 
+  &__status-value-container {
+    display: flex;
+    align-items: center;
+  }
+
   &__status-value {
     color: $blue-black;
     font-weight: 500;
