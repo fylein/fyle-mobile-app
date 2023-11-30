@@ -722,7 +722,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Created',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -762,7 +762,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -842,7 +842,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1042,7 +1042,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Approver Pending',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1182,7 +1182,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Card Transaction Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1202,7 +1202,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Unmatched',
-      icon: 'fy-corporate-card',
+      icon: 'card',
     },
   },
   {
@@ -1222,7 +1222,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1282,7 +1282,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1302,7 +1302,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1605,7 +1605,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1625,7 +1625,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1666,7 +1666,7 @@ export const estatusSample = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1727,7 +1727,7 @@ export const eStatusWithProjectName = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1754,7 +1754,7 @@ export const eStatusWithProjectName2 = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -2054,7 +2054,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'repots Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {

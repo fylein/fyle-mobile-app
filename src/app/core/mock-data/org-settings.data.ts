@@ -1262,6 +1262,18 @@ export const orgSettingsWoTax: OrgSettings = {
   },
 };
 
+export const orgSettingsWoTaxAndRtf: OrgSettings = {
+  ...orgSettingsWoTax,
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: false,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: false,
+  },
+};
+
 export const orgSettingsCCCDisabled2: OrgSettings = {
   ...orgSettingsRes,
   corporate_credit_card_settings: null,

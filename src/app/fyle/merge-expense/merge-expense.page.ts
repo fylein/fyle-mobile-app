@@ -449,7 +449,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             costCenter: this.mergeExpensesService.getFieldValueOnChange(
               constCenterOptionsData,
               this.touchedGenericFields?.includes('costCenter'),
-              this.expenses[selectedIndex]?.tx_cost_center_name,
+              this.expenses[selectedIndex]?.tx_cost_center_id,
               this.genericFieldsFormValues?.costCenter
             ),
             purpose: this.mergeExpensesService.getFieldValueOnChange(

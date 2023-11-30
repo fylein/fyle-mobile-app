@@ -14,13 +14,12 @@ export class StatusService {
 
   find(objectType: string, objectId: string): Observable<ExtendedStatus[]> {
     return this.apiService.get('/' + objectType + '/' + objectId + '/estatuses').pipe(
-      map(
-        (estatuses: ExtendedStatus[]) =>
-          estatuses?.map((estatus) => {
-            estatus.st_created_at = new Date(estatus.st_created_at);
-            return estatus;
-          }),
-      ),
+      map((estatuses: ExtendedStatus[]) =>
+        estatuses?.map((estatus) => {
+          estatus.st_created_at = new Date(estatus.st_created_at);
+          return estatus;
+        })
+      )
     );
   }
 
@@ -28,7 +27,7 @@ export class StatusService {
     objectType: string,
     objectId: string,
     status: { comment: string | ExtendedStatus },
-    notify: boolean = false,
+    notify: boolean = false
   ): Observable<TransactionStatus> {
     return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
@@ -65,7 +64,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
         statusCategory = {
           category: type + ' Reversed',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('expense rule') > -1:
@@ -77,7 +76,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('created') > -1:
         statusCategory = {
           category: type + ' Created',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('updated') > -1:
@@ -95,7 +94,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {
           category: 'Expense added',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('added') > -1:
@@ -167,7 +166,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('approver_pending') > -1:
         statusCategory = {
           category: 'Approver Pending',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('approved') > -1:
@@ -203,19 +202,19 @@ export class StatusService {
       case lowerCaseComment.indexOf('auto-matched by') > -1:
         statusCategory = {
           category: 'Card Transaction Matched',
-          icon: 'card-filled',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('unmatched by') > -1:
         statusCategory = {
           category: 'Expense Unmatched',
-          icon: 'fy-corporate-card',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('matched by') > -1:
         statusCategory = {
           category: 'Expense Matched',
-          icon: 'card-filled',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('expense is a possible duplicate') > -1:
@@ -233,7 +232,7 @@ export class StatusService {
       default:
         statusCategory = {
           category: 'Others',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
     }
@@ -260,7 +259,7 @@ export class StatusService {
         if (sortedStatus.length) {
           return sortedStatus[0].st_comment;
         }
-      }),
+      })
     );
   }
 

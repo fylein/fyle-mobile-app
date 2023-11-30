@@ -73,7 +73,7 @@ describe('ExpensesCardComponent', () => {
       'post',
     ]);
 
-    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/svg/list-plus.svg'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
@@ -636,7 +636,7 @@ describe('ExpensesCardComponent', () => {
 
   describe('attachReceipt(): ', () => {
     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
-      const dataUrl = '/assets/images/add-to-list.png';
+      const dataUrl = '/assets/svg/list-plus.svg';
       const attachmentType = 'png';
       const receiptDetailsaRes = {
         dataUrl,

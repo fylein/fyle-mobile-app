@@ -35,7 +35,12 @@ describe('ExpenseService', () => {
 
   describe('getIsDraft():', () => {
     it('should return true if transaction is draft', () => {
-      expect(service.getIsDraft(expenseData)).toBeTrue();
+      const expense: Expense = {
+        ...expenseData,
+        state: ExpenseState.DRAFT,
+      };
+
+      expect(service.getIsDraft(expense)).toBeTrue();
     });
 
     it('should return false if transaction is not draft', () => {

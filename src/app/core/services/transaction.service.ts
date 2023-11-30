@@ -369,16 +369,6 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<Expense> {
-    return this.apiV2Service
-      .get<Expense, {}>('/expenses', {
-        params: {
-          tx_id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.fixDates(res.data[0])));
-  }
-
   checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
     const payload = {
       data: platformPolicyExpense,

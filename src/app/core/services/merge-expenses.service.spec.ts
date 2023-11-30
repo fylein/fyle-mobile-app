@@ -383,7 +383,7 @@ describe('MergeExpensesService', () => {
       expect(res).toEqual(fileObject5);
       expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
       expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject5[0].id);
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObject5[0]);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObject5[0].name, 'mock-url');
       done();
     });
   });

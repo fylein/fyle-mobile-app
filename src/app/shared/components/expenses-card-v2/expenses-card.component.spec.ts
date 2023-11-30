@@ -76,7 +76,7 @@ describe('ExpensesCardComponent', () => {
       'post',
     ]);
 
-    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/svg/list-plus.svg'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
@@ -176,7 +176,7 @@ describe('ExpensesCardComponent', () => {
       component.selectedElements = expenseResponseData;
       component.expense = {
         ...expenseData,
-        id: 'txe0bYaJlRJf',
+        id: 'txcSFe6efB6R',
       };
       expect(component.isSelected).toBeTrue();
     });
@@ -194,7 +194,7 @@ describe('ExpensesCardComponent', () => {
       component.selectedElements = null;
       component.expense = {
         ...expenseData,
-        id: 'txe0bYaJlRJf',
+        id: 'txcSFe6efB6R',
       };
       expect(component.isSelected).toBeFalse();
     });
@@ -457,10 +457,10 @@ describe('ExpensesCardComponent', () => {
 
   describe('canShowPaymentModeIcon', () => {
     it('should show payment mode icon if it is a personal expense and is reimbersable', () => {
-      component.expense = {
-        ...expenseData,
-        is_reimbursable: true,
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.is_reimbursable = true;
+      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
+
       component.canShowPaymentModeIcon();
       fixture.detectChanges();
       expect(component.showPaymentModeIcon).toBeTrue();
@@ -590,6 +590,7 @@ describe('ExpensesCardComponent', () => {
 
     it('should set icon to fy-unmatched if the source account type is corporate credit card but matched_corporate_card_transaction_ids is not present', () => {
       component.expense = cloneDeep(expenseData);
+      component.expense.matched_corporate_card_transaction_ids = [];
       component.expense.source_account.type = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
 
       component.setOtherData();
@@ -598,21 +599,21 @@ describe('ExpensesCardComponent', () => {
     });
 
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
-      component.expense = {
-        ...expenseData,
-        matched_corporate_card_transaction_ids: [],
-        is_reimbursable: true,
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.matched_corporate_card_transaction_ids = [];
+      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
+      component.expense.is_reimbursable = true;
+
       component.setOtherData();
       fixture.detectChanges();
       expect(component.paymentModeIcon).toEqual('fy-reimbursable');
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
-      component.expense = {
-        ...expenseData,
-        is_reimbursable: false,
-      };
+      component.expense = cloneDeep(expenseData);
+      component.expense.is_reimbursable = false;
+      component.expense.source_account.type = AccountType.PERSONAL_CASH_ACCOUNT;
+
       component.setOtherData();
       fixture.detectChanges();
       expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
@@ -664,7 +665,7 @@ describe('ExpensesCardComponent', () => {
 
   describe('attachReceipt(): ', () => {
     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
-      const dataUrl = '/assets/images/add-to-list.png';
+      const dataUrl = '/assets/svg/list-plus.svg';
       const attachmentType = 'png';
       const receiptDetailsaRes = {
         dataUrl,
@@ -773,6 +774,7 @@ describe('ExpensesCardComponent', () => {
 
       const nativeElement1 = component.fileUpload.nativeElement as HTMLInputElement;
       spyOn(component, 'onFileUpload').and.stub();
+      spyOn(component, 'canAddAttachment').and.returnValue(true);
       spyOn(nativeElement1, 'click').and.callThrough();
 
       component.addAttachments(event as any);
