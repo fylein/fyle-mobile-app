@@ -16,13 +16,15 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MyViewReportPageV2 } from './my-view-report-v2.page';
+import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.module';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    MyViewReportPageRoutingModule,
+    MyViewReportPageV2RoutingModule,
     SharedModule,
     MatIconModule,
     MatButtonModule,
@@ -33,11 +35,11 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatCheckboxModule,
   ],
   declarations: [
-    MyViewReportPage,
+    MyViewReportPageV2,
     MyViewReportEtxnCardComponent,
     ShareReportComponent,
     EditReportNamePopoverComponent,
     AddExpensesToReportComponent,
   ],
 })
-export class MyViewReportPageModule {}
+export class MyViewReportV2PageModule {}

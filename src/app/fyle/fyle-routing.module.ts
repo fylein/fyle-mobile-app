@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { BetaPageFeatureFlagGuard } from '../core/guards/beta-page-feature-flag.guard';
 
 const routes: Routes = [
   {
@@ -25,6 +26,11 @@ const routes: Routes = [
   {
     path: 'my_view_report',
     loadChildren: () => import('./my-view-report/my-view-report.module').then((m) => m.MyViewReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'my_view_report_beta',
+    loadChildren: () => import('./my-view-report/my-view-report-v2.module').then((m) => m.MyViewReportV2PageModule),
   },
   {
     path: 'help',
@@ -64,7 +70,7 @@ const routes: Routes = [
     path: 'view_team_advance',
     loadChildren: () =>
       import('./view-team-advance-request/view-team-advance-request.module').then(
-        (m) => m.ViewTeamAdvanceRequestPageModule,
+        (m) => m.ViewTeamAdvanceRequestPageModule
       ),
   },
   {
@@ -87,7 +93,7 @@ const routes: Routes = [
     path: 'add_edit_advance_request',
     loadChildren: () =>
       import('./add-edit-advance-request/add-edit-advance-request.module').then(
-        (m) => m.AddEditAdvanceRequestPageModule,
+        (m) => m.AddEditAdvanceRequestPageModule
       ),
   },
   {
@@ -102,7 +108,7 @@ const routes: Routes = [
     path: 'personal_cards_matched_expenses',
     loadChildren: () =>
       import('./personal-cards-matched-expenses/personal-cards-matched-expenses.module').then(
-        (m) => m.PersonalCardsMatchedExpensesPageModule,
+        (m) => m.PersonalCardsMatchedExpensesPageModule
       ),
   },
   {

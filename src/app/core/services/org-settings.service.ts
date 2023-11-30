@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { map } from 'rxjs/operators';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, of, timer } from 'rxjs';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import {
   AccountingExportSettings,
@@ -34,6 +34,14 @@ export class OrgSettingsService {
   post(settings: OrgSettings): Observable<OrgSettingsResponse> {
     const data = this.processOutgoing(settings);
     return this.apiService.post('/org/settings', data);
+  }
+
+  isBetaPageEnabledForPath(currentPath: string): Observable<boolean> {
+    const pathSettingsFlagMap = {
+      my_view_report: 'view_report_beta_enabled',
+    };
+    const featureFlag = pathSettingsFlagMap[currentPath];
+    return this.get().pipe(map((orgSettings: OrgSettings) => orgSettings[featureFlag]));
   }
 
   getIncomingAccountingObject(incomingAccountExport: AccountingExportSettings): IncomingAccountObject {
