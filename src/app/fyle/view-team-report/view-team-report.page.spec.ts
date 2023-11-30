@@ -664,9 +664,9 @@ describe('ViewTeamReportPage', () => {
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         componentProps: {
-          etxns: etxncListData.data,
           title: 'Approve Report',
           message: '3 expenses of amount undefined will be approved',
+          flaggedExpensesCount: 2,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
