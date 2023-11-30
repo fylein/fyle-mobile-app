@@ -8,10 +8,10 @@
     <ion-title
       mode="md"
       class="page-title"
-      [ngClass]="{'view-expense--title': numEtxnsInReport > 1, 'pl-0': isDeviceWidthSmall}"
+      [ngClass]="{'view-expense--title': reportExpenseCount > 1, 'pl-0': isDeviceWidthSmall}"
       >View Expense
-      <p class="view-expense--subtitle" *ngIf="numEtxnsInReport > 1">
-        Showing {{ activeEtxnIndex + 1 }} of {{ numEtxnsInReport }} expenses
+      <p class="view-expense--subtitle" *ngIf="reportExpenseCount > 1">
+        Showing {{ activeExpenseIndex + 1 }} of {{ reportExpenseCount }} expenses
       </p>
     </ion-title>
     <ion-buttons class="view-expense--header-btn-container" slot="end">
@@ -20,11 +20,11 @@
       </ion-button>
 
       <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ng-container *ngIf="etxn$|async as etxn">
+        <ng-container *ngIf="expense$|async as expense">
           <ion-button
             class="view-expense--header-btn-container__btn"
-            (click)="flagUnflagExpense(etxn.tx_manual_flag)"
-            [ngClass]="etxn.tx_manual_flag ? 'icon--flagged' : 'icon--unflagged'"
+            (click)="flagUnflagExpense(expense.is_manually_flagged)"
+            [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
           >
             <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
           </ion-button>
@@ -42,8 +42,8 @@
 
 <ion-content>
   <ng-container *ngIf="!isLoading; else loading">
-    <div class="view-expense--container" *ngIf="etxn$|async as etxn">
-      <ng-container *ngIf="etxn.tx_policy_flag">
+    <div *ngIf="expense$|async as expense" class="view-expense--container">
+      <ng-container *ngIf="expense.is_policy_flagged">
         <ng-container *ngIf="policyDetails">
           <app-fy-policy-violation-info
             [policyDetails]="policyDetails"
@@ -54,8 +54,8 @@
 
       <div class="view-expense--policy-container" *ngIf="(isAmountCapped$|async) && !(isCriticalPolicyViolated$|async)">
         <span class="info-text m-0">
-          Claimed amount {{ etxn.tx_user_amount | currency:etxn.tx_currency: 'symbol-narrow' }} was capped to {{
-          etxn.tx_amount | currency:etxn.tx_currency: 'symbol-narrow'}} due to policy.
+          Claimed amount {{ expense.claim_amount | currency:expense.currency: 'symbol-narrow' }} was capped to {{
+          expense.amount | currency:expense.currency: 'symbol-narrow'}} due to policy.
         </span>
       </div>
 
@@ -63,50 +63,64 @@
         <app-fy-alert-info [message]="'Expense created due to split.'" [type]="'information'"></app-fy-alert-info>
       </div>
 
-      <div class="d-flex view-expense--card-container">
-        <div class="view-expense--card-container__block">
-          <div class="view-expense--card-container__category">{{ etxn.tx_categoryDisplayName || 'Unspecified' }}</div>
-          <div class="view-expense--card-container__merchant">
-            {{ etxn.tx_vendor || merchantFieldName + ' Unspecified'}}
-          </div>
-          <div *ngIf="isProjectShown" class="view-expense--card-container__project">
-            {{ projectFieldName | titlecase }}: {{ etxn.tx_project_name ? etxn.tx_project_name : 'Unspecified' }}
-          </div>
-          <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
-        </div>
-        <div class="ion-text-right view-expense--card-container__block">
-          <div class="view-expense--card-container__amount-section">
-            <span class="view-expense--card-container__currency">{{ etxnCurrencySymbol }}</span>
-            <span class="view-expense--card-container__amount">
-              {{ etxn.tx_amount | humanizeCurrency: etxn.tx_currency:true }}
-            </span>
-            <div *ngIf="isCCCTransaction">
-              <div
-                class="view-expense--card-container__txn-type"
-                [ngClass]="{'view-expense--card-container__credit': etxn.tx_amount < 0}"
-              >
-                {{ etxn.tx_amount > 0 ? 'DR' : 'CR' }}
-              </div>
+      <div class="view-expense--card-container">
+        <div class="d-flex">
+          <div class="view-expense--card-container__block">
+            <div class="view-expense--card-container__category">{{ expense.category.display_name }}</div>
+            <div class="view-expense--card-container__merchant">{{ expense.merchant || '-' }}</div>
+            <div *ngIf="isProjectShown" class="view-expense--card-container__project">
+              {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
-            <ion-icon
-              class="view-expense--card-container__icon"
-              [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
-            ></ion-icon>
+            <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
           </div>
 
-          <div class="view-expense--card-container__exchange-rate" *ngIf="foreignCurrencySymbol">
-            {{ etxn.tx_orig_amount | humanizeCurrency: etxn.tx_orig_currency }} at {{ etxn.tx_amount /
-            etxn.tx_orig_amount | currency: etxn.tx_currency: 'symbol-narrow' }}
-          </div>
-          <div
-            class="view-expense--card-container__state-pill ion-text-right"
-            [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
-          >
-            <div class="state-pill state-{{etxn.tx_state | expenseState}}">
-              {{ etxn.tx_state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+          <div class="ion-text-right view-expense--card-container__block">
+            <div class="view-expense--card-container__amount-section">
+              <span class="view-expense--card-container__currency">{{ expenseCurrencySymbol }}</span>
+              <span class="view-expense--card-container__amount">
+                {{ expense.amount | humanizeCurrency: expense.currency:true }}
+              </span>
+              <div *ngIf="isCCCTransaction">
+                <div
+                  class="view-expense--card-container__txn-type"
+                  [ngClass]="{'view-expense--card-container__credit': expense.amount < 0}"
+                >
+                  {{ expense.amount > 0 ? 'DR' : 'CR' }}
+                </div>
+              </div>
+              <ion-icon
+                class="view-expense--card-container__icon"
+                [src]="'../../../assets/svg/' + paymentModeIcon + '.svg'"
+              ></ion-icon>
+            </div>
+
+            <div *ngIf="foreignCurrencySymbol" class="view-expense--card-container__exchange-rate">
+              {{ expense.foreign_amount | humanizeCurrency: expense.foreign_currency }} at {{ expense.amount /
+              expense.foreign_amount | currency: expense.currency: 'symbol-narrow' }}
+            </div>
+
+            <div
+              class="view-expense--card-container__state-pill ion-text-right"
+              [ngClass]="{'view-expense--card-container__no-exchange': !foreignCurrencySymbol && isProjectShown}"
+            >
+              <div class="state-pill state-{{expense.state | expenseState}}">
+                {{ expense.state | expenseState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+              </div>
             </div>
           </div>
         </div>
+
+        <ng-container *ngIf="isCCCTransaction && isRTFEnabled">
+          <div
+            *ngIf="expense.matched_corporate_card_transactions[0]?.status as transactionStatus"
+            class="view-expense--card-container__transaction-status"
+          >
+            <app-transaction-status
+              [transactionStatus]="transactionStatus"
+              (statusClick)="openTransactionStatusInfoModal($event)"
+            ></app-transaction-status>
+          </div>
+        </ng-container>
       </div>
 
       <ng-container *ngIf="attachments$|async as attachments">
@@ -147,7 +161,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Report Name</div>
-            <div class="view-expense--value">{{ etxn.rp_purpose }}</div>
+            <div class="view-expense--value">{{ expense.report?.title }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -161,7 +175,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Employee</div>
-            <div class="view-expense--value">{{ etxn.us_full_name }}</div>
+            <div class="view-expense--value">{{ expense.user.full_name }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -175,7 +189,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Expense ID</div>
-            <div class="view-expense--value">{{ etxn.tx_expense_number }}</div>
+            <div class="view-expense--value">{{ expense.seq_num }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -197,12 +211,12 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Created Date</div>
-                  <div class="view-expense--value">{{ etxn.tx_created_at | date: 'MMM dd, YYYY' }}</div>
+                  <div class="view-expense--value">{{ expense.created_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>
           </ion-col>
-          <ion-col *ngIf="etxn.tx_txn_dt">
+          <ion-col *ngIf="expense.spent_at">
             <ion-grid>
               <ion-row>
                 <ion-col class="view-expense--icon-container">
@@ -215,7 +229,7 @@
                 </ion-col>
                 <ion-col class="view-expense--content-container">
                   <div class="view-expense--label">Spend Date</div>
-                  <div class="view-expense--value">{{ etxn.tx_txn_dt | date: 'MMM dd, YYYY' }}</div>
+                  <div class="view-expense--value">{{ expense.spent_at | date: 'MMM dd, YYYY' }}</div>
                 </ion-col>
               </ion-row>
             </ion-grid>
@@ -253,8 +267,10 @@
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Card Transaction</div>
             <div class="view-expense--value">
-              <ng-container *ngIf="matchingCCCTransaction$ | async as matchingCCCTransaction; else NoMatchingTxn">
-                {{ (matchingCCCTransaction.description || matchingCCCTransaction.vendor) | ellipsis:20}}
+              <ng-container
+                *ngIf="expense.matched_corporate_card_transactions[0] as matchedTransaction; else NoMatchingTxn"
+              >
+                {{ (matchedTransaction.description || matchedTransaction.merchant) | ellipsis:20}}
               </ng-container>
               <ng-template #NoMatchingTxn> No matching card transaction </ng-template>
             </div>
@@ -262,7 +278,7 @@
         </ion-row>
       </ion-grid>
 
-      <ion-grid *ngIf="etxn.tx_purpose" class="view-expense--grid">
+      <ion-grid *ngIf="expense.purpose" class="view-expense--grid">
         <ion-row>
           <ion-col class="view-expense--icon-container">
             <div class="view-expense--icon-container__background">
@@ -271,12 +287,12 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Purpose</div>
-            <div class="view-expense--value">{{ etxn.tx_purpose }}</div>
+            <div class="view-expense--value">{{ expense.purpose }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
 
-      <ion-grid *ngIf="etxn.tg_name" class="view-expense--grid">
+      <ion-grid *ngIf="expense.tax_group?.name" class="view-expense--grid">
         <ion-row>
           <ion-col class="view-expense--icon-container">
             <div class="view-expense--icon-container__background">
@@ -288,7 +304,7 @@
           </ion-col>
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">Tax Group</div>
-            <div class="view-expense--value">{{ etxn.tg_name }}</div>
+            <div class="view-expense--value">{{ expense.tax_group?.name }}</div>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -309,7 +325,7 @@
           <ion-col class="view-expense--content-container">
             <div class="view-expense--label">{{ orgSettings?.tax_settings?.name }}</div>
             <div class="view-expense--value">
-              {{ (etxn.tx_tax | currency:etxn.tx_currency: 'symbol-narrow') || 'Not Added' }}
+              {{ (expense.tax_amount | currency:expense.currency: 'symbol-narrow') || 'Not Added' }}
             </div>
           </ion-col>
         </ion-row>
@@ -319,7 +335,7 @@
         *ngIf="{ costCenterDependentCustomProperties: costCenterDependentCustomProperties$ | async} as data"
       >
         <ng-container *ngIf="!data.costCenterDependentCustomProperties?.length">
-          <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && etxn.tx_cost_center_id" class="view-expense--grid">
+          <ion-grid *ngIf="orgSettings?.cost_centers?.enabled && expense.cost_center_id" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
                 <ion-grid>
@@ -334,12 +350,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Cost Center</div>
-                      <div class="view-expense--value">{{ etxn.tx_cost_center_name }}</div>
+                      <div class="view-expense--value">{{ expense.cost_center?.name }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col size="6" *ngIf="etxn.tx_cost_center_code">
+              <ion-col size="6" *ngIf="expense.cost_center?.code">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -352,7 +368,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Cost Center Code</div>
-                      <div class="view-expense--value">{{ etxn.tx_cost_center_code }}</div>
+                      <div class="view-expense--value">{{ expense.cost_center?.code }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -362,10 +378,10 @@
         </ng-container>
       </ng-container>
 
-      <ng-container *ngIf="systemCategoriesWithTaxi?.includes(etxn.tx_fyle_category)">
+      <ng-container *ngIf="systemCategoriesWithTaxi?.includes(expense.category?.system_category)">
         <div class="view-expense--divider"></div>
-        <ng-container *ngIf="etxn.tx_fyle_category === 'Taxi'">
-          <ion-grid *ngIf="etxn.tx_distance" class="view-expense--grid">
+        <ng-container *ngIf="expense.category.system_category === 'Taxi'">
+          <ion-grid *ngIf="expense.distance" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -374,12 +390,12 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">Distance</div>
-                <div class="view-expense--value">{{ etxn.tx_distance }}</div>
+                <div class="view-expense--value">{{ expense.distance }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
 
-          <ion-grid *ngIf="etxn.tx_distance_unit" class="view-expense--grid">
+          <ion-grid *ngIf="expense.distance_unit" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -388,17 +404,14 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">Unit</div>
-                <div class="view-expense--value">{{ etxn.tx_distance_unit | titlecase }}</div>
+                <div class="view-expense--value">{{ expense.distance_unit | titlecase }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="travelSystemCategories?.includes(etxn.tx_fyle_category)">
-          <ion-grid
-            *ngIf="etxn.tx_locations && etxn.tx_locations.length && etxn.tx_locations[0]?.display"
-            class="view-expense--grid"
-          >
+        <ng-container *ngIf="travelSystemCategories?.includes(expense.category?.system_category)">
+          <ion-grid *ngIf="expense.locations.length > 0 && expense.locations[0].city" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
                 <ion-grid>
@@ -413,12 +426,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">From</div>
-                      <div class="view-expense--value">{{ etxn.tx_locations[0].display }}</div>
+                      <div class="view-expense--value">{{ expense.locations[0].city }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col *ngIf="etxn.tx_locations[1]?.display" size="6">
+              <ion-col *ngIf="expense.locations[1]?.city" size="6">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -431,7 +444,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">To</div>
-                      <div class="view-expense--value">{{ etxn.tx_locations[1].display }}</div>
+                      <div class="view-expense--value">{{ expense.locations[1].city }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -439,7 +452,7 @@
             </ion-row>
           </ion-grid>
 
-          <ion-grid *ngIf="etxn.tx_from_dt" class="view-expense--grid">
+          <ion-grid *ngIf="expense.started_at" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
                 <ion-grid>
@@ -454,12 +467,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Onward Date</div>
-                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col *ngIf="etxn.tx_to_dt">
+              <ion-col *ngIf="expense.ended_at">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -472,7 +485,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Return Date</div>
-                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -481,27 +494,27 @@
           </ion-grid>
         </ng-container>
 
-        <ng-container *ngIf="['Train', 'Bus'].includes(etxn.tx_fyle_category)">
-          <ion-grid *ngIf="etxn.tx_train_travel_class || etxn.tx_bus_travel_class" class="view-expense--grid">
+        <ng-container *ngIf="['Train', 'Bus'].includes(expense.category?.system_category)">
+          <ion-grid *ngIf="expense.travel_classes[0]" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
                   <ion-icon
                     class="view-expense--icon-container__icon-lg"
-                    [src]="'../../../assets/svg/fy-' + etxn.tx_fyle_category.toLowerCase() + '.svg'"
+                    [src]="'../../../assets/svg/' + expense.category.system_category.toLowerCase() + '.svg'"
                   ></ion-icon>
                 </div>
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">Travel Class</div>
-                <div class="view-expense--value">{{ etxn.tx_train_travel_class || etxn.tx_bus_travel_class }}</div>
+                <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
         </ng-container>
 
         <ng-container
-          *ngIf="flightSystemCategories?.includes(etxn.tx_fyle_category) && etxn.tx_flight_journey_travel_class"
+          *ngIf="flightSystemCategories?.includes(expense.category?.system_category) && expense.travel_classes[0]"
         >
           <ion-grid class="view-expense--grid">
             <ion-row>
@@ -518,12 +531,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Onward Class</div>
-                      <div class="view-expense--value">{{ etxn.tx_flight_journey_travel_class }}</div>
+                      <div class="view-expense--value">{{ expense.travel_classes[0] }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col *ngIf="etxn.tx_flight_return_travel_class">
+              <ion-col *ngIf="expense.travel_classes[1]">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -536,7 +549,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Return Class</div>
-                      <div class="view-expense--value">{{ etxn.tx_flight_return_travel_class }}</div>
+                      <div class="view-expense--value">{{ expense.travel_classes[1] }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -546,9 +559,9 @@
         </ng-container>
 
         <ng-container
-          *ngIf="breakfastSystemCategories?.includes(etxn?.tx_fyle_category) && (etxn?.tx_locations[0]?.display || etxn.tx_from_dt || etxn.tx_to_dt)"
+          *ngIf="breakfastSystemCategories?.includes(expense.category?.system_category) && (expense.locations[0]?.city || expense.started_at || expense.ended_at)"
         >
-          <ion-grid *ngIf="etxn.tx_locations[0]?.display" class="view-expense--grid">
+          <ion-grid *ngIf="expense.locations[0]?.city" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -560,12 +573,12 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">City</div>
-                <div class="view-expense--value">{{ etxn.tx_locations[0]?.display }}</div>
+                <div class="view-expense--value">{{ expense.locations[0].city }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
 
-          <ion-grid *ngIf="etxn.tx_from_dt" class="view-expense--grid">
+          <ion-grid *ngIf="expense.started_at" class="view-expense--grid">
             <ion-row>
               <ion-col size="6">
                 <ion-grid>
@@ -580,12 +593,12 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Check In</div>
-                      <div class="view-expense--value">{{ etxn.tx_from_dt | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-expense--value">{{ expense.started_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
               </ion-col>
-              <ion-col *ngIf="etxn.tx_to_dt">
+              <ion-col *ngIf="expense.ended_at">
                 <ion-grid>
                   <ion-row>
                     <ion-col class="view-expense--icon-container">
@@ -598,7 +611,7 @@
                     </ion-col>
                     <ion-col class="view-expense--content-container">
                       <div class="view-expense--label">Check Out</div>
-                      <div class="view-expense--value">{{ etxn.tx_to_dt | date: 'MMM dd, YYYY' }}</div>
+                      <div class="view-expense--value">{{ expense.ended_at | date: 'MMM dd, YYYY' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -606,7 +619,7 @@
             </ion-row>
           </ion-grid>
 
-          <ion-grid *ngIf="etxn.tx_hotel_is_breakfast_provided" class="view-expense--grid">
+          <ion-grid *ngIf="expense.hotel_is_breakfast_provided" class="view-expense--grid">
             <ion-row>
               <ion-col class="view-expense--icon-container">
                 <div class="view-expense--icon-container__background">
@@ -615,7 +628,7 @@
               </ion-col>
               <ion-col class="view-expense--content-container">
                 <div class="view-expense--label">Breakfast Provided</div>
-                <div class="view-expense--value">{{ etxn.tx_hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
+                <div class="view-expense--value">{{ expense.hotel_is_breakfast_provided ? 'Yes' : 'No' }}</div>
               </ion-col>
             </ion-row>
           </ion-grid>
@@ -624,12 +637,12 @@
 
       <!-- Project dependent fields -->
       <ng-container *ngIf="projectDependentCustomProperties$ | async as projectDependentCustomProperties">
-        <ng-container *ngIf="txnFields$ | async as txnFields">
-          <ng-container *ngIf="txnFields?.project_id?.length">
+        <ng-container *ngIf="expenseFields$ | async as expenseFields">
+          <ng-container *ngIf="expenseFields?.project_id?.length">
             <app-view-dependent-fields
               parentFieldType="PROJECT"
-              [parentFieldName]="txnFields.project_id[0]?.field_name"
-              [parentFieldValue]="etxn.tx_project_name"
+              [parentFieldName]="expenseFields.project_id[0]?.field_name"
+              [parentFieldValue]="expense.project?.name"
               [dependentCustomProperties]="projectDependentCustomProperties"
             ></app-view-dependent-fields>
           </ng-container>
@@ -638,13 +651,13 @@
 
       <!-- Cost center dependent fields -->
       <ng-container *ngIf="costCenterDependentCustomProperties$ | async as costCenterDependentCustomProperties">
-        <ng-container *ngIf="txnFields$ | async as txnFields">
-          <ng-container *ngIf="txnFields?.cost_center_id?.length">
+        <ng-container *ngIf="expenseFields$ | async as expenseFields">
+          <ng-container *ngIf="expenseFields?.cost_center_id?.length">
             <app-view-dependent-fields
               parentFieldType="COST_CENTER"
-              [parentFieldName]="txnFields.cost_center_id[0]?.field_name"
-              [parentFieldValue]="etxn.tx_cost_center_name"
-              [costCenterCode]="etxn.tx_cost_center_code"
+              [parentFieldName]="expenseFields.cost_center_id[0]?.field_name"
+              [parentFieldValue]="expense.cost_center?.name"
+              [costCenterCode]="expense.cost_center?.code"
               [dependentCustomProperties]="costCenterDependentCustomProperties"
             ></app-view-dependent-fields>
           </ng-container>
@@ -676,8 +689,9 @@
   </ng-template>
 </ion-content>
 
+<!-- TODO: Rename etxn terminology to expense in navigation footer component -->
 <app-navigation-footer
-  *ngIf="numEtxnsInReport > 1"
-  [activeEtxnIndex]="activeEtxnIndex"
-  [numEtxnsInReport]="numEtxnsInReport"
+  *ngIf="reportExpenseCount > 1"
+  [activeExpenseIndex]="activeExpenseIndex"
+  [reportExpenseCount]="reportExpenseCount"
 ></app-navigation-footer>

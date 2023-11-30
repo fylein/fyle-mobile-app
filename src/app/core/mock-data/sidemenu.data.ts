@@ -38,7 +38,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
     title: 'Personal Cards',
     isVisible: true,
     route: ['/', 'enterprise', 'personal_cards'],
-    icon: 'fy-corporate-card',
+    icon: 'card',
     disabled: false,
   },
   {
@@ -61,7 +61,7 @@ export const UpdatedOptionsRes: Partial<SidemenuItem> = {
   title: 'Personal Cards',
   isVisible: true,
   route: ['/', 'enterprise', 'personal_cards'],
-  icon: 'fy-corporate-card',
+  icon: 'card',
   disabled: false,
 };
 

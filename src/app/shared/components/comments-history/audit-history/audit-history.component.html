@@ -7,16 +7,17 @@
           [svgIcon]="estatus.st.icon"
           *ngIf="!estatus.us_full_name"
           [ngClass]="{
-            'audit-history--circle': estatus.st.icon === 'circle',
+            'audit-history--circle': estatus.st.icon === 'radio-circle-outline',
             'audit-history--delete': estatus.st.icon === 'fy-delete',
             'icon--alert-warning': estatus.st.icon === 'danger',
             'icon--flagged': estatus.st.category === 'Flagged',
-            'icon--unflagged': estatus.st.category === 'Unflagged'
+            'icon--unflagged': estatus.st.category === 'Unflagged',
+            'audit-history--card-filled': estatus.st.category === ('Card Transaction Matched' || 'Expense Matched')
           }"
         ></mat-icon>
         <span class="text-capitalize audit-history--category">{{ estatus.st.category }}</span>
         <div class="audit-history--timestamp">
-          <span>{{ estatus.st_created_at | date: 'MMM d, YYYY h:mm a' }}</span>
+          <span>{{ estatus.st_created_at | date : 'MMM d, YYYY h:mm a' }}</span>
         </div>
       </div>
 

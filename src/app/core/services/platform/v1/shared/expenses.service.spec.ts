@@ -39,7 +39,11 @@ describe('ExpensesService', () => {
 
   describe('isExpenseInDraft():', () => {
     it('should return true if transaction is draft', () => {
-      expect(service.isExpenseInDraft(expenseData)).toBeTrue();
+      const expense: Expense = {
+        ...expenseData,
+        state: ExpenseState.DRAFT,
+      };
+      expect(service.isExpenseInDraft(expense)).toBeTrue();
     });
 
     it('should return false if transaction is not draft', () => {
@@ -108,7 +112,7 @@ describe('ExpensesService', () => {
       reimbursable: {
         name: 'Reimbursable',
         key: 'reimbursable',
-        amount: 207000.78,
+        amount: 20,
         count: 2,
       },
     };

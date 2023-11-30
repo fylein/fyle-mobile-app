@@ -136,7 +136,7 @@ describe('FyViewReportInfoComponentV2', () => {
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
     expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(true);
+    expect(component.isForeignCurrency).toBe(false);
   });
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable amount', () => {
@@ -174,7 +174,7 @@ describe('FyViewReportInfoComponentV2', () => {
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
     expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData2);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(true);
+    expect(component.isForeignCurrency).toBe(false);
   });
 
   it('should always return 0', () => {

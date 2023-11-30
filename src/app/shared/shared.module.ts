@@ -27,7 +27,6 @@ import { FyLocationModalComponent } from './components/fy-location/fy-location-m
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
@@ -143,6 +142,8 @@ import { CardNumberComponent } from './components/card-number/card-number.compon
 import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
 import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
 import { AutofocusDirective } from './directive/autofocus.directive';
+import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 
 @NgModule({
   declarations: [
@@ -164,7 +165,6 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     FyLocationModalComponent,
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
-    FyAlertComponent,
     DelegatedAccMessageComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
@@ -263,6 +263,8 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     ArrayToCommaListPipe,
     CorporateCardComponent,
     AutofocusDirective,
+    TransactionStatusComponent,
+    TransactionStatusInfoPopoverComponent,
   ],
   imports: [
     CommonModule,
@@ -300,7 +302,6 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     FyLocationComponent,
     FyMultiselectComponent,
     FyUserlistComponent,
-    FyAlertComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
     InitialsPipe,
@@ -387,6 +388,8 @@ import { AutofocusDirective } from './directive/autofocus.directive';
     ArrayToCommaListPipe,
     CorporateCardComponent,
     AutofocusDirective,
+    TransactionStatusComponent,
+    TransactionStatusInfoPopoverComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

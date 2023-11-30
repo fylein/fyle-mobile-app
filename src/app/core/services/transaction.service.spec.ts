@@ -265,22 +265,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getExpenseV2(): should get expense from ID', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const transactionID = 'tx5fBcPBAxLv';
-
-    transactionService.getExpenseV2(transactionID).subscribe((res) => {
-      expect(res).toEqual(etxncData.data[0]);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          tx_id: `eq.${transactionID}`,
-        },
-      });
-      done();
-    });
-  });
-
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
     storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));

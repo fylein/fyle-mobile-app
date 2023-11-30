@@ -372,7 +372,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(207000.78);
+        expect(res).toEqual(20);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -403,7 +403,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
 
-      expect(component.reportExpensesIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
+      expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
       expect(component.canApprove).toBeNull();
       expect(component.canShowTooltip).toBeTrue();
@@ -482,7 +482,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       component.expensesAmountSum$.subscribe((res) => {
-        expect(res).toEqual(207000.78);
+        expect(res).toEqual(20);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -512,7 +512,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
 
-      expect(component.reportExpensesIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
+      expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeFalse();
       expect(component.canApprove).toBeTrue();
       expect(component.canShowTooltip).toBeTrue();
@@ -677,7 +677,7 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.team,
-        category: 'entertainment',
+        category: expenseData.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,

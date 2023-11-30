@@ -64,7 +64,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 import { MyViewReportPageV2 } from './my-view-report-v2.page';
 
-describe('MyViewReportPage', () => {
+describe('MyViewReportPageV2', () => {
   let component: MyViewReportPageV2;
   let fixture: ComponentFixture<MyViewReportPageV2>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -410,7 +410,7 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportExpenseIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
+      expect(component.reportExpenseIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {
@@ -504,7 +504,7 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportExpenseIds).toEqual(['txe0bYaJlRJf', 'txe0bYaJlRJf']);
+      expect(component.reportExpenseIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {

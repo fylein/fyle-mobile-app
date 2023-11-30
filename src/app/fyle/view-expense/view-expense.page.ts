@@ -1,6 +1,5 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, forkJoin } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -17,23 +16,25 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { getCurrencySymbol } from '@angular/common';
-import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { FileObject } from 'src/app/core/models/file-obj.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 
 @Component({
   selector: 'app-view-expense',
@@ -43,7 +44,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 export class ViewExpensePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  etxn$: Observable<Expense>;
+  expense$: Observable<Expense>;
 
   policyViloations$: Observable<ExtendedStatus[]>;
 
@@ -53,13 +54,15 @@ export class ViewExpensePage {
 
   customProperties$: Observable<CustomField[]>;
 
-  etxnWithoutCustomProperties$: Observable<Expense>;
+  expenseWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
 
   orgSettings: OrgSettings;
+
+  expenseId: string;
 
   reportId: string;
 
@@ -85,15 +88,13 @@ export class ViewExpensePage {
 
   isCCCTransaction = false;
 
-  matchingCCCTransaction$: Observable<MatchedCCCTransaction>;
+  reportExpenseCount: number;
 
-  numEtxnsInReport: number;
-
-  activeEtxnIndex: number;
+  activeExpenseIndex: number;
 
   paymentModeIcon: string;
 
-  etxnCurrencySymbol: string;
+  expenseCurrencySymbol: string;
 
   foreignCurrencySymbol: string;
 
@@ -121,11 +122,13 @@ export class ViewExpensePage {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+  expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
   projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
+
+  isRTFEnabled: boolean;
 
   constructor(
     private loaderService: LoaderService,
@@ -142,11 +145,12 @@ export class ViewExpensePage {
     private policyService: PolicyService,
     private modalProperties: ModalPropertiesService,
     private trackingService: TrackingService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
     private categoriesService: CategoriesService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private spenderExpensesService: SpenderExpensesService,
+    private approverExpensesService: ApproverExpensesService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -177,12 +181,11 @@ export class ViewExpensePage {
   }
 
   async openCommentsModal(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
-        objectId: etxn.tx_id,
+        objectId: this.expenseId,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
@@ -232,15 +235,15 @@ export class ViewExpensePage {
     }
   }
 
-  setPaymentModeandIcon(etxn: Expense): void {
-    if (etxn.source_account_type === AccountType.ADVANCE) {
+  setPaymentModeandIcon(expense: Expense): void {
+    if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
       this.paymentMode = 'Advance';
       this.paymentModeIcon = 'fy-non-reimbursable';
-    } else if (etxn.source_account_type === AccountType.CCC) {
+    } else if (expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
       this.paymentModeIcon = 'fy-unmatched';
       this.isCCCTransaction = true;
-    } else if (etxn.tx_skip_reimbursement) {
+    } else if (!expense.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
       this.paymentModeIcon = 'fy-non-reimbursable';
     } else {
@@ -251,7 +254,9 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
-    const txId = this.activatedRoute.snapshot.params.id as string;
+
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
     this.systemCategories = this.categoriesService.getSystemCategories();
     this.systemCategoriesWithTaxi = this.categoriesService.getSystemCategoriesWithTaxi();
@@ -259,127 +264,129 @@ export class ViewExpensePage {
     this.travelSystemCategories = this.categoriesService.getTravelSystemCategories();
     this.flightSystemCategories = this.categoriesService.getFlightSystemCategories();
 
-    this.etxnWithoutCustomProperties$ = this.updateFlag$.pipe(
-      switchMap(() => this.transactionService.getEtxn(txId)),
-      shareReplay(1)
-    );
-
-    this.etxnWithoutCustomProperties$.subscribe((res) => {
-      this.reportId = res.tx_report_id;
-    });
-
-    this.customProperties$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap((etxn) =>
-        this.customInputsService.fillCustomProperties(etxn.tx_org_category_id, etxn.tx_custom_properties, true)
+    this.expenseWithoutCustomProperties$ = this.updateFlag$.pipe(
+      switchMap(() =>
+        this.view === ExpenseView.team
+          ? this.approverExpensesService.getExpenseById(this.expenseId)
+          : this.spenderExpensesService.getExpenseById(this.expenseId)
       ),
       shareReplay(1)
     );
 
-    this.etxn$ = this.etxnWithoutCustomProperties$.pipe(
+    this.expenseWithoutCustomProperties$.subscribe((res) => {
+      this.reportId = res.report_id;
+    });
+
+    this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
+      concatMap((expense) =>
+        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+      ),
+      shareReplay(1)
+    );
+
+    this.expense$ = this.expenseWithoutCustomProperties$.pipe(
       finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+    this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
-      etxn: this.etxn$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expense: this.expense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.project_id?.length > 0),
-      switchMap(({ etxn, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          etxn.tx_custom_properties,
-          txnFields.project_id[0]?.id
+          expense.custom_fields,
+          expenseFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
-      etxn: this.etxn$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expense: this.expense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(({ etxn, txnFields }) => etxn.tx_custom_properties && txnFields.cost_center_id?.length > 0),
-      switchMap(({ etxn, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          etxn.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
+          expense.custom_fields,
+          expenseFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
     );
 
-    this.etxn$.subscribe((etxn) => {
-      this.isSplitExpense = etxn.tx_split_group_id !== etxn.tx_id;
+    this.expense$.subscribe((expense) => {
+      this.isSplitExpense = expense.is_split;
 
-      if (etxn.tx_amount && etxn.tx_orig_amount) {
-        this.exchangeRate = etxn.tx_amount / etxn.tx_orig_amount;
+      if (expense.amount && expense.foreign_amount) {
+        this.exchangeRate = expense.amount / expense.foreign_amount;
       }
 
-      this.setPaymentModeandIcon(etxn);
+      this.setPaymentModeandIcon(expense);
 
-      if (this.isCCCTransaction) {
-        this.matchingCCCTransaction$ = this.corporateCreditCardExpenseService
-          .getEccceByGroupId(etxn.tx_corporate_credit_card_expense_group_id)
-          .pipe(
-            map(
-              (matchedExpense: CCCExpUnflattened[]) =>
-                matchedExpense[0] && (this.paymentModeIcon = 'fy-matched') && matchedExpense[0].ccce
-            )
-          );
-        this.matchingCCCTransaction$.subscribe((cardTxn) => {
-          this.cardNumber = cardTxn?.card_or_account_number;
-        });
+      if (this.isCCCTransaction && expense.matched_corporate_card_transactions[0]) {
+        this.paymentModeIcon = 'fy-matched';
+
+        const matchedCCCTransaction = expense.matched_corporate_card_transactions[0];
+        this.cardNumber = matchedCCCTransaction.corporate_card_number;
       }
-      this.foreignCurrencySymbol = getCurrencySymbol(etxn.tx_orig_currency, 'wide');
-      this.etxnCurrencySymbol = getCurrencySymbol(etxn.tx_currency, 'wide');
+      this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
+      this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.etxn$.pipe(take(1))])
+    forkJoin([this.expenseFields$, this.expense$.pipe(take(1))])
       .pipe(
-        map(([expenseFieldsMap, etxn]) => {
+        map(([expenseFieldsMap, expense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown = this.orgSettings.projects?.enabled && (!!etxn.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
 
-    this.policyViloations$ = this.etxnWithoutCustomProperties$.pipe(
-      concatMap((etxn) => this.statusService.find('transactions', etxn.tx_id)),
+    this.policyViloations$ = this.expenseWithoutCustomProperties$.pipe(
+      concatMap((expense) => this.statusService.find('transactions', expense.id)),
       map((comments) => comments.filter(this.isPolicyComment))
     );
 
-    this.comments$ = this.statusService.find('transactions', txId);
-    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+    this.comments$ = this.statusService.find('transactions', this.expenseId);
 
-    this.canFlagOrUnflag$ = this.etxnWithoutCustomProperties$.pipe(
+    this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      map((expense) =>
+        [
+          ExpenseState.COMPLETE,
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+        ].includes(expense.state)
       )
     );
 
-    this.canDelete$ = this.etxnWithoutCustomProperties$.pipe(
+    this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
-      switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      switchMap((expense) =>
+        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, etxn }) => {
-        if (report?.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-      })
+      map(({ report, expense }) =>
+        report?.rp_num_transactions === 1
+          ? false
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
+      )
     );
 
-    this.isAmountCapped$ = this.etxn$.pipe(
-      map((etxn) => this.isNumber(etxn.tx_admin_amount) || this.isNumber(etxn.tx_policy_amount))
+    this.isAmountCapped$ = this.expense$.pipe(
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
 
     this.orgSettingsService.get().subscribe((orgSettings) => {
       this.orgSettings = orgSettings;
+      this.isRTFEnabled =
+        (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+        (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled);
       this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
     });
 
@@ -392,24 +399,26 @@ export class ViewExpensePage {
       )
       .subscribe(noop);
 
-    this.isCriticalPolicyViolated$ = this.etxn$.pipe(
-      map((etxn) => this.isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001)
+    this.isCriticalPolicyViolated$ = this.expense$.pipe(
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(txId);
+    this.getPolicyDetails(this.expenseId);
 
-    const editExpenseAttachments = this.etxn$.pipe(
+    const editExpenseAttachments = this.expense$.pipe(
       take(1),
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx_id)),
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: FileObject) =>
+      switchMap((expense) => from(expense.files)),
+      concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.getReceiptDetails(fileObj);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
+            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
+            const fileObjWithDetails: FileObject = {
+              url: downloadUrl,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return fileObjWithDetails;
           })
         )
       ),
@@ -423,46 +432,13 @@ export class ViewExpensePage {
     });
 
     if (this.activatedRoute.snapshot.params.txnIds) {
-      const etxnIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
-      this.numEtxnsInReport = etxnIds.length;
-      this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
+      const expenseIds = JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[];
+      this.reportExpenseCount = expenseIds.length;
+      this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     }
   }
 
-  getReceiptExtension(name: string): string {
-    let res: string = null;
-
-    if (name) {
-      const filename = name.toLowerCase();
-      const idx = filename.lastIndexOf('.');
-
-      if (idx > -1) {
-        res = filename.substring(idx + 1, filename.length);
-      }
-    }
-
-    return res;
-  }
-
-  getReceiptDetails(file: FileObject): { type: string; thumbnail: string } {
-    const ext = this.getReceiptExtension(file.name);
-    const res = {
-      type: 'unknown',
-      thumbnail: 'img/fy-receipt.svg',
-    };
-
-    if (ext && ['pdf'].indexOf(ext) > -1) {
-      res.type = 'pdf';
-      res.thumbnail = 'img/fy-pdf.svg';
-    } else if (ext && ['png', 'jpg', 'jpeg', 'gif'].indexOf(ext) > -1) {
-      res.type = 'image';
-      res.thumbnail = file.url;
-    }
-
-    return res;
-  }
-
-  getDeleteDialogProps(etxn: Expense): {
+  getDeleteDialogProps(): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -485,27 +461,23 @@ export class ViewExpensePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
       },
     };
   }
 
   async removeExpenseFromReport(): Promise<void> {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id as string).toPromise();
-    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps(etxn));
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps());
     await deletePopover.present();
     const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
   }
 
   async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
-    const id = this.activatedRoute.snapshot.params.id as string;
-    const etxn = await this.transactionService.getEtxn(id).toPromise();
-
     const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
@@ -526,12 +498,12 @@ export class ViewExpensePage {
             const comment = {
               comment: data.comment,
             };
-            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+            return this.statusService.post('transactions', this.expenseId, comment, true);
           }),
           concatMap(() =>
-            etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+            isExpenseFlagged
+              ? this.transactionService.manualUnflag(this.expenseId)
+              : this.transactionService.manualFlag(this.expenseId)
           ),
           finalize(() => {
             this.updateFlag$.next(null);
@@ -560,5 +532,17 @@ export class ViewExpensePage {
 
         await attachmentsModal.present();
       });
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoPopoverComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }

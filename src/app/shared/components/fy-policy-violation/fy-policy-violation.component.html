@@ -43,7 +43,7 @@
 
       <ng-container *ngIf="isExpenseCapped && cappedAmountString">
         <app-policy-violation-action
-          [icon]="'../../../../assets/svg/capped-amount.svg'"
+          [icon]="'../../../../assets/svg/plus-minus.svg'"
           [message]="cappedAmountString"
           [actionsCount]="policyAction?.run_summary?.length"
         ></app-policy-violation-action>

@@ -429,7 +429,7 @@ export class ViewTeamReportPageV2 {
   }
 
   goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }) {
-    const category = expense?.category?.name?.toLowerCase();
+    const category = expense.category && expense.category.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {

@@ -30,7 +30,6 @@
     width: 10px;
     margin: 0 20px 0 -6px;
     background-color: transparent;
-    color: $pure-white;
   }
 
   &--delete {
@@ -67,5 +66,9 @@
 
   &--diff {
     margin-left: 12px;
+  }
+
+  &--card-filled {
+    color: $green;
   }
 }
