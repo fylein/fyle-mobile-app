@@ -332,7 +332,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Advances',
           isVisible: component.orgSettings.advance_requests.enabled,
-          icon: 'advances',
+          icon: 'wallet',
           route: ['/', 'enterprise', 'my_advances'],
           disabled: false,
         },

@@ -1,12 +1,9 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { MyViewReportPageRoutingModule } from './my-view-report-routing.module';
-import { MyViewReportPage } from './my-view-report.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatIconModule } from '@angular/material/icon';
-import { MyViewReportEtxnCardComponent } from './my-view-report-etxn-card/my-view-report-etxn-card.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -36,7 +33,6 @@ import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.mod
   ],
   declarations: [
     MyViewReportPageV2,
-    MyViewReportEtxnCardComponent,
     ShareReportComponent,
     EditReportNamePopoverComponent,
     AddExpensesToReportComponent,
