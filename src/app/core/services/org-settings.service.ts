@@ -551,7 +551,6 @@ export class OrgSettingsService {
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
       simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
-      mobile_app_view_report_beta_enabled: outgoing?.mobile_app_view_report_beta_enabled,
     };
   }
 }
