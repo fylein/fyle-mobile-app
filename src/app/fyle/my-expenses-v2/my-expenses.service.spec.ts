@@ -70,7 +70,7 @@ describe('MyExpensesService', () => {
       spyOn(myExpensesService, 'convertSelectedSortFitlersToFilters');
       const sortBy = { name: 'Sort By', value: 'dateNewToOld' };
 
-      const convertedFilters = myExpensesService.convertFilters(selectedFilters7);
+      const convertedFilters = myExpensesService.convertSelectedOptionsToExpenseFilters(selectedFilters7);
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
@@ -84,7 +84,7 @@ describe('MyExpensesService', () => {
       spyOn(myExpensesService, 'convertSelectedSortFitlersToFilters');
       const sortBy = { name: 'Sort By', value: 'dateNewToOld' };
 
-      const convertedFilters = myExpensesService.convertFilters(selectedFilters8);
+      const convertedFilters = myExpensesService.convertSelectedOptionsToExpenseFilters(selectedFilters8);
 
       expect(myExpensesService.convertSelectedSortFitlersToFilters).toHaveBeenCalledOnceWith(
         sortBy,
@@ -130,7 +130,7 @@ describe('MyExpensesService', () => {
       filterPill
     );
     expect(filterPill).toEqual([
-      { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
+      { label: 'Expense Type', type: 'type', value: 'RegularExpenses, PerDiem, Mileage, custom' },
     ]);
   });
 
@@ -269,7 +269,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_txn_dt',
+        sortParam: 'spent_at',
         sortDir: 'desc',
       });
     });
@@ -284,7 +284,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_txn_dt',
+        sortParam: 'spent_at',
         sortDir: 'asc',
       });
     });
@@ -299,7 +299,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       });
     });
@@ -314,7 +314,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       });
     });
@@ -329,7 +329,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_org_category',
+        sortParam: 'category->name',
         sortDir: 'asc',
       });
     });
@@ -344,7 +344,7 @@ describe('MyExpensesService', () => {
       myExpensesService.convertSelectedSortFitlersToFilters(sortBy, generatedFilters);
 
       expect(generatedFilters).toEqual({
-        sortParam: 'tx_org_category',
+        sortParam: 'category->name',
         sortDir: 'desc',
       });
     });
@@ -421,7 +421,7 @@ describe('MyExpensesService', () => {
   describe('convertAmountSortToSelectedFilters(): ', () => {
     it('should convert amount sort to selected filters for descending sort', () => {
       const filter = {
-        sortParam: 'tx_amount',
+        sortParam: 'amount',
         sortDir: 'desc',
       };
       const generatedFilters = [];
@@ -438,7 +438,7 @@ describe('MyExpensesService', () => {
 
     it('should convert amount sort to selected filters for ascending sort', () => {
       const filter = {
-        sortParam: 'tx_amount',
+        sortParam: 'amount',
         sortDir: 'asc',
       };
       const generatedFilters = [];
@@ -457,7 +457,7 @@ describe('MyExpensesService', () => {
   describe('convertTxnDtSortToSelectedFilters():', () => {
     it('should covert txn date sort to selected filters for descending sort', () => {
       const filter = {
-        sortParam: 'tx_txn_dt',
+        sortParam: 'spent_at',
         sortDir: 'desc',
       };
       const generatedFilters = [];
@@ -474,7 +474,7 @@ describe('MyExpensesService', () => {
 
     it('should covert txn date sort to selected filters for ascending sort', () => {
       const filter = {
-        sortParam: 'tx_txn_dt',
+        sortParam: 'spent_at',
         sortDir: 'asc',
       };
       const generatedFilters = [];
@@ -493,7 +493,7 @@ describe('MyExpensesService', () => {
   describe('generateSortCategoryPills():', () => {
     it('should add category - a to z as sort params if sort direction is ascending', () => {
       const filter = {
-        sortParam: 'tx_org_category',
+        sortParam: 'category->name',
         sortDir: 'asc',
       };
       const filterPill = [];
@@ -506,7 +506,7 @@ describe('MyExpensesService', () => {
 
     it('should add category - z to a as sort params if sort direction is descending', () => {
       const filter = {
-        sortParam: 'tx_org_category',
+        sortParam: 'category->name',
         sortDir: 'desc',
       };
       const filterPill = [];

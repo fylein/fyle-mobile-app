@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { MyExpensesPageRoutingModule } from './my-expenses-routing.module';
-import { MyExpensesPage } from './my-expenses.page';
+import { MyExpensesV2PageRoutingModule } from './my-expenses-routing.module';
+import { MyExpensesV2Page } from './my-expenses-v2.page';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -23,7 +23,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     CommonModule,
     FormsModule,
     IonicModule,
-    MyExpensesPageRoutingModule,
+    MyExpensesV2PageRoutingModule,
     MatInputModule,
     MatFormFieldModule,
     MatButtonModule,
@@ -41,6 +41,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     SharedModule,
     MatCheckboxModule,
   ],
-  declarations: [MyExpensesPage, AddExpensePopoverComponent, AddTxnToReportDialogComponent],
+  declarations: [MyExpensesV2Page, AddExpensePopoverComponent, AddTxnToReportDialogComponent],
 })
-export class MyExpensesPageModule {}
+export class MyExpensesV2PageModule {}

@@ -367,7 +367,7 @@ type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' |
 
 const mileageCategory: Category = {
   code: null,
-  display_name: 'Mileage display',
+  display_name: 'mileage display',
   id: 267841,
   name: 'Mileage test',
   sub_category: 'Others',
@@ -1071,3 +1071,19 @@ export const apiExpenses1: Expense[] = [
     verifier_comments: [],
   },
 ];
+
+export const perDiemExpenseWithSingleNumDays2: Expense = {
+  ...perDiemExpenseWithSingleNumDays,
+  category: {
+    ...perDiemExpenseWithSingleNumDays.category,
+    name: 'Per Diem',
+  },
+};
+
+export const mileageExpenseWithDistance2: Expense = {
+  ...mileageExpenseWithDistance,
+  category: {
+    ...mileageExpenseWithDistance.category,
+    name: 'Mileage',
+  },
+};

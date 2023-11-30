@@ -1,0 +1,53 @@
+<div class="add-expense-popover-internal">
+  <div class="add-expense-popover-internal--element" matRipple (click)="instafyle($event)">
+    <div>
+      <img class="add-expense-popover-internal--icon" src="../../../../assets/svg/insta-fyle.svg" alt="Instafyle" />
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Capture Receipt</div>
+      <div class="add-expense-popover-internal--info">Scan paper receipts using camera</div>
+    </div>
+  </div>
+
+  <div class="add-expense-popover-internal--element" matRipple (click)="createExpense($event)">
+    <div>
+      <img
+        class="add-expense-popover-internal--icon"
+        src="../../../../assets/svg/create-expense.svg"
+        alt="createExpense"
+      />
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Add Expense</div>
+      <div class="add-expense-popover-internal--info">Enter details manually</div>
+    </div>
+  </div>
+
+  <div class="add-expense-popover-internal--element" matRipple (click)="createMileage($event)" *ngIf="isMileageEnabled">
+    <div>
+      <img
+        class="add-expense-popover-internal--icon"
+        src="../../../../assets/svg/create-mileage.svg"
+        alt="createMileage"
+      />
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Add Mileage</div>
+      <div class="add-expense-popover-internal--info">For your daily travels</div>
+    </div>
+  </div>
+
+  <div class="add-expense-popover-internal--element" matRipple (click)="createPerDiem($event)" *ngIf="isPerDiemEnabled">
+    <div>
+      <img
+        class="add-expense-popover-internal--icon"
+        src="../../../../assets/svg/create-per-diem.svg"
+        alt="createPerDiem"
+      />
+    </div>
+    <div class="add-expense-popover-internal--content">
+      <div class="add-expense-popover-internal--head">Add Per Diem</div>
+      <div class="add-expense-popover-internal--info">Log your daily per diems</div>
+    </div>
+  </div>
+</div>

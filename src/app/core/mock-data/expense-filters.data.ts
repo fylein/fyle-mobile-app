@@ -6,7 +6,7 @@ export const expenseFiltersData1: Partial<ExpenseFilters> = {
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
   type: ['PerDiem', 'Mileage'],
-  sortParam: 'tx_org_category',
+  sortParam: 'category->name',
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
@@ -15,7 +15,7 @@ export const expenseFiltersData1: Partial<ExpenseFilters> = {
 export const expenseFiltersData2: Partial<ExpenseFilters> = {
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
-  sortParam: 'tx_org_category',
+  sortParam: 'category->name',
   sortDir: 'asc',
   splitExpense: 'YES',
 };
@@ -39,14 +39,14 @@ export const expenseFiltersData4: Partial<ExpenseFilters> = {
 
 export const expenseFiltersData5: Partial<ExpenseFilters> = {
   receiptsAttached: 'YES',
-  sortParam: 'tx_amount',
+  sortParam: 'amount',
   sortDir: 'desc',
   splitExpense: 'YES',
 };
 
 export const expenseFiltersData6: Partial<ExpenseFilters> = {
   receiptsAttached: 'YES',
-  sortParam: 'tx_txn_dt',
+  sortParam: 'spent_at',
   sortDir: 'asc',
   splitExpense: 'YES',
 };
