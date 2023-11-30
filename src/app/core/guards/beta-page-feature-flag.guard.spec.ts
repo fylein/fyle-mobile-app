@@ -5,7 +5,7 @@ import { TestBed } from '@angular/core/testing';
 import { Observable, of } from 'rxjs';
 import { routerStateSnapshotData } from '../mock-data/router-state-snapshot.data';
 
-fdescribe('BetaPageFeatureFlagGuard', () => {
+describe('BetaPageFeatureFlagGuard', () => {
   let guard: BetaPageFeatureFlagGuard;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let router: jasmine.SpyObj<Router>;
