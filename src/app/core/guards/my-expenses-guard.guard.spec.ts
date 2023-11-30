@@ -6,7 +6,7 @@ import { OrgSettingsService } from '../services/org-settings.service';
 import { of } from 'rxjs';
 import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from '../mock-data/org-settings.data';
 
-fdescribe('MyExpensesGuardGuard', () => {
+describe('MyExpensesGuardGuard', () => {
   let guard: MyExpensesGuardGuard;
   let router: jasmine.SpyObj<Router>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;

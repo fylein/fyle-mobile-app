@@ -279,7 +279,11 @@ export class ViewExpensePage {
 
     this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
       concatMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       shareReplay(1)
     );
@@ -298,7 +302,7 @@ export class ViewExpensePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -311,7 +315,7 @@ export class ViewExpensePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.cost_center_id[0]?.id
         )
       ),

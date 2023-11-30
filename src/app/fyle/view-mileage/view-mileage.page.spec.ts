@@ -46,6 +46,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -517,7 +518,7 @@ describe('ViewMileagePage', () => {
     }));
 
     it('should get the project dependent custom properties', (done) => {
-      const customProps = mileageExpense.custom_fields;
+      const customProps = mileageExpense.custom_fields as Partial<CustomInput>[];
       const projectIdNumber = expenseFieldsMapResponse4.project_id[0].id;
 
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -535,7 +536,7 @@ describe('ViewMileagePage', () => {
     });
 
     it('should get the cost center dependent custom properties', (done) => {
-      const customProps = mileageExpense.custom_fields;
+      const customProps = mileageExpense.custom_fields as Partial<CustomInput>[];
       const costCenterIdNumber = expenseFieldsMapResponse4.cost_center_id[0].id;
       component.ionViewWillEnter();
       component.costCenterDependentCustomProperties$.subscribe((data) => {
@@ -776,7 +777,7 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(mockfilledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           mileageExpense.category_id,
-          mileageExpense.custom_fields,
+          mileageExpense.custom_fields as Partial<CustomInput>[],
           true
         );
         expect(customInputsService.getCustomPropertyDisplayValue).toHaveBeenCalledTimes(
