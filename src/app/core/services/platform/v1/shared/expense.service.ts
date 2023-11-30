@@ -130,7 +130,7 @@ export class ExpenseService {
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       cardNumberString = filters.cardNumbers.join(',');
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
       newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
         'in.(' + cardNumberString + ')';
     }
