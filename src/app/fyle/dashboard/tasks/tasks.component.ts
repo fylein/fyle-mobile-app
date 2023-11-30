@@ -23,7 +23,7 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
@@ -69,7 +69,7 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService,
+    private networkService: NetworkService
   ) {}
 
   ngOnInit(): void {
@@ -95,9 +95,9 @@ export class TasksComponent implements OnInit {
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).pipe(
       switchMap(({ taskFilters, autoSubmissionReportDate }) =>
-        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters),
+        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
       ),
-      shareReplay(1),
+      shareReplay(1)
     );
 
     this.tasks$.subscribe((tasks) => {
@@ -190,7 +190,7 @@ export class TasksComponent implements OnInit {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      shareReplay(1),
+      shareReplay(1)
     );
   }
 
@@ -396,7 +396,7 @@ export class TasksComponent implements OnInit {
         switchMap(() =>
           this.transactionService.getAllExpenses({
             queryParams,
-          }),
+          })
         ),
         map((etxns) => etxns.map((etxn) => etxn.tx_id)),
         switchMap((selectedIds) => {
@@ -407,10 +407,10 @@ export class TasksComponent implements OnInit {
             map((etxn) => ({
               inital: etxn,
               allIds,
-            })),
+            }))
           );
         }),
-        finalize(() => this.loaderService.hideLoader()),
+        finalize(() => this.loaderService.hideLoader())
       )
       .subscribe(({ inital, allIds }) => {
         let category;
@@ -465,7 +465,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader()),
+          finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
@@ -489,7 +489,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
           switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader()),
+          finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'add_edit_advance_request', { id: res.data[0].areq_id }]);
@@ -513,7 +513,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader()),
+          finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
@@ -536,7 +536,7 @@ export class TasksComponent implements OnInit {
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
           switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader()),
+          finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
           this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
@@ -558,7 +558,7 @@ export class TasksComponent implements OnInit {
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
       switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(map(() => report))),
-      finalize(() => this.loaderService.hideLoader()),
+      finalize(() => this.loaderService.hideLoader())
     );
   }
 
@@ -588,9 +588,9 @@ export class TasksComponent implements OnInit {
           tx_state: 'in.(COMPLETE)',
           or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
           tx_report_id: 'is.null',
-        }),
+        })
       ),
-      map((expenses) => expenses.map((expenses) => expenses.tx_id)),
+      map((expenses) => expenses.map((expenses) => expenses.tx_id))
     );
 
     this.reportService
@@ -603,8 +603,8 @@ export class TasksComponent implements OnInit {
               // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
               !openReport.report_approvals ||
               (openReport.report_approvals &&
-                !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1)),
-          ),
+                !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+          )
         ),
         switchMap((openReports) => {
           const addTxnToReportDialog = this.matBottomSheet.open(AddTxnToReportDialogComponent, {
@@ -616,12 +616,12 @@ export class TasksComponent implements OnInit {
         switchMap((data: { report: ExtendedReport }) => {
           if (data && data.report) {
             return readyToReportEtxns$.pipe(
-              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId)),
+              switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
             );
           } else {
             return of(null);
           }
-        }),
+        })
       )
       .subscribe((report: ExtendedReport) => {
         if (report) {

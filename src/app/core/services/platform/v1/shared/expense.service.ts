@@ -130,7 +130,7 @@ export class ExpenseService {
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       cardNumberString = filters.cardNumbers.join(',');
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
       newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
         'in.(' + cardNumberString + ')';
     }
@@ -279,8 +279,8 @@ export class ExpenseService {
         typeOrFilter.push('category->system_category.eq.Per Diem');
       }
 
-      if (filters.type.includes(ExpenseType.EXPENSE)) {
-        typeOrFilter.push('and(category->system_category.not.eq.Mileage, category->system_category.not.eq.Per Diem)');
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('category->system_category.not_in.(Mileage,Per Diem)');
       }
     }
 
