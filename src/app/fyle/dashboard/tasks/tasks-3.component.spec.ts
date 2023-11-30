@@ -22,7 +22,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
-import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
 import { ComponentType } from '@angular/cdk/portal';
 import { TemplateRef } from '@angular/core';
@@ -83,7 +83,7 @@ export function TestCases3(getTestBed) {
         .pipe(
           finalize(() => {
             expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-          }),
+          })
         )
         .subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
