@@ -94,26 +94,26 @@ export class ExpenseService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
+    expensesToBeDeletedCount: number,
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
   ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeleted.length > 0 && cccExpenses > 0) {
+    if (expensesToBeDeletedCount > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted.length > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeletedCount > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeleted.length === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeletedCount === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
@@ -130,8 +130,9 @@ export class ExpenseService {
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       cardNumberString = filters.cardNumbers.join(',');
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
-      newQueryParamsCopy.masked_corporate_card_number = 'in.(' + cardNumberString + ')';
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
+      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
+        'in.(' + cardNumberString + ')';
     }
 
     return newQueryParamsCopy;
@@ -278,8 +279,8 @@ export class ExpenseService {
         typeOrFilter.push('category->system_category.eq.Per Diem');
       }
 
-      if (filters.type.includes(ExpenseType.EXPENSE)) {
-        typeOrFilter.push('and(category->system_category.not.eq.Mileage, category->system_category.not.eq.Per Diem)');
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('category->system_category.not_in.(Mileage,Per Diem)');
       }
     }
 
