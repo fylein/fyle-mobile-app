@@ -1071,3 +1071,19 @@ export const apiExpenses1: Expense[] = [
     verifier_comments: [],
   },
 ];
+
+export const perDiemExpenseWithSingleNumDays2: Expense = {
+  ...perDiemExpenseWithSingleNumDays,
+  category: {
+    ...perDiemExpenseWithSingleNumDays.category,
+    name: 'Per Diem',
+  },
+};
+
+export const mileageExpenseWithDistance2: Expense = {
+  ...mileageExpenseWithDistance,
+  category: {
+    ...mileageExpenseWithDistance.category,
+    name: 'Mileage',
+  },
+};

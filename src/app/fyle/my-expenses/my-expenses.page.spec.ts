@@ -2181,6 +2181,7 @@ describe('MyExpensesPage', () => {
       });
       component.selectedElements = [];
       component.openReviewExpenses();
+
       tick(100);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
