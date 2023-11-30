@@ -51,15 +51,15 @@
     </div>
 
     <div *ngFor="let expense of selectedExpensesToReport; let i = index">
-      <app-expense-card
+      <app-expense-card-v2
         [expense]="expense"
-        [previousExpenseTxnDate]="selectedExpensesToReport[i - 1]?.tx_txn_dt"
-        [previousExpenseCreatedAt]="selectedExpensesToReport[i - 1]?.tx_created_at"
+        [previousExpenseTxnDate]="selectedExpensesToReport[i - 1]?.spent_at"
+        [previousExpenseCreatedAt]="selectedExpensesToReport[i - 1]?.created_at"
         [isSelectionModeEnabled]="true"
         [selectedElements]="selectedElements"
         (cardClickedForSelection)="selectExpense($event)"
       >
-      </app-expense-card>
+      </app-expense-card-v2>
     </div>
 
     <div class="create-new-report--add-more-container" (click)="closeEvent()">
