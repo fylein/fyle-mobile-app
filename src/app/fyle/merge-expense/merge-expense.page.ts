@@ -183,7 +183,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       custom_inputs: [],
     });
 
-    this.txnIDs = JSON.parse(this.activatedRoute.snapshot.params.txnIDs as string) as string[];
+    this.txnIDs = JSON.parse(this.activatedRoute.snapshot.params.expenseIDs as string) as string[];
 
     const expenses$ = this.transcationService
       .getETxnc({
