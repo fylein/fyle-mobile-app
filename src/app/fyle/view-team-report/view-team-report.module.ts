@@ -11,7 +11,6 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { ViewTeamReportPageV2 } from './view-team-report-v2.page';
 
 @NgModule({
   imports: [
