@@ -4,5 +4,5 @@ export interface ExpensesQueryParams extends APIQueryParams {
   report_id?: string;
   state?: string;
   searchString?: string;
-  queryParams?: Record<string, string>;
+  queryParams?: Record<string, string | string[] | boolean>;
 }

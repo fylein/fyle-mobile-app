@@ -3,5 +3,5 @@ export interface GetExpenseQueryParam {
   sortParam: string;
   sortDir: string;
   searchString: string;
-  queryParams: Record<string, string>;
+  queryParams: Record<string, string | string[] | boolean>;
 }
