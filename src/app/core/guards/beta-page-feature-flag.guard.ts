@@ -1,12 +1,5 @@
 import { Injectable } from '@angular/core';
-import {
-  ActivatedRoute,
-  ActivatedRouteSnapshot,
-  CanActivate,
-  Router,
-  RouterStateSnapshot,
-  UrlTree,
-} from '@angular/router';
+import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { Observable, map, of } from 'rxjs';
 import { OrgSettingsService } from '../services/org-settings.service';
 
@@ -20,7 +13,7 @@ export class BetaPageFeatureFlagGuard implements CanActivate {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    const currentPath = route.routeConfig?.path;
+    const currentPath = route.routeConfig && route.routeConfig.path;
 
     if (currentPath) {
       return this.orgSettingsService.isBetaPageEnabledForPath(currentPath).pipe(
