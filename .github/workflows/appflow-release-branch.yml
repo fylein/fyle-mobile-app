@@ -4,6 +4,9 @@ on:
   push:
     branches: 
       - 'mobile_release_.*'
+  pull_request:
+    branches: 
+      - 'mobile_release_.*'
 
 jobs:
   build-app:
