@@ -36,6 +36,7 @@ import {
   optionsData7,
   optionsData8,
   optionsData9,
+  optionsDataMergeExpenses,
 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
 import {
   combinedOptionsData1,
@@ -302,9 +303,20 @@ export function TestCases3(getTestBed) {
 
       it('should return customInput options correctly', () => {
         const customInputOptions = component.generateCustomInputOptions(mergeExpenesesCustomInputsData);
-        expect(mergeExpensesService.formatCustomInputOptions).toHaveBeenCalledOnceWith(optionsData32);
+        expect(mergeExpensesService.formatCustomInputOptions).toHaveBeenCalledOnceWith(optionsDataMergeExpenses);
+
         expect(customInputOptions).toEqual({
-          'select all 2': optionsData32[7],
+          'select all 2': {
+            id: 211326,
+            name: 'select all 2',
+            options: [
+              {
+                label: '2023-02-13T17:00:00.000Z',
+                value: '2023-02-13T17:00:00.000Z',
+              },
+            ],
+            value: '2023-02-13T17:00:00.000Z',
+          },
         });
       });
     });
