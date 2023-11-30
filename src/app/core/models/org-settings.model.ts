@@ -354,7 +354,7 @@ export interface OrgSettingsResponse {
   enable_advances?: boolean;
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
-  mobile_app_view_report_beta_enabled: boolean;
+  mobile_app_view_report_beta_enabled?: boolean;
 
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;

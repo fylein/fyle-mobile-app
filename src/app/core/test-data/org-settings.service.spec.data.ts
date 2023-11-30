@@ -855,7 +855,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: false,
     enabled: false,
   },
-  mobile_app_view_report_beta_enabled: true,
 };
 
 export const outgoingTallyAccountObj: AccountingExportSettings = {
@@ -1397,5 +1396,4 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  mobile_app_view_report_beta_enabled: true,
 };
