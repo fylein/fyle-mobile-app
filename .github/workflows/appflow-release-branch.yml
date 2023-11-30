@@ -77,5 +77,5 @@ jobs:
         with:
           slack-bot-user-oauth-access-token: ${{ secrets.SLACK_BOT_USER_OAUTH_ACCESS_TOKEN }}
           slack-channel: C029QPGHSQL
-          slack-text: ${{github.event.sender.login}} merged to ${{github.ref_name}}. \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
+          slack-text: ${{github.event.sender.login}} pushed to ${{github.ref_name}}. \r\n \r\n APK Link ${{steps.diwaiAndroid.outputs.url}} \r\n IPA link ${{steps.diwaiIos.outputs.url}}
 
