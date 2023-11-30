@@ -163,17 +163,17 @@
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports-expense-card-block">
-              <div *ngFor="let etxn of etxns$|async as list; let i = index;">
-                <app-expense-card
-                  [expense]="etxn"
-                  [etxnIndex]="i"
-                  [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-                  [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+              <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                <app-expense-card-v2
+                  [expense]="expense"
+                  [expenseIndex]="i"
+                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
                   (goToTransaction)="goToTransaction($event)"
                   [isFromReports]="true"
                   [isFromViewReports]="true"
                 >
-                </app-expense-card>
+                </app-expense-card-v2>
               </div>
             </div>
             <ng-template #ExpensesLoader>

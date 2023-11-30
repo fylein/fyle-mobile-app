@@ -16,6 +16,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MyViewReportPageV2 } from './my-view-report-v2.page';
 
 @NgModule({
   imports: [
@@ -34,6 +35,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
   ],
   declarations: [
     MyViewReportPage,
+    MyViewReportPageV2,
     MyViewReportEtxnCardComponent,
     ShareReportComponent,
     EditReportNamePopoverComponent,
