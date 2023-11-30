@@ -94,26 +94,26 @@ export class ExpenseService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeletedLength: number,
+    expensesToBeDeletedCount: number,
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
   ): string {
     let dialogBody: string;
 
-    if (expensesToBeDeletedLength > 0 && cccExpenses > 0) {
+    if (expensesToBeDeletedCount > 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
         <li>${cccExpensesMessage}</li>
         <li>Once deleted, the action can't be reversed.</li>
         </ul>
         <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeletedLength > 0 && cccExpenses === 0) {
+    } else if (expensesToBeDeletedCount > 0 && cccExpenses === 0) {
       dialogBody = `<ul class="text-left">
       <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
       <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
-    } else if (expensesToBeDeletedLength === 0 && cccExpenses > 0) {
+    } else if (expensesToBeDeletedCount === 0 && cccExpenses > 0) {
       dialogBody = `<ul class="text-left">
       <li>${cccExpensesMessage}</li>
       </ul>`;
