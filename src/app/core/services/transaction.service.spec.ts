@@ -466,6 +466,233 @@ describe('TransactionService', () => {
     });
   });
 
+  it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
+    spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
+    const paymentModeList = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+    const etxnPaymentMode = { name: 'Reimbursable', key: 'reimbursable' };
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn(expenseData1, paymentModeList)).toEqual(etxnPaymentMode);
+    expect(transactionService.isEtxnInPaymentMode).toHaveBeenCalledOnceWith(
+      expenseData1.tx_skip_reimbursement,
+      expenseData1.source_account_type,
+      etxnPaymentMode.key
+    );
+  });
+
+  describe('isEtxnInPaymentMode():', () => {
+    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'reimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
+      const txnSkipReimbursement = true;
+      const txnPaymentMode = 'nonReimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'advance';
+      const txnSourceAccountType = AccountType.ADVANCE;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'ccc';
+      const txnSourceAccountType = AccountType.CCC;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+  });
+
+  describe('addEtxnToCurrencyMap():', () => {
+    it('should add a new currency to the map when the currencyMap does not exist', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add a new currency to the map with the orig currency', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      const txOrigAmount = 200;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 200,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add the transaction amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 30,
+          count: 2,
+        },
+      });
+    });
+
+    it('should add the transaction amount and original amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      const txOrigAmount = 30;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 40,
+          count: 2,
+        },
+      });
+    });
+  });
+
+  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
+
+    const currencyMap = {
+      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
+      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
+      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
+    };
+
+    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
+  });
+
+  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
+      name: 'Reimbursable',
+      key: 'reimbursable',
+    });
+
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    const summary = {
+      reimbursable: {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+        amount: 49475.76,
+        count: 3,
+      },
+    };
+
+    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
+  });
+
   describe('setSortParams():', () => {
     const currentParams = { pageNumber: 1 };
     const filters = { sortParam: 'tx_txn_dt', sortDir: 'desc' };

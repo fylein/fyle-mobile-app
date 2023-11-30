@@ -948,12 +948,12 @@ describe('ReportService', () => {
       const params = 'draft';
 
       const expectedRes = {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       };
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(2);
+      expect(expectedRes.state.length).toEqual(1);
     });
 
     it('generate parameters as per state | pending', () => {
@@ -1022,7 +1022,6 @@ describe('ReportService', () => {
       const expectedRes = {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',
@@ -1036,7 +1035,7 @@ describe('ReportService', () => {
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(10);
+      expect(expectedRes.state.length).toEqual(9);
     });
   });
 
