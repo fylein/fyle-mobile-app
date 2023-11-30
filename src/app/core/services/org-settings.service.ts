@@ -39,6 +39,7 @@ export class OrgSettingsService {
   isBetaPageEnabledForPath(currentPath: string): Observable<boolean> {
     const pathSettingsFlagMap = {
       my_view_report: 'mobile_app_view_report_beta_enabled',
+      view_team_report: 'mobile_app_view_report_beta_enabled',
     };
     const featureFlag = pathSettingsFlagMap[currentPath];
     return this.get().pipe(map((orgSettings: OrgSettings) => orgSettings[featureFlag]));

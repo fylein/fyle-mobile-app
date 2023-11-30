@@ -56,6 +56,12 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then((m) => m.ViewTeamReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'view_team_report_beta',
+    loadChildren: () =>
+      import('./view-team-report/view-team-report-v2.module').then((m) => m.ViewTeamReportPageV2Module),
   },
   {
     path: 'my_view_advance',
