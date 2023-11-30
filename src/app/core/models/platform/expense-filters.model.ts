@@ -1,4 +1,4 @@
-import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { Filters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
 
 export interface ExpenseFilters extends Omit<Filters, 'state'> {
   state: string | string[];
