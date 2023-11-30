@@ -31,7 +31,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import { Filters } from '../my-expenses/my-expenses-filters.model';
+import { Filters } from '../my-expenses-v2/my-expenses-filters.model';
 import {
   selectedFilters1,
   selectedFilters2,
