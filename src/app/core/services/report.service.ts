@@ -33,6 +33,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -292,7 +293,7 @@ export class ReportService {
   getUserReportParams(state: keyof ReportStateMap): Record<'state', string[]> {
     const stateMap: ReportStateMap = {
       draft: {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       },
       pending: {
         state: ['APPROVER_PENDING'],
@@ -315,7 +316,6 @@ export class ReportService {
       all: {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',
@@ -622,6 +622,22 @@ export class ReportService {
       ),
       map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
+  }
+
+  getReportETxnc(rptId: string, orgUserId: string): Observable<Expense[]> {
+    const data: {
+      params: {
+        approver_id?: string;
+      };
+    } = {
+      params: {},
+    };
+
+    if (orgUserId) {
+      data.params.approver_id = orgUserId;
+    }
+
+    return this.apiService.get('/erpts/' + rptId + '/etxns', data);
   }
 
   approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {

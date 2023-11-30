@@ -428,6 +428,11 @@ export const mileageExpenseWithoutDistance: Expense = {
   category: mileageCategory,
 };
 
+export const perDiemExpense: Expense = {
+  ...expenseData,
+  category: perDiemCategory,
+};
+
 export const perDiemExpenseWithSingleNumDays: Expense = {
   ...expenseData,
   category: perDiemCategory,
