@@ -162,9 +162,9 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   getReceipt(): void {
-    if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'mileage') {
+    if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'per diem') {
+    } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.file_ids?.length) {
@@ -180,7 +180,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.category.name?.toLowerCase() === 'per diem' &&
+      this.expense?.category?.name?.toLowerCase() === 'per diem' &&
       (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
@@ -270,7 +270,7 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.category = this.expense.category.name && this.expense.category.name.toLowerCase();
+    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';
 
@@ -318,14 +318,14 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
-      if (this.expense.matched_corporate_card_transaction_ids?.length > 0) {
+    if (this.expense?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense?.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
         this.paymentModeIcon = 'fy-unmatched';
       }
     } else {
-      if (this.expense.is_reimbursable) {
+      if (this.expense?.is_reimbursable) {
         this.paymentModeIcon = 'fy-reimbursable';
       } else {
         this.paymentModeIcon = 'fy-non-reimbursable';
