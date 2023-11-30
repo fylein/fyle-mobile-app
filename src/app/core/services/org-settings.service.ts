@@ -25,7 +25,9 @@ export class OrgSettingsService {
     cacheBusterObserver: orgSettingsCacheBuster$,
   })
   get(): Observable<OrgSettings> {
-    return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
+    return this.apiService
+      .get('/org/settings')
+      .pipe(map((incoming: OrgSettingsResponse) => this.processIncoming(incoming)));
   }
 
   @CacheBuster({
@@ -402,6 +404,7 @@ export class OrgSettingsService {
         allowed: incoming?.simplified_report_closure_settings?.allowed,
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
+      mobile_app_view_report_beta_enabled: incoming.mobile_app_view_report_beta_enabled,
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -548,6 +551,7 @@ export class OrgSettingsService {
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
       simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
+      mobile_app_view_report_beta_enabled: outgoing?.mobile_app_view_report_beta_enabled,
     };
   }
 }
