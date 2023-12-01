@@ -36,6 +36,9 @@ export class ExpensesService {
       .pipe(map((expenses) => expenses.data));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getAllExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
     return this.getExpensesCount(params.queryParams).pipe(
       switchMap((count) => {
