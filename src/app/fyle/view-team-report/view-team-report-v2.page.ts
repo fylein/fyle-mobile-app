@@ -10,7 +10,6 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -32,6 +31,7 @@ import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-na
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ShareReportV2Component } from './share-report-v2/share-report.component';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report-v2.page.html',
@@ -510,7 +510,7 @@ export class ViewTeamReportPageV2 {
 
   async openViewReportInfoModal() {
     const viewInfoModal = await this.modalController.create({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: this.erpt$,
         expenses$: this.expenses$,

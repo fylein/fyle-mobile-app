@@ -30,7 +30,6 @@ import {
   systemCommentsWithSt,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
@@ -53,6 +52,7 @@ import {
   perDiemExpenseWithSingleNumDays,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPageV2;
@@ -841,7 +841,7 @@ describe('ViewTeamReportPageV2', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: component.erpt$,
         expenses$: component.expenses$,
