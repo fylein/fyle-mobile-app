@@ -105,7 +105,7 @@ export class CreateNewReportComponent implements OnInit {
 
   ctaClickedEvent(reportActionType): Subscription {
     this.showReportNameError = false;
-    if (this.reportTitle?.trim().length <= 0) {
+    if (this.reportTitle.trim().length <= 0) {
       this.showReportNameError = true;
       return;
     }

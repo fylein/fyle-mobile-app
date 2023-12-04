@@ -27,7 +27,7 @@ import {
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
-import { apiExpenses1 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -118,6 +118,17 @@ describe('CreateNewReportComponent', () => {
       fixture.detectChanges();
       expect(component.reportTitle).toEqual(reportName);
       expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: ['txDDLtRaflUW'] });
+    });
+
+    it('should get report title without reimbursable amount', () => {
+      const reportName = '#1:  Jul 2021';
+      component.selectedElements = [nonReimbursableExpense];
+
+      reportService.getReportPurpose.and.returnValue(of(reportName));
+      component.getReportTitle();
+      fixture.detectChanges();
+      expect(component.reportTitle).toEqual(reportName);
+      expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: [nonReimbursableExpense.id] });
     });
   });
 

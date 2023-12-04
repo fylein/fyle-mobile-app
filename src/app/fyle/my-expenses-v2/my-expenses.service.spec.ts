@@ -35,6 +35,7 @@ import {
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
 import { filter1, filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
 import { filterOptions2 } from 'src/app/core/mock-data/filter-options.data';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 
 describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
@@ -126,11 +127,11 @@ describe('MyExpensesService', () => {
   it('generateTypeFilterPills(): should add combined expense types value in filter pills', () => {
     const filterPill = [];
     myExpensesService.generateTypeFilterPills(
-      { ...expenseFiltersData1, type: ['RegularExpenses', 'PerDiem', 'Mileage', 'custom'] },
+      { ...expenseFiltersData1, type: [ExpenseType.EXPENSE, ExpenseType.PER_DIEM, ExpenseType.MILEAGE, 'custom'] },
       filterPill
     );
     expect(filterPill).toEqual([
-      { label: 'Expense Type', type: 'type', value: 'RegularExpenses, PerDiem, Mileage, custom' },
+      { label: 'Expense Type', type: 'type', value: 'Regular Expenses, Per Diem, Mileage, custom' },
     ]);
   });
 
