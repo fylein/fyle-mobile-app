@@ -52,6 +52,7 @@ import { txnFieldsData2 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 
 export function TestCases1(getTestBed) {
   return describe('add-edit-per-diem test cases set 1', () => {
@@ -553,12 +554,13 @@ export function TestCases1(getTestBed) {
       );
       expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFieldData));
       expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData2);
+      component.fg.controls.project.setValue(expectedProjectsResponse[0]);
       component.fg.controls.purpose.setValue('');
       component.fg.controls.costCenter.setValue(null);
       component.fg.controls.from_dt.setValue('2023-01-01');
       component.fg.controls.num_days.setValue(32);
       component.fg.controls.to_dt.setValue('2023-02-02');
-      component.fg.controls.billable.setValue(true);
+      component.fg.controls.billable.setValue(null);
 
       component.setupTfcDefaultValues();
 
@@ -572,6 +574,7 @@ export function TestCases1(getTestBed) {
       expect(expenseFieldsService.getDefaultTxnFieldValues).toHaveBeenCalledOnceWith(mockTxnFieldData);
       expect(component.fg.controls.costCenter.value).toEqual(15818);
       expect(component.fg.controls.purpose.value).toEqual('test_term');
+      expect(component.fg.controls.billable.value).toEqual(true);
     });
 
     it('getPaymentModes(): should get payment modes', (done) => {

@@ -548,7 +548,14 @@ export class AddEditPerDiemPage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && defaultValueColumn !== 'billable') {
+          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          } else if (
+            defaultValueColumn === 'billable' &&
+            this.fg.controls.project.value &&
+            (control.value === undefined || control.value === null) &&
+            !control.touched
+          ) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
