@@ -29,6 +29,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from './expenses.service';
+import { cloneDeep } from 'lodash';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -448,7 +449,7 @@ describe('ExpensesService', () => {
 
   describe('generateDateParams():', () => {
     it('should generate date params for filters this week', () => {
-      const result = service.generateDateParams({}, expenseFiltersData1);
+      const result = service.generateDateParams({}, cloneDeep(expenseFiltersData1));
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-12-02T18:30:00.000Z,spent_at.lt.2023-12-09T18:30:00.000Z)',
@@ -456,7 +457,7 @@ describe('ExpensesService', () => {
     });
 
     it('should generate date params for filters this month', () => {
-      const result = service.generateDateParams({}, expenseFiltersDataMonth);
+      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataMonth));
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-11-30T18:30:00.000Z,spent_at.lt.2023-12-31T18:29:00.000Z)',
@@ -464,7 +465,7 @@ describe('ExpensesService', () => {
     });
 
     it('should generate date params for filters last month', () => {
-      const result = service.generateDateParams({}, expenseFiltersDataLastMonth);
+      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataLastMonth));
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-10-31T18:30:00.000Z,spent_at.lt.2023-11-30T18:29:00.000Z)',
@@ -472,7 +473,7 @@ describe('ExpensesService', () => {
     });
 
     it('should generate custom date params', () => {
-      const result = service.generateDateParams({}, expenseFiltersDataWCustom);
+      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataWCustom));
       spyOn(service, 'generateCustomDateParams').and.returnValue({
         and: '(spent_at.gte.2023-01-04T00:00:00.000Z,spent_at.lt.2023-01-10T00:00:00.000Z)',
       });
