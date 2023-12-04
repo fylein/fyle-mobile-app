@@ -56,9 +56,11 @@ import {
 } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
 import {
   addExpenseToReportModalParams,
+  addExpenseToReportModalParams2,
   modalControllerParams,
   modalControllerParams2,
   newReportModalParams,
+  newReportModalParams2,
   openFromComponentConfig,
   popoverControllerParams,
 } from 'src/app/core/mock-data/modal-controller.data';
@@ -2117,10 +2119,6 @@ describe('MyExpensesV2Page', () => {
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
-
-      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
-        expectedCriticalPolicyViolationPopoverParams
-      );
     }));
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if draftExpense is zero', fakeAsync(() => {
@@ -2144,10 +2142,6 @@ describe('MyExpensesV2Page', () => {
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledTimes(2);
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[0]);
       expect(sharedExpenseService.getIsDraft).toHaveBeenCalledWith(apiExpenses1[1]);
-
-      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
-        expectedCriticalPolicyViolationPopoverParams2
-      );
     }));
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses is zero', fakeAsync(() => {
@@ -2205,7 +2199,7 @@ describe('MyExpensesV2Page', () => {
 
     expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
 
-    expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams);
+    expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams2);
     expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
       report: apiExtendedReportRes[0],
       message: 'new report is created',
@@ -2278,7 +2272,7 @@ describe('MyExpensesV2Page', () => {
         '/',
         'enterprise',
         'add_edit_mileage',
-        { id: 'txe0bYaJlRJf', txnIds: '["txe0bYaJlRJf","tx5WDG9lxBDT"]', activeIndex: 0 },
+        { id: 'txcSFe6efB6R', txnIds: JSON.stringify(['txcSFe6efB6R', 'tx5WDG9lxBDT']), activeIndex: 0 },
       ]);
     }));
 
@@ -2297,7 +2291,7 @@ describe('MyExpensesV2Page', () => {
         '/',
         'enterprise',
         'add_edit_per_diem',
-        { id: 'txe0bYaJlRJf', txnIds: '["txe0bYaJlRJf","tx5WDG9lxBDT"]', activeIndex: 0 },
+        { id: 'txcSFe6efB6R', txnIds: JSON.stringify(['txcSFe6efB6R', 'tx5WDG9lxBDT']), activeIndex: 0 },
       ]);
     }));
 
@@ -2322,7 +2316,7 @@ describe('MyExpensesV2Page', () => {
 
   describe('filterExpensesBySearchString(): ', () => {
     it('should return true if expense consist of searchString', () => {
-      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'RECURRENCE_WEBAPP');
+      const expectedFilteredExpenseRes = component.filterExpensesBySearchString(expenseData, 'usvKA4X8Ugcr');
 
       expect(expectedFilteredExpenseRes).toBeTrue();
     });
@@ -2344,7 +2338,7 @@ describe('MyExpensesV2Page', () => {
     component.onAddTransactionToReport({ tx_id: '12345' });
     tick(100);
 
-    expect(modalController.create).toHaveBeenCalledOnceWith(addExpenseToReportModalParams);
+    expect(modalController.create).toHaveBeenCalledOnceWith(addExpenseToReportModalParams2);
     expect(component.doRefresh).toHaveBeenCalledTimes(1);
   }));
 

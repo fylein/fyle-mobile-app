@@ -64,7 +64,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';

@@ -27,7 +27,7 @@ describe('MergeExpensePage', () => {
     const activatedRouteSpy = {
       snapshot: {
         params: {
-          txnIDs: JSON.stringify(['txBphgnCHHeO', 'tx3nHShG60zq']),
+          expenseIDs: JSON.stringify(['txBphgnCHHeO', 'tx3nHShG60zq']),
         },
       },
     };

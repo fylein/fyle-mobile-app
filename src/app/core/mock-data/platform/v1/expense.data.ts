@@ -140,7 +140,7 @@ export const expenseData: Expense = {
       merchant: 'Merchant1',
       posted_at: null,
       spent_at: new Date('2023-10-15T00:00:00+00:00'),
-      status: TransactionStatus.PENDING,
+      status: TransactionStatus?.PENDING,
     },
   ],
   merchant: null,

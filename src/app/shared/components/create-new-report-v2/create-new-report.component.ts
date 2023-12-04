@@ -1,9 +1,9 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { Observable, of, Subscription } from 'rxjs';
+import { Observable, Subscription, of } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
-import { Expense } from 'src/app/core/models/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { ReportService } from 'src/app/core/services/report.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -50,9 +50,9 @@ export class CreateNewReportComponent implements OnInit {
   ) {}
 
   getReportTitle(): Subscription {
-    const txnIds = this.selectedElements.map((etxn) => etxn.tx_id);
+    const txnIds = this.selectedElements.map((etxn) => etxn.id);
     this.selectedTotalAmount = this.selectedElements.reduce(
-      (acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount),
+      (acc, obj) => acc + (obj.is_reimbursable ? obj.amount : 0),
       0
     );
 
@@ -80,9 +80,9 @@ export class CreateNewReportComponent implements OnInit {
   }
 
   selectExpense(expense: Expense): void {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.id === txn.id);
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+      this.selectedElements = this.selectedElements.filter((txn) => txn.id !== expense.id);
     } else {
       this.selectedElements.push(expense);
     }
@@ -115,7 +115,7 @@ export class CreateNewReportComponent implements OnInit {
       source: 'MOBILE',
     };
 
-    const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+    const txnIds = this.selectedElements.map((expense) => expense.id);
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
       return this.reportService

@@ -397,6 +397,7 @@ describe('MergeExpensesService', () => {
 
   it('getCustomInputValues(): should return the custom input values', () => {
     const result = mergeExpensesService.getCustomInputValues(lodash.cloneDeep(apiExpenseRes));
+
     expect(result).toEqual(lodash.cloneDeep(mergeExpenesesCustomInputsData));
   });
 
