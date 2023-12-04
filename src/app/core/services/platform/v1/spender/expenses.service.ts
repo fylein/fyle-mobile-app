@@ -14,28 +14,6 @@ import { expensesCacheBuster$ } from '../../../transaction.service';
 export class ExpensesService {
   constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
 
-  getExpenseById(id: string): Observable<Expense> {
-    const data = {
-      params: {
-        id: `eq.${id}`,
-      },
-    };
-
-    return this.spenderService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
-  }
-
-  getExpensesCount(params: ExpensesQueryParams): Observable<number> {
-    return this.spenderService
-      .get<PlatformApiResponse<Expense>>('/expenses', { params })
-      .pipe(map((response) => response.count));
-  }
-
-  getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
-    return this.spenderService
-      .get<PlatformApiResponse<Expense>>('/expenses', { params })
-      .pipe(map((expenses) => expenses.data));
-  }
-
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
@@ -75,5 +53,27 @@ export class ExpensesService {
       ),
       reduce((acc, curr) => acc.concat(curr), [] as Expense[])
     );
+  }
+
+  getExpenseById(id: string): Observable<Expense> {
+    const data = {
+      params: {
+        id: `eq.${id}`,
+      },
+    };
+
+    return this.spenderService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
+  }
+
+  getExpensesCount(params: ExpensesQueryParams): Observable<number> {
+    return this.spenderService
+      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .pipe(map((response) => response.count));
+  }
+
+  getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .pipe(map((expenses) => expenses.data));
   }
 }

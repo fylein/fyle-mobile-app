@@ -1765,3 +1765,8 @@ export const nonReimbursableExpense: Expense = {
   ...expenseData,
   is_reimbursable: false,
 };
+
+export const draftExpense: Expense = {
+  ...expenseData,
+  state: ExpenseState.DRAFT,
+};

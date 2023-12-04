@@ -81,7 +81,7 @@ import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filter
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -1055,9 +1055,11 @@ export class MyExpensesV2Page implements OnInit {
       return;
     }
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.sharedExpenseService.getIsCriticalPolicyViolated(expense)
+      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
     );
-    const expensesInDraftState = selectedElements.filter((expense) => this.sharedExpenseService.getIsDraft(expense));
+    const expensesInDraftState = selectedElements.filter((expense) =>
+      this.sharedExpenseService.isExpenseInDraft(expense)
+    );
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
