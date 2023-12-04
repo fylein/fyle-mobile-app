@@ -453,11 +453,9 @@ describe('ExpensesService', () => {
   });
 
   describe('generateDateParams():', () => {
-    beforeEach(() => {
-      spyOn(service, 'generateCustomDateParams');
-    });
     it('should generate date params for filters this week', () => {
       const result = service.generateDateParams({}, cloneDeep(expenseFiltersData1));
+      spyOn(service, 'generateCustomDateParams');
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-12-02T18:30:00.000Z,spent_at.lt.2023-12-09T18:30:00.000Z)',
@@ -466,6 +464,7 @@ describe('ExpensesService', () => {
 
     it('should generate date params for filters this month', () => {
       const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataMonth));
+      spyOn(service, 'generateCustomDateParams');
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-11-30T18:30:00.000Z,spent_at.lt.2023-12-31T18:29:00.000Z)',
@@ -474,6 +473,7 @@ describe('ExpensesService', () => {
 
     it('should generate date params for filters last month', () => {
       const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataLastMonth));
+      spyOn(service, 'generateCustomDateParams');
 
       expect(result).toEqual({
         and: '(spent_at.gte.2023-10-31T18:30:00.000Z,spent_at.lt.2023-11-30T18:29:00.000Z)',
