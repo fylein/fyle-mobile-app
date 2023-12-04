@@ -30,13 +30,18 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from './expenses.service';
 import { cloneDeep } from 'lodash';
+import { DateService } from '../../../date.service';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
+  let dateService: DateService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [DateService],
+    });
     service = TestBed.inject(ExpensesService);
+    dateService = TestBed.inject(DateService);
   });
 
   it('should be created', () => {
