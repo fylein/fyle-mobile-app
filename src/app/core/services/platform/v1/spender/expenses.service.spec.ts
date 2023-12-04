@@ -8,7 +8,7 @@ import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-re
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
 
-fdescribe('ExpensesService', () => {
+describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
 
@@ -78,6 +78,7 @@ fdescribe('ExpensesService', () => {
 
   describe('getAllExpenses(): ', () => {
     it('should get all expenses for multiple pages', (done) => {
+      expensesCacheBuster$.next(null);
       spyOn(service, 'getExpensesCount').and.returnValue(of(4));
       spyOn(service, 'getExpenses').and.returnValue(of(readyToReportExpensesData2));
 
