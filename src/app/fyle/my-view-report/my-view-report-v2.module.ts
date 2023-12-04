@@ -11,10 +11,10 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MyViewReportPageV2 } from './my-view-report-v2.page';
 import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.module';
+import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
 
 @NgModule({
   imports: [
@@ -35,7 +35,7 @@ import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.mod
     MyViewReportPageV2,
     ShareReportComponent,
     EditReportNamePopoverComponent,
-    AddExpensesToReportComponent,
+    AddExpensesToReportV2Component,
   ],
 })
 export class MyViewReportV2PageModule {}

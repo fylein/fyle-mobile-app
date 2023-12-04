@@ -181,7 +181,7 @@
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
               <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
               <button
-                *ngIf="unReportedEtxns && unReportedEtxns.length > 0"
+                *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
                 class="view-reports--unreported-cta"
                 (click)="showAddExpensesToReportModal()"
               >
@@ -315,7 +315,7 @@
 >
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
-      <div class="view-reports--add-expenses-container" *ngIf="unReportedEtxns">
+      <div class="view-reports--add-expenses-container" *ngIf="unreportedExpenses">
         <div class="view-reports--add-expenses-container__icon_container">
           <mat-icon
             (click)="showAddExpensesToReportModal()"
@@ -345,7 +345,7 @@
 
 <ion-footer
   class="view-reports--add-expense-footer"
-  *ngIf="segmentValue === Segment.EXPENSES && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unReportedEtxns"
+  *ngIf="segmentValue === Segment.EXPENSES && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unreportedExpenses"
 >
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">

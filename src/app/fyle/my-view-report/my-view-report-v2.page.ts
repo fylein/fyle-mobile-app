@@ -4,7 +4,6 @@ import { Observable, from, noop, concat, Subject, BehaviorSubject } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
@@ -22,11 +21,9 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { cloneDeep } from 'lodash';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense } from 'src/app/core/models/expense.model';
-import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
@@ -35,6 +32,7 @@ import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
 @Component({
   selector: 'app-my-view-report-v2',
   templateUrl: './my-view-report-v2.page.html',
@@ -47,7 +45,7 @@ export class MyViewReportPageV2 {
 
   erpt$: Observable<ExtendedReport>;
 
-  expenses$: Observable<PlatformExpense[]>;
+  expenses$: Observable<Expense[]>;
 
   reportApprovals$: Observable<Approver[]>;
 
@@ -85,7 +83,7 @@ export class MyViewReportPageV2 {
 
   isCommentAdded: boolean;
 
-  unReportedEtxns: Expense[];
+  unreportedExpenses: Expense[];
 
   reportExpenseIds: string[];
 
@@ -112,7 +110,6 @@ export class MyViewReportPageV2 {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
-    private transactionService: TransactionService,
     private expensesService: ExpensesService,
     private authService: AuthService,
     private loaderService: LoaderService,
@@ -150,21 +147,6 @@ export class MyViewReportPageV2 {
 
   ionViewWillLeave(): void {
     this.onPageExit.next(null);
-  }
-
-  getVendorName(etxn: Expense): string {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = (etxn.tx_distance || 0).toString();
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = (etxn.tx_num_days || 0).toString();
-      vendorName += ' Days';
-    }
-
-    return vendorName;
   }
 
   getSimplifyReportSettings(orgSettings: OrgSettings): boolean {
@@ -264,26 +246,18 @@ export class MyViewReportPageV2 {
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
     const queryParams = {
-      tx_report_id: 'is.null',
-      tx_state: 'in.(COMPLETE)',
-      order: 'tx_txn_dt.desc',
-      or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+      report_id: 'is.null',
+      state: 'in.(COMPLETE)',
+      order: 'spent_at.desc',
+      or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
     };
 
-    this.transactionService
+    this.expensesService
       .getAllExpenses({ queryParams })
       .pipe(
-        map((etxns) => cloneDeep(etxns)),
-        map((etxns: Expense[]) => {
-          etxns.forEach((etxn, i) => {
-            etxn.vendorDetails = this.getVendorName(etxn);
-            etxn.showDt = true;
-            etxn.isSelected = false;
-            if (i > 0 && etxn.tx_txn_dt === etxns[i - 1].tx_txn_dt) {
-              etxn.showDt = false;
-            }
-          });
-          this.unReportedEtxns = etxns;
+        map((expenses) => cloneDeep(expenses)),
+        map((expenses: Expense[]) => {
+          this.unreportedExpenses = expenses;
         })
       )
       .subscribe(noop);
@@ -426,7 +400,7 @@ export class MyViewReportPageV2 {
     });
   }
 
-  goToTransaction({ expense, expenseIndex }: { expense: PlatformExpense; expenseIndex: number }): void {
+  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }): void {
     const canEdit = this.canEditExpense(expense.state);
     let category: string;
 
@@ -562,9 +536,9 @@ export class MyViewReportPageV2 {
 
   showAddExpensesToReportModal(): void {
     const addExpensesToReportModal = this.modalController.create({
-      component: AddExpensesToReportComponent,
+      component: AddExpensesToReportV2Component,
       componentProps: {
-        unReportedEtxns: this.unReportedEtxns,
+        unreportedExpenses: this.unreportedExpenses,
         reportId: this.reportId,
       },
       mode: 'ios',
@@ -576,25 +550,25 @@ export class MyViewReportPageV2 {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedTxnIds: string[] } }>
+            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
         )
       )
       .subscribe((addExpensesToReportModalDetails) => {
-        const selectedTxnIds = addExpensesToReportModalDetails?.data?.selectedTxnIds;
-        if (selectedTxnIds?.length > 0) {
-          this.addEtxnsToReport(selectedTxnIds);
+        const selectedExpenseIds = addExpensesToReportModalDetails?.data?.selectedExpenseIds;
+        if (selectedExpenseIds?.length > 0) {
+          this.addExpensesToReport(selectedExpenseIds);
         }
       });
   }
 
-  addEtxnsToReport(selectedEtxnIds: string[]): void {
+  addExpensesToReport(selectedExpenseIds: string[]): void {
     this.isExpensesLoading = true;
-    this.reportService.addTransactions(this.reportId, selectedEtxnIds).subscribe(() => {
+    this.reportService.addTransactions(this.reportId, selectedExpenseIds).subscribe(() => {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();
-      this.unReportedEtxns = this.unReportedEtxns.filter(
-        (unReportedEtxn) => !selectedEtxnIds.includes(unReportedEtxn.tx_id)
+      this.unreportedExpenses = this.unreportedExpenses.filter(
+        (unreportedExpense) => !selectedExpenseIds.includes(unreportedExpense.id)
       );
     });
   }
