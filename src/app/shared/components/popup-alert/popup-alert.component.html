@@ -7,8 +7,8 @@
 
   <div class="popup-alert--body ion-text-center" [innerHtml]="message"></div>
 
-  <div class="popup-alert--info-container" *ngIf="numIssues">
-    <app-fy-alert-info [message]="'This report has ' + numIssues + ' violations'" [type]="'warning'">
+  <div class="popup-alert--info-container" *ngIf="flaggedExpensesCount">
+    <app-fy-alert-info [message]="'This report has ' + flaggedExpensesCount + ' violations'" [type]="'warning'">
     </app-fy-alert-info>
   </div>
 

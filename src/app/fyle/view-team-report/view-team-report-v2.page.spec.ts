@@ -9,12 +9,6 @@ import { IonicModule, ModalController, PopoverController } from '@ionic/angular'
 import { finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
-import {
-  etxncListData,
-  expenseData1,
-  expenseData2,
-  perDiemExpenseSingleNumDays,
-} from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
 import { expectedAllReports, expectedReportSingleResponse, newReportParam } from 'src/app/core/mock-data/report.data';
@@ -36,7 +30,6 @@ import {
   systemCommentsWithSt,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
@@ -44,19 +37,29 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ShareReportComponent } from './share-report/share-report.component';
-import { ViewTeamReportPage } from './view-team-report.page';
+import { ShareReportV2Component } from './share-report-v2/share-report.component';
+import { ViewTeamReportPageV2 } from './view-team-report-v2.page';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expenseData,
+  expenseResponseData,
+  expenseResponseData2,
+  mileageExpense,
+  perDiemExpenseWithSingleNumDays,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 
-describe('ViewTeamReportPage', () => {
-  let component: ViewTeamReportPage;
-  let fixture: ComponentFixture<ViewTeamReportPage>;
+describe('ViewTeamReportPageV2', () => {
+  let component: ViewTeamReportPageV2;
+  let fixture: ComponentFixture<ViewTeamReportPageV2>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let reportService: jasmine.SpyObj<ReportService>;
+  let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
@@ -74,12 +77,16 @@ describe('ViewTeamReportPage', () => {
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
+    const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
+      'getReportExpenses',
+      'getExpenses',
+      'getExpensesCount',
+    ]);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
       'getTeamReport',
       'getExports',
       'getApproversByReportId',
-      'getReportETxnc',
       'actions',
       'delete',
       'approve',
@@ -109,7 +116,7 @@ describe('ViewTeamReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
+      declarations: [ViewTeamReportPageV2, EllipsisPipe, HumanizeCurrencyPipe],
       imports: [IonicModule.forRoot(), FormsModule],
       providers: [
         FyCurrencyPipe,
@@ -128,6 +135,10 @@ describe('ViewTeamReportPage', () => {
         {
           provide: ReportService,
           useValue: reportServiceSpy,
+        },
+        {
+          provide: ApproverExpensesService,
+          useValue: approverExpensesServiceSpy,
         },
         {
           provide: AuthService,
@@ -192,11 +203,12 @@ describe('ViewTeamReportPage', () => {
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
-    fixture = TestBed.createComponent(ViewTeamReportPage);
+    fixture = TestBed.createComponent(ViewTeamReportPageV2);
     component = fixture.componentInstance;
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+    approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -291,8 +303,6 @@ describe('ViewTeamReportPage', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.returnValue(Promise.resolve());
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
@@ -308,7 +318,7 @@ describe('ViewTeamReportPage', () => {
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
 
       component.ionViewWillEnter();
@@ -321,7 +331,7 @@ describe('ViewTeamReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
@@ -359,16 +369,10 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
-      expect(component.getVendorName).toHaveBeenCalledTimes(2);
-      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
-      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
-      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      component.etxnAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+      component.expensesAmountSum$.subscribe((res) => {
+        expect(res).toEqual(20);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -399,7 +403,7 @@ describe('ViewTeamReportPage', () => {
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
 
-      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
       expect(component.canApprove).toBeNull();
       expect(component.canShowTooltip).toBeTrue();
@@ -408,8 +412,6 @@ describe('ViewTeamReportPage', () => {
     it('should load reports when object type is expenses', fakeAsync(() => {
       component.objectType = 'Transactions';
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
@@ -427,7 +429,7 @@ describe('ViewTeamReportPage', () => {
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      reportService.getReportETxnc.and.returnValue(of(etxncListData.data));
+      approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       fixture.detectChanges();
 
@@ -441,7 +443,7 @@ describe('ViewTeamReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(component.loadReports).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.objectId);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
 
@@ -477,16 +479,10 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      expect(reportService.getReportETxnc).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id, apiEouRes.ou.id);
-      expect(component.getVendorName).toHaveBeenCalledTimes(2);
-      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(etxncListData.data[1]);
-      expect(component.getShowViolation).toHaveBeenCalledTimes(2);
-      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(etxncListData.data[1]);
+      expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
-      component.etxnAmountSum$.subscribe((res) => {
-        expect(res).toEqual(310.65);
+      component.expensesAmountSum$.subscribe((res) => {
+        expect(res).toEqual(20);
       });
 
       component.sharedWith$.subscribe((res) => {
@@ -516,7 +512,7 @@ describe('ViewTeamReportPage', () => {
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
 
-      expect(component.reportEtxnIds).toEqual(['txZ1nfsXb5Xs', 'txnYF8lUl3Sr']);
+      expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeFalse();
       expect(component.canApprove).toBeTrue();
       expect(component.canShowTooltip).toBeTrue();
@@ -533,49 +529,10 @@ describe('ViewTeamReportPage', () => {
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_dashboard']);
   });
 
-  describe('getVendorName():', () => {
-    it('should get vendors name from expense', () => {
-      const result = component.getVendorName(expenseData1);
-
-      expect(result).toEqual(expenseData1.tx_vendor);
-    });
-
-    it("should get vendor's name if the expense is a mileage", () => {
-      const result = component.getVendorName(etxncListData.data[0]);
-
-      expect(result).toEqual(etxncListData.data[0].tx_distance + ' ' + etxncListData.data[0].tx_distance_unit);
-    });
-
-    it("should get vendor's name if the expense is a per-diem", () => {
-      const result = component.getVendorName(perDiemExpenseSingleNumDays);
-
-      expect(result).toEqual(perDiemExpenseSingleNumDays.tx_num_days + ' Days');
-    });
-  });
-
   it('getApproverEmails(): should get approver emails', () => {
     const result = component.getApproverEmails(approversData1);
 
     expect(result).toEqual(['ashutosh.m@fyle.in', '123@fye.in', 'chethan.m+90@fyle.in']);
-  });
-
-  describe('getShowViolation():', () => {
-    it('should show expense violation', () => {
-      const result = component.getShowViolation(expenseData2);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should show the policy flag in expense', () => {
-      const result = component.getShowViolation({
-        ...expenseData2,
-        tx_policy_flag: true,
-        tx_manual_flag: false,
-        tx_policy_amount: '1000',
-      });
-
-      expect(result).toBeTrue();
-    });
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {
@@ -657,7 +614,7 @@ describe('ViewTeamReportPage', () => {
       refinerService.startSurvey.and.returnValue(null);
 
       component.erpt$ = of(expectedReportSingleResponse);
-      component.etxns$ = of(etxncListData.data);
+      component.expenses$ = of(expenseResponseData);
       fixture.detectChanges();
 
       await component.approveReport();
@@ -666,7 +623,7 @@ describe('ViewTeamReportPage', () => {
         componentProps: {
           title: 'Approve Report',
           message: '3 expenses of amount undefined will be approved',
-          flaggedExpensesCount: 2,
+          flaggedExpensesCount: 0,
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -708,25 +665,25 @@ describe('ViewTeamReportPage', () => {
 
   describe('goToTransaction(): ', () => {
     it('it should go to view EXPENSE page and display the expense', () => {
-      component.reportEtxnIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+      component.reportExpensesIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
       fixture.detectChanges();
 
       component.goToTransaction({
-        etxn: expenseData1,
-        etxnIndex: 0,
+        expense: expenseData,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_expense';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.team,
-        category: 'groceries',
+        category: expenseData.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: expenseData.id,
+          txnIds: JSON.stringify(component.reportExpensesIds),
           activeIndex: 0,
           view: ExpenseView.team,
         },
@@ -734,12 +691,12 @@ describe('ViewTeamReportPage', () => {
     });
 
     it('it should go to view MILEAGE page and display the expense', () => {
-      component.reportEtxnIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+      component.reportExpensesIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
       fixture.detectChanges();
 
       component.goToTransaction({
-        etxn: etxncListData.data[0],
-        etxnIndex: 0,
+        expense: mileageExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_mileage';
@@ -751,8 +708,8 @@ describe('ViewTeamReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: mileageExpense.id,
+          txnIds: JSON.stringify(component.reportExpensesIds),
           activeIndex: 0,
           view: ExpenseView.team,
         },
@@ -760,12 +717,12 @@ describe('ViewTeamReportPage', () => {
     });
 
     it('it should go to view PER DIEM page and display the expense', () => {
-      component.reportEtxnIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
+      component.reportExpensesIds = ['rpDyD26O3qpV', 'rpqzKD4bPXpW'];
       fixture.detectChanges();
 
       component.goToTransaction({
-        etxn: perDiemExpenseSingleNumDays,
-        etxnIndex: 0,
+        expense: perDiemExpenseWithSingleNumDays,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_per_diem';
@@ -777,8 +734,8 @@ describe('ViewTeamReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: perDiemExpenseSingleNumDays.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: perDiemExpenseWithSingleNumDays.id,
+          txnIds: JSON.stringify(component.reportExpensesIds),
           activeIndex: 0,
           view: ExpenseView.team,
         },
@@ -801,7 +758,7 @@ describe('ViewTeamReportPage', () => {
 
     await component.shareReport(new Event('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
+      component: ShareReportV2Component,
       cssClass: 'dialog-popover',
     });
     expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
@@ -884,10 +841,10 @@ describe('ViewTeamReportPage', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: component.erpt$,
-        etxns$: component.etxns$,
+        expenses$: component.expenses$,
         view: ExpenseView.team,
       },
       ...properties,

@@ -6,6 +6,7 @@ import { expenseData, readyToReportExpensesData2 } from 'src/app/core/mock-data/
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
+import { expensesCacheBuster$ } from '../../../transaction.service';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -77,6 +78,7 @@ describe('ExpensesService', () => {
 
   describe('getAllExpenses(): ', () => {
     it('should get all expenses for multiple pages', (done) => {
+      expensesCacheBuster$.next(null);
       spyOn(service, 'getExpensesCount').and.returnValue(of(4));
       spyOn(service, 'getExpenses').and.returnValue(of(readyToReportExpensesData2));
 
@@ -96,6 +98,7 @@ describe('ExpensesService', () => {
     });
 
     it('should get all expenses in a single page', (done) => {
+      expensesCacheBuster$.next(null);
       spyOn(service, 'getExpensesCount').and.returnValue(of(2));
       spyOn(service, 'getExpenses').and.returnValue(of(readyToReportExpensesData2));
 
@@ -121,6 +124,7 @@ describe('ExpensesService', () => {
     const reportId = 'rpSGcIEwzxDd';
     const params = {
       report_id: `eq.${reportId}`,
+      order: 'spent_at.desc,id.desc',
     };
 
     service.getReportExpenses(reportId).subscribe((response) => {
