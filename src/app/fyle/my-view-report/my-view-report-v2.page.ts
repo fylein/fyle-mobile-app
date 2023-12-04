@@ -8,7 +8,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
@@ -17,7 +16,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { getCurrencySymbol } from '@angular/common';
 import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import * as dayjs from 'dayjs';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
@@ -33,6 +31,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
+import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover-v2/edit-report-name-popover.component';
+import { ShareReportComponentV2 } from './share-report-v2/share-report.component';
 @Component({
   selector: 'app-my-view-report-v2',
   templateUrl: './my-view-report-v2.page.html',
@@ -309,7 +309,7 @@ export class MyViewReportPageV2 {
       .pipe(
         switchMap((erpt) => {
           const editReportNamePopover = this.popoverController.create({
-            component: EditReportNamePopoverComponent,
+            component: EditReportNamePopoverComponentV2,
             componentProps: {
               reportName: erpt.rp_purpose,
             },
@@ -455,7 +455,7 @@ export class MyViewReportPageV2 {
     this.trackingService.clickShareReport();
 
     const shareReportModal = await this.modalController.create({
-      component: ShareReportComponent,
+      component: ShareReportComponentV2,
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
       cssClass: 'share-report-modal',

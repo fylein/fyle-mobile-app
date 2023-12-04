@@ -8,7 +8,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
@@ -32,6 +31,7 @@ import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ShareReportV2Component } from './share-report-v2/share-report.component';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report-v2.page.html',
@@ -453,7 +453,7 @@ export class ViewTeamReportPageV2 {
 
   async shareReport(event) {
     const popover = await this.popoverController.create({
-      component: ShareReportComponent,
+      component: ShareReportV2Component,
       cssClass: 'dialog-popover',
     });
 

@@ -6,15 +6,15 @@ import { SharedModule } from 'src/app/shared/shared.module';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MyViewReportPageV2 } from './my-view-report-v2.page';
 import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.module';
 import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
+import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover-v2/edit-report-name-popover.component';
+import { ShareReportComponentV2 } from './share-report-v2/share-report.component';
 
 @NgModule({
   imports: [
@@ -33,8 +33,8 @@ import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-
   ],
   declarations: [
     MyViewReportPageV2,
-    ShareReportComponent,
-    EditReportNamePopoverComponent,
+    ShareReportComponentV2,
+    EditReportNamePopoverComponentV2,
     AddExpensesToReportV2Component,
   ],
 })

@@ -38,7 +38,7 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ShareReportComponent } from './share-report/share-report.component';
+import { ShareReportV2Component } from './share-report-v2/share-report.component';
 import { ViewTeamReportPageV2 } from './view-team-report-v2.page';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
@@ -758,7 +758,7 @@ describe('ViewTeamReportPageV2', () => {
 
     await component.shareReport(new Event('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
+      component: ShareReportV2Component,
       cssClass: 'dialog-popover',
     });
     expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({

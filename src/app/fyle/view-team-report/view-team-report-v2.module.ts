@@ -6,11 +6,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ViewTeamReportPageV2 } from './view-team-report-v2.page';
 import { ViewTeamReportPageV2RoutingModule } from './view-team-report-v2-routing.module';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { ShareReportV2Component } from './share-report-v2/share-report.component';
 
 @NgModule({
   imports: [
@@ -25,6 +26,6 @@ import { ViewTeamReportPageV2RoutingModule } from './view-team-report-v2-routing
     MatFormFieldModule,
     MatSnackBarModule,
   ],
-  declarations: [ViewTeamReportPageV2, ShareReportComponent],
+  declarations: [ViewTeamReportPageV2, ShareReportV2Component],
 })
 export class ViewTeamReportPageV2Module {}

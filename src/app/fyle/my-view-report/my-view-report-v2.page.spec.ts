@@ -40,8 +40,6 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
 import {
@@ -55,6 +53,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info-v2/fy-view-report-info.component';
 import { MyViewReportPageV2 } from './my-view-report-v2.page';
 import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
+import { ShareReportComponentV2 } from './share-report-v2/share-report.component';
+import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover-v2/edit-report-name-popover.component';
 
 describe('MyViewReportPageV2', () => {
   let component: MyViewReportPageV2;
@@ -501,7 +501,7 @@ describe('MyViewReportPageV2', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponent,
+        component: EditReportNamePopoverComponentV2,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -527,7 +527,7 @@ describe('MyViewReportPageV2', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponent,
+        component: EditReportNamePopoverComponentV2,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -827,7 +827,7 @@ describe('MyViewReportPageV2', () => {
 
     expect(trackingService.clickShareReport).toHaveBeenCalledTimes(1);
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
+      component: ShareReportComponentV2,
       mode: 'ios',
       ...shareReportModalProperties,
       cssClass: 'share-report-modal',
