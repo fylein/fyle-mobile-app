@@ -36,7 +36,7 @@ import { ToastMessageComponent } from '../toast-message/toast-message.component'
 import { DebugElement, EventEmitter } from '@angular/core';
 import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
-import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 
 describe('ExpensesCardComponent', () => {
@@ -62,8 +62,8 @@ describe('ExpensesCardComponent', () => {
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
-      'getIsDraft',
-      'getIsCriticalPolicyViolated',
+      'isExpenseInDraft',
+      'isCriticalPolicyViolatedExpense',
       'getVendorDetails',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
@@ -142,13 +142,13 @@ describe('ExpensesCardComponent', () => {
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
     sharedExpenseService.getVendorDetails.and.returnValue('asd');
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
-    sharedExpenseService.getIsCriticalPolicyViolated.and.returnValue(false);
+    sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValue(false);
     platform.is.and.returnValue(true);
     fileService.getReceiptDetails.and.returnValue(fileObjectAdv[0].type);
     transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
     transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
     networkService.isOnline.and.returnValue(of(true));
-    sharedExpenseService.getIsDraft.and.returnValue(true);
+    sharedExpenseService.isExpenseInDraft.and.returnValue(true);
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     fixture = TestBed.createComponent(ExpensesCardComponent);
@@ -162,7 +162,7 @@ describe('ExpensesCardComponent', () => {
     component.isSycing$ = of(true);
     component.isPerDiem = true;
     component.isSelectionModeEnabled = false;
-    component.etxnIndex = 1;
+    component.expenseIndex = 1;
     componentElement = fixture.debugElement;
     fixture.detectChanges();
   }));
@@ -206,7 +206,7 @@ describe('ExpensesCardComponent', () => {
       component.onGoToTransaction();
       expect(component.goToTransaction.emit).toHaveBeenCalledOnceWith({
         expense: component.expense,
-        expenseIndex: component.etxnIndex,
+        expenseIndex: component.expenseIndex,
       });
     });
 

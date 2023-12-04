@@ -5,7 +5,6 @@ import { catchError, concatMap, map, reduce, switchMap, tap } from 'rxjs/operato
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
-import { Expense } from '../models/expense.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { PlatformReport } from '../models/platform/platform-report.model';
@@ -34,6 +33,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -56,7 +56,7 @@ export class ReportService {
     private approverPlatformApiService: ApproverPlatformApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
-    private permissionsService: PermissionsService,
+    private permissionsService: PermissionsService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -94,7 +94,7 @@ export class ReportService {
   getPaginatedERptc(
     offset: number,
     limit: number,
-    params: { state?: string[]; order?: string },
+    params: { state?: string[]; order?: string }
   ): Observable<UnflattenedReport[]> {
     const data = {
       params: {
@@ -124,7 +124,7 @@ export class ReportService {
           erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
         }
         return erpt;
-      }),
+      })
     );
   }
 
@@ -139,7 +139,7 @@ export class ReportService {
       .pipe(
         tap(() => {
           this.clearTransactionCache();
-        }),
+        })
       );
   }
 
@@ -160,8 +160,8 @@ export class ReportService {
       switchMap((newReport: ReportV1) =>
         this.apiService
           .post<ReportV1>('/reports/' + newReport.id + '/txns', { ids: txnIds })
-          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport)))),
-      ),
+          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))))
+      )
     );
   }
 
@@ -205,7 +205,7 @@ export class ReportService {
         comment: string;
       };
       notify: boolean;
-    },
+    }
   ): Observable<void> {
     return this.apiService.post('/reports/' + rptId + '/inquire', addStatusPayload);
   }
@@ -267,7 +267,7 @@ export class ReportService {
             res.data.next_at = dateObj;
           }
           return res;
-        }),
+        })
       );
   }
 
@@ -286,14 +286,14 @@ export class ReportService {
           return '(Automatic Submission On ' + this.datePipe.transform(nextReportAutoSubmissionDate, 'MMM d') + ')';
         }
         return null;
-      }),
+      })
     );
   }
 
   getUserReportParams(state: keyof ReportStateMap): Record<'state', string[]> {
     const stateMap: ReportStateMap = {
       draft: {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       },
       pending: {
         state: ['APPROVER_PENDING'],
@@ -316,7 +316,6 @@ export class ReportService {
       all: {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',
@@ -339,12 +338,12 @@ export class ReportService {
           return this.apiService.get<{ count: number }>('/erpts/count', { params }).pipe(
             tap((res) => {
               this.storageService.set('erpts-count' + JSON.stringify(params), res);
-            }),
+            })
           );
         } else {
           return from(this.storageService.get<{ count: number }>('erpts-count' + JSON.stringify(params)));
         }
-      }),
+      })
     );
   }
 
@@ -358,7 +357,7 @@ export class ReportService {
       offset: 0,
       limit: 10,
       queryParams: {},
-    },
+    }
   ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
@@ -370,7 +369,7 @@ export class ReportService {
             rp_org_user_id: 'eq.' + eou.ou.id,
             ...config.queryParams,
           },
-        }),
+        })
       ),
       map(
         (res) =>
@@ -380,12 +379,12 @@ export class ReportService {
             limit: number;
             offset: number;
             url: string;
-          },
+          }
       ),
       map((res) => ({
         ...res,
         data: res.data.map((datum) => this.dateService.fixDates(datum)),
-      })),
+      }))
     );
   }
 
@@ -402,7 +401,7 @@ export class ReportService {
       offset: 0,
       limit: 10,
       queryParams: {},
-    },
+    }
   ): Observable<ApiV2Response<ExtendedReport>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
@@ -414,7 +413,7 @@ export class ReportService {
             order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
             ...config.queryParams,
           },
-        }),
+        })
       ),
       map(
         (res) =>
@@ -424,12 +423,12 @@ export class ReportService {
             limit: number;
             offset: number;
             url: string;
-          },
+          }
       ),
       map((res) => ({
         ...res,
         data: res.data.map((datum) => this.dateService.fixDates(datum)),
-      })),
+      }))
     );
   }
 
@@ -476,7 +475,7 @@ export class ReportService {
   }
 
   getAllExtendedReports(
-    config: Partial<{ order: string; queryParams: ReportQueryParams }>,
+    config: Partial<{ order: string; queryParams: ReportQueryParams }>
   ): Observable<ExtendedReport[]> {
     return this.getMyReportsCount(config.queryParams).pipe(
       switchMap((count) => {
@@ -489,10 +488,10 @@ export class ReportService {
           limit: this.paginationSize,
           queryParams: config.queryParams,
           order: config.order,
-        }),
+        })
       ),
       map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[]),
+      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
     );
   }
 
@@ -500,7 +499,7 @@ export class ReportService {
     params: {
       state?: string[];
     },
-    sortOrder?: string,
+    sortOrder?: string
   ): {
     state?: string[];
     order_by?: string;
@@ -514,7 +513,7 @@ export class ReportService {
 
   searchParamsGenerator(
     search: { state: keyof ReportStateMap; dateRange?: { from: string; to: string } },
-    sortOrder?: string,
+    sortOrder?: string
   ): Record<string, string[]> {
     let params = {};
 
@@ -532,7 +531,7 @@ export class ReportService {
         from?: string;
         to?: string;
       };
-    },
+    }
   ): Record<'state', string[]> {
     const searchParams = this.getUserReportParams(search.state);
     return Object.assign({}, params, searchParams);
@@ -550,7 +549,7 @@ export class ReportService {
     return range(0, count).pipe(
       map((page) => rptIds.slice(page * this.paginationSize, (page + 1) * this.paginationSize)),
       concatMap((rptIds) => this.apiService.get('/reports/approvers', { params: { report_ids: rptIds } })),
-      reduce((acc: Approver[], curr: Approver) => acc.concat(curr), []),
+      reduce((acc: Approver[], curr: Approver) => acc.concat(curr), [])
     );
   }
 
@@ -582,7 +581,7 @@ export class ReportService {
           },
         });
       }),
-      map((rawStatsResponse) => rawStatsResponse.data),
+      map((rawStatsResponse) => rawStatsResponse.data)
     );
   }
 
@@ -592,7 +591,7 @@ export class ReportService {
     return this.getPaginatedERptcCount(params).pipe(
       switchMap((results: { count: number }) =>
         // getting all results -> offset = 0, limit = count
-        this.getPaginatedERptc(0, results.count, params),
+        this.getPaginatedERptc(0, results.count, params)
       ),
       switchMap((erpts) => {
         const rptIds = erpts.map((erpt) => erpt.rp.id);
@@ -603,11 +602,25 @@ export class ReportService {
               (erpt) =>
                 !erpt.rp.approvals ||
                 (erpt.rp.approvals &&
-                  !(erpt.rp.approvals as Approver[]).some((approval) => approval.state === 'APPROVAL_DONE')),
-            ),
-          ),
+                  !(erpt.rp.approvals as Approver[]).some((approval) => approval.state === 'APPROVAL_DONE'))
+            )
+          )
         );
-      }),
+      })
+    );
+  }
+
+  getReportStats(params: Partial<StatsResponse>): Observable<StatsResponse> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.apiv2Service.get('/reports/stats', {
+          params: {
+            rp_org_user_id: `eq.${eou.ou.id}`,
+            ...params,
+          },
+        })
+      ),
+      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 
@@ -625,20 +638,6 @@ export class ReportService {
     }
 
     return this.apiService.get('/erpts/' + rptId + '/etxns', data);
-  }
-
-  getReportStats(params: Partial<StatsResponse>): Observable<StatsResponse> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports/stats', {
-          params: {
-            rp_org_user_id: `eq.${eou.ou.id}`,
-            ...params,
-          },
-        }),
-      ),
-      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse)),
-    );
   }
 
   approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {

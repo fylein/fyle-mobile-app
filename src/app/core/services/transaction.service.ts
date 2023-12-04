@@ -16,7 +16,6 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
-import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
@@ -40,9 +39,16 @@ import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
-import { FilterState } from '../enums/filter-state.enum';
+import { AccountType } from '../enums/account-type.enum';
 
-export const transactionsCacheBuster$ = new Subject<void>();
+enum FilterState {
+  READY_TO_REPORT = 'READY_TO_REPORT',
+  POLICY_VIOLATED = 'POLICY_VIOLATED',
+  CANNOT_REPORT = 'CANNOT_REPORT',
+  DRAFT = 'DRAFT',
+}
+
+export const expensesCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
@@ -73,7 +79,7 @@ export class TransactionService {
     private accountsService: AccountsService,
     private spenderPlatformAPIV1Service: SpenderPlatformV1ApiService
   ) {
-    transactionsCacheBuster$.subscribe(() => {
+    expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
   }
@@ -84,7 +90,7 @@ export class TransactionService {
     Ref: https://www.npmjs.com/package/ts-cacheable#:~:text=need%20to%20set-,isInstant%3A%20true,-on%20CacheBuster%20configuration
   */
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
   clearCache(): Observable<null> {
@@ -92,7 +98,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getEtxn(txnId: string): Observable<Expense> {
     // TODO api v2
@@ -113,21 +119,21 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualFlag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualUnflag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getAllETxnc(params: EtxnParams): Observable<Expense[]> {
     return this.getETxnCount(params).pipe(
@@ -141,7 +147,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
@@ -180,7 +186,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
@@ -202,7 +208,7 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
@@ -221,14 +227,14 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
     return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
@@ -245,7 +251,7 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
@@ -311,7 +317,7 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   createTxnWithFiles(
     txn: Partial<Transaction>,
@@ -513,64 +519,6 @@ export class TransactionService {
 
   getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
-  }
-
-  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
-    const paymentModes = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
-
-    return etxns
-      .map((etxn) => ({
-        ...etxn,
-        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
-      }))
-      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
-        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
-          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
-          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
-          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
-          paymentMap[etxnData.paymentMode.key].count++;
-        } else {
-          paymentMap[etxnData.paymentMode.key] = {
-            name: etxnData.paymentMode.name,
-            key: etxnData.paymentMode.key,
-            amount: etxnData.tx_amount,
-            count: 1,
-          };
-        }
-        return paymentMap;
-      }, {});
-  }
-
-  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
-    const currencyMap: Record<string, CurrencySummary> = {};
-    etxns.forEach((etxn) => {
-      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
-      } else {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
-      }
-    });
-
-    return Object.keys(currencyMap)
-      .map((currency) => currencyMap[currency])
-      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
@@ -775,6 +723,64 @@ export class TransactionService {
     return currentParamsCopy;
   }
 
+  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    return etxns
+      .map((etxn) => ({
+        ...etxn,
+        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
+      }))
+      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
+        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
+          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
+          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
+          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
+          paymentMap[etxnData.paymentMode.key].count++;
+        } else {
+          paymentMap[etxnData.paymentMode.key] = {
+            name: etxnData.paymentMode.name,
+            key: etxnData.paymentMode.key,
+            amount: etxnData.tx_amount,
+            count: 1,
+          };
+        }
+        return paymentMap;
+      }, {});
+  }
+
+  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
+    const currencyMap: Record<string, CurrencySummary> = {};
+    etxns.forEach((etxn) => {
+      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
+      } else {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
+      }
+    });
+
+    return Object.keys(currencyMap)
+      .map((currency) => currencyMap[currency])
+      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
+  }
+
   isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
     let etxnInPaymentMode = false;
     const isAdvanceOrCCCEtxn = txnSourceAccountType === AccountType.ADVANCE || txnSourceAccountType === AccountType.CCC;
@@ -793,6 +799,35 @@ export class TransactionService {
       etxnInPaymentMode = txnSourceAccountType === AccountType.CCC;
     }
     return etxnInPaymentMode;
+  }
+
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
+    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
+    const txnSourceAccountType = etxn.source_account_type;
+    return paymentModes.find((paymentMode) =>
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+    );
+  }
+
+  addEtxnToCurrencyMap(
+    currencyMap: Record<string, CurrencySummary>,
+    txCurrency: string,
+    txAmount: number,
+    txOrigAmount: number = null
+  ): void {
+    if (currencyMap.hasOwnProperty(txCurrency)) {
+      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
+      currencyMap[txCurrency].amount += txAmount;
+      currencyMap[txCurrency].count++;
+    } else {
+      currencyMap[txCurrency] = {
+        name: txCurrency,
+        currency: txCurrency,
+        amount: txAmount,
+        origAmount: txOrigAmount ? txOrigAmount : txAmount,
+        count: 1,
+      };
+    }
   }
 
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
@@ -834,35 +869,6 @@ export class TransactionService {
 
     data.tx_updated_at = new Date(data.tx_updated_at);
     return data;
-  }
-
-  private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
-    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
-    const txnSourceAccountType = etxn.source_account_type;
-    return paymentModes.find((paymentMode) =>
-      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
-    );
-  }
-
-  private addEtxnToCurrencyMap(
-    currencyMap: Record<string, CurrencySummary>,
-    txCurrency: string,
-    txAmount: number,
-    txOrigAmount: number = null
-  ): void {
-    if (currencyMap.hasOwnProperty(txCurrency)) {
-      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
-      currencyMap[txCurrency].amount += txAmount;
-      currencyMap[txCurrency].count++;
-    } else {
-      currencyMap[txCurrency] = {
-        name: txCurrency,
-        currency: txCurrency,
-        amount: txAmount,
-        origAmount: txOrigAmount ? txOrigAmount : txAmount,
-        count: 1,
-      };
-    }
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {

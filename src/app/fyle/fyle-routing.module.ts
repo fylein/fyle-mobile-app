@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
 import { MyExpensesGuardGuard } from '../core/guards/my-expenses-guard.guard';
+import { BetaPageFeatureFlagGuard } from '../core/guards/beta-page-feature-flag.guard';
 
 const routes: Routes = [
   {
@@ -31,6 +32,11 @@ const routes: Routes = [
   {
     path: 'my_view_report',
     loadChildren: () => import('./my-view-report/my-view-report.module').then((m) => m.MyViewReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'my_view_report_beta',
+    loadChildren: () => import('./my-view-report/my-view-report-v2.module').then((m) => m.MyViewReportV2PageModule),
   },
   {
     path: 'help',
@@ -56,6 +62,12 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then((m) => m.ViewTeamReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'view_team_report_beta',
+    loadChildren: () =>
+      import('./view-team-report/view-team-report-v2.module').then((m) => m.ViewTeamReportPageV2Module),
   },
   {
     path: 'my_view_advance',
