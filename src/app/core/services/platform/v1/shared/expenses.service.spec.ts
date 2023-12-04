@@ -453,6 +453,9 @@ describe('ExpensesService', () => {
   });
 
   describe('generateDateParams():', () => {
+    beforeEach(() => {
+      spyOn(service, 'generateCustomDateParams');
+    });
     it('should generate date params for filters this week', () => {
       const result = service.generateDateParams({}, cloneDeep(expenseFiltersData1));
 
