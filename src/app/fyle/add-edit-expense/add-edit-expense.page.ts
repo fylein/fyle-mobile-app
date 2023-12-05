@@ -4905,10 +4905,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]): Promise<void> {
+    const txnIDs = duplicateExpenses.map((expense) => expense.tx_id);
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
-        duplicateExpenses,
+        duplicateExpenseIDs: txnIDs,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),

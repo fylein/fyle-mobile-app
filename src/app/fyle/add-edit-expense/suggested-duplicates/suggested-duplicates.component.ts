@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { noop } from 'rxjs';
+import { map, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
@@ -15,7 +15,9 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   styleUrls: ['./suggested-duplicates.component.scss'],
 })
 export class SuggestedDuplicatesComponent {
-  @Input() duplicateExpenses: Expense[] = [];
+  @Input() duplicateExpenseIDs: string[];
+
+  duplicateExpenses: Expense[] = [];
 
   constructor(
     private modalController: ModalController,
@@ -25,6 +27,17 @@ export class SuggestedDuplicatesComponent {
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar
   ) {}
+
+  ionViewWillEnter(): void {
+    const txnIds = this.duplicateExpenseIDs.join(',');
+    const queryParams = {
+      id: `in.(${txnIds})`,
+    };
+
+    this.expensesService
+      .getExpenses({ offset: 0, limit: 10, queryParams })
+      .pipe(map((expenses) => (this.duplicateExpenses = expenses)));
+  }
 
   dismissAll(): void {
     const txnIds = this.duplicateExpenses.map((expense) => expense.id);
@@ -37,23 +50,17 @@ export class SuggestedDuplicatesComponent {
   }
 
   mergeExpenses(): void {
-    const txnIds = this.duplicateExpenses.map((expense) => expense.id).join(',');
-    const queryParams = {
-      id: `in.(${txnIds})`,
-    };
-    this.expensesService.getExpenses({ offset: 0, limit: 10, queryParams }).subscribe((selectedExpenses) => {
-      this.modalController.dismiss();
-      const expenseIDs = selectedExpenses.map((expense) => expense.id);
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'merge_expense',
-        {
-          expenseIDs: JSON.stringify(expenseIDs),
-          from: 'EDIT_EXPENSE',
-        },
-      ]);
-    });
+    this.modalController.dismiss();
+    const expenseIDs = this.duplicateExpenses.map((expense) => expense.id);
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'merge_expense',
+      {
+        expenseIDs: JSON.stringify(expenseIDs),
+        from: 'EDIT_EXPENSE',
+      },
+    ]);
   }
 
   showDismissedSuccessToast(): void {
