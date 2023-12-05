@@ -314,7 +314,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Delegated Accounts',
         isVisible: isDelegatee && !this.isSwitchedToDelegator,
-        icon: 'delegate-switch',
+        icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
         disabled: !isConnected,
       },

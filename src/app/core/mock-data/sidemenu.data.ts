@@ -128,7 +128,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },
@@ -191,7 +191,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },

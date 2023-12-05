@@ -21,6 +21,11 @@
       width: auto !important;
       color: $black-light;
     }
+
+    &__icon {
+      height: 28px;
+      width: 28px;
+    }
   }
 
   &--header-button {
