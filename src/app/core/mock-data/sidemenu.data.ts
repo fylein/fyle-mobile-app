@@ -16,7 +16,7 @@ export const sidemenuData1 = [
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
 ];
@@ -69,7 +69,7 @@ export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
   {
     title: 'Team',
     isVisible: true,
-    icon: 'teams',
+    icon: 'user-three',
     isDropdownOpen: false,
     disabled: false,
     dropdownOptions: [
@@ -119,7 +119,7 @@ export const getPrimarySidemenuOptionsRes1 = [
     title: 'Team Reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
-    icon: 'teams',
+    icon: 'user-three',
     disabled: false,
   },
 ];
@@ -135,7 +135,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
@@ -148,7 +148,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Help',
     isVisible: true,
-    icon: 'help',
+    icon: 'question-square-outline',
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },
@@ -185,7 +185,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
     title: 'Team Reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
-    icon: 'teams',
+    icon: 'user-three',
     disabled: false,
   },
   {
@@ -198,7 +198,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
@@ -211,7 +211,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Help',
     isVisible: true,
-    icon: 'help',
+    icon: 'question-square-outline',
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },
