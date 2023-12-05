@@ -223,7 +223,7 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -246,9 +246,9 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
-            expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explaination provided' });
+            expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
           });
       });
@@ -287,7 +287,7 @@ export function TestCases4(getTestBed) {
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'editExpenseCriticalPolicyViolationHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'editExpensePolicyViolationHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' }),
+          of({ etxn: unflattenedTxnData, comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -315,7 +315,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -360,7 +360,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -406,7 +406,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -449,7 +449,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -483,13 +483,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -508,7 +508,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -542,13 +542,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -565,7 +565,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -599,13 +599,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -622,7 +622,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -655,7 +655,7 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).not.toHaveBeenCalled();
             expect(res).toEqual(unflattenedTxnData.tx);
@@ -677,7 +677,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -710,13 +710,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -733,7 +733,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -773,7 +773,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe({
             next: (res) => {
