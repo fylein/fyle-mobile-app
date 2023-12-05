@@ -396,10 +396,9 @@ describe('MergeExpensesService', () => {
   });
 
   it('getCustomInputValues(): should return the custom input values', () => {
-    spyOn(lodash, 'cloneDeep').and.returnValue(apiExpenseRes);
-    // @ts-ignore
-    expect(mergeExpensesService.getCustomInputValues(apiExpenseRes)).toEqual(mergeExpenesesCustomInputsData);
-    expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(apiExpenseRes);
+    const result = mergeExpensesService.getCustomInputValues(lodash.cloneDeep(apiExpenseRes));
+
+    expect(result).toEqual(lodash.cloneDeep(mergeExpenesesCustomInputsData));
   });
 
   describe('formatProjectOptions():', () => {

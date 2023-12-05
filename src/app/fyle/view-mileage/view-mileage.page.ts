@@ -318,7 +318,7 @@ export class ViewMileagePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -331,7 +331,7 @@ export class ViewMileagePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput[]>,
           expenseFields.cost_center_id[0]?.id
         )
       ),
@@ -380,7 +380,11 @@ export class ViewMileagePage {
 
     this.mileageCustomFields$ = this.mileageExpense$.pipe(
       switchMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {

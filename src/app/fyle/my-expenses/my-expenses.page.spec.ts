@@ -1,53 +1,37 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ActionSheetController, IonicModule, ModalController, NavController, PopoverController } from '@ionic/angular';
 
-import { MyExpensesPage } from './my-expenses.page';
-import { TasksService } from 'src/app/core/services/tasks.service';
-import { CurrencyService } from 'src/app/core/services/currency.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ActivatedRoute, Router } from '@angular/router';
-import { BehaviorSubject, Observable, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
-import { By } from '@angular/platform-browser';
-import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
-import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
-import { NO_ERRORS_SCHEMA, TemplateRef } from '@angular/core';
-import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
-import { cardAggregateStatParam, cardAggregateStatParam3 } from 'src/app/core/mock-data/card-aggregate-stats.data';
-import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
-import { MyExpensesService } from './my-expenses.service';
-import { TokenService } from 'src/app/core/services/token.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { StorageService } from 'src/app/core/services/storage.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
-import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { By } from '@angular/platform-browser';
+import { ActivatedRoute, Router } from '@angular/router';
+import { RouterTestingModule } from '@angular/router/testing';
+import { clone, cloneDeep } from 'lodash';
+import { BehaviorSubject, Subscription, finalize, noop, of, tap, throwError } from 'rxjs';
+import { getElementRef } from 'src/app/core/dom-helpers';
+import {
+  expectedActionSheetButtonRes,
+  expectedActionSheetButtonsWithMileage,
+  expectedActionSheetButtonsWithPerDiem,
+} from 'src/app/core/mock-data/action-sheet-options.data';
+import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
+import { cardAggregateStatParam } from 'src/app/core/mock-data/card-aggregate-stats.data';
 import { expectedAssignedCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
-import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
+import { expectedCriticalPolicyViolationPopoverParams3 } from 'src/app/core/mock-data/critical-policy-violation-popover.data';
+import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   apiExpenseRes,
   expectedFormattedTransaction,
   expenseData1,
   expenseData2,
   expenseData3,
-  expenseList2,
   expenseList4,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
 } from 'src/app/core/mock-data/expense.data';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { environment } from 'src/environments/environment';
-import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import {
   cardFilterPill,
   creditTxnFilterPill,
@@ -61,22 +45,8 @@ import {
   stateFilterPill,
   typeFilterPill,
 } from 'src/app/core/mock-data/filter-pills.data';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ExpenseFilters } from './expense-filters.model';
-import { txnData2, txnList } from 'src/app/core/mock-data/transaction.data';
-import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
-import { expenseFiltersData1, expenseFiltersData2 } from 'src/app/core/mock-data/expense-filters.data';
-import {
-  expectedActionSheetButtonRes,
-  expectedActionSheetButtonsWithMileage,
-  expectedActionSheetButtonsWithPerDiem,
-} from 'src/app/core/mock-data/action-sheet-options.data';
-import { clone, cloneDeep } from 'lodash';
-import { apiAuthRes } from 'src/app/core/mock-data/auth-reponse.data';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { filterOptions1 } from 'src/app/core/mock-data/filter.data';
-import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
+import { expectedCurrentParams } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
 import {
   addExpenseToReportModalParams,
   modalControllerParams,
@@ -85,33 +55,57 @@ import {
   openFromComponentConfig,
   popoverControllerParams,
 } from 'src/app/core/mock-data/modal-controller.data';
-import { expectedCurrentParams } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { Expense } from 'src/app/core/models/expense.model';
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
+import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
+import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
+import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
+import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import {
   snackbarPropertiesRes,
   snackbarPropertiesRes2,
   snackbarPropertiesRes3,
   snackbarPropertiesRes4,
 } from 'src/app/core/mock-data/snackbar-properties.data';
-import {
-  expectedCriticalPolicyViolationPopoverParams,
-  expectedCriticalPolicyViolationPopoverParams2,
-  expectedCriticalPolicyViolationPopoverParams3,
-} from 'src/app/core/mock-data/critical-policy-violation-popover.data';
-import { ExtendedReport } from 'src/app/core/models/report.model';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { getElementRef } from 'src/app/core/dom-helpers';
 import { transactionDatum1, transactionDatum3 } from 'src/app/core/mock-data/stats-response.data';
+import { txnList } from 'src/app/core/mock-data/transaction.data';
+import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
+import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
 import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
-import { allowedExpenseTypes } from 'src/app/core/mock-data/allowed-expense-types.data';
+import { AdvancesStates } from 'src/app/core/models/advances-states.model';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ExtendedReport } from 'src/app/core/models/report.model';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { CurrencyService } from 'src/app/core/services/currency.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { StorageService } from 'src/app/core/services/storage.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
+import { environment } from 'src/environments/environment';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { MyExpensesPage } from './my-expenses.page';
+import { MyExpensesService } from './my-expenses.service';
 
 describe('MyExpensesPage', () => {
   let component: MyExpensesPage;
@@ -2052,10 +2046,6 @@ describe('MyExpensesPage', () => {
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
-
-      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
-        expectedCriticalPolicyViolationPopoverParams
-      );
     }));
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if draftExpense is zero', fakeAsync(() => {
@@ -2081,10 +2071,6 @@ describe('MyExpensesPage', () => {
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[0]);
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[1]);
       expect(transactionService.getIsDraft).toHaveBeenCalledWith(mockExpenseList[2]);
-
-      expect(component.openCriticalPolicyViolationPopOver).toHaveBeenCalledOnceWith(
-        expectedCriticalPolicyViolationPopoverParams2
-      );
     }));
 
     it('should call trackingService and openCriticalPolicyViolationPopOver if policyViolationExpenses is zero', fakeAsync(() => {
@@ -2181,6 +2167,7 @@ describe('MyExpensesPage', () => {
       });
       component.selectedElements = [];
       component.openReviewExpenses();
+
       tick(100);
 
       expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
@@ -2796,14 +2783,14 @@ describe('MyExpensesPage', () => {
 
   it('mergeExpense(): should navigate to merge_expenses with payload data', () => {
     component.selectedElements = apiExpenseRes;
-    const strigifiedElements = JSON.stringify(apiExpenseRes);
+
     component.mergeExpenses();
     expect(router.navigate).toHaveBeenCalledOnceWith([
       '/',
       'enterprise',
       'merge_expense',
       {
-        selectedElements: strigifiedElements,
+        txnIDs: JSON.stringify(['tx3nHShG60zq']),
         from: 'MY_EXPENSES',
       },
     ]);

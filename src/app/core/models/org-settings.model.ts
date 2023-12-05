@@ -443,6 +443,7 @@ export interface OrgSettingsResponse {
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
 }
 
 export interface UiPolicySettings {
@@ -553,4 +554,5 @@ export interface OrgSettings {
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_view_report_beta_enabled?: boolean;
+  mobile_app_my_expenses_beta_enabled?: boolean;
 }

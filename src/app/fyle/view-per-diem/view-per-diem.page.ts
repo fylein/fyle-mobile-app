@@ -202,7 +202,7 @@ export class ViewPerDiemPage {
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -217,7 +217,7 @@ export class ViewPerDiemPage {
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           expenseFields.cost_center_id[0]?.id
         )
       ),
@@ -262,7 +262,11 @@ export class ViewPerDiemPage {
 
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
       switchMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {

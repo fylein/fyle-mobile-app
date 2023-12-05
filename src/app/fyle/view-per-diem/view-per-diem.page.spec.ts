@@ -43,6 +43,7 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -343,7 +344,7 @@ describe('ViewPerDiemPage', () => {
 
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           undefined
         );
         expect(projectDependentCustomProperties).toEqual(customInputData1);
@@ -351,7 +352,7 @@ describe('ViewPerDiemPage', () => {
 
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalledOnceWith(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           undefined
         );
         expect(costCenterDependentCustomProperties).toEqual(customInputData1);
@@ -450,7 +451,7 @@ describe('ViewPerDiemPage', () => {
       component.perDiemCustomFields$.subscribe((perDiemCustomFields) => {
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           perDiemExpense.category_id,
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           true
         );
         // Called twice because of the two custom fields

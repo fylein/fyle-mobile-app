@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { MyExpensesGuardGuard } from '../core/guards/my-expenses-guard.guard';
 import { BetaPageFeatureFlagGuard } from '../core/guards/beta-page-feature-flag.guard';
 
 const routes: Routes = [
@@ -8,8 +9,13 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
   {
+    path: 'my_expenses-v2',
+    loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
+  },
+  {
     path: 'my_expenses',
     loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
+    canActivate: [MyExpensesGuardGuard],
   },
   {
     path: 'my_advances',
@@ -146,6 +152,10 @@ const routes: Routes = [
     path: 'manage_corporate_cards',
     loadChildren: () =>
       import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
+  },
+  {
+    path: 'my-expenses',
+    loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
   },
 ];
 
