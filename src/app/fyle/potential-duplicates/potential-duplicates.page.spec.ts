@@ -166,7 +166,7 @@ describe('PotentialDuplicatesPage', () => {
       component.dismiss(apiExpenses1[0]);
 
       expect(component.duplicateExpenses[0].length).toEqual(1);
-      expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(['txe0bYaJlRJf', 'txDDLtRaflUW'], ['txDDLtRaflUW']);
+      expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(['txcSFe6efB6R', 'txDDLtRaflUW'], ['txDDLtRaflUW']);
       expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
     });
   });
@@ -215,7 +215,7 @@ describe('PotentialDuplicatesPage', () => {
         'enterprise',
         'merge_expense',
         {
-          expenseIDs: JSON.stringify(['txe0bYaJlRJf', 'txDDLtRaflUW']),
+          expenseIDs: JSON.stringify(['txcSFe6efB6R', 'txDDLtRaflUW']),
           from: 'TASK',
         },
       ]);

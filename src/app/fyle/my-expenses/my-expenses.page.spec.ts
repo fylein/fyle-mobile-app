@@ -2790,7 +2790,7 @@ describe('MyExpensesPage', () => {
       'enterprise',
       'merge_expense',
       {
-        txnIDs: JSON.stringify(['tx3nHShG60zq']),
+        expenseIDs: JSON.stringify(['tx3nHShG60zq']),
         from: 'MY_EXPENSES',
       },
     ]);
