@@ -90,7 +90,7 @@ export const popoverControllerParams = {
 
 export const openFromComponentConfig = {
   data: {
-    icon: 'danger',
+    icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
   },

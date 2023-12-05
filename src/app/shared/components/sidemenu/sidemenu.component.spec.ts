@@ -403,7 +403,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Delegated Accounts',
           isVisible: true,
-          icon: 'delegate-switch',
+          icon: 'user-two',
           route: ['/', 'enterprise', 'delegated_accounts'],
           disabled: false,
         },

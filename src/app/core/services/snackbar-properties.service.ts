@@ -24,7 +24,7 @@ export class SnackbarPropertiesService {
       if (toastMessageType === 'success') {
         snackbarIcon = 'tick-square-filled';
       } else if (toastMessageType === 'failure') {
-        snackbarIcon = 'danger';
+        snackbarIcon = 'warning-fill';
       }
     }
     return {
