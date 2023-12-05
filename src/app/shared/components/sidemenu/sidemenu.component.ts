@@ -212,7 +212,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Dashboard',
         isVisible: true,
-        icon: 'fy-dashboard-new',
+        icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
@@ -291,7 +291,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Dashboard',
         isVisible: true,
-        icon: 'fy-dashboard-new',
+        icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
@@ -345,7 +345,7 @@ export class SidemenuComponent implements OnInit {
           this.orgUserSettings.in_app_chat_settings &&
           this.orgUserSettings.in_app_chat_settings.allowed &&
           this.orgUserSettings.in_app_chat_settings.enabled,
-        icon: 'fy-chat-2',
+        icon: 'chat',
         openLiveChat: true,
         disabled: !isConnected,
       },

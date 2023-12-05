@@ -313,7 +313,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Dashboard',
           isVisible: true,
-          icon: 'fy-dashboard-new',
+          icon: 'dashboard',
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
@@ -423,7 +423,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Live Chat',
           isVisible: true,
-          icon: 'fy-chat-2',
+          icon: 'chat',
           openLiveChat: true,
           disabled: false,
         },
