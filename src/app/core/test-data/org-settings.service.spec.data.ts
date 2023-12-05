@@ -1,7 +1,6 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import {
   AccountingExportSettings,
-  EmailEvents,
   IncomingAccountObject,
   OrgSettings,
   OrgSettingsResponse,
@@ -433,6 +432,7 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: false,
     enabled: false,
   },
+  mobile_app_my_expenses_beta_enabled: false,
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
