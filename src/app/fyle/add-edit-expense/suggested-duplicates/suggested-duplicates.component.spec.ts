@@ -67,16 +67,27 @@ describe('SuggestedDuplicatesComponent', () => {
 
     fixture = TestBed.createComponent(SuggestedDuplicatesComponent);
     component = fixture.componentInstance;
-    component.duplicateExpenses = [
-      { ...expenseData, id: 'tx1ZvrMjIj4W' },
-      { ...expenseData, id: 'tx8v1PZSUxy5' },
-      { ...expenseData, id: 'txKW3vYo8W2v' },
-    ];
+    component.duplicateExpenseIDs = apiExpenses1.map((expense) => expense.id);
+    component.duplicateExpenses = apiExpenses1;
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('ionViewWillEnter(): should get duplicate expenses', () => {
+    component.duplicateExpenseIDs = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
+    expensesService.getExpenses.and.returnValue(of(apiExpenses1));
+
+    component.ionViewWillEnter();
+
+    expect(component.duplicateExpenses).toEqual(apiExpenses1);
+    expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({
+      offset: 0,
+      limit: 10,
+      queryParams: { id: 'in.(txDDLtRaflUW,tx5WDG9lxBDT)' },
+    });
   });
 
   it('should show success toast message when called', () => {
@@ -108,8 +119,6 @@ describe('SuggestedDuplicatesComponent', () => {
   });
 
   it('should dismiss the modal and navigate to the merge expense page', () => {
-    const getETxncSpy = expensesService.getExpenses.and.returnValue(of(apiExpenses1));
-    const selectedExpenses = apiExpenses1;
     component.mergeExpenses();
     fixture.detectChanges();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
@@ -118,15 +127,10 @@ describe('SuggestedDuplicatesComponent', () => {
       'enterprise',
       'merge_expense',
       {
-        expenseIDs: JSON.stringify(selectedExpenses.map((exp) => exp.id)),
+        expenseIDs: JSON.stringify(['txDDLtRaflUW', 'tx5WDG9lxBDT']),
         from: 'EDIT_EXPENSE',
       },
     ]);
-    expect(getETxncSpy).toHaveBeenCalledOnceWith({
-      offset: 0,
-      limit: 10,
-      queryParams: { id: 'in.(tx1ZvrMjIj4W,tx8v1PZSUxy5,txKW3vYo8W2v)' },
-    });
   });
 
   it('should dismiss all duplicate expenses and display success toast message', () => {
@@ -136,10 +140,7 @@ describe('SuggestedDuplicatesComponent', () => {
 
     component.dismissAll();
     fixture.detectChanges();
-    expect(dismissAllSpy).toHaveBeenCalledOnceWith(
-      ['tx1ZvrMjIj4W', 'tx8v1PZSUxy5', 'txKW3vYo8W2v'],
-      ['tx1ZvrMjIj4W', 'tx8v1PZSUxy5', 'txKW3vYo8W2v']
-    );
+    expect(dismissAllSpy).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT'], ['txDDLtRaflUW', 'tx5WDG9lxBDT']);
     expect(showDismissedSuccessToastSpy).toHaveBeenCalledTimes(1);
     expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });
   });
