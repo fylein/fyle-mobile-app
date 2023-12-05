@@ -256,7 +256,7 @@ describe('MyProfilePage', () => {
       const message = 'Something went wrong';
       const failureToastProperties = {
         data: {
-          icon: 'danger',
+          icon: 'warning-fill',
           showCloseButton: true,
           message,
         },

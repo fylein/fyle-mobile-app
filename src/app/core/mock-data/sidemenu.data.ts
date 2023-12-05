@@ -4,7 +4,7 @@ export const sidemenuData1 = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -25,7 +25,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -91,7 +91,7 @@ export const getPrimarySidemenuOptionsRes1 = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -128,7 +128,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },
@@ -141,7 +141,7 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Live Chat',
     isVisible: true,
-    icon: 'fy-chat-2',
+    icon: 'chat',
     openLiveChat: true,
     disabled: false,
   },
@@ -158,7 +158,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -191,7 +191,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },
@@ -204,7 +204,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Live Chat',
     isVisible: true,
-    icon: 'fy-chat-2',
+    icon: 'chat',
     openLiveChat: true,
     disabled: false,
   },

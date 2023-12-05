@@ -36,7 +36,7 @@
                   {{erpt.rp_purpose | ellipsis: 35}}
                   <ion-icon
                     *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY' || erpt.rp_state === 'APPROVER_PENDING')"
-                    [src]="'../../../../assets/svg/fy-edit-gradient.svg'"
+                    [src]="'../../../../assets/svg/edit.svg'"
                     slot="icon-only"
                     (click)="editReportName()"
                     class="view-reports--card-header__icon"

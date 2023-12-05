@@ -21,10 +21,10 @@
         *ngIf="(linkedAccountsCount$ | async) !== 0"
       >
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         </ng-container>
         <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
       <ion-button class="personal-cards--header-btn" (click)="linkAccount()">
