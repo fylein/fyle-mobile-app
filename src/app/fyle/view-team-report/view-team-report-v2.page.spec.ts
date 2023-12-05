@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flush, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -1043,5 +1043,10 @@ describe('ViewTeamReportPageV2', () => {
       });
       expect(component.updateReportName).not.toHaveBeenCalled();
     }));
+
+    afterEach(() => {
+      // Clear remaining timers to avoid failures due to timers in queue
+      flush();
+    });
   });
 });
