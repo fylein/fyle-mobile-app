@@ -857,6 +857,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: false,
     enabled: false,
   },
+  mobile_app_my_expenses_beta_enabled: false,
 };
 
 export const outgoingTallyAccountObj: AccountingExportSettings = {

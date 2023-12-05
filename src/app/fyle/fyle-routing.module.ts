@@ -11,11 +11,11 @@ const routes: Routes = [
   {
     path: 'my_expenses-v2',
     loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
-    canActivate: [MyExpensesGuardGuard],
   },
   {
     path: 'my_expenses',
     loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
+    canActivate: [MyExpensesGuardGuard],
   },
   {
     path: 'my_advances',
