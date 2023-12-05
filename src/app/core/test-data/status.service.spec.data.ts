@@ -862,7 +862,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policy Violation',
-      icon: 'danger',
+      icon: 'warning-fill',
     },
   },
   {
@@ -2077,7 +2077,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: { category: 'Policy Violation', icon: 'danger' },
+    st: { category: 'Policy Violation', icon: 'warning-fill' },
   },
   {
     st_id: 'st8dHUhDzXxr',

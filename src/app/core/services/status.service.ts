@@ -88,7 +88,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
         statusCategory = {
           category: 'Policy Violation',
-          icon: 'danger',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
