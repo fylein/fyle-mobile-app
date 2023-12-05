@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { MyExpensesGuardGuard } from './my-expenses-guard.guard';
 import { ActivatedRoute, Router } from '@angular/router';
 import { OrgSettingsService } from '../services/org-settings.service';
-import { of } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from '../mock-data/org-settings.data';
 
 describe('MyExpensesGuardGuard', () => {
@@ -50,20 +50,29 @@ describe('MyExpensesGuardGuard', () => {
   });
 
   describe('canActivate():', () => {
-    it('should continue to the new expenses page if enabled', async () => {
+    it('should navigate to v2 page if settings is enabled', (done) => {
       orgSettingsSerivce.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
 
-      const result = await guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null });
+      const result = guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null }) as Observable<boolean>;
 
-      expect(result).toBeTrue();
+      result.subscribe(() => {
+        expect(orgSettingsSerivce.get).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses-v2']);
+        done();
+      });
     });
 
-    it('should redirect to the old page if not enabled', async () => {
+    it('should navigate to old page if setting is disbaled', (done) => {
       orgSettingsSerivce.get.and.returnValue(of(orgSettingsWoV2ExpensesPage));
 
-      await guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null });
+      const result = guard.canActivate(activatedRoute.snapshot, { url: '/test', root: null }) as Observable<boolean>;
 
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      result.subscribe((res) => {
+        expect(res).toBeTrue();
+        expect(orgSettingsSerivce.get).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses-v2']);
+        done();
+      });
     });
   });
 });

@@ -16,7 +16,6 @@ export class MyExpensesGuardGuard implements CanActivate {
     state: RouterStateSnapshot
   ): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
     return this.orgSettingsSerivce.get().pipe(
-      tap((orgSettings) => console.log(orgSettings)),
       map((orgSettings: OrgSettings) => {
         if (orgSettings.mobile_app_my_expenses_beta_enabled) {
           this.router.navigate(['/', 'enterprise', 'my_expenses-v2']);
