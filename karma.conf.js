@@ -1,9 +1,9 @@
 module.exports = function (config) {
   config.set({
     basePath: '',
-    frameworks: ['jasmine', '@angular-devkit/build-angular'],
+    frameworks: ['parallel', 'jasmine', '@angular-devkit/build-angular'],
     plugins: [
-      // require('karma-parallel'),
+      require('karma-parallel'),
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
