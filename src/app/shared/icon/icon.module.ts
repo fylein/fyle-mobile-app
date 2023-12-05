@@ -49,7 +49,6 @@ export class IconModule {
     'fy-expense.svg',
     'flag-fill.svg',
     'flag-outline.svg',
-    'fy-help-new.svg',
     'fy-individual.svg',
     'fy-info.svg',
     'fy-info-gradient.svg',
