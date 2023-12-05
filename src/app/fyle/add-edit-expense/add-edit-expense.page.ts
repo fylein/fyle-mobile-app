@@ -4010,7 +4010,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
           if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
-            continueWithTransaction.comment = 'No policy violation explaination provided';
+            continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() =>
