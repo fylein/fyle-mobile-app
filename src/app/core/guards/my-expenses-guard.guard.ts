@@ -18,7 +18,7 @@ export class MyExpensesGuardGuard implements CanActivate {
     return this.orgSettingsSerivce.get().pipe(
       map((orgSettings: OrgSettings) => {
         if (orgSettings.mobile_app_my_expenses_beta_enabled) {
-          this.router.navigate(['/', 'enterprise', 'my_expenses-v2']);
+          this.router.navigate(['/', 'enterprise', 'my_expenses_v2']);
         }
 
         return true;
