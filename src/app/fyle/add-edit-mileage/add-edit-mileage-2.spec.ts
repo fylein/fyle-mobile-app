@@ -734,7 +734,7 @@ export function TestCases2(getTestBed) {
           .subscribe((res) => {
             expect(res).toEqual({
               etxn: unflattenedTxnData,
-              comment: 'No policy violation explaination provided',
+              comment: 'No policy violation explanation provided',
             });
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
