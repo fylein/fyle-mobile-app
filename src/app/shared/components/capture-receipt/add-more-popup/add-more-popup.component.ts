@@ -19,7 +19,7 @@ export class AddMorePopupComponent implements OnInit {
         mode: 'camera',
       },
       {
-        icon: 'fy-gallery',
+        icon: 'image',
         title: 'Upload from Gallery',
         mode: 'gallery',
       },
