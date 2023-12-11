@@ -1471,7 +1471,7 @@ export function TestCases2(getTestBed) {
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenses: [expenseData1],
+            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
           },
           mode: 'ios',
           ...properties,
@@ -1496,7 +1496,7 @@ export function TestCases2(getTestBed) {
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenses: [expenseData1],
+            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
           },
           mode: 'ios',
           ...properties,
