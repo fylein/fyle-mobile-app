@@ -44,7 +44,7 @@ export class CardDetailComponent implements OnInit {
         filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [this.cardDetail?.card.card_number] }),
       };
 
-      this.router.navigate(['/', 'enterprise', `${this.redirectToNewPage ? 'my_expenses-v2' : 'my_expenses'}`], {
+      this.router.navigate(['/', 'enterprise', `${this.redirectToNewPage ? 'my_expenses_v2' : 'my_expenses'}`], {
         queryParams,
       });
 
@@ -53,7 +53,7 @@ export class CardDetailComponent implements OnInit {
       const queryParams: Params = {
         filters: JSON.stringify({ state: ['DRAFT,READY_TO_REPORT'], cardNumbers: [this.cardDetail?.card.card_number] }),
       };
-      this.router.navigate(['/', 'enterprise', `${this.redirectToNewPage ? 'my_expenses-v2' : 'my_expenses'}`], {
+      this.router.navigate(['/', 'enterprise', `${this.redirectToNewPage ? 'my_expenses_v2' : 'my_expenses'}`], {
         queryParams,
       });
 

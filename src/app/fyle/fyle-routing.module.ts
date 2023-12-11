@@ -9,7 +9,7 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
   {
-    path: 'my_expenses-v2',
+    path: 'my_expenses_v2',
     loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
   },
   {
