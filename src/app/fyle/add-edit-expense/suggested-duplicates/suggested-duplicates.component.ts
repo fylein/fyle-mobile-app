@@ -35,7 +35,7 @@ export class SuggestedDuplicatesComponent {
     };
 
     this.expensesService
-      .getExpenses({ offset: 0, limit: 10, queryParams })
+      .getExpenses({ offset: 0, limit: 10, ...queryParams })
       .pipe(map((expenses) => (this.duplicateExpenses = expenses)))
       .subscribe(noop);
   }
