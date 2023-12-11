@@ -57,7 +57,7 @@ describe('MyExpensesGuardGuard', () => {
 
       result.subscribe(() => {
         expect(orgSettingsSerivce.get).toHaveBeenCalledTimes(1);
-        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses-v2']);
+        expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2']);
         done();
       });
     });
@@ -70,7 +70,7 @@ describe('MyExpensesGuardGuard', () => {
       result.subscribe((res) => {
         expect(res).toBeTrue();
         expect(orgSettingsSerivce.get).toHaveBeenCalledTimes(1);
-        expect(router.navigate).not.toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses-v2']);
+        expect(router.navigate).not.toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2']);
         done();
       });
     });
