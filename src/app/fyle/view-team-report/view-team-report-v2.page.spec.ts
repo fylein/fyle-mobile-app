@@ -1,6 +1,6 @@
 import { CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
@@ -1006,6 +1006,7 @@ describe('ViewTeamReportPageV2', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
       click(editReportButton);
+      flushMicrotasks();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -1032,6 +1033,7 @@ describe('ViewTeamReportPageV2', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
       click(editReportButton);
+      flushMicrotasks();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
