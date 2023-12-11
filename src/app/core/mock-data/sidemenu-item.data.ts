@@ -14,7 +14,7 @@ export const sidemenuItemData1: SidemenuItem = {
 export const sidemenuItemData2: SidemenuItem = {
   title: 'Team',
   isVisible: true,
-  icon: 'teams',
+  icon: 'user-three',
   isDropdownOpen: false,
   disabled: false,
   dropdownOptions: [

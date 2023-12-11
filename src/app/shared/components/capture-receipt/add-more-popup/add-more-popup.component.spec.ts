@@ -35,7 +35,7 @@ describe('AddMorePopupComponent', () => {
     expect(containerElements.length).toBe(2); // Check that there are 2 action buttons
     expect(addMorePopupComponent.actionButtons).toEqual([
       { icon: 'fy-camera', title: 'Capture Receipts', mode: 'camera' },
-      { icon: 'fy-gallery', title: 'Upload from Gallery', mode: 'gallery' },
+      { icon: 'image', title: 'Upload from Gallery', mode: 'gallery' },
     ]);
   });
 

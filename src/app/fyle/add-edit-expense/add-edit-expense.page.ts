@@ -4010,7 +4010,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
           if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
-            continueWithTransaction.comment = 'No policy violation explaination provided';
+            continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() =>
@@ -4905,10 +4905,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]): Promise<void> {
+    const txnIDs = duplicateExpenses.map((expense) => expense.tx_id);
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
-        duplicateExpenses,
+        duplicateExpenseIDs: txnIDs,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
