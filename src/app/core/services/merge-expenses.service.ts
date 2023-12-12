@@ -591,7 +591,7 @@ export class MergeExpensesService {
     expenses.forEach((expense) => {
       const txDependentFields: Partial<CustomInput>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
-          expense.tx_custom_properties.find(
+          expense?.tx_custom_properties?.find(
             (txCustomProperty: Partial<CustomInput>) => dependentField.name === txCustomProperty.name
           )
         )
