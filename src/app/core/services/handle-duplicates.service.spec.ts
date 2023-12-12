@@ -7,7 +7,6 @@ import { handleDuplicatesDataResponse } from '../mock-data/handle-duplicates.ser
 describe('HandleDuplicatesService', () => {
   let handleDuplicatesService: HandleDuplicatesService;
   let apiService: jasmine.SpyObj<ApiService>;
-  // Testing
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
