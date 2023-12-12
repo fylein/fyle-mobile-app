@@ -188,11 +188,7 @@
                   class="expenses-card--icons__policy-violated-icon"
                   >error</mat-icon
                 >
-                <mat-icon
-                  *ngIf="expense.is_split"
-                  class="expenses-card--icons__split-icon"
-                  svgIcon="split-new"
-                ></mat-icon>
+                <mat-icon *ngIf="expense.is_split" class="expenses-card--icons__split-icon" svgIcon="split"></mat-icon>
               </div>
             </div>
 

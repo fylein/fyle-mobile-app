@@ -339,7 +339,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Team',
           isVisible: true,
-          icon: 'teams',
+          icon: 'user-three',
           isDropdownOpen: false,
           disabled: false,
           dropdownOptions: [
@@ -417,7 +417,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Settings',
           isVisible: true,
-          icon: 'fy-settings',
+          icon: 'gear',
           route: ['/', 'enterprise', 'my_profile'],
         },
         {
@@ -430,7 +430,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Help',
           isVisible: true,
-          icon: 'help',
+          icon: 'question-square-outline',
           route: ['/', 'enterprise', 'help'],
           disabled: false,
         },

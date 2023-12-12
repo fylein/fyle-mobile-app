@@ -246,7 +246,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Team',
         isVisible: teamOptions.length ? true : false,
-        icon: 'teams',
+        icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
         dropdownOptions: teamOptions,
@@ -266,7 +266,7 @@ export class SidemenuComponent implements OnInit {
     if (teamOptions.length === 1) {
       this.updateSidemenuOption(primaryOptions, 'Team', {
         ...teamOptions[0],
-        icon: 'teams',
+        icon: 'user-three',
         disabled: !isConnected,
       });
     }
@@ -303,7 +303,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Settings',
         isVisible: true,
-        icon: 'fy-settings',
+        icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
     ];
@@ -335,7 +335,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Settings',
         isVisible: true,
-        icon: 'fy-settings',
+        icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
       {
@@ -352,7 +352,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Help',
         isVisible: true,
-        icon: 'help',
+        icon: 'question-square-outline',
         route: ['/', 'enterprise', 'help'],
         disabled: !isConnected,
       },
