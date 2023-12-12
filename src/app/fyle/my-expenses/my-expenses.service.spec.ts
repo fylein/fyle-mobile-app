@@ -2,10 +2,13 @@ import { TestBed } from '@angular/core/testing';
 import { MyExpensesService } from './my-expenses.service';
 import {
   expenseFiltersData1,
+  expenseFiltersData1Old,
   expenseFiltersData3,
   expenseFiltersData4,
   expenseFiltersData5,
+  expenseFiltersData5Old,
   expenseFiltersData6,
+  expenseFiltersData7,
 } from 'src/app/core/mock-data/expense-filters.data';
 import {
   cardFilterPill,
@@ -34,7 +37,7 @@ import {
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
 import { filter1, filter2 } from 'src/app/core/mock-data/my-reports-filters.data';
-import { filterOptions2 } from 'src/app/core/mock-data/filter-options.data';
+import { filterOptions2, filterOptions3 } from 'src/app/core/mock-data/filter-options.data';
 
 describe('MyExpensesService', () => {
   let myExpensesService: MyExpensesService;
@@ -98,13 +101,13 @@ describe('MyExpensesService', () => {
   describe('generateSortAmountPills():', () => {
     it('should add amount - high to low as sort params if sort direction is decreasing', () => {
       const filterPill = [];
-      myExpensesService.generateSortAmountPills(expenseFiltersData5, filterPill);
+      myExpensesService.generateSortAmountPills(expenseFiltersData5Old, filterPill);
       expect(filterPill).toEqual(sortByDescFilterPill);
     });
 
     it('should add amount - low to high as sort params if sort direction is ascending', () => {
       const filterPill = [];
-      myExpensesService.generateSortAmountPills({ ...expenseFiltersData5, sortDir: 'asc' }, filterPill);
+      myExpensesService.generateSortAmountPills({ ...expenseFiltersData5Old, sortDir: 'asc' }, filterPill);
       expect(filterPill).toEqual(sortByAscFilterPill);
     });
   });
@@ -112,13 +115,13 @@ describe('MyExpensesService', () => {
   describe('generateSortTxnDatePills():', () => {
     it('should add date - old to new as sort params if sort direction is ascending', () => {
       const filterPill = [];
-      myExpensesService.generateSortTxnDatePills(expenseFiltersData6, filterPill);
+      myExpensesService.generateSortTxnDatePills(expenseFiltersData7, filterPill);
       expect(filterPill).toEqual(sortByDateAscFilterPill);
     });
 
     it('should add date - new to old as sort params if sort direction is descending', () => {
       const filterPill = [];
-      myExpensesService.generateSortTxnDatePills({ ...expenseFiltersData6, sortDir: 'desc' }, filterPill);
+      myExpensesService.generateSortTxnDatePills({ ...expenseFiltersData7, sortDir: 'desc' }, filterPill);
       expect(filterPill).toEqual(sortByDateDescFilterPill);
     });
   });
@@ -353,7 +356,7 @@ describe('MyExpensesService', () => {
   it('getFilters(): should return all the filters', () => {
     const filters = myExpensesService.getFilters();
 
-    expect(filters).toEqual(filterOptions2);
+    expect(filters).toEqual(filterOptions3);
   });
 
   it('generateSelectedFilters(): should generate selected filters', () => {
@@ -391,7 +394,7 @@ describe('MyExpensesService', () => {
     it('should add categoryAToZ sort params if sort direction is ascending', () => {
       const generatedFilters = [];
 
-      myExpensesService.convertCategorySortToSelectedFilters(expenseFiltersData1, generatedFilters);
+      myExpensesService.convertCategorySortToSelectedFilters(expenseFiltersData1Old, generatedFilters);
 
       expect(generatedFilters).toEqual([
         {
@@ -405,7 +408,7 @@ describe('MyExpensesService', () => {
       const generatedFilters = [];
 
       myExpensesService.convertCategorySortToSelectedFilters(
-        { ...expenseFiltersData1, sortDir: 'desc' },
+        { ...expenseFiltersData1Old, sortDir: 'desc' },
         generatedFilters
       );
 

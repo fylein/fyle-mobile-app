@@ -1,36 +1,37 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { BehaviorSubject, forkJoin, noop, Observable } from 'rxjs';
-import { ActivatedRoute, Router } from '@angular/router';
-import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { Expense } from 'src/app/core/models/expense.model';
-import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
-import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
-import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { CategoriesService } from 'src/app/core/services/categories.service';
-import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
-import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
-import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
-import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
-import { Destination } from 'src/app/core/models/destination.model';
+import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
+import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
+import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
+import { CategoryDependentFieldsOptions } from 'src/app/core/models/category-dependent-fields-options.model';
+import { CustomFieldsFormValues } from 'src/app/core/models/custom-fields-form-values.model';
+import { CustomInputOptions } from 'src/app/core/models/custom-input-options.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { DependentFieldsMapping } from 'src/app/core/models/dependent-field-mapping.model';
-import { CustomInputOptions } from 'src/app/core/models/custom-input-options.model';
-import { GenericFieldsOptions } from 'src/app/core/models/generic-fields-options.model';
-import { CategoryDependentFieldsOptions } from 'src/app/core/models/category-dependent-fields-options.model';
+import { Destination } from 'src/app/core/models/destination.model';
+import { Expense } from 'src/app/core/models/expense.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { GeneratedFormProperties } from 'src/app/core/models/generated-form-properties.model';
 import { GenericFieldsFormValues } from 'src/app/core/models/generic-fields-form-values.model';
-import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
-import { CustomFieldsFormValues } from 'src/app/core/models/custom-fields-form-values.model';
+import { GenericFieldsOptions } from 'src/app/core/models/generic-fields-options.model';
+import { MergeExpensesOption } from 'src/app/core/models/merge-expenses-option.model';
+import { MergeExpensesOptionsData } from 'src/app/core/models/merge-expenses-options-data.model';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { CorporateCardExpense } from 'src/app/core/models/v2/corporate-card-expense.model';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
+import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
+import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ExpensesInfo } from 'src/app/core/services/expenses-info.model';
+import { MergeExpensesService } from 'src/app/core/services/merge-expenses.service';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 @Component({
   selector: 'app-merge-expense',
@@ -130,8 +131,11 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
   costCenterDependentFieldsMapping$: Observable<DependentFieldsMapping>;
 
+  txnIDs: string[];
+
   constructor(
     private router: Router,
+    private transcationService: TransactionService,
     private categoriesService: CategoriesService,
     private formBuilder: FormBuilder,
     private customInputsService: CustomInputsService,
@@ -168,7 +172,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
   }
 
   ngOnInit(): void {
-    this.expenses = JSON.parse(this.activatedRoute.snapshot.params.selectedElements as string) as Expense[];
     this.redirectedFrom = this.activatedRoute.snapshot.params.from as string;
   }
 
@@ -180,79 +183,113 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       custom_inputs: [],
     });
 
+    this.txnIDs = JSON.parse(this.activatedRoute.snapshot.params.expenseIDs as string) as string[];
+
+    const expenses$ = this.transcationService
+      .getETxnc({
+        offset: 0,
+        limit: 200,
+        params: {
+          tx_id: `in.(${this.txnIDs.join(',')})`,
+        },
+      })
+      .pipe(shareReplay(1));
+
+    this.expenseOptions$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateExpenseToKeepOptions(expenses))
+    );
+
     this.systemCategories = this.categoriesService.getSystemCategories();
 
-    this.expenseOptions$ = this.mergeExpensesService.generateExpenseToKeepOptions(this.expenses);
+    expenses$
+      .pipe(switchMap((expenses) => this.mergeExpensesService.generateReceiptOptions(expenses)))
+      .subscribe((receiptOptions) => {
+        this.receiptOptions = receiptOptions;
+      });
 
-    this.mergeExpensesService.generateReceiptOptions(this.expenses).subscribe((receiptOptions) => {
-      this.receiptOptions = receiptOptions;
-    });
+    this.amountOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateAmountOptions(expenses))
+    );
 
-    this.amountOptionsData$ = this.mergeExpensesService.generateAmountOptions(this.expenses).pipe(shareReplay(1));
+    this.dateOfSpendOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateDateOfSpendOptions(expenses))
+    );
 
-    this.dateOfSpendOptionsData$ = this.mergeExpensesService
-      .generateDateOfSpendOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.paymentModeOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generatePaymentModeOptions(expenses))
+    );
 
-    this.paymentModeOptionsData$ = this.mergeExpensesService
-      .generatePaymentModeOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.projectOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateProjectOptions(expenses))
+    );
 
-    this.projectOptionsData$ = this.mergeExpensesService.generateProjectOptions(this.expenses).pipe(shareReplay(1));
+    this.billableOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateBillableOptions(expenses))
+    );
 
-    this.billableOptionsData$ = this.mergeExpensesService.generateBillableOptions(this.expenses).pipe(shareReplay(1));
+    this.vendorOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateVendorOptions(expenses))
+    );
 
-    this.vendorOptionsData$ = this.mergeExpensesService.generateVendorOptions(this.expenses).pipe(shareReplay(1));
+    this.categoryOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateCategoryOptions(expenses))
+    );
 
-    this.categoryOptionsData$ = this.mergeExpensesService.generateCategoryOptions(this.expenses).pipe(shareReplay(1));
+    this.taxGroupOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateTaxGroupOptions(expenses))
+    );
 
-    this.taxGroupOptionsData$ = this.mergeExpensesService.generateTaxGroupOptions(this.expenses).pipe(shareReplay(1));
+    this.taxAmountOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateTaxAmountOptions(expenses))
+    );
 
-    this.taxAmountOptionsData$ = this.mergeExpensesService.generateTaxAmountOptions(this.expenses).pipe(shareReplay(1));
+    this.constCenterOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateCostCenterOptions(expenses))
+    );
 
-    this.constCenterOptionsData$ = this.mergeExpensesService
-      .generateCostCenterOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.purposeOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generatePurposeOptions(expenses))
+    );
 
-    this.purposeOptionsData$ = this.mergeExpensesService.generatePurposeOptions(this.expenses).pipe(shareReplay(1));
+    this.location1OptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 0))
+    );
 
-    this.location1OptionsData$ = this.mergeExpensesService
-      .generateLocationOptions(this.expenses, 0)
-      .pipe(shareReplay(1));
+    this.location2OptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateLocationOptions(expenses, 1))
+    );
 
-    this.location2OptionsData$ = this.mergeExpensesService
-      .generateLocationOptions(this.expenses, 1)
-      .pipe(shareReplay(1));
+    this.onwardDateOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateOnwardDateOptions(expenses))
+    );
 
-    this.onwardDateOptionsData$ = this.mergeExpensesService
-      .generateOnwardDateOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.returnDateOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateReturnDateOptions(expenses))
+    );
 
-    this.returnDateOptionsData$ = this.mergeExpensesService
-      .generateReturnDateOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.flightJourneyTravelClassOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateFlightJourneyTravelClassOptions(expenses))
+    );
 
-    this.flightJourneyTravelClassOptionsData$ = this.mergeExpensesService
-      .generateFlightJourneyTravelClassOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.flightReturnTravelClassOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateFlightReturnTravelClassOptions(expenses))
+    );
 
-    this.flightReturnTravelClassOptionsData$ = this.mergeExpensesService
-      .generateFlightReturnTravelClassOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.trainTravelClassOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateTrainTravelClassOptions(expenses))
+    );
 
-    this.trainTravelClassOptionsData$ = this.mergeExpensesService
-      .generateTrainTravelClassOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.busTravelClassOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateBusTravelClassOptions(expenses))
+    );
 
-    this.busTravelClassOptionsData$ = this.mergeExpensesService
-      .generateBusTravelClassOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.distanceOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateDistanceOptions(expenses))
+    );
 
-    this.distanceOptionsData$ = this.mergeExpensesService.generateDistanceOptions(this.expenses).pipe(shareReplay(1));
-
-    this.distanceUnitOptionsData$ = this.mergeExpensesService
-      .generateDistanceUnitOptions(this.expenses)
-      .pipe(shareReplay(1));
+    this.distanceUnitOptionsData$ = expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.generateDistanceUnitOptions(expenses))
+    );
 
     this.genericFieldsOptions$ = forkJoin({
       amountOptionsData: this.amountOptionsData$,
@@ -276,7 +313,16 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     this.loadCategoryDependentFields();
     this.subscribeExpenseChange();
 
-    this.combinedCustomProperties = this.generateCustomInputOptions();
+    let customProperties;
+
+    expenses$.pipe(
+      switchMap((expenses) => this.mergeExpensesService.getCustomInputValues(expenses)),
+      map((customProps) => (customProperties = customProps))
+    );
+
+    expenses$.subscribe((expenses) => (this.expenses = expenses));
+
+    this.combinedCustomProperties = this.generateCustomInputOptions(customProperties as Partial<CustomInput>[][]);
   }
 
   loadGenericFieldsOptions(): void {
@@ -665,9 +711,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     });
   }
 
-  generateCustomInputOptions(): { [key: string]: Partial<CustomInput> } {
-    const customProperties = this.mergeExpensesService.getCustomInputValues(this.expenses);
-
+  generateCustomInputOptions(customProperties: Partial<CustomInput>[][]): { [key: string]: Partial<CustomInput> } {
     let combinedCustomProperties = <Partial<CustomInput>[]>[].concat.apply([], customProperties);
 
     combinedCustomProperties = combinedCustomProperties.map((field: Partial<CustomInput>) => {

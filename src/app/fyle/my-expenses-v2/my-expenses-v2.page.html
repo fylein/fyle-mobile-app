@@ -1,0 +1,268 @@
+<app-fy-header
+  [ngClass]="{'d-none': isCameraPreviewStarted}"
+  [currentState]="headerState"
+  [navigateBack]="navigateBack"
+  [title]="'Expenses'"
+  (simpleSearchCancel)="onSimpleSearchCancel()"
+  (multiselectBack)="switchSelectionMode()"
+>
+  <ng-container base>
+    <ion-buttons mode="md" slot="end">
+      <ion-button class="my-expenses--header-btn" (click)="searchClick()">
+        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+      </ion-button>
+      <ion-button class="my-expenses--header-btn" (click)="openFilters()">
+        <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
+        </ng-container>
+        <ng-template #noFilterAppliedIcon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
+        </ng-template>
+      </ion-button>
+      <ng-container *ngIf="isConnected$ | async">
+        <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
+          <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
+            <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+          </ion-button>
+        </ng-container>
+        <ng-template #actionLoader>
+          <div class="my-expenses--header-btn--skeleton-loader">
+            <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+          </div>
+        </ng-template>
+      </ng-container>
+    </ion-buttons>
+  </ng-container>
+
+  <ng-container simpleSearch>
+    <div class="expense-report-search my-expenses--simple-search-container">
+      <mat-form-field appearance="outline" class="mat-form-field-no-padding my-expenses--simple-search">
+        <div class="my-expenses--simple-search-block">
+          <mat-icon class="my-expenses--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <input
+            #simpleSearchInput
+            [(ngModel)]="simpleSearchText"
+            class="my-expenses--simple-search-input smartlook-show"
+            matInput
+            placeholder="Search"
+            (focus)="onSearchBarFocus()"
+          />
+          <button
+            (click)="clearText('isFromSearchBar')"
+            *ngIf="simpleSearchText"
+            aria-label="Clear"
+            class="my-expenses--simple-search-close"
+            mat-button
+            mat-icon-button
+            matSuffix
+          >
+            <mat-icon svgIcon="fy-clear"></mat-icon>
+          </button>
+        </div>
+      </mat-form-field>
+    </div>
+  </ng-container>
+  <ng-container multiselect>
+    <ng-container *ngIf="homeCurrency$ | async as homeCurrency">
+      <ng-container *ngIf="allExpensesStats$ | async as allExpensesStats">
+        <ion-title class="my-expenses--multiselect-title page-title">
+          {{selectedElements?.length}} {{(selectedElements?.length > 1) ? 'expenses' : 'expense'}} worth
+          {{(allExpensesStats.amount || 0) | humanizeCurrency: homeCurrency }}
+        </ion-title>
+      </ng-container>
+    </ng-container>
+    <ion-buttons mode="md" slot="end">
+      <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
+        <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
+      </ion-button>
+      <ion-button
+        (click)="openDeleteExpensesPopover()"
+        [disabled]="selectedElements?.length === 0 || !expensesToBeDeleted || (expensesToBeDeleted?.length === 0 && cccExpenses > 0)"
+      >
+        <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ng-container>
+  <ng-container multiselectSelectAll>
+    <ion-item class="my-expenses--select-all-container">
+      <mat-checkbox class="custom-mat-checkbox" [(ngModel)]="selectAll" (ngModelChange)="onSelectAll($event)">
+        Select All
+      </mat-checkbox>
+    </ion-item>
+  </ng-container>
+</app-fy-header>
+
+<ion-content [ngClass]="{'d-none': isCameraPreviewStarted}" class="my-expenses--content">
+  <div
+    class="my-expenses--body"
+    [ngClass]="{'my-expenses--zero-states-body': (((count$ | async) === 0) && isConnected$|async) || (pendingTransactions.length === 0 && !(isConnected$|async))}"
+  >
+    <ion-refresher (ionRefresh)="doRefresh($event)" *ngIf="isConnected$|async" slot="fixed">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+
+    <ng-container *ngIf="filterPills?.length">
+      <div class="my-expenses--filter-pills-container">
+        <app-fy-filter-pills
+          class="my-expenses--filter-pills"
+          (filterClose)="onFilterClose($event)"
+          (filterClicked)="onFilterClick($event)"
+          (clearAll)="onFilterPillsClearAll()"
+          [filterPills]="filterPills"
+        ></app-fy-filter-pills>
+      </div>
+    </ng-container>
+
+    <app-fy-loading-screen
+      *ngIf="isLoading"
+      [isSelectionModeEnabled]="selectionMode"
+      class="my-expenses--shimmers"
+    ></app-fy-loading-screen>
+
+    <div
+      *ngIf="(pendingTransactions.length === 0) && ((count$ | async) === 0) && isConnected$|async"
+      class="my-expenses--zero-state"
+    >
+      <img
+        alt="Create First Expenses"
+        class="my-expenses--zero-state-img"
+        src="../../../assets/images/zero-states/expenses.png"
+      />
+      <div *ngIf="!(filters?.state || filters?.date || simpleSearchText)" class="my-expenses--zero-state-subheader">
+        <ng-container *ngIf="isNewUser$|async; else isOldUser">
+          <p class="my-expenses--zero-state-header">Ready to add your first expense?</p>
+          <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
+        </ng-container>
+        <ng-template #isOldUser>
+          <div class="my-expenses--zero-state-subheader__title">
+            <p class="my-expenses--zero-state-header">Ready to add your expenses?</p>
+            <div class="my-expenses--zero-state-content">Click a picture of a receipt or add the details yourself.</div>
+          </div>
+        </ng-template>
+      </div>
+
+      <div *ngIf="(filters?.state || filters?.date || simpleSearchText )" class="my-expenses--zero-state-header">
+        <div>No Expenses Found</div>
+        <div class="my-expenses--zero-state-content">No expenses were found for the selected filter.</div>
+      </div>
+    </div>
+    <ng-container *ngIf="!(isConnected$|async)">
+      <ng-container *ngIf="pendingTransactions.length > 0">
+        <div class="my-expenses--syncing">
+          <app-fy-alert-info
+            [type]="'information'"
+            [message]="'Data will sync once you are connected to internet'"
+          ></app-fy-alert-info>
+        </div>
+      </ng-container>
+
+      <ng-container *ngIf="pendingTransactions.length === 0">
+        <div class="my-expenses--zero-state">
+          <app-fy-zero-state
+            class="stats--zero-state"
+            image="../../../../assets/images/no-internet.svg"
+            header="You're Offline!"
+            message="Fear not, you can still add expenses offline."
+            [unscaledImage]="true"
+            [useNewStyling]="true"
+          ></app-fy-zero-state>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <div *ngIf="!(filters?.state || filters?.date || simpleSearchText) && !isLoading">
+      <div *ngFor="let pendingTransactions of pendingTransactions as list; let i = index">
+        <app-expense-card
+          [expense]="pendingTransactions"
+          [isFirstOfflineExpense]="i === 0"
+          [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
+          [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          [isOutboxExpense]="true"
+          (setMultiselectMode)="switchSelectionMode($event)"
+          (cardClickedForSelection)="selectOutboxExpense($event)"
+        >
+        </app-expense-card>
+      </div>
+    </div>
+
+    <ng-container *ngIf="isConnected$|async">
+      <div *ngFor="let expense of myExpenses$ | async as list; let i = index">
+        <app-expense-card-v2
+          [expense]="expense"
+          [previousExpenseTxnDate]="list[i-1]?.spent_at"
+          [previousExpenseCreatedAt]="list[i-1]?.created_at"
+          [isSelectionModeEnabled]="selectionMode"
+          [selectedElements]="selectedElements"
+          (goToTransaction)="goToTransaction($event)"
+          (setMultiselectMode)="switchSelectionMode($event)"
+          (cardClickedForSelection)="selectExpense($event)"
+          (showCamera)="showCamera($event)"
+        >
+        </app-expense-card-v2>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="isConnected$|async">
+      <ng-container *ngIf="isLoadingDataInInfiniteScroll">
+        <app-fy-loading-screen
+          [isSelectionModeEnabled]="selectionMode"
+          class="my-expenses--shimmers"
+        ></app-fy-loading-screen>
+      </ng-container>
+    </ng-container>
+  </div>
+
+  <ng-container *ngIf="isConnected$|async">
+    <ng-container *ngIf="!isLoadingDataInInfiniteScroll">
+      <ion-infinite-scroll (ionInfinite)="loadData($event)" *ngIf="isInfiniteScrollRequired$ | async" threshold="100px">
+        <ion-infinite-scroll-content></ion-infinite-scroll-content>
+      </ion-infinite-scroll>
+    </ng-container>
+  </ng-container>
+</ion-content>
+
+<ion-footer [ngClass]="{'d-none': isCameraPreviewStarted}" *ngIf="!isSearchBarFocused">
+  <app-fy-footer
+    *ngIf="!selectionMode"
+    (homeClicked)="onHomeClicked()"
+    (taskClicked)="onTaskClicked()"
+    (cameraClicked)="onCameraClicked()"
+    [taskCount]="expensesTaskCount"
+  ></app-fy-footer>
+  <ng-container *ngIf="openReports$ | async as openReports">
+    <ng-container *ngIf="selectionMode && !reviewMode">
+      <div class="my-expenses--footer-conatiner">
+        <button
+          type="button"
+          *ngIf="openReports.length > 0"
+          class="my-expenses--cta-button my-expenses--secondary-cta text-center"
+          [ngClass]="{'my-expenses--secondary-cta__disabled': !isReportableExpensesSelected || (openReports.length === 0)}"
+          (click)="openCreateReportWithSelectedIds('oldReport')"
+        >
+          Add to reports
+        </button>
+
+        <button
+          type="submit"
+          class="my-expenses--cta-button my-expenses--primary-cta text-center"
+          [ngClass]="{'my-expenses--primary-cta__disabled': !isReportableExpensesSelected}"
+          (click)="openCreateReportWithSelectedIds('newReport')"
+        >
+          Create new report
+        </button>
+      </div>
+    </ng-container>
+    <ng-container *ngIf="selectionMode && reviewMode">
+      <div class="my-expenses--footer-conatiner">
+        <button
+          type="submit"
+          class="my-expenses--cta-button my-expenses--primary-cta text-center"
+          (click)="openReviewExpenses()"
+        >
+          Start Review
+        </button>
+      </div>
+    </ng-container>
+  </ng-container>
+</ion-footer>

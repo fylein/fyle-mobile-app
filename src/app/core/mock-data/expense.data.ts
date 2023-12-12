@@ -5813,3 +5813,8 @@ export const policyExpense3: Expense = {
   ...apiExpenseRes[0],
   tx_policy_amount: 0.0000001,
 };
+
+export const expenseListwithoutID: Expense[] = [
+  { ...expenseList4[0], tx_id: null },
+  { ...expenseList4[1], tx_id: null },
+];

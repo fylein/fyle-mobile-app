@@ -4,7 +4,7 @@ export const sidemenuData1 = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -16,7 +16,7 @@ export const sidemenuData1 = [
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
 ];
@@ -25,7 +25,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -69,7 +69,7 @@ export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
   {
     title: 'Team',
     isVisible: true,
-    icon: 'teams',
+    icon: 'user-three',
     isDropdownOpen: false,
     disabled: false,
     dropdownOptions: [
@@ -91,7 +91,7 @@ export const getPrimarySidemenuOptionsRes1 = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -119,7 +119,7 @@ export const getPrimarySidemenuOptionsRes1 = [
     title: 'Team Reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
-    icon: 'teams',
+    icon: 'user-three',
     disabled: false,
   },
 ];
@@ -128,27 +128,27 @@ export const getSecondarySidemenuOptionsRes1 = [
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
     title: 'Live Chat',
     isVisible: true,
-    icon: 'fy-chat-2',
+    icon: 'chat',
     openLiveChat: true,
     disabled: false,
   },
   {
     title: 'Help',
     isVisible: true,
-    icon: 'help',
+    icon: 'question-square-outline',
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },
@@ -158,7 +158,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Dashboard',
     isVisible: true,
-    icon: 'fy-dashboard-new',
+    icon: 'dashboard',
     route: ['/', 'enterprise', 'my_dashboard'],
   },
   {
@@ -185,33 +185,33 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
     title: 'Team Reports',
     isVisible: true,
     route: ['/', 'enterprise', 'team_reports'],
-    icon: 'teams',
+    icon: 'user-three',
     disabled: false,
   },
   {
     title: 'Delegated Accounts',
     isVisible: true,
-    icon: 'delegate-switch',
+    icon: 'user-two',
     route: ['/', 'enterprise', 'delegated_accounts'],
     disabled: false,
   },
   {
     title: 'Settings',
     isVisible: true,
-    icon: 'fy-settings',
+    icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
   {
     title: 'Live Chat',
     isVisible: true,
-    icon: 'fy-chat-2',
+    icon: 'chat',
     openLiveChat: true,
     disabled: false,
   },
   {
     title: 'Help',
     isVisible: true,
-    icon: 'help',
+    icon: 'question-square-outline',
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },

@@ -24,7 +24,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { ExpenseService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expense.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -61,7 +61,7 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() isFromPotentialDuplicates: boolean;
 
-  @Input() etxnIndex: number;
+  @Input() expenseIndex: number;
 
   @Input() isDismissable: boolean;
 
@@ -157,14 +157,14 @@ export class ExpensesCardComponent implements OnInit {
 
   onGoToTransaction(): void {
     if (!this.isSelectionModeEnabled) {
-      this.goToTransaction.emit({ expense: this.expense, expenseIndex: this.etxnIndex });
+      this.goToTransaction.emit({ expense: this.expense, expenseIndex: this.expenseIndex });
     }
   }
 
   getReceipt(): void {
-    if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'mileage') {
+    if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.category.name && this.expense.category.name.toLowerCase() === 'per diem') {
+    } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
       if (!this.expense.file_ids?.length) {
@@ -180,7 +180,7 @@ export class ExpensesCardComponent implements OnInit {
 
   isZeroAmountPerDiem(): boolean {
     return (
-      this.expense.category.name?.toLowerCase() === 'per diem' &&
+      this.expense?.category?.name?.toLowerCase() === 'per diem' &&
       (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
@@ -270,13 +270,13 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.category = this.expense.category.name && this.expense.category.name.toLowerCase();
+    this.category = this.expense?.category?.name && this.expense?.category?.name.toLowerCase();
     this.isMileageExpense = this.category === 'mileage';
     this.isPerDiem = this.category === 'per diem';
 
-    this.isDraft = this.sharedExpenseService.getIsDraft(this.expense);
+    this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
     this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
-    this.isCriticalPolicyViolated = this.sharedExpenseService.getIsCriticalPolicyViolated(this.expense);
+    this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
     this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
@@ -318,14 +318,14 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   setOtherData(): void {
-    if (this.expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
-      if (this.expense.matched_corporate_card_transaction_ids?.length > 0) {
+    if (this.expense?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
+      if (this.expense?.matched_corporate_card_transaction_ids?.length > 0) {
         this.paymentModeIcon = 'fy-matched';
       } else {
         this.paymentModeIcon = 'fy-unmatched';
       }
     } else {
-      if (this.expense.is_reimbursable) {
+      if (this.expense?.is_reimbursable) {
         this.paymentModeIcon = 'fy-reimbursable';
       } else {
         this.paymentModeIcon = 'fy-non-reimbursable';

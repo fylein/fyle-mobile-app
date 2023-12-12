@@ -2,11 +2,12 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { CreateNewReportComponent as createReportV2 } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { apiExpenseRes } from './expense.data';
 import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent as v2 } from 'src/app/fyle/my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -20,6 +21,9 @@ import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
+
+import { apiExpenseRes } from './expense.data';
+import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -62,8 +66,26 @@ export const newReportModalParams = {
   ...fyModalProperties,
 };
 
+export const newReportModalParams2 = {
+  component: createReportV2,
+  componentProps: {
+    selectedExpensesToReport: apiExpenses1,
+  },
+  mode: <Mode>'ios',
+  ...fyModalProperties,
+};
+
 export const addExpenseToReportModalParams = {
   component: AddTxnToReportDialogComponent,
+  componentProps: {
+    txId: '12345',
+  },
+  mode: <Mode>'ios',
+  ...fyModalProperties,
+};
+
+export const addExpenseToReportModalParams2 = {
+  component: v2,
   componentProps: {
     txId: '12345',
   },
@@ -90,7 +112,7 @@ export const popoverControllerParams = {
 
 export const openFromComponentConfig = {
   data: {
-    icon: 'danger',
+    icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
   },

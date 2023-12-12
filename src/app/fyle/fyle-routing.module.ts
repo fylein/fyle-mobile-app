@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
+import { MyExpensesGuardGuard } from '../core/guards/my-expenses-guard.guard';
+import { BetaPageFeatureFlagGuard } from '../core/guards/beta-page-feature-flag.guard';
 
 const routes: Routes = [
   {
@@ -7,8 +9,13 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
   {
+    path: 'my_expenses_v2',
+    loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
+  },
+  {
     path: 'my_expenses',
     loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
+    canActivate: [MyExpensesGuardGuard],
   },
   {
     path: 'my_advances',
@@ -25,6 +32,11 @@ const routes: Routes = [
   {
     path: 'my_view_report',
     loadChildren: () => import('./my-view-report/my-view-report.module').then((m) => m.MyViewReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'my_view_report_beta',
+    loadChildren: () => import('./my-view-report/my-view-report-v2.module').then((m) => m.MyViewReportV2PageModule),
   },
   {
     path: 'help',
@@ -50,6 +62,12 @@ const routes: Routes = [
   {
     path: 'view_team_report',
     loadChildren: () => import('./view-team-report/view-team-report.module').then((m) => m.ViewTeamReportPageModule),
+    canActivate: [BetaPageFeatureFlagGuard],
+  },
+  {
+    path: 'view_team_report_beta',
+    loadChildren: () =>
+      import('./view-team-report/view-team-report-v2.module').then((m) => m.ViewTeamReportPageV2Module),
   },
   {
     path: 'my_view_advance',
@@ -64,7 +82,7 @@ const routes: Routes = [
     path: 'view_team_advance',
     loadChildren: () =>
       import('./view-team-advance-request/view-team-advance-request.module').then(
-        (m) => m.ViewTeamAdvanceRequestPageModule,
+        (m) => m.ViewTeamAdvanceRequestPageModule
       ),
   },
   {
@@ -87,7 +105,7 @@ const routes: Routes = [
     path: 'add_edit_advance_request',
     loadChildren: () =>
       import('./add-edit-advance-request/add-edit-advance-request.module').then(
-        (m) => m.AddEditAdvanceRequestPageModule,
+        (m) => m.AddEditAdvanceRequestPageModule
       ),
   },
   {
@@ -102,7 +120,7 @@ const routes: Routes = [
     path: 'personal_cards_matched_expenses',
     loadChildren: () =>
       import('./personal-cards-matched-expenses/personal-cards-matched-expenses.module').then(
-        (m) => m.PersonalCardsMatchedExpensesPageModule,
+        (m) => m.PersonalCardsMatchedExpensesPageModule
       ),
   },
   {
@@ -134,6 +152,10 @@ const routes: Routes = [
     path: 'manage_corporate_cards',
     loadChildren: () =>
       import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
+  },
+  {
+    path: 'my-expenses',
+    loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
   },
 ];
 

@@ -25,7 +25,9 @@ export class OrgSettingsService {
     cacheBusterObserver: orgSettingsCacheBuster$,
   })
   get(): Observable<OrgSettings> {
-    return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
+    return this.apiService
+      .get('/org/settings')
+      .pipe(map((incoming: OrgSettingsResponse) => this.processIncoming(incoming)));
   }
 
   @CacheBuster({
@@ -34,6 +36,15 @@ export class OrgSettingsService {
   post(settings: OrgSettings): Observable<OrgSettingsResponse> {
     const data = this.processOutgoing(settings);
     return this.apiService.post('/org/settings', data);
+  }
+
+  isBetaPageEnabledForPath(currentPath: string): Observable<boolean> {
+    const pathSettingsFlagMap = {
+      my_view_report: 'mobile_app_view_report_beta_enabled',
+      view_team_report: 'mobile_app_view_report_beta_enabled',
+    };
+    const featureFlag = pathSettingsFlagMap[currentPath] as string;
+    return this.get().pipe(map((orgSettings: OrgSettings) => orgSettings[featureFlag] as boolean));
   }
 
   getIncomingAccountingObject(incomingAccountExport: AccountingExportSettings): IncomingAccountObject {
@@ -393,10 +404,12 @@ export class OrgSettingsService {
         allowed: incoming?.simplified_report_closure_settings?.allowed,
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
+      mobile_app_view_report_beta_enabled: incoming.mobile_app_view_report_beta_enabled,
+      mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
-      const settings = orgSettings[settingsType];
+      const settings = orgSettings[settingsType] as Record<string, Record<string, boolean> | boolean>;
       const isSettingsAnObject = typeof settings === 'object';
       if (settings && isSettingsAnObject && settings.hasOwnProperty('allowed') && settings.hasOwnProperty('enabled')) {
         settings.enabled = settings.allowed && settings.enabled;
@@ -539,6 +552,7 @@ export class OrgSettingsService {
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
       simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
+      mobile_app_my_expenses_beta_enabled: outgoing?.mobile_app_my_expenses_beta_enabled,
     };
   }
 }

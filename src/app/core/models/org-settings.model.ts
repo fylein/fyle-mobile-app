@@ -354,6 +354,7 @@ export interface OrgSettingsResponse {
   enable_advances?: boolean;
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
+  mobile_app_view_report_beta_enabled?: boolean;
 
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
@@ -442,6 +443,7 @@ export interface OrgSettingsResponse {
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
 }
 
 export interface UiPolicySettings {
@@ -551,4 +553,6 @@ export interface OrgSettings {
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_view_report_beta_enabled?: boolean;
+  mobile_app_my_expenses_beta_enabled?: boolean;
 }

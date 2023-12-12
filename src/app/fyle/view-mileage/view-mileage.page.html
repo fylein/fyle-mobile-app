@@ -17,7 +17,7 @@
     </ion-title>
     <ion-buttons class="view-mileage--header-btn-container" slot="end">
       <ion-button class="view-mileage--header-btn-container__btn" (click)="openCommentsModal()">
-        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
       <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
@@ -27,7 +27,7 @@
             (click)="flagUnflagExpense(expense.is_manually_flagged)"
             [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
           >
-            <ion-icon [src]="'../../../assets/svg/fy-flag-2.svg'" slot="icon-only"></ion-icon>
+            <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
           </ion-button>
         </ng-container>
       </ng-container>
@@ -125,7 +125,10 @@
         <ion-row>
           <ion-col class="view-mileage--icon-container">
             <div class="view-mileage--icon-container__background">
-              <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/return-home.svg"></ion-icon>
+              <ion-icon
+                class="view-mileage--icon-container__icon"
+                src="../../../assets/svg/house-filled-arrow-clockwise.svg"
+              ></ion-icon>
             </div>
           </ion-col>
           <ion-col class="view-mileage--content-container">
@@ -156,7 +159,7 @@
       <ion-row>
         <ion-col class="view-mileage--icon-container">
           <div class="view-mileage--icon-container__background">
-            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/profile.svg"></ion-icon>
+            <ion-icon class="view-mileage--icon-container__icon" src="../../../assets/svg/user-one.svg"></ion-icon>
           </div>
         </ion-col>
         <ion-col class="view-mileage--content-container">

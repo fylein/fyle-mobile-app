@@ -1,0 +1,29 @@
+<div class="share-report">
+  <div class="share-report--header">
+    <div class="share-report--title">Share Report</div>
+    <div class="share-report--cancel" (click)="cancel()">Cancel</div>
+  </div>
+
+  <div class="share-report--details">Share report via email.</div>
+  <div class="share-report--form">
+    <mat-form-field appearance="outline" class="share-report--form-input mat-form-field-no-padding">
+      <input
+        class="smartlook-show"
+        matInput
+        type="email"
+        placeholder="Enter email"
+        [(ngModel)]="email"
+        email
+        #emailInput="ngModel"
+      />
+    </mat-form-field>
+  </div>
+  <div class="share-report--validation" *ngIf="emailInput.touched && emailInput.invalid">
+    Please enter a valid email
+  </div>
+  <div class="share-report--primary-cta">
+    <button [disabled]="email.trim().length === 0" mat-flat-button color="primary" (click)="shareReport(emailInput)">
+      PULL BACK
+    </button>
+  </div>
+</div>

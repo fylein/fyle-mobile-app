@@ -1,7 +1,6 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import {
   AccountingExportSettings,
-  EmailEvents,
   IncomingAccountObject,
   OrgSettings,
   OrgSettingsResponse,
@@ -39,6 +38,7 @@ export const orgSettingsGetData: OrgSettings = {
     electric_car_distance_limit: null,
     enable_individual_mileage_rates: true,
   },
+  mobile_app_view_report_beta_enabled: true,
   advances: {
     allowed: true,
     enabled: true,
@@ -432,6 +432,7 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: false,
     enabled: false,
   },
+  mobile_app_my_expenses_beta_enabled: false,
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -440,6 +441,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
   },
+  mobile_app_view_report_beta_enabled: true,
   advanced_project_settings: {
     allowed: true,
     enabled: true,
@@ -855,6 +857,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: false,
     enabled: false,
   },
+  mobile_app_my_expenses_beta_enabled: false,
 };
 
 export const outgoingTallyAccountObj: AccountingExportSettings = {

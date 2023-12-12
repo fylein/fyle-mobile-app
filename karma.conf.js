@@ -9,10 +9,10 @@ module.exports = function (config) {
       require('karma-jasmine-html-reporter'),
       require('karma-coverage'), // NEWLY ADDED
       // ORIGINALLY HERE NOW REMOVED require('karma-coverage-istanbul-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma')
+      require('@angular-devkit/build-angular/plugins/karma'),
     ],
     client: {
-      clearContext: false // leave Jasmine Spec Runner output visible in browser
+      clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
     reporters: ['progress', 'kjhtml', 'coverage'],
     // coverageIstanbulReporter NO LONGER HERE
@@ -25,12 +25,8 @@ module.exports = function (config) {
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage'),
       subdir: '.',
-      reporters: [
-        { type: 'html' },
-        { type: 'lcov' },
-        { type: 'json-summary' }
-      ],
-      fixWebpackSourcePaths: true
+      reporters: [{ type: 'html' }, { type: 'lcov' }, { type: 'json-summary' }],
+      fixWebpackSourcePaths: true,
     },
     // THE FOLLOWING REMAINED AS IS
     port: 9876,
@@ -39,6 +35,6 @@ module.exports = function (config) {
     autoWatch: true,
     browsers: ['Chrome'],
     singleRun: false,
-    restartOnFileChange: true
+    restartOnFileChange: true,
   });
 };
