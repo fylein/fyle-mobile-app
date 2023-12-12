@@ -3,7 +3,7 @@ name: Appflow Release Branch
 on:
   push:
     branches: 
-      - mobile_release_.*
+      - mobile_release_*
 
 jobs:
   build-app:
