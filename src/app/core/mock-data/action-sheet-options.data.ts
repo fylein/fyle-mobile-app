@@ -23,7 +23,7 @@ export const actionSheetOptionsData = [
 export const expectedActionSheetButtonRes = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -35,7 +35,7 @@ export const expectedActionSheetButtonRes = [
   },
   {
     text: 'Add Mileage',
-    icon: 'assets/svg/fy-mileage.svg',
+    icon: 'assets/svg/mileage.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -50,7 +50,7 @@ export const expectedActionSheetButtonRes = [
 export const expectedActionSheetButtonsWithMileage = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -62,7 +62,7 @@ export const expectedActionSheetButtonsWithMileage = [
   },
   {
     text: 'Add Mileage',
-    icon: 'assets/svg/fy-mileage.svg',
+    icon: 'assets/svg/mileage.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -71,7 +71,7 @@ export const expectedActionSheetButtonsWithMileage = [
 export const expectedActionSheetButtonsWithPerDiem = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },

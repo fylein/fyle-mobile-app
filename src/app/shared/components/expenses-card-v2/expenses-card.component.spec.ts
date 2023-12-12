@@ -219,12 +219,12 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('getReceipt', () => {
-    it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+    it('should set the receipt icon to mileage when the fyle catergory is mileage', () => {
       component.expense = cloneDeep(expenseData);
       component.expense.category.name = 'mileage';
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
     it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {

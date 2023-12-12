@@ -163,7 +163,7 @@ export class ExpensesCardComponent implements OnInit {
 
   getReceipt(): void {
     if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
-      this.receiptIcon = 'assets/svg/fy-mileage.svg';
+      this.receiptIcon = 'assets/svg/mileage.svg';
     } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
