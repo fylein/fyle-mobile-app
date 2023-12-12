@@ -201,12 +201,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     this.systemCategories = this.categoriesService.getSystemCategories();
 
-    expenses$
-      .pipe(switchMap((expenses) => this.mergeExpensesService.generateReceiptOptions(expenses)))
-      .subscribe((receiptOptions) => {
-        this.receiptOptions = receiptOptions;
-      });
-
     this.amountOptionsData$ = expenses$.pipe(
       switchMap((expenses) => this.mergeExpensesService.generateAmountOptions(expenses))
     );
@@ -319,6 +313,12 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       switchMap((expenses) => this.mergeExpensesService.getCustomInputValues(expenses)),
       map((customProps) => (customProperties = customProps))
     );
+
+    expenses$
+      .pipe(switchMap((expenses) => this.mergeExpensesService.generateReceiptOptions(expenses)))
+      .subscribe((receiptOptions) => {
+        this.receiptOptions = receiptOptions;
+      });
 
     expenses$.subscribe((expenses) => (this.expenses = expenses));
 
