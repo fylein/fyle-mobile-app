@@ -56,7 +56,7 @@ describe('PopupWithBulletsComponent', () => {
     component.listHeader = 'Now you can:';
     component.listItems = [
       {
-        icon: 'message',
+        icon: 'envelope',
         text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
         textToCopy: '(302) 440-2921',
       },

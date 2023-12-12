@@ -577,7 +577,7 @@ describe('ExpensesCardComponent', () => {
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash');
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
@@ -587,7 +587,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     });
   });
 

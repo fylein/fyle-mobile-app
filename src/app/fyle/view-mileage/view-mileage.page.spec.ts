@@ -567,7 +567,7 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(mockMileageExpense);
         expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid from Advance');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
         done();
       });
     });
@@ -585,7 +585,7 @@ describe('ViewMileagePage', () => {
         expect(data).toEqual(mockMileageExpense);
         expect(component.reportId).toEqual(mockMileageExpense.report_id);
         expect(component.paymentMode).toEqual('Paid by Company');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
         done();
       });
     });
@@ -595,7 +595,7 @@ describe('ViewMileagePage', () => {
       component.mileageExpense$.subscribe((data) => {
         expect(data).toEqual(mileageExpense);
         expect(component.paymentMode).toEqual('Paid by Employee');
-        expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash');
         done();
       });
     });

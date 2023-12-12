@@ -320,9 +320,9 @@ export class ExpensesCardComponent implements OnInit {
       }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       } else {
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       }
     }
   }

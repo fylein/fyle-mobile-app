@@ -326,9 +326,9 @@ export class ExpensesCardComponent implements OnInit {
       }
     } else {
       if (this.expense?.is_reimbursable) {
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       } else {
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       }
     }
   }

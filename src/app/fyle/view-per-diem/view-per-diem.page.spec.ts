@@ -385,7 +385,7 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid from Advance');
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     }));
 
     it('should set paymentMode and paymentMode icon correctly if tx_skip_reimbursement is true', fakeAsync(() => {
@@ -396,14 +396,14 @@ describe('ViewPerDiemPage', () => {
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid by Company');
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     }));
 
     it('should set paymentMode and paymentMode icon correctly if no condition matches', fakeAsync(() => {
       component.ionViewWillEnter();
       tick(100);
       expect(component.paymentMode).toEqual('Paid by Employee');
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash');
     }));
 
     it('should set projectFieldName and isProjectShown correctly', fakeAsync(() => {
