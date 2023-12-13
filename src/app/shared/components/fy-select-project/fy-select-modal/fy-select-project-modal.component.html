@@ -21,12 +21,7 @@
         placeholder="Search"
         [(ngModel)]="value"
       />
-      <mat-icon
-        *ngIf="isLoading"
-        class="selection-modal--autocomplete-loader"
-        svgIcon="fy-spinner-circle"
-        matSuffix
-      ></mat-icon>
+      <mat-icon *ngIf="isLoading" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix></mat-icon>
       <button
         (click)="clearValue()"
         class="selection-modal--clear-button"

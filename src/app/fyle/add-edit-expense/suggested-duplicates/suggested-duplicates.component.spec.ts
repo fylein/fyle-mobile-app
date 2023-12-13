@@ -82,11 +82,15 @@ describe('SuggestedDuplicatesComponent', () => {
 
     component.ionViewWillEnter();
 
+    const queryParams = {
+      id: 'in.(txDDLtRaflUW,tx5WDG9lxBDT)',
+    };
+
     expect(component.duplicateExpenses).toEqual(apiExpenses1);
     expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({
       offset: 0,
       limit: 10,
-      queryParams: { id: 'in.(txDDLtRaflUW,tx5WDG9lxBDT)' },
+      ...queryParams,
     });
   });
 

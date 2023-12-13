@@ -112,7 +112,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('deleted') > -1:
         statusCategory = {
           category: 'Receipt Removed',
-          icon: 'no-attachment',
+          icon: 'attachment-none',
         };
         break;
       case lowerCaseComment.indexOf('removed from the report') > -1:
