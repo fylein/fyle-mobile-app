@@ -383,7 +383,7 @@ describe('StatsComponent', () => {
       component.redirectToNewPage$ = of(true);
       component.goToExpensesPage('COMPLETE');
 
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
         queryParams: {
           filters: JSON.stringify({ state: ['READY_TO_REPORT'] }),
         },
@@ -395,7 +395,7 @@ describe('StatsComponent', () => {
       component.redirectToNewPage$ = of(true);
       component.goToExpensesPage('INCOMPLETE');
 
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
         queryParams: {
           filters: JSON.stringify({ state: ['DRAFT'] }),
         },
