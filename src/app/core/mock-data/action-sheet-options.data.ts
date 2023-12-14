@@ -24,7 +24,7 @@ export const expectedActionSheetButtonRes = [
   {
     text: 'Capture Receipt',
     icon: 'assets/svg/camera.svg',
-    cssClass: 'capture-receipt',
+    cssClass: 'camera',
     handler: undefined,
   },
   {
@@ -36,7 +36,7 @@ export const expectedActionSheetButtonRes = [
   {
     text: 'Add Mileage',
     icon: 'assets/svg/mileage.svg',
-    cssClass: 'capture-receipt',
+    cssClass: 'mileage',
     handler: undefined,
   },
   {
