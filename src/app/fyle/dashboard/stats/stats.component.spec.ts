@@ -356,6 +356,7 @@ describe('StatsComponent', () => {
 
   describe('goToExpensesPage():', () => {
     it('goToExpensesPage(): should navigate to expenses page with query params', () => {
+      component.redirectToNewPage$ = of(false);
       component.goToExpensesPage('COMPLETE');
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
@@ -367,6 +368,31 @@ describe('StatsComponent', () => {
     });
 
     it('goToExpensesPage(): should navigate to expenses page with query params', () => {
+      component.redirectToNewPage$ = of(false);
+      component.goToExpensesPage('INCOMPLETE');
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['DRAFT'] }),
+        },
+      });
+      expect(trackingService.dashboardOnIncompleteExpensesClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('goToExpensesPage(): should navigate to v2 expenses page with query params', () => {
+      component.redirectToNewPage$ = of(true);
+      component.goToExpensesPage('COMPLETE');
+
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+        queryParams: {
+          filters: JSON.stringify({ state: ['READY_TO_REPORT'] }),
+        },
+      });
+      expect(trackingService.dashboardOnUnreportedExpensesClick).toHaveBeenCalledTimes(1);
+    });
+
+    it('goToExpensesPage(): should navigate to v2 expenses page with query params', () => {
+      component.redirectToNewPage$ = of(true);
       component.goToExpensesPage('INCOMPLETE');
 
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
