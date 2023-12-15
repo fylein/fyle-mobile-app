@@ -1,6 +1,6 @@
 import { AsyncPipe, CurrencyPipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { ComponentFixture, TestBed, fakeAsync, flushMicrotasks, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -498,7 +498,6 @@ describe('MyViewReportPageV2', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
-      flushMicrotasks();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -525,7 +524,6 @@ describe('MyViewReportPageV2', () => {
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
-      flushMicrotasks();
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
