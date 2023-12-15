@@ -38,6 +38,9 @@ import {
   verifyMobileNumberTask,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
+import { OrgSettingsService } from './org-settings.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { orgSettingsWoDuplicateDetectionV2 } from '../mock-data/org-settings.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -50,6 +53,8 @@ describe('TasksService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
@@ -70,6 +75,8 @@ describe('TasksService', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getDuplicateSets']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -110,6 +117,14 @@ describe('TasksService', () => {
           provide: CurrencyService,
           useValue: currencyServiceSpy,
         },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -125,6 +140,8 @@ describe('TasksService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });
 
   it('should be created', () => {
@@ -252,6 +269,7 @@ describe('TasksService', () => {
   });
 
   it('should be able to fetch potential duplicate tasks', (done) => {
+    setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
     tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
       expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
@@ -648,6 +666,7 @@ describe('TasksService', () => {
   });
 
   it('should be able to handle null reponse from potential duplicates get call', (done) => {
+    setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(null));
     tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
       expect(tasks).toEqual([]);
@@ -682,6 +701,7 @@ describe('TasksService', () => {
         false
       )
       .and.returnValue(of(teamReportResponse));
+    orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
     transactionService.getTransactionStats
       .withArgs('count(tx_id),sum(tx_amount)', {

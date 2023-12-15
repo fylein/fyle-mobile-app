@@ -550,24 +550,28 @@ export class TasksService {
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {
-    const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);
+    if (duplicateSets.length > 0) {
+      const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);
 
-    const task = [
-      {
-        hideAmount: true,
-        count: duplicateSets.length,
-        header: `${duplicateIds.length} Potential Duplicates`,
-        subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
-        icon: TaskIcon.WARNING,
-        ctas: [
-          {
-            content: 'Review',
-            event: TASKEVENT.openPotentialDuplicates,
-          },
-        ],
-      } as DashboardTask,
-    ];
-    return task;
+      const task = [
+        {
+          hideAmount: true,
+          count: duplicateSets.length,
+          header: `${duplicateIds.length} Potential Duplicates`,
+          subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
+          icon: TaskIcon.WARNING,
+          ctas: [
+            {
+              content: 'Review',
+              event: TASKEVENT.openPotentialDuplicates,
+            },
+          ],
+        } as DashboardTask,
+      ];
+      return task;
+    } else {
+      return [];
+    }
   }
 
   getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
