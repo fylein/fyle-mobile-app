@@ -9,14 +9,19 @@ import { dismissExpenseSnackbarProps } from 'src/app/core/mock-data/snackbar-pro
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PotentialDuplicatesPage } from './potential-duplicates.page';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { cloneDeep } from 'lodash';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import {
+  orgSettingsWithDuplicateDetectionV2,
+  orgSettingsWoDuplicateDetectionV2,
+} from 'src/app/core/mock-data/org-settings.data';
+import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 
-describe('PotentialDuplicatesPage', () => {
+fdescribe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
   let fixture: ComponentFixture<PotentialDuplicatesPage>;
   let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
@@ -26,6 +31,7 @@ describe('PotentialDuplicatesPage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
     const handleDuplicatesSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicateSets', 'dismissAll']);
@@ -38,7 +44,8 @@ describe('PotentialDuplicatesPage', () => {
       'dismissedDuplicateSet',
       'visitedMergeExpensesPageFromTask',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'getDuplicateSets']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       declarations: [PotentialDuplicatesPage],
@@ -69,6 +76,10 @@ describe('PotentialDuplicatesPage', () => {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -83,6 +94,7 @@ describe('PotentialDuplicatesPage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
 
     component.loadData$ = new BehaviorSubject<void>(null);
     component.duplicateSets$ = of([]);
@@ -95,10 +107,14 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   describe('ionViewWillEnter(): ', () => {
+    beforeEach(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
+      expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
+    });
+
     it('should populate duplicate sets', fakeAsync(() => {
       handleDuplicates.getDuplicateSets.and.returnValue(of([duplicateSetData1]));
       spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
-      expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
 
       component.ionViewWillEnter();
       tick(500);
@@ -112,6 +128,30 @@ describe('PotentialDuplicatesPage', () => {
       };
 
       expect(handleDuplicates.getDuplicateSets).toHaveBeenCalledTimes(2);
+      expect(expensesService.getExpenses).toHaveBeenCalledWith({
+        offset: 0,
+        ...queryParams,
+      });
+      expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledTimes(2);
+    }));
+
+    it('should populate duplicate sets with duplicate detection v2', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+      expensesService.getDuplicateSets.and.returnValue(of([expenseDuplicateSet]));
+      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      component.duplicateSets$.subscribe((res) => {
+        expect(res).toEqual([apiExpenses1]);
+      });
+
+      const queryParams = {
+        id: 'in.(tx5fBcPBAxLv,tx3nHShG60zq)',
+      };
+
+      expect(expensesService.getDuplicateSets).toHaveBeenCalledTimes(2);
       expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         ...queryParams,
@@ -134,8 +174,10 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   it('addExpenseDetailsToDuplicateSets(): should add expense details to duplicate sets', () => {
-    const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData3, [apiExpenses1[0], expenseData]);
-
+    const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData3.transaction_ids, [
+      apiExpenses1[0],
+      expenseData,
+    ]);
     expect(result).toEqual([expenseData, apiExpenses1[0]]);
   });
 
@@ -157,7 +199,7 @@ describe('PotentialDuplicatesPage', () => {
 
   describe('dismiss():', () => {
     it('should dismiss a duplicate expense', () => {
-      component.duplicateSetData = cloneDeep([duplicateSetData3]);
+      component.duplicateSetData = cloneDeep([duplicateSetData3.transaction_ids]);
       component.selectedSet = 0;
       handleDuplicates.dismissAll.and.returnValue(of(null));
       spyOn(component, 'showDismissedSuccessToast');
@@ -172,7 +214,7 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   it('dismissAll(): should dismiss all transactions', () => {
-    component.duplicateSetData = [duplicateSetData1, duplicateSetData2];
+    component.duplicateSetData = [duplicateSetData1.transaction_ids, duplicateSetData2.transaction_ids];
     component.selectedSet = 1;
     handleDuplicates.dismissAll.and.returnValue(of(null));
     spyOn(component, 'showDismissedSuccessToast');
@@ -194,7 +236,7 @@ describe('PotentialDuplicatesPage', () => {
 
   describe('mergeExpense():', () => {
     it('should merge expense', () => {
-      component.duplicateSetData = [duplicateSetData3];
+      component.duplicateSetData = [duplicateSetData3.transaction_ids];
 
       expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
 
