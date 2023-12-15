@@ -21,7 +21,7 @@ import {
 } from 'src/app/core/mock-data/org-settings.data';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 
-fdescribe('PotentialDuplicatesPage', () => {
+describe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
   let fixture: ComponentFixture<PotentialDuplicatesPage>;
   let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
