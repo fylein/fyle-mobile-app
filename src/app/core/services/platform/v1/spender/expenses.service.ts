@@ -7,6 +7,10 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import {
+  ExpenseDuplicateSets,
+  ExpenseDuplicateSetsResponse,
+} from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 
 @Injectable({
   providedIn: 'root',
@@ -75,5 +79,15 @@ export class ExpensesService {
     return this.spenderService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
+  }
+
+  getDuplicateSets(params: ExpensesQueryParams): Observable<ExpenseDuplicateSets> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicates/sets', { params })
+      .pipe(map((response) => response.data));
+  }
+
+  dismissDuplicates(): Observable<void> {
+    return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk');
   }
 }
