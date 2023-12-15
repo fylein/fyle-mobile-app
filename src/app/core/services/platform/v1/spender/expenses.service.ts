@@ -86,8 +86,4 @@ export class ExpensesService {
       .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
       .pipe(map((response) => response.data));
   }
-
-  dismissDuplicates(): Observable<void> {
-    return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk');
-  }
 }

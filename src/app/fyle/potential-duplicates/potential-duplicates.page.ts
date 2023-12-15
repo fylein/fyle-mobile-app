@@ -4,12 +4,12 @@ import { Params, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type Expenses = Expense[];
 
@@ -25,7 +25,7 @@ export class PotentialDuplicatesPage {
 
   selectedSet = 0;
 
-  duplicateSetData: DuplicateSet[];
+  duplicateSetData: string[][];
 
   duplicateExpenses: Expenses[];
 
@@ -37,7 +37,8 @@ export class PotentialDuplicatesPage {
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ionViewWillEnter(): void {
@@ -45,7 +46,7 @@ export class PotentialDuplicatesPage {
 
     this.duplicateSets$ = this.loadData$.pipe(
       switchMap(() =>
-        this.handleDuplicates.getDuplicateSets().pipe(
+        this.getDuplicates().pipe(
           tap((duplicateSets) => {
             this.duplicateSetData = duplicateSets;
             if (this.duplicateSetData.length === 0) {
@@ -54,9 +55,7 @@ export class PotentialDuplicatesPage {
             }
           }),
           switchMap((duplicateSets) => {
-            const duplicateIds = duplicateSets
-              .map((value) => value.transaction_ids)
-              .reduce((acc, curVal) => acc.concat(curVal), []);
+            const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);
 
             const queryParams = {
               id: `in.(${duplicateIds.join(',')})`,
@@ -87,8 +86,33 @@ export class PotentialDuplicatesPage {
     });
   }
 
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]): Expense[] {
-    return duplicateSet.transaction_ids.map(
+  getDuplicates(): Observable<string[][]> {
+    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
+        )
+      );
+
+    return isDuplicateDetectionV2Enabled$.pipe(
+      switchMap((isDuplicateDetectionV2Enabled) => {
+        if (isDuplicateDetectionV2Enabled) {
+          return this.expensesService
+            .getDuplicateSets()
+            .pipe(map((duplicateSets) => duplicateSets.map((value) => value.expense_ids)));
+        } else {
+          return this.handleDuplicates
+            .getDuplicateSets()
+            .pipe(map((duplicateSets) => duplicateSets.map((value) => value.transaction_ids)));
+        }
+      })
+    );
+  }
+
+  addExpenseDetailsToDuplicateSets(duplicateSet: string[], expensesArray: Expense[]): Expense[] {
+    return duplicateSet.map(
       (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.id)]
     );
   }
@@ -103,13 +127,13 @@ export class PotentialDuplicatesPage {
 
   dismiss(expense: Expense): void {
     const transactionIds = [expense.id];
-    const duplicateTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
+    const duplicateTxnIds = this.duplicateSetData[this.selectedSet];
     this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
-      this.duplicateSetData[this.selectedSet].transaction_ids = this.duplicateSetData[
-        this.selectedSet
-      ].transaction_ids.filter((expId) => expId !== expense.id);
+      this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
+        (expId) => expId !== expense.id
+      );
       this.duplicateExpenses[this.selectedSet] = this.duplicateExpenses[this.selectedSet].filter(
         (exp) => exp.id !== expense.id
       );
@@ -117,7 +141,7 @@ export class PotentialDuplicatesPage {
   }
 
   dismissAll(): void {
-    const txnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
+    const txnIds = this.duplicateSetData[this.selectedSet];
     this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
@@ -132,7 +156,7 @@ export class PotentialDuplicatesPage {
   }
 
   mergeExpense(): void {
-    const selectedTxnIds = this.duplicateSetData[this.selectedSet].transaction_ids;
+    const selectedTxnIds = this.duplicateSetData[this.selectedSet];
 
     const queryParams = {
       id: `in.(${selectedTxnIds.join(',')})`,
