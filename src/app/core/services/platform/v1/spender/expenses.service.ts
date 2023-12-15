@@ -8,7 +8,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
 import {
-  ExpenseDuplicateSets,
+  ExpenseDuplicateSet,
   ExpenseDuplicateSetsResponse,
 } from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 
@@ -81,9 +81,9 @@ export class ExpensesService {
       .pipe(map((expenses) => expenses.data));
   }
 
-  getDuplicateSets(params: ExpensesQueryParams): Observable<ExpenseDuplicateSets> {
+  getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
     return this.spenderService
-      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicates/sets', { params })
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
       .pipe(map((response) => response.data));
   }
 

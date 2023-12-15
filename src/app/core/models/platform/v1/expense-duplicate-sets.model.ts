@@ -1,7 +1,7 @@
 export interface ExpenseDuplicateSetsResponse {
-  data: ExpenseDuplicateSets;
+  data: ExpenseDuplicateSet[];
 }
 
-export interface ExpenseDuplicateSets {
+export interface ExpenseDuplicateSet {
   expense_ids: string[];
 }
