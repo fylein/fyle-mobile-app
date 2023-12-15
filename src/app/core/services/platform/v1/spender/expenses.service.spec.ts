@@ -7,10 +7,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
-import {
-  expenseDuplicateSet,
-  expenseDuplicateSets,
-} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { expenseDuplicateSets } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
