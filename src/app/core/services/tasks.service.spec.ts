@@ -40,7 +40,8 @@ import {
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { orgSettingsWoDuplicateDetectionV2 } from '../mock-data/org-settings.data';
+import { orgSettingsWithDuplicateDetectionV2, orgSettingsWoDuplicateDetectionV2 } from '../mock-data/org-settings.data';
+import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -271,6 +272,16 @@ describe('TasksService', () => {
   it('should be able to fetch potential duplicate tasks', (done) => {
     setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
+    tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
+      expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to fetch potential duplicate tasks when duplicate detection v2 is enabled', (done) => {
+    setupData();
+    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+    expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
       expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
       done();
@@ -668,6 +679,16 @@ describe('TasksService', () => {
   it('should be able to handle null reponse from potential duplicates get call', (done) => {
     setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(null));
+    tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
+      expect(tasks).toEqual([]);
+      done();
+    });
+  });
+
+  it('should be able to handle null response from duplicate detection v2 duplicates sets call', (done) => {
+    setupData();
+    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+    expensesService.getDuplicateSets.and.returnValue(of(null));
     tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
       expect(tasks).toEqual([]);
       done();
