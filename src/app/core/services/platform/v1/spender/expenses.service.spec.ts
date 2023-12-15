@@ -7,6 +7,10 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import {
+  expenseDuplicateSet,
+  expenseDuplicateSets,
+} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -136,6 +140,17 @@ describe('ExpensesService', () => {
         offset: 0,
         limit: 2,
       });
+      done();
+    });
+  });
+
+  it('getDuplicateSets(): should return expense duplicate sets', (done) => {
+    spenderService.get.and.returnValue(of({ data: expenseDuplicateSets }));
+
+    service.getDuplicateSets().subscribe((response) => {
+      expect(response).toEqual(expenseDuplicateSets);
+
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets');
       done();
     });
   });
