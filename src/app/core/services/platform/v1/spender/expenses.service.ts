@@ -87,9 +87,9 @@ export class ExpensesService {
       .pipe(map((response) => response.data));
   }
 
-  dismissDuplicates(duplicateExpenseIds: string[], sourceExpenseIds: string[]): Observable<void> {
-    const payload = sourceExpenseIds.map((sourceExpenseId) => ({
-      id: sourceExpenseId,
+  dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
+    const payload = targetExpenseIds.map((targetExpenseId) => ({
+      id: targetExpenseId,
       duplicate_expense_ids: duplicateExpenseIds,
     }));
 

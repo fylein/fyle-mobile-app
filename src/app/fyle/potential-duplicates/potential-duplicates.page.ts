@@ -127,13 +127,13 @@ export class PotentialDuplicatesPage {
     this.selectedSet--;
   }
 
-  dismissDuplicates(sourceExpenseIds: string[], duplicateExpenseIds: string[]): Observable<void> {
+  dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
     return this.isDuplicateDetectionV2Enabled$.pipe(
       switchMap((isDuplicateDetectionV2Enabled) => {
         if (isDuplicateDetectionV2Enabled) {
-          return this.expensesService.dismissDuplicates(duplicateExpenseIds, sourceExpenseIds);
+          return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
         } else {
-          return this.handleDuplicates.dismissAll(duplicateExpenseIds, sourceExpenseIds);
+          return this.handleDuplicates.dismissAll(duplicateExpenseIds, targetExpenseIds);
         }
       })
     );
@@ -143,7 +143,7 @@ export class PotentialDuplicatesPage {
     const transactionIds = [expense.id];
     const duplicateTxnIds = this.duplicateSetData[this.selectedSet];
 
-    this.dismissDuplicates(transactionIds, duplicateTxnIds).subscribe(() => {
+    this.dismissDuplicates(duplicateTxnIds, transactionIds).subscribe(() => {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(

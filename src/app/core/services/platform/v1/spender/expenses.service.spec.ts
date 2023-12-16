@@ -156,9 +156,9 @@ describe('ExpensesService', () => {
     spenderService.post.and.returnValue(of({}));
 
     const duplicateExpenseIds = ['tx1234', 'tx2345'];
-    const sourceExpenseIds = ['tx1234', 'tx2345'];
+    const targetExpenseIds = ['tx1234', 'tx2345'];
 
-    service.dismissDuplicates(duplicateExpenseIds, sourceExpenseIds).subscribe(() => {
+    service.dismissDuplicates(duplicateExpenseIds, targetExpenseIds).subscribe(() => {
       expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/dismiss_duplicates/bulk', {
         data: [
           {
