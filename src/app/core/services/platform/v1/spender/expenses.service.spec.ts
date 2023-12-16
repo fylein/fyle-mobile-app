@@ -151,4 +151,27 @@ describe('ExpensesService', () => {
       done();
     });
   });
+
+  it('dismissDuplicates(): should dismiss duplicate expenses', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const duplicateExpenseIds = ['tx1234', 'tx2345'];
+    const sourceExpenseIds = ['tx1234', 'tx2345'];
+
+    service.dismissDuplicates(duplicateExpenseIds, sourceExpenseIds).subscribe(() => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/dismiss_duplicates/bulk', {
+        data: [
+          {
+            id: 'tx1234',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+          {
+            id: 'tx2345',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+        ],
+      });
+      done();
+    });
+  });
 });

@@ -31,6 +31,8 @@ export class PotentialDuplicatesPage {
 
   isLoading = true;
 
+  isDuplicateDetectionV2Enabled$: Observable<boolean>;
+
   constructor(
     private handleDuplicates: HandleDuplicatesService,
     private expensesService: ExpensesService,
@@ -42,6 +44,15 @@ export class PotentialDuplicatesPage {
   ) {}
 
   ionViewWillEnter(): void {
+    this.isDuplicateDetectionV2Enabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
+        )
+      );
+
     this.selectedSet = 0;
 
     this.duplicateSets$ = this.loadData$.pipe(
@@ -87,16 +98,7 @@ export class PotentialDuplicatesPage {
   }
 
   getDuplicates(): Observable<string[][]> {
-    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
-        )
-      );
-
-    return isDuplicateDetectionV2Enabled$.pipe(
+    return this.isDuplicateDetectionV2Enabled$.pipe(
       switchMap((isDuplicateDetectionV2Enabled) => {
         if (isDuplicateDetectionV2Enabled) {
           return this.expensesService
@@ -125,10 +127,23 @@ export class PotentialDuplicatesPage {
     this.selectedSet--;
   }
 
+  dismissDuplicates(sourceExpenseIds: string[], duplicateExpenseIds: string[]): Observable<void> {
+    return this.isDuplicateDetectionV2Enabled$.pipe(
+      switchMap((isDuplicateDetectionV2Enabled) => {
+        if (isDuplicateDetectionV2Enabled) {
+          return this.expensesService.dismissDuplicates(duplicateExpenseIds, sourceExpenseIds);
+        } else {
+          return this.handleDuplicates.dismissAll(duplicateExpenseIds, sourceExpenseIds);
+        }
+      })
+    );
+  }
+
   dismiss(expense: Expense): void {
     const transactionIds = [expense.id];
     const duplicateTxnIds = this.duplicateSetData[this.selectedSet];
-    this.handleDuplicates.dismissAll(duplicateTxnIds, transactionIds).subscribe(() => {
+
+    this.dismissDuplicates(transactionIds, duplicateTxnIds).subscribe(() => {
       this.trackingService.dismissedIndividualExpenses();
       this.showDismissedSuccessToast();
       this.duplicateSetData[this.selectedSet] = this.duplicateSetData[this.selectedSet].filter(
@@ -142,7 +157,7 @@ export class PotentialDuplicatesPage {
 
   dismissAll(): void {
     const txnIds = this.duplicateSetData[this.selectedSet];
-    this.handleDuplicates.dismissAll(txnIds, txnIds).subscribe(() => {
+    this.dismissDuplicates(txnIds, txnIds).subscribe(() => {
       if (this.selectedSet !== 0) {
         this.selectedSet--;
       }
