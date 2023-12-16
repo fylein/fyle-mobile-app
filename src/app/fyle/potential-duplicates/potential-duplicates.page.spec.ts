@@ -4,7 +4,7 @@ import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
-import { duplicateSetData1, duplicateSetData2, duplicateSetData3 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { dismissExpenseSnackbarProps } from 'src/app/core/mock-data/snackbar-properties.data';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -44,7 +44,11 @@ describe('PotentialDuplicatesPage', () => {
       'dismissedDuplicateSet',
       'visitedMergeExpensesPageFromTask',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'getDuplicateSets']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'getExpenses',
+      'getDuplicateSets',
+      'dismissDuplicates',
+    ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
@@ -110,12 +114,12 @@ describe('PotentialDuplicatesPage', () => {
     beforeEach(() => {
       orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
       expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
+      handleDuplicates.getDuplicateSets.and.returnValue(of([duplicateSetData1]));
+      expensesService.getDuplicateSets.and.returnValue(of([expenseDuplicateSet]));
+      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
     });
 
     it('should populate duplicate sets', fakeAsync(() => {
-      handleDuplicates.getDuplicateSets.and.returnValue(of([duplicateSetData1]));
-      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
-
       component.ionViewWillEnter();
       tick(500);
 
@@ -137,8 +141,6 @@ describe('PotentialDuplicatesPage', () => {
 
     it('should populate duplicate sets with duplicate detection v2', fakeAsync(() => {
       orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
-      expensesService.getDuplicateSets.and.returnValue(of([expenseDuplicateSet]));
-      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
 
       component.ionViewWillEnter();
       tick(500);
@@ -174,10 +176,10 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   it('addExpenseDetailsToDuplicateSets(): should add expense details to duplicate sets', () => {
-    const result = component.addExpenseDetailsToDuplicateSets(duplicateSetData3.transaction_ids, [
-      apiExpenses1[0],
-      expenseData,
-    ]);
+    const result = component.addExpenseDetailsToDuplicateSets(
+      ['txcSFe6efB6R', 'txDDLtRaflUW'],
+      [apiExpenses1[0], expenseData]
+    );
     expect(result).toEqual([expenseData, apiExpenses1[0]]);
   });
 
@@ -198,12 +200,17 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   describe('dismiss():', () => {
-    it('should dismiss a duplicate expense', () => {
-      component.duplicateSetData = cloneDeep([duplicateSetData3.transaction_ids]);
+    beforeEach(() => {
+      component.duplicateSetData = cloneDeep([['txcSFe6efB6R', 'txDDLtRaflUW']]);
       component.selectedSet = 0;
-      handleDuplicates.dismissAll.and.returnValue(of(null));
       spyOn(component, 'showDismissedSuccessToast');
       component.duplicateExpenses = [[apiExpenses1[0], expenseData]];
+      expensesService.dismissDuplicates.and.returnValue(of(null));
+      handleDuplicates.dismissAll.and.returnValue(of(null));
+    });
+
+    it('should dismiss a duplicate expense', () => {
+      component.isDuplicateDetectionV2Enabled$ = of(false);
 
       component.dismiss(apiExpenses1[0]);
 
@@ -211,39 +218,77 @@ describe('PotentialDuplicatesPage', () => {
       expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(['txcSFe6efB6R', 'txDDLtRaflUW'], ['txDDLtRaflUW']);
       expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
     });
+
+    it('should dismiss a duplicate expense if duplicate detection v2 is enabled', () => {
+      component.isDuplicateDetectionV2Enabled$ = of(true);
+
+      component.dismiss(apiExpenses1[0]);
+
+      expect(component.duplicateExpenses[0].length).toEqual(1);
+      expect(expensesService.dismissDuplicates).toHaveBeenCalledOnceWith(
+        ['txcSFe6efB6R', 'txDDLtRaflUW'],
+        ['txDDLtRaflUW']
+      );
+      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+    });
   });
 
-  it('dismissAll(): should dismiss all transactions', () => {
-    component.duplicateSetData = [duplicateSetData1.transaction_ids, duplicateSetData2.transaction_ids];
-    component.selectedSet = 1;
-    handleDuplicates.dismissAll.and.returnValue(of(null));
-    spyOn(component, 'showDismissedSuccessToast');
-    spyOn(component.loadData$, 'next');
-    expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
-    component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
+  describe('dismissAll(): ', () => {
+    it('should dismiss all transactions', () => {
+      component.duplicateSetData = [['tx5fBcPBAxLv'], ['tx5fBcPBAxLv', 'tx3nHShG60zq']];
+      component.selectedSet = 1;
+      handleDuplicates.dismissAll.and.returnValue(of(null));
+      spyOn(component, 'showDismissedSuccessToast');
+      spyOn(component.loadData$, 'next');
+      expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
+      component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
+      component.isDuplicateDetectionV2Enabled$ = of(false);
 
-    component.dismissAll();
+      component.dismissAll();
 
-    expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(
-      duplicateSetData2.transaction_ids,
-      duplicateSetData2.transaction_ids
-    );
-    expect(component.selectedSet).toEqual(0);
-    expect(trackingService.dismissedDuplicateSet).toHaveBeenCalledTimes(1);
-    expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
-    expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+      expect(handleDuplicates.dismissAll).toHaveBeenCalledOnceWith(
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
+      );
+      expect(component.selectedSet).toEqual(0);
+      expect(trackingService.dismissedDuplicateSet).toHaveBeenCalledTimes(1);
+      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+    });
+
+    it('should dismiss all transactions if duplicate detection v2 is enabled', () => {
+      component.duplicateSetData = [['tx5fBcPBAxLv'], ['tx5fBcPBAxLv', 'tx3nHShG60zq']];
+      component.selectedSet = 1;
+      expensesService.dismissDuplicates.and.returnValue(of(null));
+      spyOn(component, 'showDismissedSuccessToast');
+      spyOn(component.loadData$, 'next');
+      expensesService.getExpenses.and.returnValue(of([apiExpenses1[0], expenseData]));
+      component.duplicateSets$ = of([[apiExpenses1[0]], [expenseData]]);
+      component.isDuplicateDetectionV2Enabled$ = of(true);
+
+      component.dismissAll();
+
+      expect(expensesService.dismissDuplicates).toHaveBeenCalledOnceWith(
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
+        ['tx5fBcPBAxLv', 'tx3nHShG60zq']
+      );
+      expect(component.selectedSet).toEqual(0);
+      expect(trackingService.dismissedDuplicateSet).toHaveBeenCalledTimes(1);
+      expect(component.showDismissedSuccessToast).toHaveBeenCalledTimes(1);
+      expect(component.loadData$.next).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('mergeExpense():', () => {
     it('should merge expense', () => {
-      component.duplicateSetData = [duplicateSetData3.transaction_ids];
+      component.duplicateSetData = [['txcSFe6efB6R', 'txDDLtRaflUW']];
 
       expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
 
       component.mergeExpense();
 
       const queryParams = {
-        id: `in.(${duplicateSetData3.transaction_ids.join(',')})`,
+        id: `in.(${['txcSFe6efB6R', 'txDDLtRaflUW'].join(',')})`,
       };
 
       expect(expensesService.getExpenses).toHaveBeenCalledOnceWith({

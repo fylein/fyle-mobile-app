@@ -20,8 +20,6 @@ export class SuggestedDuplicatesComponent {
 
   duplicateExpenses: Expense[] = [];
 
-  isDuplicateDetectionV2Enabled$: Observable<boolean>;
-
   constructor(
     private modalController: ModalController,
     private handleDuplicates: HandleDuplicatesService,
@@ -33,15 +31,6 @@ export class SuggestedDuplicatesComponent {
   ) {}
 
   ionViewWillEnter(): void {
-    this.isDuplicateDetectionV2Enabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
-        )
-      );
-
     const txnIds = this.duplicateExpenseIDs.join(',');
     const queryParams = {
       id: `in.(${txnIds})`,
@@ -54,7 +43,16 @@ export class SuggestedDuplicatesComponent {
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
-    return this.isDuplicateDetectionV2Enabled$.pipe(
+    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
+        )
+      );
+
+    return isDuplicateDetectionV2Enabled$.pipe(
       switchMap((isDuplicateDetectionV2Enabled) => {
         if (isDuplicateDetectionV2Enabled) {
           return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
