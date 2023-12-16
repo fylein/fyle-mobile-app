@@ -14,9 +14,6 @@ module.exports = function (config) {
     client: {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
-    parallelOptions: {
-      executors: 4
-    },
     reporters: ['progress', 'kjhtml', 'coverage'],
     // coverageIstanbulReporter NO LONGER HERE
     //coverageIstanbulReporter: {
