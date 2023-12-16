@@ -14,7 +14,7 @@ describe('ExpensesService', () => {
   let spenderService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SpenderService, useValue: spenderServiceSpy },
