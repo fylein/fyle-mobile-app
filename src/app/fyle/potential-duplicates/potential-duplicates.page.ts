@@ -180,7 +180,7 @@ export class PotentialDuplicatesPage {
     });
   }
 
-  goToTransaction({ etxn: expense }: { etxn: Expense }): void {
-    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.id, persist_filters: true }]);
+  goToTransaction(event: { expense: Expense }): void {
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: event.expense.id, persist_filters: true }]);
   }
 }
