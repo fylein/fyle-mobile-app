@@ -75,7 +75,7 @@
     *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list"
     (click)="onRecentItemSelect(filteredListItem.display)"
   >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-recently-used"> </mat-icon>
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
     <div>
       <div class="selection-modal--location-main-text">
         {{ filteredListItem.display }}
