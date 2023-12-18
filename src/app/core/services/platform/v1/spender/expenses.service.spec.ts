@@ -7,6 +7,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import { completeStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -138,5 +139,25 @@ describe('ExpensesService', () => {
       });
       done();
     });
+  });
+
+  it('getExpenseStats(): should get expense stats for unreported stats', (done) => {
+    spenderService.post.and.returnValue(of(completeStats));
+
+    service
+      .getExpenseStats({
+        state: 'in.(COMPLETE)',
+        report_id: 'is.null',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(completeStats);
+        expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/stats', {
+          data: {
+            query_params: 'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
+          },
+        });
+        done();
+      });
   });
 });

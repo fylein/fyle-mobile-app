@@ -12,22 +12,13 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
 import { expectedEmptyReportStats, expectedReportStats } from '../../core/mock-data/report-stats.data';
 import {
-  apiIncompleteParams,
-  apiTxnIncompleteStatsEmptyRes,
-  apiTxnIncompleteStatsRes,
-  apiUnreportedParams,
-} from '../../core/mock-data/stats-dimension-response.data';
-import {
   apiAssignedCardDetailsRes,
   apiReportStatsEmptyRes,
   apiReportStatsRes,
 } from '../../core/mock-data/stats-response.data';
 import {
   emptyStatsAgg,
-  expectedEmptyStats,
-  expectedIncompleteExpStats,
   expectedIncompleteExpStats2,
-  expectedUnreportedExpStats,
   expectedUnreportedExpStats2,
 } from '../../core/mock-data/stats.data';
 import { DashboardService } from './dashboard.service';
