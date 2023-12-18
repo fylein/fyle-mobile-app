@@ -76,4 +76,12 @@ export class ExpensesService {
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
   }
+
+  getExpenseStats(params: Record<string, string>): Observable<{ data: { count: number; total_amount: number } }> {
+    return this.spenderService.post('/stats', {
+      data: {
+        ...params,
+      },
+    });
+  }
 }
