@@ -78,9 +78,14 @@ export class ExpensesService {
   }
 
   getExpenseStats(params: Record<string, string>): Observable<{ data: { count: number; total_amount: number } }> {
-    return this.spenderService.post('/stats', {
+    const paramKeys = Object.keys(params);
+    const queryParams = [];
+    paramKeys.forEach((key) => {
+      queryParams.push(`${key}=${params[key]}`);
+    });
+    return this.spenderService.post('/expenses/stats', {
       data: {
-        ...params,
+        query_params: queryParams.join('&'),
       },
     });
   }

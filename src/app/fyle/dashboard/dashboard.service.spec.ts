@@ -1,40 +1,40 @@
-import { TestBed } from '@angular/core/testing';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { AuthService } from 'src/app/core/services/auth.service';
+import { TestBed } from '@angular/core/testing';
+import { of } from 'rxjs';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { completeStats, emptyStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { DashboardService } from './dashboard.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
+import { expectedEmptyReportStats, expectedReportStats } from '../../core/mock-data/report-stats.data';
 import {
-  expectedUnreportedExpStats,
-  expectedIncompleteExpStats,
-  expectedEmptyStats,
-} from '../../core/mock-data/stats.data';
-import { expectedReportStats, expectedEmptyReportStats } from '../../core/mock-data/report-stats.data';
-import {
-  apiTxnUnreportedStatsRes,
-  apiTxnIncompleteStatsRes,
-  apiTxnUnreportedStatsEmptyRes,
-  apiTxnIncompleteStatsEmptyRes,
   apiIncompleteParams,
+  apiTxnIncompleteStatsEmptyRes,
+  apiTxnIncompleteStatsRes,
   apiUnreportedParams,
 } from '../../core/mock-data/stats-dimension-response.data';
 import {
-  apiReportStatsRes,
-  apiReportStatsEmptyRes,
   apiAssignedCardDetailsRes,
+  apiReportStatsEmptyRes,
+  apiReportStatsRes,
 } from '../../core/mock-data/stats-response.data';
-import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
-import { of } from 'rxjs';
-import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
-import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import {
+  emptyStatsAgg,
+  expectedEmptyStats,
+  expectedIncompleteExpStats,
+  expectedUnreportedExpStats,
+  expectedUnreportedExpStats2,
+} from '../../core/mock-data/stats.data';
+import { DashboardService } from './dashboard.service';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
   let reportService: jasmine.SpyObj<ReportService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
-  let cccExpenseService: CorporateCreditCardExpenseService;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
 
@@ -46,7 +46,7 @@ describe('DashboardService', () => {
 
   beforeEach(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportStats']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     TestBed.configureTestingModule({
@@ -59,10 +59,6 @@ describe('DashboardService', () => {
           useValue: reportServiceSpy,
         },
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
-        },
-        {
           provide: AuthService,
           useValue: authServiceSpy,
         },
@@ -70,12 +66,15 @@ describe('DashboardService', () => {
           provide: ApiV2Service,
           useValue: apiV2ServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
-    cccExpenseService = TestBed.inject(CorporateCreditCardExpenseService);
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
   });
@@ -85,85 +84,55 @@ describe('DashboardService', () => {
   });
 
   it('getUnreportedExpensesStats(): should get UNREPORTED expense stats', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsRes));
+    expensesService.getExpenseStats.and.returnValue(of(completeStats));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedUnreportedExpStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiUnreportedParams
-      );
+      expect(res).toEqual(expectedUnreportedExpStats2);
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        state: 'in.(COMPLETE)',
+        report_id: 'is.null',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      });
       done();
     });
   });
 
   it('getUnreportedExpensesStats(): should return empty or undefined for UNREPORTED expense stats as api sends empty list for aggregates', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTxnUnreportedStatsEmptyRes));
+    expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
     dashboardService.getUnreportedExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedEmptyStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiUnreportedParams
-      );
-      done();
-    });
-  });
-
-  it('getUnreportedExpensesStats(): should return empty or undefined for UNREPORTED expense stats as api sends empty values as response', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of([]));
-
-    dashboardService.getUnreportedExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedEmptyStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiUnreportedParams
-      );
+      expect(res).toEqual(emptyStatsAgg);
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        state: 'in.(COMPLETE)',
+        report_id: 'is.null',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      });
       done();
     });
   });
 
   it('getIncompleteExpenseStats(): should get INCOMPLETE expense stats', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsRes));
+    expensesService.getExpenseStats.and.returnValue(of(incompleteStats));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
       expect(res).toEqual(expectedIncompleteExpStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiIncompleteParams
-      );
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
+      });
       done();
     });
   });
 
   it('getIncompleteExpenseStats(): should return empty or undefined for INCOMPLETE expense stats as api sends empty list for aggregates', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of(apiTxnIncompleteStatsEmptyRes));
+    expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedEmptyStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiIncompleteParams
-      );
-      done();
-    });
-  });
-
-  it('getIncompleteExpenseStats(): should return empty or undefined for INCOMPLETE expense stats as api sends empty values as response', (done) => {
-    transactionService.getTransactionStats.and.returnValue(of([]));
-
-    dashboardService.getIncompleteExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedEmptyStats);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(1);
-      expect(transactionService.getTransactionStats).toHaveBeenCalledWith(
-        'count(tx_id),sum(tx_amount)',
-        apiIncompleteParams
-      );
+      expect(res).toEqual(emptyStatsAgg);
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
+      });
       done();
     });
   });
