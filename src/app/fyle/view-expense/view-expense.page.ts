@@ -238,17 +238,17 @@ export class ViewExpensePage {
   setPaymentModeandIcon(expense: Expense): void {
     if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
       this.paymentMode = 'Advance';
-      this.paymentModeIcon = 'fy-non-reimbursable';
+      this.paymentModeIcon = 'cash-slash';
     } else if (expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
       this.paymentModeIcon = 'fy-unmatched';
       this.isCCCTransaction = true;
     } else if (!expense.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
-      this.paymentModeIcon = 'fy-non-reimbursable';
+      this.paymentModeIcon = 'cash-slash';
     } else {
       this.paymentMode = 'Paid by Employee';
-      this.paymentModeIcon = 'fy-reimbursable';
+      this.paymentModeIcon = 'cash';
     }
   }
 

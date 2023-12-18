@@ -21,10 +21,7 @@
         Home
       </div>
       <div class="fy-footer--primary-button-container" matRipple (click)="goToCameraMode()">
-        <mat-icon
-          class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon"
-          svgIcon="fy-camera"
-        ></mat-icon>
+        <mat-icon class="fy-footer--icon fy-footer--icon__primary fy-footer--primary-icon" svgIcon="camera"></mat-icon>
       </div>
       <div
         class="fy-footer--button"
@@ -37,7 +34,7 @@
       >
         <mat-icon
           class="fy-footer--icon"
-          [svgIcon]="activeState === FooterState.TASKS ? 'fy-notification-solid' : 'fy-notification'"
+          [svgIcon]="activeState === FooterState.TASKS ? 'bell-fill' : 'bell-outline'"
         ></mat-icon>
         <div *ngIf="taskCount > 0" class="fy-footer--icon-pill">
           {{ taskCount }}

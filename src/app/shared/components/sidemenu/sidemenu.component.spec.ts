@@ -325,7 +325,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Reports',
           isVisible: true,
-          icon: 'fy-report',
+          icon: 'folder',
           route: ['/', 'enterprise', 'my_reports'],
           disabled: false,
         },

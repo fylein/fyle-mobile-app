@@ -365,7 +365,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
         expect(component.paymentMode).toEqual('Advance');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
       });
     });
 
@@ -403,7 +403,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.is_reimbursable).toBeFalse();
         expect(component.paymentMode).toEqual('Paid by Company');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
       });
     });
 
@@ -422,7 +422,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
         expect(component.paymentMode).toEqual('Paid by Employee');
-        expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash');
       });
     });
   });

@@ -44,7 +44,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
@@ -103,7 +103,7 @@ export const getPrimarySidemenuOptionsRes1 = [
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
@@ -170,7 +170,7 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
