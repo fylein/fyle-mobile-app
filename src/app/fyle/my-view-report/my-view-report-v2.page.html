@@ -189,7 +189,7 @@
               </button>
               <div class="view-reports--add-more-container" (click)="addExpense()">
                 <div class="view-reports--add-more-icon-container">
-                  <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+                  <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
                 </div>
                 <div class="view-reports--add-more-text">Add Expenses</div>
               </div>
@@ -238,7 +238,7 @@
                   </ion-row>
                 </ion-grid>
                 <div class="view-comment--profile view-comment--self-profile">
-                  <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
                 </div>
               </div>
               <div
@@ -247,7 +247,7 @@
                 [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
               >
                 <div class="view-comment--profile view-comment--others-profile">
-                  <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
                 </div>
                 <ion-grid class="view-comment--card view-comment--others-comment text-left">
                   <ion-row>
@@ -320,7 +320,7 @@
           <mat-icon
             (click)="showAddExpensesToReportModal()"
             class="view-reports--add-expenses-container__icon"
-            svgIcon="plus"
+            svgIcon="plus-square"
           >
           </mat-icon>
         </div>
@@ -350,7 +350,7 @@
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
       <div class="view-reports--add-more-icon-container">
-        <mat-icon class="view-reports--add-more-icon" svgIcon="plus"></mat-icon>
+        <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
       </div>
       <div class="view-reports--add-more-text">Add expenses to report</div>
     </div>
@@ -368,7 +368,7 @@
         placeholder="Type your comment here..."
         [(ngModel)]="newComment"
       ></textarea>
-      <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send"></mat-icon>
+      <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
     </div>
   </div>
 </ion-footer>

@@ -112,7 +112,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('deleted') > -1:
         statusCategory = {
           category: 'Receipt Removed',
-          icon: 'no-attachment',
+          icon: 'attachment-none',
         };
         break;
       case lowerCaseComment.indexOf('removed from the report') > -1:
@@ -178,7 +178,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('payment_processing') > -1:
         statusCategory = {
           category: 'Processing Payment',
-          icon: 'fy-recently-used',
+          icon: 'clock',
         };
         break;
       case lowerCaseComment.indexOf('to paid') > -1:

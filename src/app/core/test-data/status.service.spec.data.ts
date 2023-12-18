@@ -882,7 +882,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Receipt Removed',
-      icon: 'no-attachment',
+      icon: 'attachment-none',
     },
   },
   {
@@ -1082,7 +1082,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Processing Payment',
-      icon: 'fy-recently-used',
+      icon: 'clock',
     },
   },
   {
