@@ -744,6 +744,11 @@ ref - https://stackoverflow.com/a/31162426
     stroke: $grey-light;
   }
 
+  .mileage,
+  .camera {
+    stroke: none !important;
+  }
+
   .action-sheet-title {
     background: $white;
     border-radius: 16px 16px 0 0;

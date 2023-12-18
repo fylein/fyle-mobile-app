@@ -163,7 +163,7 @@ export class ExpensesCardComponent implements OnInit {
 
   getReceipt(): void {
     if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'mileage') {
-      this.receiptIcon = 'assets/svg/fy-mileage.svg';
+      this.receiptIcon = 'assets/svg/mileage.svg';
     } else if (this.expense?.category?.name && this.expense?.category?.name.toLowerCase() === 'per diem') {
       this.receiptIcon = 'assets/svg/fy-calendar.svg';
     } else {
@@ -326,9 +326,9 @@ export class ExpensesCardComponent implements OnInit {
       }
     } else {
       if (this.expense?.is_reimbursable) {
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       } else {
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       }
     }
   }
