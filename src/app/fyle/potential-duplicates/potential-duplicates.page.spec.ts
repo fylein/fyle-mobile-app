@@ -251,14 +251,27 @@ describe('PotentialDuplicatesPage', () => {
     });
   });
 
-  it('goToTransaction(): should go to transaction', () => {
-    component.goToTransaction({ expense: apiExpenses1[0] });
+  describe('goToTransaction(): ', () => {
+    it('should go to transaction', () => {
+      component.goToTransaction({ expense: apiExpenses1[0] });
 
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'add_edit_expense',
-      { id: apiExpenses1[0].id, persist_filters: true },
-    ]);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: apiExpenses1[0].id, persist_filters: true },
+      ]);
+    });
+
+    it('should not go to transaction if expense is not present', () => {
+      component.goToTransaction({ expense: null });
+
+      expect(router.navigate).not.toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: apiExpenses1[0].id, persist_filters: true },
+      ]);
+    });
   });
 });
