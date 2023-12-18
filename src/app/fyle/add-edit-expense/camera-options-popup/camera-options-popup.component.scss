@@ -1,4 +1,4 @@
-@import "../../../../theme/colors.scss";
+@import '../../../../theme/colors.scss';
 $details-color: #ababab;
 
 .camera-options {
@@ -34,7 +34,7 @@ $details-color: #ababab;
       vertical-align: middle;
 
       &--camera {
-        stroke: $grey-light;
+        color: $grey-light;
       }
 
       &--gallery {

@@ -14,7 +14,7 @@ export class AddMorePopupComponent implements OnInit {
   ngOnInit() {
     this.actionButtons = [
       {
-        icon: 'fy-camera',
+        icon: 'camera',
         title: 'Capture Receipts',
         mode: 'camera',
       },

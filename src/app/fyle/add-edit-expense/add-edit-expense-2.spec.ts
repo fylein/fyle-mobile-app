@@ -1468,6 +1468,7 @@ export function TestCases2(getTestBed) {
         component.showSuggestedDuplicates([expenseData1]);
         tick(500);
 
+        expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
@@ -1493,6 +1494,7 @@ export function TestCases2(getTestBed) {
         component.showSuggestedDuplicates([expenseData1]);
         tick(500);
 
+        expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {

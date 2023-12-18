@@ -294,7 +294,7 @@ describe('PotentialDuplicatesPage', () => {
   });
 
   it('goToTransaction(): should go to transaction', () => {
-    component.goToTransaction({ etxn: apiExpenses1[0] });
+    component.goToTransaction({ expense: apiExpenses1[0] });
 
     expect(router.navigate).toHaveBeenCalledOnceWith([
       '/',

@@ -205,14 +205,14 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('getReceipt', () => {
-    it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+    it('should set the receipt icon to mileage when the fyle catergory is mileage', () => {
       component.expense = {
         ...expenseData1,
         tx_org_category: 'mileage',
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
     it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
@@ -577,7 +577,7 @@ describe('ExpensesCardComponent', () => {
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash');
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
@@ -587,7 +587,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     });
   });
 

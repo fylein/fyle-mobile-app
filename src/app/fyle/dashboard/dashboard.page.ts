@@ -249,8 +249,8 @@ export class DashboardPage {
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
-        cssClass: 'capture-receipt',
+        icon: 'assets/svg/camera.svg',
+        cssClass: 'camera',
         handler: this.actionSheetButtonsHandler('Capture Receipt', 'camera_overlay'),
       },
       {
@@ -264,8 +264,8 @@ export class DashboardPage {
     if (mileageEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        cssClass: 'capture-receipt',
+        icon: 'assets/svg/mileage.svg',
+        cssClass: 'mileage',
         handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }

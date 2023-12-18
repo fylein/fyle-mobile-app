@@ -171,6 +171,7 @@ describe('AddEditExpensePage', () => {
       'hideMoreClicked',
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
+      'showSuggestedDuplicates',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
