@@ -70,7 +70,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('expense rule') > -1:
         statusCategory = {
           category: 'Expense Rule Applied',
-          icon: 'expense-rule',
+          icon: 'file-lightning-indicator',
         };
         break;
       case lowerCaseComment.indexOf('created') > -1:
@@ -148,7 +148,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
         statusCategory = {
           category: 'Failed to run policies',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('verified') > -1:
@@ -190,7 +190,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('expense issues') > -1:
         statusCategory = {
           category: 'Expense Issues',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('policies ran successfully') > -1:
