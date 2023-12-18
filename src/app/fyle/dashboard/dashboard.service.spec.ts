@@ -26,6 +26,7 @@ import {
   emptyStatsAgg,
   expectedEmptyStats,
   expectedIncompleteExpStats,
+  expectedIncompleteExpStats2,
   expectedUnreportedExpStats,
   expectedUnreportedExpStats2,
 } from '../../core/mock-data/stats.data';
@@ -115,7 +116,7 @@ describe('DashboardService', () => {
     expensesService.getExpenseStats.and.returnValue(of(incompleteStats));
 
     dashboardService.getIncompleteExpensesStats().subscribe((res) => {
-      expect(res).toEqual(expectedIncompleteExpStats);
+      expect(res).toEqual(expectedIncompleteExpStats2);
       expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT)',
         report_id: 'is.null',
