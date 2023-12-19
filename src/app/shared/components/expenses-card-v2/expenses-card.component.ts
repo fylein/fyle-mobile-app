@@ -156,7 +156,7 @@ export class ExpensesCardComponent implements OnInit {
   }
 
   onGoToTransaction(): void {
-    if (!this.isSelectionModeEnabled) {
+    if (!this.isSelectionModeEnabled && this.expense) {
       this.goToTransaction.emit({ expense: this.expense, expenseIndex: this.expenseIndex });
     }
   }

@@ -181,8 +181,6 @@ export class PotentialDuplicatesPage {
   }
 
   goToTransaction(event: { expense: Expense }): void {
-    if (event.expense) {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: event.expense.id, persist_filters: true }]);
-    }
+    this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: event.expense.id, persist_filters: true }]);
   }
 }
