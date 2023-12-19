@@ -15,7 +15,7 @@
 <div
   class="expenses-card--body"
   [ngClass]="{ 'expenses-card--body__with-border': !showDt }"
-  (click)="onGoToTransaction()"
+  (click)="onGoToTransaction(expense)"
   (tap)="onTapTransaction()"
   (press)="onSetMultiselectMode()"
 >
