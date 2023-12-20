@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Params, Router } from '@angular/router';
-import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
+import { BehaviorSubject, EMPTY, Observable, noop, forkJoin } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
@@ -10,6 +10,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { chunk } from 'lodash';
 
 type Expenses = Expense[];
 
@@ -58,23 +59,28 @@ export class PotentialDuplicatesPage {
               .map((value) => value.transaction_ids)
               .reduce((acc, curVal) => acc.concat(curVal), []);
 
-            const queryParams = {
-              id: `in.(${duplicateIds.join(',')})`,
-            };
+            const allExpenses$ = forkJoin(
+              chunk(duplicateIds, 200)
+                .map((duplicateIds) => ({
+                  id: `in.(${duplicateIds.join(',')})`,
+                }))
+                .map((queryParams) =>
+                  this.expensesService.getExpenses({
+                    offset: 0,
+                    ...queryParams,
+                  })
+                )
+            );
 
-            return this.expensesService
-              .getExpenses({
-                offset: 0,
-                ...queryParams,
+            return allExpenses$.pipe(
+              map((allChunkedResponses) => allChunkedResponses.reduce((a, b) => a.concat(b), [])),
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return duplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
               })
-              .pipe(
-                map((expenses) => {
-                  const expensesArray = expenses as [];
-                  return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                  );
-                })
-              );
+            );
           }),
           finalize(() => {
             this.isLoading = false;
