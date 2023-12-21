@@ -76,13 +76,10 @@
               <ng-container
                 *ngIf="currentFilterValueMap[activeFilter.name]?.includes(option.value); else uncheckedCheckbox"
               >
-                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/fy-checkbox-checked.svg"></ion-icon>
+                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/check-square-fill.svg"></ion-icon>
               </ng-container>
               <ng-template #uncheckedCheckbox>
-                <ion-icon
-                  class="fy-filters--checkbox"
-                  src="../../../../assets/svg/fy-checkbox-unchecked.svg"
-                ></ion-icon>
+                <ion-icon class="fy-filters--checkbox" src="../../../../assets/svg/square-outline.svg"></ion-icon>
               </ng-template>
               {{ option.label }}
             </ion-item>
@@ -106,10 +103,10 @@
             (click)="switchFilter(activeFilter, option)"
           >
             <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
             </ng-container>
             <ng-template #uncheckedSSRadioBtn>
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
             </ng-template>
             {{ option.label }}
           </ion-item>
@@ -124,10 +121,10 @@
             (click)="switchFilter(activeFilter, option)"
           >
             <ng-container *ngIf="currentFilterValueMap[activeFilter.name] === option.value; else uncheckedSSRadioBtn">
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-checked.svg"></ion-icon>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-fill.svg"></ion-icon>
             </ng-container>
             <ng-template #uncheckedSSRadioBtn>
-              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/fy-radio-unchecked.svg"></ion-icon>
+              <ion-icon class="fy-filters--radio" src="../../../../assets/svg/radio-circle-outline.svg"></ion-icon>
             </ng-template>
             {{ option.label }}
           </ion-item>

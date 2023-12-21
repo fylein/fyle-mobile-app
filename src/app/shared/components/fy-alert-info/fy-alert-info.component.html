@@ -5,7 +5,7 @@
     class="alert-info-container--icon icon--alert-warning"
     svgIcon="warning-fill"
   ></mat-icon>
-  <mat-icon *ngIf="type === 'error'" class="alert-info-container--icon" svgIcon="error-filled"></mat-icon>
+  <mat-icon *ngIf="type === 'error'" class="alert-info-container--icon" svgIcon="warning-fill"></mat-icon>
   <div class="alert-info-container--message">{{ message }}</div>
   <div *ngIf="showActionButton" class="alert-info-container--button-container">
     <ion-button

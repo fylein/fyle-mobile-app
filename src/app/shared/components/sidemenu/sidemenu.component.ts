@@ -218,7 +218,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Expenses',
         isVisible: true,
-        icon: 'expense',
+        icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
@@ -232,7 +232,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Reports',
         isVisible: true,
-        icon: 'fy-report',
+        icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
@@ -297,7 +297,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Expenses',
         isVisible: true,
-        icon: 'expense',
+        icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
