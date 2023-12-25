@@ -13,9 +13,8 @@ export class IconModule {
   path = '../../assets/svg';
 
   svgImageArray = [
-    'arrow-prev.svg',
-    'arrow-next.svg',
-    'arrow-up',
+    'arrow-tail-left.svg',
+    'arrow-up.svg',
     'attachment.svg',
     'building.svg',
     'bus.svg',
