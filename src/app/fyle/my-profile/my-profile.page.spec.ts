@@ -256,7 +256,7 @@ describe('MyProfilePage', () => {
       const message = 'Something went wrong';
       const failureToastProperties = {
         data: {
-          icon: 'danger',
+          icon: 'warning-fill',
           showCloseButton: true,
           message,
         },
@@ -482,12 +482,12 @@ describe('MyProfilePage', () => {
         listHeader: 'Now you can:',
         listItems: [
           {
-            icon: 'message',
+            icon: 'envelope',
             text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
             textToCopy: '(302) 440-2921',
           },
           {
-            icon: 'fy-reimbursable',
+            icon: 'cash',
             text: 'Standard messaging rates applicable',
           },
         ],

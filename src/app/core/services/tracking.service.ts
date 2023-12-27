@@ -32,7 +32,7 @@ import {
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
-import { ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { ReportFilters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
@@ -625,5 +625,9 @@ export class TrackingService {
 
   enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
     this.eventTrack('Enrolling Non RTF Card', properties);
+  }
+
+  showSuggestedDuplicates(): void {
+    this.eventTrack('Show Suggested Duplicates');
   }
 }

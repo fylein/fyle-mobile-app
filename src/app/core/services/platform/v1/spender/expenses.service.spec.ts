@@ -2,10 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ExpensesService } from './expenses.service';
 import { SpenderService } from './spender.service';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { expenseData, readyToReportExpensesData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
+import { expensesCacheBuster$ } from '../../../transaction.service';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
@@ -75,12 +76,55 @@ describe('ExpensesService', () => {
     });
   });
 
+  describe('getAllExpenses(): ', () => {
+    it('should get all expenses for multiple pages', (done) => {
+      expensesCacheBuster$.next(null);
+      spyOn(service, 'getExpensesCount').and.returnValue(of(4));
+      spyOn(service, 'getExpenses').and.returnValue(of(readyToReportExpensesData2));
+
+      const queryParams = {
+        report_id: 'is.null',
+        state: 'in.(COMPLETE)',
+        order: 'spent_at.desc',
+        or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+      };
+
+      service.getAllExpenses({ queryParams }).subscribe((res) => {
+        expect(res.length).toEqual(4);
+        expect(service.getExpensesCount).toHaveBeenCalledOnceWith(queryParams);
+        expect(service.getExpenses).toHaveBeenCalledTimes(2);
+        done();
+      });
+    });
+
+    it('should get all expenses in a single page', (done) => {
+      expensesCacheBuster$.next(null);
+      spyOn(service, 'getExpensesCount').and.returnValue(of(2));
+      spyOn(service, 'getExpenses').and.returnValue(of(readyToReportExpensesData2));
+
+      const queryParams = {
+        report_id: 'is.null',
+        state: 'in.(COMPLETE)',
+        order: 'spent_at.desc',
+        or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+      };
+
+      service.getAllExpenses({ queryParams }).subscribe((res) => {
+        expect(res.length).toEqual(2);
+        expect(service.getExpensesCount).toHaveBeenCalledOnceWith(queryParams);
+        expect(service.getExpenses).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
   it('getReportExpenses(): should return all expenses', (done) => {
     spyOn(service, 'getExpensesCount').and.returnValue(of(2));
     spyOn(service, 'getExpenses').and.returnValue(of(expensesResponse.data));
     const reportId = 'rpSGcIEwzxDd';
     const params = {
       report_id: `eq.${reportId}`,
+      order: 'spent_at.desc,id.desc',
     };
 
     service.getReportExpenses(reportId).subscribe((response) => {

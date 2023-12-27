@@ -37,7 +37,7 @@
         class="add-edit-expense--header-btn-container__btn"
         (click)="openCommentsModal()"
       >
-        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ng-container *ngIf="(reviewList?.length || mode === 'edit') && !isCccExpense && etxn$|async as etxn">
         <ng-container *ngIf="canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)">
@@ -52,7 +52,10 @@
             <ng-container *ngIf="actionSheetOptions$|async as actionSheetOptions">
               <ng-container *ngIf="actionSheetOptions.length > 0">
                 <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">
-                  <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
+                  <ion-icon
+                    class="add-edit-expense--header-btn-container__icon"
+                    [src]="'../../../assets/svg/vertical-dots-menu.svg'"
+                  ></ion-icon>
                 </ion-button>
               </ng-container>
             </ng-container>
@@ -134,7 +137,7 @@
                 If the expense is merged with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
-                    [src]="'../../../assets/svg/dot-menu.svg'"
+                    [src]="'../../../assets/svg/vertical-dots-menu.svg'"
                   ></ion-icon></span
                 >) to remove the card details.
               </div>
@@ -190,7 +193,7 @@
                 >
                   <app-transaction-status
                     [transactionStatus]="transactionStatus"
-                    (infoClick)="openTransactionStatusInfoModal($event)"
+                    (statusClick)="openTransactionStatusInfoModal($event)"
                   ></app-transaction-status>
                 </div>
               </ng-container>
@@ -220,7 +223,7 @@
                 *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress"
                 class="add-edit-expense--receipt-image"
               >
-                <mat-icon class="add-edit-expense--receipt-background" svgIcon="fy-attachment"></mat-icon>
+                <mat-icon class="add-edit-expense--receipt-background" svgIcon="list"></mat-icon>
                 <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
                   {{attachedReceiptsCount}}
                 </div>

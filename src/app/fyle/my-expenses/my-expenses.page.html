@@ -13,16 +13,16 @@
       </ion-button>
       <ion-button class="my-expenses--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         </ng-container>
         <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
       <ng-container *ngIf="isConnected$ | async">
         <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
           <ion-button class="my-expenses--header-btn" (click)="openActionSheet()">
-            <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+            <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
           </ion-button>
         </ng-container>
         <ng-template #actionLoader>

@@ -352,8 +352,8 @@ export class MyExpensesPage implements OnInit {
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
-        cssClass: 'capture-receipt',
+        icon: 'assets/svg/camera.svg',
+        cssClass: 'camera',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
@@ -367,8 +367,8 @@ export class MyExpensesPage implements OnInit {
     if (mileageEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
-        cssClass: 'capture-receipt',
+        icon: 'assets/svg/mileage.svg',
+        cssClass: 'mileage',
         handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
@@ -1450,12 +1450,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   mergeExpenses(): void {
+    const expenseIDs = this.selectedElements.map((expense) => expense.tx_id);
     this.router.navigate([
       '/',
       'enterprise',
       'merge_expense',
       {
-        selectedElements: JSON.stringify(this.selectedElements),
+        expenseIDs: JSON.stringify(expenseIDs),
         from: 'MY_EXPENSES',
       },
     ]);

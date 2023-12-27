@@ -313,19 +313,19 @@ describe('SidemenuComponent', () => {
         {
           title: 'Dashboard',
           isVisible: true,
-          icon: 'fy-dashboard-new',
+          icon: 'dashboard',
           route: ['/', 'enterprise', 'my_dashboard'],
         },
         {
           title: 'Expenses',
           isVisible: true,
-          icon: 'expense',
+          icon: 'list',
           route: ['/', 'enterprise', 'my_expenses'],
         },
         {
           title: 'Reports',
           isVisible: true,
-          icon: 'fy-report',
+          icon: 'folder',
           route: ['/', 'enterprise', 'my_reports'],
           disabled: false,
         },
@@ -339,7 +339,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Team',
           isVisible: true,
-          icon: 'teams',
+          icon: 'user-three',
           isDropdownOpen: false,
           disabled: false,
           dropdownOptions: [
@@ -403,7 +403,7 @@ describe('SidemenuComponent', () => {
         {
           title: 'Delegated Accounts',
           isVisible: true,
-          icon: 'delegate-switch',
+          icon: 'user-two',
           route: ['/', 'enterprise', 'delegated_accounts'],
           disabled: false,
         },
@@ -417,20 +417,20 @@ describe('SidemenuComponent', () => {
         {
           title: 'Settings',
           isVisible: true,
-          icon: 'fy-settings',
+          icon: 'gear',
           route: ['/', 'enterprise', 'my_profile'],
         },
         {
           title: 'Live Chat',
           isVisible: true,
-          icon: 'fy-chat-2',
+          icon: 'chat',
           openLiveChat: true,
           disabled: false,
         },
         {
           title: 'Help',
           isVisible: true,
-          icon: 'help',
+          icon: 'question-square-outline',
           route: ['/', 'enterprise', 'help'],
           disabled: false,
         },

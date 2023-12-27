@@ -8,12 +8,13 @@
   ></div>
 
   Transaction Status:
-  <span class="transaction-status__status-value" data-testid="status-value">{{ transactionStatus | titlecase }}</span>
+  <div (click)="statusClick.emit(transactionStatus)" class="transaction-status__status-value-container">
+    <span class="transaction-status__status-value" data-testid="status-value">{{ transactionStatus | titlecase }}</span>
 
-  <ion-icon
-    src="../../../assets/svg/info-circle-outline.svg"
-    class="transaction-status__info-icon"
-    (click)="infoClick.emit(transactionStatus)"
-    data-testid="info-icon"
-  ></ion-icon>
+    <ion-icon
+      src="../../../assets/svg/info-circle-outline.svg"
+      class="transaction-status__info-icon"
+      data-testid="info-icon"
+    ></ion-icon>
+  </div>
 </div>

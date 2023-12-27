@@ -3,7 +3,7 @@ import { SidemenuItem } from '../models/sidemenu-item.model';
 export const sidemenuItemData1: SidemenuItem = {
   title: 'Dashboard',
   isVisible: true,
-  icon: 'fy-dashboard-new',
+  icon: 'dashboard',
   route: ['/', 'enterprise', 'my_dashboard'],
   disabled: false,
   isDropdownOpen: false,
@@ -14,7 +14,7 @@ export const sidemenuItemData1: SidemenuItem = {
 export const sidemenuItemData2: SidemenuItem = {
   title: 'Team',
   isVisible: true,
-  icon: 'teams',
+  icon: 'user-three',
   isDropdownOpen: false,
   disabled: false,
   dropdownOptions: [
@@ -36,7 +36,7 @@ export const sidemenuItemData2: SidemenuItem = {
 export const sidemenuItemData3: Partial<SidemenuItem> = {
   title: 'Live Chat',
   isVisible: true,
-  icon: 'fy-chat-2',
+  icon: 'chat',
   openLiveChat: true,
   disabled: false,
 };

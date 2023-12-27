@@ -64,19 +64,19 @@ export class StatusService {
       case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
         statusCategory = {
           category: type + ' Reversed',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('expense rule') > -1:
         statusCategory = {
           category: 'Expense Rule Applied',
-          icon: 'expense-rule',
+          icon: 'file-lightning-indicator',
         };
         break;
       case lowerCaseComment.indexOf('created') > -1:
         statusCategory = {
           category: type + ' Created',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('updated') > -1:
@@ -88,13 +88,13 @@ export class StatusService {
       case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
         statusCategory = {
           category: 'Policy Violation',
-          icon: 'danger',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {
           category: 'Expense added',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('added') > -1:
@@ -112,7 +112,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('deleted') > -1:
         statusCategory = {
           category: 'Receipt Removed',
-          icon: 'no-attachment',
+          icon: 'attachment-none',
         };
         break;
       case lowerCaseComment.indexOf('removed from the report') > -1:
@@ -148,7 +148,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
         statusCategory = {
           category: 'Failed to run policies',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('verified') > -1:
@@ -166,7 +166,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('approver_pending') > -1:
         statusCategory = {
           category: 'Approver Pending',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('approved') > -1:
@@ -178,7 +178,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('payment_processing') > -1:
         statusCategory = {
           category: 'Processing Payment',
-          icon: 'fy-recently-used',
+          icon: 'clock',
         };
         break;
       case lowerCaseComment.indexOf('to paid') > -1:
@@ -190,7 +190,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('expense issues') > -1:
         statusCategory = {
           category: 'Expense Issues',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('policies ran successfully') > -1:
@@ -232,7 +232,7 @@ export class StatusService {
       default:
         statusCategory = {
           category: 'Others',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
     }

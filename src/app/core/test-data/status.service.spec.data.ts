@@ -722,7 +722,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Created',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -762,7 +762,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -842,7 +842,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -862,7 +862,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policy Violation',
-      icon: 'danger',
+      icon: 'warning-fill',
     },
   },
   {
@@ -882,7 +882,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Receipt Removed',
-      icon: 'no-attachment',
+      icon: 'attachment-none',
     },
   },
   {
@@ -982,7 +982,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Failed to run policies',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1042,7 +1042,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Approver Pending',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1082,7 +1082,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Processing Payment',
-      icon: 'fy-recently-used',
+      icon: 'clock',
     },
   },
   {
@@ -1142,7 +1142,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Issues',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1282,7 +1282,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1302,7 +1302,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1342,7 +1342,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Rule Applied',
-      icon: 'expense-rule',
+      icon: 'file-lightning-indicator',
     },
   },
   {
@@ -1605,7 +1605,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1625,7 +1625,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1666,7 +1666,7 @@ export const estatusSample = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1727,7 +1727,7 @@ export const eStatusWithProjectName = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1754,7 +1754,7 @@ export const eStatusWithProjectName2 = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -2054,7 +2054,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'repots Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -2077,7 +2077,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: { category: 'Policy Violation', icon: 'danger' },
+    st: { category: 'Policy Violation', icon: 'warning-fill' },
   },
   {
     st_id: 'st8dHUhDzXxr',

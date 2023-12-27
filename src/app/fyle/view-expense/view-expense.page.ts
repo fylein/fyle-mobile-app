@@ -238,17 +238,17 @@ export class ViewExpensePage {
   setPaymentModeandIcon(expense: Expense): void {
     if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
       this.paymentMode = 'Advance';
-      this.paymentModeIcon = 'fy-non-reimbursable';
+      this.paymentModeIcon = 'cash-slash';
     } else if (expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
       this.paymentModeIcon = 'fy-unmatched';
       this.isCCCTransaction = true;
     } else if (!expense.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
-      this.paymentModeIcon = 'fy-non-reimbursable';
+      this.paymentModeIcon = 'cash-slash';
     } else {
       this.paymentMode = 'Paid by Employee';
-      this.paymentModeIcon = 'fy-reimbursable';
+      this.paymentModeIcon = 'cash';
     }
   }
 
@@ -279,7 +279,11 @@ export class ViewExpensePage {
 
     this.customProperties$ = this.expenseWithoutCustomProperties$.pipe(
       concatMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       shareReplay(1)
     );
@@ -298,7 +302,7 @@ export class ViewExpensePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -311,7 +315,7 @@ export class ViewExpensePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.cost_center_id[0]?.id
         )
       ),

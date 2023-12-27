@@ -24,7 +24,7 @@ describe('SnackbarPropertiesService', () => {
 
   it('should return the correct icon for a failure toast message', () => {
     const properties = service.setSnackbarProperties('failure', { message: 'Failure message' });
-    expect(properties.data.icon).toEqual('danger');
+    expect(properties.data.icon).toEqual('warning-fill');
   });
 
   it('should return correct icon for a information toast message', () => {

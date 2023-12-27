@@ -1,0 +1,374 @@
+<ion-header mode="md">
+  <ion-toolbar class="view-reports--toolbar">
+    <ion-buttons mode="md" slot="start">
+      <button *ngIf="!navigateBack" mat-icon-button [routerLink]="['/','enterprise','my_reports']">
+        <mat-icon> keyboard_backspace </mat-icon>
+      </button>
+      <ion-back-button mode="md" *ngIf="navigateBack"></ion-back-button>
+    </ion-buttons>
+    <ion-title mode="md" class="page-title"> View Report </ion-title>
+    <ion-buttons mode="md" slot="end">
+      <ng-container *ngIf="erpt$|async as erpt">
+        <ng-container *ngIf="erpt.rp_num_transactions">
+          <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
+            <mat-icon svgIcon="share"></mat-icon>
+          </ion-button>
+        </ng-container>
+      </ng-container>
+      <ng-container *ngIf="canDelete$ | async">
+        <ion-button class="view-reports--btn-container__btn" (click)="deleteReport()">
+          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+        </ion-button>
+      </ng-container>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="view-reports--container">
+  <div class="view-reports--body full-height" *ngIf="erpt$|async as erpt">
+    <div class="view-reports--wrapper">
+      <div class="view-reports--card">
+        <ion-grid>
+          <ion-row>
+            <ion-col size="8">
+              <div class="view-reports--purpose-amount-block">
+                <div class="view-reports--purpose-amount-block__purpose">
+                  {{erpt.rp_purpose | ellipsis: 35}}
+                  <ion-icon
+                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY' || erpt.rp_state === 'APPROVER_PENDING')"
+                    [src]="'../../../../assets/svg/edit.svg'"
+                    slot="icon-only"
+                    (click)="editReportName()"
+                    class="view-reports--card-header__icon"
+                  ></ion-icon>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="4">
+              <div class="view-reports--amount ion-text-nowrap">
+                <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
+                <span class="view-reports--purpose-amount-block__amount">
+                  {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:true }}
+                </span>
+              </div>
+            </ion-col>
+          </ion-row>
+
+          <ion-row>
+            <ion-col size="5"> </ion-col>
+            <ion-col size="7">
+              <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
+                <div class="view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}">
+                  {{erpt.rp_state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                </div>
+              </ng-container>
+            </ion-col>
+          </ion-row>
+
+          <ion-row class="view-reports--date-info-block">
+            <ion-col size="8">
+              <div>
+                <div class="view-reports--submitted-date">
+                  <div>
+                    <span class="view-reports--submitted-date__text"
+                      >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
+                    </span>
+                    <span *ngIf="erpt.rp_state === 'DRAFT'" class="view-reports--submitted-date__date"
+                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
+                    >
+                    <span *ngIf="erpt.rp_state !== 'DRAFT'" class="view-reports--submitted-date__date"
+                      >{{erpt.rp_submitted_at | date: 'MMM dd, YYYY'}}</span
+                    >
+                  </div>
+                </div>
+              </div>
+            </ion-col>
+            <ion-col size="4">
+              <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
+                <ion-icon
+                  class="view-reports--view-info__icon"
+                  src="../../../assets/svg/fy-info-gradient.svg"
+                ></ion-icon>
+                <span class="view-reports--view-info__content">View Info</span>
+              </div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </div>
+
+      <div class="view-reports--approvers-wrapper">
+        <div
+          class="view-reports--approvers-section"
+          *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
+        >
+          <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+            <div class="view-reports--approvers">Approvers</div>
+            <div *ngFor="let ap of reportApprovals">
+              <div class="view-reports--approvers-list">
+                <div>{{ ap.approver_name }}</div>
+                <div class="view-reports--approver-state-section">
+                  <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
+                    <span>{{ap.updated_at | date: 'MMM dd, YYYY'}}</span>
+                  </div>
+                  <div
+                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
+                  ></div>
+                  <span
+                    >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase |
+                    snakeCaseToSpaceCase)}}</span
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="view-reports--segment-block-container">
+        <div class="view-reports--segment-block-container__btn-wrapper">
+          <ion-segment
+            class="segment-block view-reports--segment-block-container__segment"
+            (ionChange)="segmentChanged($event)"
+            [value]="segmentValue"
+          >
+            <ion-segment-button
+              [value]="Segment.EXPENSES"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
+              Expenses
+            </ion-segment-button>
+            <ion-segment-button
+              [value]="Segment.COMMENTS"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
+              Comments
+            </ion-segment-button>
+            <ion-segment-button
+              *ngIf="systemEstatuses?.length > 0"
+              [value]="Segment.HISTORY"
+              class="view-reports--segment-block-container__btn text-capitalize"
+            >
+              History
+            </ion-segment-button>
+          </ion-segment>
+        </div>
+
+        <!-- Expenses section -->
+        <ng-container *ngIf="segmentValue === Segment.EXPENSES">
+          <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
+          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
+            <div class="view-reports--divider"></div>
+            <div class="view-reports--expenses-card-block">
+              <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                <app-expense-card-v2
+                  [expense]="expense"
+                  [expenseIndex]="i"
+                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                  (goToTransaction)="goToTransaction($event)"
+                  [isFromReports]="true"
+                  [isFromViewReports]="true"
+                >
+                </app-expense-card-v2>
+              </div>
+            </div>
+            <ng-template #ExpensesLoader>
+              <ion-spinner name="crescent"></ion-spinner>
+            </ng-template>
+          </div>
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
+            <div class="text-center">
+              <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
+              <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
+              <button
+                *ngIf="unreportedExpenses && unreportedExpenses.length > 0"
+                class="view-reports--unreported-cta"
+                (click)="showAddExpensesToReportModal()"
+              >
+                Add complete expenses
+              </button>
+              <div class="view-reports--add-more-container" (click)="addExpense()">
+                <div class="view-reports--add-more-icon-container">
+                  <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
+                </div>
+                <div class="view-reports--add-more-text">Add Expenses</div>
+              </div>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- Comments section -->
+        <ng-container *ngIf="segmentValue === Segment.COMMENTS">
+          <div *ngIf="userComments?.length > 0" class="view-comment--container">
+            <div *ngFor="let estatus of userComments">
+              <div *ngIf="estatus.show_dt">
+                <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
+              </div>
+              <div
+                class="view-comment--block"
+                *ngIf="estatus.isSelfComment"
+                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+              >
+                <ion-grid class="view-comment--card view-comment--self-comment text-right">
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div
+                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                      <div
+                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+                <div class="view-comment--profile view-comment--self-profile">
+                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+                </div>
+              </div>
+              <div
+                class="view-comment--block"
+                *ngIf="!estatus.isSelfComment"
+                [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
+              >
+                <div class="view-comment--profile view-comment--others-profile">
+                  <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
+                </div>
+                <ion-grid class="view-comment--card view-comment--others-comment text-left">
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div
+                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                      <div
+                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        class="view-comment--comment-detail"
+                      >
+                        {{ estatus.st_comment }}
+                      </div>
+                    </ion-col>
+                  </ion-row>
+                  <ion-row>
+                    <ion-col size="12">
+                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    </ion-col>
+                  </ion-row>
+                </ion-grid>
+              </div>
+            </div>
+          </div>
+
+          <div class="view-comment--zero-state" *ngIf="userComments?.length === 0">
+            <app-fy-zero-state
+              [image]="'../../../assets/images/zero-states/comments.svg'"
+              [header]="'Need to clarify something?'"
+              [message]="'Post a comment.'"
+              [useNewStyling]="true"
+              [unscaledImage]="true"
+            ></app-fy-zero-state>
+          </div>
+
+          <div *ngIf="!userComments">
+            <div class="view-comment--spinner">
+              <ion-spinner name="crescent"></ion-spinner>
+            </div>
+          </div>
+        </ng-container>
+
+        <!-- History section -->
+        <div
+          *ngIf="segmentValue === Segment.HISTORY && systemEstatuses?.length > 0"
+          class="view-reports--history-container"
+        >
+          <app-audit-history [estatuses]="systemEstatuses"></app-audit-history>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer
+  *ngIf="segmentValue !== Segment.COMMENTS && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
+>
+  <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
+    <div class="view-reports--cta-container">
+      <div class="view-reports--add-expenses-container" *ngIf="unreportedExpenses">
+        <div class="view-reports--add-expenses-container__icon_container">
+          <mat-icon
+            (click)="showAddExpensesToReportModal()"
+            class="view-reports--add-expenses-container__icon"
+            svgIcon="plus-square"
+          >
+          </mat-icon>
+        </div>
+      </div>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="canResubmitReport$ | async"
+        (click)="resubmitReport()"
+      >
+        Resubmit Report
+      </ion-button>
+      <ion-button
+        class="fy-footer-cta fy-footer-cta--primary"
+        *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+        (click)="submitReport()"
+      >
+        Submit Report
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer>
+
+<ion-footer
+  class="view-reports--add-expense-footer"
+  *ngIf="segmentValue === Segment.EXPENSES && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unreportedExpenses"
+>
+  <div class="view-reports--add-expense-footer__block">
+    <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
+      <div class="view-reports--add-more-icon-container">
+        <mat-icon class="view-reports--add-more-icon" svgIcon="plus-square"></mat-icon>
+      </div>
+      <div class="view-reports--add-more-text">Add expenses to report</div>
+    </div>
+  </div>
+</ion-footer>
+
+<ion-footer *ngIf="segmentValue === Segment.COMMENTS" class="view-comment--add-comment-container">
+  <div>
+    <div class="view-comment--type-comment-block">
+      <textarea
+        #commentInput
+        class="view-comment--text-area"
+        rows="1"
+        matInput
+        placeholder="Type your comment here..."
+        [(ngModel)]="newComment"
+      ></textarea>
+      <mat-icon class="view-comment--send-icon" (click)="addComment()" svgIcon="send-fill"></mat-icon>
+    </div>
+  </div>
+</ion-footer>

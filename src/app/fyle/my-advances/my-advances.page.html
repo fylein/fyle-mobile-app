@@ -10,14 +10,14 @@
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-advances--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         </ng-container>
         <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
       <ion-button class="my-advances--header-btn" (click)="goToAddEditAdvanceRequest()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -49,7 +49,7 @@
           [useNewStyling]="true"
           image="../../../assets/images/zero-states/expenses.png"
           header="You've got no advances!"
-          message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
+          message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon> on top'
         ></app-fy-zero-state>
       </div>
     </ng-container>

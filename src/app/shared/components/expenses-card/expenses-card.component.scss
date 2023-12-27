@@ -52,7 +52,7 @@
 
   &--scanning-icon {
     font-size: 24px;
-    stroke: $green;
+    color: $green;
   }
 
   &--scaning-receipt {
@@ -200,6 +200,7 @@
       margin-left: 4px;
       width: 16px;
       height: 16px;
+      color: $brand-primary-light;
     }
   }
 

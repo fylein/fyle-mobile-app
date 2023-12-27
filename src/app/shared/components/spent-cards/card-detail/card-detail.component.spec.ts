@@ -12,6 +12,9 @@ import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-d
 import { Component, Input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { of } from 'rxjs';
+import { orgSettingsWithV2ExpensesPage, orgSettingsWoV2ExpensesPage } from 'src/app/core/mock-data/org-settings.data';
 
 @Component({
   selector: 'app-corporate-card',
@@ -28,6 +31,7 @@ describe('CardDetailComponent', () => {
   let fixture: ComponentFixture<CardDetailComponent>;
   let router: jasmine.SpyObj<Router>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let orgSettingService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -35,6 +39,7 @@ describe('CardDetailComponent', () => {
       'dashboardOnIncompleteCardExpensesClick',
       'dashboardOnTotalCardExpensesClick',
     ]);
+    const orgSettingServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     TestBed.configureTestingModule({
       declarations: [CardDetailComponent, HumanizeCurrencyPipe, MaskNumber, MockCorporateCardComponent],
       imports: [IonicModule.forRoot(), RouterModule, RouterTestingModule],
@@ -49,6 +54,10 @@ describe('CardDetailComponent', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -56,12 +65,21 @@ describe('CardDetailComponent', () => {
     component = fixture.componentInstance;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    orgSettingService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     component.cardDetail = cardDetailsRes[0];
+    orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
     fixture.detectChanges();
   }));
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('ngOnInit():should set redirection flag', () => {
+    orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
+
+    expect(component.redirectToNewPage).toBeTrue();
+    expect(orgSettingService.get).toHaveBeenCalledTimes(1);
   });
 
   it('should display the card correctly', () => {
@@ -75,6 +93,7 @@ describe('CardDetailComponent', () => {
   describe('goToExpensesPage():', () => {
     it('should go to expenses page and show filter DRAFT expenses', () => {
       trackingService.dashboardOnIncompleteCardExpensesClick.and.callThrough();
+      fixture.detectChanges();
 
       const queryParams = {
         filters: JSON.stringify({ state: ['DRAFT'], cardNumbers: [component.cardDetail.card.card_number] }),
@@ -82,13 +101,14 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('incompleteExpenses', component.cardDetail);
       expect(trackingService.dashboardOnIncompleteCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
         queryParams,
       });
     });
 
     it('should go to expenses page and show filter DRAFT & READY_TO_REPORT expenses', () => {
       trackingService.dashboardOnTotalCardExpensesClick.and.callThrough();
+      fixture.detectChanges();
 
       const queryParams = {
         filters: JSON.stringify({
@@ -99,7 +119,7 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('totalExpenses', component.cardDetail);
       expect(trackingService.dashboardOnTotalCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
         queryParams,
       });
     });

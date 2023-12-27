@@ -1363,3 +1363,13 @@ export const orgSettingsWithUnsubscribeEvent: OrgSettings = {
     unsubscribed_events: [EmailEvents.DELEGATOR_SUBSCRIPTION, EmailEvents.EADVANCES_CREATED],
   },
 };
+
+export const orgSettingsWithV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: true,
+};
+
+export const orgSettingsWoV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: false,
+};

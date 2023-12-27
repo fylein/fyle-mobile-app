@@ -48,6 +48,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -364,7 +365,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.source_account.type).toEqual(AccountType.PERSONAL_ADVANCE_ACCOUNT);
         expect(component.paymentMode).toEqual('Advance');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
       });
     });
 
@@ -402,7 +403,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.is_reimbursable).toBeFalse();
         expect(component.paymentMode).toEqual('Paid by Company');
-        expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash-slash');
       });
     });
 
@@ -421,7 +422,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.source_account.type).toEqual(AccountType.PERSONAL_CASH_ACCOUNT);
         expect(component.paymentMode).toEqual('Paid by Employee');
-        expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+        expect(component.paymentModeIcon).toEqual('cash');
       });
     });
   });
@@ -510,7 +511,7 @@ describe('ViewExpensePage', () => {
         expect(customProperties).toEqual(filledCustomProperties);
         expect(customInputsService.fillCustomProperties).toHaveBeenCalledOnceWith(
           expenseData.category_id,
-          expenseData.custom_fields,
+          expenseData.custom_fields as Partial<CustomInput>[],
           true
         );
         done();
@@ -526,7 +527,7 @@ describe('ViewExpensePage', () => {
         expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
-          customProps,
+          customProps as Partial<CustomInput>[],
           projectIdNumber
         );
         done();
@@ -542,7 +543,7 @@ describe('ViewExpensePage', () => {
         expect(expenseData.custom_fields).toBeDefined();
         expect(expenseFieldsMapResponse4.project_id.length).toBeGreaterThan(0);
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).toHaveBeenCalledOnceWith(
-          customProps,
+          customProps as Partial<CustomInput>[],
           costCenterId
         );
         done();

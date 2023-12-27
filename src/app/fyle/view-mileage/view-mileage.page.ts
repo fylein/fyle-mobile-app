@@ -292,8 +292,7 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      map((expense) => expense.files),
-      map((fileObjs) => fileObjs[0]),
+      switchMap((expense) => from(expense.files)),
       concatMap((fileObj) =>
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
@@ -319,7 +318,7 @@ export class ViewMileagePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -332,7 +331,7 @@ export class ViewMileagePage {
       filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
       switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          expense.custom_fields,
+          expense.custom_fields as Partial<CustomInput[]>,
           expenseFields.cost_center_id[0]?.id
         )
       ),
@@ -344,13 +343,13 @@ export class ViewMileagePage {
 
       if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else if (!expense.is_reimbursable) {
         this.paymentMode = 'Paid by Company';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else {
         this.paymentMode = 'Paid by Employee';
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       }
 
       if (expense.mileage_rate) {
@@ -381,7 +380,11 @@ export class ViewMileagePage {
 
     this.mileageCustomFields$ = this.mileageExpense$.pipe(
       switchMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {

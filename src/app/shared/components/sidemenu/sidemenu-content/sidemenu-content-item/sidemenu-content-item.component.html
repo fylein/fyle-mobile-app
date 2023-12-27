@@ -1,4 +1,4 @@
-<div *ngIf="sidemenuItem.icon === 'teams' || showDivider" class="sidemenu-item__divider"></div>
+<div *ngIf="sidemenuItem.icon === 'user-three' || showDivider" class="sidemenu-item__divider"></div>
 <ion-item
   detail="false"
   [disabled]="sidemenuItem.disabled"
@@ -19,7 +19,7 @@
             <ion-icon
               class="sidemenu-item__icon-container__icon"
               [ngClass]="{
-                'sidemenu-item__icon-container__icon--sm': ['fy-report', 'fy-dashboard-new', 'fy-switch'].includes(
+                'sidemenu-item__icon-container__icon--sm': ['folder', 'dashboard', 'fy-switch'].includes(
                   sidemenuItem.icon
                 )
               }"

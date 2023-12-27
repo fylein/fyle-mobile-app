@@ -23,11 +23,11 @@
           class="view-team-advance-request--header-btn-container__btn"
           (click)="edit()"
         >
-          <ion-icon [src]="'../../../assets/svg/fy-edit-2.svg'" slot="icon-only"></ion-icon>
+          <ion-icon [src]="'../../../assets/svg/edit.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
       <ion-button (click)="openCommentsModal()" class="view-team-advance-request--header-btn-container__btn">
-        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -59,7 +59,7 @@
         <div *ngIf="attachedFiles?.length === 0" class="view-team-advance-request--content-container">
           <div class="view-team-advance-request__element">
             <app-fy-statistic
-              icon="../../../../assets/svg/no-attachment.svg"
+              icon="../../../../assets/svg/attachment-none.svg"
               [type]="StatisticTypes.STRING"
               [label]="'Receipt'"
               [value]="'Not Attached'"
@@ -95,7 +95,7 @@
       <div class="view-team-advance-request--divider"></div>
       <div class="view-team-advance-request__element">
         <app-fy-statistic
-          icon="../../../../assets/svg/profile.svg"
+          icon="../../../../assets/svg/user-one.svg"
           [type]="StatisticTypes.STRING"
           [label]="'Employee'"
           [value]="advanceRequest?.us_full_name || '-'"

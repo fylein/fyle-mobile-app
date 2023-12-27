@@ -417,9 +417,10 @@ export class ViewTeamReportPage implements OnInit {
       const etxns = await this.etxns$.toPromise();
 
       const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
+      const flaggedExpensesCount = etxns.filter((expense) => expense.tx_policy_flag || expense.tx_manual_flag).length;
       const popover = await this.popoverController.create({
         componentProps: {
-          etxns,
+          flaggedExpensesCount,
           title: 'Approve Report',
           message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
           primaryCta: {

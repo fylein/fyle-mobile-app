@@ -202,7 +202,7 @@ export class ViewPerDiemPage {
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           expenseFields.project_id[0]?.id
         )
       )
@@ -217,7 +217,7 @@ export class ViewPerDiemPage {
       ),
       switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          perDiemExpense.custom_fields,
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
           expenseFields.cost_center_id[0]?.id
         )
       ),
@@ -229,13 +229,13 @@ export class ViewPerDiemPage {
 
       if (perDiemExpense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else if (!perDiemExpense.is_reimbursable) {
         this.paymentMode = 'Paid by Company';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else {
         this.paymentMode = 'Paid by Employee';
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       }
 
       this.expenseCurrencySymbol = getCurrencySymbol(perDiemExpense.currency, 'wide');
@@ -262,7 +262,11 @@ export class ViewPerDiemPage {
 
     this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
       switchMap((expense) =>
-        this.customInputsService.fillCustomProperties(expense.category_id, expense.custom_fields, true)
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
       map((customProperties) =>
         customProperties.map((customProperty) => {
