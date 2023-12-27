@@ -149,7 +149,7 @@ describe('ExpensesCardComponent', () => {
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
-    component.receiptIcon = 'assets/svg/pdf.svg';
+    component.receiptIcon = 'assets/svg/file-pdf.svg';
     component.isOutboxExpense = true;
     component.selectedElements = apiExpenseRes;
     component.expense = cloneDeep(expenseData1);
