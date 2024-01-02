@@ -19,6 +19,7 @@ export class ExpensesService {
   constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
 
   @Cacheable({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     cacheBusterObserver: expensesCacheBuster$,
   })
   getAllExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
@@ -40,6 +41,7 @@ export class ExpensesService {
   }
 
   @Cacheable({
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     cacheBusterObserver: expensesCacheBuster$,
   })
   getReportExpenses(reportId: string): Observable<Expense[]> {
@@ -84,6 +86,16 @@ export class ExpensesService {
   getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
     return this.spenderService
       .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
+      .pipe(map((response) => response.data));
+  }
+
+  getDuplicatesByExpense(expenseId: string): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets', {
+        params: {
+          expense_id: expenseId,
+        },
+      })
       .pipe(map((response) => response.data));
   }
 

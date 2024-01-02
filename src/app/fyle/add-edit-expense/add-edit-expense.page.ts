@@ -422,6 +422,7 @@ export class AddEditExpensePage implements OnInit {
   recentCategoriesOriginal: OrgCategoryListItem[];
 
   isRTFEnabled$: Observable<boolean>;
+  isDuplicateDetectionV2Enabled$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -4866,36 +4867,61 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getDuplicateExpenses(): void {
-    if (this.activatedRoute.snapshot.params.id) {
-      this.handleDuplicates
-        .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id as string)
-        .pipe(
-          switchMap((duplicateSets) => {
-            const duplicateIds = duplicateSets
-              .map((value) => value.transaction_ids)
-              .reduce((acc, curVal) => acc.concat(curVal), []);
+    const expenseId = this.activatedRoute.snapshot.params.id;
 
-            if (duplicateIds.length > 0) {
-              const params = {
-                tx_id: `in.(${duplicateIds.join(',')})`,
-              };
-              return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-                map((expenses) => {
-                  const expensesArray = expenses as [];
-                  return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                  );
-                })
-              );
-            } else {
-              return of([]);
-            }
-          })
-        )
-        .subscribe((duplicateExpensesSet) => {
-          this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];
-        });
+    if (!expenseId) {
+      return;
     }
+
+    this.orgSettingsService
+      .get()
+      .pipe(
+        switchMap((orgSettings) => {
+          const isDuplicateDetectionV2Enabled =
+            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled;
+
+          let duplicateExpenseService$: Observable<{ transaction_ids: string[] }[]>;
+
+          if (isDuplicateDetectionV2Enabled) {
+            duplicateExpenseService$ = this.expensesService.getDuplicatesByExpense(expenseId).pipe(
+              // this will be removed when expenses API is migrated to platform completely
+              map((platformDuplicateSets) =>
+                platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
+              )
+            );
+          } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+            duplicateExpenseService$ = this.handleDuplicates.getDuplicatesByExpense(expenseId);
+          }
+
+          return duplicateExpenseService$.pipe(
+            switchMap((duplicateSets) => {
+              const duplicateIds = duplicateSets
+                .map((value) => value.transaction_ids)
+                .reduce((acc, curVal) => acc.concat(curVal), []);
+
+              if (duplicateIds.length > 0) {
+                const params = {
+                  tx_id: `in.(${duplicateIds.join(',')})`,
+                };
+                return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+                  map((expenses) => {
+                    const expensesArray = expenses as [];
+                    return duplicateSets.map((duplicateSet) =>
+                      this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                    );
+                  })
+                );
+              } else {
+                return of([]);
+              }
+            })
+          );
+        })
+      )
+      .subscribe((duplicateExpensesSet) => {
+        this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];
+      });
   }
 
   addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]): Expense[] {
