@@ -1478,21 +1478,6 @@ export function TestCases2(getTestBed) {
         expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
       });
 
-      // it('should get duplicate expenses', () => {
-      //   handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
-      //   transactionService.getETxnc.and.returnValue(of([expenseData1]));
-      //   spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
-
-      //   component.getDuplicateExpenses();
-      //   expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      //   expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
-      //     offset: 0,
-      //     limit: 100,
-      //     params: { tx_id: `in.(tx5fBcPBAxLv)` },
-      //   });
-      //   expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
-      // });
-
       it('should return empty array if no duplicate is found in public', () => {
         activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
 
@@ -1509,7 +1494,6 @@ export function TestCases2(getTestBed) {
       it('should return empty array if no duplicate is found in platform', () => {
         activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
 
-        console.log(orgSettingsService, expensesService);
         orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
         expensesService.getDuplicatesByExpense.and.returnValue(of([]));
 
