@@ -305,7 +305,7 @@ export class MyExpensesV2Page implements OnInit {
         queryParams.report_id = (queryParams?.report_id || 'is.null') as string;
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        if (queryParams?.['matched_corporate_card_transactions->0->corporate_card_number']) {
+        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
           const cardParamsCopy = queryParams['matched_corporate_card_transactions->0->corporate_card_number'] as string;
 
           queryParams.or = (queryParams.or || []) as string[];
