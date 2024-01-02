@@ -7,7 +7,6 @@ import { ActionSheetController, ModalController, NavController, PopoverControlle
 import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
-  EMPTY,
   Observable,
   Subject,
   Subscription,
@@ -20,7 +19,6 @@ import {
   of,
 } from 'rxjs';
 import {
-  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -34,8 +32,6 @@ import {
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
-import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
@@ -46,7 +42,6 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { Datum } from 'src/app/core/models/v2/stats-response.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -57,6 +52,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -81,7 +77,6 @@ import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filter
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -98,8 +93,6 @@ export class MyExpensesV2Page implements OnInit {
   count$: Observable<number>;
 
   isInfiniteScrollRequired$: Observable<boolean>;
-
-  loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
   loadExpenses$: BehaviorSubject<Partial<GetExpenseQueryParam>>;
 
@@ -305,42 +298,27 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   setAllExpensesCountAndAmount(): void {
-    this.allExpensesStats$ = this.loadData$.pipe(
+    this.allExpensesStats$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams: FilterQueryParams = cloneDeep(params.queryParams) || {};
-        const platformQueryParams = this.loadExpenses$.getValue().queryParams;
+        const queryParams = cloneDeep(params.queryParams) || {};
 
-        const newQueryParams: FilterQueryParams = {};
+        queryParams.report_id = (queryParams?.report_id || 'is.null') as string;
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        newQueryParams.tx_report_id = (platformQueryParams?.report_id || 'is.null') as string;
-        newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        if (queryParams?.['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = queryParams['matched_corporate_card_transactions->0->corporate_card_number'] as string;
 
-        if (platformQueryParams?.['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = platformQueryParams[
-            'matched_corporate_card_transactions->0->corporate_card_number'
-          ] as string;
-
-          newQueryParams.or = queryParams.or || [];
-          newQueryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
-          delete queryParams.corporate_credit_card_account_number;
+          queryParams.or = (queryParams.or || []) as string[];
+          queryParams.or.push('(matched_corporate_card_transactions->0->corporate_card_number.' + cardParamsCopy + ')');
+          delete queryParams['matched_corporate_card_transactions->0->corporate_card_number'];
         }
 
-        return this.transactionService
-          .getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            ...newQueryParams,
-          })
-          .pipe(
-            catchError(() => EMPTY),
-            map((stats: Datum[]) => {
-              const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-              const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
-              return {
-                count: count.function_value,
-                amount: amount.function_value || 0,
-              };
-            })
-          );
+        return this.expenseService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            count: stats.data.count,
+            amount: stats.data.total_amount,
+          }))
+        );
       })
     );
   }
@@ -503,9 +481,6 @@ export class MyExpensesV2Page implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
-    });
 
     this.loadExpenses$ = new BehaviorSubject({
       pageNumber: 1,
@@ -613,32 +588,24 @@ export class MyExpensesV2Page implements OnInit {
 
     this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadData$.pipe(
+    this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
+        this.expenseService.getExpenseStats({
+          state: 'in.(COMPLETE,DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
-    this.draftExpensesCount$ = this.loadData$.pipe(
+    this.draftExpensesCount$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
+        this.expenseService.getExpenseStats({
+          state: 'in.(DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
     this.loadExpenses$.subscribe(() => {
