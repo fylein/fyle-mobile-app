@@ -4,15 +4,19 @@ import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { BehaviorSubject, of } from 'rxjs';
-import { duplicateSetData1, duplicateSetData2, duplicateSetData3 } from 'src/app/core/mock-data/duplicate-sets.data';
+import {
+  duplicateSetData1,
+  duplicateSetData2,
+  duplicateSetData3,
+  duplicateSetData4,
+} from 'src/app/core/mock-data/duplicate-sets.data';
 import { dismissExpenseSnackbarProps } from 'src/app/core/mock-data/snackbar-properties.data';
 import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { PotentialDuplicatesPage } from './potential-duplicates.page';
-import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses1, expenseData, expenseIds } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { cloneDeep } from 'lodash';
 
@@ -119,6 +123,21 @@ describe('PotentialDuplicatesPage', () => {
       expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledTimes(2);
     }));
 
+    it('should populate duplicated expenses if they are over 200 duplicate expenses', fakeAsync(() => {
+      handleDuplicates.getDuplicateSets.and.returnValue(of([duplicateSetData4]));
+      spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
+      expensesService.getExpenses.and.returnValue(of([expenseData, apiExpenses1[0]]));
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      component.duplicateSets$.subscribe((res) => {
+        expect(res).toEqual([apiExpenses1]);
+      });
+
+      expect(expensesService.getExpenses).toHaveBeenCalledTimes(4);
+    }));
+
     it('should go to tasks page if no duplicate sets are found', fakeAsync(() => {
       handleDuplicates.getDuplicateSets.and.returnValue(of([]));
       expensesService.getExpenses.and.returnValue(of(null));
@@ -129,7 +148,7 @@ describe('PotentialDuplicatesPage', () => {
 
       expect(handleDuplicates.getDuplicateSets).toHaveBeenCalledTimes(1);
       expect(component.goToTasks).toHaveBeenCalledTimes(1);
-      expect(expensesService.getExpenses).toHaveBeenCalledTimes(1);
+      expect(expensesService.getExpenses).not.toHaveBeenCalled();
     }));
   });
 

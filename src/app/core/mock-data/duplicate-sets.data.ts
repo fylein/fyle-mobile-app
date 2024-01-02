@@ -1,4 +1,5 @@
 import { DuplicateSet } from '../models/v2/duplicate-sets.model';
+import { expenseIds } from './platform/v1/expense.data';
 
 export const duplicateSetData1: DuplicateSet = {
   fields: ['field1', 'field2'],
@@ -13,4 +14,9 @@ export const duplicateSetData2: DuplicateSet = {
 export const duplicateSetData3: DuplicateSet = {
   fields: ['field1', 'field2'],
   transaction_ids: ['txcSFe6efB6R', 'txDDLtRaflUW'],
+};
+
+export const duplicateSetData4: DuplicateSet = {
+  fields: ['field1', 'field2'],
+  transaction_ids: expenseIds,
 };
