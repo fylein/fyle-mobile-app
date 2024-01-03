@@ -152,6 +152,22 @@ describe('ExpensesService', () => {
     });
   });
 
+  it('getDuplicatesByExpense() : should get the duplicates by expense', (done) => {
+    const expenseId = 'txaiCW1efU0n';
+    spenderService.get.and.returnValue(of({ data: expenseDuplicateSets }));
+
+    service.getDuplicatesByExpense(expenseId).subscribe((response) => {
+      expect(response).toEqual(expenseDuplicateSets);
+
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets', {
+        params: {
+          expense_id: 'txaiCW1efU0n',
+        },
+      });
+      done();
+    });
+  });
+
   it('dismissDuplicates(): should dismiss duplicate expenses', (done) => {
     spenderService.post.and.returnValue(of({}));
 

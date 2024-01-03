@@ -4,6 +4,10 @@ export const expenseDuplicateSet: ExpenseDuplicateSet = {
   expense_ids: ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
 };
 
+export const expenseDuplicateSet2: ExpenseDuplicateSet = {
+  expense_ids: ['tx5fBcPBAxLv'],
+};
+
 export const expenseDuplicateSets: ExpenseDuplicateSet[] = [
   { expense_ids: ['tx3I0ccSGlhg', 'txvAmVCGZUZi'] },
   { expense_ids: ['tx3rq5G9gzgf', 'txS1cDov9iZn'] },
