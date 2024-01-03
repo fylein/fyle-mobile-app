@@ -106,7 +106,7 @@ const properties = {
 };
 
 export function TestCases2(getTestBed) {
-  return fdescribe('AddEditExpensePage-2', () => {
+  return describe('AddEditExpensePage-2', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
