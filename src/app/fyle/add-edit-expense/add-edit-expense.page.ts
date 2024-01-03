@@ -423,7 +423,6 @@ export class AddEditExpensePage implements OnInit {
   recentCategoriesOriginal: OrgCategoryListItem[];
 
   isRTFEnabled$: Observable<boolean>;
-  isDuplicateDetectionV2Enabled$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
