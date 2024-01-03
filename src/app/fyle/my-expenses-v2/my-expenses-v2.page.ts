@@ -187,7 +187,7 @@ export class MyExpensesV2Page implements OnInit {
 
   expensesToBeDeleted: PlatformExpense[];
 
-  outboxExpensesToBeDeleted: Partial<Expense>[];
+  outboxExpensesToBeDeleted: Partial<Expense>[] = [];
 
   cccExpenses: number;
 
@@ -1454,7 +1454,9 @@ export class MyExpensesV2Page implements OnInit {
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
           if (this.selectedElements.length > 0) {
-            this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
+            if (this.outboxExpensesToBeDeleted.length) {
+              this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
+            }
 
             this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
 
