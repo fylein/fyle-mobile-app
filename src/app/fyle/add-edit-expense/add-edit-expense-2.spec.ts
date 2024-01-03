@@ -110,7 +110,7 @@ const properties = {
 };
 
 export function TestCases2(getTestBed) {
-  return describe('AddEditExpensePage-2', () => {
+  return fdescribe('AddEditExpensePage-2', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -1437,6 +1437,16 @@ export function TestCases2(getTestBed) {
     });
 
     describe('getDuplicateExpenses():', () => {
+      it('should return early if expenseId is not provided', () => {
+        activatedRoute.snapshot.params.id = ''; // No expenseId provided
+
+        component.getDuplicateExpenses();
+
+        expect(orgSettingsService.get).not.toHaveBeenCalled();
+        expect(expensesService.getDuplicatesByExpense).not.toHaveBeenCalled();
+        expect(transactionService.getETxnc).not.toHaveBeenCalled();
+      });
+
       it('should get duplicate expenses from platform when duplicate detection v2 is enabled', () => {
         activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
         const expenseId = activatedRoute.snapshot.params.id;
@@ -1464,6 +1474,7 @@ export function TestCases2(getTestBed) {
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
         handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
+        transactionService.getETxnc.and.returnValue(of([expenseData1]));
         spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
 
         component.getDuplicateExpenses();

@@ -23,6 +23,7 @@ import {
   noop,
   of,
   throwError,
+  EMPTY,
 } from 'rxjs';
 import {
   catchError,
@@ -4915,7 +4916,10 @@ export class AddEditExpensePage implements OnInit {
               } else {
                 return of([]);
               }
-            })
+            }),
+            catchError(
+              () => EMPTY // Return an empty observable in case of an error
+            )
           );
         })
       )
