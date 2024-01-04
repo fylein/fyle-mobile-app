@@ -1070,13 +1070,14 @@ describe('MyExpensesV2Page', () => {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
-      component.loadExpenses$ = new BehaviorSubject({});
+
       expensesService.getExpenseStats.and.returnValue(of(completeStats));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
           state: 'in.(COMPLETE,DRAFT)',
+          or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
           count: 3,
@@ -2616,6 +2617,7 @@ describe('MyExpensesV2Page', () => {
       popoverController.create.and.resolveTo(deletePopOverSpy);
       component.cccExpenses = 0;
       component.expensesToBeDeleted = [];
+
       spyOn(component, 'deleteSelectedExpenses').and.callThrough();
 
       component.openDeleteExpensesPopover();

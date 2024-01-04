@@ -302,7 +302,7 @@ export class MyExpensesV2Page implements OnInit {
       switchMap((params) => {
         const queryParams = cloneDeep(params.queryParams) || {};
 
-        queryParams.report_id = (queryParams?.report_id || 'is.null') as string;
+        queryParams.report_id = (queryParams.report_id || 'is.null') as string;
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
@@ -1315,7 +1315,7 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   async openDeleteExpensesPopover(): Promise<void> {
-    const offlineExpenses = this.outboxExpensesToBeDeleted?.filter((expense) => !expense.tx_id);
+    const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.tx_id);
 
     const expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
 
@@ -1326,7 +1326,7 @@ export class MyExpensesV2Page implements OnInit {
 
     let totalDeleteLength = this.expensesToBeDeleted?.length;
 
-    if (this.outboxExpensesToBeDeleted?.length > 0) {
+    if (this.outboxExpensesToBeDeleted.length > 0) {
       totalDeleteLength = totalDeleteLength + this.outboxExpensesToBeDeleted.length;
     }
 
