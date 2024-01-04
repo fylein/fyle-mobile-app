@@ -21,7 +21,7 @@
       <ng-container *ngIf="status === 'MATCHED'"> View expense </ng-container>
       <ion-icon
         *ngIf="!isMatchedCountLoading"
-        [src]="'assets/svg/right-arrow.svg'"
+        [src]="'assets/svg/arrow-right.svg'"
         class="personal-card-transaction--icon"
         slot="icon-only"
       >
@@ -38,7 +38,7 @@
     <span
       class="personal-card-transaction--amount"
       [ngClass]="{ 'personal-card-transaction--green': type === 'credit' }"
-      >{{ amount | currency: currency:'' }}
+      >{{ amount | currency : currency : '' }}
     </span>
     <span
       class="personal-card-transaction--type"
