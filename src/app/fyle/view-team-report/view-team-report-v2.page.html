@@ -2,7 +2,7 @@
   <ion-toolbar class="view-reports--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button *ngIf="navigateBack" mat-icon-button [routerLink]="['/','enterprise','team_reports']">
-        <ion-icon [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ng-container>
@@ -227,7 +227,7 @@
                 </ion-row>
               </ion-grid>
               <div class="view-comment--profile view-comment--self-profile">
-                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
               </div>
             </div>
             <div
@@ -236,7 +236,7 @@
               [ngClass]="{ 'view-comment--no-date': !estatus.show_dt }"
             >
               <div class="view-comment--profile view-comment--others-profile">
-                <mat-icon svgIcon="profile" class="view-comment--profile-icon"></mat-icon>
+                <mat-icon svgIcon="user-one" class="view-comment--profile-icon"></mat-icon>
               </div>
               <ion-grid class="view-comment--card view-comment--others-comment text-left">
                 <ion-row>

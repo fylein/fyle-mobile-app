@@ -982,7 +982,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Failed to run policies',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1082,7 +1082,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Processing Payment',
-      icon: 'fy-recently-used',
+      icon: 'clock',
     },
   },
   {
@@ -1142,7 +1142,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Issues',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1342,7 +1342,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Rule Applied',
-      icon: 'expense-rule',
+      icon: 'file-lightning-indicator',
     },
   },
   {

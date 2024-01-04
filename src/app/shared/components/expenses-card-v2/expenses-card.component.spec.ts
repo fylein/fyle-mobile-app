@@ -154,7 +154,7 @@ describe('ExpensesCardComponent', () => {
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
-    component.receiptIcon = 'assets/svg/pdf.svg';
+    component.receiptIcon = 'assets/svg/file-pdf.svg';
     component.isOutboxExpense = true;
     component.selectedElements = expenseResponseData;
     component.expense = cloneDeep(expenseData);
@@ -219,12 +219,12 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('getReceipt', () => {
-    it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+    it('should set the receipt icon to mileage when the fyle catergory is mileage', () => {
       component.expense = cloneDeep(expenseData);
       component.expense.category.name = 'mileage';
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
     it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
@@ -606,7 +606,7 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash');
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
@@ -616,7 +616,7 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     });
   });
 

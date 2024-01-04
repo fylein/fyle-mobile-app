@@ -626,4 +626,8 @@ export class TrackingService {
   enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
     this.eventTrack('Enrolling Non RTF Card', properties);
   }
+
+  showSuggestedDuplicates(): void {
+    this.eventTrack('Show Suggested Duplicates');
+  }
 }

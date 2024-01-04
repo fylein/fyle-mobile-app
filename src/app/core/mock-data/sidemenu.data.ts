@@ -10,7 +10,7 @@ export const sidemenuData1 = [
   {
     title: 'Expenses',
     isVisible: true,
-    icon: 'expense',
+    icon: 'list',
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
@@ -31,7 +31,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Expenses',
     isVisible: true,
-    icon: 'expense',
+    icon: 'list',
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
@@ -44,7 +44,7 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
@@ -97,13 +97,13 @@ export const getPrimarySidemenuOptionsRes1 = [
   {
     title: 'Expenses',
     isVisible: true,
-    icon: 'expense',
+    icon: 'list',
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
@@ -164,13 +164,13 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
   {
     title: 'Expenses',
     isVisible: true,
-    icon: 'expense',
+    icon: 'list',
     route: ['/', 'enterprise', 'my_expenses'],
   },
   {
     title: 'Reports',
     isVisible: true,
-    icon: 'fy-report',
+    icon: 'folder',
     route: ['/', 'enterprise', 'my_reports'],
     disabled: false,
   },
