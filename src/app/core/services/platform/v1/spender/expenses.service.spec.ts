@@ -14,7 +14,7 @@ describe('ExpensesService', () => {
   let spenderService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SpenderService, useValue: spenderServiceSpy },
@@ -148,6 +148,45 @@ describe('ExpensesService', () => {
       expect(response).toEqual(expenseDuplicateSets);
 
       expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets');
+      done();
+    });
+  });
+
+  it('getDuplicatesByExpense() : should get the duplicates by expense', (done) => {
+    const expenseId = 'txaiCW1efU0n';
+    spenderService.get.and.returnValue(of({ data: expenseDuplicateSets }));
+
+    service.getDuplicatesByExpense(expenseId).subscribe((response) => {
+      expect(response).toEqual(expenseDuplicateSets);
+
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets', {
+        params: {
+          expense_id: 'txaiCW1efU0n',
+        },
+      });
+      done();
+    });
+  });
+
+  it('dismissDuplicates(): should dismiss duplicate expenses', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const duplicateExpenseIds = ['tx1234', 'tx2345'];
+    const targetExpenseIds = ['tx1234', 'tx2345'];
+
+    service.dismissDuplicates(duplicateExpenseIds, targetExpenseIds).subscribe(() => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/dismiss_duplicates/bulk', {
+        data: [
+          {
+            id: 'tx1234',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+          {
+            id: 'tx2345',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+        ],
+      });
       done();
     });
   });

@@ -86,4 +86,25 @@ export class ExpensesService {
       .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
       .pipe(map((response) => response.data));
   }
+
+  getDuplicatesByExpense(expenseId: string): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets', {
+        params: {
+          expense_id: expenseId,
+        },
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
+    const payload = targetExpenseIds.map((targetExpenseId) => ({
+      id: targetExpenseId,
+      duplicate_expense_ids: duplicateExpenseIds,
+    }));
+
+    return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk', {
+      data: payload,
+    });
+  }
 }
