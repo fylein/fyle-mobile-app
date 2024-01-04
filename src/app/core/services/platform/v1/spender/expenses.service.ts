@@ -7,12 +7,17 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
+    private spenderService: SpenderService,
+    private sharedExpenseService: SharedExpenseService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
@@ -78,14 +83,9 @@ export class ExpensesService {
   }
 
   getExpenseStats(params: Record<string, string>): Observable<{ data: { count: number; total_amount: number } }> {
-    const paramKeys = Object.keys(params);
-    const queryParams = [];
-    paramKeys.forEach((key) => {
-      queryParams.push(`${key}=${params[key]}`);
-    });
     return this.spenderService.post('/expenses/stats', {
       data: {
-        query_params: queryParams.join('&'),
+        query_params: this.sharedExpenseService.generateStatsQueryParams(params),
       },
     });
   }
