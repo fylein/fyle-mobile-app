@@ -399,6 +399,16 @@ export class ExpensesService {
     return expenseInPaymentMode;
   }
 
+  generateStatsQueryParams(params: Record<string, string | string[] | boolean>): string {
+    const paramKeys = Object.keys(params);
+    const queryParams = [];
+    paramKeys.forEach((key) => {
+      queryParams.push(`${key}=${params[key]}`);
+    });
+
+    return queryParams.join('&');
+  }
+
   private getPaymentModeForExpense(expense: Expense, paymentModes: NameKeyPair[]): NameKeyPair {
     const expenseIsReimbursable = expense.is_reimbursable;
     const expenseSourceAccountType = expense.source_account?.type;

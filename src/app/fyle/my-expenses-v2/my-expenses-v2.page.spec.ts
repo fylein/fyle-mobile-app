@@ -1907,6 +1907,16 @@ describe('MyExpensesV2Page', () => {
         { id: apiExpenses1[0].id, persist_filters: true },
       ]);
     });
+
+    it('should not navigate to any other page, if category is not present', () => {
+      component.goToTransaction({ expense: { ...apiExpenses1[0], category: null }, expenseIndex: 1 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: apiExpenses1[0].id, persist_filters: true },
+      ]);
+    });
   });
 
   describe('openCriticalPolicyViolationPopOver():', () => {
@@ -2757,6 +2767,7 @@ describe('MyExpensesV2Page', () => {
 
     it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
       expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
+      component.outboxExpensesToBeDeleted = apiExpenseRes;
       component.pendingTransactions = cloneDeep([]);
       component.onSelectAll(true);
       expect(component.isReportableExpensesSelected).toBeTrue();
