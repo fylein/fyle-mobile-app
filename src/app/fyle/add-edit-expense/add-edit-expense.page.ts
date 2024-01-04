@@ -4890,7 +4890,6 @@ export class AddEditExpensePage implements OnInit {
               )
             );
           } else {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
             duplicateExpenseService$ = this.handleDuplicates.getDuplicatesByExpense(expenseId);
           }
 
