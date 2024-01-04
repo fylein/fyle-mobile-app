@@ -15,6 +15,20 @@ export const draftExpenseTaskSample = {
   ],
 };
 
+export const draftExpenseTaskSample2 = {
+  amount: '132.57B',
+  count: 339,
+  header: 'Incomplete expenses',
+  subheader: '339 expenses worth ₹132.57B  require additional information',
+  icon: TaskIcon.WARNING,
+  ctas: [
+    {
+      content: 'Review Expenses',
+      event: TASKEVENT.reviewExpenses,
+    },
+  ],
+};
+
 export const potentailDuplicateTaskSample = {
   hideAmount: true,
   count: 13,
@@ -62,6 +76,20 @@ export const unreportedExpenseTaskSample = {
   count: 13,
   header: 'Expenses are ready to report',
   subheader: '13 expenses  worth ₹142.26K  can be added to a report',
+  icon: TaskIcon.REPORT,
+  ctas: [
+    {
+      content: 'Add to Report',
+      event: TASKEVENT.expensesAddToReport,
+    },
+  ],
+};
+
+export const unreportedExpenseTaskSample2 = {
+  amount: '142.26K',
+  count: 3,
+  header: 'Expenses are ready to report',
+  subheader: '3 expenses  worth ₹142.26K  can be added to a report',
   icon: TaskIcon.REPORT,
   ctas: [
     {

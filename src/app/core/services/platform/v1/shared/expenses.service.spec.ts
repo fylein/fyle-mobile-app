@@ -601,6 +601,17 @@ describe('ExpensesService', () => {
     });
   });
 
+  it('generateStatsQueryParams(): should generate stats query params', () => {
+    const queryParams = {
+      state: 'in.(COMPLETE)',
+      report_id: 'is.null',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+    };
+
+    const result = service.generateStatsQueryParams(queryParams);
+    expect(result).toEqual('state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)');
+  });
+
   describe('generateSplitExpenseParams():', () => {
     it('should generate params for split expense', () => {
       const result = service.generateSplitExpenseParams({}, expenseFiltersData1);

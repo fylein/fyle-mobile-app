@@ -8,16 +8,20 @@ import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-re
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
 import { completeStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let spenderService: jasmine.SpyObj<SpenderService>;
+  let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
 
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
+    const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', ['generateStatsQueryParams']);
     TestBed.configureTestingModule({
       providers: [
         { provide: SpenderService, useValue: spenderServiceSpy },
+        { provide: SharedExpenseService, useValue: sharedExpenseServiceSpy },
         {
           provide: PAGINATION_SIZE,
           useValue: 2,
@@ -26,6 +30,7 @@ describe('ExpensesService', () => {
     });
     service = TestBed.inject(ExpensesService);
     spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
+    sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
   });
 
   it('should be created', () => {
@@ -143,21 +148,24 @@ describe('ExpensesService', () => {
 
   it('getExpenseStats(): should get expense stats for unreported stats', (done) => {
     spenderService.post.and.returnValue(of(completeStats));
+    sharedExpenseService.generateStatsQueryParams.and.returnValue(
+      'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)'
+    );
 
-    service
-      .getExpenseStats({
-        state: 'in.(COMPLETE)',
-        report_id: 'is.null',
-        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
-      })
-      .subscribe((res) => {
-        expect(res).toEqual(completeStats);
-        expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/stats', {
-          data: {
-            query_params: 'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
-          },
-        });
-        done();
+    const queryParams = {
+      state: 'in.(COMPLETE)',
+      report_id: 'is.null',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+    };
+    service.getExpenseStats(queryParams).subscribe((res) => {
+      expect(res).toEqual(completeStats);
+      expect(sharedExpenseService.generateStatsQueryParams).toHaveBeenCalledOnceWith(queryParams);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/stats', {
+        data: {
+          query_params: 'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
+        },
       });
+      done();
+    });
   });
 });
