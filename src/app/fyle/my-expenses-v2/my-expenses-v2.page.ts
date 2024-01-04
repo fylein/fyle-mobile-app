@@ -778,7 +778,7 @@ export class MyExpensesV2Page implements OnInit {
       this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter?.type?.length > 0) {
+    if (filter.type?.length > 0) {
       this.myExpensesService.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -1393,7 +1393,7 @@ export class MyExpensesV2Page implements OnInit {
       if (data.status === 'success') {
         let totalNoOfSelectedExpenses = 0;
         if (offlineExpenses?.length > 0) {
-          totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements.length;
+          totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
         } else {
           totalNoOfSelectedExpenses = this.selectedElements.length;
         }
