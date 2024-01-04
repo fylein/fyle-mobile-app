@@ -4867,7 +4867,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getDuplicateExpenses(): void {
-    const expenseId = this.activatedRoute.snapshot.params.id;
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
 
     if (!expenseId) {
       return;
