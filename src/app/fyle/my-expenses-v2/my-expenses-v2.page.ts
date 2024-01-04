@@ -1454,7 +1454,7 @@ export class MyExpensesV2Page implements OnInit {
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
           if (this.selectedElements.length > 0) {
-            if (this.outboxExpensesToBeDeleted.length) {
+            if (this.outboxExpensesToBeDeleted.length > 0) {
               this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
             }
 
