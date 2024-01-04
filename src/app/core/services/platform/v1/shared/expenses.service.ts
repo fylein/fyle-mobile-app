@@ -112,7 +112,7 @@ export class ExpensesService {
   isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
-        ['Mileage', 'Per Diem'].includes(expense.category?.system_category)
+        ['Mileage', 'Per Diem'].includes(expense.category.system_category)
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
         [
@@ -399,7 +399,7 @@ export class ExpensesService {
     return expenseInPaymentMode;
   }
 
-  generateStatsQueryParams(params: Record<string, string>): string {
+  generateStatsQueryParams(params: Record<string, string | string[] | boolean>): string {
     const paramKeys = Object.keys(params);
     const queryParams = [];
     paramKeys.forEach((key) => {

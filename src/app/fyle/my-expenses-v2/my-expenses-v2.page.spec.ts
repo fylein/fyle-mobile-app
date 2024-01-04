@@ -123,6 +123,7 @@ import { environment } from 'src/environments/environment';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesV2Page } from './my-expenses-v2.page';
 import { MyExpensesService } from './my-expenses.service';
+import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesV2Page;
@@ -262,6 +263,7 @@ describe('MyExpensesV2Page', () => {
       'getExpenses',
       'getAllExpenses',
       'getExpenseById',
+      'getExpenseStats',
     ]);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'generateCardNumberParams',
@@ -429,7 +431,7 @@ describe('MyExpensesV2Page', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
-    component.loadData$ = new BehaviorSubject({});
+
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 
@@ -462,9 +464,8 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'setupActionSheet');
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
-
+      expensesService.getExpenseStats.and.returnValue(of(completeStats));
       expensesService.getExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
 
       reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
@@ -734,14 +735,14 @@ describe('MyExpensesV2Page', () => {
 
     it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
       component.ionViewWillEnter();
-      component.loadData$.next({
+      component.loadExpenses$.next({
         pageNumber: 1,
         sortDir: 'asc',
         sortParam: 'approvalDate',
       });
       tick(500);
 
-      expect(expensesService.getExpenses).toHaveBeenCalledTimes(1);
+      expect(expensesService.getExpenses).toHaveBeenCalledTimes(2);
       expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
@@ -781,22 +782,20 @@ describe('MyExpensesV2Page', () => {
       tick(500);
 
       component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
+          state: 'in.(COMPLETE,DRAFT)',
+          report_id: 'is.null',
         });
-        expect(allExpenseCountHeader).toBe(4);
+        expect(allExpenseCountHeader).toBe(3);
       });
       component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
+          report_id: 'is.null',
+          state: 'in.(DRAFT)',
         });
-        expect(draftExpensesCount).toBe(4);
+        expect(draftExpensesCount).toBe(3);
       });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
+      expect(expensesService.getExpenseStats).toHaveBeenCalledTimes(2);
     }));
 
     it('should navigate relative to activatedRoute and call clearFilters if snapshot.params and queryParams are undefined', fakeAsync(() => {
@@ -1065,66 +1064,63 @@ describe('MyExpensesV2Page', () => {
   }));
 
   describe('setAllExpensesCountAndAmount(): ', () => {
-    it('should call transactionService.getTransactionStats if loadExpenses contains queryParams', () => {
+    it('should call expensesService.getExpenseStats if loadExpenses contains queryParams', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
-      component.loadData$ = new BehaviorSubject({});
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+
+      expensesService.getExpenseStats.and.returnValue(of(completeStats));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          or: ['(corporate_credit_card_account_number.8698)'],
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          report_id: 'is.null',
+          state: 'in.(COMPLETE,DRAFT)',
+          or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 3494,
+          count: 3,
+          amount: 30,
         });
       });
     });
 
-    it('should call transactionService.getTransactionStats and initialize queryParams to empty object if loadData.queryParams is falsy', () => {
+    it('should call expensesService.getExpenseStats and initialize queryParams to empty object if loadData.queryParams is falsy', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: null,
       });
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum3));
+      expensesService.getExpenseStats.and.returnValue(of(incompleteStats));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          report_id: 'is.null',
+          state: 'in.(COMPLETE,DRAFT)',
         });
         expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 0,
+          count: incompleteStats.data.count,
+          amount: incompleteStats.data.total_amount,
         });
       });
     });
 
-    it('should handle error in getTransactionStats and complete the observable', () => {
+    it('should handle error in getExpenseStats and complete the observable', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
-      transactionService.getTransactionStats.and.returnValue(throwError(() => new Error('error message')));
+      expensesService.getExpenseStats.and.returnValue(throwError(() => new Error('error message')));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe({
-        complete: () => {
-          expect().nothing();
+        error: (err) => {
+          expect(err.message).toEqual('error message');
         },
       });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-        or: ['(corporate_credit_card_account_number.8698)'],
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
+        or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
       });
     });
   });
@@ -2621,6 +2617,7 @@ describe('MyExpensesV2Page', () => {
       popoverController.create.and.resolveTo(deletePopOverSpy);
       component.cccExpenses = 0;
       component.expensesToBeDeleted = [];
+
       spyOn(component, 'deleteSelectedExpenses').and.callThrough();
 
       component.openDeleteExpensesPopover();
@@ -2821,7 +2818,7 @@ describe('MyExpensesV2Page', () => {
 
   describe('onFilterClose(): ', () => {
     beforeEach(() => {
-      component.loadData$ = new BehaviorSubject({});
+      component.loadExpenses$ = new BehaviorSubject({});
       component.filters = {
         sortDir: 'asc',
         sortParam: 'tx_org_category',

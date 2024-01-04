@@ -82,7 +82,9 @@ export class ExpensesService {
       .pipe(map((expenses) => expenses.data));
   }
 
-  getExpenseStats(params: Record<string, string>): Observable<{ data: { count: number; total_amount: number } }> {
+  getExpenseStats(
+    params: Record<string, string | string[] | boolean>
+  ): Observable<{ data: { count: number; total_amount: number } }> {
     return this.spenderService.post('/expenses/stats', {
       data: {
         query_params: this.sharedExpenseService.generateStatsQueryParams(params),
