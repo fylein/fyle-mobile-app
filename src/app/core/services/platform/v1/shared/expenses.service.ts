@@ -112,7 +112,7 @@ export class ExpensesService {
   isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
-        ['Mileage', 'Per Diem'].includes(expense.category?.system_category)
+        ['Mileage', 'Per Diem'].includes(expense.category.system_category)
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
         [
