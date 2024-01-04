@@ -25,7 +25,7 @@
                   'split-expense-policy-violation--dropdown-container__icon--rotate':
                     !policyViolations[transaction].isExpanded
                 }"
-                [src]="'../../../../assets/svg/fy-arrow-down.svg'"
+                [src]="'../../../../assets/svg/arrow-down.svg'"
               ></ion-icon>
             </span>
           </div>
@@ -41,7 +41,7 @@
               <div class="split-expense-policy-violation--value text-right">
                 {{
                   policyViolations[transaction].amount
-                    | currency: policyViolations[transaction].currency : 'symbol-narrow'
+                    | currency : policyViolations[transaction].currency : 'symbol-narrow'
                 }}
               </div>
             </div>
