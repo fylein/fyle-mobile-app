@@ -40,7 +40,6 @@ export class TasksService {
     private userEventService: UserEventService,
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
-    private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
