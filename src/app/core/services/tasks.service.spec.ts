@@ -36,12 +36,15 @@ import {
   sentBackAdvanceTaskSample,
   addMobileNumberTask,
   verifyMobileNumberTask,
+  draftExpenseTaskSample2,
+  unreportedExpenseTaskSample2,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { orgSettingsWithDuplicateDetectionV2, orgSettingsWoDuplicateDetectionV2 } from '../mock-data/org-settings.data';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
+import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -67,6 +70,7 @@ describe('TasksService', () => {
       'getAllExtendedReports',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicateSets']);
@@ -188,14 +192,13 @@ describe('TasksService', () => {
   });
 
   function getUnreportedExpenses() {
-    transactionService.getTransactionStats
-      .withArgs('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(COMPLETE)',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        tx_report_id: 'is.null',
+    expensesService.getExpenseStats
+      .withArgs({
+        state: 'in.(COMPLETE)',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+        report_id: 'is.null',
       })
-      .and.returnValue(of(unreportedExpensesResponse));
+      .and.returnValue(of(completeStats));
 
     reportService.getAllExtendedReports.and.returnValue(of(allExtendedReportsResponse));
   }
@@ -204,13 +207,11 @@ describe('TasksService', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     humanizeCurrencyPipe.transform
-      .withArgs(unreportedExpensesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .withArgs(completeStats.data.total_amount, homeCurrency, true)
       .and.returnValue('142.26K');
-    humanizeCurrencyPipe.transform
-      .withArgs(unreportedExpensesResponse[0].aggregates[1].function_value, homeCurrency)
-      .and.returnValue('₹142.26K');
+    humanizeCurrencyPipe.transform.withArgs(completeStats.data.total_amount, homeCurrency).and.returnValue('₹142.26K');
     tasksService.getUnreportedExpensesTasks().subscribe((unrepotedExpensesTasks) => {
-      expect(unrepotedExpensesTasks).toEqual([unreportedExpenseTaskSample]);
+      expect(unrepotedExpensesTasks).toEqual([unreportedExpenseTaskSample2]);
     });
   });
 
@@ -289,25 +290,24 @@ describe('TasksService', () => {
   });
 
   it('should be able to fetch incomplete tasks', (done) => {
-    transactionService.getTransactionStats
-      .withArgs('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(DRAFT)',
-        tx_report_id: 'is.null',
+    expensesService.getExpenseStats
+      .withArgs({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
       })
-      .and.returnValue(of(incompleteExpensesResponse));
+      .and.returnValue(of(incompleteStats));
 
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     humanizeCurrencyPipe.transform
-      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .withArgs(incompleteStats.data.total_amount, homeCurrency, true)
       .and.returnValue('132.57B');
     humanizeCurrencyPipe.transform
-      .withArgs(incompleteExpensesResponse[0].aggregates[1].function_value, homeCurrency)
+      .withArgs(incompleteStats.data.total_amount, homeCurrency)
       .and.returnValue('₹132.57B');
 
     tasksService.getDraftExpensesTasks().subscribe((draftExpensesTasks) => {
-      expect(draftExpensesTasks).toEqual([draftExpenseTaskSample]);
+      expect(draftExpensesTasks).toEqual([draftExpenseTaskSample2]);
       done();
     });
   });
@@ -586,7 +586,7 @@ describe('TasksService', () => {
   });
 
   it('should be able to generate unreported expenses tasks when no reports present', () => {
-    const totalCount = unreportedExpensesResponse[0].aggregates[1].function_value;
+    const totalCount = incompleteStats.data.count;
     humanizeCurrencyPipe.transform.withArgs(totalCount, homeCurrency, true).and.returnValue('142.26K');
     humanizeCurrencyPipe.transform.withArgs(totalCount, homeCurrency).and.returnValue('₹142.26K');
 
@@ -724,13 +724,12 @@ describe('TasksService', () => {
       .and.returnValue(of(teamReportResponse));
     orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
-    transactionService.getTransactionStats
-      .withArgs('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(DRAFT)',
-        tx_report_id: 'is.null',
+    expensesService.getExpenseStats
+      .withArgs({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
       })
-      .and.returnValue(of(incompleteExpensesResponse));
+      .and.returnValue(of(incompleteStats));
 
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
   }

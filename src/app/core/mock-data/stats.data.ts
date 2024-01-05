@@ -14,3 +14,18 @@ export const expectedEmptyStats: Stats = {
   count: undefined,
   sum: undefined,
 };
+
+export const expectedUnreportedExpStats2: Stats = {
+  count: 3,
+  sum: 30,
+};
+
+export const expectedIncompleteExpStats2: Stats = {
+  count: 339,
+  sum: 76234.47290692403,
+};
+
+export const emptyStatsAgg: Stats = {
+  count: 0,
+  sum: 0,
+};

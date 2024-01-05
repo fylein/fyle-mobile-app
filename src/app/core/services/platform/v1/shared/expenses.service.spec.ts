@@ -94,12 +94,18 @@ describe('ExpensesService', () => {
       expect(service.getVendorDetails(mileageExpenseWithoutDistance)).toEqual('0 KM');
     });
 
-    it('should retuen vendor details for per diem expense with 1 day', () => {
+    it('should return vendor details for per diem expense with 1 day', () => {
       expect(service.getVendorDetails(perDiemExpenseWithSingleNumDays)).toEqual('1 Day');
     });
 
-    it('should retuen vendor details for per diem expense with multiple days', () => {
+    it('should return vendor details for per diem expense with multiple days', () => {
       expect(service.getVendorDetails(perDiemExpenseWithMultipleNumDays)).toEqual('3 Days');
+    });
+
+    it('should return vendor details per diem expense for 0 days', () => {
+      expect(service.getVendorDetails({ ...perDiemExpenseWithMultipleNumDays, per_diem_num_days: null })).toContain(
+        '0'
+      );
     });
   });
 
@@ -372,10 +378,21 @@ describe('ExpensesService', () => {
     });
   });
 
-  it('excludeCCCExpenses(): should exclude ccc expenses', () => {
-    const result = service.excludeCCCExpenses([expenseData, mileageExpense]);
+  describe('excludeCCCExpenses():', () => {
+    it('should exclude ccc expenses', () => {
+      const result = service.excludeCCCExpenses([expenseData, mileageExpense]);
 
-    expect(result).toEqual([mileageExpense]);
+      expect(result).toEqual([mileageExpense]);
+    });
+
+    it('should exclude expenses without ccc ids', () => {
+      const result = service.excludeCCCExpenses([
+        { ...expenseData, matched_corporate_card_transaction_ids: null },
+        mileageExpense,
+      ]);
+
+      expect(result).toEqual([mileageExpense]);
+    });
   });
 
   it('getReportableExpenses(): should get reportable expenese', () => {
@@ -599,6 +616,17 @@ describe('ExpensesService', () => {
         sortDir: 'desc',
       });
     });
+  });
+
+  it('generateStatsQueryParams(): should generate stats query params', () => {
+    const queryParams = {
+      state: 'in.(COMPLETE)',
+      report_id: 'is.null',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+    };
+
+    const result = service.generateStatsQueryParams(queryParams);
+    expect(result).toEqual('state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)');
   });
 
   describe('generateSplitExpenseParams():', () => {
