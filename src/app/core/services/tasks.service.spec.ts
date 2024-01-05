@@ -81,7 +81,6 @@ describe('TasksService', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getDuplicateSets']);
 
     TestBed.configureTestingModule({
       providers: [
