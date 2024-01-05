@@ -40,7 +40,10 @@ import {
   unreportedExpenseTaskSample2,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
+import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { orgSettingsWithDuplicateDetectionV2, orgSettingsWoDuplicateDetectionV2 } from '../mock-data/org-settings.data';
+import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
 
 describe('TasksService', () => {
@@ -54,6 +57,7 @@ describe('TasksService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
 
   const mockTaskClearSubject = new Subject();
@@ -66,7 +70,7 @@ describe('TasksService', () => {
       'getAllExtendedReports',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicateSets']);
@@ -76,6 +80,7 @@ describe('TasksService', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -117,6 +122,10 @@ describe('TasksService', () => {
           useValue: currencyServiceSpy,
         },
         {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+        {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
@@ -135,6 +144,7 @@ describe('TasksService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });
 
@@ -260,7 +270,18 @@ describe('TasksService', () => {
   });
 
   it('should be able to fetch potential duplicate tasks', (done) => {
+    setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
+    tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
+      expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to fetch potential duplicate tasks when duplicate detection v2 is enabled', (done) => {
+    setupData();
+    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+    expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
       expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
       done();
@@ -655,7 +676,18 @@ describe('TasksService', () => {
   });
 
   it('should be able to handle null reponse from potential duplicates get call', (done) => {
+    setupData();
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(null));
+    tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
+      expect(tasks).toEqual([]);
+      done();
+    });
+  });
+
+  it('should be able to handle null response from duplicate detection v2 duplicates sets call', (done) => {
+    setupData();
+    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+    expensesService.getDuplicateSets.and.returnValue(of(null));
     tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
       expect(tasks).toEqual([]);
       done();
@@ -689,6 +721,7 @@ describe('TasksService', () => {
         false
       )
       .and.returnValue(of(teamReportResponse));
+    orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
     handleDuplicatesService.getDuplicateSets.and.returnValue(of(potentialDuplicatesApiResponse));
     expensesService.getExpenseStats
       .withArgs({

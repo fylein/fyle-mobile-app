@@ -13,12 +13,12 @@ import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
 import { UserEventService } from './user-event.service';
 import { HandleDuplicatesService } from './handle-duplicates.service';
-import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { OrgSettingsService } from './org-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,6 +40,7 @@ export class TasksService {
     private userEventService: UserEventService,
     private authService: AuthService,
     private handleDuplicatesService: HandleDuplicatesService,
+    private orgSettingsService: OrgSettingsService,
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -496,9 +497,35 @@ export class TasksService {
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
-    return this.handleDuplicatesService
-      .getDuplicateSets()
-      .pipe(map((duplicateSets) => (duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : [])));
+    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
+        )
+      );
+
+    return isDuplicateDetectionV2Enabled$.pipe(
+      switchMap((isDuplicateDetectionV2Enabled) => {
+        if (isDuplicateDetectionV2Enabled) {
+          return this.expensesService
+            .getDuplicateSets()
+            .pipe(
+              map((duplicateSets) => (duplicateSets?.length > 0 ? duplicateSets.map((value) => value.expense_ids) : []))
+            );
+        } else {
+          return this.handleDuplicatesService
+            .getDuplicateSets()
+            .pipe(
+              map((duplicateSets) =>
+                duplicateSets?.length > 0 ? duplicateSets.map((value) => value.transaction_ids) : []
+              )
+            );
+        }
+      }),
+      map((duplicateSets) => this.mapPotentialDuplicatesTasks(duplicateSets))
+    );
   }
 
   mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
@@ -520,26 +547,29 @@ export class TasksService {
     return task;
   }
 
-  mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]): DashboardTask[] {
-    const duplicateIds = duplicateSets
-      .map((value) => value.transaction_ids)
-      .reduce((acc, curVal) => acc.concat(curVal), []);
-    const task = [
-      {
-        hideAmount: true,
-        count: duplicateSets.length,
-        header: `${duplicateIds.length} Potential Duplicates`,
-        subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
-        icon: TaskIcon.WARNING,
-        ctas: [
-          {
-            content: 'Review',
-            event: TASKEVENT.openPotentialDuplicates,
-          },
-        ],
-      } as DashboardTask,
-    ];
-    return task;
+  mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {
+    if (duplicateSets.length > 0) {
+      const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);
+
+      const task = [
+        {
+          hideAmount: true,
+          count: duplicateSets.length,
+          header: `${duplicateIds.length} Potential Duplicates`,
+          subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
+          icon: TaskIcon.WARNING,
+          ctas: [
+            {
+              content: 'Review',
+              event: TASKEVENT.openPotentialDuplicates,
+            },
+          ],
+        } as DashboardTask,
+      ];
+      return task;
+    } else {
+      return [];
+    }
   }
 
   getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
