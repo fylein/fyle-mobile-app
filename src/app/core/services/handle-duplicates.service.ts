@@ -20,7 +20,7 @@ export class HandleDuplicatesService {
     });
   }
 
-  dismissAll(duplicateSetTransactionIds: string[], transactionIds: string[]) {
+  dismissAll(duplicateSetTransactionIds: string[], transactionIds: string[]): Observable<void> {
     return this.apiService.post('/transactions/duplicates/dismiss', {
       duplicate_set_transaction_ids: duplicateSetTransactionIds,
       transaction_ids: transactionIds,

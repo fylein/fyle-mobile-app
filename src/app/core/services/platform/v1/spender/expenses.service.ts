@@ -7,6 +7,10 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import {
+  ExpenseDuplicateSet,
+  ExpenseDuplicateSetsResponse,
+} from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 
 @Injectable({
@@ -80,6 +84,33 @@ export class ExpensesService {
     return this.spenderService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
+  }
+
+  getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
+      .pipe(map((response) => response.data));
+  }
+
+  getDuplicatesByExpense(expenseId: string): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets', {
+        params: {
+          expense_id: expenseId,
+        },
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
+    const payload = targetExpenseIds.map((targetExpenseId) => ({
+      id: targetExpenseId,
+      duplicate_expense_ids: duplicateExpenseIds,
+    }));
+
+    return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk', {
+      data: payload,
+    });
   }
 
   getExpenseStats(
