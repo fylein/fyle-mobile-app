@@ -70,7 +70,7 @@ describe('TasksService', () => {
       'getAllExtendedReports',
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicateSets']);
