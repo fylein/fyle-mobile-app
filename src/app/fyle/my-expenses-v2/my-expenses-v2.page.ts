@@ -282,6 +282,31 @@ export class MyExpensesV2Page implements OnInit {
     }
   }
 
+  switchOutboxSelectionMode(expense?: Expense): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      if (this.loadExpenses$.getValue().searchString) {
+        this.headerState = HeaderState.simpleSearch;
+      } else {
+        this.headerState = HeaderState.base;
+      }
+
+      this.selectedOutboxExpenses = [];
+      this.setOutboxExpenseStatsOnSelect();
+    } else {
+      this.headerState = HeaderState.multiselect;
+      // setting Expense amount & count stats to zero on select init
+      this.allExpensesStats$ = of({
+        count: 0,
+        amount: 0,
+      });
+    }
+
+    if (expense) {
+      this.selectOutboxExpense(expense);
+    }
+  }
+
   async sendFirstExpenseCreatedEvent(): Promise<void> {
     // checking if the expense is first expense
     const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
