@@ -898,7 +898,7 @@ export class MyExpensesV2Page implements OnInit {
     this.isReportableExpensesSelected =
       this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
 
-    if (this.selectOutboxExpense.length > 0) {
+    if (this.selectedOutboxExpenses.length > 0) {
       this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
 
       this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
@@ -907,7 +907,7 @@ export class MyExpensesV2Page implements OnInit {
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectOutboxExpense.length) {
+    if (this.allExpensesCount === this.selectedOutboxExpenses.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
@@ -1399,7 +1399,7 @@ export class MyExpensesV2Page implements OnInit {
         this.allExpensesCount = this.selectedElements.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
-        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
+        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.pendingTransactions);
         this.setOutboxExpenseStatsOnSelect();
       }
 
