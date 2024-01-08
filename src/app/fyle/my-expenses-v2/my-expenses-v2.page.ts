@@ -1399,7 +1399,7 @@ export class MyExpensesV2Page implements OnInit {
         this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
-        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.pendingTransactions);
+        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
         this.setOutboxExpenseStatsOnSelect();
       }
 
