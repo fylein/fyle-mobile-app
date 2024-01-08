@@ -1396,7 +1396,7 @@ export class MyExpensesV2Page implements OnInit {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
         this.selectedOutboxExpenses = this.pendingTransactions;
-        this.allExpensesCount = this.selectedElements.length;
+        this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
         this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.pendingTransactions);
@@ -1437,6 +1437,8 @@ export class MyExpensesV2Page implements OnInit {
         });
     } else {
       this.selectedElements = [];
+      this.selectedOutboxExpenses = [];
+      this.outboxExpensesToBeDeleted = [];
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
