@@ -941,7 +941,7 @@ export class MyExpensesV2Page implements OnInit {
     } else {
       this.selectAll = false;
     }
-    this.setExpenseStatsOnSelect();
+    this.setOutboxExpenseStatsOnSelect();
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedOutboxExpenses);
   }
 
