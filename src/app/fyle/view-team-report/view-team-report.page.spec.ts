@@ -51,6 +51,7 @@ import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-expor
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 describe('ViewTeamReportPage', () => {
   let component: ViewTeamReportPage;
@@ -276,7 +277,10 @@ describe('ViewTeamReportPage', () => {
     });
 
     it('should return undefined if approval settings not present', () => {
-      const result = component.getReportClosureSettings({ ...orgSettingsData, getReportClosureSettings: undefined });
+      const result = component.getReportClosureSettings({
+        ...orgSettingsData,
+        getReportClosureSettings: undefined,
+      } as OrgSettings);
       expect(result).toBeUndefined();
     });
 
@@ -571,7 +575,7 @@ describe('ViewTeamReportPage', () => {
         ...expenseData2,
         tx_policy_flag: true,
         tx_manual_flag: false,
-        tx_policy_amount: '1000',
+        tx_policy_amount: '1000' as unknown as number,
       });
 
       expect(result).toBeTrue();
@@ -799,7 +803,7 @@ describe('ViewTeamReportPage', () => {
 
     reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
 
-    await component.shareReport(new Event('event'));
+    await component.shareReport();
     expect(popoverController.create).toHaveBeenCalledOnceWith({
       component: ShareReportComponent,
       cssClass: 'dialog-popover',
