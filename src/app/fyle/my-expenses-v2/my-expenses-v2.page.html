@@ -76,7 +76,6 @@
         <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
       </ion-button>
       <ion-button
-        *ngIf="isConnected$ | async"
         (click)="openDeleteExpensesPopover()"
         [disabled]="(selectedElements?.length === 0 && selectedOutboxExpenses?.length === 0)  || !expensesToBeDeleted || (expensesToBeDeleted?.length === 0 && cccExpenses > 0) "
       >
