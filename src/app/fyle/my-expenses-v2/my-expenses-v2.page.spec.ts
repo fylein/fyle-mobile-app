@@ -1050,6 +1050,57 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
+  describe('switchOutboxSelectionMode(): ', () => {
+    beforeEach(() => {
+      component.selectionMode = true;
+      component.loadExpenses$ = new BehaviorSubject({
+        searchString: 'example',
+      });
+      component.headerState = HeaderState.simpleSearch;
+      component.allExpensesStats$ = of({ count: 10, amount: 1000 });
+      spyOn(component, 'selectExpense');
+      spyOn(component, 'setAllExpensesCountAndAmount');
+      spyOn(component, 'setOutboxExpenseStatsOnSelect');
+    });
+    it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
+      component.switchOutboxSelectionMode();
+
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toBe(HeaderState.simpleSearch);
+      expect(component.selectedOutboxExpenses).toEqual([]);
+      expect(component.selectExpense).not.toHaveBeenCalled();
+    });
+
+    it('should set headerState to base if searchString is defined in loadData and if expense is selected', () => {
+      component.loadExpenses$ = new BehaviorSubject({});
+      transactionService.getReportableExpenses.and.returnValue([]);
+      transactionService.getDeletableTxns.and.returnValue([]);
+      transactionService.excludeCCCExpenses.and.returnValue([]);
+
+      component.switchOutboxSelectionMode(apiExpenseRes[0]);
+
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toBe(HeaderState.base);
+      expect(component.selectedOutboxExpenses.length).toEqual(1);
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
+    });
+
+    it('should update allExpensesStats$ and headerState if selectionMode is false', () => {
+      component.selectionMode = false;
+
+      component.switchOutboxSelectionMode();
+
+      expect(component.selectionMode).toBeTrue();
+      expect(component.headerState).toBe(HeaderState.multiselect);
+      expect(component.setOutboxExpenseStatsOnSelect).not.toHaveBeenCalled();
+      expect(component.selectExpense).not.toHaveBeenCalled();
+      component.allExpensesStats$.subscribe((stats) => {
+        expect(stats.count).toBe(0);
+        expect(stats.amount).toBe(0);
+      });
+    });
+  });
+
   it('sendFirstExpenseCreatedEvent(): should store the first expense created event', fakeAsync(() => {
     component.allExpensesStats$ = of({
       count: 0,
@@ -2943,11 +2994,12 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  describe('selectExpense(): ', () => {
+  describe('selectOutboxExpense(): ', () => {
     beforeEach(() => {
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
       component.allExpensesCount = 1;
       spyOn(component, 'setExpenseStatsOnSelect');
+      spyOn(component, 'setOutboxExpenseStatsOnSelect');
       component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
       transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
@@ -2963,8 +3015,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeTrue();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeFalse();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -2979,8 +3031,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([...expenseList4, expense]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeFalse();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeTrue();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([...expenseList4, expense]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -2994,8 +3046,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeTrue();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeFalse();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -3008,7 +3060,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.selectedOutboxExpenses).toEqual(expectedSelectedElements);
       expect(component.outboxExpensesToBeDeleted).toEqual(apiExpenseRes);
       expect(component.cccExpenses).toBe(1);
-      expect(component.selectAll).toBeTrue();
+      expect(component.selectAll).toBeFalse();
     });
 
     it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and tx_id is not present in expense', () => {
@@ -3023,10 +3075,34 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeFalse();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeTrue();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
+    });
+  });
+
+  describe('checkDeleteDisabled():', () => {
+    it('should check and enable the button for online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
+    });
+
+    it('should check and enable the button for offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
     });
   });
 });
