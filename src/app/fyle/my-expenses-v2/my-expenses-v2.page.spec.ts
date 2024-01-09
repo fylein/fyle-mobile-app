@@ -3081,4 +3081,28 @@ describe('MyExpensesV2Page', () => {
       expect(component.isMergeAllowed).toBeTrue();
     });
   });
+
+  describe('checkDeleteDisabled():', () => {
+    it('should check and enable the button for online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
+    });
+
+    it('should check and enable the button for offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
+    });
+  });
 });
