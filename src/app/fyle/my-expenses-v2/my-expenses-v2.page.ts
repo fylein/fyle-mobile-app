@@ -190,6 +190,8 @@ export class MyExpensesV2Page implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  isDisabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -698,6 +700,8 @@ export class MyExpensesV2Page implements OnInit {
       )
     );
     this.doRefresh();
+
+    this.checkDeleteDisabled();
   }
 
   setupNetworkWatcher(): void {
@@ -1564,5 +1568,23 @@ export class MyExpensesV2Page implements OnInit {
 
   showCamera(isCameraPreviewStarted: boolean): void {
     this.isCameraPreviewStarted = isCameraPreviewStarted;
+  }
+
+  checkDeleteDisabled(): void {
+    this.isConnected$.pipe(
+      map((isConnected) => {
+        if (isConnected) {
+          this.isDisabled =
+            this.selectedElements?.length === 0 ||
+            !this.expensesToBeDeleted ||
+            (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
+        } else if (!isConnected) {
+          this.isDisabled =
+            this.selectedOutboxExpenses?.length === 0 ||
+            !this.outboxExpensesToBeDeleted ||
+            this.outboxExpensesToBeDeleted?.length === 0;
+        }
+      })
+    );
   }
 }

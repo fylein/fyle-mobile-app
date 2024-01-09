@@ -75,10 +75,7 @@
       <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
         <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
       </ion-button>
-      <ion-button
-        (click)="openDeleteExpensesPopover()"
-        [disabled]="(selectedElements?.length === 0 || selectedOutboxExpenses?.length === 0)  || (!expensesToBeDeleted && !outboxExpensesToBeDeleted) || (expensesToBeDeleted?.length === 0 && cccExpenses > 0 && outboxExpensesToBeDeleted.length > 0) "
-      >
+      <ion-button (click)="openDeleteExpensesPopover()" [disabled]="isDisabled">
         <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
