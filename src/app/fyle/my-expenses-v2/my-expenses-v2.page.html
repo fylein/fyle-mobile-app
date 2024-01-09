@@ -77,7 +77,7 @@
       </ion-button>
       <ion-button
         (click)="openDeleteExpensesPopover()"
-        [disabled]="(selectedElements?.length === 0 && selectedOutboxExpenses?.length === 0)  || !expensesToBeDeleted || (expensesToBeDeleted?.length === 0 && cccExpenses > 0) "
+        [disabled]="(selectedElements?.length === 0 && selectedOutboxExpenses?.length === 0)  || (!expensesToBeDeleted && !outboxExpensesToBeDeleted) || (expensesToBeDeleted?.length === 0 && cccExpenses > 0 && outboxExpensesToBeDeleted.length > 0) "
       >
         <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
       </ion-button>
