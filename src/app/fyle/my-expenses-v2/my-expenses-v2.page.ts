@@ -126,7 +126,7 @@ export class MyExpensesV2Page implements OnInit {
 
   selectedElements: PlatformExpense[];
 
-  selectedOutboxExpenses: Partial<Expense>[];
+  selectedOutboxExpenses: Partial<Expense>[] = [];
 
   syncing = false;
 
@@ -1332,14 +1332,16 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
-    if (offlineExpenses?.length) {
+    if (offlineExpenses?.length > 0) {
       this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-    }
-    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
-    if (this.selectedElements.length > 0) {
-      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
-    } else {
       return of(null);
+    } else {
+      this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
+      if (this.selectedElements.length > 0) {
+        return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
+      } else {
+        return of(null);
+      }
     }
   }
 
@@ -1348,9 +1350,9 @@ export class MyExpensesV2Page implements OnInit {
 
     let expenseDeletionMessage: string;
     let cccExpensesMessage: string;
-    let totalDeleteLength: number = 0;
+    let totalDeleteLength = 0;
 
-    if (this.outboxExpensesToBeDeleted?.length > 0) {
+    if (offlineExpenses?.length > 0) {
       expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(offlineExpenses);
       cccExpensesMessage = this.transactionService.getCCCExpenseMessage(offlineExpenses, this.cccExpenses);
       totalDeleteLength = this.outboxExpensesToBeDeleted.length;
@@ -1429,42 +1431,44 @@ export class MyExpensesV2Page implements OnInit {
         this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
-        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
+        this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
+      } else {
+        this.loadExpenses$
+          .pipe(
+            take(1),
+            map((params) => {
+              const queryParams = params.queryParams || {};
+
+              queryParams.report_id = queryParams.report_id || 'is.null';
+              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              if (params.searchString) {
+                queryParams.q = params?.searchString + ':*';
+              }
+
+              return queryParams;
+            }),
+            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
+          )
+          .subscribe((allExpenses) => {
+            this.selectedElements = this.selectedElements.concat(allExpenses);
+            if (this.selectedElements.length > 0) {
+              if (this.outboxExpensesToBeDeleted?.length) {
+                this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(
+                  this.outboxExpensesToBeDeleted
+                );
+              }
+
+              this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
+
+              this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
+            }
+            this.allExpensesCount = this.selectedElements.length;
+            this.isReportableExpensesSelected =
+              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+            this.setExpenseStatsOnSelect();
+          });
       }
-
-      this.loadExpenses$
-        .pipe(
-          take(1),
-          map((params) => {
-            const queryParams = params.queryParams || {};
-
-            queryParams.report_id = queryParams.report_id || 'is.null';
-            queryParams.state = 'in.(COMPLETE,DRAFT)';
-            if (params.searchString) {
-              queryParams.q = params?.searchString + ':*';
-            }
-
-            return queryParams;
-          }),
-          switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
-        )
-        .subscribe((allExpenses) => {
-          this.selectedElements = this.selectedElements.concat(allExpenses);
-          if (this.selectedElements.length > 0) {
-            if (this.outboxExpensesToBeDeleted?.length) {
-              this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
-            }
-
-            this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
-
-            this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
-          }
-          this.allExpensesCount = this.selectedElements.length;
-          this.isReportableExpensesSelected =
-            this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
-          this.setExpenseStatsOnSelect();
-        });
     } else {
       this.selectedElements = [];
       this.selectedOutboxExpenses = [];

@@ -508,7 +508,7 @@ export class TransactionService {
   }
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter(
+    return expenses?.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
