@@ -190,6 +190,8 @@ export class MyExpensesV2Page implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
+  isDisabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -279,6 +281,31 @@ export class MyExpensesV2Page implements OnInit {
 
     if (expense) {
       this.selectExpense(expense);
+    }
+  }
+
+  switchOutboxSelectionMode(expense?: Expense): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      if (this.loadExpenses$.getValue().searchString) {
+        this.headerState = HeaderState.simpleSearch;
+      } else {
+        this.headerState = HeaderState.base;
+      }
+
+      this.selectedOutboxExpenses = [];
+      this.setOutboxExpenseStatsOnSelect();
+    } else {
+      this.headerState = HeaderState.multiselect;
+      // setting Expense amount & count stats to zero on select init
+      this.allExpensesStats$ = of({
+        count: 0,
+        amount: 0,
+      });
+    }
+
+    if (expense) {
+      this.selectOutboxExpense(expense);
     }
   }
 
@@ -673,6 +700,8 @@ export class MyExpensesV2Page implements OnInit {
       )
     );
     this.doRefresh();
+
+    this.checkDeleteDisabled();
   }
 
   setupNetworkWatcher(): void {
@@ -898,7 +927,7 @@ export class MyExpensesV2Page implements OnInit {
     this.isReportableExpensesSelected =
       this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
 
-    if (this.selectOutboxExpense.length > 0) {
+    if (this.selectedOutboxExpenses.length > 0) {
       this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
 
       this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
@@ -907,12 +936,12 @@ export class MyExpensesV2Page implements OnInit {
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectOutboxExpense.length) {
+    if (this.allExpensesCount === this.selectedOutboxExpenses.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
     }
-    this.setExpenseStatsOnSelect();
+    this.setOutboxExpenseStatsOnSelect();
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedOutboxExpenses);
   }
 
@@ -1396,9 +1425,10 @@ export class MyExpensesV2Page implements OnInit {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
         this.selectedOutboxExpenses = this.pendingTransactions;
-        this.allExpensesCount = this.selectedElements.length;
+        this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
+        this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
         this.setOutboxExpenseStatsOnSelect();
       }
 
@@ -1421,7 +1451,7 @@ export class MyExpensesV2Page implements OnInit {
         .subscribe((allExpenses) => {
           this.selectedElements = this.selectedElements.concat(allExpenses);
           if (this.selectedElements.length > 0) {
-            if (this.outboxExpensesToBeDeleted.length > 0) {
+            if (this.outboxExpensesToBeDeleted?.length) {
               this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
             }
 
@@ -1436,6 +1466,8 @@ export class MyExpensesV2Page implements OnInit {
         });
     } else {
       this.selectedElements = [];
+      this.selectedOutboxExpenses = [];
+      this.outboxExpensesToBeDeleted = [];
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
@@ -1536,5 +1568,20 @@ export class MyExpensesV2Page implements OnInit {
 
   showCamera(isCameraPreviewStarted: boolean): void {
     this.isCameraPreviewStarted = isCameraPreviewStarted;
+  }
+
+  checkDeleteDisabled(): Observable<void> {
+    return this.isConnected$.pipe(
+      map((isConnected) => {
+        if (isConnected) {
+          this.isDisabled =
+            this.selectedElements?.length === 0 ||
+            !this.expensesToBeDeleted ||
+            (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
+        } else if (!isConnected) {
+          this.isDisabled = this.selectedOutboxExpenses?.length === 0 || !this.outboxExpensesToBeDeleted;
+        }
+      })
+    );
   }
 }

@@ -7,6 +7,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import { expenseDuplicateSets } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 
@@ -18,6 +19,7 @@ describe('ExpensesService', () => {
   beforeEach(() => {
     const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get', 'post']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', ['generateStatsQueryParams']);
+
     TestBed.configureTestingModule({
       providers: [
         { provide: SpenderService, useValue: spenderServiceSpy },
@@ -146,6 +148,33 @@ describe('ExpensesService', () => {
     });
   });
 
+  it('getDuplicateSets(): should return expense duplicate sets', (done) => {
+    spenderService.get.and.returnValue(of({ data: expenseDuplicateSets }));
+
+    service.getDuplicateSets().subscribe((response) => {
+      expect(response).toEqual(expenseDuplicateSets);
+
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets');
+      done();
+    });
+  });
+
+  it('getDuplicatesByExpense() : should get the duplicates by expense', (done) => {
+    const expenseId = 'txaiCW1efU0n';
+    spenderService.get.and.returnValue(of({ data: expenseDuplicateSets }));
+
+    service.getDuplicatesByExpense(expenseId).subscribe((response) => {
+      expect(response).toEqual(expenseDuplicateSets);
+
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets', {
+        params: {
+          expense_id: 'txaiCW1efU0n',
+         },
+      });
+      done();
+    });
+  });
+
   it('getExpenseStats(): should get expense stats for unreported stats', (done) => {
     spenderService.post.and.returnValue(of(completeStats));
     sharedExpenseService.generateStatsQueryParams.and.returnValue(
@@ -164,6 +193,29 @@ describe('ExpensesService', () => {
         data: {
           query_params: 'state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)',
         },
+      });
+      done();
+    });
+  });
+
+  it('dismissDuplicates(): should dismiss duplicate expenses', (done) => {
+    spenderService.post.and.returnValue(of({}));
+
+    const duplicateExpenseIds = ['tx1234', 'tx2345'];
+    const targetExpenseIds = ['tx1234', 'tx2345'];
+
+    service.dismissDuplicates(duplicateExpenseIds, targetExpenseIds).subscribe(() => {
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/expenses/dismiss_duplicates/bulk', {
+        data: [
+          {
+            id: 'tx1234',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+          {
+            id: 'tx2345',
+            duplicate_expense_ids: ['tx1234', 'tx2345'],
+          },
+        ],
       });
       done();
     });

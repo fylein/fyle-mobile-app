@@ -290,6 +290,10 @@ export class OrgSettingsService {
         allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
         enabled: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.enabled,
       },
+      duplicate_detection_v2_settings: {
+        allowed: incoming.duplicate_detection_v2_settings && incoming.duplicate_detection_v2_settings.allowed,
+        enabled: incoming.duplicate_detection_v2_settings && incoming.duplicate_detection_v2_settings.enabled,
+      },
       custom_category_settings: {
         allowed: incoming.custom_category_settings && incoming.custom_category_settings.allowed,
         enabled: incoming.custom_category_settings && incoming.custom_category_settings.enabled,
@@ -527,6 +531,7 @@ export class OrgSettingsService {
       transaction_field_configurations: outgoing.transaction_field_configurations,
       gmail_addon_settings: outgoing.gmail_addon_settings,
       duplicate_detection_settings: outgoing.duplicate_detection_settings,
+      duplicate_detection_v2_settings: outgoing.duplicate_detection_v2_settings,
       custom_category_settings: outgoing.custom_category_settings,
       org_bulk_fyle_settings: outgoing.bulk_fyle_settings,
       auto_reminder_settings: outgoing.auto_reminder_settings,
