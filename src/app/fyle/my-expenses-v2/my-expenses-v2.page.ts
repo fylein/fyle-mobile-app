@@ -1584,7 +1584,7 @@ export class MyExpensesV2Page implements OnInit {
             !this.expensesToBeDeleted ||
             (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
         } else if (!isConnected) {
-          this.isDisabled = this.selectedOutboxExpenses?.length === 0 || !this.outboxExpensesToBeDeleted;
+          this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
         }
       })
     );
