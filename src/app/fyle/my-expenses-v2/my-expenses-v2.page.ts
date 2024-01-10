@@ -1352,7 +1352,7 @@ export class MyExpensesV2Page implements OnInit {
     let cccExpensesMessage: string;
     let totalDeleteLength = 0;
 
-    if (offlineExpenses?.length > 0) {
+    if (offlineExpenses.length > 0) {
       expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(offlineExpenses);
       cccExpensesMessage = this.transactionService.getCCCExpenseMessage(offlineExpenses, this.cccExpenses);
       totalDeleteLength = this.outboxExpensesToBeDeleted.length;
