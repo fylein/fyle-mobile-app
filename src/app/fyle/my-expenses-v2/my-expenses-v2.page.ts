@@ -1346,17 +1346,18 @@ export class MyExpensesV2Page implements OnInit {
   async openDeleteExpensesPopover(): Promise<void> {
     const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.tx_id);
 
-    const expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+    let expenseDeletionMessage: string;
+    let cccExpensesMessage: string;
+    let totalDeleteLength: number = 0;
 
-    const cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(
-      this.expensesToBeDeleted,
-      this.cccExpenses
-    );
-
-    let totalDeleteLength = this.expensesToBeDeleted?.length;
-
-    if (this.outboxExpensesToBeDeleted.length > 0) {
-      totalDeleteLength = totalDeleteLength + this.outboxExpensesToBeDeleted.length;
+    if (this.outboxExpensesToBeDeleted?.length > 0) {
+      expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(offlineExpenses);
+      cccExpensesMessage = this.transactionService.getCCCExpenseMessage(offlineExpenses, this.cccExpenses);
+      totalDeleteLength = this.outboxExpensesToBeDeleted.length;
+    } else {
+      expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+      cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+      totalDeleteLength = this.expensesToBeDeleted?.length;
     }
 
     const deletePopover = await this.popoverController.create({
