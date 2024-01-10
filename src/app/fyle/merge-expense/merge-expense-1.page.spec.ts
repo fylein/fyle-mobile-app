@@ -11,7 +11,7 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { AbstractControl, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { expenseData1, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { mergeExpensesOptionsData } from 'src/app/core/mock-data/merge-expenses-option.data';
@@ -56,7 +56,7 @@ export function TestCases1(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let dependantFieldsService: jasmine.SpyObj<DependentFieldsService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let transactionService: jasmine.SpyObj<TransactionService>;
 
     beforeEach(waitForAsync(() => {
@@ -76,7 +76,7 @@ export function TestCases1(getTestBed) {
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
       transactionService = TestBed.inject(TransactionService);
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],
@@ -91,7 +91,7 @@ export function TestCases1(getTestBed) {
 
     it('genericFieldsForm(): should return the genericFields form control', () => {
       component.fg = formBuilder.group({
-        genericFields: new FormControl([]),
+        genericFields: new UntypedFormControl([]),
       });
 
       const genericFieldsForm = component.genericFieldsForm;
@@ -101,7 +101,7 @@ export function TestCases1(getTestBed) {
 
     it('categoryDependentForm(): should return the categoryDependent form control', () => {
       component.fg = formBuilder.group({
-        categoryDependent: new FormControl([]),
+        categoryDependent: new UntypedFormControl([]),
       });
 
       const categoryDependentForm = component.categoryDependentForm;

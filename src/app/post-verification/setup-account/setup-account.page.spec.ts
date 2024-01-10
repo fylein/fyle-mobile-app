@@ -9,7 +9,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { Router, RouterModule } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
 import { SetupAccountPage } from './setup-account.page';
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ModalController, ToastController } from '@ionic/angular';
 import { RouterTestingModule } from '@angular/router/testing';
 import { first, of, take, toArray } from 'rxjs';
@@ -31,7 +31,7 @@ describe('SetupAccountPage', () => {
   let fixture: ComponentFixture<SetupAccountPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
   let authService: jasmine.SpyObj<AuthService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let modalController: jasmine.SpyObj<ModalController>;
   let orgService: jasmine.SpyObj<OrgService>;
   let toastController: jasmine.SpyObj<ToastController>;
@@ -65,7 +65,7 @@ describe('SetupAccountPage', () => {
         MatInputModule,
       ],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
@@ -84,7 +84,7 @@ describe('SetupAccountPage', () => {
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     toastController = TestBed.inject(ToastController) as jasmine.SpyObj<ToastController>;

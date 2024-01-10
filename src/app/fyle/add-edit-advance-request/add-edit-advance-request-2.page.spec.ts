@@ -16,7 +16,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, FormControl } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { clone, cloneDeep } from 'lodash';
 import { advanceRequests, advanceRequests2, advanceRequests3 } from 'src/app/core/mock-data/advance-requests.data';
@@ -119,7 +119,7 @@ export function TestCases2(getTestBed) {
 
     it('generateAdvanceRequestFromFg(): should generate advance request from form', () => {
       const mockAdvanceRequest = cloneDeep(advanceRequests);
-      component.fg = new FormBuilder().group(addEditAdvanceRequestFormValueData3);
+      component.fg = new UntypedFormBuilder().group(addEditAdvanceRequestFormValueData3);
       component.generateAdvanceRequestFromFg(of(mockAdvanceRequest)).subscribe((res) => {
         expect(res).toEqual(advanceRequests2);
       });
