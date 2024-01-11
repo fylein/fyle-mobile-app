@@ -1,7 +1,6 @@
 import { DeviceInfo } from '@capacitor/device';
-
-export interface ExtendedDeviceInfo extends DeviceInfo {
-  uuid: string;
+import { DeviceId } from '@capacitor/device';
+export interface ExtendedDeviceInfo extends DeviceInfo, DeviceId {
   appVersion: string;
   liveUpdateAppVersion: string;
 }
