@@ -3,19 +3,13 @@ import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import { IonicModule, ModalController } from '@ionic/angular';
-import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import {
-  apiExpenseRes,
-  expenseData1,
-  expenseData2,
-  perDiemExpenseMultipleNumDays,
-} from 'src/app/core/mock-data/expense.data';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { AddExpensesToReportComponent } from './add-expenses-to-report.component';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('AddExpensesToReportComponent', () => {
   let component: AddExpensesToReportComponent;
@@ -24,7 +18,9 @@ describe('AddExpensesToReportComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let router: jasmine.SpyObj<Router>;
 
-  const closeExpData1 = cloneDeep(expenseData1);
+  const expense1 = expenseData;
+  const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
+  const expense3 = { ...expenseData, id: 'txcSFe6efB63' };
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -60,9 +56,9 @@ describe('AddExpensesToReportComponent', () => {
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
-    component.selectedTxnIds = ['txCYDX0peUw5', 'txfCdl3TEZ7K'];
+    component.selectedExpenseIds = ['txCYDX0peUw5', 'txfCdl3TEZ7K'];
     component.selectedTotalAmount = 500;
-    component.selectedTotalTxns = 2;
+    component.selectedTotalExpenses = 2;
     fixture.detectChanges();
   }));
 
@@ -82,93 +78,97 @@ describe('AddExpensesToReportComponent', () => {
     click(addExpToReportButton);
 
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({
-      selectedTxnIds: component.selectedTxnIds,
-      selectedTotalAmount: component.selectedTotalAmount,
-      selectedTotalTxns: component.selectedTotalTxns,
+      selectedExpenseIds: component.selectedExpenseIds,
     });
   });
 
-  describe('updateSelectedTxns():', () => {
-    it('should update selected txns', () => {
-      component.selectedElements = [...apiExpenseRes, closeExpData1];
+  describe('updateSelectedExpenses():', () => {
+    it('should update selected expenses', () => {
+      component.selectedElements = [
+        { ...expense1, is_reimbursable: true },
+        { ...expense2, is_reimbursable: true },
+      ];
       fixture.detectChanges();
 
-      component.updateSelectedTxns();
-      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, closeExpData1.tx_id]);
-      expect(component.selectedTotalTxns).toEqual(2);
-      expect(component.selectedTotalAmount).toEqual(959);
+      component.updateSelectedExpenses();
+      expect(component.selectedExpenseIds).toEqual([expense1.id, expense2.id]);
+      expect(component.selectedTotalExpenses).toEqual(2);
+      expect(component.selectedTotalAmount).toEqual(expense1.amount + expense2.amount);
     });
 
-    it('should update selected txns expense is non-reimbursable', () => {
-      component.selectedElements = [...apiExpenseRes, { ...closeExpData1, tx_skip_reimbursement: true }];
+    it('should update selected expenses if expense is non-reimbursable', () => {
+      component.selectedElements = [
+        { ...expense1, is_reimbursable: true },
+        { ...expense2, is_reimbursable: false },
+      ];
       fixture.detectChanges();
 
-      component.updateSelectedTxns();
-      expect(component.selectedTxnIds).toEqual([apiExpenseRes[0].tx_id, closeExpData1.tx_id]);
-      expect(component.selectedTotalTxns).toEqual(2);
-      expect(component.selectedTotalAmount).toEqual(3);
+      component.updateSelectedExpenses();
+      expect(component.selectedExpenseIds).toEqual([expense1.id, expense2.id]);
+      expect(component.selectedTotalExpenses).toEqual(2);
+      expect(component.selectedTotalAmount).toEqual(expense1.amount);
     });
   });
 
-  describe('toggleTransaction():', () => {
-    it('should toggle transactions and filter txn if already selected', () => {
-      spyOn(component, 'updateSelectedTxns');
-      component.selectedElements = [...apiExpenseRes, closeExpData1];
-      component.unReportedEtxns = [perDiemExpenseMultipleNumDays];
+  describe('toggleExpense():', () => {
+    it('should toggle expenses and filter expense if already selected', () => {
+      spyOn(component, 'updateSelectedExpenses');
+      component.unreportedExpenses = [expense1, expense2];
+      component.selectedElements = [expense1, expense2];
       fixture.detectChanges();
 
-      component.toggleTransaction(expenseData2);
-      expect(component.selectedElements).toEqual([...apiExpenseRes]);
-      expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
-      expect(component.isSelectedAll).toBeTrue();
-    });
-
-    it('should toggle transactions and add txn if not selected', () => {
-      spyOn(component, 'updateSelectedTxns');
-      component.selectedElements = [...apiExpenseRes];
-      component.unReportedEtxns = [perDiemExpenseMultipleNumDays];
-      fixture.detectChanges();
-
-      component.toggleTransaction(closeExpData1);
-      expect(component.selectedElements).toEqual([...apiExpenseRes, closeExpData1]);
-      expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
+      component.toggleExpense(expense2);
+      expect(component.selectedElements).toEqual([expense1]);
+      expect(component.updateSelectedExpenses).toHaveBeenCalledTimes(1);
       expect(component.isSelectedAll).toBeFalse();
+    });
+
+    it('should toggle expenses and add expense if not selected', () => {
+      spyOn(component, 'updateSelectedExpenses');
+      component.unreportedExpenses = [expense1, expense2, expense3];
+      component.selectedElements = [expense1, expense2];
+      fixture.detectChanges();
+
+      component.toggleExpense(expense3);
+      expect(component.selectedElements).toEqual([expense1, expense2, expense3]);
+      expect(component.updateSelectedExpenses).toHaveBeenCalledTimes(1);
+      expect(component.isSelectedAll).toBeTrue();
     });
   });
 
   describe('toggleSelectAll():', () => {
-    it('should select all txns if value is true', () => {
-      spyOn(component, 'updateSelectedTxns');
-      component.unReportedEtxns = [closeExpData1];
+    it('should select all expenses if value is true', () => {
+      spyOn(component, 'updateSelectedExpenses');
+      component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
       component.toggleSelectAll(true);
-      expect(component.selectedElements).toEqual([closeExpData1]);
-      expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
+      expect(component.selectedElements).toEqual([expense1, expense2]);
+      expect(component.updateSelectedExpenses).toHaveBeenCalledTimes(1);
     });
 
-    it('should unselect and reset all selected txns if value is false', () => {
+    it('should unselect and reset all selected expenses if value is false', () => {
       component.toggleSelectAll(false);
 
       expect(component.selectedElements).toEqual([]);
       expect(component.selectedTotalAmount).toEqual(0);
-      expect(component.selectedTotalTxns).toEqual(0);
+      expect(component.selectedTotalExpenses).toEqual(0);
     });
   });
 
   it('ionViewWillEnter():', () => {
-    spyOn(component, 'updateSelectedTxns');
-    component.unReportedEtxns = [...apiExpenseRes, closeExpData1];
+    spyOn(component, 'updateSelectedExpenses');
+    component.unreportedExpenses = [expense1, expense2];
     fixture.detectChanges();
 
     component.ionViewWillEnter();
-    expect(component.updateSelectedTxns).toHaveBeenCalledTimes(1);
+    expect(component.updateSelectedExpenses).toHaveBeenCalledTimes(1);
     expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(2);
     component.homeCurrency$.subscribe((res) => {
       expect(res).toEqual('USD');
     });
     expect(component.isSelectedAll).toBeTrue();
-    expect(component.selectedElements).toEqual([...apiExpenseRes, closeExpData1]);
+    expect(component.selectedElements).toEqual([expense1, expense2]);
   });
 
   it('addNewExpense(): should navigate to add expense page', () => {
@@ -187,7 +187,7 @@ describe('AddExpensesToReportComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
-  it('should show header if no txns are not selected', () => {
+  it('should show header if no expenses are not selected', () => {
     component.selectedElements = [];
     fixture.detectChanges();
 
@@ -195,7 +195,7 @@ describe('AddExpensesToReportComponent', () => {
   });
 
   it('should show number of expenses and total amount', () => {
-    component.selectedElements = [...apiExpenseRes, closeExpData1];
+    component.selectedElements = [expense1, expense2];
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--title'))).toEqual(
@@ -204,7 +204,7 @@ describe('AddExpensesToReportComponent', () => {
   });
 
   it('should zero state message if no unreported expense exist', () => {
-    component.unReportedEtxns = [];
+    component.unreportedExpenses = [];
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.add-expenses-to-report--zero-state--header'))).toEqual(

@@ -12,18 +12,9 @@ import { of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
-import { expensesWithDependentFields } from 'src/app/core/mock-data/dependent-field-expenses.data';
-import {
-  etxncListData,
-  expenseData1,
-  expenseData2,
-  newExpenseViewReport,
-  perDiemExpenseSingleNumDays,
-} from 'src/app/core/mock-data/expense.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { apiReportUpdatedDetails } from 'src/app/core/mock-data/report-v1.data';
 import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -34,7 +25,6 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import {
   expectedNewStatusData,
@@ -42,7 +32,6 @@ import {
   systemComments1,
   systemCommentsWithSt,
 } from 'src/app/core/test-data/status.service.spec.data';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
 import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
@@ -51,19 +40,28 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { MyViewReportPage } from './my-view-report.page';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expenseData,
+  expenseResponseData2,
+  mileageExpense,
+  perDiemExpense,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { MyViewReportPage } from './my-view-report.page';
+import { AddExpensesToReportV2Component } from './add-expenses-to-report/add-expenses-to-report.component';
+import { ShareReportComponentV2 } from './share-report/share-report.component';
+import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover/edit-report-name-popover.component';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let router: jasmine.SpyObj<Router>;
@@ -91,7 +89,12 @@ describe('MyViewReportPage', () => {
       'downloadSummaryPdfUrl',
       'addTransactions',
     ]);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllETxnc', 'getAllExpenses']);
+    const expnesesServicespy = jasmine.createSpyObj('ExpensesService', [
+      'getReportExpenses',
+      'getExpenses',
+      'getExpensesCount',
+      'getAllExpenses',
+    ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -144,8 +147,8 @@ describe('MyViewReportPage', () => {
           useValue: reportServiceSpy,
         },
         {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
+          provide: ExpensesService,
+          useValue: expnesesServicespy,
         },
         {
           provide: AuthService,
@@ -207,7 +210,7 @@ describe('MyViewReportPage', () => {
     component = fixture.componentInstance;
 
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -259,57 +262,6 @@ describe('MyViewReportPage', () => {
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
   });
 
-  describe('getVendorName():', () => {
-    it('should get vendors name from expense', () => {
-      const result = component.getVendorName(expenseData1);
-
-      expect(result).toEqual(expenseData1.tx_vendor);
-    });
-
-    it("should get vendor's name if the expense is a mileage", () => {
-      const result = component.getVendorName(etxncListData.data[0]);
-
-      expect(result).toEqual(etxncListData.data[0].tx_distance + ' ' + etxncListData.data[0].tx_distance_unit);
-    });
-
-    it("should get vendor's name if the expense is a per-diem", () => {
-      const result = component.getVendorName(perDiemExpenseSingleNumDays);
-
-      expect(result).toEqual(perDiemExpenseSingleNumDays.tx_num_days + ' Days');
-    });
-
-    it('should return 0 if distance is null in mileage txn', () => {
-      const result = component.getVendorName({ ...etxncListData.data[0], tx_distance: null });
-
-      expect(result).toEqual('0 KM');
-    });
-
-    it('should return 0 if number of days is null in per diem txn', () => {
-      const result = component.getVendorName({ ...perDiemExpenseSingleNumDays, tx_num_days: null });
-
-      expect(result).toEqual('0 Days');
-    });
-  });
-
-  describe('getShowViolation():', () => {
-    it('should show expense violation', () => {
-      const result = component.getShowViolation(expenseData2);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should show the policy flag in expense', () => {
-      const result = component.getShowViolation({
-        ...expenseData2,
-        tx_policy_flag: true,
-        tx_manual_flag: false,
-        tx_policy_amount: 1000,
-      });
-
-      expect(result).toBeTrue();
-    });
-  });
-
   describe('getSimplifyReportSettings():', () => {
     it('should return simplify report settings', () => {
       const result = component.getSimplifyReportSettings({
@@ -348,11 +300,9 @@ describe('MyViewReportPage', () => {
       statusService.find.and.returnValue(of(newEstatusData1));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      transactionService.getAllETxnc.and.returnValue(of(newExpenseViewReport));
-      spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
-      transactionService.getAllExpenses.and.returnValue(of(newExpenseViewReport));
+      expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
 
@@ -363,7 +313,7 @@ describe('MyViewReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.erpt$.subscribe((res) => {
@@ -395,21 +345,7 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual(approversData1);
       });
 
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({
-        tx_org_user_id: 'eq.' + apiEouRes.ou.id,
-        tx_report_id: 'eq.' + component.reportId,
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      });
-
-      expect(component.getVendorName).toHaveBeenCalledTimes(6);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[2]);
-
-      expect(component.getShowViolation).toHaveBeenCalledTimes(3);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[2]);
+      expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -425,14 +361,14 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportEtxnIds).toEqual(['tx5fBcPBAxLv', 'txz2vohKxBXu', 'tx3qHxFNgRcZ']);
+      expect(component.reportExpenseIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
 
-      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          order: 'tx_txn_dt.desc',
-          or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
         },
       });
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
@@ -456,11 +392,9 @@ describe('MyViewReportPage', () => {
       statusService.find.and.returnValue(of(newEstatusData1));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      transactionService.getAllETxnc.and.returnValue(of(newExpenseViewReport));
-      spyOn(component, 'getVendorName');
-      spyOn(component, 'getShowViolation');
+      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
-      transactionService.getAllExpenses.and.returnValue(of(newExpenseViewReport));
+      expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       fixture.detectChanges();
 
@@ -471,7 +405,7 @@ describe('MyViewReportPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-      expect(authService.getEou).toHaveBeenCalledTimes(2);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.erpt$.subscribe((res) => {
@@ -502,21 +436,7 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual(approversData1);
       });
 
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({
-        tx_org_user_id: 'eq.' + apiEouRes.ou.id,
-        tx_report_id: 'eq.' + component.reportId,
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      });
-
-      expect(component.getVendorName).toHaveBeenCalledTimes(6);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getVendorName).toHaveBeenCalledWith(newExpenseViewReport[2]);
-
-      expect(component.getShowViolation).toHaveBeenCalledTimes(3);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[0]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[1]);
-      expect(component.getShowViolation).toHaveBeenCalledWith(newExpenseViewReport[2]);
+      expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -532,14 +452,14 @@ describe('MyViewReportPage', () => {
         expect(res).toBeFalse();
       });
 
-      expect(component.reportEtxnIds).toEqual(['tx5fBcPBAxLv', 'txz2vohKxBXu', 'tx3qHxFNgRcZ']);
+      expect(component.reportExpenseIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
 
-      expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+      expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
         queryParams: {
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          order: 'tx_txn_dt.desc',
-          or: ['(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)'],
+          report_id: 'is.null',
+          state: 'in.(COMPLETE)',
+          order: 'spent_at.desc',
+          or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
         },
       });
 
@@ -581,7 +501,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponent,
+        component: EditReportNamePopoverComponentV2,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -607,7 +527,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponent,
+        component: EditReportNamePopoverComponentV2,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -742,37 +662,37 @@ describe('MyViewReportPage', () => {
 
   describe('goToTransaction():', () => {
     it('should go to view expense page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: expenseData1,
-        etxnIndex: 0,
+        expense: expenseData,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_expense';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.individual,
-        category: expenseData1.tx_org_category.toLowerCase(),
+        category: expenseData.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: expenseData.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(expenseData1.tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(expenseData.state);
     });
     it('should go to view edit expense page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: expenseData1,
-        etxnIndex: 0,
+        expense: expenseData,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_expense';
@@ -780,7 +700,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: expenseData1.tx_id,
+          id: expenseData.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -788,38 +708,38 @@ describe('MyViewReportPage', () => {
     });
 
     it('should go to view mileage page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: etxncListData.data[0],
-        etxnIndex: 0,
+        expense: mileageExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_mileage';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.individual,
-        category: etxncListData.data[0].tx_org_category.toLowerCase(),
+        category: mileageExpense.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: mileageExpense.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(etxncListData.data[0].tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(mileageExpense.state);
     });
 
     it('should go to edit mileage page', () => {
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: etxncListData.data[0],
-        etxnIndex: 0,
+        expense: mileageExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_mileage';
@@ -827,7 +747,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: etxncListData.data[0].tx_id,
+          id: mileageExpense.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -835,40 +755,38 @@ describe('MyViewReportPage', () => {
     });
 
     it('should go to view per diem page', () => {
-      spyOn(component, 'canEditTxn').and.returnValue(false);
-      const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
+      spyOn(component, 'canEditExpense').and.returnValue(false);
       component.goToTransaction({
-        etxn: perDiemTxn,
-        etxnIndex: 0,
+        expense: perDiemExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/view_per_diem';
 
       expect(trackingService.viewExpenseClicked).toHaveBeenCalledOnceWith({
         view: ExpenseView.individual,
-        category: perDiemTxn.tx_org_category.toLowerCase(),
+        category: perDiemExpense.category.name.toLowerCase(),
       });
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: perDiemTxn.tx_id,
-          txnIds: JSON.stringify(component.reportEtxnIds),
+          id: perDiemExpense.id,
+          txnIds: JSON.stringify(component.reportExpenseIds),
           activeIndex: 0,
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditTxn).toHaveBeenCalledOnceWith(perDiemTxn.tx_state);
+      expect(component.canEditExpense).toHaveBeenCalledOnceWith(perDiemExpense.state);
     });
 
     it('should go to edit per diem page', () => {
-      const perDiemTxn = { ...expenseData1, tx_org_category: 'PER DIEM' };
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditTxn = () => true;
+      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
-        etxn: perDiemTxn,
-        etxnIndex: 0,
+        expense: perDiemExpense,
+        expenseIndex: 0,
       });
 
       const route = '/enterprise/add_edit_per_diem';
@@ -876,7 +794,7 @@ describe('MyViewReportPage', () => {
       expect(router.navigate).toHaveBeenCalledOnceWith([
         route,
         {
-          id: perDiemTxn.tx_id,
+          id: perDiemExpense.id,
           navigate_back: true,
           remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
         },
@@ -909,7 +827,7 @@ describe('MyViewReportPage', () => {
 
     expect(trackingService.clickShareReport).toHaveBeenCalledTimes(1);
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponent,
+      component: ShareReportComponentV2,
       mode: 'ios',
       ...shareReportModalProperties,
       cssClass: 'share-report-modal',
@@ -939,10 +857,10 @@ describe('MyViewReportPage', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponent,
+      component: FyViewReportInfoComponentV2,
       componentProps: {
         erpt$: component.erpt$,
-        etxns$: component.etxns$,
+        expenses$: component.expenses$,
         view: ExpenseView.individual,
       },
       ...fyModalProperties,
@@ -956,7 +874,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('DRAFT');
+      const result = component.canEditExpense(ExpenseState.DRAFT);
       expect(result).toBeTrue();
     });
 
@@ -964,7 +882,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(false);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('SENT_BACK');
+      const result = component.canEditExpense(ExpenseState.APPROVED);
       expect(result).toBeFalse();
     });
 
@@ -972,7 +890,7 @@ describe('MyViewReportPage', () => {
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
-      const result = component.canEditTxn('SENT_BACK');
+      const result = component.canEditExpense(ExpenseState.APPROVED);
       expect(result).toBeFalse();
     });
   });
@@ -1043,10 +961,12 @@ describe('MyViewReportPage', () => {
   });
 
   describe('showAddExpensesToReportModal():', () => {
+    const expense1 = expenseData;
+    const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
     it('should show modal to add expense to report', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
-      component.unReportedEtxns = newExpenseViewReport;
+      component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
       const addExpensesToReportModalSpy = jasmine.createSpyObj('addExpensesToReportModal', [
@@ -1055,35 +975,35 @@ describe('MyViewReportPage', () => {
       ]);
       addExpensesToReportModalSpy.onWillDismiss.and.resolveTo({
         data: {
-          selectedTxnIds: ['txfCdl3TEZ7K', 'txWphhAUZbq7'],
+          selectedExpenseIds: ['txcSFe6efB6R', 'txcSFe6efB62'],
         },
       });
 
       modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
-      spyOn(component, 'addEtxnsToReport').and.returnValue(null);
+      spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
       const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
       click(openButton);
       tick(5000);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: AddExpensesToReportComponent,
+        component: AddExpensesToReportV2Component,
         componentProps: {
-          unReportedEtxns: component.unReportedEtxns,
+          unreportedExpenses: component.unreportedExpenses,
           reportId: component.reportId,
         },
         mode: 'ios',
         ...fyModalProperties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-      expect(component.addEtxnsToReport).toHaveBeenCalledOnceWith(['txfCdl3TEZ7K', 'txWphhAUZbq7']);
+      expect(component.addExpensesToReport).toHaveBeenCalledOnceWith(['txcSFe6efB6R', 'txcSFe6efB62']);
     }));
 
     it('should not add txns to report if there is no data', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
-      component.unReportedEtxns = newExpenseViewReport;
+      component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
       const addExpensesToReportModalSpy = jasmine.createSpyObj('addExpensesToReportModal', [
@@ -1094,39 +1014,41 @@ describe('MyViewReportPage', () => {
 
       modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
-      spyOn(component, 'addEtxnsToReport').and.returnValue(null);
+      spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
       const openButton = getElementBySelector(fixture, '.view-reports--add-expenses-container__icon') as HTMLElement;
       click(openButton);
       tick(5000);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: AddExpensesToReportComponent,
+        component: AddExpensesToReportV2Component,
         componentProps: {
-          unReportedEtxns: component.unReportedEtxns,
+          unreportedExpenses: component.unreportedExpenses,
           reportId: component.reportId,
         },
         mode: 'ios',
         ...fyModalProperties,
       });
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-      expect(component.addEtxnsToReport).not.toHaveBeenCalled();
+      expect(component.addExpensesToReport).not.toHaveBeenCalled();
     }));
   });
 
-  it('addEtxnsToReport(): should add txns to report', () => {
+  it('addExpensesToReport(): should add expenses to report', () => {
+    const expense1 = expenseData;
+    const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
     component.reportId = 'rpFkJ6jUJOyg';
-    component.unReportedEtxns = expensesWithDependentFields;
+    component.unreportedExpenses = [expense1, expense2];
     fixture.detectChanges();
     reportService.addTransactions.and.returnValue(of(null));
 
     spyOn(component.loadReportDetails$, 'next');
     spyOn(component.loadReportTxns$, 'next');
 
-    component.addEtxnsToReport(['txfCdl3TEZ7K', 'tx3qHxFNgRcZ']);
-    expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', ['txfCdl3TEZ7K', 'tx3qHxFNgRcZ']);
+    component.addExpensesToReport(['txcSFe6efB62', 'tx3qHxFNgRcZ']);
+    expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', ['txcSFe6efB62', 'tx3qHxFNgRcZ']);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
-    expect(component.unReportedEtxns).toEqual([expensesWithDependentFields[1]]);
+    expect(component.unreportedExpenses).toEqual([expenseData]);
   });
 });

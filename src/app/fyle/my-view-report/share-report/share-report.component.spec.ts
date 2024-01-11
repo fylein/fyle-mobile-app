@@ -5,22 +5,22 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FormsModule } from '@angular/forms';
 import { click, getElementBySelector, getElementByTagName } from 'src/app/core/dom-helpers';
-import { ShareReportComponent } from './share-report.component';
+import { ShareReportComponentV2 } from './share-report.component';
 
 describe('ShareReportComponent', () => {
-  let component: ShareReportComponent;
-  let fixture: ComponentFixture<ShareReportComponent>;
+  let component: ShareReportComponentV2;
+  let fixture: ComponentFixture<ShareReportComponentV2>;
   let modalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
     TestBed.configureTestingModule({
-      declarations: [ShareReportComponent],
+      declarations: [ShareReportComponentV2],
       imports: [IonicModule.forRoot(), FormsModule, MatIconModule, MatIconTestingModule],
       providers: [{ provide: ModalController, useValue: modalController }],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(ShareReportComponent);
+    fixture = TestBed.createComponent(ShareReportComponentV2);
     component = fixture.componentInstance;
     fixture.detectChanges();
   }));
