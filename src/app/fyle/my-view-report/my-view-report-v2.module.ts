@@ -10,7 +10,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MyViewReportPageV2 } from './my-view-report-v2.page';
+import { MyViewReportV2Page } from './my-view-report-v2.page';
 import { MyViewReportPageV2RoutingModule } from './my-view-report-v2-routing.module';
 import { AddExpensesToReportV2Component } from './add-expenses-to-report-v2/add-expenses-to-report-v2.component';
 import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover-v2/edit-report-name-popover.component';
@@ -32,7 +32,7 @@ import { ShareReportComponentV2 } from './share-report-v2/share-report.component
     MatCheckboxModule,
   ],
   declarations: [
-    MyViewReportPageV2,
+    MyViewReportV2Page,
     ShareReportComponentV2,
     EditReportNamePopoverComponentV2,
     AddExpensesToReportV2Component,

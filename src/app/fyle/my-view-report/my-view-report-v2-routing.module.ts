@@ -1,11 +1,11 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MyViewReportPageV2 } from './my-view-report-v2.page';
+import { MyViewReportV2Page } from './my-view-report-v2.page';
 
 const routes: Routes = [
   {
     path: '',
-    component: MyViewReportPageV2,
+    component: MyViewReportV2Page,
   },
 ];
 

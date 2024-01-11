@@ -548,7 +548,7 @@ export class MyViewReportPage {
 
   segmentChanged(event: SegmentCustomEvent): void {
     if (event?.detail?.value) {
-      this.segmentValue = parseInt(event.detail.value, 10);
+      this.segmentValue = parseInt(event.detail.value as string, 10);
     }
   }
 

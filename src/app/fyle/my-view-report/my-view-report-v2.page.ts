@@ -38,7 +38,7 @@ import { ShareReportComponentV2 } from './share-report-v2/share-report.component
   templateUrl: './my-view-report-v2.page.html',
   styleUrls: ['./my-view-report.page.scss'],
 })
-export class MyViewReportPageV2 {
+export class MyViewReportV2Page {
   @ViewChild('commentInput') commentInput: ElementRef<HTMLInputElement>;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
@@ -504,7 +504,7 @@ export class MyViewReportPageV2 {
 
   segmentChanged(event: SegmentCustomEvent): void {
     if (event?.detail?.value) {
-      this.segmentValue = parseInt(event.detail.value, 10);
+      this.segmentValue = parseInt(event.detail.value as string, 10);
     }
   }
 
