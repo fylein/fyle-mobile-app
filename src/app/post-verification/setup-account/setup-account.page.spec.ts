@@ -17,8 +17,8 @@ import { apiEouRes, eouRes3 } from 'src/app/core/mock-data/extended-org-user.dat
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { CUSTOM_ELEMENTS_SCHEMA, EventEmitter } from '@angular/core';
 import { SelectCurrencyComponent } from './select-currency/select-currency.component';

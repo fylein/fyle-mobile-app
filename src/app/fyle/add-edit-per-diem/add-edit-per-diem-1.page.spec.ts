@@ -29,7 +29,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 
 import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';

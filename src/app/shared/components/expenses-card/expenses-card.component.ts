@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ModalController, Platform, PopoverController } from '@ionic/angular';
 import * as dayjs from 'dayjs';
 import { isEqual, isNumber } from 'lodash';

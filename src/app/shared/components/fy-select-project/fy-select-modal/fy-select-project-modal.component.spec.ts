@@ -11,9 +11,9 @@ import { FyProjectSelectModalComponent } from './fy-select-project-modal.compone
 import { ChangeDetectorRef } from '@angular/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
-import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field';
 import { FormsModule } from '@angular/forms';
-import { MatInputModule } from '@angular/material/input';
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -109,7 +109,7 @@ describe('FyProjectSelectModalComponent', () => {
     projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService,
+      RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -258,7 +258,7 @@ describe('FyProjectSelectModalComponent', () => {
             label: 'label',
             value: testProjectV2,
           },
-        ]),
+        ])
       );
       component.recentlyUsed = null;
       component.cacheName = 'project';
@@ -310,7 +310,7 @@ describe('FyProjectSelectModalComponent', () => {
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
         { value: 'value' },
-        'label',
+        'label'
       );
     });
   });

@@ -43,7 +43,7 @@ import { cloneDeep, isEqual } from 'lodash';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { TokenService } from 'src/app/core/services/token.service';

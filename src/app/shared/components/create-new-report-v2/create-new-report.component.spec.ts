@@ -10,7 +10,7 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { CreateNewReportComponent } from './create-new-report.component';
-import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox';
 import { ExpensesCardComponent } from '../expenses-card/expenses-card.component';
 import { of } from 'rxjs';
 import { orgData1 } from 'src/app/core/mock-data/org.data';

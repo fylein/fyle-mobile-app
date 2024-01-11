@@ -3,7 +3,7 @@ import { PaymentModesService } from './payment-modes.service';
 import { AccountsService } from './accounts.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TrackingService } from './tracking.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from './snackbar-properties.service';
 import { of } from 'rxjs';
 import {

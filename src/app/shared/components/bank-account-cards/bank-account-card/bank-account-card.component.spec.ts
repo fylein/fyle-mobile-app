@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { PopoverController } from '@ionic/angular';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { SnackbarPropertiesService } from '../../../../core/services/snackbar-properties.service';
 import { DateService } from 'src/app/core/services/date.service';
 import { BankAccountCardComponent } from './bank-account-card.component';

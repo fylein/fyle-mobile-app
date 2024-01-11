@@ -9,7 +9,7 @@ import { AdvanceRequestService } from 'src/app/core/services/advance-request.ser
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { MatBottomSheet, MatBottomSheetRef } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';

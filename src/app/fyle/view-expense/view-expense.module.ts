@@ -7,7 +7,7 @@ import { ViewExpensePage } from './view-expense.page';
 import { SharedModule } from '../../shared/shared.module';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
-import { MatButtonModule } from '@angular/material/button';
+import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button';
 
 @NgModule({
   imports: [
