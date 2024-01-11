@@ -37,8 +37,8 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
-import { ShareReportV2Component } from './share-report/share-report.component';
-import { ViewTeamReportPageV2 } from './view-team-report.page';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { ViewTeamReportPage } from './view-team-report.page';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
@@ -52,11 +52,11 @@ import {
   perDiemExpenseWithSingleNumDays,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
-import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 
 describe('ViewTeamReportPageV2', () => {
-  let component: ViewTeamReportPageV2;
-  let fixture: ComponentFixture<ViewTeamReportPageV2>;
+  let component: ViewTeamReportPage;
+  let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let reportService: jasmine.SpyObj<ReportService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
@@ -116,7 +116,7 @@ describe('ViewTeamReportPageV2', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
-      declarations: [ViewTeamReportPageV2, EllipsisPipe, HumanizeCurrencyPipe],
+      declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
       imports: [IonicModule.forRoot(), FormsModule],
       providers: [
         FyCurrencyPipe,
@@ -203,7 +203,7 @@ describe('ViewTeamReportPageV2', () => {
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
-    fixture = TestBed.createComponent(ViewTeamReportPageV2);
+    fixture = TestBed.createComponent(ViewTeamReportPage);
     component = fixture.componentInstance;
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
@@ -758,7 +758,7 @@ describe('ViewTeamReportPageV2', () => {
 
     await component.shareReport(new Event('event'));
     expect(popoverController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportV2Component,
+      component: ShareReportComponent,
       cssClass: 'dialog-popover',
     });
     expect(reportService.downloadSummaryPdfUrl).toHaveBeenCalledOnceWith({
@@ -841,7 +841,7 @@ describe('ViewTeamReportPageV2', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponentV2,
+      component: FyViewReportInfoComponent,
       componentProps: {
         erpt$: component.erpt$,
         expenses$: component.expenses$,

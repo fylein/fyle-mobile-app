@@ -50,11 +50,11 @@ import {
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { FyViewReportInfoComponentV2 } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { MyViewReportPage } from './my-view-report.page';
-import { AddExpensesToReportV2Component } from './add-expenses-to-report/add-expenses-to-report.component';
-import { ShareReportComponentV2 } from './share-report/share-report.component';
-import { EditReportNamePopoverComponentV2 } from './edit-report-name-popover/edit-report-name-popover.component';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -501,7 +501,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponentV2,
+        component: EditReportNamePopoverComponent,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -527,7 +527,7 @@ describe('MyViewReportPage', () => {
       tick(2000);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: EditReportNamePopoverComponentV2,
+        component: EditReportNamePopoverComponent,
         componentProps: {
           reportName: expectedAllReports[0].rp_purpose,
         },
@@ -827,7 +827,7 @@ describe('MyViewReportPage', () => {
 
     expect(trackingService.clickShareReport).toHaveBeenCalledTimes(1);
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: ShareReportComponentV2,
+      component: ShareReportComponent,
       mode: 'ios',
       ...shareReportModalProperties,
       cssClass: 'share-report-modal',
@@ -857,7 +857,7 @@ describe('MyViewReportPage', () => {
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: FyViewReportInfoComponentV2,
+      component: FyViewReportInfoComponent,
       componentProps: {
         erpt$: component.erpt$,
         expenses$: component.expenses$,
@@ -988,7 +988,7 @@ describe('MyViewReportPage', () => {
       tick(5000);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: AddExpensesToReportV2Component,
+        component: AddExpensesToReportComponent,
         componentProps: {
           unreportedExpenses: component.unreportedExpenses,
           reportId: component.reportId,
@@ -1021,7 +1021,7 @@ describe('MyViewReportPage', () => {
       tick(5000);
 
       expect(modalController.create).toHaveBeenCalledOnceWith({
-        component: AddExpensesToReportV2Component,
+        component: AddExpensesToReportComponent,
         componentProps: {
           unreportedExpenses: component.unreportedExpenses,
           reportId: component.reportId,
