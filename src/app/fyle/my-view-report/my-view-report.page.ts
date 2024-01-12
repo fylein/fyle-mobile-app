@@ -405,7 +405,7 @@ export class MyViewReportPage {
     let category: string;
 
     if (expense.category) {
-      category = expense.category.name?.toLowerCase();
+      category = expense.category.name && expense.category.name.toLowerCase();
     }
 
     let route: string;
