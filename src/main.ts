@@ -5,10 +5,9 @@ import { AppModule } from './app/app.module';
 import { environment } from './environments/environment';
 
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
-import * as Sentry from '@sentry/angular';
+import * as Sentry from '@sentry/angular-ivy';
 import 'hammerjs';
 
-import { Integrations as TracingIntegrations } from '@sentry/tracing';
 import { GlobalCacheConfig } from 'ts-cacheable';
 
 // Global cache config
@@ -18,7 +17,7 @@ GlobalCacheConfig.maxCacheCount = 100;
 Sentry.init({
   dsn: environment.SENTRY_DSN,
   integrations: [
-    new TracingIntegrations.BrowserTracing({
+    new Sentry.BrowserTracing({
       routingInstrumentation: Sentry.routingInstrumentation,
     }),
   ],
