@@ -38,7 +38,6 @@ export const orgSettingsGetData: OrgSettings = {
     electric_car_distance_limit: null,
     enable_individual_mileage_rates: true,
   },
-  mobile_app_view_report_beta_enabled: true,
   advances: {
     allowed: true,
     enabled: true,
@@ -445,7 +444,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
   },
-  mobile_app_view_report_beta_enabled: true,
   advanced_project_settings: {
     allowed: true,
     enabled: true,

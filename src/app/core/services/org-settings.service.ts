@@ -39,10 +39,7 @@ export class OrgSettingsService {
   }
 
   isBetaPageEnabledForPath(currentPath: string): Observable<boolean> {
-    const pathSettingsFlagMap = {
-      my_view_report: 'mobile_app_view_report_beta_enabled',
-      view_team_report: 'mobile_app_view_report_beta_enabled',
-    };
+    const pathSettingsFlagMap = {};
     const featureFlag = pathSettingsFlagMap[currentPath] as string;
     return this.get().pipe(map((orgSettings: OrgSettings) => orgSettings[featureFlag] as boolean));
   }
@@ -408,7 +405,6 @@ export class OrgSettingsService {
         allowed: incoming?.simplified_report_closure_settings?.allowed,
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
-      mobile_app_view_report_beta_enabled: incoming.mobile_app_view_report_beta_enabled,
       mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
     };
 

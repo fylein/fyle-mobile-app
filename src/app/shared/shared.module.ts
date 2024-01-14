@@ -87,7 +87,6 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
-import { FyViewReportInfoComponentV2 } from './components/fy-view-report-info-v2/fy-view-report-info.component';
 import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
@@ -208,7 +207,6 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     RouteSelectorComponent,
     RouteSelectorModalComponent,
     FyViewReportInfoComponent,
-    FyViewReportInfoComponentV2,
     BankAccountCardsComponent,
     BankAccountCardComponent,
     DeleteButtonComponent,
