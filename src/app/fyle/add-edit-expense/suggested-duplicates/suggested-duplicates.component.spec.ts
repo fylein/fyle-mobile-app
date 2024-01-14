@@ -17,6 +17,11 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import {
+  orgSettingsWithDuplicateDetectionV2,
+  orgSettingsWoDuplicateDetectionV2,
+} from 'src/app/core/mock-data/org-settings.data';
 
 describe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
@@ -27,14 +32,16 @@ describe('SuggestedDuplicatesComponent', () => {
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let router: jasmine.SpyObj<Router>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['dismissAll']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'dismissDuplicates']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
 
     TestBed.configureTestingModule({
       declarations: [SuggestedDuplicatesComponent],
@@ -54,6 +61,7 @@ describe('SuggestedDuplicatesComponent', () => {
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
         { provide: Router, useValue: routerSpy },
+        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA], //this is added temporarily and is not recommended
     }).compileComponents();
@@ -64,11 +72,15 @@ describe('SuggestedDuplicatesComponent', () => {
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
 
     fixture = TestBed.createComponent(SuggestedDuplicatesComponent);
     component = fixture.componentInstance;
+
     component.duplicateExpenseIDs = apiExpenses1.map((expense) => expense.id);
     component.duplicateExpenses = apiExpenses1;
+    orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
+
     fixture.detectChanges();
   }));
 
@@ -144,7 +156,25 @@ describe('SuggestedDuplicatesComponent', () => {
 
     component.dismissAll();
     fixture.detectChanges();
+
     expect(dismissAllSpy).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT'], ['txDDLtRaflUW', 'tx5WDG9lxBDT']);
+    expect(showDismissedSuccessToastSpy).toHaveBeenCalledTimes(1);
+    expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });
+  });
+
+  it('should dismiss all duplicate expenses and display success toast message if duplicate detection v2 is enabled', () => {
+    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
+    const dismissDuplicatesSpy = expensesService.dismissDuplicates.and.returnValue(of(null));
+    const showDismissedSuccessToastSpy = spyOn(component, 'showDismissedSuccessToast');
+    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
+
+    component.dismissAll();
+    fixture.detectChanges();
+
+    expect(dismissDuplicatesSpy).toHaveBeenCalledOnceWith(
+      ['txDDLtRaflUW', 'tx5WDG9lxBDT'],
+      ['txDDLtRaflUW', 'tx5WDG9lxBDT']
+    );
     expect(showDismissedSuccessToastSpy).toHaveBeenCalledTimes(1);
     expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });
   });

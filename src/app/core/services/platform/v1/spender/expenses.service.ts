@@ -7,12 +7,21 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
+import {
+  ExpenseDuplicateSet,
+  ExpenseDuplicateSetsResponse,
+} from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
+import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private spenderService: SpenderService) {}
+  constructor(
+    @Inject(PAGINATION_SIZE) private paginationSize: number,
+    private spenderService: SpenderService,
+    private sharedExpenseService: SharedExpenseService
+  ) {}
 
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
@@ -84,5 +93,42 @@ export class ExpensesService {
     return this.spenderService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
+  }
+
+  getDuplicateSets(): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets')
+      .pipe(map((response) => response.data));
+  }
+
+  getDuplicatesByExpense(expenseId: string): Observable<ExpenseDuplicateSet[]> {
+    return this.spenderService
+      .get<ExpenseDuplicateSetsResponse>('/expenses/duplicate_sets', {
+        params: {
+          expense_id: expenseId,
+        },
+      })
+      .pipe(map((response) => response.data));
+  }
+
+  dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
+    const payload = targetExpenseIds.map((targetExpenseId) => ({
+      id: targetExpenseId,
+      duplicate_expense_ids: duplicateExpenseIds,
+    }));
+
+    return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk', {
+      data: payload,
+    });
+  }
+
+  getExpenseStats(
+    params: Record<string, string | string[] | boolean>
+  ): Observable<{ data: { count: number; total_amount: number } }> {
+    return this.spenderService.post('/expenses/stats', {
+      data: {
+        query_params: this.sharedExpenseService.generateStatsQueryParams(params),
+      },
+    });
   }
 }

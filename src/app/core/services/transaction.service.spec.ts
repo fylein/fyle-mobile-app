@@ -1146,8 +1146,14 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getDeletableTxns(): should return deletable transactions', () => {
-    expect(transactionService.getDeletableTxns(apiExpenseRes)).toEqual(apiExpenseRes);
+  describe('getDeletableTxns():', () => {
+    it('should return deletable transactions', () => {
+      expect(transactionService.getDeletableTxns(apiExpenseRes)).toEqual(apiExpenseRes);
+    });
+
+    it('should return undefined if no transaction ', () => {
+      expect(transactionService.getDeletableTxns(undefined)).toBeUndefined();
+    });
   });
 
   describe('getExpenseDeletionMessage():', () => {
@@ -1376,13 +1382,24 @@ describe('TransactionService', () => {
     expect(transactionService.excludeCCCExpenses(expenseList3)).toEqual([expenseList3[1]]);
   });
 
-  it('getReportableExpenses(): should return reportable expenses', () => {
-    spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
-    spyOn(transactionService, 'getIsDraft').and.returnValue(false);
+  describe('getReportableExpenses(): ', () => {
+    it('should return reportable expenses', () => {
+      spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+      spyOn(transactionService, 'getIsDraft').and.returnValue(false);
 
-    expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
-    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
-    expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
+      expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
+    });
+
+    it('should return undefined if expenses are 0', () => {
+      spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+      spyOn(transactionService, 'getIsDraft').and.returnValue(false);
+
+      expect(transactionService.getReportableExpenses(null)).toEqual(undefined);
+      expect(transactionService.getIsCriticalPolicyViolated).not.toHaveBeenCalled();
+      expect(transactionService.getIsDraft).not.toHaveBeenCalled();
+    });
   });
 
   it('matchCCCExpense(): should match ccc expense', (done) => {

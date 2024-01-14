@@ -123,6 +123,7 @@ import { environment } from 'src/environments/environment';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesV2Page } from './my-expenses-v2.page';
 import { MyExpensesService } from './my-expenses.service';
+import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesV2Page;
@@ -262,6 +263,7 @@ describe('MyExpensesV2Page', () => {
       'getExpenses',
       'getAllExpenses',
       'getExpenseById',
+      'getExpenseStats',
     ]);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'generateCardNumberParams',
@@ -429,7 +431,7 @@ describe('MyExpensesV2Page', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
-    component.loadData$ = new BehaviorSubject({});
+
     component.loadExpenses$ = new BehaviorSubject({});
   }));
 
@@ -462,9 +464,8 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'setupActionSheet');
       tokenService.getClusterDomain.and.resolveTo(apiAuthRes.cluster_domain);
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
-
+      expensesService.getExpenseStats.and.returnValue(of(completeStats));
       expensesService.getExpensesCount.and.returnValue(of(10));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
 
       reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
@@ -734,14 +735,14 @@ describe('MyExpensesV2Page', () => {
 
     it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
       component.ionViewWillEnter();
-      component.loadData$.next({
+      component.loadExpenses$.next({
         pageNumber: 1,
         sortDir: 'asc',
         sortParam: 'approvalDate',
       });
       tick(500);
 
-      expect(expensesService.getExpenses).toHaveBeenCalledTimes(1);
+      expect(expensesService.getExpenses).toHaveBeenCalledTimes(2);
       expect(expensesService.getExpenses).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
@@ -781,22 +782,20 @@ describe('MyExpensesV2Page', () => {
       tick(500);
 
       component.allExpenseCountHeader$.subscribe((allExpenseCountHeader) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
+          state: 'in.(COMPLETE,DRAFT)',
+          report_id: 'is.null',
         });
-        expect(allExpenseCountHeader).toBe(4);
+        expect(allExpenseCountHeader).toBe(3);
       });
       component.draftExpensesCount$.subscribe((draftExpensesCount) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledWith({
+          report_id: 'is.null',
+          state: 'in.(DRAFT)',
         });
-        expect(draftExpensesCount).toBe(4);
+        expect(draftExpensesCount).toBe(3);
       });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledTimes(2);
+      expect(expensesService.getExpenseStats).toHaveBeenCalledTimes(2);
     }));
 
     it('should navigate relative to activatedRoute and call clearFilters if snapshot.params and queryParams are undefined', fakeAsync(() => {
@@ -1051,6 +1050,57 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
+  describe('switchOutboxSelectionMode(): ', () => {
+    beforeEach(() => {
+      component.selectionMode = true;
+      component.loadExpenses$ = new BehaviorSubject({
+        searchString: 'example',
+      });
+      component.headerState = HeaderState.simpleSearch;
+      component.allExpensesStats$ = of({ count: 10, amount: 1000 });
+      spyOn(component, 'selectExpense');
+      spyOn(component, 'setAllExpensesCountAndAmount');
+      spyOn(component, 'setOutboxExpenseStatsOnSelect');
+    });
+    it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
+      component.switchOutboxSelectionMode();
+
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toBe(HeaderState.simpleSearch);
+      expect(component.selectedOutboxExpenses).toEqual([]);
+      expect(component.selectExpense).not.toHaveBeenCalled();
+    });
+
+    it('should set headerState to base if searchString is defined in loadData and if expense is selected', () => {
+      component.loadExpenses$ = new BehaviorSubject({});
+      transactionService.getReportableExpenses.and.returnValue([]);
+      transactionService.getDeletableTxns.and.returnValue([]);
+      transactionService.excludeCCCExpenses.and.returnValue([]);
+
+      component.switchOutboxSelectionMode(apiExpenseRes[0]);
+
+      expect(component.selectionMode).toBeFalse();
+      expect(component.headerState).toBe(HeaderState.base);
+      expect(component.selectedOutboxExpenses.length).toEqual(1);
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(2);
+    });
+
+    it('should update allExpensesStats$ and headerState if selectionMode is false', () => {
+      component.selectionMode = false;
+
+      component.switchOutboxSelectionMode();
+
+      expect(component.selectionMode).toBeTrue();
+      expect(component.headerState).toBe(HeaderState.multiselect);
+      expect(component.setOutboxExpenseStatsOnSelect).not.toHaveBeenCalled();
+      expect(component.selectExpense).not.toHaveBeenCalled();
+      component.allExpensesStats$.subscribe((stats) => {
+        expect(stats.count).toBe(0);
+        expect(stats.amount).toBe(0);
+      });
+    });
+  });
+
   it('sendFirstExpenseCreatedEvent(): should store the first expense created event', fakeAsync(() => {
     component.allExpensesStats$ = of({
       count: 0,
@@ -1065,66 +1115,63 @@ describe('MyExpensesV2Page', () => {
   }));
 
   describe('setAllExpensesCountAndAmount(): ', () => {
-    it('should call transactionService.getTransactionStats if loadExpenses contains queryParams', () => {
+    it('should call expensesService.getExpenseStats if loadExpenses contains queryParams', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
-      component.loadData$ = new BehaviorSubject({});
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+
+      expensesService.getExpenseStats.and.returnValue(of(completeStats));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          or: ['(corporate_credit_card_account_number.8698)'],
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          report_id: 'is.null',
+          state: 'in.(COMPLETE,DRAFT)',
+          or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
         });
         expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 3494,
+          count: 3,
+          amount: 30,
         });
       });
     });
 
-    it('should call transactionService.getTransactionStats and initialize queryParams to empty object if loadData.queryParams is falsy', () => {
+    it('should call expensesService.getExpenseStats and initialize queryParams to empty object if loadData.queryParams is falsy', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: null,
       });
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum3));
+      expensesService.getExpenseStats.and.returnValue(of(incompleteStats));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe((allExpenseStats) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE,DRAFT)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          report_id: 'is.null',
+          state: 'in.(COMPLETE,DRAFT)',
         });
         expect(allExpenseStats).toEqual({
-          count: 4,
-          amount: 0,
+          count: incompleteStats.data.count,
+          amount: incompleteStats.data.total_amount,
         });
       });
     });
 
-    it('should handle error in getTransactionStats and complete the observable', () => {
+    it('should handle error in getExpenseStats and complete the observable', () => {
       component.loadExpenses$ = new BehaviorSubject({
         queryParams: {
           'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         },
       });
-      transactionService.getTransactionStats.and.returnValue(throwError(() => new Error('error message')));
+      expensesService.getExpenseStats.and.returnValue(throwError(() => new Error('error message')));
       component.setAllExpensesCountAndAmount();
       component.allExpensesStats$.subscribe({
-        complete: () => {
-          expect().nothing();
+        error: (err) => {
+          expect(err.message).toEqual('error message');
         },
       });
-      expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_report_id: 'is.null',
-        tx_state: 'in.(COMPLETE,DRAFT)',
-        or: ['(corporate_credit_card_account_number.8698)'],
+      expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+        report_id: 'is.null',
+        state: 'in.(COMPLETE,DRAFT)',
+        or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
       });
     });
   });
@@ -1912,6 +1959,16 @@ describe('MyExpensesV2Page', () => {
         { id: apiExpenses1[0].id, persist_filters: true },
       ]);
     });
+
+    it('should not navigate to any other page, if category is not present', () => {
+      component.goToTransaction({ expense: { ...apiExpenses1[0], category: null }, expenseIndex: 1 });
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'add_edit_expense',
+        { id: apiExpenses1[0].id, persist_filters: true },
+      ]);
+    });
   });
 
   describe('openCriticalPolicyViolationPopOver():', () => {
@@ -2611,6 +2668,7 @@ describe('MyExpensesV2Page', () => {
       popoverController.create.and.resolveTo(deletePopOverSpy);
       component.cccExpenses = 0;
       component.expensesToBeDeleted = [];
+
       spyOn(component, 'deleteSelectedExpenses').and.callThrough();
 
       component.openDeleteExpensesPopover();
@@ -2762,6 +2820,7 @@ describe('MyExpensesV2Page', () => {
 
     it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
       expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
+      component.outboxExpensesToBeDeleted = apiExpenseRes;
       component.pendingTransactions = cloneDeep([]);
       component.onSelectAll(true);
       expect(component.isReportableExpensesSelected).toBeTrue();
@@ -2810,7 +2869,7 @@ describe('MyExpensesV2Page', () => {
 
   describe('onFilterClose(): ', () => {
     beforeEach(() => {
-      component.loadData$ = new BehaviorSubject({});
+      component.loadExpenses$ = new BehaviorSubject({});
       component.filters = {
         sortDir: 'asc',
         sortParam: 'tx_org_category',
@@ -2935,11 +2994,12 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  describe('selectExpense(): ', () => {
+  describe('selectOutboxExpense(): ', () => {
     beforeEach(() => {
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
       component.allExpensesCount = 1;
       spyOn(component, 'setExpenseStatsOnSelect');
+      spyOn(component, 'setOutboxExpenseStatsOnSelect');
       component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
       transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
@@ -2955,8 +3015,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeTrue();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeFalse();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -2971,8 +3031,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([...expenseList4, expense]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeFalse();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeTrue();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([...expenseList4, expense]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -2986,8 +3046,8 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeTrue();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeFalse();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
     });
@@ -3000,7 +3060,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.selectedOutboxExpenses).toEqual(expectedSelectedElements);
       expect(component.outboxExpensesToBeDeleted).toEqual(apiExpenseRes);
       expect(component.cccExpenses).toBe(1);
-      expect(component.selectAll).toBeTrue();
+      expect(component.selectAll).toBeFalse();
     });
 
     it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and tx_id is not present in expense', () => {
@@ -3015,10 +3075,34 @@ describe('MyExpensesV2Page', () => {
 
       expect(component.selectedOutboxExpenses).toEqual([]);
       expect(component.isReportableExpensesSelected).toBeFalse();
-      expect(component.selectAll).toBeFalse();
-      expect(component.setExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
+      expect(component.selectAll).toBeTrue();
+      expect(component.setOutboxExpenseStatsOnSelect).toHaveBeenCalledTimes(1);
       expect(transactionService.isMergeAllowed).toHaveBeenCalledOnceWith([]);
       expect(component.isMergeAllowed).toBeTrue();
+    });
+  });
+
+  describe('checkDeleteDisabled():', () => {
+    it('should check and enable the button for online mode', (done) => {
+      component.isConnected$ = of(true);
+      component.selectedElements = apiExpenses1;
+      component.expensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
+    });
+
+    it('should check and enable the button for offline mode', (done) => {
+      component.isConnected$ = of(false);
+      component.selectedOutboxExpenses = apiExpenseRes;
+      component.outboxExpensesToBeDeleted = [];
+
+      component.checkDeleteDisabled().subscribe(() => {
+        expect(component.isDisabled).toBeFalse();
+        done();
+      });
     });
   });
 });

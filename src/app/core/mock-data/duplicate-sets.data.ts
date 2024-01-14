@@ -14,3 +14,7 @@ export const duplicateSetData3: DuplicateSet = {
   fields: ['field1', 'field2'],
   transaction_ids: ['txcSFe6efB6R', 'txDDLtRaflUW'],
 };
+
+export const duplicateSetData4: DuplicateSet = {
+  transaction_ids: ['tx5fBcPBAxLv'],
+};
