@@ -159,12 +159,12 @@ export class ExpensesCardComponent implements OnInit {
     if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/mileage.svg';
     } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
-      this.receiptIcon = 'assets/svg/fy-calendar.svg';
+      this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
-          this.receiptIcon = 'assets/svg/fy-expense.svg';
+          this.receiptIcon = 'assets/svg/expense.svg';
         }
       } else {
         this.isReceiptPresent = true;

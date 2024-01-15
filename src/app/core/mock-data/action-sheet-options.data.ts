@@ -29,7 +29,7 @@ export const expectedActionSheetButtonRes = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/expense.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -41,7 +41,7 @@ export const expectedActionSheetButtonRes = [
   },
   {
     text: 'Add Per Diem',
-    icon: 'assets/svg/fy-calendar.svg',
+    icon: 'assets/svg/calendar.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -56,7 +56,7 @@ export const expectedActionSheetButtonsWithMileage = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/expense.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -77,13 +77,13 @@ export const expectedActionSheetButtonsWithPerDiem = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/expense.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Per Diem',
-    icon: 'assets/svg/fy-calendar.svg',
+    icon: 'assets/svg/calendar.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },

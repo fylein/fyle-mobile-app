@@ -103,7 +103,7 @@
             <ion-icon
               class="expenses-card--receipt-icon"
               *ngIf="!expense.file_ids?.length"
-              [src]="'../../../../assets/svg/fy-expense.svg'"
+              [src]="'../../../../assets/svg/expense.svg'"
             ></ion-icon>
           </div>
         </ng-template>
@@ -260,7 +260,7 @@
         </ng-template>
       </div>
       <div *ngIf="isDismissable" (click)="dismiss($event)">
-        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
+        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/cross.svg'" slot="icon-only"></ion-icon>
       </div>
     </div>
   </ng-container>

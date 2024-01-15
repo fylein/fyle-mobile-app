@@ -215,14 +215,14 @@ describe('ExpensesCardComponent', () => {
       expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
-    it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
+    it('should set the receipt icon to calendar when the fyle catergory is per diem', () => {
       component.expense = {
         ...expenseData1,
         tx_org_category: 'per diem',
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/calendar.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
@@ -244,7 +244,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/expense.svg');
     });
   });
 
