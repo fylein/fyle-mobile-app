@@ -773,7 +773,7 @@ describe('ViewTeamReportPageV2', () => {
   it('sendBack(): should open send back modal', async () => {
     const properties = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report Sent Back successfully',
       },

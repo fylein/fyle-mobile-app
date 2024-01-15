@@ -320,9 +320,9 @@ export class ExpensesCardComponent implements OnInit {
   setOtherData(): void {
     if (this.expense?.source_account?.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       if (this.expense?.matched_corporate_card_transaction_ids?.length > 0) {
-        this.paymentModeIcon = 'fy-matched';
+        this.paymentModeIcon = 'card';
       } else {
-        this.paymentModeIcon = 'fy-unmatched';
+        this.paymentModeIcon = 'card';
       }
     } else {
       if (this.expense?.is_reimbursable) {

@@ -314,9 +314,9 @@ export class ExpensesCardComponent implements OnInit {
   setOtherData(): void {
     if (this.expense.source_account_type === AccountType.CCC) {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
-        this.paymentModeIcon = 'fy-matched';
+        this.paymentModeIcon = 'card';
       } else {
-        this.paymentModeIcon = 'fy-unmatched';
+        this.paymentModeIcon = 'card';
       }
     } else {
       if (!this.expense.tx_skip_reimbursement) {

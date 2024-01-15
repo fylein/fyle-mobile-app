@@ -597,7 +597,7 @@ describe('MyViewReportPage', () => {
 
     const properties = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report resubmitted successfully.',
       },
@@ -632,7 +632,7 @@ describe('MyViewReportPage', () => {
 
     const properties = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Report submitted successfully.',
       },
@@ -805,7 +805,7 @@ describe('MyViewReportPage', () => {
   it('shareReport(): should share report', async () => {
     const snackbarPropertiesData = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: 'PDF download link has been emailed to aj@fyle.com',
       },

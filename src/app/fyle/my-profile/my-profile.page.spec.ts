@@ -232,7 +232,7 @@ describe('MyProfilePage', () => {
       const message = 'Profile saved successfully';
       const successToastProperties = {
         data: {
-          icon: 'tick-square-filled',
+          icon: 'check-square-fill',
           showCloseButton: true,
           message,
         },
@@ -297,7 +297,7 @@ describe('MyProfilePage', () => {
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
         'success',
         { message },
-        'tick-circle-outline-white'
+        'check-circle-outline'
       );
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
         ToastContent: message,

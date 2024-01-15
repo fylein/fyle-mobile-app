@@ -97,7 +97,7 @@ describe('PopupWithBulletsComponent', () => {
     const message = 'Phone Number Copied Successfully';
     const successToastProperties = {
       data: {
-        icon: 'tick-circle-outline-white',
+        icon: 'check-circle-outline',
         showCloseButton: true,
         message,
       },
@@ -115,7 +115,7 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'tick-circle-outline-white'
+      'check-circle-outline'
     );
   });
 });

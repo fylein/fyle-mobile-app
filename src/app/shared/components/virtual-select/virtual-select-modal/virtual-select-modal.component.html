@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="selection-modal--title">
@@ -14,7 +14,7 @@
   </ion-toolbar>
   <ion-toolbar *ngIf="enableSearch" class="text-center">
     <mat-form-field appearance="none" class="selection-modal--form-field mat-form-field-no-padding">
-      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+      <mat-icon class="selection-modal--search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
         #searchBar
         [(ngModel)]="value"

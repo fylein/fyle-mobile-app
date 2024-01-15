@@ -22,7 +22,7 @@ export class SnackbarPropertiesService {
   ): SnackbarProperties {
     if (!snackbarIcon) {
       if (toastMessageType === 'success') {
-        snackbarIcon = 'tick-square-filled';
+        snackbarIcon = 'check-square-fill';
       } else if (toastMessageType === 'failure') {
         snackbarIcon = 'warning-fill';
       }

@@ -241,7 +241,7 @@ export class ViewExpensePage {
       this.paymentModeIcon = 'cash-slash';
     } else if (expense.source_account.type === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT) {
       this.paymentMode = 'Corporate Card';
-      this.paymentModeIcon = 'fy-unmatched';
+      this.paymentModeIcon = 'card';
       this.isCCCTransaction = true;
     } else if (!expense.is_reimbursable) {
       this.paymentMode = 'Paid by Company';
@@ -332,7 +332,7 @@ export class ViewExpensePage {
       this.setPaymentModeandIcon(expense);
 
       if (this.isCCCTransaction && expense.matched_corporate_card_transactions[0]) {
-        this.paymentModeIcon = 'fy-matched';
+        this.paymentModeIcon = 'card';
 
         const matchedCCCTransaction = expense.matched_corporate_card_transactions[0];
         this.cardNumber = matchedCCCTransaction.corporate_card_number;

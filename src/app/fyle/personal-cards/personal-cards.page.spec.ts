@@ -262,7 +262,7 @@ describe('PersonalCardsPage', () => {
         const message = '1 card successfully added to Fyle!';
         const props = {
           data: {
-            icon: 'tick-square-filled',
+            icon: 'check-square-fill',
             showCloseButton: false,
             message: message,
           },
@@ -293,7 +293,7 @@ describe('PersonalCardsPage', () => {
         const message = '2 cards successfully added to Fyle!';
         const props = {
           data: {
-            icon: 'tick-square-filled',
+            icon: 'check-square-fill',
             showCloseButton: false,
             message: message,
           },
