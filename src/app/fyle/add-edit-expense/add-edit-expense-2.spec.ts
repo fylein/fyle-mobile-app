@@ -1574,7 +1574,7 @@ export function TestCases2(getTestBed) {
     it('showSnackBarToast(): should show snackbar with relevant properties', () => {
       const properties = {
         data: {
-          icon: 'tick-square-filled',
+          icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Message',
         },

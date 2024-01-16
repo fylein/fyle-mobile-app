@@ -374,12 +374,12 @@ export class MyExpensesV2Page implements OnInit {
       {
         text: 'Capture Receipt',
         icon: 'assets/svg/camera.svg',
-        cssClass: 'camera',
+        cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
+        icon: 'assets/svg/expense.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
@@ -389,7 +389,7 @@ export class MyExpensesV2Page implements OnInit {
       that.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/mileage.svg',
-        cssClass: 'mileage',
+        cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
@@ -397,7 +397,7 @@ export class MyExpensesV2Page implements OnInit {
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
+        icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });

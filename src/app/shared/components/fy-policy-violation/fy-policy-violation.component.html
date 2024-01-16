@@ -1,10 +1,10 @@
 <div *ngIf="showHeader">
-  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <div class="text-center policy-violation--toolbar fy-modal-toolbar">
     <div>
       <div class="policy-violation--toolbar__title">
         <span class="policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
-          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
         </span>
         Policy Violation<span *ngIf="policyViolationMessages?.length > 1">s</span> Found
       </div>

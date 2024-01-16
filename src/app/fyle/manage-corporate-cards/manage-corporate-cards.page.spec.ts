@@ -399,7 +399,7 @@ describe('ManageCorporateCardsPage', () => {
         buttons: [
           {
             text: 'Disconnect',
-            icon: 'assets/svg/fy-delete.svg',
+            icon: 'assets/svg/bin.svg',
             cssClass: 'danger',
             handler: jasmine.any(Function),
           },
