@@ -34,12 +34,12 @@
           (click)="openModal()"
           readonly
         />
-        <mat-chip
+        <mat-chip-option
           *ngIf="selectedApproversList && selectedApproversList.length > 3"
           class="add-approvers-popover--input-container__chip"
         >
           +{{ selectedApproversList.length - 3 }} more
-        </mat-chip>
+        </mat-chip-option>
         <mat-icon class="add-approvers-popover--input-container__icon" svgIcon="arrow-down"></mat-icon>
       </div>
     </label>

@@ -19,8 +19,8 @@
       appearance="none"
       [ngClass]="{ 'selection-modal--form-container__chips': selectedApproversList?.length > 0 }"
     >
-      <mat-chip-list #chipList aria-label="Multi select">
-        <mat-chip
+      <mat-chip-grid #chipList aria-label="Multi select">
+        <mat-chip-row
           *ngFor="let approver of selectedApproversList"
           data-testid="approvers"
           [selectable]="selectable"
@@ -29,7 +29,7 @@
         >
           {{ approver.name }}
           <mat-icon matChipRemove *ngIf="removable">cancel</mat-icon>
-        </mat-chip>
+        </mat-chip-row>
         <mat-icon
           *ngIf="!(selectedApproversList?.length > 0)"
           class="selection-modal--search-icon"
@@ -47,7 +47,7 @@
           (matChipInputTokenEnd)="addChip($event)"
           [placeholder]="!(selectedApproversList?.length > 0) ? 'Search' : ''"
         />
-      </mat-chip-list>
+      </mat-chip-grid>
     </mat-form-field>
     <div class="selection-modal--selected-count" *ngIf="selectedApproversList?.length > 0">
       {{ selectedApproversList.length }} selected
