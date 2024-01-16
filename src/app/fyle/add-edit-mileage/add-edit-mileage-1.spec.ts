@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -83,7 +83,7 @@ export function TestCases1(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -138,7 +138,7 @@ export function TestCases1(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -196,7 +196,7 @@ export function TestCases1(getTestBed) {
         project: [],
         billable: [],
         sub_category: [, Validators.required],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         costCenter: [],
         report: [],
         duplicate_detection_reason: [],
@@ -909,7 +909,7 @@ export function TestCases1(getTestBed) {
 
     describe('customDateValidator():', () => {
       it('should return null when the date is within the valid range', () => {
-        const control = new FormControl('2023-06-15');
+        const control = new UntypedFormControl('2023-06-15');
         const result = component.customDateValidator(control);
         expect(result).toBeNull();
       });
@@ -917,7 +917,7 @@ export function TestCases1(getTestBed) {
       it('should return an error object when the date is after the upper bound of the valid range', () => {
         const tomorrow = new Date();
         tomorrow.setDate(tomorrow.getDate() + 2);
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });

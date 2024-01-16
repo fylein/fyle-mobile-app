@@ -8,7 +8,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { LoginInfoService } from 'src/app/core/services/login-info.service';
-import { FormBuilder, FormControl, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -42,7 +42,7 @@ describe('NewPasswordPage', () => {
       declarations: [NewPasswordPage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, RouterTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: AuthService, useValue: authServiceSpy },
         { provide: RouterAuthService, useValue: routerAuthServiceSpy },
         { provide: LoaderService, useValue: loaderServiceSpy },
@@ -92,7 +92,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate password length of 12 characters', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('123456789012');
       expect(checkmarkIcon).toBeDefined();
@@ -100,7 +100,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate password length of 32 characters', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('1234567890123456789012345678901');
       expect(checkmarkIcon).toBeDefined();
@@ -108,7 +108,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate password length of less 12 characters', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('12345');
       expect(closeIcon).toBeDefined();
@@ -116,7 +116,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate password length of more 32 characters', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="lengthValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('12345678901234567890123456789012');
       expect(closeIcon).toBeDefined();
@@ -124,7 +124,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate the presence of an uppercase letter in password', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="uppercaseValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWithUpperCase');
       expect(checkmarkIcon).toBeDefined();
@@ -132,7 +132,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate the absence of an uppercase letter in password', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="uppercaseValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('passwordwithoutuppercase');
       expect(closeIcon).toBeDefined();
@@ -140,7 +140,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate the presence of a number in password', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="numberValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWithNumber123');
       expect(checkmarkIcon).toBeDefined();
@@ -148,7 +148,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate the absence of a number in password', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="numberValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWithoutNumber');
       expect(closeIcon).toBeDefined();
@@ -156,7 +156,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate the presence of a special character in password', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="specialcharValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWith@Special#Char');
       expect(checkmarkIcon).toBeDefined();
@@ -164,7 +164,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate the absence of a special character in password', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="specialcharValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWithoutSpecialChar');
       expect(closeIcon).toBeDefined();
@@ -172,7 +172,7 @@ describe('NewPasswordPage', () => {
 
     it('should validate the presence of a lowercase letter in password', () => {
       const checkmarkIcon = getElementBySelector(fixture, '[data-testid="lowercaseValidation_correct"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PasswordWithLowerCase');
       expect(checkmarkIcon).toBeDefined();
@@ -180,7 +180,7 @@ describe('NewPasswordPage', () => {
 
     it('should not validate the absence of a lowercase letter in password', () => {
       const closeIcon = getElementBySelector(fixture, '[data-testid="lowercaseValidation_incorrect"]');
-      const passwordControl = component.fg.controls.password as FormControl;
+      const passwordControl = component.fg.controls.password as UntypedFormControl;
 
       passwordControl.setValue('PASSWORDWITHOUTLOWERCASE');
       expect(closeIcon).toBeDefined();

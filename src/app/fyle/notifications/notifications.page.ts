@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
 import { Observable, from, noop, zip } from 'rxjs';
@@ -46,23 +46,23 @@ export class NotificationsPage implements OnInit {
 
   saveNotifLoading = false;
 
-  notificationForm: FormGroup;
+  notificationForm: UntypedFormGroup;
 
   constructor(
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private orgSettingsService: OrgSettingsService,
     private router: Router,
     private navController: NavController
   ) {}
 
-  get pushEvents(): FormArray {
-    return this.notificationForm.controls.pushEvents as FormArray;
+  get pushEvents(): UntypedFormArray {
+    return this.notificationForm.controls.pushEvents as UntypedFormArray;
   }
 
-  get emailEvents(): FormArray {
-    return this.notificationForm.controls.emailEvents as FormArray;
+  get emailEvents(): UntypedFormArray {
+    return this.notificationForm.controls.emailEvents as UntypedFormArray;
   }
 
   getDelegateeSubscription(): Observable<string> {
@@ -93,8 +93,8 @@ export class NotificationsPage implements OnInit {
     const unSubscribedEmailNotifications = orgUserSettings.notification_settings.email.unsubscribed_events;
 
     notificationEvents.events.forEach((event) => {
-      const a = new FormControl(true);
-      const b = new FormControl(true);
+      const a = new UntypedFormControl(true);
+      const b = new UntypedFormControl(true);
 
       if (unSubscribedPushNotifications.indexOf(event.eventType.toUpperCase()) > -1) {
         a.setValue(false);
@@ -273,8 +273,8 @@ export class NotificationsPage implements OnInit {
     // creating form
     this.notificationForm = this.formBuilder.group({
       notifyOption: [],
-      pushEvents: new FormArray([]), // push notification event form control array
-      emailEvents: new FormArray([]), // email  notification event form control array
+      pushEvents: new UntypedFormArray([]), // push notification event form control array
+      emailEvents: new UntypedFormArray([]), // email  notification event form control array
     });
 
     let notifyOption;

@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { FyNumberComponent } from './fy-number.component';
-import { FormsModule, ReactiveFormsModule, FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { of } from 'rxjs';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
@@ -40,7 +40,7 @@ describe('FyNumberComponent', () => {
         {
           provide: NgControl,
           useValue: {
-            control: new FormControl(),
+            control: new UntypedFormControl(),
           },
         },
       ],

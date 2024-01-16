@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { from, throwError, Observable, of, noop } from 'rxjs';
 import { PopoverController } from '@ionic/angular';
@@ -24,7 +24,7 @@ import { SamlResponse } from 'src/app/core/models/saml-response.model';
   styleUrls: ['./sign-in.page.scss'],
 })
 export class SignInPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   emailSet = false;
 
@@ -39,7 +39,7 @@ export class SignInPage implements OnInit {
   checkEmailExists$: Observable<EmailExistsResponse>;
 
   constructor(
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private routerAuthService: RouterAuthService,
     private popoverController: PopoverController,
     private loaderService: LoaderService,

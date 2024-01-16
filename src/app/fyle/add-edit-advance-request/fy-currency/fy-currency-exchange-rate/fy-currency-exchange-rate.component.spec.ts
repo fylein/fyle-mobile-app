@@ -4,7 +4,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { FyCurrencyExchangeRateComponent } from './fy-currency-exchange-rate.component';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { of } from 'rxjs';
 
 describe('FyCurrencyExchangeRateComponent', () => {
@@ -13,7 +13,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let loaderService: jasmine.SpyObj<LoaderService>;
-  let formBuilder: FormBuilder;
+  let formBuilder: UntypedFormBuilder;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
@@ -27,7 +27,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
       declarations: [FyCurrencyExchangeRateComponent],
       imports: [IonicModule.forRoot(), FormsModule, ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: CurrencyService,
           useValue: currencyServiceSpy,
@@ -45,7 +45,7 @@ describe('FyCurrencyExchangeRateComponent', () => {
 
     fixture = TestBed.createComponent(FyCurrencyExchangeRateComponent);
     component = fixture.componentInstance;
-    formBuilder = TestBed.inject(FormBuilder);
+    formBuilder = TestBed.inject(UntypedFormBuilder);
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

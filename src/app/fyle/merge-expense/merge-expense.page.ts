@@ -1,5 +1,5 @@
 import { AfterViewChecked, ChangeDetectorRef, Component, OnInit } from '@angular/core';
-import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
@@ -41,7 +41,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 export class MergeExpensePage implements OnInit, AfterViewChecked {
   expenses: Expense[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   expenseOptions$: Observable<MergeExpensesOption<string>[]>;
 
@@ -137,7 +137,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     private router: Router,
     private transcationService: TransactionService,
     private categoriesService: CategoriesService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private navController: NavController,

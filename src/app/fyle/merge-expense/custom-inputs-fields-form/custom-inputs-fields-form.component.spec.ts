@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { CustomInputsFieldsFormComponent } from './custom-inputs-fields-form.component';
-import { FormArray, FormBuilder, FormControl } from '@angular/forms';
+import { FormArray, UntypedFormBuilder, FormControl } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import {
   customInputsFieldData1,
@@ -18,7 +18,7 @@ describe('CustomInputsFieldsFormComponent', () => {
     TestBed.configureTestingModule({
       declarations: [CustomInputsFieldsFormComponent],
       imports: [IonicModule.forRoot()],
-      providers: [FormBuilder],
+      providers: [UntypedFormBuilder],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -87,7 +87,7 @@ describe('CustomInputsFieldsFormComponent', () => {
     component.customFieldsForm.patchValue({
       fields: [[]],
     });
-    const newValue = new FormBuilder().group({
+    const newValue = new UntypedFormBuilder().group({
       name: 'Merchant',
       value: 'Jio',
     });

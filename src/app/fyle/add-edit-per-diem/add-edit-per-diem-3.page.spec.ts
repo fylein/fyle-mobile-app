@@ -27,7 +27,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -77,7 +77,7 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -117,7 +117,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
@@ -164,7 +164,7 @@ export function TestCases3(getTestBed) {
         report: [],
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
@@ -256,7 +256,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -280,7 +280,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -312,7 +312,7 @@ export function TestCases3(getTestBed) {
               value: null,
             },
           ],
-          expenseFieldResponse,
+          expenseFieldResponse
         );
 
         expect(res).toEqual(txnCustomPropertiesData5);
@@ -338,7 +338,7 @@ export function TestCases3(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
         'fyCriticalPolicyViolationPopOver',
-        ['present', 'onWillDismiss'],
+        ['present', 'onWillDismiss']
       );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -384,7 +384,7 @@ export function TestCases3(getTestBed) {
 
       const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state,
+        splitPolicyExp4.data.final_desired_state
       );
       tick(100);
 
@@ -464,7 +464,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -489,7 +489,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
@@ -530,7 +530,7 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' }),
+          of({ etxn: unflattenedTxnData, comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
@@ -552,7 +552,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -579,7 +579,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               [],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -595,7 +595,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -622,7 +622,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -641,7 +641,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -668,7 +668,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -685,7 +685,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -712,7 +712,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -729,7 +729,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe({
             next: (res) => {
@@ -752,7 +752,7 @@ export function TestCases3(getTestBed) {
                 unflattenedTxnData.tx,
                 undefined,
                 ['comment'],
-                'rp5eUkeNm9wB',
+                'rp5eUkeNm9wB'
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -774,7 +774,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -797,7 +797,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -813,7 +813,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -832,7 +832,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -854,7 +854,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -877,7 +877,7 @@ export function TestCases3(getTestBed) {
               mockTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rp5eUkeNm9wB'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
