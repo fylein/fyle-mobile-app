@@ -2562,11 +2562,11 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.currency = etxn.tx.extracted_data.currency;
           }
 
-          if (etxn.tx.extracted_data.date) {
+          if (etxn.tx.extracted_data.date && !etxn.tx.txn_dt) {
             etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
           }
 
-          if (etxn.tx.extracted_data.invoice_dt) {
+          if (etxn.tx.extracted_data.invoice_dt && !etxn.tx.txn_dt) {
             etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
           }
 
