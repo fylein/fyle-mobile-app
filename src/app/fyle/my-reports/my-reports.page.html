@@ -7,7 +7,7 @@
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-reports--header-btn" (click)="searchClick()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-reports--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
@@ -27,7 +27,7 @@
     <div class="expense-report-search my-reports--simple-search-container">
       <mat-form-field appearance="outline" class="mat-form-field-no-padding my-reports--simple-search">
         <div class="my-reports--simple-search-block">
-          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
@@ -45,7 +45,7 @@
             mat-icon-button
             matSuffix
           >
-            <mat-icon svgIcon="fy-clear"></mat-icon>
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         </div>
       </mat-form-field>

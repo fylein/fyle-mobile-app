@@ -383,7 +383,7 @@ describe('ViewExpensePage', () => {
       component.expense$.subscribe((expense) => {
         expect(expense.source_account.type).toEqual(AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT);
         expect(component.paymentMode).toEqual('Corporate Card');
-        expect(component.paymentModeIcon).toEqual('fy-unmatched');
+        expect(component.paymentModeIcon).toEqual('card');
         expect(component.isCCCTransaction).toBeTrue();
       });
     });
@@ -585,7 +585,7 @@ describe('ViewExpensePage', () => {
       component.expense$ = of(mockExpense);
       component.ionViewWillEnter();
 
-      expect(component.paymentModeIcon).toEqual('fy-matched');
+      expect(component.paymentModeIcon).toEqual('card');
       expect(component.cardNumber).toEqual(expenseData.matched_corporate_card_transactions[0].corporate_card_number);
       expect(component.foreignCurrencySymbol).toEqual(expenseData.foreign_currency);
       expect(component.expenseCurrencySymbol).toEqual('$');

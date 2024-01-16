@@ -215,14 +215,14 @@ describe('ExpensesCardComponent', () => {
       expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
-    it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
+    it('should set the receipt icon to calendar when the fyle catergory is per diem', () => {
       component.expense = {
         ...expenseData1,
         tx_org_category: 'per diem',
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/calendar.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
@@ -244,7 +244,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/expense.svg');
     });
   });
 
@@ -551,7 +551,7 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('setOtherData():', () => {
-    it('should set icon to fy-matched if the source account type is corporate credit card', () => {
+    it('should set icon to card if the source account type is corporate credit card', () => {
       component.expense = {
         ...expenseData1,
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
@@ -560,10 +560,10 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-matched');
+      expect(component.paymentModeIcon).toEqual('card');
     });
 
-    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
+    it('should set icon to card if the source account type is corporate credit card but expense group id is not present', () => {
       component.expense = {
         ...expenseData1,
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
@@ -571,7 +571,7 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-unmatched');
+      expect(component.paymentModeIcon).toEqual('card');
     });
 
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {

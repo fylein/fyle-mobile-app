@@ -109,7 +109,7 @@ describe('SuggestedDuplicatesComponent', () => {
   it('should show success toast message when called', () => {
     const snackbarProperties = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: 'Duplicates was successfully dismissed',
       },

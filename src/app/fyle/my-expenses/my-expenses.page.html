@@ -9,7 +9,7 @@
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-expenses--header-btn" (click)="searchClick()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-expenses--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
@@ -38,7 +38,7 @@
     <div class="expense-report-search my-expenses--simple-search-container">
       <mat-form-field appearance="outline" class="mat-form-field-no-padding my-expenses--simple-search">
         <div class="my-expenses--simple-search-block">
-          <mat-icon class="my-expenses--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <mat-icon class="my-expenses--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
@@ -56,7 +56,7 @@
             mat-icon-button
             matSuffix
           >
-            <mat-icon svgIcon="fy-clear"></mat-icon>
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         </div>
       </mat-form-field>
@@ -73,13 +73,13 @@
     </ng-container>
     <ion-buttons mode="md" slot="end">
       <ion-button *ngIf="isMergeAllowed" (click)="mergeExpenses()">
-        <ion-icon src="../../../assets/svg/fy-merge.svg"></ion-icon>
+        <ion-icon src="../../../assets/svg/merge.svg"></ion-icon>
       </ion-button>
       <ion-button
         (click)="openDeleteExpensesPopover()"
         [disabled]="selectedElements?.length === 0 || !expensesToBeDeleted || (expensesToBeDeleted.length === 0 && cccExpenses > 0)"
       >
-        <ion-icon src="../../../assets/svg/fy-delete.svg"></ion-icon>
+        <ion-icon src="../../../assets/svg/bin.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ng-container>
