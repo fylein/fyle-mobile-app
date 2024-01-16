@@ -500,7 +500,7 @@ export function TestCases2(getTestBed) {
         dateService.getUTCDate.and.returnValue(extractedDate);
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnWithExtractedData2);
+          expect(res).toEqual(mockedTxn);
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
           expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
           done();
