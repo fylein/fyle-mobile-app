@@ -99,8 +99,7 @@
             "staging": {
               "browserTarget": "app:build:staging"
             },
-            "ci": {
-            }
+            "ci": {}
           }
         },
         "extract-i18n": {
@@ -117,7 +116,10 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "codeCoverage": true,
-            "codeCoverageExclude": ["src/app/core/services/tracking.service.ts", "src/app/fyle/fyle-routing.module.ts"],
+            "codeCoverageExclude": [
+              "src/app/core/services/tracking.service.ts",
+              "src/app/fyle/fyle-routing.module.ts"
+            ],
             "styles": [],
             "scripts": [],
             "assets": [
