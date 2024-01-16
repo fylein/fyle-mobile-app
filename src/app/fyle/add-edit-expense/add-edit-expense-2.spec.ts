@@ -483,7 +483,7 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(unflattenedTxnWithExtractedData2);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          expect(dateService.getUTCDate).not.toHaveBeenCalled();
           done();
         });
       });
