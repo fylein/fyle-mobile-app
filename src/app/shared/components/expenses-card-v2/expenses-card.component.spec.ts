@@ -254,7 +254,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/expense.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/list.svg');
     });
 
     it('should set isReceiptPresent to true if not a mileage or per diem expense and file ids present', () => {

@@ -170,7 +170,7 @@ export class ExpensesCardComponent implements OnInit {
       if (!this.expense.file_ids?.length) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
-          this.receiptIcon = 'assets/svg/expense.svg';
+          this.receiptIcon = 'assets/svg/list.svg';
         }
       } else {
         this.isReceiptPresent = true;

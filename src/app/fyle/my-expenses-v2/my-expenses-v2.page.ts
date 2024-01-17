@@ -379,7 +379,7 @@ export class MyExpensesV2Page implements OnInit {
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/expense.svg',
+        icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
