@@ -29,7 +29,7 @@ export const expectedActionSheetButtonRes = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -56,7 +56,7 @@ export const expectedActionSheetButtonsWithMileage = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -77,7 +77,7 @@ export const expectedActionSheetButtonsWithPerDiem = [
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
