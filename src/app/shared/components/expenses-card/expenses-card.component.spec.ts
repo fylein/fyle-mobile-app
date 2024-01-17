@@ -244,7 +244,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/expense.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/list.svg');
     });
   });
 
