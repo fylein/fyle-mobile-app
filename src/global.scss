@@ -498,11 +498,11 @@ ion-popover.camera-options-popover {
 /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-.mat-checkbox-checked.mat-accent {
+.mat-mdc-checkbox-checked.mat-accent {
   /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-  .mat-checkbox-background {
+  .mdc-checkbox__background {
     background-color: $blue-black !important;
   }
 }
@@ -510,7 +510,7 @@ ion-popover.camera-options-popover {
 /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-.mat-checkbox-checkmark {
+.mdc-checkbox__checkmark {
   padding: 2px;
 }
 
@@ -527,8 +527,8 @@ mat-checkbox {
   /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-  .mat-checkbox-background,
-  .mat-checkbox-frame {
+  .mdc-checkbox__background,
+  .mdc-checkbox__checkmark {
     border-radius: 4px !important;
     border-color: $black-2 !important;
     border-width: 1.5px !important;
@@ -539,11 +539,11 @@ mat-checkbox {
   /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-  .mat-checkbox-layout {
+  .mat-mdc-checkbox-layout {
     /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-    .mat-checkbox-inner-container {
+    .mat-mdc-checkbox-inner-container {
       padding: 8px !important;
     }
   }
@@ -556,21 +556,21 @@ mat-checkbox {
   /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-  .mat-checkbox-inner-container {
+  .mat-mdc-checkbox-inner-container {
     height: 20px;
     width: 20px;
     /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-    .mat-checkbox-background,
-    .mat-checkbox-frame {
+    .mdc-checkbox__background,
+    .mdc-checkbox__checkmark {
       border-radius: 6px !important;
     }
   }
   /*
  TODO(mdc-migration): The following rule targets internal classes of checkbox that may no longer apply for the MDC version.
  */
-  .mat-checkbox-label {
+  .mdc-label {
     margin-left: 10px !important;
     font-size: 14px;
     color: $black;
@@ -612,7 +612,7 @@ input {
   /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-  .mat-form-field-flex {
+  .mat-mdc-form-field-flex {
     padding: 6px 24px !important;
   }
 }
@@ -622,7 +622,7 @@ input {
   /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-  .mat-form-field-appearance-outline .mat-form-field-infix {
+  .mdc-text-field--outlined .mat-mdc-form-field-infix {
     padding-top: 0 !important;
     padding-bottom: 6px !important;
   }
@@ -634,7 +634,7 @@ input {
   /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-  .mat-form-field-appearance-outline .mat-form-field-infix {
+  .mdc-text-field--outlined .mat-mdc-form-field-infix {
     padding-top: 0 !important;
     padding-bottom: 6px !important;
   }
@@ -643,7 +643,7 @@ input {
 /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-.mat-form-field-appearance-outline .mat-form-field-infix {
+.mdc-text-field--outlined .mat-mdc-form-field-infix {
   padding: 0.3em 0 1em 0;
 }
 
@@ -1158,7 +1158,7 @@ ion-modal.payment-mode-modal {
   /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     width: auto;
   }
 }
@@ -1167,7 +1167,7 @@ ion-modal.payment-mode-modal {
   /*
  TODO(mdc-migration): The following rule targets internal classes of form-field that may no longer apply for the MDC version.
  */
-  .mat-form-field-infix {
+  .mat-mdc-form-field-infix {
     border-top: 0;
   }
 }
