@@ -255,7 +255,7 @@ export class DashboardPage {
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/expense.svg',
+        icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Manually', 'add_edit_expense'),
       },
