@@ -187,8 +187,7 @@ export class MyProfilePage {
           user_id: `eq.${eou.us.id}`,
         },
       };
-      return this.spenderService.get('/employees', queryParams).subscribe((res: PlatformApiResponse<any>) => {
-        console.log(res);
+      return this.spenderService.get('/employees', queryParams).subscribe((res: any) => {
         this.isCommuteDetailsPresent = res.data?.[0]?.commute_details?.home_location;
         if (this.isCommuteDetailsPresent) {
           this.commuteDetails = res.data[0].commute_details;
