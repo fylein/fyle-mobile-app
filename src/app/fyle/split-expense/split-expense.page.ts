@@ -522,7 +522,7 @@ export class SplitExpensePage {
     } else if (this.splitType === 'projects') {
       this.splitExpenseHeader = this.txnFields.project_id.field_name;
     } else {
-      this.splitExpenseHeader = 'Category';
+      this.splitExpenseHeader = 'category';
     }
   }
 
