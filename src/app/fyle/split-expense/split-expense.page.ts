@@ -98,6 +98,8 @@ export class SplitExpensePage {
 
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
+  splitExpenseHeader: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -514,6 +516,16 @@ export class SplitExpensePage {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
+  getSplitExpenseHeader(): void {
+    if (this.splitType === 'cost centers') {
+      this.splitExpenseHeader = this.txnFields.cost_center_id.field_name;
+    } else if (this.splitType === 'projects') {
+      this.splitExpenseHeader = this.txnFields.project_id.field_name;
+    } else {
+      this.splitExpenseHeader = 'Category';
+    }
+  }
+
   ionViewWillEnter(): void {
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
@@ -525,6 +537,9 @@ export class SplitExpensePage {
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
+
+    // This method is used for setting the header of split expense page
+    this.getSplitExpenseHeader();
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
