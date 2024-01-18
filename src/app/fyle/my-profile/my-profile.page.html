@@ -36,6 +36,78 @@
         </div>
       </ng-container>
 
+      <div class="my-profile__section-header">Commute Details</div>
+      <div
+        *ngIf="!isCommuteDetailsPresent"
+        class="my-profile__card"
+        [routerLink]="[ '/', 'enterprise', 'add_commute_details' ]"
+        matRipple
+      >
+        <div class="my-profile__card__title">Add Location</div>
+        <ion-icon
+          class="my-profile__navigate-icon"
+          src="../../../assets/svg/arrow-right.svg"
+          slot="icon-only"
+        ></ion-icon>
+      </div>
+      <div *ngIf="commuteDetails" class="my-profile__card">
+        <div class="my-profile__card__content-container">
+          <div class="my-profile__card__location-detail-card">
+            <div class="my-profile__card__location-icon-container">
+              <ion-icon
+                class="my-profile__icon"
+                src="../../../assets/svg/house-outline.svg"
+                slot="icon-only"
+              ></ion-icon>
+            </div>
+            <div>
+              <div class="my-profile__card__location-detail-card__header">Home</div>
+              <div class="my-profile__card__location-detail-card__content">
+                {{ commuteDetails.home_location.address }}
+              </div>
+            </div>
+          </div>
+          <div class="my-profile__card__location-detail-card">
+            <div class="my-profile__card__location-icon-container">
+              <ion-icon class="my-profile__icon" src="../../../assets/svg/building.svg" slot="icon-only"></ion-icon>
+            </div>
+            <div>
+              <div class="my-profile__card__location-detail-card__header">Work</div>
+              <div class="my-profile__card__location-detail-card__content">
+                {{ commuteDetails.work_location.address }}
+              </div>
+            </div>
+          </div>
+          <div class="my-profile__card__edit-commute-button">
+            <ion-icon
+              class="my-profile__card__edit-commute-button__icon"
+              src="../../../assets/svg/edit.svg"
+              slot="icon-only"
+            ></ion-icon>
+            <span class="my-profile__card__edit-commute-button__text">Edit Location</span>
+          </div>
+          <div class="my-profile__card__emphasized-content">Commute Distance:</div>
+          <div class="my-profile__card__commute-distance-row">
+            <ion-icon class="my-profile__icon" src="../../../assets/svg/arrow-tail-up.svg" slot="icon-only"></ion-icon>
+            <span>One way distance - </span>
+            <span class="my-profile__card__emphasized-content"
+              >{{commuteDetails.distance.toFixed(2) + ' ' + mileageDistanceUnit}}</span
+            >
+          </div>
+          <div class="my-profile__card__commute-distance-row">
+            <ion-icon
+              class="my-profile__icon"
+              src="../../../assets/svg/arrow-tail-up-down.svg"
+              slot="icon-only"
+            ></ion-icon>
+            <span>Round trip distance - </span>
+            <span class="my-profile__card__emphasized-content"
+              >{{ (commuteDetails.distance * 2).toFixed(2) + ' ' + mileageDistanceUnit}}</span
+            >
+          </div>
+        </div>
+      </div>
+
       <div class="my-profile__section-header">Notifications</div>
       <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
         <div class="my-profile__card__title">Manage Notifications</div>

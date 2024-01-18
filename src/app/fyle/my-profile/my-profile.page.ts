@@ -32,6 +32,8 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -67,11 +69,17 @@ export class MyProfilePage {
 
   infoCardsData: CopyCardDetails[];
 
+  commuteDetails: any;
+
+  mileageDistanceUnit: string;
+
   isCCCEnabled: boolean;
 
   isVisaRTFEnabled: boolean;
 
   isMastercardRTFEnabled: boolean;
+
+  isCommuteDetailsPresent: boolean;
 
   constructor(
     private authService: AuthService,
@@ -89,6 +97,7 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private spenderService: SpenderService,
     private activatedRoute: ActivatedRoute
   ) {}
 
@@ -172,6 +181,21 @@ export class MyProfilePage {
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
+    this.eou$.subscribe((eou) => {
+      const queryParams = {
+        params: {
+          user_id: `eq.${eou.us.id}`,
+        },
+      };
+      return this.spenderService.get('/employees', queryParams).subscribe((res: PlatformApiResponse<any>) => {
+        console.log(res);
+        this.isCommuteDetailsPresent = res.data?.[0]?.commute_details?.home_location;
+        if (this.isCommuteDetailsPresent) {
+          this.commuteDetails = res.data[0].commute_details;
+          this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
+        }
+      });
+    });
 
     this.eou$.subscribe((eou) => this.setInfoCardsData(eou));
 
