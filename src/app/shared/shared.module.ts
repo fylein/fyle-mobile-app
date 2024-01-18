@@ -50,7 +50,7 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { PinchZoomModule } from 'ngx13-pinch-zoom';
+import { PinchZoomModule } from '@meddv/ngx-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
 import { FyPopupComponent } from './components/fy-popup/fy-popup.component';
