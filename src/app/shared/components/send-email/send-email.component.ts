@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { PageState } from 'src/app/core/models/page-state.enum';
 
@@ -27,9 +27,9 @@ export class SendEmailComponent implements OnInit {
 
   @Output() sendEmail = new EventEmitter<string>();
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
-  constructor(private formBuilder: FormBuilder, private activatedRoute: ActivatedRoute) {}
+  constructor(private formBuilder: UntypedFormBuilder, private activatedRoute: ActivatedRoute) {}
 
   get pageStates() {
     return PageState;

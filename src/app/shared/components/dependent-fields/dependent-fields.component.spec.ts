@@ -4,10 +4,10 @@ import { DependentFieldsService } from 'src/app/core/services/dependent-fields.s
 import { DependentFieldsComponent } from './dependent-fields.component';
 import { DependentFieldComponent } from './dependent-field/dependent-field.component';
 import {
-  FormArray,
-  FormBuilder,
-  FormControl,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
@@ -25,7 +25,7 @@ describe('DependentFieldsComponent', () => {
   let component: DependentFieldsComponent;
   let fixture: ComponentFixture<DependentFieldsComponent>;
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
-  let formBuilder: jasmine.SpyObj<FormBuilder>;
+  let formBuilder: jasmine.SpyObj<UntypedFormBuilder>;
 
   beforeEach(waitForAsync(() => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', ['getOptionsForDependentField']);
@@ -40,7 +40,7 @@ describe('DependentFieldsComponent', () => {
           useValue: dependentFieldsServiceSpy,
         },
         {
-          provide: FormBuilder,
+          provide: UntypedFormBuilder,
           useValue: formBuilderSpy,
         },
       ],
@@ -50,10 +50,10 @@ describe('DependentFieldsComponent', () => {
     fixture.detectChanges();
 
     dependentFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
-    formBuilder = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    formBuilder = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
 
     component.dependentCustomFields = dependentCustomFields;
-    component.dependentFieldsFormArray = new FormArray([]);
+    component.dependentFieldsFormArray = new UntypedFormArray([]);
     component.parentFieldId = 219175;
     component.parentFieldValue = 'Project 1';
     component.txnCustomProperties = dependentCustomProperties;
@@ -222,16 +222,16 @@ describe('DependentFieldsComponent', () => {
 
   describe('addDependentField(): ', () => {
     let parentFieldValue: string;
-    let dependentFieldControl: FormGroup;
+    let dependentFieldControl: UntypedFormGroup;
 
     beforeEach(() => {
       parentFieldValue = 'Project 1';
 
-      dependentFieldControl = new FormGroup({
-        id: new FormControl(dependentCustomFields[0].id),
-        label: new FormControl(dependentCustomFields[0].field_name),
-        parent_field_id: new FormControl(dependentCustomFields[0].parent_field_id),
-        value: new FormControl(null, (dependentCustomFields[0].is_mandatory || null) && Validators.required),
+      dependentFieldControl = new UntypedFormGroup({
+        id: new UntypedFormControl(dependentCustomFields[0].id),
+        label: new UntypedFormControl(dependentCustomFields[0].field_name),
+        parent_field_id: new UntypedFormControl(dependentCustomFields[0].parent_field_id),
+        value: new UntypedFormControl(null, (dependentCustomFields[0].is_mandatory || null) && Validators.required),
       });
 
       formBuilder.group.and.returnValue(dependentFieldControl);
@@ -261,7 +261,7 @@ describe('DependentFieldsComponent', () => {
 
       const dependentFieldFg = component.dependentFieldsFormArray.at(
         component.dependentFieldsFormArray.length - 1
-      ) as FormGroup;
+      ) as UntypedFormGroup;
 
       //This field should be the last field in dependentFields and formArray
       expect(component.dependentFields[component.dependentFields.length - 1]).toEqual(dependentField);
@@ -291,11 +291,11 @@ describe('DependentFieldsComponent', () => {
         is_mandatory: true,
       };
 
-      const mandatoryDependentFieldControl = new FormGroup({
-        id: new FormControl(mandatoryDependentField.id),
-        label: new FormControl(mandatoryDependentField.field_name),
-        parent_field_id: new FormControl(mandatoryDependentField.parent_field_id),
-        value: new FormControl(null, (mandatoryDependentField.is_mandatory || null) && Validators.required),
+      const mandatoryDependentFieldControl = new UntypedFormGroup({
+        id: new UntypedFormControl(mandatoryDependentField.id),
+        label: new UntypedFormControl(mandatoryDependentField.field_name),
+        parent_field_id: new UntypedFormControl(mandatoryDependentField.parent_field_id),
+        value: new UntypedFormControl(null, (mandatoryDependentField.is_mandatory || null) && Validators.required),
       });
 
       formBuilder.group.and.returnValue(mandatoryDependentFieldControl);
@@ -365,23 +365,23 @@ describe('DependentFieldsComponent', () => {
   });
 
   describe('removeAllDependentFields(): ', () => {
-    let initialDependentFieldsFormArray: FormArray;
+    let initialDependentFieldsFormArray: UntypedFormArray;
     let initialDependentFields = [];
     beforeEach(() => {
-      component.dependentFieldsFormArray = new FormArray([]);
+      component.dependentFieldsFormArray = new UntypedFormArray([]);
       component.dependentFields = [];
       const parentFieldValues = ['Project 1', 'Cost Code 1'];
 
-      initialDependentFieldsFormArray = new FormArray([]);
+      initialDependentFieldsFormArray = new UntypedFormArray([]);
       initialDependentFields = [];
 
       //Create formArray and object array with two dependent fields
       for (let i = 0; i < 2; i++) {
-        const dependentFieldControl = new FormGroup({
-          id: new FormControl(dependentCustomFields[i].id),
-          label: new FormControl(dependentCustomFields[i].field_name),
-          parent_field_id: new FormControl(dependentCustomFields[i].parent_field_id),
-          value: new FormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
+        const dependentFieldControl = new UntypedFormGroup({
+          id: new UntypedFormControl(dependentCustomFields[i].id),
+          label: new UntypedFormControl(dependentCustomFields[i].field_name),
+          parent_field_id: new UntypedFormControl(dependentCustomFields[i].parent_field_id),
+          value: new UntypedFormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
         });
 
         const dependentField = {
@@ -424,14 +424,14 @@ describe('DependentFieldsComponent', () => {
 
   describe('onDependentFieldChanged(): ', () => {
     beforeEach(() => {
-      component.dependentFieldsFormArray = new FormArray([]);
+      component.dependentFieldsFormArray = new UntypedFormArray([]);
 
       for (let i = 0; i < 2; i++) {
-        const dependentFieldControl = new FormGroup({
-          id: new FormControl(dependentCustomFields[i].id),
-          label: new FormControl(dependentCustomFields[i].field_name),
-          parent_field_id: new FormControl(dependentCustomFields[i].parent_field_id),
-          value: new FormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
+        const dependentFieldControl = new UntypedFormGroup({
+          id: new UntypedFormControl(dependentCustomFields[i].id),
+          label: new UntypedFormControl(dependentCustomFields[i].field_name),
+          parent_field_id: new UntypedFormControl(dependentCustomFields[i].parent_field_id),
+          value: new UntypedFormControl(null, (dependentCustomFields[i].is_mandatory || null) && Validators.required),
         });
         component.dependentFieldsFormArray.push(dependentFieldControl);
       }

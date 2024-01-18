@@ -27,7 +27,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
@@ -50,7 +50,7 @@ export function TestCases5(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -90,7 +90,7 @@ export function TestCases5(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
@@ -137,7 +137,7 @@ export function TestCases5(getTestBed) {
         report: [],
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
@@ -351,7 +351,7 @@ export function TestCases5(getTestBed) {
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
+            'rpFE5X1Pqi9P'
           )
           .componentProps.deleteMethod();
         expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
@@ -364,7 +364,7 @@ export function TestCases5(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false,
-            'tx5n59fvxk4z',
+            'tx5n59fvxk4z'
           )
           .componentProps.deleteMethod();
         expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
@@ -405,15 +405,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P',
+          'rpFE5X1Pqi9P'
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
-          ),
+            'rpFE5X1Pqi9P'
+          )
         );
       }));
 
@@ -443,15 +443,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined,
-          ),
+            undefined
+          )
         );
       }));
 
@@ -485,23 +485,23 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined,
-          ),
+            undefined
+          )
         );
         expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex],
+          component.reviewList[+component.activeIndex]
         );
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
           component.reviewList,
-          +component.activeIndex,
+          +component.activeIndex
         );
       }));
 
@@ -531,15 +531,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P',
+          'rpFE5X1Pqi9P'
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
-          ),
+            'rpFE5X1Pqi9P'
+          )
         );
         expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
       }));
@@ -668,7 +668,7 @@ export function TestCases5(getTestBed) {
           from_dt: '2023-06-27',
         });
         const tomorrow = new Date();
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toBeNull();
       });
@@ -679,7 +679,7 @@ export function TestCases5(getTestBed) {
         });
         const tomorrow = new Date('2023-06-15');
         tomorrow.setDate(tomorrow.getDate() + 2);
-        const control = new FormControl(tomorrow.toDateString());
+        const control = new UntypedFormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });
       });
