@@ -79,4 +79,12 @@
   &--card-filled {
     color: $green;
   }
+
+  &--flagged {
+    color: $red;
+  }
+
+  &--unflagged {
+    color: $grey-light;
+  }
 }
