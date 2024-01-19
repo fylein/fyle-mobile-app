@@ -244,7 +244,7 @@ export class SplitExpensePage {
         //If selected project/cost center is not same as the original expense, then remove dependent fields from source expense.
         if (isDifferentProject || isDifferentCostCenter) {
           txnCustomProperties = this.transaction.custom_properties.filter(
-            (customProperty) => !dependentCustomProperties.includes(customProperty)
+            (customProperty) => !dependentCustomProperties?.includes(customProperty)
           );
         }
 
@@ -549,7 +549,7 @@ export class SplitExpensePage {
     if (this.splitType === 'projects') {
       parentFieldId = this.txnFields.project_id.id;
     } else if (this.splitType === 'cost centers') {
-      parentFieldId = this.txnFields.cost_center_id.id;
+      parentFieldId = this.txnFields.cost_center_id?.id;
     }
 
     this.dependentCustomProperties$ = iif(
