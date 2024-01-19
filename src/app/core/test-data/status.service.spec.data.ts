@@ -942,7 +942,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
   {
@@ -962,7 +962,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Unflagged',
-      icon: 'flag',
+      icon: 'flag-outline',
     },
   },
   {
@@ -2097,7 +2097,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     show_dt: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
 ];
