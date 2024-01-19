@@ -34,6 +34,7 @@ import { PreferenceSetting } from 'src/app/core/models/preference-setting.model'
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { AddEditCommuteDetailsComponent } from './add-edit-commute-details/add-edit-commute-details.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -365,6 +366,18 @@ export class MyProfilePage {
     } else {
       this.showToastMessage('You have reached the limit to request OTP. Retry after 24 hours.', 'failure');
     }
+  }
+
+  async editCommuteDetails(): Promise<void> {
+    const editCommuteDetailsPopover = await this.popoverController.create({
+      component: AddEditCommuteDetailsComponent,
+      componentProps: {
+        commuteDetails: this.commuteDetails,
+      },
+      cssClass: 'search-sort-popover',
+    });
+
+    await editCommuteDetailsPopover.present();
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {

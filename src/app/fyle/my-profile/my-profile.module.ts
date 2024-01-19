@@ -26,11 +26,11 @@ import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobil
     MyProfilePageRoutingModule,
     MatFormFieldModule,
     MatInputModule,
-    SharedModule,
     MatButtonModule,
     MatSnackBarModule,
     MatRippleModule,
     MatTooltipModule,
+    SharedModule,
   ],
   declarations: [
     MyProfilePage,
