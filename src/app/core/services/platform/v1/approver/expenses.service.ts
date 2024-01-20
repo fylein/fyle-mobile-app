@@ -5,6 +5,8 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { expensesCacheBuster$ } from '../../../transaction.service';
+import { Cacheable } from 'ts-cacheable';
 
 @Injectable({
   providedIn: 'root',
@@ -12,6 +14,9 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 export class ExpensesService {
   constructor(@Inject(PAGINATION_SIZE) private paginationSize: number, private approverService: ApproverService) {}
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpenseById(id: string): Observable<Expense> {
     const data = {
       params: {
@@ -24,18 +29,27 @@ export class ExpensesService {
       .pipe(map((response) => response.data[0]));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
     return this.approverService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((response) => response.count));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
     return this.approverService
       .get<PlatformApiResponse<Expense>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
   }
 
+  @Cacheable({
+    cacheBusterObserver: expensesCacheBuster$,
+  })
   getReportExpenses(reportId: string): Observable<Expense[]> {
     const params = {
       report_id: `eq.${reportId}`,
