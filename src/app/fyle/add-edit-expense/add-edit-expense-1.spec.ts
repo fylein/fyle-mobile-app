@@ -577,6 +577,7 @@ export function TestCases1(getTestBed) {
             fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
             selectedCCCTransaction: null,
             selectedReportId: null,
+            selectedProject: null,
           },
         ]);
       });
