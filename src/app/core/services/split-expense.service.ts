@@ -288,7 +288,7 @@ export class SplitExpenseService {
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
-      txnsObservables.push(this.transactionService.upsert(transaction));
+      txnsObservables.push(of(transaction));
     });
 
     return forkJoin(txnsObservables);

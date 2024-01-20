@@ -688,7 +688,7 @@ export class AddEditExpensePage implements OnInit {
 
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
-    const reportValue = this.getFormValues();
+    const formValue = this.getFormValues();
 
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
@@ -705,7 +705,8 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-          selectedReportId: reportValue.report ? JSON.stringify(reportValue.report.rp.id) : null,
+          selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
+          projectValue: formValue.project ? JSON.stringify(formValue.project) : null,
         },
       ]);
     });

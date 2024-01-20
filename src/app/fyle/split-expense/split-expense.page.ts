@@ -37,10 +37,10 @@ import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { MatchedCCCTransaction } from 'src/app/core/models/matchedCCCTransaction.model';
 import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
-import { Expense } from 'src/app/core/models/expense.model';
-import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -97,6 +97,8 @@ export class SplitExpensePage {
   categoryList: OrgCategory[];
 
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
+
+  selectedProject: ExtendedProject;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -303,6 +305,101 @@ export class SplitExpensePage {
     });
   }
 
+  setSplitExpenseProject(
+    splitFormValue: SplitExpense,
+    splitTxn: Transaction,
+    project: ExtendedProject,
+    costCenter: ExpenseField
+  ): void {
+    if (splitFormValue.project?.project_id) {
+      splitTxn.project_id = project.project_id;
+      splitTxn.project_name = project.project_name;
+      splitTxn.org_category_id = null;
+      splitTxn.org_category = null;
+      if (
+        project.project_org_category_ids &&
+        this.transaction.org_category_id &&
+        project.project_org_category_ids.includes(this.transaction.org_category_id)
+      ) {
+        splitTxn.org_category_id = this.transaction.org_category_id;
+        splitTxn.org_category = this.transaction.org_category;
+      }
+    } else if (splitFormValue.category?.id) {
+      splitTxn.org_category_id = splitFormValue.category.id;
+      splitTxn.org_category = splitFormValue.category.name;
+      splitTxn.project_id = null;
+      splitTxn.project_name = null;
+      if (this.transaction.project_id && project.project_org_category_ids.includes(splitFormValue.category.id)) {
+        splitTxn.project_id = project.project_id;
+        splitTxn.project_name = project.project_name;
+      }
+
+      //if source txn has cost_center_id, check if the split category id is present in cost_center
+      if (this.transaction.cost_center_id && !costCenter?.org_category_ids?.includes(splitFormValue.category?.id)) {
+        splitTxn.cost_center_id = null;
+        splitTxn.cost_center_name = null;
+      }
+    }
+  }
+
+  setCorrectProjectAndCategory(
+    splitFormValue: SplitExpense,
+    splitTxn: Transaction,
+    project: ExtendedProject,
+    costCenter: ExpenseField
+  ): void {
+    splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
+    if (this.transaction.project_id || this.transaction.org_category_id) {
+      this.setSplitExpenseProject(splitFormValue, splitTxn, project, costCenter);
+    } else {
+      //if no project or category id exists in source txn, set them from splitExpense object
+      splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
+      splitTxn.project_id = splitFormValue.project?.id || this.transaction.project_id;
+    }
+  }
+
+  setupCorrectCategoryAndProject(splitTxn: Transaction, splitFormValue: SplitExpense): void {
+    const costCenter = this.txnFields.cost_center_id;
+    if (!this.transaction.project_id && !splitFormValue.project?.project_id) {
+      //if no project id exists, pass project as null
+      this.setCorrectProjectAndCategory(splitFormValue, splitTxn, null, costCenter);
+    } else {
+      //if split_expense has project org_category_ids, pass project
+      if (splitFormValue.project && splitFormValue.project.project_org_category_ids) {
+        this.setCorrectProjectAndCategory(splitFormValue, splitTxn, splitFormValue.project, costCenter);
+      } else if (
+        (splitFormValue.project?.project_id && !splitFormValue.project.project_org_category_ids) ||
+        this.transaction.project_id
+      ) {
+        //if split_expense or source txn has projectIds, call the method to get project and push to promises
+        let project: ExtendedProject;
+        if (splitFormValue.project) {
+          project = splitFormValue.project;
+        } else {
+          project = this.selectedProject;
+        }
+        this.setCorrectProjectAndCategory(splitFormValue, splitTxn, project, costCenter);
+      }
+    }
+  }
+
+  createSplitTxns(splitExpenses: Transaction[]): Observable<Transaction[]> {
+    const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
+      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
+    };
+
+    return forkJoin(splitExpense$).pipe(
+      switchMap((data) => {
+        for (const [index, txn] of data.txns.entries()) {
+          const splitForm = this.splitExpensesFormArray.at(index);
+          this.setupCorrectCategoryAndProject(txn, splitForm.value as SplitExpense);
+        }
+        this.splitExpenseTxn = data.txns.map((txn) => txn);
+        return of(this.splitExpenseTxn);
+      })
+    );
+  }
+
   createAndLinkTxnsWithFiles(splitExpenses: Transaction[]): Observable<string[]> {
     const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
       txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
@@ -461,28 +558,7 @@ export class SplitExpensePage {
           files: this.uploadFiles(this.fileUrls),
         })
           .pipe(
-            concatMap(({ generatedSplitEtxn }) => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
-            concatMap((res) => {
-              const observables: Partial<{
-                delete: Observable<Expense>;
-                matchCCC: Observable<null>;
-                violations: Observable<PolicyViolationTxn>;
-              }> = {};
-              if (this.transaction.id) {
-                observables.delete = this.transactionService.delete(this.transaction.id);
-              }
-              if (this.transaction.corporate_credit_card_expense_group_id) {
-                observables.matchCCC = this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id);
-              }
-
-              observables.violations = this.splitExpenseService.checkForPolicyViolations(
-                res,
-                this.fileObjs,
-                this.categoryList
-              );
-
-              return forkJoin(observables);
-            }),
+            concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
@@ -499,9 +575,7 @@ export class SplitExpensePage {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe((response) => {
-            this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
-          });
+          .subscribe((response) => of(response));
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
@@ -525,6 +599,7 @@ export class SplitExpensePage {
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
+    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.projectValue as string) as ExtendedProject;
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
