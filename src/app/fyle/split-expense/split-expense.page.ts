@@ -43,6 +43,8 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
+import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -101,6 +103,8 @@ export class SplitExpensePage {
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   selectedProject: ExtendedProject;
+
+  expenseFields: ExpenseField[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -387,7 +391,12 @@ export class SplitExpensePage {
 
   createSplitTxns(splitExpenses: Transaction[]): Observable<Transaction[]> {
     const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
+      txns: this.splitExpenseService.createSplitTxns(
+        this.transaction,
+        this.totalSplitAmount,
+        splitExpenses,
+        this.expenseFields
+      ),
     };
 
     return forkJoin(splitExpense$).pipe(
@@ -404,7 +413,12 @@ export class SplitExpensePage {
 
   createAndLinkTxnsWithFiles(splitExpenses: Transaction[]): Observable<string[]> {
     const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
+      txns: this.splitExpenseService.createSplitTxns(
+        this.transaction,
+        this.totalSplitAmount,
+        splitExpenses,
+        this.expenseFields
+      ),
     };
 
     if (this.fileObjs && this.fileObjs.length > 0) {
@@ -515,6 +529,38 @@ export class SplitExpensePage {
     }
   }
 
+  async showSplitExpensePolicyViolationsAndMissingFields(violations: {
+    policyViolations: SplitExpensePolicy;
+    missingFields: Partial<SplitExpenseMissingFields>;
+  }): Promise<void> {
+    const splitExpenseViolationsModal = await this.modalController.create({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: violations.policyViolations,
+        missingFields: violations.missingFields,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await splitExpenseViolationsModal.present();
+
+    const { data } = await splitExpenseViolationsModal.onWillDismiss();
+
+    return data;
+  }
+
+  handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<any> {
+    for (const txn of splitEtxns) {
+      delete txn.id;
+    }
+
+    return this.splitExpenseService
+      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, this.reportId)
+      .pipe(concatMap((res) => from(this.showSplitExpensePolicyViolationsAndMissingFields(res))));
+  }
+
   saveV2(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -560,8 +606,9 @@ export class SplitExpensePage {
         })
           .pipe(
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
+            concatMap((res) => this.handlePolicyAndMissingFieldsCheck(res)),
             catchError((err) => {
-              const message = 'We were unable to split your expense. Please try again later.';
+              const message = 'Unable to check policies. Please contact support.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
               return throwError(err);
             }),
@@ -692,6 +739,7 @@ export class SplitExpensePage {
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
     this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
+    this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>

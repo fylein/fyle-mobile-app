@@ -19,6 +19,11 @@ import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
 import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 import { UtilityService } from './utility.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { ExpenseField } from '../models/v1/expense-field.model';
+import { SplitExpense } from '../models/split-expense.model';
+import { SplitExpensePolicy } from '../models/platform/v1/split-expense-policy.model';
+import { SplitExpenseMissingFields } from '../models/platform/v1/split-expense-missing-fields.model';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +40,8 @@ export class SplitExpenseService {
     private statusService: StatusService,
     private categoriesService: CategoriesService,
     private dataTransformService: DataTransformService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private expensesService: ExpensesService
   ) {}
 
   linkTxnWithFiles(data: Partial<FileTransaction>): Observable<FileObject[]> {
@@ -231,7 +237,8 @@ export class SplitExpenseService {
   createSplitTxns(
     sourceTxn: Transaction,
     totalSplitAmount: number,
-    splitExpenses: Transaction[]
+    splitExpenses: Transaction[],
+    expenseFields: ExpenseField[]
   ): Observable<Transaction[]> {
     let splitGroupAmount = sourceTxn.split_group_user_amount || sourceTxn.amount;
     let splitGroupId = sourceTxn.split_group_id || sourceTxn.id;
@@ -245,7 +252,42 @@ export class SplitExpenseService {
       splitGroupId = `tx${this.utilityService.generateRandomString(10)}`;
     }
 
-    return this.createTxns(sourceTxn, splitExpenses, splitGroupAmount, splitGroupId, splitExpenses.length);
+    return this.createTxns(
+      sourceTxn,
+      splitExpenses,
+      splitGroupAmount,
+      splitGroupId,
+      splitExpenses.length,
+      expenseFields
+    );
+  }
+
+  isCustomFieldAllowedToSelectedCategory(
+    splitExpense: Transaction,
+    sourceTxn: Transaction,
+    customPropertyId: number,
+    expenseFields: ExpenseField[]
+  ): boolean {
+    const categoryId = splitExpense.org_category_id || sourceTxn?.org_category_id;
+    if (categoryId && expenseFields?.length > 0) {
+      const customField = expenseFields.find((field) => field.id === customPropertyId);
+      return customField?.org_category_ids?.includes(categoryId);
+    }
+    return false;
+  }
+
+  updateCustomProperties(transaction: Transaction, sourceTxn: Transaction, expenseFields: ExpenseField[]): void {
+    if (transaction.custom_properties?.length > 0) {
+      const newCustomProperties = [];
+
+      for (const customProperty of transaction.custom_properties) {
+        if (this.isCustomFieldAllowedToSelectedCategory(transaction, sourceTxn, customProperty.id, expenseFields)) {
+          newCustomProperties.push(customProperty);
+        }
+      }
+
+      transaction.custom_properties = newCustomProperties;
+    }
   }
 
   // TODO: Fix later. High impact
@@ -255,7 +297,8 @@ export class SplitExpenseService {
     splitExpenses: Transaction[],
     splitGroupAmount: number,
     splitGroupId: string,
-    totalSplitExpensesCount: number
+    totalSplitExpensesCount: number,
+    expenseFields: ExpenseField[]
   ): Observable<Transaction[]> {
     const txnsObservables = [];
 
@@ -285,6 +328,8 @@ export class SplitExpenseService {
       transaction.billable = this.setUpSplitExpenseBillable(sourceTxn, splitExpense);
       transaction.tax_amount = this.setUpSplitExpenseTax(sourceTxn, splitExpense);
       transaction.custom_properties = splitExpense.custom_properties || sourceTxn.custom_properties;
+
+      this.updateCustomProperties(transaction, sourceTxn, expenseFields);
 
       this.setupSplitExpensePurpose(transaction, splitGroupId, index, totalSplitExpensesCount);
 
@@ -318,5 +363,58 @@ export class SplitExpenseService {
 
   setUpSplitExpenseTax(sourceTxn: Transaction, splitExpense: Transaction): number {
     return splitExpense.tax_amount ? splitExpense.tax_amount : sourceTxn.tax_amount;
+  }
+
+  handleSplitPolicyCheck(
+    splitEtxns: Transaction[],
+    fileObjs: FileObject[],
+    originalTxn: Transaction,
+    reportId: string
+  ): Observable<SplitExpensePolicy> {
+    const fileIds = this.getFileIdsFromObjects(fileObjs);
+
+    const splitPolicyChecksPayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    return this.expensesService.splitExpenseCheckPolicies(splitPolicyChecksPayload);
+  }
+
+  handleSplitMissingFieldsCheck(
+    splitEtxns: Transaction[],
+    fileObjs: FileObject[],
+    originalTxn: Transaction,
+    reportId: string
+  ): Observable<Partial<SplitExpenseMissingFields>> {
+    const fileIds = this.getFileIdsFromObjects(fileObjs);
+
+    if (!reportId && !originalTxn.report_id) {
+      // No need to check missing fields if there is no report id
+      return of({});
+    }
+
+    const splitPolicyChecksPayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    return this.expensesService.splitExpenseCheckMissingFields(splitPolicyChecksPayload);
+  }
+
+  handlePolicyAndMissingFieldsCheck(
+    splitEtxns: Transaction[],
+    fileObjs: FileObject[],
+    originalTxn: Transaction,
+    reportId: string
+  ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
+    const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportId);
+    const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(splitEtxns, fileObjs, originalTxn, reportId);
+
+    return forkJoin({ policyViolations: splitPolicyChecks$, missingFields: splitMissingFieldsCheck$ });
+  }
+
+  getFileIdsFromObjects(fileObjs: FileObject[]): string[] {
+    const fileIds = [];
+
+    if (fileObjs && fileObjs.length > 0) {
+      for (const fileObj of fileObjs) {
+        fileIds.push(fileObj.id);
+      }
+    }
+
+    return fileIds;
   }
 }

@@ -693,23 +693,27 @@ export class AddEditExpensePage implements OnInit {
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-    }).subscribe((res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj }) => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'split_expense',
-        {
-          splitType,
-          txnFields: JSON.stringify(res.txnFields),
-          txn: JSON.stringify(res.generatedEtxn.tx),
-          currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-          fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
-          selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-          selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
-          selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
-        },
-      ]);
-    });
+      expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
+    }).subscribe(
+      (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType,
+            txnFields: JSON.stringify(res.txnFields),
+            txn: JSON.stringify(res.generatedEtxn.tx),
+            currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
+            selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+            selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
+            selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
+            expenseFields: res.expenseFields ? JSON.stringify(res.expenseFields) : null,
+          },
+        ]);
+      }
+    );
   }
 
   markCCCAsPersonal(txnId: string): Observable<null> {

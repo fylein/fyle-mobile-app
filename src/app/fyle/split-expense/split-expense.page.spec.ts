@@ -149,6 +149,7 @@ import {
 } from 'src/app/core/mock-data/currency-obj.data';
 import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -678,7 +679,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount1,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
         expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
@@ -714,7 +716,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount1,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject6);
         expect(component.splitExpenseTxn).toEqual(fileTxns3.txns);
@@ -740,7 +743,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledWith(
           txnAmount1,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledTimes(1);
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
@@ -768,7 +772,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount1,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(splitExpenseService.getBase64Content).not.toHaveBeenCalled();
         expect(component.splitExpenseTxn).toEqual(fileTxns4.txns);
@@ -803,7 +808,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           txnAmount2,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(splitExpenseService.getBase64Content).toHaveBeenCalledOnceWith(fileObject8);
         expect(component.splitExpenseTxn).toEqual(fileTxns6.txns);
@@ -831,7 +837,8 @@ describe('SplitExpensePage', () => {
         expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
           amtTxn3,
           component.totalSplitAmount,
-          splitExpData
+          splitExpData,
+          expenseFieldResponse
         );
         expect(component.splitExpenseTxn).toEqual(fileTxns7.txns);
         expect(component.completeTxnIds).toEqual(mockCompleteTxnIds);
