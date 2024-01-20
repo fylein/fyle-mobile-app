@@ -116,6 +116,7 @@ import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.se
 import {
   allowedActiveCategories,
   allowedActiveCategoriesListOptions,
+  expectedProjectsResponse,
   testActiveCategoryList,
   testActiveCategoryListOptions,
   testProjectV2,
@@ -266,6 +267,7 @@ describe('SplitExpensePage', () => {
                 txn: '{"project_id": "3943"}',
                 selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
                 selectedReportId: '"rpt3qwe4ty"',
+                selectedProject: JSON.stringify(expectedProjectsResponse[0]),
               },
             },
           },
