@@ -706,7 +706,7 @@ export class AddEditExpensePage implements OnInit {
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
           selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
-          projectValue: formValue.project ? JSON.stringify(formValue.project) : null,
+          selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
         },
       ]);
     });

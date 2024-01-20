@@ -691,7 +691,7 @@ export class SplitExpensePage {
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
-    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.projectValue as string) as ExtendedProject;
+    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
