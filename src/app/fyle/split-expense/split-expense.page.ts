@@ -41,6 +41,8 @@ import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
+import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
+import { Expense } from 'src/app/core/models/expense.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -305,7 +307,7 @@ export class SplitExpensePage {
     });
   }
 
-  setSplitExpenseProject(
+  setSplitExpenseProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     project: ExtendedProject,
@@ -342,7 +344,7 @@ export class SplitExpensePage {
     }
   }
 
-  setCorrectProjectAndCategory(
+  setCategoryAndProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
     project: ExtendedProject,
@@ -350,7 +352,7 @@ export class SplitExpensePage {
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
     if (this.transaction.project_id || this.transaction.org_category_id) {
-      this.setSplitExpenseProject(splitFormValue, splitTxn, project, costCenter);
+      this.setSplitExpenseProjectHelper(splitFormValue, splitTxn, project, costCenter);
     } else {
       //if no project or category id exists in source txn, set them from splitExpense object
       splitTxn.org_category_id = splitFormValue.category?.id || this.transaction.org_category_id;
@@ -358,15 +360,15 @@ export class SplitExpensePage {
     }
   }
 
-  setupCorrectCategoryAndProject(splitTxn: Transaction, splitFormValue: SplitExpense): void {
+  setupCategoryAndProject(splitTxn: Transaction, splitFormValue: SplitExpense): void {
     const costCenter = this.txnFields.cost_center_id;
     if (!this.transaction.project_id && !splitFormValue.project?.project_id) {
       //if no project id exists, pass project as null
-      this.setCorrectProjectAndCategory(splitFormValue, splitTxn, null, costCenter);
+      this.setCategoryAndProjectHelper(splitFormValue, splitTxn, null, costCenter);
     } else {
       //if split_expense has project org_category_ids, pass project
       if (splitFormValue.project && splitFormValue.project.project_org_category_ids) {
-        this.setCorrectProjectAndCategory(splitFormValue, splitTxn, splitFormValue.project, costCenter);
+        this.setCategoryAndProjectHelper(splitFormValue, splitTxn, splitFormValue.project, costCenter);
       } else if (
         (splitFormValue.project?.project_id && !splitFormValue.project.project_org_category_ids) ||
         this.transaction.project_id
@@ -378,7 +380,7 @@ export class SplitExpensePage {
         } else {
           project = this.selectedProject;
         }
-        this.setCorrectProjectAndCategory(splitFormValue, splitTxn, project, costCenter);
+        this.setCategoryAndProjectHelper(splitFormValue, splitTxn, project, costCenter);
       }
     }
   }
@@ -392,7 +394,7 @@ export class SplitExpensePage {
       switchMap((data) => {
         for (const [index, txn] of data.txns.entries()) {
           const splitForm = this.splitExpensesFormArray.at(index);
-          this.setupCorrectCategoryAndProject(txn, splitForm.value as SplitExpense);
+          this.setupCategoryAndProject(txn, splitForm.value as SplitExpense);
         }
         this.splitExpenseTxn = data.txns.map((txn) => txn);
         return of(this.splitExpenseTxn);
@@ -513,6 +515,73 @@ export class SplitExpensePage {
     }
   }
 
+  saveV2(): void {
+    if (this.splitExpensesFormArray.valid) {
+      this.showErrorBlock = false;
+      if (this.amount && this.amount !== this.totalSplitAmount) {
+        this.showErrorBlock = true;
+        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
+        setTimeout(() => {
+          this.showErrorBlock = false;
+        }, 2500);
+        return;
+      }
+      let canCreateNegativeExpense = true;
+
+      this.saveSplitExpenseLoading = true;
+
+      this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
+        canCreateNegativeExpense = (this.splitExpensesFormArray.value as SplitExpense[]).reduce(
+          (defaultValue: boolean, splitExpenseValue) => {
+            const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
+            if (!isCorporateCardsEnabled && negativeAmountPresent) {
+              defaultValue = false;
+            }
+            return defaultValue;
+          },
+          true
+        );
+
+        if (!canCreateNegativeExpense) {
+          this.showErrorBlock = true;
+          this.errorMessage = 'Amount should be greater than 0.01';
+          setTimeout(() => {
+            this.showErrorBlock = false;
+          }, 2500);
+          return;
+        }
+
+        const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
+          this.generateSplitEtxnFromFg(splitExpenseValue)
+        );
+
+        forkJoin({
+          generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
+        })
+          .pipe(
+            concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
+            catchError((err) => {
+              const message = 'We were unable to split your expense. Please try again later.';
+              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+              return throwError(err);
+            }),
+            finalize(() => {
+              this.saveSplitExpenseLoading = false;
+
+              const splitTrackingProps = {
+                'Split Type': this.splitType,
+                'Is Evenly Split': this.isEvenlySplit(),
+              };
+              this.trackingService.splittingExpense(splitTrackingProps);
+            })
+          )
+          .subscribe((response) => of(response));
+      });
+    } else {
+      this.splitExpensesFormArray.markAllAsTouched();
+    }
+  }
+
   save(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
@@ -558,7 +627,28 @@ export class SplitExpensePage {
           files: this.uploadFiles(this.fileUrls),
         })
           .pipe(
-            concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
+            concatMap(({ generatedSplitEtxn }) => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
+            concatMap((res) => {
+              const observables: Partial<{
+                delete: Observable<Expense>;
+                matchCCC: Observable<null>;
+                violations: Observable<PolicyViolationTxn>;
+              }> = {};
+              if (this.transaction.id) {
+                observables.delete = this.transactionService.delete(this.transaction.id);
+              }
+              if (this.transaction.corporate_credit_card_expense_group_id) {
+                observables.matchCCC = this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id);
+              }
+
+              observables.violations = this.splitExpenseService.checkForPolicyViolations(
+                res,
+                this.fileObjs,
+                this.categoryList
+              );
+
+              return forkJoin(observables);
+            }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
@@ -575,7 +665,9 @@ export class SplitExpensePage {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe((response) => of(response));
+          .subscribe((response) => {
+            this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
+          });
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
