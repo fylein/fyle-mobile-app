@@ -4639,3 +4639,42 @@ export const editTransaction6: Partial<Transaction> = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
 };
+
+export const txnData7: Transaction = {
+  ...txnData5,
+  orig_amount: 100,
+  amount: 1000,
+  split_group_id: 'txOJVaaPxo9O',
+  split_group_user_amount: 100,
+};
+
+export const txnData8: Transaction = {
+  ...txnData7,
+  cost_center_id: 13795,
+  org_category_id: 123032,
+};
+
+export const txnData9: Transaction = {
+  ...txnData5,
+  amount: null,
+  orig_currency: undefined,
+};
+
+export const txnData10: Transaction = {
+  ...txnData9,
+  cost_center_id: 13795,
+  org_category_id: 123032,
+};
+
+export const txnData11: Transaction = {
+  ...txnData5,
+  source: 'MOBILE_SPLIT',
+  orig_amount: null,
+  amount: 0,
+};
+
+export const txnData12: Transaction = {
+  ...txnData11,
+  cost_center_id: 13795,
+  org_category_id: 123032,
+};

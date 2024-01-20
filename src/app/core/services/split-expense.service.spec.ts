@@ -27,6 +27,12 @@ import {
   expectedTxnParams3,
   expectedTxnParams4,
   expectedTxnParams5,
+  txnData7,
+  txnData8,
+  txnData9,
+  txnData10,
+  txnData11,
+  txnData12,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
 import { splitExpFileObj, splitExpFile2, splitExpFile3, fileObject4 } from '../mock-data/file-object.data';
@@ -540,7 +546,7 @@ describe('SplitExpenseService', () => {
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData7, txnData8]);
         });
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
@@ -561,24 +567,21 @@ describe('SplitExpenseService', () => {
         1,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams2);
     });
 
     it('should set amount of the splitter expenses if orig_currency is not set', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.orig_currency = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
-      transactionService.upsert.and.returnValues(of(mockTxn), of(mockTxn));
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData9, txnData10]);
         });
 
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledTimes(2);
-      expect(transactionService.upsert).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -587,7 +590,6 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams3);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -596,24 +598,21 @@ describe('SplitExpenseService', () => {
         1,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams4);
     });
 
     it('should create expenses with source as mobile app if source is undefined', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.source = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
-      transactionService.upsert.and.returnValues(of(mockTxn), of(mockTxn));
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData11, txnData12]);
         });
 
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledTimes(2);
-      expect(transactionService.upsert).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -622,7 +621,6 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams5);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -631,7 +629,6 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams5);
     });
   });
 });
