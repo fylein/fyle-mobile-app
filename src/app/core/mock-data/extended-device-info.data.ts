@@ -1,7 +1,7 @@
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 
 export const extendedDeviceInfoMockData: ExtendedDeviceInfo = {
-  uuid: 'mockuuid123',
+  identifier: 'mockidentifier123',
   appVersion: '5.50.0',
   liveUpdateAppVersion: '5.50.0',
   model: 'iPhone 11 Pro Max',
@@ -14,7 +14,7 @@ export const extendedDeviceInfoMockData: ExtendedDeviceInfo = {
 };
 
 export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = {
-  uuid: 'mockuuid124',
+  identifier: 'mockidentifier124',
   appVersion: '5.52.0',
   liveUpdateAppVersion: '5.52.0',
   model: 'Samsung Galaxy A13',
@@ -27,7 +27,7 @@ export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = {
 };
 
 export const extendedDeviceInfoMockDataWoApp: ExtendedDeviceInfo = {
-  uuid: 'mockuuid124',
+  identifier: 'mockidentifier124',
   appVersion: null,
   liveUpdateAppVersion: '5.52.0',
   model: 'Samsung Galaxy A13',

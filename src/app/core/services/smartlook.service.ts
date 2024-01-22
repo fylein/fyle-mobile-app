@@ -4,11 +4,7 @@ import { filter, take } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { CurrencyService } from './currency.service';
 import { DeviceService } from './device.service';
-import {
-  Smartlook,
-  SmartlookSetupConfigBuilder,
-  SmartlookUserIdentifier,
-} from '@awesome-cordova-plugins/smartlook/ngx';
+import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { environment } from 'src/environments/environment';
 import { NetworkService } from './network.service';
 
@@ -49,22 +45,26 @@ export class SmartlookService {
         )
       )
       .subscribe(({ eou, deviceInfo }) => {
-        const setupConfig = new SmartlookSetupConfigBuilder(environment.SMARTLOOK_API_KEY);
-        this.smartlook.setupAndStartRecording(setupConfig.build());
+        const projectKey: string = environment.SMARTLOOK_API_KEY;
+        this.smartlook.setProjectKey({ key: projectKey });
+        this.smartlook.start();
 
-        this.smartlook.setUserIdentifier(
-          new SmartlookUserIdentifier(eou.us.id, {
-            id: eou.us.id,
-            email: eou.us.email,
-            name: eou.us.full_name,
-            org_id: eou.ou.org_id,
-            org_name: eou.ou.org_name,
-            devicePlatform: deviceInfo.platform,
-            deviceModel: deviceInfo.model,
-            deviceOS: deviceInfo.osVersion,
-            is_approver: eou.ou.roles.includes('APPROVER') ? 'true' : 'false',
-          })
-        );
+        const userProperties = {
+          id: eou.us.id,
+          email: eou.us.email,
+          name: eou.us.full_name,
+          org_id: eou.ou.org_id,
+          org_name: eou.ou.org_name,
+          devicePlatform: deviceInfo.platform,
+          deviceModel: deviceInfo.model,
+          deviceOS: deviceInfo.osVersion,
+          is_approver: eou.ou.roles.includes('APPROVER') ? 'true' : 'false',
+        };
+
+        this.smartlook.setUserIdentifier({ identifier: eou.us.id });
+        Object.keys(userProperties).forEach((key) => {
+          this.smartlook.setUserProperty({ propertyName: key, value: userProperties[key] });
+        });
       });
   }
 }
