@@ -21,11 +21,14 @@ import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 import { UtilityService } from './utility.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
-import { SplitExpense } from '../models/split-expense.model';
 import { SplitExpensePolicy } from '../models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from '../models/platform/v1/split-expense-missing-fields.model';
 import { Splits } from '../models/platform/v1/splits.model';
 import { SplitPayload } from '../models/platform/v1/split-payload.model';
+import { FilteredSplitPolicyViolations } from '../models/filtered-split-policy-violations.model';
+import { FilteredMissingFieldsViolations } from '../models/filtered-missing-fields-violations.model';
+import { TransformedSplitExpenseMissingFields } from '../models/transformed-split-expense-missing-fields.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 @Injectable({
   providedIn: 'root',
@@ -280,7 +283,7 @@ export class SplitExpenseService {
 
   updateCustomProperties(transaction: Transaction, sourceTxn: Transaction, expenseFields: ExpenseField[]): void {
     if (transaction.custom_properties?.length > 0) {
-      const newCustomProperties = [];
+      const newCustomProperties: TxnCustomProperties[] = [];
 
       for (const customProperty of transaction.custom_properties) {
         if (this.isCustomFieldAllowedToSelectedCategory(transaction, sourceTxn, customProperty.id, expenseFields)) {
@@ -371,7 +374,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
   ): Observable<SplitExpensePolicy> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -379,7 +382,49 @@ export class SplitExpenseService {
     return this.expensesService.splitExpenseCheckPolicies(splitPolicyChecksPayload);
   }
 
-  transformSplitTo(splitTxns: Transaction[], transaction: Transaction, fileIds: string[], reportAndCategoryParams) {
+  transformSplitFlightClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
+    if (transaction?.fyle_category && transaction?.fyle_category.toLowerCase() === 'airlines') {
+      if (transaction?.flight_journey_travel_class) {
+        platformSplitObject.travel_classes.push(transaction?.flight_journey_travel_class);
+      }
+      if (transaction?.flight_return_travel_class) {
+        platformSplitObject.travel_classes.push(transaction?.flight_return_travel_class);
+      }
+    }
+  }
+
+  tranformSplitBusClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
+    if (
+      transaction?.fyle_category &&
+      transaction?.fyle_category.toLowerCase() === 'bus' &&
+      transaction?.bus_travel_class
+    ) {
+      platformSplitObject.travel_classes.push(transaction?.bus_travel_class);
+    }
+  }
+
+  transformSplitTrainClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
+    if (
+      transaction?.fyle_category &&
+      transaction?.fyle_category.toLowerCase() === 'train' &&
+      transaction?.train_travel_class
+    ) {
+      platformSplitObject.travel_classes.push(transaction?.train_travel_class);
+    }
+  }
+
+  transformSplitTravelClasses(transaction: Transaction, platformSplitObject: SplitPayload): void {
+    this.transformSplitFlightClasses(transaction, platformSplitObject);
+    this.tranformSplitBusClasses(transaction, platformSplitObject);
+    this.transformSplitTrainClasses(transaction, platformSplitObject);
+  }
+
+  transformSplitTo(
+    splitTxns: Transaction[],
+    transaction: Transaction,
+    fileIds: string[],
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+  ): SplitPayload {
     const platformSplitObject: SplitPayload = {
       id: transaction?.id,
       splits: this.transformSplitArray(splitTxns, reportAndCategoryParams.unspecifiedCategory),
@@ -406,26 +451,7 @@ export class SplitExpenseService {
       claim_amount: transaction?.amount,
     };
 
-    if (transaction?.fyle_category && transaction?.fyle_category.toLowerCase() === 'airlines') {
-      if (transaction?.flight_journey_travel_class) {
-        platformSplitObject.travel_classes.push(transaction?.flight_journey_travel_class);
-      }
-      if (transaction?.flight_return_travel_class) {
-        platformSplitObject.travel_classes.push(transaction?.flight_return_travel_class);
-      }
-    } else if (
-      transaction?.fyle_category &&
-      transaction?.fyle_category.toLowerCase() === 'bus' &&
-      transaction?.bus_travel_class
-    ) {
-      platformSplitObject.travel_classes.push(transaction?.bus_travel_class);
-    } else if (
-      transaction?.fyle_category &&
-      transaction?.fyle_category.toLowerCase() === 'train' &&
-      transaction?.train_travel_class
-    ) {
-      platformSplitObject.travel_classes.push(transaction?.train_travel_class);
-    }
+    this.transformSplitTravelClasses(transaction, platformSplitObject);
 
     if (reportAndCategoryParams.reportId) {
       platformSplitObject.report_id = reportAndCategoryParams.reportId;
@@ -434,7 +460,7 @@ export class SplitExpenseService {
     return platformSplitObject;
   }
 
-  transformSplitArray(splitEtxns: Transaction[], unspecifiedCategory): Splits[] {
+  transformSplitArray(splitEtxns: Transaction[], unspecifiedCategory: OrgCategory): Splits[] {
     const splits: Splits[] = [];
 
     for (const splitEtxn of splitEtxns) {
@@ -459,7 +485,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
   ): Observable<Partial<SplitExpenseMissingFields>> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
@@ -476,7 +502,7 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportAndCategoryParams
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
   ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
     const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportAndCategoryParams);
     const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(
@@ -490,7 +516,7 @@ export class SplitExpenseService {
   }
 
   getFileIdsFromObjects(fileObjs: FileObject[]): string[] {
-    const fileIds = [];
+    const fileIds: string[] = [];
 
     if (fileObjs && fileObjs.length > 0) {
       for (const fileObj of fileObjs) {
@@ -501,7 +527,7 @@ export class SplitExpenseService {
     return fileIds;
   }
 
-  isMissingFields(mandatoryFields) {
+  isMissingFields(mandatoryFields: Partial<TransformedSplitExpenseMissingFields>): boolean {
     return (
       !!mandatoryFields.data.missing_amount ||
       !!mandatoryFields.data.missing_currency ||
@@ -510,15 +536,19 @@ export class SplitExpenseService {
     );
   }
 
-  checkIfMissingFieldsExist(mandatoryFields) {
-    return Object.keys(mandatoryFields).some(
-      (key) =>
-        mandatoryFields.hasOwnProperty(key) && mandatoryFields[key].data && this.isMissingFields(mandatoryFields[key])
-    );
+  checkIfMissingFieldsExist(mandatoryFields: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }): boolean {
+    return Object.keys(mandatoryFields).some((key) => {
+      const mandatoryFieldsData = mandatoryFields[key] as Partial<TransformedSplitExpenseMissingFields>;
+      return (
+        mandatoryFields.hasOwnProperty(key) && mandatoryFieldsData.data && this.isMissingFields(mandatoryFieldsData)
+      );
+    });
   }
 
-  filteredPolicyViolations(violations) {
-    var filteredViolations = {};
+  filteredPolicyViolations(violations: { [id: number]: PolicyViolation }): {
+    [id: number]: FilteredSplitPolicyViolations;
+  } {
+    const filteredViolations = {};
 
     for (const key in violations) {
       if (violations.hasOwnProperty(key)) {
@@ -530,13 +560,13 @@ export class SplitExpenseService {
           isCriticalPolicyViolation = true;
         }
         filteredViolations[key] = {
-          rules: rules,
+          rules,
           action: violations[key].data.final_desired_state,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
           amount: violations[key].amount,
-          isCriticalPolicyViolation: isCriticalPolicyViolation,
+          isCriticalPolicyViolation,
         };
       }
     }
@@ -544,7 +574,9 @@ export class SplitExpenseService {
     return filteredViolations;
   }
 
-  filteredMissingFieldsViolations = function (mandatoryFields) {
+  filteredMissingFieldsViolations(mandatoryFields: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }): {
+    [id: number]: FilteredMissingFieldsViolations;
+  } {
     const filteredMandatoryFields = {};
 
     for (const key in mandatoryFields) {
@@ -560,16 +592,21 @@ export class SplitExpenseService {
     }
 
     return filteredMandatoryFields;
-  };
+  }
 
-  splitExpense(splitEtxns: Transaction[], fileObjs: FileObject[], originalTxn: Transaction, reportAndCategoryParams) {
+  splitExpense(
+    splitEtxns: Transaction[],
+    fileObjs: FileObject[],
+    originalTxn: Transaction,
+    reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
+  ): Observable<{ data: Transaction[] }> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
     const splitExpensePayload = this.transformSplitTo(splitEtxns, originalTxn, fileIds, reportAndCategoryParams);
     return this.expensesService.splitExpense(splitExpensePayload);
   }
 
-  postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }) {
+  postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }): Observable<TransactionStatus[]> {
     const payloadData = [];
 
     for (const idx in txnIds) {
