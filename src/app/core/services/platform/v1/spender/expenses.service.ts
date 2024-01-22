@@ -218,6 +218,12 @@ export class ExpensesService {
     });
   }
 
+  splitExpense(params: SplitPayload) {
+    return this.spenderService.post<{ data: Transaction[] }>('/expenses/split', {
+      data: params,
+    });
+  }
+
   getExpenseStats(
     params: Record<string, string | string[] | boolean>
   ): Observable<{ data: { count: number; total_amount: number } }> {

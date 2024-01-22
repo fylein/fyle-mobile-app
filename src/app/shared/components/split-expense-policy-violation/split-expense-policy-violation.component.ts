@@ -119,7 +119,10 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   continue() {
     const comments = {};
     this.transactionIDs.map((transaction, index) => {
-      if (!this.policyViolations[transaction].isCriticalPolicyViolation) {
+      if (
+        !this.policyViolations[transaction].isCriticalPolicyViolation &&
+        this.policyViolations[transaction].rules?.length > 0
+      ) {
         comments[transaction] = this.form.value.comments[index].comment;
       }
     });

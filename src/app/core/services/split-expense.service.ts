@@ -478,4 +478,36 @@ export class SplitExpenseService {
 
     return filteredMandatoryFields;
   };
+
+  splitExpense(splitEtxns: Transaction[], fileObjs: FileObject[], originalTxn: Transaction, reportId: string) {
+    const fileIds = this.getFileIdsFromObjects(fileObjs);
+
+    const splitExpensePayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    return this.expensesService.splitExpense(splitExpensePayload);
+  }
+
+  postSplitExpenseComments(txnIds, comments) {
+    const payloadData = [];
+
+    for (const idx in txnIds) {
+      if (comments[idx]) {
+        const comment =
+          comments[idx] !== ''
+            ? this.prependPolicyViolationMessage + comments[idx]
+            : this.defaultPolicyViolationMessage;
+        const apiPayload = {
+          objectType: 'transactions',
+          txnId: txnIds[idx],
+          comment: { comment },
+          notify: true,
+        };
+        payloadData.push(apiPayload);
+      }
+    }
+
+    return from(payloadData).pipe(
+      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
+      toArray()
+    );
+  }
 }

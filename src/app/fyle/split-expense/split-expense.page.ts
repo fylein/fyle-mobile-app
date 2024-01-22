@@ -107,6 +107,8 @@ export class SplitExpensePage {
 
   expenseFields: ExpenseField[];
 
+  formattedSplitExpense;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -515,27 +517,13 @@ export class SplitExpensePage {
   }
 
   showSuccessToast(): void {
+    const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
-      if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
-        const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
-        this.toastWithCTA(toastMessage);
-      } else if (this.completeTxnIds.length > 0 && this.splitExpenseTxn.length > 0) {
-        const toastMessage =
-          'Your expense was split successfully. ' +
-          this.completeTxnIds.length +
-          ' out of ' +
-          this.splitExpenseTxn.length +
-          ' expenses were added to report.';
-        this.toastWithCTA(toastMessage);
-      } else {
-        const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
-        this.toastWithoutCTA(toastMessage, ToastType.INFORMATION, 'msb-info');
-      }
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
     } else {
-      const toastMessage = 'Your expense was split successfully.';
-      this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
   getAttachedFiles(transactionId: string): Observable<FileObject[]> {
@@ -642,9 +630,43 @@ export class SplitExpensePage {
             );
           }
 
-          return of(true);
+          return of({ action: 'continue', comments: null });
         })
       );
+  }
+
+  handleSplitExpense(comments) {
+    this.splitExpenseService
+      .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, this.reportId)
+      .pipe(
+        catchError((err) => {
+          const message = 'We were unable to split your expense. Please try again later.';
+          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          return throwError(err);
+        })
+      )
+      .subscribe((txns) => {
+        const txnIds = txns.data.map((txn) => txn.id);
+
+        if (comments) {
+          return this.splitExpenseService
+            .postSplitExpenseComments(txnIds, comments)
+            .pipe(
+              catchError((err) => {
+                const message = 'We were unable to split your expense. Please try again later.';
+                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                return throwError(err);
+              })
+            )
+            .subscribe(() => {
+              return this.showSuccessToast();
+            });
+        }
+
+        return this.showSuccessToast();
+      });
   }
 
   saveV2(): void {
@@ -692,7 +714,10 @@ export class SplitExpensePage {
         })
           .pipe(
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
-            concatMap((res) => this.handlePolicyAndMissingFieldsCheck(res)),
+            concatMap((formattedSplitExpense) => {
+              this.formattedSplitExpense = formattedSplitExpense;
+              return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
+            }),
             catchError((err) => {
               const message = 'Unable to check policies. Please contact support.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
@@ -709,7 +734,9 @@ export class SplitExpensePage {
             })
           )
           .subscribe((response) => {
-            console.log(response);
+            if (response && response.action === 'continue') {
+              this.handleSplitExpense(response.comments);
+            }
           });
       });
     } else {
