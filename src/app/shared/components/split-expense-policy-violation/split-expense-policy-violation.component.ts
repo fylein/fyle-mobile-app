@@ -12,11 +12,15 @@ import { SplitExpenseService } from 'src/app/core/services/split-expense.service
 export class SplitExpensePolicyViolationComponent implements OnInit {
   @Input() policyViolations: { [id: string]: FormattedPolicyViolation };
 
+  @Input() missingFieldsViolations;
+
   transactionIDs: string[];
 
   form = this.fb.group({
     comments: this.fb.array([]),
   });
+
+  isExpenseBlocked = false;
 
   constructor(
     private modalController: ModalController,
@@ -49,16 +53,17 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
   }
 
   cancel() {
-    this.modalController.dismiss();
+    this.modalController.dismiss({ action: 'cancel' });
   }
 
   continue() {
     const comments = {};
     this.transactionIDs.map((transaction, index) => {
-      comments[transaction] = this.form.value.comments[index].comment;
+      if (!this.policyViolations[transaction].isCriticalPolicyViolation) {
+        comments[transaction] = this.form.value.comments[index].comment;
+      }
     });
-    this.splitExpenseService.postCommentsFromUsers(this.transactionIDs, comments).subscribe((res) => {
-      this.modalController.dismiss();
-    });
+
+    this.modalController.dismiss({ action: 'continue', comments });
   }
 }

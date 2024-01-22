@@ -98,8 +98,13 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div class="fy-footer-cta-container">
+    <div *ngIf="!isExpenseBlocked" class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
       <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+    </div>
+
+    <div *ngIf="isExpenseBlocked" class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="cancel()"> Okay </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

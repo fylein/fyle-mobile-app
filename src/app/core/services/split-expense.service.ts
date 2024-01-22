@@ -417,4 +417,64 @@ export class SplitExpenseService {
 
     return fileIds;
   }
+
+  isMissingFields(mandatoryFields) {
+    return (
+      !!mandatoryFields.data.missing_amount ||
+      !!mandatoryFields.data.missing_currency ||
+      !!mandatoryFields.data.missing_receipt ||
+      mandatoryFields.data.missing_expense_field_ids?.length > 0
+    );
+  }
+
+  checkIfMissingFieldsExist(mandatoryFields) {
+    return Object.keys(mandatoryFields).some(
+      (key) => mandatoryFields.hasOwnProperty(key) && this.isMissingFields(mandatoryFields[key])
+    );
+  }
+
+  filteredPolicyViolations(violations) {
+    var filteredViolations = {};
+
+    for (const key in violations) {
+      if (violations.hasOwnProperty(key)) {
+        // check for popup field for all polices
+        const rules = this.policyService.getPolicyRules(violations[key]);
+        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
+        let isCriticalPolicyViolation = false;
+        if (criticalPolicyRules && criticalPolicyRules.length > 0) {
+          isCriticalPolicyViolation = true;
+        }
+        filteredViolations[key] = {
+          rules: rules,
+          action: violations[key].data.final_desired_state,
+          type: violations[key].type,
+          name: violations[key].name,
+          currency: violations[key].currency,
+          amount: violations[key].amount,
+          isCriticalPolicyViolation: isCriticalPolicyViolation,
+        };
+      }
+    }
+
+    return filteredViolations;
+  }
+
+  filteredMissingFieldsViolations = function (mandatoryFields) {
+    const filteredMandatoryFields = {};
+
+    for (const key in mandatoryFields) {
+      if (mandatoryFields.hasOwnProperty(key)) {
+        filteredMandatoryFields[key] = {
+          isMissingFields: this.isMissingFields(mandatoryFields[key]),
+          type: mandatoryFields[key].type,
+          name: mandatoryFields[key].name,
+          currency: mandatoryFields[key].currency,
+          amount: mandatoryFields[key].amount,
+        };
+      }
+    }
+
+    return filteredMandatoryFields;
+  };
 }

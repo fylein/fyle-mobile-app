@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { isNumber } from 'lodash';
+import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
@@ -45,6 +45,7 @@ import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.mod
 import { Expense } from 'src/app/core/models/expense.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
+import { MissingMandatoryFields } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -468,6 +469,51 @@ export class SplitExpensePage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
+  getViolationName(index: number): string {
+    if (this.splitType === 'projects') {
+      return (this.splitExpensesFormArray.at(index).value as SplitExpense).project.name;
+    } else if (this.splitType === 'cost centers') {
+      return (this.splitExpensesFormArray.at(index).value as SplitExpense).cost_center.name;
+    } else {
+      return (this.splitExpensesFormArray.at(index).value as SplitExpense).category.name;
+    }
+  }
+
+  transformViolationData(etxns: Transaction[], violations): { [id: string]: PolicyViolation } {
+    let violationData = {};
+    for (const [idx, etxn] of etxns.entries()) {
+      violationData[idx] = {};
+      for (const key in violations) {
+        if (violations.hasOwnProperty(key)) {
+          violationData[idx].amount = etxn.orig_amount || etxn.amount;
+          violationData[idx].currency = etxn.orig_currency || etxn.currency;
+          violationData[idx].name = this.getViolationName(idx);
+          violationData[idx].type = this.splitType;
+          violationData[idx].data = violations.data[idx];
+        }
+      }
+    }
+    return violationData;
+  }
+
+  transformMandatoryFieldsData(etxns: Transaction[], mandatoryFields): { [id: string]: MissingMandatoryFields } {
+    let mandatoryFieldsData = {};
+    for (const [idx, etxn] of etxns.entries()) {
+      mandatoryFieldsData[idx] = {};
+      for (const key in mandatoryFields) {
+        if (mandatoryFields.hasOwnProperty(key)) {
+          mandatoryFieldsData[idx].amount = etxn.orig_amount || etxn.amount;
+          mandatoryFieldsData[idx].currency = etxn.orig_currency || etxn.currency;
+          mandatoryFieldsData[idx].name = this.getViolationName(idx);
+          mandatoryFieldsData[idx].type = this.splitType;
+          mandatoryFieldsData[idx].data = mandatoryFields.data[idx];
+          break;
+        }
+      }
+    }
+    return mandatoryFieldsData;
+  }
+
   showSuccessToast(): void {
     if (this.reportId) {
       if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
@@ -529,15 +575,25 @@ export class SplitExpensePage {
     }
   }
 
-  async showSplitExpensePolicyViolationsAndMissingFields(violations: {
-    policyViolations: SplitExpensePolicy;
-    missingFields: Partial<SplitExpenseMissingFields>;
-  }): Promise<void> {
+  async showSplitExpensePolicyViolationsAndMissingFields(
+    splitEtxns,
+    policyViolations,
+    missingFieldsViolations
+  ): Promise<void> {
+    const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
+
+    let filteredMissingFieldsViolations = {};
+
+    if (!isEmpty(missingFieldsViolations)) {
+      filteredMissingFieldsViolations =
+        this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
+    }
+
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
-        policyViolations: violations.policyViolations,
-        missingFields: violations.missingFields,
+        policyViolations: filteredPolicyViolations,
+        missingFieldsViolations: filteredMissingFieldsViolations,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
@@ -558,7 +614,27 @@ export class SplitExpensePage {
 
     return this.splitExpenseService
       .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, this.reportId)
-      .pipe(concatMap((res) => from(this.showSplitExpensePolicyViolationsAndMissingFields(res))));
+      .pipe(
+        concatMap((res) => {
+          const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
+          const formattedMandatoryFields = this.transformMandatoryFieldsData(splitEtxns, res.missingFields);
+
+          const doViolationsExist = this.policyService.checkIfViolationsExist(formattedViolations);
+          const doMandatoryFieldsExist = this.splitExpenseService.checkIfMissingFieldsExist(formattedMandatoryFields);
+
+          if (doViolationsExist || doMandatoryFieldsExist) {
+            return from(
+              this.showSplitExpensePolicyViolationsAndMissingFields(
+                splitEtxns,
+                formattedViolations,
+                formattedMandatoryFields
+              )
+            );
+          }
+
+          return of(true);
+        })
+      );
   }
 
   saveV2(): void {
@@ -622,7 +698,9 @@ export class SplitExpensePage {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe((response) => of(response));
+          .subscribe((response) => {
+            console.log(response);
+          });
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
