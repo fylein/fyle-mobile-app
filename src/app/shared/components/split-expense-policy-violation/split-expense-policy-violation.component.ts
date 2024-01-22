@@ -14,7 +14,11 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   @Input() missingFieldsViolations;
 
+  @Input() isPartOfReport;
+
   transactionIDs: string[];
+
+  missingFieldsIDs: string[];
 
   form = this.fb.group({
     comments: this.fb.array([]),
@@ -32,8 +36,18 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     return this.form.controls.comments as FormArray;
   }
 
+  hidePolicyViolations() {
+    this.transactionIDs.forEach((transactionID) => {
+      if (this.missingFieldsViolations[transactionID]?.isMissingFields) {
+        delete this.policyViolations[transactionID];
+        this.isExpenseBlocked = true;
+      }
+    });
+  }
+
   ngOnInit() {
     this.transactionIDs = [];
+    this.missingFieldsIDs = [];
     Object.keys(this.policyViolations).forEach((transactionsID) => {
       const comment = this.fb.group({
         comment: [''],
@@ -41,15 +55,44 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
       this.formComments.push(comment);
       this.transactionIDs.push(transactionsID);
     });
+
+    Object.keys(this.missingFieldsViolations).forEach((missingFieldID) => {
+      this.missingFieldsIDs.push(missingFieldID);
+    });
+
+    this.hidePolicyViolations();
   }
 
   toggleExpansion(currentTransactionID: string) {
     this.transactionIDs.forEach((transactionID) => {
-      if (transactionID !== currentTransactionID) {
+      if (transactionID !== currentTransactionID && this.policyViolations[transactionID]) {
         this.policyViolations[transactionID].isExpanded = false;
       }
     });
+
+    // toggle all missing fields to false if any policy violation is expanded
+    this.missingFieldsIDs.forEach((fieldID) => {
+      this.missingFieldsViolations[fieldID].isExpanded = false;
+    });
+
     this.policyViolations[currentTransactionID].isExpanded = !this.policyViolations[currentTransactionID].isExpanded;
+  }
+
+  toggleMissingFieldsExpansion(currentFieldID: string) {
+    this.missingFieldsIDs.forEach((fieldID) => {
+      if (fieldID !== currentFieldID) {
+        this.missingFieldsViolations[fieldID].isExpanded = false;
+      }
+    });
+
+    // toggle all policy violations to false if any missing field is expanded
+    this.transactionIDs.forEach((transactionID) => {
+      if (this.policyViolations[transactionID]) {
+        this.policyViolations[transactionID].isExpanded = false;
+      }
+    });
+
+    this.missingFieldsViolations[currentFieldID].isExpanded = !this.missingFieldsViolations[currentFieldID].isExpanded;
   }
 
   cancel() {

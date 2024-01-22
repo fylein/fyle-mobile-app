@@ -94,6 +94,61 @@
       </div>
     </ng-container>
   </ng-container>
+  <ng-container *ngIf="missingFieldsViolations" class="policy-violation--body">
+    <ng-container *ngFor="let missingField of missingFieldsIDs">
+      <div
+        *ngIf="missingFieldsViolations[missingField].isMissingFields"
+        class="split-expense-policy-violation--accordion"
+      >
+        <div (click)="toggleMissingFieldsExpansion(missingField)">
+          <div class="split-expense-policy-violation--header-slot">
+            <div class="split-expense-policy-violation--fields-violations-count"></div>
+            <span class="split-expense-policy-violation--dropdown-icon">
+              <ion-icon
+                class="split-expense-policy-violation--dropdown-container__icon"
+                [ngClass]="{
+                  'split-expense-policy-violation--dropdown-container__icon--rotate':
+                    !missingFieldsViolations[missingField].isExpanded
+                }"
+                [src]="'../../../../assets/svg/arrow-down.svg'"
+              ></ion-icon>
+            </span>
+          </div>
+          <div class="split-expense-policy-violation--sub-header-slot">
+            <div class="split-expense-policy-violation--split-by-type-container">
+              <div class="split-expense-policy-violation--placeholder">
+                {{ missingFieldsViolations[missingField].type | uppercase }}
+              </div>
+              <div class="split-expense-policy-violation--value">{{ missingFieldsViolations[missingField].name }}</div>
+            </div>
+            <div class="split-expense-policy-violation--policy-amount-container">
+              <div class="split-expense-policy-violation--placeholder">SPLIT AMOUNT</div>
+              <div class="split-expense-policy-violation--value text-right">
+                {{
+                  missingFieldsViolations[missingField].amount
+                    | currency : missingFieldsViolations[missingField].currency : 'symbol-narrow'
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="split-expense-policy-violation--dropdown-items"
+          *ngIf="missingFieldsViolations[missingField].isExpanded"
+        >
+          <ng-container>
+            <ng-container>
+              <app-fy-critical-policy-violation
+                [criticalViolationMessages]="['expense will be flagged for verification and approval']"
+                [showHeader]="false"
+                [showCTA]="false"
+              ></app-fy-critical-policy-violation>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
 </ion-content>
 
 <ion-footer>

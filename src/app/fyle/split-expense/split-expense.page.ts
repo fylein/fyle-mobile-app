@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { isEmpty, isNumber } from 'lodash';
+import { isEmpty, isEqual, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
@@ -584,9 +584,11 @@ export class SplitExpensePage {
 
     let filteredMissingFieldsViolations = {};
 
-    if (!isEmpty(missingFieldsViolations)) {
+    if (missingFieldsViolations) {
       filteredMissingFieldsViolations =
         this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
+    } else {
+      filteredMissingFieldsViolations = null;
     }
 
     const splitExpenseViolationsModal = await this.modalController.create({
@@ -594,6 +596,7 @@ export class SplitExpensePage {
       componentProps: {
         policyViolations: filteredPolicyViolations,
         missingFieldsViolations: filteredMissingFieldsViolations,
+        isPartOfReport: this.reportId ? true : false,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
@@ -617,10 +620,17 @@ export class SplitExpensePage {
       .pipe(
         concatMap((res) => {
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
-          const formattedMandatoryFields = this.transformMandatoryFieldsData(splitEtxns, res.missingFields);
+          let formattedMandatoryFields = {};
+
+          if (!isEmpty(res.missingFields)) {
+            formattedMandatoryFields = this.transformMandatoryFieldsData(splitEtxns, res.missingFields);
+          } else {
+            formattedMandatoryFields = null;
+          }
 
           const doViolationsExist = this.policyService.checkIfViolationsExist(formattedViolations);
-          const doMandatoryFieldsExist = this.splitExpenseService.checkIfMissingFieldsExist(formattedMandatoryFields);
+          const doMandatoryFieldsExist =
+            formattedMandatoryFields && this.splitExpenseService.checkIfMissingFieldsExist(formattedMandatoryFields);
 
           if (doViolationsExist || doMandatoryFieldsExist) {
             return from(

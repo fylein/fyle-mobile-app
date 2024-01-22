@@ -429,7 +429,8 @@ export class SplitExpenseService {
 
   checkIfMissingFieldsExist(mandatoryFields) {
     return Object.keys(mandatoryFields).some(
-      (key) => mandatoryFields.hasOwnProperty(key) && this.isMissingFields(mandatoryFields[key])
+      (key) =>
+        mandatoryFields.hasOwnProperty(key) && mandatoryFields[key].data && this.isMissingFields(mandatoryFields[key])
     );
   }
 
@@ -466,7 +467,7 @@ export class SplitExpenseService {
     for (const key in mandatoryFields) {
       if (mandatoryFields.hasOwnProperty(key)) {
         filteredMandatoryFields[key] = {
-          isMissingFields: this.isMissingFields(mandatoryFields[key]),
+          isMissingFields: mandatoryFields[key].data && this.isMissingFields(mandatoryFields[key]),
           type: mandatoryFields[key].type,
           name: mandatoryFields[key].name,
           currency: mandatoryFields[key].currency,
