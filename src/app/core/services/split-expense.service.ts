@@ -24,6 +24,8 @@ import { ExpenseField } from '../models/v1/expense-field.model';
 import { SplitExpense } from '../models/split-expense.model';
 import { SplitExpensePolicy } from '../models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from '../models/platform/v1/split-expense-missing-fields.model';
+import { Splits } from '../models/platform/v1/splits.model';
+import { SplitPayload } from '../models/platform/v1/split-payload.model';
 
 @Injectable({
   providedIn: 'root',
@@ -369,28 +371,104 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportId: string
+    reportAndCategoryParams
   ): Observable<SplitExpensePolicy> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
-    const splitPolicyChecksPayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    const splitPolicyChecksPayload = this.transformSplitTo(splitEtxns, originalTxn, fileIds, reportAndCategoryParams);
     return this.expensesService.splitExpenseCheckPolicies(splitPolicyChecksPayload);
+  }
+
+  transformSplitTo(splitTxns: Transaction[], transaction: Transaction, fileIds: string[], reportAndCategoryParams) {
+    const platformSplitObject: SplitPayload = {
+      id: transaction?.id,
+      splits: this.transformSplitArray(splitTxns, reportAndCategoryParams.unspecifiedCategory),
+      // Platform will throw error if category_id is null in form, therefore adding unspecified category
+      category_id: transaction?.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
+      source: transaction?.source,
+      spent_at: transaction?.txn_dt,
+      is_reimbursable: transaction?.skip_reimbursement === null ? null : !transaction?.skip_reimbursement,
+      travel_classes: [],
+      locations: transaction?.locations,
+      foreign_currency: transaction?.orig_currency,
+      foreign_amount: transaction?.orig_amount,
+      project_id: transaction?.project_id,
+      file_ids: fileIds,
+      cost_center_id: transaction?.cost_center_id,
+      source_account_id: transaction?.source_account_id,
+      tax_amount: transaction?.tax_amount,
+      started_at: transaction?.from_dt,
+      ended_at: transaction?.to_dt,
+      merchant: transaction?.vendor,
+      purpose: transaction?.purpose,
+      is_billable: transaction?.billable,
+      custom_fields: transaction?.custom_properties,
+      claim_amount: transaction?.amount,
+    };
+
+    if (transaction?.fyle_category && transaction?.fyle_category.toLowerCase() === 'airlines') {
+      if (transaction?.flight_journey_travel_class) {
+        platformSplitObject.travel_classes.push(transaction?.flight_journey_travel_class);
+      }
+      if (transaction?.flight_return_travel_class) {
+        platformSplitObject.travel_classes.push(transaction?.flight_return_travel_class);
+      }
+    } else if (
+      transaction?.fyle_category &&
+      transaction?.fyle_category.toLowerCase() === 'bus' &&
+      transaction?.bus_travel_class
+    ) {
+      platformSplitObject.travel_classes.push(transaction?.bus_travel_class);
+    } else if (
+      transaction?.fyle_category &&
+      transaction?.fyle_category.toLowerCase() === 'train' &&
+      transaction?.train_travel_class
+    ) {
+      platformSplitObject.travel_classes.push(transaction?.train_travel_class);
+    }
+
+    if (reportAndCategoryParams.reportId) {
+      platformSplitObject.report_id = reportAndCategoryParams.reportId;
+    }
+
+    return platformSplitObject;
+  }
+
+  transformSplitArray(splitEtxns: Transaction[], unspecifiedCategory): Splits[] {
+    const splits: Splits[] = [];
+
+    for (const splitEtxn of splitEtxns) {
+      const splitObject = {
+        spent_at: splitEtxn?.txn_dt,
+        category_id: splitEtxn?.org_category_id || unspecifiedCategory?.id,
+        project_id: splitEtxn?.project_id,
+        cost_center_id: splitEtxn?.cost_center_id,
+        purpose: splitEtxn?.purpose,
+        foreign_amount: splitEtxn?.orig_amount,
+        custom_fields: splitEtxn?.custom_properties,
+        claim_amount: splitEtxn?.amount,
+      };
+
+      splits.push(splitObject);
+    }
+
+    return splits;
   }
 
   handleSplitMissingFieldsCheck(
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportId: string
+    reportAndCategoryParams
   ): Observable<Partial<SplitExpenseMissingFields>> {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
-    if (!reportId && !originalTxn.report_id) {
+    if (!reportAndCategoryParams.reportId && !originalTxn.report_id) {
       // No need to check missing fields if there is no report id
       return of({});
     }
 
-    const splitPolicyChecksPayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    const splitPolicyChecksPayload = this.transformSplitTo(splitEtxns, originalTxn, fileIds, reportAndCategoryParams);
     return this.expensesService.splitExpenseCheckMissingFields(splitPolicyChecksPayload);
   }
 
@@ -398,10 +476,15 @@ export class SplitExpenseService {
     splitEtxns: Transaction[],
     fileObjs: FileObject[],
     originalTxn: Transaction,
-    reportId: string
+    reportAndCategoryParams
   ): Observable<{ policyViolations: SplitExpensePolicy; missingFields: Partial<SplitExpenseMissingFields> }> {
-    const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportId);
-    const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(splitEtxns, fileObjs, originalTxn, reportId);
+    const splitPolicyChecks$ = this.handleSplitPolicyCheck(splitEtxns, fileObjs, originalTxn, reportAndCategoryParams);
+    const splitMissingFieldsCheck$ = this.handleSplitMissingFieldsCheck(
+      splitEtxns,
+      fileObjs,
+      originalTxn,
+      reportAndCategoryParams
+    );
 
     return forkJoin({ policyViolations: splitPolicyChecks$, missingFields: splitMissingFieldsCheck$ });
   }
@@ -479,10 +562,10 @@ export class SplitExpenseService {
     return filteredMandatoryFields;
   };
 
-  splitExpense(splitEtxns: Transaction[], fileObjs: FileObject[], originalTxn: Transaction, reportId: string) {
+  splitExpense(splitEtxns: Transaction[], fileObjs: FileObject[], originalTxn: Transaction, reportAndCategoryParams) {
     const fileIds = this.getFileIdsFromObjects(fileObjs);
 
-    const splitExpensePayload = this.expensesService.transformSplitTo(splitEtxns, originalTxn, fileIds, reportId);
+    const splitExpensePayload = this.transformSplitTo(splitEtxns, originalTxn, fileIds, reportAndCategoryParams);
     return this.expensesService.splitExpense(splitExpensePayload);
   }
 

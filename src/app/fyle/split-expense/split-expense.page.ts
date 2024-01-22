@@ -109,6 +109,8 @@ export class SplitExpensePage {
 
   formattedSplitExpense;
 
+  unspecifiedCategory: OrgCategory = null;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -601,10 +603,24 @@ export class SplitExpensePage {
   handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<any> {
     for (const txn of splitEtxns) {
       delete txn.id;
+
+      const categoryId = txn.org_category_id || this.unspecifiedCategory?.id;
+
+      if (txn.custom_properties?.length > 0 && this.expenseFields?.length > 0) {
+        txn.custom_properties = txn.custom_properties.filter((customProperty) => {
+          const customField = this.expenseFields.find((field) => field.id === customProperty.id);
+          return customField?.org_category_ids?.includes(categoryId);
+        });
+      }
     }
 
+    const reportAndCategoryParams = {
+      reportId: this.reportId,
+      unspecifiedCategory: this.unspecifiedCategory,
+    };
+
     return this.splitExpenseService
-      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, this.reportId)
+      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         concatMap((res) => {
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
@@ -636,8 +652,13 @@ export class SplitExpensePage {
   }
 
   handleSplitExpense(comments) {
+    const reportAndCategoryParams = {
+      reportId: this.reportId,
+      unspecifiedCategory: this.unspecifiedCategory,
+    };
+
     this.splitExpenseService
-      .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, this.reportId)
+      .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         catchError((err) => {
           const message = 'We were unable to split your expense. Please try again later.';
@@ -842,6 +863,12 @@ export class SplitExpensePage {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
+  getUnspecifiedCategory(): void {
+    this.categoriesService.getCategoryByName('Unspecified').subscribe((unspecifiedCategory) => {
+      this.unspecifiedCategory = unspecifiedCategory;
+    });
+  }
+
   ionViewWillEnter(): void {
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
@@ -919,6 +946,8 @@ export class SplitExpensePage {
           orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled
       )
     );
+
+    this.getUnspecifiedCategory();
 
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
