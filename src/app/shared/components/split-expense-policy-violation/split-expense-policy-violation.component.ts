@@ -24,7 +24,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     comments: this.fb.array([]),
   });
 
-  isExpenseBlocked = false;
+  isSplitBlocked = false;
 
   constructor(
     private modalController: ModalController,
@@ -38,9 +38,23 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   hidePolicyViolations() {
     this.transactionIDs.forEach((transactionID) => {
-      if (this.missingFieldsViolations[transactionID]?.isMissingFields) {
+      if (this.missingFieldsViolations && this.missingFieldsViolations[transactionID]?.isMissingFields) {
         delete this.policyViolations[transactionID];
-        this.isExpenseBlocked = true;
+        this.isSplitBlocked = true;
+      }
+    });
+  }
+
+  checkIfSplitBlocked() {
+    this.transactionIDs.forEach((transactionID) => {
+      if (this.policyViolations[transactionID]?.isCriticalPolicyViolation && this.isPartOfReport) {
+        this.isSplitBlocked = true;
+      }
+    });
+
+    this.missingFieldsIDs.forEach((fieldID) => {
+      if (this.missingFieldsViolations[fieldID]?.isMissingFields) {
+        this.isSplitBlocked = true;
       }
     });
   }
@@ -56,11 +70,14 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
       this.transactionIDs.push(transactionsID);
     });
 
-    Object.keys(this.missingFieldsViolations).forEach((missingFieldID) => {
-      this.missingFieldsIDs.push(missingFieldID);
-    });
+    if (this.missingFieldsViolations) {
+      Object.keys(this.missingFieldsViolations).forEach((missingFieldID) => {
+        this.missingFieldsIDs.push(missingFieldID);
+      });
+    }
 
     this.hidePolicyViolations();
+    this.checkIfSplitBlocked();
   }
 
   toggleExpansion(currentTransactionID: string) {

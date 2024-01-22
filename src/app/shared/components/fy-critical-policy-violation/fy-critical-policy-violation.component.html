@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="critical-policy-violation--content-section">
+<div *ngIf="!isSplitBlocked" class="critical-policy-violation--content-section">
   <div class="critical-policy-violation--content">
     <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
     <div class="inner-content">
@@ -23,6 +23,37 @@
       </ng-container>
     </div>
   </div>
+</div>
+
+<div *ngIf="isSplitBlocked" class="critical-policy-violation--content-section">
+  <ng-container *ngIf="isSplitMissingFields; else missingFieldsError">
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="danger"
+        message="Splitting this expense will create incomplete expenses."
+      ></app-fy-alert-info>
+    </div>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="information"
+        message="Please remove this expense from the report and split it from the Expenses section."
+      ></app-fy-alert-info>
+    </div>
+  </ng-container>
+  <ng-template #missingFieldsError>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="danger"
+        message="Splitting this expense will create blocked expenses."
+      ></app-fy-alert-info>
+    </div>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="information"
+        message="Please remove this expense from the report and split it from the Expenses section."
+      ></app-fy-alert-info>
+    </div>
+  </ng-template>
 </div>
 
 <ion-footer *ngIf="showCTA">

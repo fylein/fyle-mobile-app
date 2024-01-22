@@ -17,6 +17,10 @@ export class FyCriticalPolicyViolationComponent implements OnInit {
 
   @Input() showCloseIcon = false;
 
+  @Input() isSplitBlocked? = false;
+
+  @Input() isSplitMissingFields? = false;
+
   constructor(private modalController: ModalController) {}
 
   ngOnInit() {}
