@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
-import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
+import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
+import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
 
 @Component({
   selector: 'app-split-expense-policy-violation',
@@ -10,11 +10,11 @@ import { SplitExpenseService } from 'src/app/core/services/split-expense.service
   styleUrls: ['./split-expense-policy-violation.component.scss'],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
-  @Input() policyViolations: { [id: string]: FormattedPolicyViolation };
+  @Input() policyViolations: { [id: number]: PolicyViolation };
 
-  @Input() missingFieldsViolations;
+  @Input() missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> };
 
-  @Input() isPartOfReport;
+  @Input() isPartOfReport: boolean;
 
   transactionIDs: string[];
 
@@ -26,17 +26,13 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   isSplitBlocked = false;
 
-  constructor(
-    private modalController: ModalController,
-    private fb: FormBuilder,
-    private splitExpenseService: SplitExpenseService
-  ) {}
+  constructor(private modalController: ModalController, private fb: FormBuilder) {}
 
-  get formComments() {
+  get formComments(): FormArray {
     return this.form.controls.comments as FormArray;
   }
 
-  hidePolicyViolations() {
+  hidePolicyViolations(): void {
     this.transactionIDs.forEach((transactionID) => {
       if (this.missingFieldsViolations && this.missingFieldsViolations[transactionID]?.isMissingFields) {
         delete this.policyViolations[transactionID];
@@ -45,7 +41,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     });
   }
 
-  checkIfSplitBlocked() {
+  checkIfSplitBlocked(): void {
     this.transactionIDs.forEach((transactionID) => {
       if (this.policyViolations[transactionID]?.isCriticalPolicyViolation && this.isPartOfReport) {
         this.isSplitBlocked = true;
@@ -59,7 +55,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.transactionIDs = [];
     this.missingFieldsIDs = [];
     Object.keys(this.policyViolations).forEach((transactionsID) => {
@@ -80,7 +76,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     this.checkIfSplitBlocked();
   }
 
-  toggleExpansion(currentTransactionID: string) {
+  toggleExpansion(currentTransactionID: string): void {
     this.transactionIDs.forEach((transactionID) => {
       if (transactionID !== currentTransactionID && this.policyViolations[transactionID]) {
         this.policyViolations[transactionID].isExpanded = false;
@@ -95,7 +91,7 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     this.policyViolations[currentTransactionID].isExpanded = !this.policyViolations[currentTransactionID].isExpanded;
   }
 
-  toggleMissingFieldsExpansion(currentFieldID: string) {
+  toggleMissingFieldsExpansion(currentFieldID: string): void {
     this.missingFieldsIDs.forEach((fieldID) => {
       if (fieldID !== currentFieldID) {
         this.missingFieldsViolations[fieldID].isExpanded = false;
@@ -112,11 +108,11 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
     this.missingFieldsViolations[currentFieldID].isExpanded = !this.missingFieldsViolations[currentFieldID].isExpanded;
   }
 
-  cancel() {
+  cancel(): void {
     this.modalController.dismiss({ action: 'cancel' });
   }
 
-  continue() {
+  continue(): void {
     const comments = {};
     this.transactionIDs.map((transaction, index) => {
       if (
