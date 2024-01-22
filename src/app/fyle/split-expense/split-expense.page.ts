@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { isEmpty, isEqual, isNumber } from 'lodash';
+import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
@@ -45,7 +45,8 @@ import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.mod
 import { Expense } from 'src/app/core/models/expense.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
-import { MissingMandatoryFields } from 'src/app/core/models/platform/v1/expense.model';
+import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
+import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -107,7 +108,7 @@ export class SplitExpensePage {
 
   expenseFields: ExpenseField[];
 
-  formattedSplitExpense;
+  formattedSplitExpense: Transaction[];
 
   unspecifiedCategory: OrgCategory = null;
 
@@ -474,17 +475,18 @@ export class SplitExpensePage {
   }
 
   getViolationName(index: number): string {
+    const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
     if (this.splitType === 'projects') {
-      return (this.splitExpensesFormArray.at(index).value as SplitExpense).project.name;
+      return splitExpenseFormValue.project.name;
     } else if (this.splitType === 'cost centers') {
-      return (this.splitExpensesFormArray.at(index).value as SplitExpense).cost_center.name;
+      return splitExpenseFormValue.cost_center.name;
     } else {
-      return (this.splitExpensesFormArray.at(index).value as SplitExpense).category.name;
+      return splitExpenseFormValue.category.name;
     }
   }
 
-  transformViolationData(etxns: Transaction[], violations): { [id: string]: PolicyViolation } {
-    let violationData = {};
+  transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
+    const violationData: { [id: number]: PolicyViolation } = {};
     for (const [idx, etxn] of etxns.entries()) {
       violationData[idx] = {};
       for (const key in violations) {
@@ -500,8 +502,11 @@ export class SplitExpensePage {
     return violationData;
   }
 
-  transformMandatoryFieldsData(etxns: Transaction[], mandatoryFields): { [id: string]: MissingMandatoryFields } {
-    let mandatoryFieldsData = {};
+  transformMandatoryFieldsData(
+    etxns: Transaction[],
+    mandatoryFields: Partial<SplitExpenseMissingFields>
+  ): { [id: number]: Partial<TransformedSplitExpenseMissingFields> } {
+    const mandatoryFieldsData: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = {};
     for (const [idx, etxn] of etxns.entries()) {
       mandatoryFieldsData[idx] = {};
       for (const key in mandatoryFields) {
@@ -566,10 +571,10 @@ export class SplitExpensePage {
   }
 
   async showSplitExpensePolicyViolationsAndMissingFields(
-    splitEtxns,
-    policyViolations,
-    missingFieldsViolations
-  ): Promise<void> {
+    splitEtxns: Transaction[],
+    policyViolations: { [id: number]: PolicyViolation },
+    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }
+  ): Promise<SplitExpenseViolationsPopup> {
     const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
 
     let filteredMissingFieldsViolations = {};
@@ -595,12 +600,12 @@ export class SplitExpensePage {
 
     await splitExpenseViolationsModal.present();
 
-    const { data } = await splitExpenseViolationsModal.onWillDismiss();
+    const { data } = await splitExpenseViolationsModal.onWillDismiss<SplitExpenseViolationsPopup>();
 
     return data;
   }
 
-  handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<any> {
+  handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<SplitExpenseViolationsPopup> {
     for (const txn of splitEtxns) {
       delete txn.id;
 
@@ -623,6 +628,8 @@ export class SplitExpensePage {
       .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         concatMap((res) => {
+          console.log(res.policyViolations);
+          console.log(res.missingFields);
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
           let formattedMandatoryFields = {};
 
@@ -651,7 +658,7 @@ export class SplitExpensePage {
       );
   }
 
-  handleSplitExpense(comments) {
+  handleSplitExpense(comments: { [id: number]: string }): void {
     const reportAndCategoryParams = {
       reportId: this.reportId,
       unspecifiedCategory: this.unspecifiedCategory,
@@ -681,9 +688,7 @@ export class SplitExpensePage {
                 return throwError(err);
               })
             )
-            .subscribe(() => {
-              return this.showSuccessToast();
-            });
+            .subscribe(() => this.showSuccessToast());
         }
 
         return this.showSuccessToast();

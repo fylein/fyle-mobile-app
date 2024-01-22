@@ -569,7 +569,7 @@ export class SplitExpenseService {
     return this.expensesService.splitExpense(splitExpensePayload);
   }
 
-  postSplitExpenseComments(txnIds, comments) {
+  postSplitExpenseComments(txnIds: string[], comments: { [id: number]: string }) {
     const payloadData = [];
 
     for (const idx in txnIds) {
