@@ -10,4 +10,5 @@ export interface PolicyViolation {
   currency?: string;
   name?: string;
   type?: string;
+  isExpanded?: boolean;
 }
