@@ -47,6 +47,8 @@ import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expens
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -135,7 +137,8 @@ export class SplitExpensePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService
+    private projectsService: ProjectsService,
+    private timezoneService: TimezoneService
   ) {}
 
   goBack(): void {
@@ -240,18 +243,58 @@ export class SplitExpensePage {
     }
   }
 
+  setTransactionDate(splitExpenseValue: SplitExpense, offset: string): Date {
+    let txnDate: Date;
+
+    if (splitExpenseValue.txn_dt) {
+      txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
+    } else if (this.transaction.txn_dt) {
+      txnDate = this.dateService.getUTCDate(new Date(this.transaction.txn_dt));
+    } else {
+      txnDate = this.dateService.getUTCDate(new Date());
+    }
+
+    txnDate.setHours(12);
+    txnDate.setMinutes(0);
+    txnDate.setSeconds(0);
+    txnDate.setMilliseconds(0);
+    txnDate = this.timezoneService.convertToUtc(txnDate, offset);
+
+    return txnDate;
+  }
+
+  correctDates(transaction: Transaction, offset: string): void {
+    // setting from_date and to_date time to T10:00:00:000 in local time zone
+    if (transaction.from_dt) {
+      transaction.from_dt.setHours(12);
+      transaction.from_dt.setMinutes(0);
+      transaction.from_dt.setSeconds(0);
+      transaction.from_dt.setMilliseconds(0);
+      transaction.from_dt = this.timezoneService.convertToUtc(transaction.from_dt, offset);
+    }
+
+    if (transaction.to_dt) {
+      transaction.to_dt.setHours(12);
+      transaction.to_dt.setMinutes(0);
+      transaction.to_dt.setSeconds(0);
+      transaction.to_dt.setMilliseconds(0);
+      transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+    }
+  }
+
   generateSplitEtxnFromFg(splitExpenseValue: SplitExpense): Observable<Transaction> {
     // Fixing the date format here as the transaction object date is a string
     this.transaction.from_dt =
       this.transaction.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    this.transaction.txn_dt =
-      splitExpenseValue.txn_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
-
-    return this.dependentCustomProperties$.pipe(
-      map((dependentCustomProperties) => {
+    return forkJoin({
+      dependentCustomProperties: this.dependentCustomProperties$,
+      orgUserSettings: this.orgUserSettingsService.get(),
+    }).pipe(
+      concatMap(({ dependentCustomProperties, orgUserSettings }) => {
         let txnCustomProperties = this.transaction.custom_properties;
+        const offset = orgUserSettings.locale.offset;
 
         const isDifferentProject =
           this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
@@ -265,7 +308,9 @@ export class SplitExpensePage {
           );
         }
 
-        return {
+        this.correctDates(this.transaction, offset);
+
+        return of({
           ...this.transaction,
           org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
           project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
@@ -275,8 +320,12 @@ export class SplitExpensePage {
           source: 'MOBILE',
           billable: this.setUpSplitExpenseBillable(splitExpenseValue),
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          custom_properties: txnCustomProperties,
-        };
+          txn_dt: this.setTransactionDate(splitExpenseValue, offset),
+          custom_properties: this.timezoneService.convertAllDatesToProperLocale(
+            txnCustomProperties,
+            offset
+          ) as TxnCustomProperties[],
+        });
       })
     );
   }
@@ -891,6 +940,11 @@ export class SplitExpensePage {
     this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
     this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
 
+    // Set max and min date for form
+    const today = new Date();
+    this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
+
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
         this.launchDarklyService.getVariation('show_project_mapped_categories_in_split_expense', false).pipe(
@@ -978,13 +1032,6 @@ export class SplitExpensePage {
     this.add(amount1, this.currency, percentage1, null);
     this.add(amount2, this.currency, percentage2, null);
     this.getTotalSplitAmount();
-
-    const today = new Date();
-    const minDate = new Date('Jan 1, 2001');
-    const maxDate = this.dateService.addDaysToDate(today, 1);
-
-    this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-    this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
   }
 
   setAmountAndCurrency(currencyObj: CurrencyObj, homeCurrency: string): void {
@@ -1021,7 +1068,6 @@ export class SplitExpensePage {
       percentage: [percentage],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
-    console.log(fg.controls.txn_dt.value);
 
     if (this.splitType === 'categories') {
       fg.addControl('category', this.formBuilder.control('', [Validators.required]));
