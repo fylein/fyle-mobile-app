@@ -4,4 +4,5 @@ export interface FilteredMissingFieldsViolations {
   name: string;
   currency: string;
   amount: number;
+  isExpanded?: boolean;
 }
