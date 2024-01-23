@@ -1086,7 +1086,9 @@ export function TestCases1(getTestBed) {
         component.getActionSheetOptions().subscribe((actionSheetOptionsResponse) => {
           const actionSheetOptions = actionSheetOptionsResponse;
           expect(actionSheetOptionsResponse.length).toEqual(6);
-          expect(titleCasePipe.transform).toHaveBeenCalledOnceWith('Project');
+          expect(titleCasePipe.transform).toHaveBeenCalledTimes(2);
+          expect(titleCasePipe.transform).toHaveBeenCalledWith('Project');
+          expect(titleCasePipe.transform).toHaveBeenCalledWith('Location');
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
           expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
