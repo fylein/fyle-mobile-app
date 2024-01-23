@@ -11,7 +11,7 @@ import { SplitExpenseService } from 'src/app/core/services/split-expense.service
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
 
-fdescribe('SplitExpensePolicyViolationComponent', () => {
+describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
