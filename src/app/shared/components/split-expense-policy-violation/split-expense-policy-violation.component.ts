@@ -1,8 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormArray, FormBuilder } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
-import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
+import { FilteredMissingFieldsViolations } from 'src/app/core/models/filtered-missing-fields-violations.model';
+import { FilteredSplitPolicyViolations } from 'src/app/core/models/filtered-split-policy-violations.model';
 
 @Component({
   selector: 'app-split-expense-policy-violation',
@@ -10,9 +10,9 @@ import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transf
   styleUrls: ['./split-expense-policy-violation.component.scss'],
 })
 export class SplitExpensePolicyViolationComponent implements OnInit {
-  @Input() policyViolations: { [id: number]: PolicyViolation };
+  @Input() policyViolations: { [id: number]: FilteredSplitPolicyViolations };
 
-  @Input() missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> };
+  @Input() missingFieldsViolations: { [id: number]: FilteredMissingFieldsViolations };
 
   @Input() isPartOfReport: boolean;
 
