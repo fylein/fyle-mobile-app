@@ -246,6 +246,9 @@ export class SplitExpensePage {
       this.transaction.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
+    this.transaction.txn_dt =
+      splitExpenseValue.txn_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
+
     return this.dependentCustomProperties$.pipe(
       map((dependentCustomProperties) => {
         let txnCustomProperties = this.transaction.custom_properties;
@@ -1018,6 +1021,7 @@ export class SplitExpensePage {
       percentage: [percentage],
       txn_dt: [txnDt, Validators.compose([Validators.required, this.customDateValidator])],
     });
+    console.log(fg.controls.txn_dt.value);
 
     if (this.splitType === 'categories') {
       fg.addControl('category', this.formBuilder.control('', [Validators.required]));
