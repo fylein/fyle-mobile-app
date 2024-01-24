@@ -112,7 +112,7 @@ import {
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { dependentFieldValues } from 'src/app/core/test-data/dependent-fields.service.spec.data';
+import { dependentFieldValues, txnCustomProperties } from 'src/app/core/test-data/dependent-fields.service.spec.data';
 import {
   allowedActiveCategories,
   allowedActiveCategoriesListOptions,
@@ -150,6 +150,8 @@ import {
 import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -176,11 +178,16 @@ describe('SplitExpensePage', () => {
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
   let projectsService: jasmine.SpyObj<ProjectsService>;
+  let timezoneService: jasmine.SpyObj<TimezoneService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
-    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', [
+      'getAll',
+      'filterRequired',
+      'getCategoryByName',
+    ]);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'addDaysToDate']);
     const splitExpenseServiceSpy = jasmine.createSpyObj('SplitExpenseService', [
       'createSplitTxns',
@@ -209,6 +216,10 @@ describe('SplitExpensePage', () => {
     ]);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getAllowedOrgCategoryIds']);
+    const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', [
+      'convertToUtc',
+      'convertAllDatesToProperLocale',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [SplitExpensePage, FyAlertInfoComponent],
@@ -269,9 +280,14 @@ describe('SplitExpensePage', () => {
                 selectedCCCTransaction: '{"id":"tx3qwe4ty"}',
                 selectedReportId: '"rpt3qwe4ty"',
                 selectedProject: JSON.stringify(expectedProjectsResponse[0]),
+                expenseFields: JSON.stringify(expenseFieldResponse),
               },
             },
           },
+        },
+        {
+          provide: TimezoneService,
+          useValue: timezoneServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -301,6 +317,7 @@ describe('SplitExpensePage', () => {
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
+    timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -655,6 +672,10 @@ describe('SplitExpensePage', () => {
   });
 
   describe('createAndLinkTxnsWithFiles():', () => {
+    beforeEach(() => {
+      component.expenseFields = expenseFieldResponse;
+    });
+
     it('should link transaction with files when the receipt is attached and, the txn state is COMPLETE but the report id is not present', (done) => {
       const splitExpData = [splitExpenseTxn1, splitExpenseTxn1_1];
       component.transaction = txnAmount1;
@@ -893,52 +914,32 @@ describe('SplitExpensePage', () => {
   });
 
   describe('showSuccessToast()', () => {
-    it('should show success toast when all the expenses are added to report', () => {
-      component.reportId = 'rpPNBrdR9NaE';
-      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
-      component.splitExpenseTxn = fileTxns5.txns;
-      const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
-      spyOn(component, 'toastWithCTA');
-      component.showSuccessToast();
-      expect(component.completeTxnIds.length).toEqual(component.splitExpenseTxn.length);
-      expect(component.toastWithCTA).toHaveBeenCalledOnceWith(toastMessage);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
-    });
-
-    it('should show success toast along with the number of splits when all the expenses are not added to report', () => {
-      component.reportId = 'rpPNBrdR9NaE';
-      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N'];
-      component.splitExpenseTxn = fileTxns5.txns;
-      const toastMessage = 'Your expense was split successfully. 2 out of 3 expenses were added to report.';
-      spyOn(component, 'toastWithCTA');
-      component.showSuccessToast();
-      expect(component.toastWithCTA).toHaveBeenCalledOnceWith(toastMessage);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
-    });
-
-    it('should show success toast when all the expenses are not added to report', () => {
-      component.reportId = 'rpPNBrdR9NaE';
-      component.completeTxnIds = [];
-      component.splitExpenseTxn = fileTxns2.txns;
-      const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
+    beforeEach(() => {
       spyOn(component, 'toastWithoutCTA');
-      component.showSuccessToast();
-      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(toastMessage, ToastType.INFORMATION, 'msb-info');
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
     });
 
-    it('should show success toast when all the expenses were split successflully but report id was not present and redirect it to my_expenses page', () => {
-      component.completeTxnIds = ['txmsakgYZeCV', 'tx78mWdbfw1N', 'txwyRuUnVCbo'];
-      component.splitExpenseTxn = fileTxns5.txns;
-      const toastMessage = 'Your expense was split successfully.';
-      spyOn(component, 'toastWithoutCTA');
+    it('should show success toast and navigate to view report page if expenses are splitted in report', () => {
+      component.reportId = 'rpPNBrdR9NaE';
+      const toastMessage = 'Expense split successfully.';
       component.showSuccessToast();
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpPNBrdR9NaE' }]);
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         toastMessage,
         ToastType.SUCCESS,
         'msb-success-with-camera-icon'
       );
+    });
+
+    it('should show success toast and navigate to my expenses page if unreported expenses are splitted', () => {
+      component.reportId = null;
+      const toastMessage = 'Expense split successfully.';
+      component.showSuccessToast();
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
+      expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+        toastMessage,
+        ToastType.SUCCESS,
+        'msb-success-with-camera-icon'
+      );
     });
   });
 
@@ -1041,6 +1042,8 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'getActiveCategories').and.callThrough();
       launchDarklyService.getVariation.and.returnValue(of(false));
       component.transaction = cloneDeep(txnData);
+      dateService.addDaysToDate.and.returnValue(new Date('2023-01-11'));
+      spyOn(component, 'getUnspecifiedCategory');
     });
 
     it('should should show all categories if show_project_mapped_categories_in_split_expense flag is false', () => {
@@ -1187,12 +1190,6 @@ describe('SplitExpensePage', () => {
 
   describe('setValuesForCCC():', () => {
     it('should set the values for CCC split expenses when coporate credit cards is enabled', () => {
-      const minDate = dayjs('Jan 1, 2001');
-      const maxDate = dayjs().add(1, 'day');
-      const expectedMinDate = minDate.format('YYYY-M-D');
-      const expectedMaxDate = maxDate.format('YYYY-M-D');
-
-      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
       component.amount = 2000;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1211,17 +1208,9 @@ describe('SplitExpensePage', () => {
       expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
       expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
-      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
-      expect(component.minDate).toEqual(expectedMinDate);
-      expect(component.maxDate).toEqual(expectedMaxDate);
     });
 
     it('should set the values to null if coporate credit cards is disabled and the amount is less than 0.0001', () => {
-      const minDate = dayjs('Jan 1, 2001');
-      const maxDate = dayjs().add(1, 'day');
-      const expectedMinDate = minDate.format('YYYY-M-D');
-      const expectedMaxDate = dayjs(maxDate).format('YYYY-M-D');
-      dateService.addDaysToDate.and.returnValue(maxDate.toDate());
       component.amount = 0.00001;
       spyOn(component, 'setAmountAndCurrency').and.callThrough();
       spyOn(component, 'add').and.callThrough();
@@ -1242,9 +1231,6 @@ describe('SplitExpensePage', () => {
       expect(component.add).toHaveBeenCalledWith(amount1, 'INR', percentage1, null);
       expect(component.add).toHaveBeenCalledWith(amount2, 'INR', percentage2, null);
       expect(component.getTotalSplitAmount).toHaveBeenCalledTimes(3);
-      expect(dateService.addDaysToDate).toHaveBeenCalledTimes(1);
-      expect(component.minDate).toEqual(expectedMinDate);
-      expect(component.maxDate).toEqual(expectedMaxDate);
     });
   });
 
@@ -1782,6 +1768,10 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'setUpSplitExpenseTax').and.returnValue(23);
       const mockDependentCustomProps = mockTxn.custom_properties.slice(0, 2);
       component.dependentCustomProperties$ = of(mockDependentCustomProps);
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      spyOn(component, 'correctDates');
+      spyOn(component, 'setTransactionDate').and.returnValue(new Date('2023-08-04'));
+      timezoneService.convertAllDatesToProperLocale.and.returnValue(txnCustomPropertiesData);
     });
 
     it('should return split expense object with all the fields if splitType is projects', () => {
@@ -1829,6 +1819,7 @@ describe('SplitExpensePage', () => {
     it('should return split expense object with all the fields if splitType is cost centers and splitExpenseValue.cost_centers is undefined', () => {
       component.splitType = 'cost centers';
       const splitExpenseForm1 = splitExpenseDataWithCostCenter2;
+      component.dependentCustomProperties$ = of(null);
 
       component.generateSplitEtxnFromFg(splitExpenseForm1).subscribe((splitExpense) => {
         expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
