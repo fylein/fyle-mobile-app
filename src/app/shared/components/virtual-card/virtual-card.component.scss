@@ -1,0 +1,101 @@
+@import '../../../../theme/colors';
+
+.virtual-card {
+  width: 100%;
+  height: 100%;
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 160px;
+
+  border-radius: 16px;
+  background: url('../../../../assets/images/virtual-card-settings-bg.png') no-repeat center;
+  background-size: cover;
+  &__card-number {
+    &__card-number-mask {
+      letter-spacing: 2px;
+      vertical-align: sub;
+      padding-top: 3px;
+      gap: 12px;
+      display: flex;
+      font-size: 14px;
+    }
+    &__card-number-unmasked {
+      gap: 12px;
+      display: flex;
+    }
+    &__unmasked-card-digits {
+      margin-left: 8px;
+    }
+  }
+  &__logo-container {
+    background-color: $white;
+    border: 1px solid $border-tertiary;
+    border-radius: 4px;
+    height: 26px;
+    width: 44px;
+  }
+  &__vertical-divider {
+    background-color: $border-info-lighter;
+    height: 30px;
+    width: 1px;
+  }
+  &__card-fields {
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 12px;
+    &__label-text {
+      font-weight: 500;
+      color: $dark-grey;
+    }
+    &__label-text {
+      color: $blue-black;
+    }
+    &__cvv-mask {
+      font-size: 14px;
+      line-height: 16px;
+      color: $blue-black;
+    }
+    &__cvv-copy-icon {
+      height: 12px;
+      width: 12px;
+      margin-left: 2px;
+    }
+  }
+  &__footer {
+    justify-content: space-between;
+    width: 100%;
+  }
+  &__status-pill {
+    border: 1px solid $border-tertiary;
+    line-height: 12.5%;
+    background-color: $white;
+    border-radius: 9999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2px 6px;
+    font-size: 10px;
+    font-weight: 500;
+    gap: 4px;
+    &__dot {
+      border-radius: 50%;
+      height: 8px;
+      width: 8px;
+      background-color: $green;
+    }
+  }
+  &__contactless-payment {
+    line-height: 12.5%;
+    font-weight: 500;
+    font-size: 10px;
+    display: flex;
+    gap: 8px;
+    &__icon {
+      height: 14px;
+      width: 14px;
+    }
+  }
+}
