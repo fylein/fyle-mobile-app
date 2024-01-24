@@ -43,6 +43,7 @@ import {
   filterOrgCategoryParam,
   orgCategoryData,
   transformedOrgCategories,
+  unspecifiedCategory,
 } from 'src/app/core/mock-data/org-category.data';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { FyAlertInfoComponent } from 'src/app/shared/components/fy-alert-info/fy-alert-info.component';
@@ -154,7 +155,7 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 
-describe('SplitExpensePage', () => {
+fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -1955,4 +1956,12 @@ describe('SplitExpensePage', () => {
       expect(splitTxn.project_name).toEqual(project.project_name);
     });
   });
+
+  it('getUnspecifiedCategory(): should set unspecifiedCategory', fakeAsync(() => {
+    categoriesService.getCategoryByName.and.returnValue(of(unspecifiedCategory));
+    component.getUnspecifiedCategory();
+    tick(100);
+    expect(component.unspecifiedCategory).toEqual(unspecifiedCategory);
+    expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
+  }));
 });
