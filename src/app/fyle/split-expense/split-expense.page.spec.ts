@@ -155,7 +155,7 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 
-fdescribe('SplitExpensePage', () => {
+describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
