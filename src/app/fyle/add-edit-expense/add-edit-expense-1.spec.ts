@@ -63,6 +63,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -557,6 +558,10 @@ export function TestCases1(getTestBed) {
     });
 
     describe('openSplitExpenseModal():', () => {
+      beforeEach(() => {
+        customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
+      });
+
       it('should open split expense modal by navigating to split expense', () => {
         spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
         component.txnFields$ = of(expenseFieldObjData);
@@ -577,6 +582,8 @@ export function TestCases1(getTestBed) {
             fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
             selectedCCCTransaction: null,
             selectedReportId: null,
+            selectedProject: null,
+            expenseFields: JSON.stringify(expenseFieldResponse),
           },
         ]);
       });
@@ -592,7 +599,22 @@ export function TestCases1(getTestBed) {
         component.openSplitExpenseModal('projects');
         expect(component.getCustomFields).toHaveBeenCalledTimes(1);
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
-        expect(router.navigate).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(txnFieldsMap2),
+            txn: JSON.stringify(unflattenedExpData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
+            selectedCCCTransaction: JSON.stringify(expectedECccResponse[0].ccce),
+            selectedReportId: JSON.stringify('rprAfNrce73O'),
+            selectedProject: null,
+            expenseFields: JSON.stringify(expenseFieldResponse),
+          },
+        ]);
       });
     });
 
