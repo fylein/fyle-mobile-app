@@ -149,9 +149,10 @@ import {
 } from 'src/app/core/mock-data/currency-obj.data';
 import { matchedCCCTransactionData1 } from 'src/app/core/mock-data/matchedCCCTransaction.data';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
+import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -1829,6 +1830,129 @@ describe('SplitExpensePage', () => {
         expect(component.setUpSplitExpenseTax).toHaveBeenCalledOnceWith(splitExpenseForm1);
         expect(splitExpense).toEqual(modifiedTxnData7);
       });
+    });
+  });
+
+  describe('setTransactionDate():', () => {
+    let mockDate: Date;
+    let mockUTCDate: Date;
+    beforeEach(() => {
+      mockDate = new Date('2023-08-03');
+      mockUTCDate = new Date('2023-08-04');
+      component.transaction = txnData4;
+      dateService.getUTCDate.and.returnValue(mockDate);
+      timezoneService.convertToUtc.and.returnValue(mockUTCDate);
+    });
+
+    it('should set txn_dt to the date provided in split expense form', () => {
+      const mockSplitExpenseForm = cloneDeep(splitExpense1);
+      const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
+      expect(txnDateRes).toEqual(mockUTCDate);
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date(mockSplitExpenseForm.txn_dt));
+      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
+    });
+
+    it('should set txn_dt to transaction date if split expense form date is empty', () => {
+      const mockSplitExpenseForm = cloneDeep(splitExpense1);
+      mockSplitExpenseForm.txn_dt = '';
+      const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
+      expect(txnDateRes).toEqual(mockUTCDate);
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(txnData4.txn_dt);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
+    });
+
+    it('should set txn_dt to today if transaction date is also not provided', () => {
+      const mockSplitExpenseForm = cloneDeep(splitExpense1);
+      mockSplitExpenseForm.txn_dt = '';
+      const mockTxn = cloneDeep(txnData4);
+      mockTxn.txn_dt = null;
+      component.transaction = mockTxn;
+      const today = new Date();
+      const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
+      expect(txnDateRes).toEqual(mockUTCDate);
+      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(today);
+      expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
+    });
+  });
+
+  describe('setSplitExpenseProjectHelper():', () => {
+    it('should set project_id, project_name and category id in split expense if project is present in split expense form and the category is mapped to that project', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = 122269;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.project_id).toEqual(project.project_id);
+      expect(splitTxn.project_name).toEqual(project.project_name);
+    });
+
+    it('should not modify project details in split expense if project is not present in split expense form', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = 122269;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.project_id).toBeNull();
+      expect(splitTxn.project_name).toBeNull();
+    });
+
+    it('should set cost center to null in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = 122269;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.cost_center_id).toBeNull();
+      expect(splitTxn.cost_center_name).toBeNull();
+    });
+
+    it('should set cost center to null in split expense if cost center is null', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = 122269;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, null);
+      expect(splitTxn.cost_center_id).toBeNull();
+      expect(splitTxn.cost_center_name).toBeNull();
+    });
+
+    it('should set category_id in split expense if category is present in split expense form and category is not mapped to that cost center', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.org_category_id = 122269;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
+    });
+
+    it('should set category_id and project_id in split expense if category is present in split expense form and category is mapped to project', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      project.project_org_category_ids = [184692];
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setSplitExpenseProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.org_category).toEqual(mockSplitExpenseForm.category.name);
+      expect(splitTxn.project_id).toEqual(project.project_id);
+      expect(splitTxn.project_name).toEqual(project.project_name);
     });
   });
 });

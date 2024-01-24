@@ -399,7 +399,7 @@ export class SplitExpensePage {
       }
 
       //if source txn has cost_center_id, check if the split category id is present in cost_center
-      if (this.transaction.cost_center_id && !costCenter?.org_category_ids?.includes(splitFormValue.category?.id)) {
+      if (this.transaction.cost_center_id && !costCenter?.org_category_ids?.includes(splitFormValue.category.id)) {
         splitTxn.cost_center_id = null;
         splitTxn.cost_center_name = null;
       }
