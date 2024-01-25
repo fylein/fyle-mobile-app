@@ -46,6 +46,16 @@ export class ManageCorporateCardsPage {
     private trackingService: TrackingService
   ) {}
 
+  get Segment(): typeof ManageCardsPageSegment {
+    return ManageCardsPageSegment;
+  }
+
+  segmentChanged(event: SegmentCustomEvent): void {
+    if (event?.detail?.value) {
+      this.segmentValue = parseInt(event.detail.value, 10);
+    }
+  }
+
   refresh(event: RefresherCustomEvent): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
       this.loadCorporateCards$.next();
