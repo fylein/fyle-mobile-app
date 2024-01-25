@@ -43,7 +43,7 @@ describe('VirtualCardsService', () => {
 
     virtualCardsService.getCardDetailsById('vc1234').subscribe((res) => {
       expect(res).toEqual(virtualCardDetailsResponse.data[0]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
       done();
     });
   });
@@ -58,7 +58,7 @@ describe('VirtualCardsService', () => {
 
     virtualCardsService.getCurrentAmountById('vc1234').subscribe((res) => {
       expect(res).toEqual(virtualCardCurrentAmountResponse.data[0]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
       done();
     });
   });
