@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concatMap, forkJoin, map, of, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -12,9 +12,10 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { RefresherCustomEvent } from '@ionic/core';
+import { RefresherCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -31,6 +32,8 @@ export class ManageCorporateCardsPage {
   isYodleeEnabled$: Observable<boolean>;
 
   loadCorporateCards$ = new BehaviorSubject<void>(null);
+
+  segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
 
   constructor(
     private router: Router,

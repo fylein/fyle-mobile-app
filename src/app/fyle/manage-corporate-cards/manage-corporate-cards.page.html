@@ -9,7 +9,18 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<div>
+  <div class="manage-corporate-cards__segment-container">
+    <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+      <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">
+        Corporate Cards
+      </ion-segment-button>
+      <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize"> Virtual Cards </ion-segment-button>
+    </ion-segment>
+  </div>
+</div>
+
+<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -30,7 +41,7 @@
         <div class="manage-corporate-cards__zero-state-container" data-testid="zero-state">
           <img class="manage-corporate-cards__zero-state-img" src="../../../../assets/images/cards.svg" />
 
-          <div class="manage-corporate-cards__zero-state-heading">No corporate card added yet!</div>
+          <div class="manage-corporate-cards__zero-state-heading">No virtual card added yet!</div>
           <div class="manage-corporate-cards__zero-state-subheading">
             Add Corporate Cards to sync your transactions on Fyle.
           </div>
@@ -44,7 +55,7 @@
   </div>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS">
   <ion-toolbar mode="md">
     <div class="manage-corporate-cards__footer-toolbar">
       <ion-button

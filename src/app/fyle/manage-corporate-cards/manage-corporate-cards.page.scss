@@ -5,6 +5,22 @@
     box-shadow: 0 0 8px $black-shadow;
   }
 
+  &__segment-container {
+    padding: 20px 78px;
+    border-radius: 8px;
+  }
+
+  &__segment {
+    border-radius: 8px;
+    border: 2px solid $pure-white;
+    background: $pure-white;
+    box-shadow: 0px -2px 40px 0px rgba(215, 215, 215, 0.5);
+  }
+
+  &__segment-button {
+    padding: 16px;
+  }
+
   &__toolbar-title {
     color: $black;
     font-size: 20px;
