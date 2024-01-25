@@ -37,4 +37,14 @@ export class VirtualCardComponent {
     await this.clipboardService.writeString(contentToCopy);
     this.showToastMessage('Copied Successfully!');
   }
+
+  hideCvvAndCopy() {
+    this.showCvv = false;
+    this.copyToClipboard(this.cvv);
+  }
+
+  hideCardNumberAndCopy() {
+    this.showCardNumber = false;
+    this.copyToClipboard(this.cardNumber);
+  }
 }
