@@ -16,7 +16,7 @@ export class VirtualCardsService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<Record<string, string>>>('/virtual_cards/show_card_details', params)
+      .post<PlatformApiResponse<Record<string, string>>>('/virtual_cards/show_card_details', params)
       .pipe(map((response) => response.data[0]));
   }
 
@@ -27,7 +27,7 @@ export class VirtualCardsService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<Record<string, string>>>('/virtual_cards/get_current_amount', params)
+      .post<PlatformApiResponse<Record<string, string>>>('/virtual_cards/get_current_amount', params)
       .pipe(map((response) => response.data[0]));
   }
 }
