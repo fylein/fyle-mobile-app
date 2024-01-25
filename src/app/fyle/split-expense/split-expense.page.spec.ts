@@ -1964,4 +1964,65 @@ describe('SplitExpensePage', () => {
     expect(component.unspecifiedCategory).toEqual(unspecifiedCategory);
     expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
   }));
+
+  describe('setCategoryAndProjectHelper():', () => {
+    beforeEach(() => {
+      spyOn(component, 'setSplitExpenseProjectHelper');
+    });
+
+    it('should call setSplitExpenseProjectHelper to set correct project as per category provided', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.project_id = null;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithProject);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(component.setSplitExpenseProjectHelper).toHaveBeenCalledOnceWith(
+        mockSplitExpenseForm,
+        splitTxn,
+        project,
+        costCenter
+      );
+    });
+
+    it('should set category id and project id equal to values in the form', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.project_id = null;
+      mockTransaction.org_category_id = null;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpenseDataWithCostCenter2);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.org_category_id).toEqual(mockSplitExpenseForm.category.id);
+      expect(splitTxn.project_id).toBeNull();
+    });
+
+    it('should set category id and project id equal to original expense', () => {
+      const mockTransaction = cloneDeep(txnData4);
+      mockTransaction.project_id = null;
+      mockTransaction.org_category_id = null;
+      component.transaction = mockTransaction;
+      const mockSplitExpenseForm = cloneDeep(splitExpense1);
+      const splitTxn = cloneDeep(txnData4);
+      const project = cloneDeep(expectedProjectsResponse[0]);
+      const costCenter = cloneDeep(costCenterExpenseField);
+      component.setCategoryAndProjectHelper(mockSplitExpenseForm, splitTxn, project, costCenter);
+      expect(splitTxn.org_category_id).toEqual(mockTransaction.org_category_id);
+      expect(splitTxn.project_id).toEqual(mockTransaction.project_id);
+    });
+  });
+
+  it('correctDates(): should convert from_dt and to_dt to UTC', () => {
+    const utcDate = new Date('2023-08-04');
+    timezoneService.convertToUtc.and.returnValues(utcDate, utcDate);
+    const mockTxn = cloneDeep(txnData4);
+    component.correctDates(mockTxn, '-05:00:00');
+    expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(2);
+    expect(mockTxn.from_dt).toEqual(utcDate);
+    expect(mockTxn.to_dt).toEqual(utcDate);
+  });
 });
