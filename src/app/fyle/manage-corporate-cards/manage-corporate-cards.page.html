@@ -9,15 +9,11 @@
   </ion-toolbar>
 </ion-header>
 
-<div>
-  <div class="manage-corporate-cards__segment-container">
-    <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
-      <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">
-        Corporate Cards
-      </ion-segment-button>
-      <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize"> Virtual Cards </ion-segment-button>
-    </ion-segment>
-  </div>
+<div class="manage-corporate-cards__segment-container">
+  <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+    <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
+    <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+  </ion-segment>
 </div>
 
 <ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS">
