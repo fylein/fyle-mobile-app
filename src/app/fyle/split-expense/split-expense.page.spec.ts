@@ -2094,4 +2094,44 @@ describe('SplitExpensePage', () => {
       );
     });
   });
+
+  describe('createSplitTxns():', () => {
+    beforeEach(() => {
+      splitExpenseService.createSplitTxns.and.returnValue(of(txnList));
+      spyOn(component, 'setupCategoryAndProject');
+    });
+
+    it('should call createSplitTxns method and return the transactions created by split API', () => {
+      const splitExpenseForm1 = new FormGroup({
+        amount: new FormControl(120),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(60),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      const otherSplitExpenseForm = new FormGroup({
+        amount: new FormControl(800),
+        currency: new FormControl('INR'),
+        percentage: new FormControl(40),
+        txn_dt: new FormControl('2023-01-11'),
+        category: new FormControl(''),
+      });
+
+      component.splitExpensesFormArray = new FormArray([splitExpenseForm1, otherSplitExpenseForm]);
+      const splitExpenses = cloneDeep(txnList);
+      component.createSplitTxns(splitExpenses).subscribe((res) => {
+        expect(res).toEqual(txnList);
+        expect(splitExpenseService.createSplitTxns).toHaveBeenCalledOnceWith(
+          component.transaction,
+          component.totalSplitAmount,
+          splitExpenses,
+          component.expenseFields
+        );
+        expect(component.setupCategoryAndProject).toHaveBeenCalledTimes(2);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[0], splitExpenseForm1.value);
+        expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value);
+      });
+    });
+  });
 });
