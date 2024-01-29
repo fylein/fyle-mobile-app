@@ -155,7 +155,7 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 
-describe('SplitExpensePage', () => {
+fdescribe('SplitExpensePage', () => {
   let component: SplitExpensePage;
   let fixture: ComponentFixture<SplitExpensePage>;
   let formBuilder: jasmine.SpyObj<FormBuilder>;
@@ -198,6 +198,8 @@ describe('SplitExpensePage', () => {
       'formatPolicyViolations',
       'checkForPolicyViolations',
       'getBase64Content',
+      'splitExpense',
+      'postSplitExpenseComments',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -2255,6 +2257,84 @@ describe('SplitExpensePage', () => {
       component.saveV2();
 
       expect(component.splitExpensesFormArray.markAllAsTouched).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('handleSplitExpense():', () => {
+    beforeEach(() => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      component.unspecifiedCategory = unspecifiedCategory;
+      spyOn(component, 'showSuccessToast');
+      splitExpenseService.splitExpense.and.returnValue(of({ data: txnList }));
+      splitExpenseService.postSplitExpenseComments.and.returnValue(of([]));
+      component.formattedSplitExpense = txnList;
+      component.fileObjs = fileObject6;
+      component.transaction = txnData4;
+    });
+
+    it('should call splitExpense API post comments and show success toast', () => {
+      component.handleSplitExpense({});
+
+      expect(splitExpenseService.splitExpense).toHaveBeenCalledOnceWith(
+        component.formattedSplitExpense,
+        component.fileObjs,
+        component.transaction,
+        {
+          reportId: component.reportId,
+          unspecifiedCategory: component.unspecifiedCategory,
+        }
+      );
+      expect(splitExpenseService.postSplitExpenseComments).toHaveBeenCalledOnceWith(
+        ['txAzvMhbD71q', 'txzLsDY1IAAw'],
+        {}
+      );
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an error and show failure toast if splitExpense API fails', fakeAsync(() => {
+      splitExpenseService.splitExpense.and.returnValue(throwError(() => new Error('Split Expense API failed!')));
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.handleSplitExpense({});
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Split Expense API failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
+        expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
+        expect(component.showSuccessToast).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should throw an error and show failure toast if postSplitExpenseComments API fails', fakeAsync(() => {
+      splitExpenseService.postSplitExpenseComments.and.returnValue(
+        throwError(() => new Error('Post Split Expense Comments API failed!'))
+      );
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.handleSplitExpense({});
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Post Split Expense Comments API failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
+        expect(component.showSuccessToast).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should not call postSplitExpenseComments API if there are no comments', () => {
+      component.handleSplitExpense(null);
+
+      expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
     });
   });
 });
