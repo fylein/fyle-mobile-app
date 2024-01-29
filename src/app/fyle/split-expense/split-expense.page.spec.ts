@@ -126,7 +126,11 @@ import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import { policyViolationData3, policyVoilationData2 } from 'src/app/core/mock-data/policy-violation.data';
+import {
+  policyViolation1,
+  policyViolationData3,
+  policyVoilationData2,
+} from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -154,6 +158,9 @@ import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
+import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
+import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
+import { transformedSplitExpenseMissingFieldsData } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -200,6 +207,8 @@ describe('SplitExpensePage', () => {
       'getBase64Content',
       'splitExpense',
       'postSplitExpenseComments',
+      'filteredMissingFieldsViolations',
+      'filteredPolicyViolations',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -2335,6 +2344,97 @@ describe('SplitExpensePage', () => {
 
       expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
       expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('showSplitExpensePolicyViolationsAndMissingFields():', () => {
+    beforeEach(() => {
+      splitExpenseService.filteredPolicyViolations.and.returnValue({ '0': filteredSplitPolicyViolationsData });
+      splitExpenseService.filteredMissingFieldsViolations.and.returnValue({ '1': filteredMissingFieldsViolationsData });
+      const properties = {
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      };
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    });
+
+    it('should open policy violations and missing fields modal', async () => {
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'continue',
+        },
+      });
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
+        txnList,
+        { '0': policyViolation1 },
+        { '1': transformedSplitExpenseMissingFieldsData }
+      );
+      expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+      expect(splitExpenseService.filteredMissingFieldsViolations).toHaveBeenCalledOnceWith({
+        '1': transformedSplitExpenseMissingFieldsData,
+      });
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: SplitExpensePolicyViolationComponent,
+        componentProps: {
+          policyViolations: { '0': filteredSplitPolicyViolationsData },
+          missingFieldsViolations: { '1': filteredMissingFieldsViolationsData },
+          isPartOfReport: false,
+        },
+        mode: 'ios',
+        ...modalProperties.getModalDefaultProperties(),
+        presentingElement: await modalController.getTop(),
+      });
+      expect(result).toEqual({
+        action: 'continue',
+      });
+    });
+
+    it('should open policy violations and missing fields modal with isPartOfReport as true if report is attached', async () => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'continue',
+        },
+      });
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
+        txnList,
+        { '0': policyViolation1 },
+        null
+      );
+      expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+      expect(splitExpenseService.filteredMissingFieldsViolations).not.toHaveBeenCalled();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: SplitExpensePolicyViolationComponent,
+        componentProps: {
+          policyViolations: { '0': filteredSplitPolicyViolationsData },
+          missingFieldsViolations: null,
+          isPartOfReport: true,
+        },
+        mode: 'ios',
+        ...modalProperties.getModalDefaultProperties(),
+        presentingElement: await modalController.getTop(),
+      });
+      expect(result).toEqual({
+        action: 'continue',
+      });
     });
   });
 });
