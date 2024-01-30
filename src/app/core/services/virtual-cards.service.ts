@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { Observable, map} from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { CardDetailsResponse } from '../models/card-details-response.model';
 
