@@ -25,12 +25,7 @@
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
-          <app-corporate-card
-            [card]="corporateCard"
-            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
-            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
-            (cardOptionsClick)="openCardOptions($event)"
-          ></app-corporate-card>
+          {{corporateCard.virtual_card_id}}
         </div>
       </div>
       <ng-template #zeroState>
@@ -43,6 +38,31 @@
           </div>
         </div>
       </ng-template>
+    </ng-container>
+
+    <ng-template #shimmers>
+      <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+    </ng-template>
+  </div>
+</ion-content>
+<ion-content *ngIf="segmentValue === Segment.VIRTUAL_CARDS">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+
+  <div *ngIf="isVirtualCardsEnabled$ | async" class="manage-corporate-cards__cards">
+    <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
+      <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+          <app-virtual-card
+            [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id].full_card_number"
+            [cvv]="'123'"
+            [expiry]="'2024-04-04'"
+            [cardStatus]="'ACTIVE'"
+            [availableAmount]="1000"
+          ></app-virtual-card>
+        </div>
+      </ng-container>
     </ng-container>
 
     <ng-template #shimmers>

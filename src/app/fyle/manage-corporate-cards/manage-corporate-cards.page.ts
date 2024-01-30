@@ -16,6 +16,7 @@ import { RefresherCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -25,7 +26,11 @@ import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-seg
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
+  virtualCardDetails$: Observable<any>;
+
   isVisaRTFEnabled$: Observable<boolean>;
+
+  isVirtualCardsEnabled$: Observable<boolean>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
 
@@ -35,6 +40,8 @@ export class ManageCorporateCardsPage {
 
   segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
 
+  virtualCardMap = {};
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -43,7 +50,8 @@ export class ManageCorporateCardsPage {
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
     private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private virtualCardsService: VirtualCardsService
   ) {}
 
   get Segment(): typeof ManageCardsPageSegment {
@@ -74,7 +82,25 @@ export class ManageCorporateCardsPage {
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
-
+    this.isVirtualCardsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.amex_feed_enrollment_settings.allowed &&
+          orgSettings.amex_feed_enrollment_settings.enabled &&
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
+      )
+    );
+    this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
+      if (isVirtualCardsEnabled) {
+        this.virtualCardDetails$ = this.corporateCards$.pipe(
+          switchMap((corporateCards) => {
+            const virtualCards = corporateCards.filter((card) => card.virtual_card_id);
+            const virtualCardIds = virtualCards.map((card) => card.virtual_card_id);
+            return this.virtualCardsService.getCardDetailsInBatches(virtualCardIds);
+          })
+        );
+      }
+    });
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
