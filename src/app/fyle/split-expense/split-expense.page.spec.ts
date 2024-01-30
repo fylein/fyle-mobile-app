@@ -129,6 +129,7 @@ import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/
 import {
   policyViolation1,
   policyViolationData3,
+  policyViolationData5,
   policyVoilationData2,
 } from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
@@ -143,6 +144,7 @@ import {
   splitExpenseFormData3,
   splitExpenseFormData5,
   splitExpenseFormData6,
+  splitExpenseFormData7,
 } from 'src/app/core/mock-data/split-expense-form.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
@@ -160,7 +162,10 @@ import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-prope
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
 import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
-import { transformedSplitExpenseMissingFieldsData } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
+import {
+  transformedSplitExpenseMissingFieldsData,
+  transformedSplitExpenseMissingFieldsData2,
+} from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 
@@ -2559,6 +2564,53 @@ describe('SplitExpensePage', () => {
         expect(res).toEqual({ action: 'continue', comments: null });
         done();
       });
+    });
+  });
+
+  describe('getViolationName():', () => {
+    beforeEach(() => {
+      component.splitExpensesFormArray = new FormArray([splitExpenseFormData7]);
+    });
+
+    it('should return category name if split type is category', () => {
+      component.splitType = 'categories';
+
+      expect(component.getViolationName(0)).toEqual('Food');
+    });
+
+    it('should return project name if split type is project', () => {
+      component.splitType = 'projects';
+
+      expect(component.getViolationName(0)).toEqual('Project 1');
+    });
+
+    it('should return cost center name if split type is cost center', () => {
+      component.splitType = 'cost centers';
+
+      expect(component.getViolationName(0)).toEqual('Cost Center 1');
+    });
+  });
+
+  it('transformViolationData(): should return amount, type, currency and violation data', () => {
+    const etxn = cloneDeep([txnData4]);
+    spyOn(component, 'getViolationName').and.returnValue('Food');
+    const mockPolicyViolation = cloneDeep(splitPolicyExp1);
+
+    const res = component.transformViolationData(etxn, mockPolicyViolation);
+    expect(res).toEqual({
+      '0': policyViolationData5,
+    });
+  });
+
+  it('transformMandatoryFieldsData(): should return amount, type, currency and missing fields data', () => {
+    const etxn = cloneDeep([txnData4]);
+    spyOn(component, 'getViolationName').and.returnValue('Food');
+    const mockMissingFields = cloneDeep(SplitExpenseMissingFieldsData);
+    component.splitType = 'category';
+
+    const res = component.transformMandatoryFieldsData(etxn, mockMissingFields);
+    expect(res).toEqual({
+      '0': transformedSplitExpenseMissingFieldsData2,
     });
   });
 });

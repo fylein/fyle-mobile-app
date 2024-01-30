@@ -529,7 +529,7 @@ export class SplitExpensePage {
   getViolationName(index: number): string {
     const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
     if (this.splitType === 'projects') {
-      return splitExpenseFormValue.project.name;
+      return splitExpenseFormValue.project.project_name;
     } else if (this.splitType === 'cost centers') {
       return splitExpenseFormValue.cost_center.name;
     } else {
