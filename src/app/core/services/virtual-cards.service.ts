@@ -33,28 +33,20 @@ export class VirtualCardsService {
       .pipe(map((response) => response.data));
   }
 
-  getCardDetailsInBatches(virtualCardIds: string[]): Observable<Record<string, CardDetailsResponse>> {
-    const batchSize = 5;
-
+  getCardDetailsInSerial(virtualCardIds: string[]): Observable<Record<string, CardDetailsResponse>> {
     const virtualCardMap: Record<string, CardDetailsResponse> = {};
 
     const virtualCardIds$ = from(virtualCardIds);
 
-    const batches$ = virtualCardIds$.pipe(bufferCount(batchSize));
-
-    return batches$.pipe(
-      concatMap((batch) =>
-        zip(
-          ...batch.map((virtualCardId) =>
-            this.getCardDetailsById(virtualCardId).pipe(
-              map((cardDetails) => {
-                virtualCardMap[virtualCardId] = cardDetails;
-              })
-            )
-          )
+    return virtualCardIds$.pipe(
+      concatMap((virtualCardId) =>
+        this.getCardDetailsById(virtualCardId).pipe(
+          map((cardDetails) => {
+            virtualCardMap[virtualCardId] = cardDetails;
+            return virtualCardMap;
+          })
         )
-      ),
-      map(() => virtualCardMap)
+      )
     );
   }
 

@@ -97,7 +97,7 @@ export class ManageCorporateCardsPage {
           switchMap((corporateCards) => {
             const virtualCards = corporateCards.filter((card) => card.virtual_card_id);
             const virtualCardIds = virtualCards.map((card) => card.virtual_card_id);
-            return this.virtualCardsService.getCardDetailsInBatches(virtualCardIds);
+            return this.virtualCardsService.getCardDetailsInSerial(virtualCardIds);
           })
         );
       }
