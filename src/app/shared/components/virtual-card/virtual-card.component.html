@@ -25,14 +25,14 @@
     </div>
     <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked">
       <div>
-        {{ cardNumber.slice(0, 4) }}
+        {{ cardNumber?.slice(0, 4) }}
       </div>
       <div>
-        {{ cardNumber.slice(4, 10) }}
+        {{ cardNumber?.slice(4, 10) }}
       </div>
     </div>
     <div class="virtual-card__card-number__unmasked-card-digits">
-      {{ cardNumber.slice(10) }}
+      {{ cardNumber?.slice(10) }}
     </div>
     <ion-icon
       src="../../../../../assets/svg/duplicate.svg"

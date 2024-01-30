@@ -122,6 +122,10 @@ export class ManageCorporateCardsPage {
     );
   }
 
+  getCorporateCardsLength(corporateCards): number {
+    return corporateCards.filter((card) => !card.virtual_card_id).length;
+  }
+
   setActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
     return forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => {

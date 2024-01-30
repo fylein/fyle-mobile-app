@@ -38,13 +38,10 @@ export class VirtualCardsService {
 
     const virtualCardMap: Record<string, CardDetailsResponse> = {};
 
-    // Create an observable from the array of virtual card IDs
     const virtualCardIds$ = from(virtualCardIds);
 
-    // Buffer the virtual card IDs into batches of size 'batchSize'
     const batches$ = virtualCardIds$.pipe(bufferCount(batchSize));
 
-    // Use concatMap to sequentially process each batch
     return batches$.pipe(
       concatMap((batch) =>
         zip(
