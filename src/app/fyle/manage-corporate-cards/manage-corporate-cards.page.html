@@ -56,15 +56,14 @@
   </ion-refresher>
 
   <div *ngIf="isVirtualCardsEnabled$ | async" class="manage-corporate-cards__cards">
-    <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
-      <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+    <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+      <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
           <app-virtual-card
             [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id].full_card_number"
-            [cvv]="'123'"
-            [expiry]="'2024-04-04'"
-            [cardStatus]="'ACTIVE'"
-            [availableAmount]="1000"
+            [cvv]="virtualCardDetails[corporateCard.virtual_card_id].cvv"
+            [expiry]="virtualCardDetails[corporateCard.virtual_card_id].expiry_date"
+            [cardStatus]="corporateCard.virtual_card_state"
           ></app-virtual-card>
         </div>
       </ng-container>

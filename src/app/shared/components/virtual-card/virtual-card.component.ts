@@ -11,13 +11,20 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   styleUrls: ['./virtual-card.component.scss'],
 })
 export class VirtualCardComponent implements OnInit {
-  @Input() cardNumber: string = '123451234512345';
-  @Input() cvv: string = '123';
-  @Input() expiry: string = '2024-04-04';
-  @Input() cardStatus: CardStatus = CardStatus.ACTIVE;
-  @Input() availableAmount: number = 1000;
+  @Input() cardNumber: string;
+
+  @Input() cvv?: string;
+
+  @Input() expiry: Date;
+
+  @Input() cardStatus: CardStatus;
+
+  @Input() availableAmount?: number;
+
+  CardStatus: typeof CardStatus = CardStatus;
 
   showCardNumber: boolean = false;
+
   showCvv: boolean = false;
 
   constructor(

@@ -33,10 +33,10 @@ export class VirtualCardsService {
       .pipe(map((response) => response.data));
   }
 
-  getCardDetailsInBatches(virtualCardIds: string[]): any {
+  getCardDetailsInBatches(virtualCardIds: string[]): Observable<Record<string, CardDetailsResponse>> {
     const batchSize = 5;
 
-    const virtualCardMap = {};
+    const virtualCardMap: Record<string, CardDetailsResponse> = {};
 
     // Create an observable from the array of virtual card IDs
     const virtualCardIds$ = from(virtualCardIds);
@@ -49,9 +49,9 @@ export class VirtualCardsService {
       concatMap((batch) =>
         zip(
           ...batch.map((virtualCardId) =>
-            forkJoin(this.getCurrentAmountById(virtualCardId), this.getCardDetailsById(virtualCardId)).pipe(
-              map(([currentAmount, cardDetails]) => {
-                virtualCardMap[virtualCardId] = { current_amount: currentAmount, ...cardDetails };
+            this.getCardDetailsById(virtualCardId).pipe(
+              map((cardDetails) => {
+                virtualCardMap[virtualCardId] = cardDetails;
               })
             )
           )
