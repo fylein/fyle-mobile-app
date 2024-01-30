@@ -10,7 +10,7 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   templateUrl: './virtual-card.component.html',
   styleUrls: ['./virtual-card.component.scss'],
 })
-export class VirtualCardComponent implements OnInit {
+export class VirtualCardComponent {
   @Input() cardNumber: string;
 
   @Input() cvv?: string;
@@ -33,7 +33,6 @@ export class VirtualCardComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService
   ) {}
 
-  ngOnInit(): void {}
   showToastMessage(message: string): void {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'check-circle-outline'),

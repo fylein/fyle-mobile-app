@@ -43,7 +43,7 @@
   </ion-row>
   <ion-row class="virtual-card__footer ion-align-items-center">
     <ion-row class="virtual-card__card-fields ion-align-items-center">
-      <div>
+      <ion-col>
         <div class="virtual-card__card-fields__label-text">CVV</div>
         <ion-row>
           <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
@@ -56,16 +56,16 @@
             (tap)="copyToClipboard(cvv)"
           ></ion-icon>
         </ion-row>
-      </div>
-      <div>
+      </ion-col>
+      <ion-col>
         <div class="virtual-card__card-fields__label-text">Expiry</div>
         <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
-      </div>
+      </ion-col>
       <div *ngIf="availableAmount" class="virtual-card__vertical-divider"></div>
-      <div *ngIf="availableAmount">
+      <ion-col *ngIf="availableAmount">
         <div class="virtual-card__card-fields__label-text">Available</div>
         <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
-      </div>
+      </ion-col>
     </ion-row>
     <div class="virtual-card__logo-container">
       <img src="../../../../../assets/images/amex-virtual-card-logo.png" alt="amex virtual card logo" />

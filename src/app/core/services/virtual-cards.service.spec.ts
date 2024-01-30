@@ -13,7 +13,7 @@ describe('VirtualCardsService', () => {
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['post']);
     TestBed.configureTestingModule({
       providers: [
         VirtualCardsService,
@@ -39,11 +39,11 @@ describe('VirtualCardsService', () => {
         id: 'vc1234',
       },
     };
-    const expectedResponse = spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardDetailsResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardDetailsResponse));
 
     virtualCardsService.getCardDetailsById('vc1234').subscribe((res) => {
       expect(res).toEqual(virtualCardDetailsResponse.data[0]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
       done();
     });
   });
@@ -54,11 +54,11 @@ describe('VirtualCardsService', () => {
         id: 'vc1234',
       },
     };
-    spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardCurrentAmountResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardCurrentAmountResponse));
 
     virtualCardsService.getCurrentAmountById('vc1234').subscribe((res) => {
       expect(res).toEqual(virtualCardCurrentAmountResponse.data[0]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
       done();
     });
   });
