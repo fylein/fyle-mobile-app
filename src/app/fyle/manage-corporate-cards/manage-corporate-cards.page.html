@@ -25,7 +25,12 @@
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
-          {{corporateCard.virtual_card_id}}
+          <app-corporate-card
+            [card]="corporateCard"
+            [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
+            [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
+            (cardOptionsClick)="openCardOptions($event)"
+          ></app-corporate-card>
         </div>
       </div>
       <ng-template #zeroState>
