@@ -161,6 +161,8 @@ import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data
 import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
 import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
 import { transformedSplitExpenseMissingFieldsData } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
+import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -209,6 +211,8 @@ describe('SplitExpensePage', () => {
       'postSplitExpenseComments',
       'filteredMissingFieldsViolations',
       'filteredPolicyViolations',
+      'handlePolicyAndMissingFieldsCheck',
+      'checkIfMissingFieldsExist',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -2434,6 +2438,126 @@ describe('SplitExpensePage', () => {
       });
       expect(result).toEqual({
         action: 'continue',
+      });
+    });
+  });
+
+  describe('handlePolicyAndMissingFieldsCheck():', () => {
+    beforeEach(() => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      component.unspecifiedCategory = unspecifiedCategory;
+      component.expenseFields = expenseFieldResponse;
+      const splitEtxns = cloneDeep(txnList);
+      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.returnValue(
+        Promise.resolve({
+          action: 'continue',
+          comments: { '0': 'test comment' },
+        })
+      );
+      policyService.checkIfViolationsExist.and.returnValue(true);
+      splitExpenseService.checkIfMissingFieldsExist.and.returnValue(true);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: SplitExpenseMissingFieldsData,
+        })
+      );
+      spyOn(component, 'transformViolationData').and.returnValue({ '0': policyViolation1 });
+      spyOn(component, 'transformMandatoryFieldsData').and.returnValue({
+        '1': transformedSplitExpenseMissingFieldsData,
+      });
+    });
+
+    it('should call handlePolicyAndMissingFieldsCheck and showSplitExpensePolicyViolationsAndMissingFields if policy violations exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).toHaveBeenCalledOnceWith({
+          '1': transformedSplitExpenseMissingFieldsData,
+        });
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          SplitExpenseMissingFieldsData
+        );
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          { '0': policyViolation1 },
+          { '1': transformedSplitExpenseMissingFieldsData }
+        );
+        done();
+      });
+    });
+
+    it('should call handlePolicyAndMissingFieldsCheck and showSplitExpensePolicyViolationsAndMissingFields if policy violations exist and missing fields does not exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: {},
+        })
+      );
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).not.toHaveBeenCalled();
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          { '0': policyViolation1 },
+          null
+        );
+        done();
+      });
+    });
+
+    it('should return action as continue if policy violations and missing fields does not exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      splitEtxns[0].org_category_id = null;
+      splitEtxns[0].custom_properties[0].id = component.expenseFields[0].id;
+      policyService.checkIfViolationsExist.and.returnValue(false);
+      splitExpenseService.checkIfMissingFieldsExist.and.returnValue(false);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: {},
+        })
+      );
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).not.toHaveBeenCalled();
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).not.toHaveBeenCalled();
+        expect(res).toEqual({ action: 'continue', comments: null });
+        done();
       });
     });
   });
