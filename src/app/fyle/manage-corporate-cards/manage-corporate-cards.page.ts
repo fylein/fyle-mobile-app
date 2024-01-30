@@ -17,6 +17,7 @@ import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { CardDetailsResponse } from 'src/app/core/models/card-details-response.model';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -26,7 +27,7 @@ import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
-  virtualCardDetails$: Observable<any>;
+  virtualCardDetails$: Observable<Record<string, CardDetailsResponse>>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
