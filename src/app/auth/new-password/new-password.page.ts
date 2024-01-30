@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { from, Observable } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
@@ -18,7 +18,7 @@ import { LoginInfoService } from '../../core/services/login-info.service';
   styleUrls: ['./new-password.page.scss'],
 })
 export class NewPasswordPage implements OnInit {
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   lengthValidationDisplay$: Observable<boolean>;
 
@@ -33,7 +33,7 @@ export class NewPasswordPage implements OnInit {
   hide = false;
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
     private routerAuthService: RouterAuthService,

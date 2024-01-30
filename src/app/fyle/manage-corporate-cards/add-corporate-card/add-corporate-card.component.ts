@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core';
-import { AbstractControl, FormControl, ValidationErrors } from '@angular/forms';
+import { AbstractControl, UntypedFormControl, ValidationErrors } from '@angular/forms';
 import { Router } from '@angular/router';
 import { PopoverController } from '@ionic/angular';
 import { catchError, distinctUntilChanged, finalize, of } from 'rxjs';
@@ -24,7 +24,7 @@ export class AddCorporateCardComponent implements OnInit {
 
   @Input() cardType: CardNetworkType;
 
-  cardForm: FormControl;
+  cardForm: UntypedFormControl;
 
   cardNetworks: CardNetworkType[];
 
@@ -44,7 +44,10 @@ export class AddCorporateCardComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.cardForm = new FormControl('', [this.cardNumberValidator.bind(this), this.cardNetworkValidator.bind(this)]);
+    this.cardForm = new UntypedFormControl('', [
+      this.cardNumberValidator.bind(this),
+      this.cardNetworkValidator.bind(this),
+    ]);
 
     this.cardNetworks = this.getCardNetworks();
 

@@ -1,6 +1,6 @@
 import { TitleCasePipe } from '@angular/common';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, UntypedFormControl, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -91,7 +91,7 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let accountsService: jasmine.SpyObj<AccountsService>;
     let authService: jasmine.SpyObj<AuthService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
     let categoriesService: jasmine.SpyObj<CategoriesService>;
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
@@ -146,7 +146,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
       authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
@@ -204,7 +204,7 @@ export function TestCases3(getTestBed) {
         project: [],
         billable: [],
         sub_category: [, Validators.required],
-        custom_inputs: new FormArray([]),
+        custom_inputs: new UntypedFormArray([]),
         costCenter: [],
         report: [],
         duplicate_detection_reason: [],
@@ -570,11 +570,11 @@ export function TestCases3(getTestBed) {
       expect(trackingService.editExpense).toHaveBeenCalledOnceWith(editExpenseProperties1);
     });
 
-    const mileageControl = new FormControl();
+    const mileageControl = new UntypedFormControl();
     describe('editExpense():', () => {
       beforeEach(() => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomPropertiesData4));
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -943,7 +943,7 @@ export function TestCases3(getTestBed) {
     describe('getCalculatedDistance():', () => {
       it('should calculate distance between two location for a single trip', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -969,7 +969,7 @@ export function TestCases3(getTestBed) {
 
       it('should calculate distance between two location for a round trip in MILES', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });
@@ -1005,7 +1005,7 @@ export function TestCases3(getTestBed) {
 
       it('should return null if distance could not be determined', (done) => {
         component.isConnected$ = of(true);
-        const mileageControl = new FormControl();
+        const mileageControl = new UntypedFormControl();
         mileageControl.setValue({
           mileageLocations: [locationData1, locationData2],
         });

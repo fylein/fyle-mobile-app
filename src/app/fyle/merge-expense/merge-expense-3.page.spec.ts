@@ -11,7 +11,7 @@ import { MergeExpensesService } from 'src/app/core/services/merge-expenses.servi
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
-import { FormBuilder, Validators } from '@angular/forms';
+import { UntypedFormBuilder, Validators } from '@angular/forms';
 import { cloneDeep } from 'lodash';
 import { apiExpenseRes, expenseList2 } from 'src/app/core/mock-data/expense.data';
 import { BehaviorSubject, Observable, Subscription, of, skip, take } from 'rxjs';
@@ -93,7 +93,7 @@ export function TestCases3(getTestBed) {
     let trackingService: jasmine.SpyObj<TrackingService>;
     let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
     let dependantFieldsService: jasmine.SpyObj<DependentFieldsService>;
-    let formBuilder: FormBuilder;
+    let formBuilder: UntypedFormBuilder;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -111,7 +111,7 @@ export function TestCases3(getTestBed) {
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
       dependantFieldsService = TestBed.inject(DependentFieldsService) as jasmine.SpyObj<DependentFieldsService>;
-      formBuilder = TestBed.inject(FormBuilder);
+      formBuilder = TestBed.inject(UntypedFormBuilder);
       component.fg = formBuilder.group({
         target_txn_id: [, Validators.required],
         genericFields: [],

@@ -4,7 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { InvitationRequestsService } from 'src/app/core/services/invitation-requests.service';
 import { RequestInvitationPage } from './request-invitation.page';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
@@ -12,7 +12,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 describe('RequestInvitationPage', () => {
   let component: RequestInvitationPage;
   let fixture: ComponentFixture<RequestInvitationPage>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let activeroutemock: ActivatedRoute;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let invitationRequestsService: jasmine.SpyObj<InvitationRequestsService>;
@@ -25,7 +25,7 @@ describe('RequestInvitationPage', () => {
       declarations: [RequestInvitationPage],
       imports: [IonicModule.forRoot(), RouterModule.forRoot([]), FormsModule, ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: LoaderService,
           useValue: loaderServiceSpy,
@@ -49,7 +49,7 @@ describe('RequestInvitationPage', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(RequestInvitationPage);
 
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     activeroutemock = TestBed.inject(ActivatedRoute);
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     invitationRequestsService = TestBed.inject(InvitationRequestsService) as jasmine.SpyObj<InvitationRequestsService>;

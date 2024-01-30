@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { RouteSelectorComponent } from './route-selector.component';
 import { Injector, NO_ERRORS_SCHEMA, SimpleChanges } from '@angular/core';
-import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
@@ -18,7 +18,7 @@ import { By } from '@angular/platform-browser';
 describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
-  let fb: jasmine.SpyObj<FormBuilder>;
+  let fb: jasmine.SpyObj<UntypedFormBuilder>;
   let modalController: jasmine.SpyObj<ModalController>;
 
   beforeEach(waitForAsync(() => {
@@ -28,7 +28,7 @@ describe('RouteSelectorComponent', () => {
       declarations: [RouteSelectorComponent],
       imports: [IonicModule.forRoot(), MatCheckboxModule, ReactiveFormsModule, MatIconTestingModule, MatIconModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -42,14 +42,14 @@ describe('RouteSelectorComponent', () => {
     }).compileComponents();
     fixture = TestBed.createComponent(RouteSelectorComponent);
     component = fixture.componentInstance;
-    fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
+    fb = TestBed.inject(UntypedFormBuilder) as jasmine.SpyObj<UntypedFormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.mileageConfig = orgSettingsRes.mileage;
     component.skipRoundTripUpdate = false;
     component.formInitialized = true;
     component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
-      mileageLocations: new FormArray([]),
+      mileageLocations: new UntypedFormArray([]),
       distance: [, Validators.required],
       roundTrip: [],
     });

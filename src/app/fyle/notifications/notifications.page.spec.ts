@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angul
 import { NavController } from '@ionic/angular';
 
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
 import { cloneDeep } from 'lodash';
@@ -33,7 +33,7 @@ describe('NotificationsPage', () => {
   let fixture: ComponentFixture<NotificationsPage>;
   let authService: jasmine.SpyObj<AuthService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let router: jasmine.SpyObj<Router>;
   let navController: jasmine.SpyObj<NavController>;
@@ -53,7 +53,7 @@ describe('NotificationsPage', () => {
       declarations: [NotificationsPage],
       imports: [RouterTestingModule, ReactiveFormsModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: AuthService,
           useValue: authServiceSpy,
@@ -86,12 +86,12 @@ describe('NotificationsPage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
 
     component.notificationForm = fb.group({
       notifyOption: [],
-      pushEvents: new FormArray([]),
-      emailEvents: new FormArray([]),
+      pushEvents: new UntypedFormArray([]),
+      emailEvents: new UntypedFormArray([]),
     });
 
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));

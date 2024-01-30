@@ -1,6 +1,6 @@
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { CustomInputsField } from '../models/custom-inputs-field.model';
-const formBuilder = new FormBuilder();
+const formBuilder = new UntypedFormBuilder();
 
 export const customInputsFieldData1: CustomInputsField[] = [
   {

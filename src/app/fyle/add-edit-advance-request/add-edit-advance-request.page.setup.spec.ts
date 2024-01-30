@@ -20,7 +20,7 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { RouterTestingModule } from '@angular/router/testing';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './add-edit-advance-request-1.page.spec';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TestCases2 } from './add-edit-advance-request-2.page.spec';
 
@@ -91,7 +91,7 @@ describe('AddEditAdvanceRequestPage', () => {
             },
           },
         },
-        FormBuilder,
+        UntypedFormBuilder,
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

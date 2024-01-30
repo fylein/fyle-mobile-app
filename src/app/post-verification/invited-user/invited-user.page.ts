@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter } from '@angular/core';
 import { Observable, noop, concat, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { map, switchMap, finalize, tap } from 'rxjs/operators';
 import { ToastController } from '@ionic/angular';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
@@ -22,7 +22,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 export class InvitedUserPage implements OnInit {
   isConnected$: Observable<boolean>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   eou$: Observable<ExtendedOrgUser>;
 
@@ -40,7 +40,7 @@ export class InvitedUserPage implements OnInit {
 
   constructor(
     private networkService: NetworkService,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private toastController: ToastController,
     private orgUserService: OrgUserService,
     private loaderService: LoaderService,

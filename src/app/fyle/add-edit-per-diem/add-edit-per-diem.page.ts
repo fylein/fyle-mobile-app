@@ -32,9 +32,9 @@ import {
 } from 'rxjs/operators';
 import {
   AbstractControl,
-  FormArray,
-  FormBuilder,
-  FormGroup,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
   ValidationErrors,
   ValidatorFn,
   Validators,
@@ -140,7 +140,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   homeCurrency$: Observable<string>;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   minDate: string;
 
@@ -248,7 +248,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   constructor(
     private activatedRoute: ActivatedRoute,
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private dateService: DateService,
     private accountsService: AccountsService,
     private customInputsService: CustomInputsService,
@@ -759,7 +759,7 @@ export class AddEditPerDiemPage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -864,7 +864,7 @@ export class AddEditPerDiemPage implements OnInit {
       report: [],
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],

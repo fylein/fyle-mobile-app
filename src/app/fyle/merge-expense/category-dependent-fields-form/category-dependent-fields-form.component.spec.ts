@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 
 import { CategoryDependentFieldsFormComponent } from './category-dependent-fields-form.component';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -14,7 +14,7 @@ describe('CategoryDependentFieldsFormComponent', () => {
     TestBed.configureTestingModule({
       declarations: [CategoryDependentFieldsFormComponent],
       imports: [IonicModule.forRoot()],
-      providers: [FormBuilder],
+      providers: [UntypedFormBuilder],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
@@ -28,8 +28,8 @@ describe('CategoryDependentFieldsFormComponent', () => {
   });
 
   it('isFieldTouched(): should return false if field is untouched', () => {
-    component.categoryDependentFormGroup = new FormBuilder().group({
-      location_1: new FormControl(''),
+    component.categoryDependentFormGroup = new UntypedFormBuilder().group({
+      location_1: new UntypedFormControl(''),
     });
     expect(component.isFieldTouched('location_1')).toBe(false);
   });
@@ -53,11 +53,11 @@ describe('CategoryDependentFieldsFormComponent', () => {
   });
 
   it('writeValue(): should patch value to form control', () => {
-    component.categoryDependentFormGroup = new FormBuilder().group({
-      location_1: new FormControl(''),
+    component.categoryDependentFormGroup = new UntypedFormBuilder().group({
+      location_1: new UntypedFormControl(''),
     });
-    const newValue = new FormBuilder().group({
-      location_1: new FormControl('Pune'),
+    const newValue = new UntypedFormBuilder().group({
+      location_1: new UntypedFormControl('Pune'),
     });
     spyOn(component.categoryDependentFormGroup, 'patchValue');
     component.writeValue(newValue);

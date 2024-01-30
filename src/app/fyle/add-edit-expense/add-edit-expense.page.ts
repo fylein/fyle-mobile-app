@@ -2,7 +2,14 @@
 /* eslint-disable complexity */
 import { TitleCasePipe } from '@angular/common';
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -211,7 +218,7 @@ export class AddEditExpensePage implements OnInit {
 
   reviewList: string[];
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   filteredCategories$: Observable<OrgCategoryListItem[]>;
 
@@ -428,7 +435,7 @@ export class AddEditExpensePage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
     private authService: AuthService,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private projectsService: ProjectsService,
@@ -2160,7 +2167,7 @@ export class AddEditExpensePage implements OnInit {
         this.isConnected$.pipe(
           take(1),
           map((isConnected: boolean) => {
-            const customFieldsFormArray = this.fg.controls.custom_inputs as FormArray;
+            const customFieldsFormArray = this.fg.controls.custom_inputs as UntypedFormArray;
             customFieldsFormArray.clear();
             for (const customField of customFields) {
               customFieldsFormArray.push(
@@ -2859,7 +2866,7 @@ export class AddEditExpensePage implements OnInit {
       bus_travel_class: [],
       distance: [],
       distance_unit: [],
-      custom_inputs: new FormArray([]),
+      custom_inputs: new UntypedFormArray([]),
       duplicate_detection_reason: [],
       billable: [],
       costCenter: [],

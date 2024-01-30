@@ -1,5 +1,12 @@
 import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormGroup, ValidationErrors, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormGroup,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { concat, forkJoin, from, iif, noop, Observable, of, throwError } from 'rxjs';
@@ -53,7 +60,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
   mode: string;
 
-  fg: FormGroup;
+  fg: UntypedFormGroup;
 
   homeCurrency$: Observable<string>;
 
@@ -89,7 +96,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     private activatedRoute: ActivatedRoute,
     private authService: AuthService,
     private router: Router,
-    private formBuilder: FormBuilder,
+    private formBuilder: UntypedFormBuilder,
     private advanceRequestsCustomFieldsService: AdvanceRequestsCustomFieldsService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
@@ -144,7 +151,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       purpose: [, Validators.required],
       notes: [],
       project: [],
-      customFieldValues: new FormArray([]),
+      customFieldValues: new UntypedFormArray([]),
     });
 
     if (!this.id) {
@@ -575,7 +582,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
 
     this.customFields$ = this.advanceRequestsCustomFieldsService.getAll().pipe(
       map((customFields) => {
-        const customFieldsFormArray = this.fg.controls.customFieldValues as FormArray;
+        const customFieldsFormArray = this.fg.controls.customFieldValues as UntypedFormArray;
         customFieldsFormArray.clear();
         customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
         for (const customField of customFields) {

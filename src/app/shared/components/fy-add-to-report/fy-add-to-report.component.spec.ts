@@ -3,7 +3,7 @@ import { IonicModule, ModalController, PopoverController } from '@ionic/angular'
 
 import { FyAddToReportComponent } from './fy-add-to-report.component';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
-import { FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
+import { UntypedFormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -61,7 +61,7 @@ describe('FyAddToReportComponent', () => {
         {
           provide: NgControl,
           useValue: {
-            control: new FormControl(),
+            control: new UntypedFormControl(),
           },
         },
         {

@@ -1,7 +1,7 @@
 import { TitleCasePipe } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA, Sanitizer } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -238,7 +238,7 @@ describe('AddEditMileagePage', () => {
       ],
       imports: [IonicModule.forRoot(), RouterTestingModule, RouterModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
           useValue: {
