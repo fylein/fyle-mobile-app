@@ -6,7 +6,7 @@ import {
   formattedPolicyViolation1,
   formattedPolicyViolation2,
 } from 'src/app/core/mock-data/formatted-policy-violation.data';
-import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormArray, UntypedFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
@@ -16,7 +16,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
-  let comments: FormArray;
+  let comments: UntypedFormArray;
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -26,7 +26,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
       imports: [IonicModule.forRoot(), ReactiveFormsModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: SplitExpenseService,
           useValue: splitExpenseServiceSpy,
@@ -46,7 +46,7 @@ describe('SplitExpensePolicyViolationComponent', () => {
       id1: cloneDeep(formattedPolicyViolation1),
       id2: cloneDeep(formattedPolicyViolation2),
     };
-    comments = component.form.controls.comments as FormArray;
+    comments = component.form.controls.comments as UntypedFormArray;
     fixture.detectChanges();
   }));
 

@@ -1,7 +1,13 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { Injector } from '@angular/core';
 import { Subscription, noop } from 'rxjs';
-import { FormGroup, ControlValueAccessor, NG_VALUE_ACCESSOR, FormBuilder, FormArray } from '@angular/forms';
+import {
+  UntypedFormGroup,
+  ControlValueAccessor,
+  NG_VALUE_ACCESSOR,
+  UntypedFormBuilder,
+  UntypedFormArray,
+} from '@angular/forms';
 import { CustomInputsField } from 'src/app/core/models/custom-inputs-field.model';
 
 type Option = Partial<{
@@ -35,22 +41,22 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
 
   onChangeSub: Subscription;
 
-  customFieldsForm: FormGroup;
+  customFieldsForm: UntypedFormGroup;
 
   customFields: CustomInputsField[];
 
   onTouched: () => void = noop;
 
-  constructor(private formBuilder: FormBuilder, private injector: Injector) {}
+  constructor(private formBuilder: UntypedFormBuilder, private injector: Injector) {}
 
   ngOnInit(): void {
     this.customFieldsForm = this.formBuilder.group({
-      fields: new FormArray([]),
+      fields: new UntypedFormArray([]),
     });
   }
 
   generateCustomForm(): void {
-    const customFieldsFormArray = this.customFieldsForm?.controls?.fields as FormArray;
+    const customFieldsFormArray = this.customFieldsForm?.controls?.fields as UntypedFormArray;
     customFieldsFormArray.clear();
     for (const customField of this.customInputs) {
       customFieldsFormArray.push(
@@ -77,7 +83,7 @@ export class CustomInputsFieldsFormComponent implements OnInit, ControlValueAcce
     }
   }
 
-  writeValue(value: FormGroup): void {
+  writeValue(value: UntypedFormGroup): void {
     if (value) {
       this.customFieldsForm.controls.fields.patchValue(value);
     }

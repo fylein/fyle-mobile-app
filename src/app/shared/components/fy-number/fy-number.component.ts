@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, forwardRef, Injector, Input, OnInit } from '@angular/core';
-import { ControlValueAccessor, FormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
+import { ControlValueAccessor, UntypedFormControl, NG_VALUE_ACCESSOR, NgControl, Validators } from '@angular/forms';
 import { Platform } from '@ionic/angular';
 import { noop } from 'rxjs';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
@@ -29,7 +29,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   isDisabled = false;
 
-  fc: FormControl;
+  fc: UntypedFormControl;
 
   isIos = false;
 
@@ -57,12 +57,12 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
   keysForNegativeExpense = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '-', '.'];
 
-  private control: FormControl;
+  private control: UntypedFormControl;
 
   constructor(
     private platform: Platform,
     private launchDarklyService: LaunchDarklyService,
-    private injector: Injector,
+    private injector: Injector
   ) {}
 
   get value(): number {
@@ -112,7 +112,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     this.launchDarklyService
       .checkIfNegativeExpensePluginIsEnabled()
       .subscribe(
-        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled),
+        (isNegativeExpensePluginEnabled) => (this.isNegativeExpensePluginEnabled = isNegativeExpensePluginEnabled)
       );
 
     this.launchDarklyService
@@ -123,10 +123,10 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
 
     if (!this.isDistance) {
       // If the input is for amount, allow negative values
-      this.fc = new FormControl(null, Validators.pattern(/^-?(?:\d*\.\d+|\d+\.?)$/));
+      this.fc = new UntypedFormControl(null, Validators.pattern(/^-?(?:\d*\.\d+|\d+\.?)$/));
     } else {
       // If the input is for distance, do not allow negative values
-      this.fc = new FormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
+      this.fc = new UntypedFormControl(null, Validators.pattern(/^\d*(\.\d+)?$/));
     }
 
     this.fc.valueChanges.subscribe((value) => {
@@ -146,7 +146,7 @@ export class FyNumberComponent implements ControlValueAccessor, OnInit, AfterVie
     // This is a way to get reference of parent component's form control, we can propagate errors to the parent component
     const ngControl: NgControl = this.injector.get(NgControl, null);
 
-    this.control = ngControl.control as FormControl;
+    this.control = ngControl.control as UntypedFormControl;
   }
 
   // This is a hack to handle the comma key on ios devices in regions where the decimal separator is a comma

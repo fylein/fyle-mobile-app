@@ -1,5 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  UntypedFormArray,
+  UntypedFormBuilder,
+  UntypedFormControl,
+  UntypedFormGroup,
+  Validators,
+} from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEmpty } from 'lodash';
 import { Subscription } from 'rxjs';
@@ -36,23 +43,25 @@ export class RouteSelectorModalComponent implements OnInit {
 
   distance: string;
 
-  form: FormGroup = this.fb.group({
-    mileageLocations: new FormArray([]),
+  form: UntypedFormGroup = this.fb.group({
+    mileageLocations: new UntypedFormArray([]),
     roundTrip: [],
   });
 
   constructor(
-    private fb: FormBuilder,
+    private fb: UntypedFormBuilder,
     private modalController: ModalController,
     private mileageService: MileageService
   ) {}
 
   get mileageLocations() {
-    return this.form.controls.mileageLocations as FormArray;
+    return this.form.controls.mileageLocations as UntypedFormArray;
   }
 
   addMileageLocation() {
-    this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+    this.mileageLocations.push(
+      new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+    );
   }
 
   removeMileageLocation(index: number) {
@@ -75,12 +84,16 @@ export class RouteSelectorModalComponent implements OnInit {
     if (this.value?.mileageLocations?.length > 0) {
       this.value.mileageLocations.forEach((location) => {
         this.mileageLocations.push(
-          new FormControl(location, this.mileageConfig.location_mandatory && Validators.required)
+          new UntypedFormControl(location, this.mileageConfig.location_mandatory && Validators.required)
         );
       });
     } else {
-      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
-      this.mileageLocations.push(new FormControl(null, this.mileageConfig.location_mandatory && Validators.required));
+      this.mileageLocations.push(
+        new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+      );
+      this.mileageLocations.push(
+        new UntypedFormControl(null, this.mileageConfig.location_mandatory && Validators.required)
+      );
     }
 
     this.form.patchValue({

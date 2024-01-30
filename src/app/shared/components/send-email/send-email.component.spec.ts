@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FormBuilder, FormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { RouterTestingModule } from '@angular/router/testing';
@@ -16,7 +16,7 @@ describe('SendEmailComponent', () => {
       declarations: [SendEmailComponent],
       imports: [IonicModule.forRoot(), MatFormFieldModule, FormsModule, RouterModule, RouterTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         {
           provide: ActivatedRoute,
           useValue: {

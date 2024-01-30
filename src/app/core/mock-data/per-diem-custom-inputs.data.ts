@@ -1,7 +1,7 @@
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PerDiemCustomInputs } from '../models/per-diem-custom-inputs.model';
-const formBuilder = new FormBuilder();
+const formBuilder = new UntypedFormBuilder();
 
 export const perDiemCustomInputsData1 = [
   {

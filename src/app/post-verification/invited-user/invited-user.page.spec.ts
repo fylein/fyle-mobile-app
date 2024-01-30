@@ -11,7 +11,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { InvitedUserPage } from './invited-user.page';
-import { FormBuilder } from '@angular/forms';
+import { UntypedFormBuilder } from '@angular/forms';
 import { of, take } from 'rxjs';
 import { EventEmitter, NO_ERRORS_SCHEMA } from '@angular/core';
 import {
@@ -28,7 +28,7 @@ describe('InvitedUserPage', () => {
   let component: InvitedUserPage;
   let fixture: ComponentFixture<InvitedUserPage>;
   let networkService: jasmine.SpyObj<NetworkService>;
-  let fb: FormBuilder;
+  let fb: UntypedFormBuilder;
   let toastController: jasmine.SpyObj<ToastController>;
   let orgUserService: jasmine.SpyObj<OrgUserService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
@@ -55,7 +55,7 @@ describe('InvitedUserPage', () => {
       declarations: [InvitedUserPage],
       imports: [IonicModule.forRoot(), MatIconTestingModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: ToastController, useValue: toastController },
         { provide: OrgUserService, useValue: orgUserServiceSpy },
@@ -70,7 +70,7 @@ describe('InvitedUserPage', () => {
     }).compileComponents();
 
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
-    fb = TestBed.inject(FormBuilder);
+    fb = TestBed.inject(UntypedFormBuilder);
     toastController = TestBed.inject(ToastController) as jasmine.SpyObj<ToastController>;
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

@@ -14,7 +14,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
 
 import { MergeExpensePage } from './merge-expense.page';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UntypedFormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterTestingModule } from '@angular/router/testing';
 import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
@@ -88,7 +88,7 @@ describe('MergeExpensePage', () => {
       declarations: [MergeExpensePage],
       imports: [IonicModule.forRoot(), ReactiveFormsModule, FormsModule, RouterTestingModule, RouterModule],
       providers: [
-        FormBuilder,
+        UntypedFormBuilder,
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },

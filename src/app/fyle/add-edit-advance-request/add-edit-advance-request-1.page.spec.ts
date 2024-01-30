@@ -16,7 +16,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
 import { ComponentFixture, fakeAsync, tick } from '@angular/core/testing';
-import { FormBuilder, FormControl } from '@angular/forms';
+import { UntypedFormBuilder, UntypedFormControl } from '@angular/forms';
 import {
   addEditAdvanceRequestFormValueData,
   addEditAdvanceRequestFormValueData2,
@@ -108,7 +108,7 @@ export function TestCases1(getTestBed) {
     });
 
     it('getFormValues(): should return form value', () => {
-      component.fg = new FormBuilder().group({ ...addEditAdvanceRequestFormValueData });
+      component.fg = new UntypedFormBuilder().group({ ...addEditAdvanceRequestFormValueData });
 
       const result = component.getFormValues();
       expect(result).toEqual(addEditAdvanceRequestFormValueData);
@@ -116,8 +116,8 @@ export function TestCases1(getTestBed) {
 
     describe('currencyObjValidator():', () => {
       it('should validate currency object', () => {
-        component.fg = new FormBuilder().group({
-          currencyObj: new FormControl({
+        component.fg = new UntypedFormBuilder().group({
+          currencyObj: new UntypedFormControl({
             amount: 130,
             currency: 'USD',
             orig_amount: 10,
@@ -130,7 +130,7 @@ export function TestCases1(getTestBed) {
       });
 
       it('should return false if there is no value in form control', () => {
-        component.fg = new FormBuilder().group({
+        component.fg = new UntypedFormBuilder().group({
           currencyObj: [null],
         });
 
@@ -284,7 +284,7 @@ export function TestCases1(getTestBed) {
       beforeEach(() => {
         spyOn(component, 'generateAdvanceRequestFromFg').and.returnValue(of(advanceRequests));
         spyOn(component, 'saveAndSubmit').and.returnValue(of(advRequestFile));
-        component.fg = new FormBuilder().group({});
+        component.fg = new UntypedFormBuilder().group({});
       });
 
       it('should navigate to team_advance page if user has come from team advance page, policy rules are not present and form is valid', () => {
