@@ -41,8 +41,6 @@ export class ManageCorporateCardsPage {
 
   segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
 
-  virtualCardMap = {};
-
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
