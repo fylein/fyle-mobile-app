@@ -1,3 +1,4 @@
+import { CardDetailsWithAmountResponse } from './card-details-with-amount-response.model';
 import { PlatformCorporateCard } from './platform/platform-corporate-card.model';
 
 export interface PlatformCorporateCardDetail {
@@ -10,4 +11,5 @@ export interface PlatformCorporateCardDetail {
     totalDraftTxns: number;
     totalDraftValue: number;
   };
+  virtualCardDetail?: CardDetailsWithAmountResponse;
 }

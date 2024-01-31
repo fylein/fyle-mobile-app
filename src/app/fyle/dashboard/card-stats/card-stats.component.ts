@@ -12,6 +12,9 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { toArray } from 'lodash';
+import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -21,11 +24,15 @@ import { NetworkService } from 'src/app/core/services/network.service';
 export class CardStatsComponent implements OnInit {
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
+  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]> | void;
+
   homeCurrency$: Observable<string>;
 
   currencySymbol$: Observable<string>;
 
   isCCCEnabled$: Observable<boolean>;
+
+  isVirtualCardsEnabled$: Observable<boolean>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
@@ -46,7 +53,8 @@ export class CardStatsComponent implements OnInit {
     private networkService: NetworkService,
     private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private virtualCardsService: VirtualCardsService
   ) {}
 
   ngOnInit(): void {
@@ -99,20 +107,51 @@ export class CardStatsComponent implements OnInit {
     this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
     );
+    this.isVirtualCardsEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          orgSettings.amex_feed_enrollment_settings.allowed &&
+          orgSettings.amex_feed_enrollment_settings.enabled &&
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
+      )
+    );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
       switchMap(() =>
         forkJoin([
           this.corporateCreditCardExpenseService.getCorporateCards(),
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
+          this.isVirtualCardsEnabled$,
         ]).pipe(
-          map(([corporateCards, corporateCardStats]) =>
-            this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
-          )
+          map(([corporateCards, corporateCardStats, isVirtualCardsEnabled]) => {
+            const cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
+              corporateCards,
+              corporateCardStats
+            );
+
+            if (isVirtualCardsEnabled) {
+              const virtualCardIds = cardDetails
+                .filter((cardDetail) => cardDetail.card.virtual_card_id)
+                .map((cardDetail) => cardDetail.card.virtual_card_id);
+              this.virtualCardDetails$ = this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
+                map((virtualCardDetails) => {
+                  cardDetails.forEach((cardDetail) => {
+                    cardDetail.virtualCardDetail = virtualCardDetails[cardDetail.card.virtual_card_id];
+                  });
+                  return cardDetails;
+                })
+              );
+              return cardDetails;
+            } else {
+              return cardDetails;
+            }
+          })
         )
       )
     );
   }
+
+  setupVirtualCardDetails(cardDetails, virtualCardDetails) {}
 
   openAddCorporateCardPopover(): void {
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
