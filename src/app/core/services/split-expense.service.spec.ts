@@ -58,8 +58,9 @@ import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { splitPayloadData1 } from '../mock-data/split-payload.data';
+import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
 import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
+import { splitData2, splitsData1 } from '../mock-data/splits.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -832,5 +833,79 @@ describe('SplitExpenseService', () => {
       splitExpenseService.transformSplitTrainClasses(mockSplitTxn, mockPlatformPayload);
       expect(mockPlatformPayload.travel_classes).toEqual(['Sleeper']);
     });
+  });
+
+  it('transformSplitTravelClasses(): should modify travel_classes for split expense payload', () => {
+    const mockSplitTxn = cloneDeep(splitTxn);
+    const mockPlatformPayload = cloneDeep(splitPayloadData1);
+    spyOn(splitExpenseService, 'transformSplitFlightClasses');
+    spyOn(splitExpenseService, 'tranformSplitBusClasses');
+    spyOn(splitExpenseService, 'transformSplitTrainClasses');
+    splitExpenseService.transformSplitTravelClasses(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.transformSplitFlightClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.tranformSplitBusClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.transformSplitTrainClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+  });
+
+  describe('transformSplitTo():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'transformSplitTravelClasses');
+      spyOn(splitExpenseService, 'transformSplitArray').and.returnValue(splitsData1);
+    });
+
+    it('should return platform split expense payload', () => {
+      const mockSplitTxn = cloneDeep(txnList);
+      const mockPlatformPayload = cloneDeep(splitPayloadData2);
+      const reportAndUnspecifiedCategoryParams = {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      };
+      const res = splitExpenseService.transformSplitTo(
+        mockSplitTxn,
+        txnDataPayload,
+        ['fijCeF0G0jTl'],
+        reportAndUnspecifiedCategoryParams
+      );
+      expect(res).toEqual(mockPlatformPayload);
+      expect(splitExpenseService.transformSplitTravelClasses).toHaveBeenCalledOnceWith(
+        txnDataPayload,
+        mockPlatformPayload
+      );
+      expect(splitExpenseService.transformSplitArray).toHaveBeenCalledOnceWith(
+        mockSplitTxn,
+        reportAndUnspecifiedCategoryParams.unspecifiedCategory
+      );
+    });
+
+    it('should return platform split expense payload with category_id as unspecified if org_category_id is null in transaction', () => {
+      const mockSplitTxn = cloneDeep(txnList);
+      const mockPlatformPayload = cloneDeep(splitPayloadData3);
+      const reportAndUnspecifiedCategoryParams = {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      };
+      const mockTxn = cloneDeep(txnDataPayload);
+      mockTxn.org_category_id = null;
+      mockTxn.skip_reimbursement = null;
+      const res = splitExpenseService.transformSplitTo(
+        mockSplitTxn,
+        mockTxn,
+        ['fijCeF0G0jTl'],
+        reportAndUnspecifiedCategoryParams
+      );
+      expect(res).toEqual(mockPlatformPayload);
+      expect(splitExpenseService.transformSplitTravelClasses).toHaveBeenCalledOnceWith(mockTxn, mockPlatformPayload);
+      expect(splitExpenseService.transformSplitArray).toHaveBeenCalledOnceWith(
+        mockSplitTxn,
+        reportAndUnspecifiedCategoryParams.unspecifiedCategory
+      );
+    });
+  });
+
+  it('transformSplitArray(): should return splits array', () => {
+    const mockSplitTxn = cloneDeep(txnList);
+    mockSplitTxn[0].org_category_id = null;
+    const res = splitExpenseService.transformSplitArray(mockSplitTxn, unspecifiedCategory);
+    expect(res).toEqual(splitData2);
   });
 });
