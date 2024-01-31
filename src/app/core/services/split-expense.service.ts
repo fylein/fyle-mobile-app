@@ -554,7 +554,7 @@ export class SplitExpenseService {
         }
         filteredViolations[key] = {
           rules,
-          action: violations[key].data.final_desired_state,
+          action: violations[key].data,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
