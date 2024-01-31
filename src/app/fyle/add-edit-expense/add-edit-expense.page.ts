@@ -686,6 +686,22 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  async showSplitBlockedPopover(message: string): Promise<void> {
+    const splitBlockedPopoverSpy = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Expense cannot be split',
+        message,
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await splitBlockedPopoverSpy.present();
+  }
+
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
     const formValue = this.getFormValues();
@@ -696,6 +712,18 @@ export class AddEditExpensePage implements OnInit {
       expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
     }).subscribe(
       (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
+        if (res.generatedEtxn.tx.report_id && !formValue.report?.rp?.id) {
+          const popoverMessage =
+            'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.';
+          return this.showSplitBlockedPopover(popoverMessage);
+        }
+
+        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+          const popoverMessage =
+            'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
+          return this.showSplitBlockedPopover(popoverMessage);
+        }
+
         this.router.navigate([
           '/',
           'enterprise',

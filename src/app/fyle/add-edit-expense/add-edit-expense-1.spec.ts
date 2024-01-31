@@ -64,6 +64,8 @@ import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
+import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
+import { reportData1 } from 'src/app/core/mock-data/report.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -557,6 +559,29 @@ export function TestCases1(getTestBed) {
       });
     });
 
+    it('showSplitBlockedPopover(): should show split blocked popover with message', fakeAsync(() => {
+      const splitBlockedPopoverSpy = jasmine.createSpyObj('splitBlockedPopover', ['present']);
+
+      popoverController.create.and.resolveTo(splitBlockedPopoverSpy);
+
+      const message =
+        'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
+      component.showSplitBlockedPopover(message);
+      tick(500);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Expense cannot be split',
+          message,
+          primaryCta: {
+            text: 'OK',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+    }));
+
     describe('openSplitExpenseModal():', () => {
       beforeEach(() => {
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
@@ -615,6 +640,110 @@ export function TestCases1(getTestBed) {
             expenseFields: JSON.stringify(expenseFieldResponse),
           },
         ]);
+      });
+
+      it('should open split expense modal by navigating to split expense with selectedProject as per form project', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
+        component.fg.controls.project.setValue(expectedProjects4);
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).toHaveBeenCalledOnceWith([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType: 'projects',
+            txnFields: JSON.stringify(txnFieldsMap2),
+            txn: JSON.stringify(unflattenedExpData.tx),
+            currencyObj: JSON.stringify(component.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(unflattenedExpData.dataUrls),
+            selectedCCCTransaction: null,
+            selectedReportId: null,
+            selectedProject: JSON.stringify(expectedProjects4),
+            expenseFields: null,
+          },
+        ]);
+      });
+
+      it('should show split blocked popover if expense is already reported and report is selected as null in edit expense form', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+        );
+        component.fg.controls.report.setValue(null);
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+        );
+      });
+
+      it('should show split blocked popover if expense is already reported and report.rp is null in edit expense form', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+        );
+        component.fg.controls.report.setValue({ ...expectedErpt[0], rp: null });
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+        );
+      });
+
+      it('should show split blocked popover if expense is already reported and report.rp.id is null in edit expense form', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
+        );
+        component.fg.controls.report.setValue({ ...expectedErpt[0], rp: { ...expectedErpt[0].rp, id: null } });
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
+          'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.'
+        );
+      });
+
+      it('should show split blocked popover if amount is less than tax amount', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: 10, tax_amount: 12 } })
+        );
+        component.fg.controls.report.setValue(null);
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
+          'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.'
+        );
       });
     });
 
