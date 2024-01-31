@@ -47,6 +47,7 @@ import {
   policyViolationData3,
   policyViolationData4,
   policyVoilationData2,
+  splitPolicyExp4,
 } from '../mock-data/policy-violation.data';
 import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
@@ -61,6 +62,12 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
 import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
 import { splitData2, splitsData1 } from '../mock-data/splits.data';
+import { SplitExpenseMissingFieldsData } from '../models/split-expense-missing-fields.data';
+import {
+  transformedSplitExpenseMissingFieldsData,
+  transformedSplitExpenseMissingFieldsData2,
+} from '../mock-data/transformed-split-expense-missing-fields.data';
+import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-policy-violations.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -907,5 +914,129 @@ describe('SplitExpenseService', () => {
     mockSplitTxn[0].org_category_id = null;
     const res = splitExpenseService.transformSplitArray(mockSplitTxn, unspecifiedCategory);
     expect(res).toEqual(splitData2);
+  });
+
+  describe('handleSplitMissingFieldsCheck():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+      spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+      expensesService.splitExpenseCheckMissingFields.and.returnValue(of(SplitExpenseMissingFieldsData));
+    });
+
+    it('should get fileIds and call check missing fields API for split if report is attached', (done) => {
+      splitExpenseService
+        .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+          reportId: 'rp0AGAoeQfQX',
+          unspecifiedCategory: unspecifiedCategory,
+        })
+        .subscribe((res) => {
+          expect(res).toEqual(SplitExpenseMissingFieldsData);
+          expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+          expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+            txnList,
+            txnDataPayload,
+            ['fijCeF0G0jTl'],
+            {
+              reportId: 'rp0AGAoeQfQX',
+              unspecifiedCategory: unspecifiedCategory,
+            }
+          );
+          expect(expensesService.splitExpenseCheckMissingFields).toHaveBeenCalledOnceWith(splitPayloadData1);
+          done();
+        });
+    });
+
+    it('should get fileIds and should not call check missing fields API for split if report is not attached', (done) => {
+      splitExpenseService
+        .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+          reportId: null,
+          unspecifiedCategory: unspecifiedCategory,
+        })
+        .subscribe((res) => {
+          expect(res).toEqual({});
+          expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+          expect(splitExpenseService.transformSplitTo).not.toHaveBeenCalled();
+          expect(expensesService.splitExpenseCheckMissingFields).not.toHaveBeenCalled();
+          done();
+        });
+    });
+  });
+
+  it('handlePolicyAndMissingFieldsCheck(): should call handleSplitPolicyCheck and handleSplitMissingFieldsCheck', (done) => {
+    spyOn(splitExpenseService, 'handleSplitPolicyCheck').and.returnValue(of(splitPolicyExp1));
+    spyOn(splitExpenseService, 'handleSplitMissingFieldsCheck').and.returnValue(of(SplitExpenseMissingFieldsData));
+    const reportAndUnspecifiedCategoryParams = {
+      reportId: 'rp0AGAoeQfQX',
+      unspecifiedCategory: unspecifiedCategory,
+    };
+    splitExpenseService
+      .handlePolicyAndMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual({
+          policyViolations: splitPolicyExp1,
+          missingFields: SplitExpenseMissingFieldsData,
+        });
+        expect(splitExpenseService.handleSplitPolicyCheck).toHaveBeenCalledOnceWith(
+          txnList,
+          fileObject4,
+          txnDataPayload,
+          reportAndUnspecifiedCategoryParams
+        );
+        expect(splitExpenseService.handleSplitMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          txnList,
+          fileObject4,
+          txnDataPayload,
+          reportAndUnspecifiedCategoryParams
+        );
+        done();
+      });
+  });
+
+  it('getFileIdsFromObjects(): should return fileIds from file objects', () => {
+    const res = splitExpenseService.getFileIdsFromObjects(fileObject4);
+    expect(res).toEqual(['fiV1gXpyCcbU']);
+  });
+
+  describe('isMissingFields():', () => {
+    it('should return false if missing fields are not present', () => {
+      const mockMissingFields = cloneDeep(transformedSplitExpenseMissingFieldsData2);
+      const res = splitExpenseService.isMissingFields(mockMissingFields);
+      expect(res).toBeFalse();
+    });
+
+    it('should return true if missing fields are present', () => {
+      const mockMissingFields = cloneDeep(transformedSplitExpenseMissingFieldsData2);
+      mockMissingFields.data.missing_expense_field_ids = ['291832'];
+      const res = splitExpenseService.isMissingFields(mockMissingFields);
+      expect(res).toBeTrue();
+    });
+  });
+
+  describe('checkIfMissingFieldsExist():', () => {
+    it('checkIfMissingFieldsExist(): should return true if missing fields are present', () => {
+      spyOn(splitExpenseService, 'isMissingFields').and.returnValue(true);
+      const mockMissingFields = cloneDeep({ '0': transformedSplitExpenseMissingFieldsData2 });
+      const res = splitExpenseService.checkIfMissingFieldsExist(mockMissingFields);
+      expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+      expect(res).toBeTrue();
+    });
+
+    it('checkIfMissingFieldsExist(): should return false if missing fields are not present', () => {
+      spyOn(splitExpenseService, 'isMissingFields').and.returnValue(false);
+      const mockMissingFields = cloneDeep({ '0': transformedSplitExpenseMissingFieldsData2 });
+      const res = splitExpenseService.checkIfMissingFieldsExist(mockMissingFields);
+      expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+      expect(res).toBeFalse();
+    });
+  });
+
+  it('filteredPolicyViolations(): should return policy violations with policy action and rules', () => {
+    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
+    policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
+    const res = splitExpenseService.filteredPolicyViolations({ '1': splitPolicyExp4 });
+    expect(res).toEqual({ '1': filteredSplitPolicyViolationsData2 });
   });
 });
