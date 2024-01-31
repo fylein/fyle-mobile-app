@@ -603,7 +603,7 @@ export class SplitExpenseService {
     const payloadData = [];
 
     for (const idx in txnIds) {
-      if (comments[idx]) {
+      if (txnIds.hasOwnProperty(idx)) {
         const comment =
           comments[idx] !== ''
             ? this.prependPolicyViolationMessage + comments[idx]
