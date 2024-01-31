@@ -121,34 +121,37 @@ export class CardStatsComponent implements OnInit {
         forkJoin([
           this.corporateCreditCardExpenseService.getCorporateCards(),
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
-          this.isVirtualCardsEnabled$,
         ]).pipe(
-          map(([corporateCards, corporateCardStats, isVirtualCardsEnabled]) => {
-            const cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
+          map(([corporateCards, corporateCardStats]) => {
+            let cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
               corporateCards,
               corporateCardStats
             );
-
-            if (isVirtualCardsEnabled) {
-              const virtualCardIds = cardDetails
-                .filter((cardDetail) => cardDetail.card.virtual_card_id)
-                .map((cardDetail) => cardDetail.card.virtual_card_id);
-              this.virtualCardDetails$ = this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
-                map((virtualCardDetails) => {
-                  cardDetails.forEach((cardDetail) => {
-                    cardDetail.virtualCardDetail = virtualCardDetails[cardDetail.card.virtual_card_id];
-                  });
-                  return cardDetails;
-                })
-              );
-              return cardDetails;
-            } else {
-              return cardDetails;
-            }
+            return cardDetails;
           })
         )
       )
     );
+
+    this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
+      if (isVirtualCardsEnabled) {
+        this.virtualCardDetails$ = this.cardDetails$.pipe(
+          switchMap((cardDetails) => {
+            const virtualCardIds = cardDetails
+              .filter((cardDetail) => cardDetail.card.virtual_card_id)
+              .map((cardDetail) => cardDetail.card.virtual_card_id);
+            return this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
+              map((virtualCardsMap) => {
+                cardDetails.forEach((cardDetail) => {
+                  cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
+                });
+                return cardDetails;
+              })
+            );
+          })
+        );
+      }
+    });
   }
 
   setupVirtualCardDetails(cardDetails, virtualCardDetails) {}

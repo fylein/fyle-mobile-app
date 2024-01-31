@@ -43,7 +43,7 @@
   </ion-row>
   <ion-row class="virtual-card__footer ion-align-items-center">
     <ion-row class="virtual-card__card-fields ion-align-items-center">
-      <ion-col>
+      <ion-col *ngIf="cvv">
         <div class="virtual-card__card-fields__label-text">CVV</div>
         <ion-row>
           <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
@@ -57,7 +57,7 @@
           ></ion-icon>
         </ion-row>
       </ion-col>
-      <ion-col>
+      <ion-col *ngIf="expiry">
         <div class="virtual-card__card-fields__label-text">Expiry</div>
         <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
       </ion-col>
