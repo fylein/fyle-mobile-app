@@ -6,7 +6,7 @@ import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { CategoriesService } from './categories.service';
-import { transformedOrgCategories } from '../mock-data/org-category.data';
+import { transformedOrgCategories, unspecifiedCategory } from '../mock-data/org-category.data';
 import {
   splitPurposeTxn,
   splitTxn,
@@ -58,6 +58,8 @@ import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { splitPayloadData1 } from '../mock-data/split-payload.data';
+import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -710,5 +712,64 @@ describe('SplitExpenseService', () => {
 
       expect(res).toBeFalse();
     });
+  });
+
+  describe('updateCustomProperties():', () => {
+    it('should not update custom properties if split expense does not contain any custom property', () => {
+      spyOn(splitExpenseService, 'isCustomFieldAllowedToSelectedCategory').and.returnValue(true);
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      const mockTxn = cloneDeep(txnData2);
+      splitExpenseService.updateCustomProperties(mockTxn, txnData5, mockExpenseFields);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).not.toHaveBeenCalled();
+      expect(mockTxn.custom_properties).toEqual(txnData2.custom_properties);
+    });
+
+    it('should call isCustomFieldAllowedToSelectedCategory and modify custom property of split expense', () => {
+      spyOn(splitExpenseService, 'isCustomFieldAllowedToSelectedCategory').and.returnValues(true, false);
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      const mockTxn = cloneDeep(txnDataPayload);
+      splitExpenseService.updateCustomProperties(mockTxn, txnData5, mockExpenseFields);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledTimes(2);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledWith(
+        mockTxn,
+        txnData5,
+        200227,
+        mockExpenseFields
+      );
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledWith(
+        mockTxn,
+        txnData5,
+        211326,
+        mockExpenseFields
+      );
+      expect(mockTxn.custom_properties).toEqual([txnDataPayload.custom_properties[0]]);
+    });
+  });
+
+  it('handleSplitPolicyCheck(): should get fileIds and call check policies API for split', (done) => {
+    spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+    spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+    expensesService.splitExpenseCheckPolicies.and.returnValue(of(splitPolicyExp1));
+
+    splitExpenseService
+      .handleSplitPolicyCheck(txnList, fileObject4, txnDataPayload, {
+        reportId: null,
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(splitPolicyExp1);
+        expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+        expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+          txnList,
+          txnDataPayload,
+          ['fijCeF0G0jTl'],
+          {
+            reportId: null,
+            unspecifiedCategory: unspecifiedCategory,
+          }
+        );
+        expect(expensesService.splitExpenseCheckPolicies).toHaveBeenCalledOnceWith(splitPayloadData1);
+        done();
+      });
   });
 });
