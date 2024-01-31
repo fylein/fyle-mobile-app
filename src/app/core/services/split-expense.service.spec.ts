@@ -27,6 +27,14 @@ import {
   expectedTxnParams3,
   expectedTxnParams4,
   expectedTxnParams5,
+  txnData8,
+  txnData7,
+  txnData9,
+  txnData10,
+  txnData11,
+  txnData12,
+  upsertTxnParam,
+  txnDataPayload,
 } from '../mock-data/transaction.data';
 import { of } from 'rxjs';
 import { splitExpFileObj, splitExpFile2, splitExpFile3, fileObject4 } from '../mock-data/file-object.data';
@@ -47,8 +55,9 @@ import { violationComment1, violationComment2, violationComment3 } from '../mock
 import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -59,6 +68,7 @@ describe('SplitExpenseService', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -77,6 +87,11 @@ describe('SplitExpenseService', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['filterByOrgCategoryId']);
     const utilityServiceSpy = jasmine.createSpyObj('UtiltyService', ['generateRandomString']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'splitExpenseCheckPolicies',
+      'splitExpenseCheckMissingFields',
+      'splitExpense',
+    ]);
 
     TestBed.configureTestingModule({
       providers: [
@@ -109,6 +124,10 @@ describe('SplitExpenseService', () => {
           provide: UtilityService,
           useValue: utilityServiceSpy,
         },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
       ],
     });
 
@@ -120,6 +139,7 @@ describe('SplitExpenseService', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dataTransformService = TestBed.inject(DataTransformService) as jasmine.SpyObj<DataTransformService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });
 
   it('should be created', () => {
@@ -530,6 +550,7 @@ describe('SplitExpenseService', () => {
       spyOn(splitExpenseService, 'setUpSplitExpenseBillable').and.returnValue(true);
       spyOn(splitExpenseService, 'setUpSplitExpenseTax').and.returnValue(45);
       spyOn(splitExpenseService, 'setupSplitExpensePurpose');
+      spyOn(splitExpenseService, 'updateCustomProperties');
     });
 
     it('should set orig_amount of splitter expense and amount equals to (splitter amount * exchangeRate) if orig_currency is set', () => {
@@ -545,7 +566,7 @@ describe('SplitExpenseService', () => {
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData7, txnData8]);
         });
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
@@ -566,24 +587,21 @@ describe('SplitExpenseService', () => {
         1,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams2);
     });
 
     it('should set amount of the splitter expenses if orig_currency is not set', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.orig_currency = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
-      transactionService.upsert.and.returnValues(of(mockTxn), of(mockTxn));
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData9, txnData10]);
         });
 
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledTimes(2);
-      expect(transactionService.upsert).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -592,7 +610,6 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams3);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -601,24 +618,21 @@ describe('SplitExpenseService', () => {
         1,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams4);
     });
 
     it('should create expenses with source as mobile app if source is undefined', () => {
       const mockTxn = cloneDeep(txnData5);
       mockTxn.source = undefined;
       const mockSplitExpenses = cloneDeep(txnList);
-      transactionService.upsert.and.returnValues(of(mockTxn), of(mockTxn));
       splitExpenseService
         .createTxns(mockTxn, mockSplitExpenses, 100, 'txOJVaaPxo9O', 100, expenseFieldResponse)
         .subscribe((expectedTxnRes) => {
-          expect(expectedTxnRes).toEqual([mockTxn, mockTxn]);
+          expect(expectedTxnRes).toEqual([txnData11, txnData12]);
         });
 
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledTimes(2);
-      expect(transactionService.upsert).toHaveBeenCalledTimes(2);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[0]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -627,7 +641,6 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams5);
       expect(splitExpenseService.setUpSplitExpenseBillable).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setUpSplitExpenseTax).toHaveBeenCalledWith(mockTxn, mockSplitExpenses[1]);
       expect(splitExpenseService.setupSplitExpensePurpose).toHaveBeenCalledWith(
@@ -636,7 +649,66 @@ describe('SplitExpenseService', () => {
         0,
         100
       );
-      expect(transactionService.upsert).toHaveBeenCalledWith(expectedTxnParams5);
+    });
+  });
+
+  describe('isCustomFieldAllowedToSelectedCategory():', () => {
+    it('should return true if custom field is allowed to selected category', () => {
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      mockExpenseFields[0].id = 12345;
+      mockExpenseFields[0].org_category_ids = [16582];
+      const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(
+        txnData2,
+        txnData5,
+        12345,
+        mockExpenseFields
+      );
+
+      expect(res).toBeTrue();
+    });
+
+    it('should return undefined if custom field is not present in expense fields', () => {
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      mockExpenseFields[0].id = 12346;
+      mockExpenseFields[0].org_category_ids = [16582];
+      const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(
+        txnData2,
+        txnData5,
+        12345,
+        mockExpenseFields
+      );
+
+      expect(res).toBeUndefined();
+    });
+
+    it('should return true if custom field is allowed to original expense category if expense is split by project', () => {
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      mockExpenseFields[0].id = 12345;
+      mockExpenseFields[0].org_category_ids = [117013];
+      const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(
+        txnData,
+        txnData5,
+        12345,
+        mockExpenseFields
+      );
+
+      expect(res).toBeTrue();
+    });
+
+    it('should return false if expense fields is null', () => {
+      const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(txnData, txnData5, 12345, null);
+
+      expect(res).toBeFalse();
+    });
+
+    it('should return false if sourceTxn is null', () => {
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      mockExpenseFields[0].id = 12345;
+      mockExpenseFields[0].org_category_ids = [117013];
+
+      const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(txnData, null, 12345, mockExpenseFields);
+
+      expect(res).toBeFalse();
     });
   });
 });
