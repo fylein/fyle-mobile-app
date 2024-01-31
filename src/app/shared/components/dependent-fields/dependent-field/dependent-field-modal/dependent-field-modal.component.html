@@ -1,18 +1,18 @@
 <ion-header mode="md">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div class="dependent-field-modal__title">Select {{ label }}</div>
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
   <ion-toolbar class="text-center">
     <mat-form-field appearance="none" class="dependent-field-modal__form-field mat-form-field-no-padding">
-      <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+      <mat-icon class="dependent-field-modal__search-icon" matPrefix svgIcon="search"></mat-icon>
       <input
         #searchBar
         [(ngModel)]="value"

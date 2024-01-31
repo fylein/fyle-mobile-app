@@ -508,7 +508,7 @@ export class TransactionService {
   }
 
   getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter(
+    return expenses?.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
@@ -526,7 +526,7 @@ export class TransactionService {
   }
 
   getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
+    return expenses?.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {

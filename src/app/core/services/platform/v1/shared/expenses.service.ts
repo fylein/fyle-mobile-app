@@ -112,7 +112,7 @@ export class ExpensesService {
   isMergeAllowed(expenses: Expense[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
-        ['Mileage', 'Per Diem'].includes(expense.category?.system_category)
+        ['Mileage', 'Per Diem'].includes(expense.category.system_category)
       );
       const areAllExpensesSubmitted = expenses.every((expense) =>
         [
@@ -134,7 +134,7 @@ export class ExpensesService {
 
   getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
     return `You are about to permanently delete ${
-      expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
     }`;
   }
 
@@ -397,6 +397,16 @@ export class ExpensesService {
     };
     expenseInPaymentMode = expensePaymentModeConditions[paymentMode];
     return expenseInPaymentMode;
+  }
+
+  generateStatsQueryParams(params: Record<string, string | string[] | boolean>): string {
+    const paramKeys = Object.keys(params);
+    const queryParams = [];
+    paramKeys.forEach((key) => {
+      queryParams.push(`${key}=${params[key]}`);
+    });
+
+    return queryParams.join('&');
   }
 
   private getPaymentModeForExpense(expense: Expense, paymentModes: NameKeyPair[]): NameKeyPair {

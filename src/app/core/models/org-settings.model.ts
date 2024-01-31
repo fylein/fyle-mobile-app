@@ -354,7 +354,6 @@ export interface OrgSettingsResponse {
   enable_advances?: boolean;
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
-  mobile_app_view_report_beta_enabled?: boolean;
 
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
@@ -400,6 +399,7 @@ export interface OrgSettingsResponse {
   budget_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
+  duplicate_detection_v2_settings?: CommonOrgSettings;
   dynamic_form_settings?: CommonOrgSettings;
   hrms_integration_settings?: CommonOrgSettings;
   multi_org_settings?: CommonOrgSettings;
@@ -514,6 +514,7 @@ export interface OrgSettings {
   settlements_excel_settings?: SettlementsExcelSettings;
   gmail_addon_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
+  duplicate_detection_v2_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   bulk_fyle_settings?: CommonOrgSettings;
   auto_reminder_settings?: CommonOrgSettings;
@@ -553,6 +554,5 @@ export interface OrgSettings {
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
-  mobile_app_view_report_beta_enabled?: boolean;
   mobile_app_my_expenses_beta_enabled?: boolean;
 }

@@ -45,20 +45,20 @@ export class StatusService {
       case lowerCaseComment.indexOf('automatically merged') > -1:
         statusCategory = {
           category: 'Expense automatically merged',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case /(merged (\d+) expenses)/.test(lowerCaseComment):
         const regexMatch = lowerCaseComment.match(/merged (\d+) expenses/);
         statusCategory = {
           category: regexMatch[1] + ' expenses merged to this expense',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case lowerCaseComment.indexOf('merged') > -1:
         statusCategory = {
           category: 'Expense merged',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
@@ -118,7 +118,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('removed from the report') > -1:
         statusCategory = {
           category: 'Expense removed',
-          icon: 'fy-delete',
+          icon: 'bin',
         };
         break;
       case lowerCaseComment.indexOf('name was changed from') > -1:
@@ -136,13 +136,13 @@ export class StatusService {
       case lowerCaseComment.indexOf('unflagged') > -1:
         statusCategory = {
           category: 'Unflagged',
-          icon: 'flag',
+          icon: 'flag-outline',
         };
         break;
       case lowerCaseComment.indexOf('flagged') > -1:
         statusCategory = {
           category: 'Flagged',
-          icon: 'flag',
+          icon: 'flag-fill',
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
@@ -154,7 +154,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('verified') > -1:
         statusCategory = {
           category: 'Verified',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('approver_inquiry') > -1:
@@ -172,7 +172,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('approved') > -1:
         statusCategory = {
           category: type + ' Approved',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('payment_processing') > -1:
@@ -184,7 +184,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('to paid') > -1:
         statusCategory = {
           category: 'Paid',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('expense issues') > -1:
@@ -196,7 +196,7 @@ export class StatusService {
       case lowerCaseComment.indexOf('policies ran successfully') > -1:
         statusCategory = {
           category: 'Policies Ran Successfully',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('auto-matched by') > -1:

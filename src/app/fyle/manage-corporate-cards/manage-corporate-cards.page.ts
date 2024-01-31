@@ -40,7 +40,7 @@ export class ManageCorporateCardsPage {
     private orgSettingsService: OrgSettingsService,
     private orgUserSettingsService: OrgUserSettingsService,
     private realTimeFeedService: RealTimeFeedService,
-    private trackingService: TrackingService,
+    private trackingService: TrackingService
   ) {}
 
   refresh(event: RefresherCustomEvent): void {
@@ -56,23 +56,21 @@ export class ManageCorporateCardsPage {
 
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
     );
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
 
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
-      ),
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
-      ),
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
@@ -80,8 +78,8 @@ export class ManageCorporateCardsPage {
         ([orgSettings, orgUserSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
           orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled,
-      ),
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
     );
   }
 
@@ -93,7 +91,7 @@ export class ManageCorporateCardsPage {
         if (card.is_visa_enrolled || card.is_mastercard_enrolled) {
           actionSheetButtons.push({
             text: 'Disconnect',
-            icon: 'assets/svg/fy-delete.svg',
+            icon: 'assets/svg/bin.svg',
             cssClass: 'danger',
             handler: () => {
               this.unenrollCard(card);
@@ -120,7 +118,7 @@ export class ManageCorporateCardsPage {
         }
 
         return actionSheetButtons;
-      }),
+      })
     );
   }
 
@@ -157,7 +155,7 @@ export class ManageCorporateCardsPage {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      },
+      }
     );
   }
 

@@ -7,7 +7,6 @@ import { ActionSheetController, ModalController, NavController, PopoverControlle
 import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
-  EMPTY,
   Observable,
   Subject,
   Subscription,
@@ -20,7 +19,6 @@ import {
   of,
 } from 'rxjs';
 import {
-  catchError,
   debounceTime,
   distinctUntilChanged,
   filter,
@@ -34,8 +32,6 @@ import {
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { FilterQueryParams } from 'src/app/core/models/filter-query-params.model';
-import { GetExpensesQueryParamsWithFilters } from 'src/app/core/models/get-expenses-query-params-with-filters.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
@@ -46,7 +42,6 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { Datum } from 'src/app/core/models/v2/stats-response.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -57,6 +52,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -81,7 +77,6 @@ import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filter
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
-import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -98,8 +93,6 @@ export class MyExpensesV2Page implements OnInit {
   count$: Observable<number>;
 
   isInfiniteScrollRequired$: Observable<boolean>;
-
-  loadData$: BehaviorSubject<Partial<GetExpensesQueryParamsWithFilters>>;
 
   loadExpenses$: BehaviorSubject<Partial<GetExpenseQueryParam>>;
 
@@ -133,7 +126,7 @@ export class MyExpensesV2Page implements OnInit {
 
   selectedElements: PlatformExpense[];
 
-  selectedOutboxExpenses: Partial<Expense>[];
+  selectedOutboxExpenses: Partial<Expense>[] = [];
 
   syncing = false;
 
@@ -187,7 +180,7 @@ export class MyExpensesV2Page implements OnInit {
 
   expensesToBeDeleted: PlatformExpense[];
 
-  outboxExpensesToBeDeleted: Partial<Expense>[];
+  outboxExpensesToBeDeleted: Partial<Expense>[] = [];
 
   cccExpenses: number;
 
@@ -196,6 +189,8 @@ export class MyExpensesV2Page implements OnInit {
   hardwareBackButton: Subscription;
 
   isNewReportsFlowEnabled = false;
+
+  isDisabled = false;
 
   constructor(
     private networkService: NetworkService,
@@ -289,6 +284,31 @@ export class MyExpensesV2Page implements OnInit {
     }
   }
 
+  switchOutboxSelectionMode(expense?: Expense): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      if (this.loadExpenses$.getValue().searchString) {
+        this.headerState = HeaderState.simpleSearch;
+      } else {
+        this.headerState = HeaderState.base;
+      }
+
+      this.selectedOutboxExpenses = [];
+      this.setOutboxExpenseStatsOnSelect();
+    } else {
+      this.headerState = HeaderState.multiselect;
+      // setting Expense amount & count stats to zero on select init
+      this.allExpensesStats$ = of({
+        count: 0,
+        amount: 0,
+      });
+    }
+
+    if (expense) {
+      this.selectOutboxExpense(expense);
+    }
+  }
+
   async sendFirstExpenseCreatedEvent(): Promise<void> {
     // checking if the expense is first expense
     const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
@@ -305,42 +325,27 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   setAllExpensesCountAndAmount(): void {
-    this.allExpensesStats$ = this.loadData$.pipe(
+    this.allExpensesStats$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams: FilterQueryParams = cloneDeep(params.queryParams) || {};
-        const platformQueryParams = this.loadExpenses$.getValue().queryParams;
+        const queryParams = cloneDeep(params.queryParams) || {};
 
-        const newQueryParams: FilterQueryParams = {};
+        queryParams.report_id = (queryParams.report_id || 'is.null') as string;
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        newQueryParams.tx_report_id = (platformQueryParams?.report_id || 'is.null') as string;
-        newQueryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = queryParams['matched_corporate_card_transactions->0->corporate_card_number'] as string;
 
-        if (platformQueryParams?.['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = platformQueryParams[
-            'matched_corporate_card_transactions->0->corporate_card_number'
-          ] as string;
-
-          newQueryParams.or = queryParams.or || [];
-          newQueryParams.or.push('(corporate_credit_card_account_number.' + cardParamsCopy + ')');
-          delete queryParams.corporate_credit_card_account_number;
+          queryParams.or = (queryParams.or || []) as string[];
+          queryParams.or.push('(matched_corporate_card_transactions->0->corporate_card_number.' + cardParamsCopy + ')');
+          delete queryParams['matched_corporate_card_transactions->0->corporate_card_number'];
         }
 
-        return this.transactionService
-          .getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            ...newQueryParams,
-          })
-          .pipe(
-            catchError(() => EMPTY),
-            map((stats: Datum[]) => {
-              const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-              const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
-              return {
-                count: count.function_value,
-                amount: amount.function_value || 0,
-              };
-            })
-          );
+        return this.expenseService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            count: stats.data.count,
+            amount: stats.data.total_amount,
+          }))
+        );
       })
     );
   }
@@ -369,12 +374,12 @@ export class MyExpensesV2Page implements OnInit {
       {
         text: 'Capture Receipt',
         icon: 'assets/svg/camera.svg',
-        cssClass: 'camera',
+        cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
+        icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
@@ -384,7 +389,7 @@ export class MyExpensesV2Page implements OnInit {
       that.actionSheetButtons.push({
         text: 'Add Mileage',
         icon: 'assets/svg/mileage.svg',
-        cssClass: 'mileage',
+        cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
@@ -392,7 +397,7 @@ export class MyExpensesV2Page implements OnInit {
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
+        icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
@@ -503,9 +508,6 @@ export class MyExpensesV2Page implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
-    });
 
     this.loadExpenses$ = new BehaviorSubject({
       pageNumber: 1,
@@ -613,32 +615,24 @@ export class MyExpensesV2Page implements OnInit {
 
     this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadData$.pipe(
+    this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
+        this.expenseService.getExpenseStats({
+          state: 'in.(COMPLETE,DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
-    this.draftExpensesCount$ = this.loadData$.pipe(
+    this.draftExpensesCount$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
+        this.expenseService.getExpenseStats({
+          state: 'in.(DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
     this.loadExpenses$.subscribe(() => {
@@ -706,6 +700,8 @@ export class MyExpensesV2Page implements OnInit {
       )
     );
     this.doRefresh();
+
+    this.checkDeleteDisabled();
   }
 
   setupNetworkWatcher(): void {
@@ -778,7 +774,7 @@ export class MyExpensesV2Page implements OnInit {
       this.myExpensesService.generateDateFilterPills(filter, filterPills);
     }
 
-    if (filter?.type?.length > 0) {
+    if (filter.type?.length > 0) {
       this.myExpensesService.generateTypeFilterPills(filter, filterPills);
     }
 
@@ -931,7 +927,7 @@ export class MyExpensesV2Page implements OnInit {
     this.isReportableExpensesSelected =
       this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
 
-    if (this.selectOutboxExpense.length > 0) {
+    if (this.selectedOutboxExpenses.length > 0) {
       this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
 
       this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
@@ -940,12 +936,12 @@ export class MyExpensesV2Page implements OnInit {
     }
 
     // setting Expenses count and amount stats on select
-    if (this.allExpensesCount === this.selectOutboxExpense.length) {
+    if (this.allExpensesCount === this.selectedOutboxExpenses.length) {
       this.selectAll = true;
     } else {
       this.selectAll = false;
     }
-    this.setExpenseStatsOnSelect();
+    this.setOutboxExpenseStatsOnSelect();
     this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedOutboxExpenses);
   }
 
@@ -1336,31 +1332,34 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
-    if (offlineExpenses?.length) {
+    if (offlineExpenses?.length > 0) {
       this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-    }
-    this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
-    if (this.selectedElements.length > 0) {
-      return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
-    } else {
       return of(null);
+    } else {
+      this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
+      if (this.selectedElements.length > 0) {
+        return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
+      } else {
+        return of(null);
+      }
     }
   }
 
   async openDeleteExpensesPopover(): Promise<void> {
-    const offlineExpenses = this.outboxExpensesToBeDeleted?.filter((expense) => !expense.tx_id);
+    const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.tx_id);
 
-    const expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+    let expenseDeletionMessage: string;
+    let cccExpensesMessage: string;
+    let totalDeleteLength = 0;
 
-    const cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(
-      this.expensesToBeDeleted,
-      this.cccExpenses
-    );
-
-    let totalDeleteLength = this.expensesToBeDeleted?.length;
-
-    if (this.outboxExpensesToBeDeleted?.length > 0) {
-      totalDeleteLength = totalDeleteLength + this.outboxExpensesToBeDeleted.length;
+    if (offlineExpenses.length > 0) {
+      expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(offlineExpenses);
+      cccExpensesMessage = this.transactionService.getCCCExpenseMessage(offlineExpenses, this.cccExpenses);
+      totalDeleteLength = this.outboxExpensesToBeDeleted.length;
+    } else {
+      expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+      cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+      totalDeleteLength = this.expensesToBeDeleted?.length;
     }
 
     const deletePopover = await this.popoverController.create({
@@ -1393,7 +1392,7 @@ export class MyExpensesV2Page implements OnInit {
       if (data.status === 'success') {
         let totalNoOfSelectedExpenses = 0;
         if (offlineExpenses?.length > 0) {
-          totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements.length;
+          totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
         } else {
           totalNoOfSelectedExpenses = this.selectedElements.length;
         }
@@ -1429,44 +1428,51 @@ export class MyExpensesV2Page implements OnInit {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
         this.selectedOutboxExpenses = this.pendingTransactions;
-        this.allExpensesCount = this.selectedElements.length;
+        this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
           this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
+        this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
         this.setOutboxExpenseStatsOnSelect();
-      }
+      } else {
+        this.loadExpenses$
+          .pipe(
+            take(1),
+            map((params) => {
+              const queryParams = params.queryParams || {};
 
-      this.loadExpenses$
-        .pipe(
-          take(1),
-          map((params) => {
-            const queryParams = params.queryParams || {};
+              queryParams.report_id = queryParams.report_id || 'is.null';
+              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              if (params.searchString) {
+                queryParams.q = params?.searchString + ':*';
+              }
 
-            queryParams.report_id = queryParams.report_id || 'is.null';
-            queryParams.state = 'in.(COMPLETE,DRAFT)';
-            if (params.searchString) {
-              queryParams.q = params?.searchString + ':*';
+              return queryParams;
+            }),
+            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
+          )
+          .subscribe((allExpenses) => {
+            this.selectedElements = this.selectedElements.concat(allExpenses);
+            if (this.selectedElements.length > 0) {
+              if (this.outboxExpensesToBeDeleted?.length) {
+                this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(
+                  this.outboxExpensesToBeDeleted
+                );
+              }
+
+              this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
+
+              this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
             }
-
-            return queryParams;
-          }),
-          switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
-        )
-        .subscribe((allExpenses) => {
-          this.selectedElements = this.selectedElements.concat(allExpenses);
-          if (this.selectedElements.length > 0) {
-            this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.outboxExpensesToBeDeleted);
-
-            this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
-
-            this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
-          }
-          this.allExpensesCount = this.selectedElements.length;
-          this.isReportableExpensesSelected =
-            this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
-          this.setExpenseStatsOnSelect();
-        });
+            this.allExpensesCount = this.selectedElements.length;
+            this.isReportableExpensesSelected =
+              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+            this.setExpenseStatsOnSelect();
+          });
+      }
     } else {
       this.selectedElements = [];
+      this.selectedOutboxExpenses = [];
+      this.outboxExpensesToBeDeleted = [];
       this.isReportableExpensesSelected =
         this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
@@ -1567,5 +1573,20 @@ export class MyExpensesV2Page implements OnInit {
 
   showCamera(isCameraPreviewStarted: boolean): void {
     this.isCameraPreviewStarted = isCameraPreviewStarted;
+  }
+
+  checkDeleteDisabled(): Observable<void> {
+    return this.isConnected$.pipe(
+      map((isConnected) => {
+        if (isConnected) {
+          this.isDisabled =
+            this.selectedElements?.length === 0 ||
+            !this.expensesToBeDeleted ||
+            (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
+        } else if (!isConnected) {
+          this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
+        }
+      })
+    );
   }
 }
