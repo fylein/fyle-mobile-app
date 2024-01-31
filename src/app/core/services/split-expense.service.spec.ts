@@ -772,4 +772,65 @@ describe('SplitExpenseService', () => {
         done();
       });
   });
+
+  describe('transformSplitFlightClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.transformSplitFlightClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is airlines and flight_journey_travel_class and flight_return_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Airlines';
+      mockSplitTxn.flight_journey_travel_class = 'Economy';
+      mockSplitTxn.flight_return_travel_class = 'Business';
+      splitExpenseService.transformSplitFlightClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Economy', 'Business']);
+    });
+  });
+
+  describe('tranformSplitBusClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.tranformSplitBusClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is bus and bus_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Bus';
+      mockSplitTxn.bus_travel_class = 'Economy';
+      splitExpenseService.tranformSplitBusClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Economy']);
+    });
+  });
+
+  describe('transformSplitTrainClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.transformSplitTrainClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is train and train_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Train';
+      mockSplitTxn.train_travel_class = 'Sleeper';
+      splitExpenseService.transformSplitTrainClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Sleeper']);
+    });
+  });
 });
