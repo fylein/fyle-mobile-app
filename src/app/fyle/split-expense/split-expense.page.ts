@@ -797,7 +797,7 @@ export class SplitExpensePage {
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
             catchError((err) => {
-              const message = 'Unable to check policies. Please contact support.';
+              const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
               return throwError(err);
             }),

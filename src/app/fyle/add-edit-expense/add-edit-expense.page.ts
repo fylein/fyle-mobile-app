@@ -1011,7 +1011,7 @@ export class AddEditExpensePage implements OnInit {
           const actionSheetOptions: { text: string; handler: () => void }[] = [];
 
           if (isSplitExpenseAllowed) {
-            const areCostCentersAvailable = costCenters.length > 0;
+            const areCostCentersAvailable = costCenters.length > 0 && txnFields.cost_center_id;
             const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
             const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
             const projectField = txnFields.project_id;
