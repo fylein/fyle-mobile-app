@@ -2250,7 +2250,7 @@ describe('SplitExpensePage', () => {
       } catch (err) {
         expect(err).toEqual(new Error('Policy Violation checks were failed!'));
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
-          'Unable to check policies. Please contact support.',
+          'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
