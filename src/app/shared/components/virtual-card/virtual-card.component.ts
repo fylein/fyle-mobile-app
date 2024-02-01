@@ -12,9 +12,13 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
 })
 export class VirtualCardComponent {
   @Input() cardNumber: string = '123451234512345';
+
   @Input() cvv: string = '123';
+
   @Input() expiry: string = '2024-04-04';
+
   @Input() cardStatus: CardStatus = CardStatus.ACTIVE;
+
   @Input() availableAmount: number = 1000;
 
   showCardNumber: boolean = false;
@@ -46,5 +50,13 @@ export class VirtualCardComponent {
   hideCardNumberAndCopy() {
     this.showCardNumber = false;
     this.copyToClipboard(this.cardNumber);
+  }
+
+  toggleShowCardNumber() {
+    this.showCardNumber = !this.showCardNumber;
+  }
+
+  toggleShowCvv() {
+    this.showCvv = !this.showCvv;
   }
 }
