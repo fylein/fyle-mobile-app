@@ -20,13 +20,11 @@ import { cloneDeep, noop } from 'lodash';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { ExtendedReport } from 'src/app/core/models/report.model';
-import { apiExpenseRes } from 'src/app/core/mock-data/expense.data';
 import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.spec.data';
-import { ComponentType } from '@angular/cdk/portal';
-import { TemplateRef } from '@angular/core';
-import { etxnParamsData1 } from 'src/app/core/mock-data/etxn-params.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -46,6 +44,7 @@ export function TestCases3(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -65,6 +64,7 @@ export function TestCases3(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     }));
 
     it('onPotentialDuplicatesTaskClick(): should navigate to potential duplicate page', () => {
@@ -129,7 +129,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         authService.getEou.and.resolveTo(extendedOrgUserResponse);
         reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-        transactionService.getAllETxnc.and.returnValue(of(apiExpenseRes));
+        expensesService.getAllExpenses.and.returnValue(of([expenseData]));
         spyOn(component, 'showAddToReportSuccessToast');
       });
 
@@ -150,7 +150,7 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
@@ -186,7 +186,7 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
@@ -217,7 +217,7 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
@@ -245,7 +245,7 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).not.toHaveBeenCalled();
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });

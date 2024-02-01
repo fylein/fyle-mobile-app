@@ -63,6 +63,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditExpensePage-1', () => {
@@ -520,7 +521,7 @@ export function TestCases1(getTestBed) {
         component.isSplitExpensesPresent = true;
         component.isDraftExpenseEnabled = true;
         component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = apiExpenseRes;
+        component.alreadyApprovedExpenses = expenseResponseData;
         fixture.detectChanges();
 
         component.unmatchExpense({
