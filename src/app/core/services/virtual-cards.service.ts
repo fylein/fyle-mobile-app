@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { Observable, map } from 'rxjs';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
+import { CardDetailsAmountResponse, CardDetailsResponse } from '../models/card-details-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -9,25 +10,19 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 export class VirtualCardsService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  getCardDetailsById(virtualCardId: string): Observable<Record<string, string>> {
-    const params = {
-      data: {
-        id: virtualCardId,
-      },
-    };
+  getCardDetailsById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<Record<string, string>>>('/virtual_cards/show_card_details', params)
-      .pipe(map((response) => response.data[0]));
+      .post<Record<string, CardDetailsResponse>>('/virtual_cards/show_card_details', {
+        data: virtualCardRequestPayload,
+      })
+      .pipe(map((response) => response.data));
   }
 
-  getCurrentAmountById(virtualCardId: string): Observable<Record<string, string>> {
-    const params = {
-      data: {
-        id: virtualCardId,
-      },
-    };
+  getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<number> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<Record<string, string>>>('/virtual_cards/get_current_amount', params)
-      .pipe(map((response) => response.data[0]));
+      .post<Record<string, CardDetailsAmountResponse>>('/virtual_cards/get_current_amount', {
+        data: virtualCardRequestPayload,
+      })
+      .pipe(map((response) => response.data.current_amount));
   }
 }
