@@ -1643,7 +1643,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        // transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
         corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
         fileService.downloadUrl.and.returnValue(of('url'));
