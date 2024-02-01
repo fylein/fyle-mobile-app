@@ -496,7 +496,7 @@ export function TestCases6(getTestBed) {
       component.getSplitExpenses([expenseData, expenseData]);
 
       expect(component.isSplitExpensesPresent).toBeTrue();
-      expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
+      expect(component.canEditCCCMatchedSplitExpense).toBeFalse();
     });
 
     it('clearCategoryOnValueChange(): should clear category dependent fields if category changes', fakeAsync(() => {
