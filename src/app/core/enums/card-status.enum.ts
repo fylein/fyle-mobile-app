@@ -1,8 +1,8 @@
 export enum CardStatus {
-  'ACTIVE' = 'ACTIVE',
-  'PREACTIVE' = 'PREACTIVE',
-  'INACTIVE' = 'INACTIVE',
-  'USED' = 'USED',
-  'DELETED' = 'DELETED',
-  'EXPIRED' = 'EXPIRED',
+  ACTIVE,
+  PREACTIVE
+  INACTIVE,
+  USED,
+  DELETED,
+  EXPIRED,
 }
