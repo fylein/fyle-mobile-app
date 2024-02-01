@@ -20,7 +20,7 @@ import {
   txnFieldsData2,
   txnFieldsData3,
 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { policyExpense2, splitExpData } from 'src/app/core/mock-data/expense.data';
+import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { TaxiCategory, orgCategoryData1 } from 'src/app/core/mock-data/org-category.data';
 import {
