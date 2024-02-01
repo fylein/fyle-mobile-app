@@ -11,6 +11,11 @@
 		},
 		"Keyboard": {
 			"style": "LIGHT"
+		},
+		"PushNotifications": {
+			"presentationOptions": [
+				"alert"
+			]
 		}
 	},
 	"cordova": {

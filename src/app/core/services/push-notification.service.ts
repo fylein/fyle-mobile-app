@@ -42,7 +42,7 @@ export class PushNotificationService {
     PushNotifications.removeAllListeners();
     PushNotifications.requestPermissions().then((result) => {
       if (result.receive === 'granted') {
-        PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
+        return PushNotifications.register(); // Register with Apple / Google to receive push via APNS/FCM
       }
     });
 

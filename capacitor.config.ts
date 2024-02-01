@@ -15,6 +15,9 @@ const config: CapacitorConfig = {
     Keyboard: {
       style: KeyboardStyle.Light,
     },
+    PushNotifications: {
+      presentationOptions: ['alert'],
+    },
   },
   cordova: {
     //It doesn't matter what value is added to access origin - https://capacitorjs.com/docs/v2/cordova/using-cordova-plugins#:~:text=Capacitor%20does%20not%20support%20Cordova,things%20like%20hooks%20are%20unnecessary
