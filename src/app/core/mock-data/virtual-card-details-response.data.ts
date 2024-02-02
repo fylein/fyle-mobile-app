@@ -5,7 +5,7 @@ export const virtualCardDetailsResponse: Record<string, CardDetailsResponse> = {
   data: {
     full_card_number: '123412341234123',
     cvv: '123',
-    expiry_date: new Date('2029-01-01T00:00:00+00:00'),
+    expiry_date: '2029-01-01T00:00:00+00:00',
   },
 };
 
