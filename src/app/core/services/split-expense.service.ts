@@ -314,7 +314,7 @@ export class SplitExpenseService {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
 
         transaction.orig_amount = splitExpense.amount;
-        transaction.amount = splitExpense.amount * exchangeRate;
+        transaction.amount = parseFloat((splitExpense.amount * exchangeRate).toFixed(3));
       } else {
         transaction.amount = splitExpense.amount;
       }
@@ -554,7 +554,7 @@ export class SplitExpenseService {
         }
         filteredViolations[key] = {
           rules,
-          action: violations[key].data.final_desired_state,
+          action: violations[key].data,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
@@ -603,7 +603,7 @@ export class SplitExpenseService {
     const payloadData = [];
 
     for (const idx in txnIds) {
-      if (comments[idx]) {
+      if (txnIds.hasOwnProperty(idx)) {
         const comment =
           comments[idx] !== ''
             ? this.prependPolicyViolationMessage + comments[idx]

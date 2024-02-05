@@ -52,7 +52,13 @@ import {
 import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
-import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
+import {
+  violationComment1,
+  violationComment2,
+  violationComment3,
+  violationComment4,
+  violationComment5,
+} from '../mock-data/policy-violcation-comment.data';
 import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
@@ -68,6 +74,10 @@ import {
   transformedSplitExpenseMissingFieldsData2,
 } from '../mock-data/transformed-split-expense-missing-fields.data';
 import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-policy-violations.data';
+import {
+  filteredMissingFieldsViolationsData,
+  filteredMissingFieldsViolationsData2,
+} from '../mock-data/filtered-missing-fields-violations.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -1038,5 +1048,54 @@ describe('SplitExpenseService', () => {
     policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
     const res = splitExpenseService.filteredPolicyViolations({ '1': splitPolicyExp4 });
     expect(res).toEqual({ '1': filteredSplitPolicyViolationsData2 });
+  });
+
+  it('filteredMissingFieldsViolations(): should return missing fields with isMissingFields', () => {
+    spyOn(splitExpenseService, 'isMissingFields').and.returnValue(true);
+    const res = splitExpenseService.filteredMissingFieldsViolations({ '1': transformedSplitExpenseMissingFieldsData2 });
+    expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+    expect(res).toEqual({ '1': filteredMissingFieldsViolationsData2 });
+  });
+
+  it('splitExpense(): should call split expense API', () => {
+    spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+    spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+    expensesService.splitExpense.and.returnValue(of({ data: txnList }));
+    const reportAndUnspecifiedCategoryParams = {
+      reportId: 'rp0AGAoeQfQX',
+      unspecifiedCategory: unspecifiedCategory,
+    };
+    splitExpenseService
+      .splitExpense(txnList, fileObject4, txnDataPayload, {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual({ data: txnList });
+        expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+          txnList,
+          txnDataPayload,
+          ['fijCeF0G0jTl'],
+          reportAndUnspecifiedCategoryParams
+        );
+        expect(expensesService.splitExpense).toHaveBeenCalledOnceWith(splitPayloadData1);
+      });
+  });
+
+  describe('postSplitExpenseComments():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'postComment').and.returnValues(of(txnStatusData), of(txnStatusData));
+    });
+
+    it('should post comment for split expense', () => {
+      splitExpenseService
+        .postSplitExpenseComments(['txeqxj49dgh', 'txeqxj89ddf'], { '0': 'test comment 1', '1': '' })
+        .subscribe((res) => {
+          expect(res).toEqual([txnStatusData, txnStatusData]);
+          expect(splitExpenseService.postComment).toHaveBeenCalledTimes(2);
+          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment4);
+          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment5);
+        });
+    });
   });
 });
