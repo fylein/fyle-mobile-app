@@ -701,7 +701,9 @@ export class SplitExpensePage {
     const lastSplitIndex = this.splitExpensesFormArray.length - 1;
 
     // Last split should have the remaining amount after even split to make sure we get the total amount
-    const lastSplitAmount = parseFloat((this.amount - evenAmount * lastSplitIndex).toFixed(3));
+
+    const evenlySplitTotalAmount = parseFloat((evenAmount * lastSplitIndex).toPrecision(15));
+    const lastSplitAmount = parseFloat((this.amount - evenlySplitTotalAmount).toPrecision(15));
     const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
 
     this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
