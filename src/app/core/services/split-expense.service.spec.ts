@@ -6,7 +6,7 @@ import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { CategoriesService } from './categories.service';
-import { transformedOrgCategories } from '../mock-data/org-category.data';
+import { transformedOrgCategories, unspecifiedCategory } from '../mock-data/org-category.data';
 import {
   splitPurposeTxn,
   splitTxn,
@@ -47,17 +47,37 @@ import {
   policyViolationData3,
   policyViolationData4,
   policyVoilationData2,
+  splitPolicyExp4,
 } from '../mock-data/policy-violation.data';
 import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
-import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
+import {
+  violationComment1,
+  violationComment2,
+  violationComment3,
+  violationComment4,
+  violationComment5,
+} from '../mock-data/policy-violcation-comment.data';
 import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.data';
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
+import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
+import { splitData2, splitsData1 } from '../mock-data/splits.data';
+import { SplitExpenseMissingFieldsData } from '../models/split-expense-missing-fields.data';
+import {
+  transformedSplitExpenseMissingFieldsData,
+  transformedSplitExpenseMissingFieldsData2,
+} from '../mock-data/transformed-split-expense-missing-fields.data';
+import { filteredSplitPolicyViolationsData2 } from '../mock-data/filtered-split-policy-violations.data';
+import {
+  filteredMissingFieldsViolationsData,
+  filteredMissingFieldsViolationsData2,
+} from '../mock-data/filtered-missing-fields-violations.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
@@ -709,6 +729,373 @@ describe('SplitExpenseService', () => {
       const res = splitExpenseService.isCustomFieldAllowedToSelectedCategory(txnData, null, 12345, mockExpenseFields);
 
       expect(res).toBeFalse();
+    });
+  });
+
+  describe('updateCustomProperties():', () => {
+    it('should not update custom properties if split expense does not contain any custom property', () => {
+      spyOn(splitExpenseService, 'isCustomFieldAllowedToSelectedCategory').and.returnValue(true);
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      const mockTxn = cloneDeep(txnData2);
+      splitExpenseService.updateCustomProperties(mockTxn, txnData5, mockExpenseFields);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).not.toHaveBeenCalled();
+      expect(mockTxn.custom_properties).toEqual(txnData2.custom_properties);
+    });
+
+    it('should call isCustomFieldAllowedToSelectedCategory and modify custom property of split expense', () => {
+      spyOn(splitExpenseService, 'isCustomFieldAllowedToSelectedCategory').and.returnValues(true, false);
+      const mockExpenseFields = cloneDeep(expenseFieldResponse);
+      const mockTxn = cloneDeep(txnDataPayload);
+      splitExpenseService.updateCustomProperties(mockTxn, txnData5, mockExpenseFields);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledTimes(2);
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledWith(
+        mockTxn,
+        txnData5,
+        200227,
+        mockExpenseFields
+      );
+      expect(splitExpenseService.isCustomFieldAllowedToSelectedCategory).toHaveBeenCalledWith(
+        mockTxn,
+        txnData5,
+        211326,
+        mockExpenseFields
+      );
+      expect(mockTxn.custom_properties).toEqual([txnDataPayload.custom_properties[0]]);
+    });
+  });
+
+  it('handleSplitPolicyCheck(): should get fileIds and call check policies API for split', (done) => {
+    spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+    spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+    expensesService.splitExpenseCheckPolicies.and.returnValue(of(splitPolicyExp1));
+
+    splitExpenseService
+      .handleSplitPolicyCheck(txnList, fileObject4, txnDataPayload, {
+        reportId: null,
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual(splitPolicyExp1);
+        expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+        expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+          txnList,
+          txnDataPayload,
+          ['fijCeF0G0jTl'],
+          {
+            reportId: null,
+            unspecifiedCategory: unspecifiedCategory,
+          }
+        );
+        expect(expensesService.splitExpenseCheckPolicies).toHaveBeenCalledOnceWith(splitPayloadData1);
+        done();
+      });
+  });
+
+  describe('transformSplitFlightClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.transformSplitFlightClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is airlines and flight_journey_travel_class and flight_return_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Airlines';
+      mockSplitTxn.flight_journey_travel_class = 'Economy';
+      mockSplitTxn.flight_return_travel_class = 'Business';
+      splitExpenseService.transformSplitFlightClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Economy', 'Business']);
+    });
+  });
+
+  describe('tranformSplitBusClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.tranformSplitBusClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is bus and bus_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Bus';
+      mockSplitTxn.bus_travel_class = 'Economy';
+      splitExpenseService.tranformSplitBusClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Economy']);
+    });
+  });
+
+  describe('transformSplitTrainClasses():', () => {
+    it('should not modify travel_classes if fyle_category is not present', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockSplitTxn.fyle_category = undefined;
+      splitExpenseService.transformSplitTrainClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(splitPayloadData1.travel_classes);
+    });
+
+    it('should modify travel_classes if fyle_category is train and train_travel_class is present in split expense', () => {
+      const mockSplitTxn = cloneDeep(splitTxn);
+      const mockPlatformPayload = cloneDeep(splitPayloadData1);
+      mockPlatformPayload.travel_classes = [];
+      mockSplitTxn.fyle_category = 'Train';
+      mockSplitTxn.train_travel_class = 'Sleeper';
+      splitExpenseService.transformSplitTrainClasses(mockSplitTxn, mockPlatformPayload);
+      expect(mockPlatformPayload.travel_classes).toEqual(['Sleeper']);
+    });
+  });
+
+  it('transformSplitTravelClasses(): should modify travel_classes for split expense payload', () => {
+    const mockSplitTxn = cloneDeep(splitTxn);
+    const mockPlatformPayload = cloneDeep(splitPayloadData1);
+    spyOn(splitExpenseService, 'transformSplitFlightClasses');
+    spyOn(splitExpenseService, 'tranformSplitBusClasses');
+    spyOn(splitExpenseService, 'transformSplitTrainClasses');
+    splitExpenseService.transformSplitTravelClasses(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.transformSplitFlightClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.tranformSplitBusClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+    expect(splitExpenseService.transformSplitTrainClasses).toHaveBeenCalledOnceWith(mockSplitTxn, mockPlatformPayload);
+  });
+
+  describe('transformSplitTo():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'transformSplitTravelClasses');
+      spyOn(splitExpenseService, 'transformSplitArray').and.returnValue(splitsData1);
+    });
+
+    it('should return platform split expense payload', () => {
+      const mockSplitTxn = cloneDeep(txnList);
+      const mockPlatformPayload = cloneDeep(splitPayloadData2);
+      const reportAndUnspecifiedCategoryParams = {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      };
+      const res = splitExpenseService.transformSplitTo(
+        mockSplitTxn,
+        txnDataPayload,
+        ['fijCeF0G0jTl'],
+        reportAndUnspecifiedCategoryParams
+      );
+      expect(res).toEqual(mockPlatformPayload);
+      expect(splitExpenseService.transformSplitTravelClasses).toHaveBeenCalledOnceWith(
+        txnDataPayload,
+        mockPlatformPayload
+      );
+      expect(splitExpenseService.transformSplitArray).toHaveBeenCalledOnceWith(
+        mockSplitTxn,
+        reportAndUnspecifiedCategoryParams.unspecifiedCategory
+      );
+    });
+
+    it('should return platform split expense payload with category_id as unspecified if org_category_id is null in transaction', () => {
+      const mockSplitTxn = cloneDeep(txnList);
+      const mockPlatformPayload = cloneDeep(splitPayloadData3);
+      const reportAndUnspecifiedCategoryParams = {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      };
+      const mockTxn = cloneDeep(txnDataPayload);
+      mockTxn.org_category_id = null;
+      mockTxn.skip_reimbursement = null;
+      const res = splitExpenseService.transformSplitTo(
+        mockSplitTxn,
+        mockTxn,
+        ['fijCeF0G0jTl'],
+        reportAndUnspecifiedCategoryParams
+      );
+      expect(res).toEqual(mockPlatformPayload);
+      expect(splitExpenseService.transformSplitTravelClasses).toHaveBeenCalledOnceWith(mockTxn, mockPlatformPayload);
+      expect(splitExpenseService.transformSplitArray).toHaveBeenCalledOnceWith(
+        mockSplitTxn,
+        reportAndUnspecifiedCategoryParams.unspecifiedCategory
+      );
+    });
+  });
+
+  it('transformSplitArray(): should return splits array', () => {
+    const mockSplitTxn = cloneDeep(txnList);
+    mockSplitTxn[0].org_category_id = null;
+    const res = splitExpenseService.transformSplitArray(mockSplitTxn, unspecifiedCategory);
+    expect(res).toEqual(splitData2);
+  });
+
+  describe('handleSplitMissingFieldsCheck():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+      spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+      expensesService.splitExpenseCheckMissingFields.and.returnValue(of(SplitExpenseMissingFieldsData));
+    });
+
+    it('should get fileIds and call check missing fields API for split if report is attached', (done) => {
+      splitExpenseService
+        .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+          reportId: 'rp0AGAoeQfQX',
+          unspecifiedCategory: unspecifiedCategory,
+        })
+        .subscribe((res) => {
+          expect(res).toEqual(SplitExpenseMissingFieldsData);
+          expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+          expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+            txnList,
+            txnDataPayload,
+            ['fijCeF0G0jTl'],
+            {
+              reportId: 'rp0AGAoeQfQX',
+              unspecifiedCategory: unspecifiedCategory,
+            }
+          );
+          expect(expensesService.splitExpenseCheckMissingFields).toHaveBeenCalledOnceWith(splitPayloadData1);
+          done();
+        });
+    });
+
+    it('should get fileIds and should not call check missing fields API for split if report is not attached', (done) => {
+      splitExpenseService
+        .handleSplitMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+          reportId: null,
+          unspecifiedCategory: unspecifiedCategory,
+        })
+        .subscribe((res) => {
+          expect(res).toEqual({});
+          expect(splitExpenseService.getFileIdsFromObjects).toHaveBeenCalledOnceWith(fileObject4);
+          expect(splitExpenseService.transformSplitTo).not.toHaveBeenCalled();
+          expect(expensesService.splitExpenseCheckMissingFields).not.toHaveBeenCalled();
+          done();
+        });
+    });
+  });
+
+  it('handlePolicyAndMissingFieldsCheck(): should call handleSplitPolicyCheck and handleSplitMissingFieldsCheck', (done) => {
+    spyOn(splitExpenseService, 'handleSplitPolicyCheck').and.returnValue(of(splitPolicyExp1));
+    spyOn(splitExpenseService, 'handleSplitMissingFieldsCheck').and.returnValue(of(SplitExpenseMissingFieldsData));
+    const reportAndUnspecifiedCategoryParams = {
+      reportId: 'rp0AGAoeQfQX',
+      unspecifiedCategory: unspecifiedCategory,
+    };
+    splitExpenseService
+      .handlePolicyAndMissingFieldsCheck(txnList, fileObject4, txnDataPayload, {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual({
+          policyViolations: splitPolicyExp1,
+          missingFields: SplitExpenseMissingFieldsData,
+        });
+        expect(splitExpenseService.handleSplitPolicyCheck).toHaveBeenCalledOnceWith(
+          txnList,
+          fileObject4,
+          txnDataPayload,
+          reportAndUnspecifiedCategoryParams
+        );
+        expect(splitExpenseService.handleSplitMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          txnList,
+          fileObject4,
+          txnDataPayload,
+          reportAndUnspecifiedCategoryParams
+        );
+        done();
+      });
+  });
+
+  it('getFileIdsFromObjects(): should return fileIds from file objects', () => {
+    const res = splitExpenseService.getFileIdsFromObjects(fileObject4);
+    expect(res).toEqual(['fiV1gXpyCcbU']);
+  });
+
+  describe('isMissingFields():', () => {
+    it('should return false if missing fields are not present', () => {
+      const mockMissingFields = cloneDeep(transformedSplitExpenseMissingFieldsData2);
+      const res = splitExpenseService.isMissingFields(mockMissingFields);
+      expect(res).toBeFalse();
+    });
+
+    it('should return true if missing fields are present', () => {
+      const mockMissingFields = cloneDeep(transformedSplitExpenseMissingFieldsData2);
+      mockMissingFields.data.missing_expense_field_ids = ['291832'];
+      const res = splitExpenseService.isMissingFields(mockMissingFields);
+      expect(res).toBeTrue();
+    });
+  });
+
+  describe('checkIfMissingFieldsExist():', () => {
+    it('checkIfMissingFieldsExist(): should return true if missing fields are present', () => {
+      spyOn(splitExpenseService, 'isMissingFields').and.returnValue(true);
+      const mockMissingFields = cloneDeep({ '0': transformedSplitExpenseMissingFieldsData2 });
+      const res = splitExpenseService.checkIfMissingFieldsExist(mockMissingFields);
+      expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+      expect(res).toBeTrue();
+    });
+
+    it('checkIfMissingFieldsExist(): should return false if missing fields are not present', () => {
+      spyOn(splitExpenseService, 'isMissingFields').and.returnValue(false);
+      const mockMissingFields = cloneDeep({ '0': transformedSplitExpenseMissingFieldsData2 });
+      const res = splitExpenseService.checkIfMissingFieldsExist(mockMissingFields);
+      expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+      expect(res).toBeFalse();
+    });
+  });
+
+  it('filteredPolicyViolations(): should return policy violations with policy action and rules', () => {
+    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
+    policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
+    const res = splitExpenseService.filteredPolicyViolations({ '1': splitPolicyExp4 });
+    expect(res).toEqual({ '1': filteredSplitPolicyViolationsData2 });
+  });
+
+  it('filteredMissingFieldsViolations(): should return missing fields with isMissingFields', () => {
+    spyOn(splitExpenseService, 'isMissingFields').and.returnValue(true);
+    const res = splitExpenseService.filteredMissingFieldsViolations({ '1': transformedSplitExpenseMissingFieldsData2 });
+    expect(splitExpenseService.isMissingFields).toHaveBeenCalledOnceWith(transformedSplitExpenseMissingFieldsData2);
+    expect(res).toEqual({ '1': filteredMissingFieldsViolationsData2 });
+  });
+
+  it('splitExpense(): should call split expense API', () => {
+    spyOn(splitExpenseService, 'getFileIdsFromObjects').and.returnValue(['fijCeF0G0jTl']);
+    spyOn(splitExpenseService, 'transformSplitTo').and.returnValue(splitPayloadData1);
+    expensesService.splitExpense.and.returnValue(of({ data: txnList }));
+    const reportAndUnspecifiedCategoryParams = {
+      reportId: 'rp0AGAoeQfQX',
+      unspecifiedCategory: unspecifiedCategory,
+    };
+    splitExpenseService
+      .splitExpense(txnList, fileObject4, txnDataPayload, {
+        reportId: 'rp0AGAoeQfQX',
+        unspecifiedCategory: unspecifiedCategory,
+      })
+      .subscribe((res) => {
+        expect(res).toEqual({ data: txnList });
+        expect(splitExpenseService.transformSplitTo).toHaveBeenCalledOnceWith(
+          txnList,
+          txnDataPayload,
+          ['fijCeF0G0jTl'],
+          reportAndUnspecifiedCategoryParams
+        );
+        expect(expensesService.splitExpense).toHaveBeenCalledOnceWith(splitPayloadData1);
+      });
+  });
+
+  describe('postSplitExpenseComments():', () => {
+    beforeEach(() => {
+      spyOn(splitExpenseService, 'postComment').and.returnValues(of(txnStatusData), of(txnStatusData));
+    });
+
+    it('should post comment for split expense', () => {
+      splitExpenseService
+        .postSplitExpenseComments(['txeqxj49dgh', 'txeqxj89ddf'], { '0': 'test comment 1', '1': '' })
+        .subscribe((res) => {
+          expect(res).toEqual([txnStatusData, txnStatusData]);
+          expect(splitExpenseService.postComment).toHaveBeenCalledTimes(2);
+          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment4);
+          expect(splitExpenseService.postComment).toHaveBeenCalledWith(violationComment5);
+        });
     });
   });
 });
