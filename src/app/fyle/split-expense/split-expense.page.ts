@@ -643,7 +643,7 @@ export class SplitExpensePage {
       componentProps: {
         policyViolations: filteredPolicyViolations,
         missingFieldsViolations: filteredMissingFieldsViolations,
-        isPartOfReport: this.reportId ? true : false,
+        isPartOfReport: !!this.reportId,
       },
       mode: 'ios',
       presentingElement: await this.modalController.getTop(),
@@ -681,12 +681,10 @@ export class SplitExpensePage {
       .pipe(
         concatMap((res) => {
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
-          let formattedMandatoryFields = {};
+          let formattedMandatoryFields: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = null;
 
           if (!isEmpty(res.missingFields)) {
             formattedMandatoryFields = this.transformMandatoryFieldsData(splitEtxns, res.missingFields);
-          } else {
-            formattedMandatoryFields = null;
           }
 
           const doViolationsExist = this.policyService.checkIfViolationsExist(formattedViolations);
