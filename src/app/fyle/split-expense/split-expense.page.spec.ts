@@ -126,7 +126,12 @@ import { fileData2 } from 'src/app/core/mock-data/file.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { formattedTxnViolations } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
-import { policyViolationData3, policyVoilationData2 } from 'src/app/core/mock-data/policy-violation.data';
+import {
+  policyViolation1,
+  policyViolationData3,
+  policyViolationData5,
+  policyVoilationData2,
+} from 'src/app/core/mock-data/policy-violation.data';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { unflattenedAccount2Data, unflattenedAccount3Data } from 'src/app/core/test-data/accounts.service.spec.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
@@ -139,6 +144,7 @@ import {
   splitExpenseFormData3,
   splitExpenseFormData5,
   splitExpenseFormData6,
+  splitExpenseFormData7,
 } from 'src/app/core/mock-data/split-expense-form.data';
 import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { costCentersData3, expectedCCdata } from 'src/app/core/mock-data/cost-centers.data';
@@ -154,6 +160,14 @@ import { costCenterExpenseField, expenseFieldResponse } from 'src/app/core/mock-
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
+import { filteredSplitPolicyViolationsData } from 'src/app/core/mock-data/filtered-split-policy-violations.data';
+import { filteredMissingFieldsViolationsData } from 'src/app/core/mock-data/filtered-missing-fields-violations.data';
+import {
+  transformedSplitExpenseMissingFieldsData,
+  transformedSplitExpenseMissingFieldsData2,
+} from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
+import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
+import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -198,6 +212,12 @@ describe('SplitExpensePage', () => {
       'formatPolicyViolations',
       'checkForPolicyViolations',
       'getBase64Content',
+      'splitExpense',
+      'postSplitExpenseComments',
+      'filteredMissingFieldsViolations',
+      'filteredPolicyViolations',
+      'handlePolicyAndMissingFieldsCheck',
+      'checkIfMissingFieldsExist',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -2133,5 +2153,475 @@ describe('SplitExpensePage', () => {
         expect(component.setupCategoryAndProject).toHaveBeenCalledWith(txnList[1], otherSplitExpenseForm.value);
       });
     });
+  });
+
+  describe('saveV2():', () => {
+    beforeEach(() => {
+      const mockSplitExpForm = formBuilder.group({
+        amount: [23, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
+      spyOn(component, 'uploadFiles').and.returnValue(of(fileObjectData1));
+      spyOn(component, 'createAndLinkTxnsWithFiles').and.returnValue(of(['txSQ9yM7IYEy', 'txbSFbl4vmf1']));
+      spyOn(component, 'correctTotalSplitAmount');
+      const mockTransaction = cloneDeep(txnList[0]);
+      component.transaction = mockTransaction;
+      // @ts-ignore
+      spyOn(component, 'isEvenlySplit').and.returnValue(true);
+      component.fileObjs = fileObject6;
+      component.categoryList = transformedOrgCategories;
+      component.splitType = 'projects';
+      spyOn(component, 'createSplitTxns').and.returnValue(of(txnList));
+      spyOn(component, 'handlePolicyAndMissingFieldsCheck').and.returnValue(
+        of({
+          action: 'continue',
+          comments: { '0': 'test comment' },
+        })
+      );
+      spyOn(component, 'handleSplitExpense');
+      component.fileUrls = fileObjectData1;
+    });
+
+    it('should show error message and return if amount is not equal to totalSplitAmount', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 3000;
+
+      component.saveV2();
+
+      expect(component.showErrorBlock).toBeTrue();
+      expect(component.errorMessage).toEqual('Split amount cannot be more than 2000.');
+      // Tick is used to wait for the error block to disappear after 2500ms
+      tick(2500);
+      expect(component.showErrorBlock).toBeFalse();
+    }));
+
+    it('should show an error message and return if the expense amount is less than 0.01', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(false);
+      const mockSplitExpForm = formBuilder.group({
+        amount: [-23, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+
+      component.saveV2();
+
+      expect(component.showErrorBlock).toBeTrue();
+      expect(component.errorMessage).toEqual('Amount should be greater than 0.01');
+      // Tick is used to wait for the error block to disappear after 2500ms
+      tick(2500);
+      expect(component.showErrorBlock).toBeFalse();
+    }));
+
+    it('should perform split expense and check policies and mandatory fields', () => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(true);
+      splitExpenseService.checkForPolicyViolations.and.returnValue(of(policyVoilationData2));
+      component.saveV2();
+
+      expect(component.generateSplitEtxnFromFg).toHaveBeenCalledOnceWith(component.splitExpensesFormArray.value[0]);
+      expect(component.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(txnList);
+      expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
+        'Split Type': 'projects',
+        'Is Evenly Split': true,
+      });
+      expect(component.handleSplitExpense).toHaveBeenCalledOnceWith({ '0': 'test comment' });
+    });
+
+    it('should throw error if policy check API call fails', fakeAsync(() => {
+      component.amount = 2000;
+      component.totalSplitAmount = 2000;
+      component.isCorporateCardsEnabled$ = of(true);
+      component.handlePolicyAndMissingFieldsCheck = jasmine
+        .createSpy()
+        .and.returnValue(throwError(() => new Error('Policy Violation checks were failed!')));
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.saveV2();
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Policy Violation checks were failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
+        expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
+          'Split Type': 'projects',
+          'Is Evenly Split': true,
+        });
+        expect(component.handleSplitExpense).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should set all fields as touched if splitExpensesFormArray is invalid', () => {
+      const mockSplitExpForm = formBuilder.group({
+        amount: [, Validators.required],
+        currency: ['USD'],
+        percentage: [50],
+        txn_dt: [new Date(), Validators.compose([Validators.required, component.customDateValidator])],
+      });
+      component.splitExpensesFormArray = new FormArray([mockSplitExpForm]);
+      spyOn(component.splitExpensesFormArray, 'markAllAsTouched');
+
+      component.saveV2();
+
+      expect(component.splitExpensesFormArray.markAllAsTouched).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('handleSplitExpense():', () => {
+    beforeEach(() => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      component.unspecifiedCategory = unspecifiedCategory;
+      spyOn(component, 'showSuccessToast');
+      splitExpenseService.splitExpense.and.returnValue(of({ data: txnList }));
+      splitExpenseService.postSplitExpenseComments.and.returnValue(of([]));
+      component.formattedSplitExpense = txnList;
+      component.fileObjs = fileObject6;
+      component.transaction = txnData4;
+    });
+
+    it('should call splitExpense API post comments and show success toast', () => {
+      component.handleSplitExpense({});
+
+      expect(splitExpenseService.splitExpense).toHaveBeenCalledOnceWith(
+        component.formattedSplitExpense,
+        component.fileObjs,
+        component.transaction,
+        {
+          reportId: component.reportId,
+          unspecifiedCategory: component.unspecifiedCategory,
+        }
+      );
+      expect(splitExpenseService.postSplitExpenseComments).toHaveBeenCalledOnceWith(
+        ['txAzvMhbD71q', 'txzLsDY1IAAw'],
+        {}
+      );
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+    });
+
+    it('should throw an error and show failure toast if splitExpense API fails', fakeAsync(() => {
+      splitExpenseService.splitExpense.and.returnValue(throwError(() => new Error('Split Expense API failed!')));
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.handleSplitExpense({});
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Split Expense API failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
+        expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
+        expect(component.showSuccessToast).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should throw an error and show failure toast if postSplitExpenseComments API fails', fakeAsync(() => {
+      splitExpenseService.postSplitExpenseComments.and.returnValue(
+        throwError(() => new Error('Post Split Expense Comments API failed!'))
+      );
+      spyOn(component, 'toastWithoutCTA');
+
+      try {
+        component.handleSplitExpense({});
+        tick(100);
+      } catch (err) {
+        expect(err).toEqual(new Error('Post Split Expense Comments API failed!'));
+        expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
+          'We were unable to split your expense. Please try again later.',
+          ToastType.FAILURE,
+          'msb-failure-with-camera-icon'
+        );
+        expect(component.showSuccessToast).not.toHaveBeenCalled();
+      }
+    }));
+
+    it('should not call postSplitExpenseComments API if there are no comments', () => {
+      component.handleSplitExpense(null);
+
+      expect(splitExpenseService.postSplitExpenseComments).not.toHaveBeenCalled();
+      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('showSplitExpensePolicyViolationsAndMissingFields():', () => {
+    beforeEach(() => {
+      splitExpenseService.filteredPolicyViolations.and.returnValue({ '0': filteredSplitPolicyViolationsData });
+      splitExpenseService.filteredMissingFieldsViolations.and.returnValue({ '1': filteredMissingFieldsViolationsData });
+      const properties = {
+        cssClass: 'fy-modal',
+        showBackdrop: true,
+        canDismiss: true,
+        backdropDismiss: true,
+        animated: true,
+        initialBreakpoint: 1,
+        breakpoints: [0, 1],
+        handle: false,
+      };
+      modalProperties.getModalDefaultProperties.and.returnValue(properties);
+    });
+
+    it('should open policy violations and missing fields modal', async () => {
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'continue',
+        },
+      });
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
+        txnList,
+        { '0': policyViolation1 },
+        { '1': transformedSplitExpenseMissingFieldsData }
+      );
+      expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+      expect(splitExpenseService.filteredMissingFieldsViolations).toHaveBeenCalledOnceWith({
+        '1': transformedSplitExpenseMissingFieldsData,
+      });
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: SplitExpensePolicyViolationComponent,
+        componentProps: {
+          policyViolations: { '0': filteredSplitPolicyViolationsData },
+          missingFieldsViolations: { '1': filteredMissingFieldsViolationsData },
+          isPartOfReport: false,
+        },
+        mode: 'ios',
+        ...modalProperties.getModalDefaultProperties(),
+        presentingElement: await modalController.getTop(),
+      });
+      expect(result).toEqual({
+        action: 'continue',
+      });
+    });
+
+    it('should open policy violations and missing fields modal with isPartOfReport as true if report is attached', async () => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
+        'present',
+        'onWillDismiss',
+      ]);
+      fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'continue',
+        },
+      });
+      modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
+
+      const result = await component.showSplitExpensePolicyViolationsAndMissingFields(
+        txnList,
+        { '0': policyViolation1 },
+        null
+      );
+      expect(splitExpenseService.filteredPolicyViolations).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+      expect(splitExpenseService.filteredMissingFieldsViolations).not.toHaveBeenCalled();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: SplitExpensePolicyViolationComponent,
+        componentProps: {
+          policyViolations: { '0': filteredSplitPolicyViolationsData },
+          missingFieldsViolations: null,
+          isPartOfReport: true,
+        },
+        mode: 'ios',
+        ...modalProperties.getModalDefaultProperties(),
+        presentingElement: await modalController.getTop(),
+      });
+      expect(result).toEqual({
+        action: 'continue',
+      });
+    });
+  });
+
+  describe('handlePolicyAndMissingFieldsCheck():', () => {
+    beforeEach(() => {
+      component.reportId = 'rpeq1B17R8gWZ';
+      component.unspecifiedCategory = unspecifiedCategory;
+      component.expenseFields = expenseFieldResponse;
+      const splitEtxns = cloneDeep(txnList);
+      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.returnValue(
+        Promise.resolve({
+          action: 'continue',
+          comments: { '0': 'test comment' },
+        })
+      );
+      policyService.checkIfViolationsExist.and.returnValue(true);
+      splitExpenseService.checkIfMissingFieldsExist.and.returnValue(true);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: SplitExpenseMissingFieldsData,
+        })
+      );
+      spyOn(component, 'transformViolationData').and.returnValue({ '0': policyViolation1 });
+      spyOn(component, 'transformMandatoryFieldsData').and.returnValue({
+        '1': transformedSplitExpenseMissingFieldsData,
+      });
+    });
+
+    it('should call handlePolicyAndMissingFieldsCheck and showSplitExpensePolicyViolationsAndMissingFields if policy violations exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).toHaveBeenCalledOnceWith({
+          '1': transformedSplitExpenseMissingFieldsData,
+        });
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          SplitExpenseMissingFieldsData
+        );
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          { '0': policyViolation1 },
+          { '1': transformedSplitExpenseMissingFieldsData }
+        );
+        done();
+      });
+    });
+
+    it('should call handlePolicyAndMissingFieldsCheck and showSplitExpensePolicyViolationsAndMissingFields if policy violations exist and missing fields does not exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: {},
+        })
+      );
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).not.toHaveBeenCalled();
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          { '0': policyViolation1 },
+          null
+        );
+        done();
+      });
+    });
+
+    it('should return action as continue if policy violations and missing fields does not exist', (done) => {
+      const splitEtxns = cloneDeep(txnList);
+      splitEtxns[0].org_category_id = null;
+      splitEtxns[0].custom_properties[0].id = component.expenseFields[0].id;
+      policyService.checkIfViolationsExist.and.returnValue(false);
+      splitExpenseService.checkIfMissingFieldsExist.and.returnValue(false);
+      splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
+        of({
+          policyViolations: splitPolicyExp1,
+          missingFields: {},
+        })
+      );
+      component.handlePolicyAndMissingFieldsCheck(splitEtxns).subscribe((res) => {
+        expect(policyService.checkIfViolationsExist).toHaveBeenCalledOnceWith({ '0': policyViolation1 });
+        expect(splitExpenseService.checkIfMissingFieldsExist).not.toHaveBeenCalled();
+        expect(splitExpenseService.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(
+          splitEtxns,
+          component.fileObjs,
+          component.transaction,
+          {
+            reportId: component.reportId,
+            unspecifiedCategory: component.unspecifiedCategory,
+          }
+        );
+        expect(component.transformViolationData).toHaveBeenCalledOnceWith(splitEtxns, splitPolicyExp1);
+        expect(component.transformMandatoryFieldsData).not.toHaveBeenCalled();
+        expect(component.showSplitExpensePolicyViolationsAndMissingFields).not.toHaveBeenCalled();
+        expect(res).toEqual({ action: 'continue', comments: null });
+        done();
+      });
+    });
+  });
+
+  describe('getViolationName():', () => {
+    beforeEach(() => {
+      component.splitExpensesFormArray = new FormArray([splitExpenseFormData7]);
+    });
+
+    it('should return category name if split type is category', () => {
+      component.splitType = 'categories';
+
+      expect(component.getViolationName(0)).toEqual('Food');
+    });
+
+    it('should return project name if split type is project', () => {
+      component.splitType = 'projects';
+
+      expect(component.getViolationName(0)).toEqual('Project 1');
+    });
+
+    it('should return cost center name if split type is cost center', () => {
+      component.splitType = 'cost centers';
+
+      expect(component.getViolationName(0)).toEqual('Cost Center 1');
+    });
+  });
+
+  it('transformViolationData(): should return amount, type, currency and violation data', () => {
+    const etxn = cloneDeep([txnData4]);
+    spyOn(component, 'getViolationName').and.returnValue('Food');
+    const mockPolicyViolation = cloneDeep(splitPolicyExp1);
+
+    const res = component.transformViolationData(etxn, mockPolicyViolation);
+    expect(res).toEqual({
+      '0': policyViolationData5,
+    });
+  });
+
+  it('transformMandatoryFieldsData(): should return amount, type, currency and missing fields data', () => {
+    const etxn = cloneDeep([txnData4]);
+    spyOn(component, 'getViolationName').and.returnValue('Food');
+    const mockMissingFields = cloneDeep(SplitExpenseMissingFieldsData);
+    component.splitType = 'category';
+
+    const res = component.transformMandatoryFieldsData(etxn, mockMissingFields);
+    expect(res).toEqual({
+      '0': transformedSplitExpenseMissingFieldsData2,
+    });
+  });
+
+  it('correctTotalSplitAmount(): should adjust total split amount incase the sum of splits does not match the actual amount', () => {
+    component.formattedSplitExpense = cloneDeep(txnList);
+    component.formattedSplitExpense[0].amount = 23.459;
+    component.formattedSplitExpense[1].amount = 23.459;
+    component.transaction = cloneDeep(txnData4);
+    component.transaction.amount = 46.918685;
+    component.correctTotalSplitAmount();
+    expect(component.formattedSplitExpense[1].amount).toEqual(23.459685);
   });
 });
