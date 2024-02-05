@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
     <ion-title>
-      <div class="split-expense-policy-violation--toolbar__title">Policy Violation Found</div>
+      <div class="split-expense-policy-violation--toolbar__title">{{ splitExpenseModalHeader }}</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -88,6 +88,7 @@
                 [showHeader]="false"
                 [showCTA]="false"
                 [isSplitBlocked]="isSplitBlocked"
+                [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
               ></app-fy-critical-policy-violation>
             </ng-container>
           </ng-container>
