@@ -511,7 +511,7 @@ export class SplitExpenseService {
   getFileIdsFromObjects(fileObjs: FileObject[]): string[] {
     const fileIds: string[] = [];
 
-    if (fileObjs && fileObjs.length > 0) {
+    if (fileObjs?.length > 0) {
       for (const fileObj of fileObjs) {
         fileIds.push(fileObj.id);
       }
