@@ -578,7 +578,12 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: this.reportId, navigatedFromSplitExpense: true },
+      ]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }

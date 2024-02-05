@@ -157,6 +157,7 @@ export class MyViewReportPage {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    const navigatedFromSplitExpense = !!this.activatedRoute.snapshot.params.navigatedFromSplitExpense;
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 
@@ -231,7 +232,7 @@ export class MyViewReportPage {
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
-      tap(() => this.expensesService.clearCache()),
+      tap(() => navigatedFromSplitExpense && this.expensesService.clearCache()),
       switchMap(() =>
         this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
       ),

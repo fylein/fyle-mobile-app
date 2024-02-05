@@ -944,7 +944,12 @@ describe('SplitExpensePage', () => {
       component.reportId = 'rpPNBrdR9NaE';
       const toastMessage = 'Expense split successfully.';
       component.showSuccessToast();
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_report', { id: 'rpPNBrdR9NaE' }]);
+      expect(router.navigate).toHaveBeenCalledOnceWith([
+        '/',
+        'enterprise',
+        'my_view_report',
+        { id: 'rpPNBrdR9NaE', navigatedFromSplitExpense: true },
+      ]);
       expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
         toastMessage,
         ToastType.SUCCESS,
