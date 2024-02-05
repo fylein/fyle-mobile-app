@@ -26,6 +26,8 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
 
   isSplitBlocked = false;
 
+  splitExpenseModalHeader = 'Policy Violation Found';
+
   constructor(private modalController: ModalController, private fb: FormBuilder) {}
 
   get formComments(): FormArray {
@@ -53,6 +55,10 @@ export class SplitExpensePolicyViolationComponent implements OnInit {
         this.isSplitBlocked = true;
       }
     });
+
+    if (this.isSplitBlocked) {
+      this.splitExpenseModalHeader = 'Expense cannot be split';
+    }
   }
 
   ngOnInit(): void {
