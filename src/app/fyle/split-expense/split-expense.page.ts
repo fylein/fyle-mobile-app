@@ -754,7 +754,7 @@ export class SplitExpensePage {
     );
 
     if (this.transaction.amount !== totalSplitAmount) {
-      const difference = parseFloat((this.amount - totalSplitAmount).toFixed(15));
+      const difference = parseFloat((this.transaction.amount - totalSplitAmount).toFixed(15));
       this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount += difference;
     }
   }
