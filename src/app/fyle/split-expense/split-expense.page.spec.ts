@@ -2167,6 +2167,7 @@ describe('SplitExpensePage', () => {
       spyOn(component, 'generateSplitEtxnFromFg').and.returnValue(of(txnList[0]));
       spyOn(component, 'uploadFiles').and.returnValue(of(fileObjectData1));
       spyOn(component, 'createAndLinkTxnsWithFiles').and.returnValue(of(['txSQ9yM7IYEy', 'txbSFbl4vmf1']));
+      spyOn(component, 'correctTotalSplitAmount');
       const mockTransaction = cloneDeep(txnList[0]);
       component.transaction = mockTransaction;
       // @ts-ignore
@@ -2250,7 +2251,7 @@ describe('SplitExpensePage', () => {
       } catch (err) {
         expect(err).toEqual(new Error('Policy Violation checks were failed!'));
         expect(component.toastWithoutCTA).toHaveBeenCalledOnceWith(
-          'Unable to check policies. Please contact support.',
+          'We were unable to split your expense. Please try again later.',
           ToastType.FAILURE,
           'msb-failure-with-camera-icon'
         );
@@ -2612,5 +2613,15 @@ describe('SplitExpensePage', () => {
     expect(res).toEqual({
       '0': transformedSplitExpenseMissingFieldsData2,
     });
+  });
+
+  it('correctTotalSplitAmount(): should adjust total split amount incase the sum of splits does not match the actual amount', () => {
+    component.formattedSplitExpense = cloneDeep(txnList);
+    component.formattedSplitExpense[0].amount = 23.459;
+    component.formattedSplitExpense[1].amount = 23.459;
+    component.transaction = cloneDeep(txnData4);
+    component.transaction.amount = 46.918685;
+    component.correctTotalSplitAmount();
+    expect(component.formattedSplitExpense[1].amount).toEqual(23.459685);
   });
 });
