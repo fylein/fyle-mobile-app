@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, NavController } from '@ionic/angular';
-import { isNumber } from 'lodash';
+import { isEmpty, isNumber } from 'lodash';
 import * as dayjs from 'dayjs';
 import { forkJoin, from, iif, Observable, of, throwError } from 'rxjs';
 import { catchError, concatMap, finalize, map, switchMap } from 'rxjs/operators';
@@ -43,6 +43,12 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
 import { Expense } from 'src/app/core/models/expense.model';
+import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
+import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
+import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
+import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
+import { TimezoneService } from 'src/app/core/services/timezone.service';
+import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -102,6 +108,12 @@ export class SplitExpensePage {
 
   selectedProject: ExtendedProject;
 
+  expenseFields: ExpenseField[];
+
+  formattedSplitExpense: Transaction[];
+
+  unspecifiedCategory: OrgCategory = null;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -125,7 +137,8 @@ export class SplitExpensePage {
     private orgSettingsService: OrgSettingsService,
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
-    private projectsService: ProjectsService
+    private projectsService: ProjectsService,
+    private timezoneService: TimezoneService
   ) {}
 
   goBack(): void {
@@ -230,15 +243,58 @@ export class SplitExpensePage {
     }
   }
 
+  setTransactionDate(splitExpenseValue: SplitExpense, offset: string): Date {
+    let txnDate: Date;
+
+    if (splitExpenseValue.txn_dt) {
+      txnDate = this.dateService.getUTCDate(new Date(splitExpenseValue.txn_dt));
+    } else if (this.transaction.txn_dt) {
+      txnDate = this.dateService.getUTCDate(new Date(this.transaction.txn_dt));
+    } else {
+      txnDate = this.dateService.getUTCDate(new Date());
+    }
+
+    txnDate.setHours(12);
+    txnDate.setMinutes(0);
+    txnDate.setSeconds(0);
+    txnDate.setMilliseconds(0);
+    txnDate = this.timezoneService.convertToUtc(txnDate, offset);
+
+    return txnDate;
+  }
+
+  correctDates(transaction: Transaction, offset: string): void {
+    // setting from_date and to_date time to T10:00:00:000 in local time zone
+    if (transaction.from_dt) {
+      transaction.from_dt.setHours(12);
+      transaction.from_dt.setMinutes(0);
+      transaction.from_dt.setSeconds(0);
+      transaction.from_dt.setMilliseconds(0);
+      transaction.from_dt = this.timezoneService.convertToUtc(transaction.from_dt, offset);
+    }
+
+    if (transaction.to_dt) {
+      transaction.to_dt.setHours(12);
+      transaction.to_dt.setMinutes(0);
+      transaction.to_dt.setSeconds(0);
+      transaction.to_dt.setMilliseconds(0);
+      transaction.to_dt = this.timezoneService.convertToUtc(transaction.to_dt, offset);
+    }
+  }
+
   generateSplitEtxnFromFg(splitExpenseValue: SplitExpense): Observable<Transaction> {
     // Fixing the date format here as the transaction object date is a string
     this.transaction.from_dt =
       this.transaction.from_dt && this.dateService.getUTCDate(new Date(this.transaction.from_dt));
     this.transaction.to_dt = this.transaction.to_dt && this.dateService.getUTCDate(new Date(this.transaction.to_dt));
 
-    return this.dependentCustomProperties$.pipe(
-      map((dependentCustomProperties) => {
+    return forkJoin({
+      dependentCustomProperties: this.dependentCustomProperties$,
+      orgUserSettings: this.orgUserSettingsService.get(),
+    }).pipe(
+      concatMap(({ dependentCustomProperties, orgUserSettings }) => {
         let txnCustomProperties = this.transaction.custom_properties;
+        const offset = orgUserSettings.locale.offset;
 
         const isDifferentProject =
           this.splitType === 'projects' && splitExpenseValue.project?.project_id !== this.transaction.project_id;
@@ -252,7 +308,9 @@ export class SplitExpensePage {
           );
         }
 
-        return {
+        this.correctDates(this.transaction, offset);
+
+        return of({
           ...this.transaction,
           org_category_id: splitExpenseValue.category && splitExpenseValue.category.id,
           project_id: splitExpenseValue.project && splitExpenseValue.project.project_id,
@@ -262,8 +320,12 @@ export class SplitExpensePage {
           source: 'MOBILE',
           billable: this.setUpSplitExpenseBillable(splitExpenseValue),
           tax_amount: this.setUpSplitExpenseTax(splitExpenseValue),
-          custom_properties: txnCustomProperties,
-        };
+          txn_dt: this.setTransactionDate(splitExpenseValue, offset),
+          custom_properties: this.timezoneService.convertAllDatesToProperLocale(
+            txnCustomProperties,
+            offset
+          ) as TxnCustomProperties[],
+        });
       })
     );
   }
@@ -337,7 +399,7 @@ export class SplitExpensePage {
       }
 
       //if source txn has cost_center_id, check if the split category id is present in cost_center
-      if (this.transaction.cost_center_id && !costCenter?.org_category_ids?.includes(splitFormValue.category?.id)) {
+      if (this.transaction.cost_center_id && !costCenter?.org_category_ids?.includes(splitFormValue.category.id)) {
         splitTxn.cost_center_id = null;
         splitTxn.cost_center_name = null;
       }
@@ -387,7 +449,12 @@ export class SplitExpensePage {
 
   createSplitTxns(splitExpenses: Transaction[]): Observable<Transaction[]> {
     const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
+      txns: this.splitExpenseService.createSplitTxns(
+        this.transaction,
+        this.totalSplitAmount,
+        splitExpenses,
+        this.expenseFields
+      ),
     };
 
     return forkJoin(splitExpense$).pipe(
@@ -404,7 +471,12 @@ export class SplitExpensePage {
 
   createAndLinkTxnsWithFiles(splitExpenses: Transaction[]): Observable<string[]> {
     const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(this.transaction, this.totalSplitAmount, splitExpenses),
+      txns: this.splitExpenseService.createSplitTxns(
+        this.transaction,
+        this.totalSplitAmount,
+        splitExpenses,
+        this.expenseFields
+      ),
     };
 
     if (this.fileObjs && this.fileObjs.length > 0) {
@@ -454,28 +526,63 @@ export class SplitExpensePage {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  showSuccessToast(): void {
-    if (this.reportId) {
-      if (this.completeTxnIds.length === this.splitExpenseTxn.length) {
-        const toastMessage = 'Your expense was split successfully. All the split expenses were added to report';
-        this.toastWithCTA(toastMessage);
-      } else if (this.completeTxnIds.length > 0 && this.splitExpenseTxn.length > 0) {
-        const toastMessage =
-          'Your expense was split successfully. ' +
-          this.completeTxnIds.length +
-          ' out of ' +
-          this.splitExpenseTxn.length +
-          ' expenses were added to report.';
-        this.toastWithCTA(toastMessage);
-      } else {
-        const toastMessage = 'Your expense was split successfully. Review split expenses to add it to the report.';
-        this.toastWithoutCTA(toastMessage, ToastType.INFORMATION, 'msb-info');
-      }
+  getViolationName(index: number): string {
+    const splitExpenseFormValue = this.splitExpensesFormArray.at(index).value as SplitExpense;
+    if (this.splitType === 'projects') {
+      return splitExpenseFormValue.project.project_name;
+    } else if (this.splitType === 'cost centers') {
+      return splitExpenseFormValue.cost_center.name;
     } else {
-      const toastMessage = 'Your expense was split successfully.';
-      this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
+      return splitExpenseFormValue.category.name;
     }
-    this.router.navigate(['/', 'enterprise', 'my_expenses']);
+  }
+
+  transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
+    const violationData: { [id: number]: PolicyViolation } = {};
+    for (const [index, etxn] of etxns.entries()) {
+      violationData[index] = {};
+      for (const key in violations) {
+        if (violations.hasOwnProperty(key)) {
+          violationData[index].amount = etxn.orig_amount || etxn.amount;
+          violationData[index].currency = etxn.orig_currency || etxn.currency;
+          violationData[index].name = this.getViolationName(index);
+          violationData[index].type = this.splitType;
+          violationData[index].data = violations.data[index];
+        }
+      }
+    }
+    return violationData;
+  }
+
+  transformMandatoryFieldsData(
+    etxns: Transaction[],
+    mandatoryFields: Partial<SplitExpenseMissingFields>
+  ): { [id: number]: Partial<TransformedSplitExpenseMissingFields> } {
+    const mandatoryFieldsData: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = {};
+    for (const [index, etxn] of etxns.entries()) {
+      mandatoryFieldsData[index] = {};
+      for (const key in mandatoryFields) {
+        if (mandatoryFields.hasOwnProperty(key)) {
+          mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
+          mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
+          mandatoryFieldsData[index].name = this.getViolationName(index);
+          mandatoryFieldsData[index].type = this.splitType;
+          mandatoryFieldsData[index].data = mandatoryFields.data[index];
+          break;
+        }
+      }
+    }
+    return mandatoryFieldsData;
+  }
+
+  showSuccessToast(): void {
+    const toastMessage = 'Expense split successfully.';
+    if (this.reportId) {
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+    } else {
+      this.router.navigate(['/', 'enterprise', 'my_expenses']);
+    }
+    this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
   getAttachedFiles(transactionId: string): Observable<FileObject[]> {
@@ -515,10 +622,145 @@ export class SplitExpensePage {
     }
   }
 
+  async showSplitExpensePolicyViolationsAndMissingFields(
+    splitEtxns: Transaction[],
+    policyViolations: { [id: number]: PolicyViolation },
+    missingFieldsViolations: { [id: number]: Partial<TransformedSplitExpenseMissingFields> }
+  ): Promise<SplitExpenseViolationsPopup> {
+    const filteredPolicyViolations = this.splitExpenseService.filteredPolicyViolations(policyViolations);
+
+    let filteredMissingFieldsViolations = {};
+
+    if (missingFieldsViolations) {
+      filteredMissingFieldsViolations =
+        this.splitExpenseService.filteredMissingFieldsViolations(missingFieldsViolations);
+    } else {
+      filteredMissingFieldsViolations = null;
+    }
+
+    const splitExpenseViolationsModal = await this.modalController.create({
+      component: SplitExpensePolicyViolationComponent,
+      componentProps: {
+        policyViolations: filteredPolicyViolations,
+        missingFieldsViolations: filteredMissingFieldsViolations,
+        isPartOfReport: !!this.reportId,
+      },
+      mode: 'ios',
+      presentingElement: await this.modalController.getTop(),
+      ...this.modalProperties.getModalDefaultProperties(),
+    });
+
+    await splitExpenseViolationsModal.present();
+
+    const { data } = await splitExpenseViolationsModal.onWillDismiss<SplitExpenseViolationsPopup>();
+
+    return data;
+  }
+
+  handlePolicyAndMissingFieldsCheck(splitEtxns: Transaction[]): Observable<SplitExpenseViolationsPopup> {
+    for (const txn of splitEtxns) {
+      delete txn.id;
+
+      const categoryId = txn.org_category_id || this.unspecifiedCategory?.id;
+
+      if (txn.custom_properties?.length > 0 && this.expenseFields?.length > 0) {
+        txn.custom_properties = txn.custom_properties.filter((customProperty) => {
+          const customField = this.expenseFields.find((field) => field.id === customProperty.id);
+          return customField?.org_category_ids?.includes(categoryId);
+        });
+      }
+    }
+
+    const reportAndCategoryParams = {
+      reportId: this.reportId,
+      unspecifiedCategory: this.unspecifiedCategory,
+    };
+
+    return this.splitExpenseService
+      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, reportAndCategoryParams)
+      .pipe(
+        concatMap((res) => {
+          const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
+          let formattedMandatoryFields: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = null;
+
+          if (!isEmpty(res.missingFields)) {
+            formattedMandatoryFields = this.transformMandatoryFieldsData(splitEtxns, res.missingFields);
+          }
+
+          const doViolationsExist = this.policyService.checkIfViolationsExist(formattedViolations);
+          const doMandatoryFieldsExist =
+            formattedMandatoryFields && this.splitExpenseService.checkIfMissingFieldsExist(formattedMandatoryFields);
+
+          if (doViolationsExist || doMandatoryFieldsExist) {
+            return from(
+              this.showSplitExpensePolicyViolationsAndMissingFields(
+                splitEtxns,
+                formattedViolations,
+                formattedMandatoryFields
+              )
+            );
+          }
+
+          return of({ action: 'continue', comments: null });
+        })
+      );
+  }
+
+  handleSplitExpense(comments: { [id: number]: string }): void {
+    const reportAndCategoryParams = {
+      reportId: this.reportId,
+      unspecifiedCategory: this.unspecifiedCategory,
+    };
+
+    this.splitExpenseService
+      .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
+      .pipe(
+        catchError((err) => {
+          const message = 'We were unable to split your expense. Please try again later.';
+          this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.router.navigate(['/', 'enterprise', 'my_expenses']);
+          return throwError(err);
+        })
+      )
+      .subscribe((txns) => {
+        const txnIds = txns.data.map((txn) => txn.id);
+
+        if (comments) {
+          return this.splitExpenseService
+            .postSplitExpenseComments(txnIds, comments)
+            .pipe(
+              catchError((err) => {
+                const message = 'We were unable to split your expense. Please try again later.';
+                this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+                this.router.navigate(['/', 'enterprise', 'my_expenses']);
+                return throwError(err);
+              })
+            )
+            .subscribe(() => this.showSuccessToast());
+        }
+
+        return this.showSuccessToast();
+      });
+  }
+
+  correctTotalSplitAmount(): void {
+    const totalSplitAmount = this.formattedSplitExpense.reduce(
+      (prev, cur) => parseFloat((prev + cur.amount).toPrecision(15)),
+      0
+    );
+
+    if (this.transaction.amount !== totalSplitAmount) {
+      const difference = parseFloat((this.transaction.amount - totalSplitAmount).toFixed(15));
+      this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount = parseFloat(
+        (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15)
+      );
+    }
+  }
+
   saveV2(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount) {
+      if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
         this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
@@ -560,6 +802,11 @@ export class SplitExpensePage {
         })
           .pipe(
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
+            concatMap((formattedSplitExpense) => {
+              this.formattedSplitExpense = formattedSplitExpense;
+              this.correctTotalSplitAmount();
+              return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
+            }),
             catchError((err) => {
               const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
@@ -575,7 +822,11 @@ export class SplitExpensePage {
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
-          .subscribe((response) => of(response));
+          .subscribe((response) => {
+            if (response && response.action === 'continue') {
+              this.handleSplitExpense(response.comments);
+            }
+          });
       });
     } else {
       this.splitExpensesFormArray.markAllAsTouched();
@@ -680,6 +931,12 @@ export class SplitExpensePage {
     return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
   }
 
+  getUnspecifiedCategory(): void {
+    this.categoriesService.getCategoryByName('Unspecified').subscribe((unspecifiedCategory) => {
+      this.unspecifiedCategory = unspecifiedCategory;
+    });
+  }
+
   ionViewWillEnter(): void {
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
@@ -692,6 +949,12 @@ export class SplitExpensePage {
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
     this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
+    this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
+
+    // Set max and min date for form
+    const today = new Date();
+    this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
+    this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>
@@ -757,6 +1020,8 @@ export class SplitExpensePage {
       )
     );
 
+    this.getUnspecifiedCategory();
+
     forkJoin({
       homeCurrency: this.currencyService.getHomeCurrency(),
       isCorporateCardsEnabled: this.isCorporateCardsEnabled$,
@@ -778,13 +1043,6 @@ export class SplitExpensePage {
     this.add(amount1, this.currency, percentage1, null);
     this.add(amount2, this.currency, percentage2, null);
     this.getTotalSplitAmount();
-
-    const today = new Date();
-    const minDate = new Date('Jan 1, 2001');
-    const maxDate = this.dateService.addDaysToDate(today, 1);
-
-    this.minDate = minDate.getFullYear() + '-' + (minDate.getMonth() + 1) + '-' + minDate.getDate();
-    this.maxDate = maxDate.getFullYear() + '-' + (maxDate.getMonth() + 1) + '-' + maxDate.getDate();
   }
 
   setAmountAndCurrency(currencyObj: CurrencyObj, homeCurrency: string): void {
