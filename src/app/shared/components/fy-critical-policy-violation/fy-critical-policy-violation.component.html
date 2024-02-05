@@ -20,6 +20,11 @@
         <ng-container *ngFor="let violation of criticalViolationMessages">
           <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
         </ng-container>
+        <app-fy-alert-info
+          *ngIf="isReceiptMissing"
+          type="information"
+          message="Splitting this expense will create incomplete expenses since receipt is missing."
+        ></app-fy-alert-info>
       </ng-container>
     </div>
   </div>
