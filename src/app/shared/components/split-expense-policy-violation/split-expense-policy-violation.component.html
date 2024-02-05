@@ -88,6 +88,7 @@
                 [showHeader]="false"
                 [showCTA]="false"
                 [isSplitBlocked]="isSplitBlocked"
+                [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
               ></app-fy-critical-policy-violation>
             </ng-container>
           </ng-container>
