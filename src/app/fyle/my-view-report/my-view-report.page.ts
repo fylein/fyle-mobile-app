@@ -231,6 +231,7 @@ export class MyViewReportPage {
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
+      tap(() => this.expensesService.clearCache()),
       switchMap(() =>
         this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
       ),

@@ -1,11 +1,11 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
+import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { Cacheable } from 'ts-cacheable';
+import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
 import {
   ExpenseDuplicateSet,
@@ -26,6 +26,19 @@ export class ExpensesService {
     private spenderService: SpenderService,
     private sharedExpenseService: SharedExpenseService
   ) {}
+
+  /*
+    'isInstant' clears the cache before the method returns a value.
+    If we don't pass that property, then the cache is not cleared in our case.
+    Ref: https://www.npmjs.com/package/ts-cacheable#:~:text=need%20to%20set-,isInstant%3A%20true,-on%20CacheBuster%20configuration
+  */
+  @CacheBuster({
+    cacheBusterNotifier: expensesCacheBuster$,
+    isInstant: true,
+  })
+  clearCache(): Observable<null> {
+    return of(null);
+  }
 
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
