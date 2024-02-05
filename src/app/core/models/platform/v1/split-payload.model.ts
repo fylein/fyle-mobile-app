@@ -25,6 +25,6 @@ export interface SplitPayload {
   source: string;
   source_account_id?: string;
   tax_amount?: number;
-  tax_group_id?: number;
+  tax_group_id?: string;
   splits: Splits[];
 }
