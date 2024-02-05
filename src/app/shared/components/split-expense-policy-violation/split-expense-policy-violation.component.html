@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
     <ion-title>
-      <div class="split-expense-policy-violation--toolbar__title">Policy Violation Found</div>
+      <div class="split-expense-policy-violation--toolbar__title">{{ splitExpenseModalHeader }}</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -58,7 +58,7 @@
                   [showComment]="false"
                   [policyAction]="policyViolations[transaction].action.final_desired_state"
                 ></app-fy-policy-violation>
-                <ng-container>
+                <ng-container *ngIf="!isSplitBlocked">
                   <form [formGroup]="form">
                     <div formArrayName="comments">
                       <div [formGroup]="formComments.controls[i]">
@@ -87,6 +87,8 @@
                 [criticalViolationMessages]="policyViolations[transaction].rules"
                 [showHeader]="false"
                 [showCTA]="false"
+                [isSplitBlocked]="isSplitBlocked"
+                [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
               ></app-fy-critical-policy-violation>
             </ng-container>
           </ng-container>
@@ -139,9 +141,11 @@
           <ng-container>
             <ng-container>
               <app-fy-critical-policy-violation
-                [criticalViolationMessages]="['expense will be flagged for verification and approval']"
+                [criticalViolationMessages]="[]"
                 [showHeader]="false"
                 [showCTA]="false"
+                [isSplitBlocked]="isSplitBlocked"
+                [isSplitMissingFields]="true"
               ></app-fy-critical-policy-violation>
             </ng-container>
           </ng-container>
@@ -153,12 +157,12 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div *ngIf="!isExpenseBlocked" class="fy-footer-cta-container">
+    <div *ngIf="!isSplitBlocked" class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
       <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
     </div>
 
-    <div *ngIf="isExpenseBlocked" class="fy-footer-cta-container">
+    <div *ngIf="isSplitBlocked" class="fy-footer-cta-container">
       <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="cancel()"> Okay </ion-button>
     </div>
   </ion-toolbar>
