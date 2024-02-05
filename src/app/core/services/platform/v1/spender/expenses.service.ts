@@ -12,6 +12,10 @@ import {
   ExpenseDuplicateSetsResponse,
 } from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
+import { SplitPayload } from 'src/app/core/models/platform/v1/split-payload.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
+import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 
 @Injectable({
   providedIn: 'root',
@@ -110,6 +114,24 @@ export class ExpensesService {
 
     return this.spenderService.post<void>('/expenses/dismiss_duplicates/bulk', {
       data: payload,
+    });
+  }
+
+  splitExpenseCheckPolicies(params: SplitPayload): Observable<SplitExpensePolicy> {
+    return this.spenderService.post<SplitExpensePolicy>('/expenses/split/check_policies', {
+      data: params,
+    });
+  }
+
+  splitExpenseCheckMissingFields(params: SplitPayload): Observable<SplitExpenseMissingFields> {
+    return this.spenderService.post<SplitExpenseMissingFields>('/expenses/split/check_mandatory_fields', {
+      data: params,
+    });
+  }
+
+  splitExpense(params: SplitPayload): Observable<{ data: Transaction[] }> {
+    return this.spenderService.post<{ data: Transaction[] }>('/expenses/split', {
+      data: params,
     });
   }
 
