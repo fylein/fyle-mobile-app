@@ -747,10 +747,22 @@ export class SplitExpensePage {
       });
   }
 
+  correctTotalSplitAmount(): void {
+    const totalSplitAmount = this.formattedSplitExpense.reduce(
+      (prev, cur) => parseFloat((prev + cur.amount).toPrecision(15)),
+      0
+    );
+
+    if (this.transaction.amount !== totalSplitAmount) {
+      const difference = parseFloat((this.amount - totalSplitAmount).toFixed(15));
+      this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount += difference;
+    }
+  }
+
   saveV2(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount) {
+      if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
         this.showErrorBlock = true;
         this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
         setTimeout(() => {
@@ -794,6 +806,7 @@ export class SplitExpensePage {
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
             concatMap((formattedSplitExpense) => {
               this.formattedSplitExpense = formattedSplitExpense;
+              this.correctTotalSplitAmount();
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
             catchError((err) => {
