@@ -1,4 +1,5 @@
 import { SplitPayload } from '../models/platform/v1/split-payload.model';
+import { splitsData1 } from './splits.data';
 
 export const splitPayloadData1: SplitPayload = {
   id: 'sdfd2391',
@@ -46,4 +47,58 @@ export const splitPayloadData1: SplitPayload = {
       value: 'string1',
     },
   ],
+};
+
+export const splitPayloadData2: SplitPayload = {
+  is_reimbursable: true,
+  source: 'MOBILE',
+  spent_at: new Date('Mon Feb 13 2023 22:30:00 GMT+0530 (India Standard Time)'),
+  started_at: new Date('Mon Feb 13 2023 22:30:00 GMT+0530 (India Standard Time)'),
+  ended_at: new Date('Mon Feb 13 2023 22:30:00 GMT+0530 (India Standard Time)'),
+  claim_amount: 122,
+  foreign_currency: null,
+  foreign_amount: null,
+  locations: [],
+  custom_fields: [
+    {
+      id: 200227,
+      mandatory: false,
+      name: 'userlist',
+      options: [],
+      placeholder: 'userlist_custom_field',
+      prefix: '',
+      type: 'USER_LIST',
+      value: [],
+    },
+    {
+      id: 211326,
+      mandatory: false,
+      name: 'custom date',
+      options: [],
+      placeholder: 'helo date',
+      prefix: '',
+      type: 'DATE',
+      value: '2023-02-13T17:00:00.000Z',
+    },
+  ],
+  project_id: 3943,
+  source_account_id: 'acc5APeygFjRd',
+  tax_amount: 18.61,
+  tax_group_id: 'tg3iWuqWhfzB',
+  category_id: 16564,
+  merchant: 'Australian Taxation Office',
+  purpose: 'test_term',
+  cost_center_id: 13795,
+  is_billable: undefined,
+  id: undefined,
+  file_ids: ['fijCeF0G0jTl'],
+  splits: splitsData1,
+  travel_classes: [],
+  report_id: 'rp0AGAoeQfQX',
+};
+
+export const splitPayloadData3: SplitPayload = {
+  ...splitPayloadData2,
+  category_id: 16569,
+  is_reimbursable: null,
 };

@@ -21,6 +21,8 @@ export class FyCriticalPolicyViolationComponent {
 
   @Input() isSplitMissingFields? = false;
 
+  @Input() isReceiptMissing? = false;
+
   constructor(private modalController: ModalController) {}
 
   cancel(): void {

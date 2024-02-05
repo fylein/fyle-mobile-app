@@ -314,7 +314,7 @@ export class SplitExpenseService {
         const exchangeRate = sourceTxn.amount / sourceTxn.orig_amount;
 
         transaction.orig_amount = splitExpense.amount;
-        transaction.amount = splitExpense.amount * exchangeRate;
+        transaction.amount = parseFloat((splitExpense.amount * exchangeRate).toFixed(3));
       } else {
         transaction.amount = splitExpense.amount;
       }
@@ -418,29 +418,30 @@ export class SplitExpenseService {
     reportAndCategoryParams: { reportId: string; unspecifiedCategory: OrgCategory }
   ): SplitPayload {
     const platformSplitObject: SplitPayload = {
-      id: transaction?.id,
+      id: transaction.id,
       splits: this.transformSplitArray(splitTxns, reportAndCategoryParams.unspecifiedCategory),
       // Platform will throw error if category_id is null in form, therefore adding unspecified category
-      category_id: transaction?.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
-      source: transaction?.source,
-      spent_at: transaction?.txn_dt,
-      is_reimbursable: transaction?.skip_reimbursement === null ? null : !transaction?.skip_reimbursement,
+      category_id: transaction.org_category_id || reportAndCategoryParams.unspecifiedCategory?.id,
+      source: transaction.source,
+      spent_at: transaction.txn_dt,
+      is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       travel_classes: [],
-      locations: transaction?.locations,
-      foreign_currency: transaction?.orig_currency,
-      foreign_amount: transaction?.orig_amount,
-      project_id: transaction?.project_id,
+      locations: transaction.locations,
+      foreign_currency: transaction.orig_currency,
+      foreign_amount: transaction.orig_amount,
+      project_id: transaction.project_id,
       file_ids: fileIds,
-      cost_center_id: transaction?.cost_center_id,
-      source_account_id: transaction?.source_account_id,
-      tax_amount: transaction?.tax_amount,
-      started_at: transaction?.from_dt,
-      ended_at: transaction?.to_dt,
-      merchant: transaction?.vendor,
-      purpose: transaction?.purpose,
-      is_billable: transaction?.billable,
-      custom_fields: transaction?.custom_properties,
-      claim_amount: transaction?.amount,
+      cost_center_id: transaction.cost_center_id,
+      source_account_id: transaction.source_account_id,
+      tax_amount: transaction.tax_amount,
+      started_at: transaction.from_dt,
+      ended_at: transaction.to_dt,
+      merchant: transaction.vendor,
+      purpose: transaction.purpose,
+      is_billable: transaction.billable,
+      custom_fields: transaction.custom_properties,
+      claim_amount: transaction.amount,
+      tax_group_id: transaction.tax_group_id,
     };
 
     this.transformSplitTravelClasses(transaction, platformSplitObject);
@@ -457,14 +458,14 @@ export class SplitExpenseService {
 
     for (const splitEtxn of splitEtxns) {
       const splitObject = {
-        spent_at: splitEtxn?.txn_dt,
-        category_id: splitEtxn?.org_category_id || unspecifiedCategory?.id,
-        project_id: splitEtxn?.project_id,
-        cost_center_id: splitEtxn?.cost_center_id,
-        purpose: splitEtxn?.purpose,
-        foreign_amount: splitEtxn?.orig_amount,
-        custom_fields: splitEtxn?.custom_properties,
-        claim_amount: splitEtxn?.amount,
+        spent_at: splitEtxn.txn_dt,
+        category_id: splitEtxn.org_category_id || unspecifiedCategory?.id,
+        project_id: splitEtxn.project_id,
+        cost_center_id: splitEtxn.cost_center_id,
+        purpose: splitEtxn.purpose,
+        foreign_amount: splitEtxn.orig_amount,
+        custom_fields: splitEtxn.custom_properties,
+        claim_amount: splitEtxn.amount,
       };
 
       splits.push(splitObject);
@@ -553,7 +554,7 @@ export class SplitExpenseService {
         }
         filteredViolations[key] = {
           rules,
-          action: violations[key].data.final_desired_state,
+          action: violations[key].data,
           type: violations[key].type,
           name: violations[key].name,
           currency: violations[key].currency,
@@ -602,7 +603,7 @@ export class SplitExpenseService {
     const payloadData = [];
 
     for (const idx in txnIds) {
-      if (comments[idx]) {
+      if (txnIds.hasOwnProperty(idx)) {
         const comment =
           comments[idx] !== ''
             ? this.prependPolicyViolationMessage + comments[idx]
