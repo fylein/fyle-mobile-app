@@ -680,8 +680,6 @@ export class SplitExpensePage {
       .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         concatMap((res) => {
-          console.log(res.policyViolations);
-          console.log(res.missingFields);
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
           let formattedMandatoryFields = {};
 
