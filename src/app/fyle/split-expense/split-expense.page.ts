@@ -539,15 +539,15 @@ export class SplitExpensePage {
 
   transformViolationData(etxns: Transaction[], violations: SplitExpensePolicy): { [id: number]: PolicyViolation } {
     const violationData: { [id: number]: PolicyViolation } = {};
-    for (const [idx, etxn] of etxns.entries()) {
-      violationData[idx] = {};
+    for (const [index, etxn] of etxns.entries()) {
+      violationData[index] = {};
       for (const key in violations) {
         if (violations.hasOwnProperty(key)) {
-          violationData[idx].amount = etxn.orig_amount || etxn.amount;
-          violationData[idx].currency = etxn.orig_currency || etxn.currency;
-          violationData[idx].name = this.getViolationName(idx);
-          violationData[idx].type = this.splitType;
-          violationData[idx].data = violations.data[idx];
+          violationData[index].amount = etxn.orig_amount || etxn.amount;
+          violationData[index].currency = etxn.orig_currency || etxn.currency;
+          violationData[index].name = this.getViolationName(index);
+          violationData[index].type = this.splitType;
+          violationData[index].data = violations.data[index];
         }
       }
     }
@@ -559,15 +559,15 @@ export class SplitExpensePage {
     mandatoryFields: Partial<SplitExpenseMissingFields>
   ): { [id: number]: Partial<TransformedSplitExpenseMissingFields> } {
     const mandatoryFieldsData: { [id: number]: Partial<TransformedSplitExpenseMissingFields> } = {};
-    for (const [idx, etxn] of etxns.entries()) {
-      mandatoryFieldsData[idx] = {};
+    for (const [index, etxn] of etxns.entries()) {
+      mandatoryFieldsData[index] = {};
       for (const key in mandatoryFields) {
         if (mandatoryFields.hasOwnProperty(key)) {
-          mandatoryFieldsData[idx].amount = etxn.orig_amount || etxn.amount;
-          mandatoryFieldsData[idx].currency = etxn.orig_currency || etxn.currency;
-          mandatoryFieldsData[idx].name = this.getViolationName(idx);
-          mandatoryFieldsData[idx].type = this.splitType;
-          mandatoryFieldsData[idx].data = mandatoryFields.data[idx];
+          mandatoryFieldsData[index].amount = etxn.orig_amount || etxn.amount;
+          mandatoryFieldsData[index].currency = etxn.orig_currency || etxn.currency;
+          mandatoryFieldsData[index].name = this.getViolationName(index);
+          mandatoryFieldsData[index].type = this.splitType;
+          mandatoryFieldsData[index].data = mandatoryFields.data[index];
           break;
         }
       }
