@@ -1,4 +1,4 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 
 @Component({
@@ -6,7 +6,7 @@ import { ModalController } from '@ionic/angular';
   templateUrl: './fy-critical-policy-violation.component.html',
   styleUrls: ['./fy-critical-policy-violation.component.scss'],
 })
-export class FyCriticalPolicyViolationComponent implements OnInit {
+export class FyCriticalPolicyViolationComponent {
   @Input() criticalViolationMessages = [];
 
   @Input() showHeader = true;
@@ -21,15 +21,15 @@ export class FyCriticalPolicyViolationComponent implements OnInit {
 
   @Input() isSplitMissingFields? = false;
 
+  @Input() isReceiptMissing? = false;
+
   constructor(private modalController: ModalController) {}
 
-  ngOnInit() {}
-
-  cancel() {
+  cancel(): void {
     this.modalController.dismiss(false);
   }
 
-  continue() {
+  continue(): void {
     this.modalController.dismiss(true);
   }
 }
