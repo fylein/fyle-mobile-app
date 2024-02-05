@@ -22,6 +22,7 @@ export class VirtualCardComponent {
   @Input() availableAmount: number = 1000;
 
   showCardNumber: boolean = false;
+
   showCvv: boolean = false;
 
   constructor(
