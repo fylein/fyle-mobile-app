@@ -1156,7 +1156,7 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getActionSheetOptions():', () => {
-      it('should get all action sheet options', (done) => {
+      it('should get all action sheet options and show cost centers options only if cost_center_id is present in txnFields', (done) => {
         orgSettingsService.get.and.returnValue(
           of({
             ...orgSettingsData,
@@ -1185,7 +1185,7 @@ export function TestCases1(getTestBed) {
 
         component.getActionSheetOptions().subscribe((res) => {
           actionSheetOptions = res;
-          expect(res.length).toEqual(6);
+          expect(res.length).toEqual(5);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getAllActive).toHaveBeenCalledTimes(1);
           expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(
@@ -1199,13 +1199,12 @@ export function TestCases1(getTestBed) {
         actionSheetOptions[1].handler();
         expect(component.splitExpProjectHandler).toHaveBeenCalledTimes(1);
         actionSheetOptions[2].handler();
-        expect(component.splitExpCostCenterHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[3].handler();
         expect(component.markPersonalHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[4].handler();
+        actionSheetOptions[3].handler();
         expect(component.markDismissHandler).toHaveBeenCalledTimes(1);
-        actionSheetOptions[5].handler();
+        actionSheetOptions[4].handler();
         expect(component.removeCCCHandler).toHaveBeenCalledTimes(1);
+        expect(component.splitExpCostCenterHandler).not.toHaveBeenCalled();
         done();
       });
 
