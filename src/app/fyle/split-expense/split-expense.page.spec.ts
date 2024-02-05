@@ -1045,6 +1045,30 @@ describe('SplitExpensePage', () => {
     });
   });
 
+  describe('getSplitExpenseHeader():', () => {
+    beforeEach(() => {
+      component.txnFields = txnFieldData;
+    });
+
+    it('should set splitExpenseHeader to category when the expense is split by category', () => {
+      component.splitType = 'categories';
+      component.getSplitExpenseHeader();
+      expect(component.splitExpenseHeader).toEqual('category');
+    });
+
+    it('should set splitExpenseHeader to project name when the expense is split by project', () => {
+      component.splitType = 'projects';
+      component.getSplitExpenseHeader();
+      expect(component.splitExpenseHeader).toEqual('Project');
+    });
+
+    it('should set splitExpenseHeader to cost center name when the expense is split by cost centers', () => {
+      component.splitType = 'cost centers';
+      component.getSplitExpenseHeader();
+      expect(component.splitExpenseHeader).toEqual('Location');
+    });
+  });
+
   describe('ionViewWillEnter', () => {
     beforeEach(() => {
       categoriesService.getAll.and.returnValue(of(testActiveCategoryList));

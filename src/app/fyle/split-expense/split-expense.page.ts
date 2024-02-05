@@ -114,6 +114,8 @@ export class SplitExpensePage {
 
   unspecifiedCategory: OrgCategory = null;
 
+  splitExpenseHeader: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private formBuilder: FormBuilder,
@@ -937,6 +939,16 @@ export class SplitExpensePage {
     });
   }
 
+  getSplitExpenseHeader(): void {
+    if (this.splitType === 'cost centers') {
+      this.splitExpenseHeader = this.txnFields.cost_center_id.field_name;
+    } else if (this.splitType === 'projects') {
+      this.splitExpenseHeader = this.txnFields.project_id.field_name;
+    } else {
+      this.splitExpenseHeader = 'category';
+    }
+  }
+
   ionViewWillEnter(): void {
     const currencyObj = JSON.parse(this.activatedRoute.snapshot.params.currencyObj as string) as CurrencyObj;
     const orgSettings$ = this.orgSettingsService.get();
@@ -955,6 +967,9 @@ export class SplitExpensePage {
     const today = new Date();
     this.minDate = dayjs(new Date('Jan 1, 2001')).format('YYYY-MM-D');
     this.maxDate = dayjs(this.dateService.addDaysToDate(today, 1)).format('YYYY-MM-D');
+
+    // This method is used for setting the header of split expense page
+    this.getSplitExpenseHeader();
 
     this.categories$ = this.getActiveCategories().pipe(
       switchMap((activeCategories) =>

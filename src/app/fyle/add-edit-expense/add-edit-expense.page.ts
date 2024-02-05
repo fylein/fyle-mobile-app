@@ -1015,6 +1015,7 @@ export class AddEditExpensePage implements OnInit {
             const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
             const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
             const projectField = txnFields.project_id;
+            const costCenterField = txnFields.cost_center_id;
 
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
@@ -1032,7 +1033,7 @@ export class AddEditExpensePage implements OnInit {
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
-                text: 'Split Expense By Cost Center',
+                text: 'Split Expense By ' + this.titleCasePipe.transform(costCenterField?.field_name),
                 handler: () => this.splitExpCostCenterHandler(),
               });
             }
