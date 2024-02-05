@@ -48,9 +48,6 @@ export class ExpensesService {
     );
   }
 
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
   getReportExpenses(reportId: string): Observable<Expense[]> {
     const params = {
       report_id: `eq.${reportId}`,
