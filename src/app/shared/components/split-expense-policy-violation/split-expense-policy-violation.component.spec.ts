@@ -79,12 +79,12 @@ describe('SplitExpensePolicyViolationComponent', () => {
 
   it('toggleExpansion() should expand the clicked transaction and collapse the others', () => {
     component.toggleExpansion('0');
-    expect(component.policyViolations[0].isExpanded).toBe(true);
-    expect(component.policyViolations[1].isExpanded).toBe(false);
+    expect(component.policyViolations[0].isExpanded).toBeTrue();
+    expect(component.policyViolations[1].isExpanded).toBeFalse();
 
     component.toggleExpansion('1');
-    expect(component.policyViolations[0].isExpanded).toBe(false);
-    expect(component.policyViolations[1].isExpanded).toBe(true);
+    expect(component.policyViolations[0].isExpanded).toBeFalse();
+    expect(component.policyViolations[1].isExpanded).toBeTrue();
   });
 
   it('cancel() should dismiss the modal', () => {
@@ -145,11 +145,11 @@ describe('SplitExpensePolicyViolationComponent', () => {
       1: cloneDeep({ ...filteredMissingFieldsViolationsData2, isExpanded: false }),
     };
     component.toggleMissingFieldsExpansion('0');
-    expect(component.missingFieldsViolations[0].isExpanded).toBe(true);
-    expect(component.missingFieldsViolations[1].isExpanded).toBe(false);
+    expect(component.missingFieldsViolations[0].isExpanded).toBeTrue();
+    expect(component.missingFieldsViolations[1].isExpanded).toBeFalse();
 
     component.toggleMissingFieldsExpansion('1');
-    expect(component.missingFieldsViolations[0].isExpanded).toBe(false);
-    expect(component.missingFieldsViolations[1].isExpanded).toBe(true);
+    expect(component.missingFieldsViolations[0].isExpanded).toBeFalse();
+    expect(component.missingFieldsViolations[1].isExpanded).toBeTrue();
   });
 });
