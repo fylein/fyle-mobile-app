@@ -2726,22 +2726,6 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  initCCCTxn(): void {
-    // Can we remove this method as it not used anyhere
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn &&
-      (JSON.parse(this.activatedRoute.snapshot.params.bankTxn as string) as CCCExpUnflattened);
-    this.showSelectedTransaction = true;
-    this.selectedCCCTransaction = bankTxn.ccce;
-    let cccAccountNumber: string;
-    if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
-      cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
-    }
-    this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
-    this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
-    this.isCreatedFromCCC = true;
-  }
-
   handleCCCExpenses(etxn: UnflattenedTransaction): void {
     this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
     this.selectedCCCTransaction = this.matchedCCCTransaction;
