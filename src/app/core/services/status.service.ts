@@ -136,13 +136,13 @@ export class StatusService {
       case lowerCaseComment.indexOf('unflagged') > -1:
         statusCategory = {
           category: 'Unflagged',
-          icon: 'flag',
+          icon: 'flag-outline',
         };
         break;
       case lowerCaseComment.indexOf('flagged') > -1:
         statusCategory = {
           category: 'Flagged',
-          icon: 'flag',
+          icon: 'flag-fill',
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
