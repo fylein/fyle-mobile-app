@@ -12,7 +12,9 @@ export class VirtualCardsService {
 
   getCardDetailsById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
     return this.spenderPlatformV1ApiService
-      .post<Record<string, CardDetailsResponse>>('/virtual_cards/show_card_details', {
+      .post<{
+        data: CardDetailsResponse;
+      }>('/virtual_cards/show_card_details', {
         data: virtualCardRequestPayload,
       })
       .pipe(map((response) => response.data));
@@ -20,7 +22,9 @@ export class VirtualCardsService {
 
   getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<number> {
     return this.spenderPlatformV1ApiService
-      .post<Record<string, CardDetailsAmountResponse>>('/virtual_cards/get_current_amount', {
+      .post<{
+        data: CardDetailsAmountResponse;
+      }>('/virtual_cards/get_current_amount', {
         data: virtualCardRequestPayload,
       })
       .pipe(map((response) => response.data.current_amount));

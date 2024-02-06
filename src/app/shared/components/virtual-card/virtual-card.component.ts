@@ -21,7 +21,10 @@ export class VirtualCardComponent {
 
   @Input() availableAmount: number = 1000;
 
+  @Input() cardNickname: string = 'Nickname';
+
   showCardNumber: boolean = false;
+
   showCvv: boolean = false;
 
   constructor(
