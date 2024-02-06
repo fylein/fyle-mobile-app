@@ -231,8 +231,12 @@ export class MyViewReportPage {
       .pipe(map((reportApprovals) => reportApprovals));
 
     this.expenses$ = this.loadReportTxns$.pipe(
-      tap(() => (this.isExpensesLoading = true)),
-      tap(() => navigatedFromSplitExpense && this.expensesService.clearCache()),
+      tap(() => {
+        this.isExpensesLoading = true;
+        if (navigatedFromSplitExpense) {
+          this.expensesService.clearCache();
+        }
+      }),
       switchMap(() =>
         this.expensesService.getReportExpenses(this.reportId).pipe(finalize(() => (this.isExpensesLoading = false)))
       ),
