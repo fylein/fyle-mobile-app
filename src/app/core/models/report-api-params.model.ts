@@ -4,6 +4,10 @@ export interface ReportQueryParams {
   rp_id?: string;
 }
 
+export interface ReportPlatformParams {
+  state?: string;
+}
+
 export interface ReportApiParams {
   offset?: number;
   limit?: number;
