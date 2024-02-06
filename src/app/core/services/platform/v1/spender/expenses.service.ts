@@ -138,9 +138,11 @@ export class ExpensesService {
   }
 
   splitExpense(params: SplitPayload): Observable<{ data: Transaction[] }> {
-    return this.spenderService.post<{ data: Transaction[] }>('/expenses/split', {
-      data: params,
-    });
+    return this.spenderService
+      .post<{ data: Transaction[] }>('/expenses/split', {
+        data: params,
+      })
+      .pipe(switchMap((res) => this.clearCache().pipe(map(() => res))));
   }
 
   getExpenseStats(

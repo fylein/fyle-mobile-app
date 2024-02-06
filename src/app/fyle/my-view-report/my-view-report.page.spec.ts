@@ -94,7 +94,6 @@ describe('MyViewReportPage', () => {
       'getExpenses',
       'getExpensesCount',
       'getAllExpenses',
-      'clearCache',
     ]);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
@@ -225,7 +224,6 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
 
     component.erpt$ = of(newReportParam);
     component.canEdit$ = of(true);
@@ -293,10 +291,6 @@ describe('MyViewReportPage', () => {
   });
 
   describe('ionViewWillEnter():', () => {
-    beforeEach(() => {
-      expensesService.clearCache.and.returnValue(of(null));
-    });
-
     it('should load report and report status', fakeAsync(() => {
       const erpt = cloneDeep({ ...expectedAllReports[0], rp_state: 'APPROVER_INQUIRY' });
       spyOn(component, 'setupNetworkWatcher');
@@ -475,29 +469,6 @@ describe('MyViewReportPage', () => {
         expect(res).toEqual({ enabled: true });
       });
       expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
-    }));
-
-    it('should reload report expenses if navigated from split expense', fakeAsync(() => {
-      activatedRoute.snapshot.params.navigatedFromSplitExpense = true;
-      const erpt = cloneDeep({ ...expectedAllReports[0], rp_state: 'APPROVER_INQUIRY' });
-      spyOn(component, 'setupNetworkWatcher');
-      loaderService.showLoader.and.resolveTo();
-      reportService.getReport.and.returnValue(of(erpt));
-      authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
-      statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
-      expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
-      reportService.actions.and.returnValue(of(apiReportActions));
-      expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
-      orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
-
-      component.ionViewWillEnter();
-      tick(2000);
-
-      expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
-      expect(expensesService.clearCache).toHaveBeenCalledTimes(1);
     }));
   });
 

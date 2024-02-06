@@ -512,7 +512,7 @@ export class SplitExpensePage {
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessage });
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
     });
   }
 
