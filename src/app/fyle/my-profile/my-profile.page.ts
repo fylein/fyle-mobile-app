@@ -393,7 +393,7 @@ export class MyProfilePage {
       componentProps: {
         commuteDetails: this.commuteDetails,
       },
-      cssClass: 'search-sort-popover',
+      cssClass: 'fy-dialog-popover',
     });
 
     await editCommuteDetailsPopover.present();

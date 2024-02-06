@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { FyLocationComponent } from 'src/app/shared/components/fy-location/fy-location.component';
 
 @Component({
   selector: 'app-add-edit-commute-details',
