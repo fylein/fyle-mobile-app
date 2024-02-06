@@ -8,7 +8,6 @@ import { ReportService } from '../core/services/report.service';
 import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
-import { UnflattenedTransaction } from '../core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -70,7 +69,7 @@ export class DeepLinkRedirectionPage {
 
     if (!expenseOrgId) {
       this.expensesService.getExpenseById(txnId).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+        const etxn = this.transactionService.transformExpense(expense);
         const route = this.deepLinkService.getExpenseRoute(etxn);
         this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id as string }]);
       });
@@ -89,7 +88,7 @@ export class DeepLinkRedirectionPage {
         .pipe(
           filter((eou) => expenseOrgId === eou.ou.org_id),
           switchMap(() => this.expensesService.getExpenseById(txnId)),
-          map((expense) => this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>),
+          map((expense) => this.transactionService.transformExpense(expense)),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe({

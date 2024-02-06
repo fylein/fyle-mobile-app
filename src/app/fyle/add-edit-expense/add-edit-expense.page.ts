@@ -2550,10 +2550,9 @@ export class AddEditExpensePage implements OnInit {
 
   getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
     return this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
-      switchMap((expenses) => {
-        const etxn = this.transactionService.transformExpenses(expenses) as Partial<UnflattenedTransaction>;
+      switchMap((expense) => {
+        const etxn = this.transactionService.transformExpense(expense);
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
-        console.log('Checking how edit epxense is working', expenses, etxn);
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
@@ -2601,7 +2600,7 @@ export class AddEditExpensePage implements OnInit {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
       this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -2611,7 +2610,7 @@ export class AddEditExpensePage implements OnInit {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
       this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
@@ -3842,9 +3841,7 @@ export class AddEditExpensePage implements OnInit {
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => {
-                const transformedExpense = this.transactionService.transformExpenses(
-                  expense
-                ) as Partial<UnflattenedTransaction>;
+                const transformedExpense = this.transactionService.transformExpense(expense);
                 return transformedExpense.tx;
               }),
               switchMap((tx) => {
@@ -4673,7 +4670,7 @@ export class AddEditExpensePage implements OnInit {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
         this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
-          const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+          const etxn = this.transactionService.transformExpense(expense);
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeExpenseFromReport) {

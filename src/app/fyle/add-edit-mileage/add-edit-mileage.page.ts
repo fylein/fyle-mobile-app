@@ -378,7 +378,7 @@ export class AddEditMileagePage implements OnInit {
 
     if (this.reviewList[+this.activeIndex - 1]) {
       this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -389,7 +389,7 @@ export class AddEditMileagePage implements OnInit {
 
     if (this.reviewList[+this.activeIndex + 1]) {
       this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
-        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
@@ -917,9 +917,7 @@ export class AddEditMileagePage implements OnInit {
 
     return this.expensesService.getExpenseById(expenseId).pipe(
       switchMap((expense) => {
-        const transformedExpense = this.transactionService.transformExpenses(
-          expense
-        ) as Partial<UnflattenedTransaction>;
+        const transformedExpense = this.transactionService.transformExpense(expense);
         return of(transformedExpense);
       }),
       shareReplay(1)
@@ -2272,9 +2270,7 @@ export class AddEditMileagePage implements OnInit {
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => {
-                const transformedExpense = this.transactionService.transformExpenses(
-                  expense
-                ) as Partial<UnflattenedTransaction>;
+                const transformedExpense = this.transactionService.transformExpense(expense);
                 return transformedExpense.tx;
               }),
               switchMap((tx) => {
@@ -2638,7 +2634,7 @@ export class AddEditMileagePage implements OnInit {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
         this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
-          const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+          const etxn = this.transactionService.transformExpense(expense);
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeMileageFromReport) {

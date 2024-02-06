@@ -197,9 +197,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           return this.expensesService.getExpenseById(txnId);
         }),
         switchMap((expense) => {
-          const transformedExpense = this.transactionService.transformExpenses(
-            expense
-          ) as Partial<UnflattenedTransaction>;
+          const transformedExpense = this.transactionService.transformExpense(expense);
           return of(transformedExpense);
         }),
         finalize(() => this.loaderService.hideLoader())

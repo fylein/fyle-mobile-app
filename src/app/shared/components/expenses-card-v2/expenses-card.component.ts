@@ -26,7 +26,6 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -240,7 +239,7 @@ export class ExpensesCardComponent implements OnInit {
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
               that.expensesService.getExpenseById(that.expense.id).subscribe((expense) => {
-                const etxn = that.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
+                const etxn = that.transactionService.transformExpense(expense);
                 const extractedData = etxn.tx.extracted_data;
                 if (!!extractedData) {
                   that.isScanCompleted = true;

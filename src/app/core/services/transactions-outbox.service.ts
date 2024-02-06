@@ -19,7 +19,6 @@ import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -302,7 +301,6 @@ export class TransactionsOutboxService {
     });
   }
 
-  // Need to check this for matchCCC Expense and its id
   matchIfRequired(transactionId: string, cccId: string): Promise<null> {
     return new Promise((resolve) => {
       if (cccId) {
@@ -360,9 +358,7 @@ export class TransactionsOutboxService {
               .then((expense) => {
                 entry.dataUrls.forEach((dataUrl) => {
                   if (dataUrl.callBackUrl) {
-                    const transformedExpense = that.transactionService.transformExpenses(
-                      expense
-                    ) as Partial<UnflattenedTransaction>;
+                    const transformedExpense = that.transactionService.transformExpense(expense);
                     that.httpClient.post(dataUrl.callBackUrl, {
                       entered_data: {
                         amount: transformedExpense.tx.amount,

@@ -830,124 +830,117 @@ export class TransactionService {
     }
   }
 
-  // Todo : Remove transformExpenses method once upsert in migrated to platform
-  transformExpenses(
-    expenses: PlatformExpense | PlatformExpense[]
-  ): Partial<UnflattenedTransaction> | Partial<UnflattenedTransaction>[] {
-    const expenseArray = Array.isArray(expenses) ? expenses : [expenses];
-    const transformedExpenses = expenseArray.map((expense) => {
-      const updatedExpense = {
-        tx: {
-          id: expense.id,
-          created_at: expense.created_at,
-          txn_dt: expense.spent_at,
-          categoryDisplayName: expense.category?.display_name,
-          num_files: expense.files?.length,
-          org_category: expense.category?.name,
-          fyle_category: expense.category?.system_category,
-          state: expense.state,
-          admin_amount: expense.admin_amount,
-          policy_amount: expense.policy_amount,
-          matched_corporate_card_transaction_ids: expense.matched_corporate_card_transaction_ids,
-          skip_reimbursement: !expense.is_reimbursable,
-          amount: expense.amount,
-          currency: expense.currency,
-          user_amount: expense.claim_amount,
-          orig_amount: expense.foreign_amount,
-          orig_currency: expense.foreign_currency,
-          from_dt: expense.started_at,
-          to_dt: expense.ended_at,
-          vendor: expense.merchant,
-          distance: expense.distance,
-          distance_unit: expense.distance_unit,
-          locations: expense.locations,
-          verification_state: expense.is_verified ? 'VERIFIED' : null,
-          org_user_id: expense.employee_id,
-          expense_number: expense.seq_num,
-          taxi_travel_class: expense.travel_classes && expense.travel_classes[0],
-          bus_travel_class: expense.travel_classes && expense.travel_classes[0],
-          train_travel_class: expense.travel_classes && expense.travel_classes[0],
-          flight_journey_travel_class: expense.travel_classes && expense.travel_classes[0],
-          flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
-          hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
-          tax_group_id: expense.tax_group_id,
-          creator_id: expense.employee?.id,
-          request_id: expense.is_receipt_mandatory,
-          report_id: expense.report_id,
-          org_category_id: expense.category_id,
-          cost_center_id: expense.cost_center_id,
-          cost_center_name: expense.cost_center?.name,
-          cost_center_code: expense.cost_center?.code,
-          project_id: expense.project_id,
-          project_name: expense.project?.name,
-          custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
-          purpose: expense.purpose,
-          billable: expense.is_billable,
-          sub_category: expense.category?.sub_category,
-          tax_amount: expense?.tax_amount,
-          corporate_credit_card_expense_group_id:
-            expense.matched_corporate_card_transactions?.length > 0
-              ? expense.matched_corporate_card_transactions[0].id
-              : null,
-          split_group_id: expense.split_group_id,
-          split_group_user_amount: expense.split_group_amount,
-          receipt_required: expense.is_receipt_mandatory,
-          per_diem_rate_id: expense.per_diem_rate_id,
-          num_days: expense.per_diem_num_days,
-          mileage_rate_id: expense.mileage_rate_id,
-          mileage_rate: expense.mileage_rate?.rate,
-          mileage_vehicle_type: expense.mileage_rate?.vehicle_type,
-          mileage_is_round_trip: expense.mileage_is_round_trip,
-          mileage_calculated_distance: expense.mileage_calculated_distance,
-          mileage_calculated_amount: expense.mileage_calculated_amount,
-          manual_flag: expense.is_manually_flagged,
-          policy_flag: expense.is_policy_flagged,
-          extracted_data: expense.extracted_data
-            ? {
-                vendor: expense.extracted_data?.vendor_name,
-                currency: expense.extracted_data?.currency,
-                amount: expense.extracted_data?.amount,
-                date: expense.extracted_data?.date,
-              }
+  // Todo : Remove transformExpense method once upsert in migrated to platform
+  transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
+    const updatedExpense = {
+      tx: {
+        id: expense.id,
+        created_at: expense.created_at,
+        txn_dt: expense.spent_at,
+        categoryDisplayName: expense.category?.display_name,
+        num_files: expense.files?.length,
+        org_category: expense.category?.name,
+        fyle_category: expense.category?.system_category,
+        state: expense.state,
+        admin_amount: expense.admin_amount,
+        policy_amount: expense.policy_amount,
+        matched_corporate_card_transaction_ids: expense.matched_corporate_card_transaction_ids,
+        skip_reimbursement: !expense.is_reimbursable,
+        amount: expense.amount,
+        currency: expense.currency,
+        user_amount: expense.claim_amount,
+        orig_amount: expense.foreign_amount,
+        orig_currency: expense.foreign_currency,
+        from_dt: expense.started_at,
+        to_dt: expense.ended_at,
+        vendor: expense.merchant,
+        distance: expense.distance,
+        distance_unit: expense.distance_unit,
+        locations: expense.locations,
+        verification_state: expense.is_verified ? 'VERIFIED' : null,
+        org_user_id: expense.employee_id,
+        expense_number: expense.seq_num,
+        taxi_travel_class: expense.travel_classes && expense.travel_classes[0],
+        bus_travel_class: expense.travel_classes && expense.travel_classes[0],
+        train_travel_class: expense.travel_classes && expense.travel_classes[0],
+        flight_journey_travel_class: expense.travel_classes && expense.travel_classes[0],
+        flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
+        hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
+        tax_group_id: expense.tax_group_id,
+        creator_id: expense.employee?.id,
+        request_id: expense.is_receipt_mandatory,
+        report_id: expense.report_id,
+        org_category_id: expense.category_id,
+        cost_center_id: expense.cost_center_id,
+        cost_center_name: expense.cost_center?.name,
+        cost_center_code: expense.cost_center?.code,
+        project_id: expense.project_id,
+        project_name: expense.project?.name,
+        custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
+        purpose: expense.purpose,
+        billable: expense.is_billable,
+        sub_category: expense.category?.sub_category,
+        tax_amount: expense?.tax_amount,
+        corporate_credit_card_expense_group_id:
+          expense.matched_corporate_card_transactions?.length > 0
+            ? expense.matched_corporate_card_transactions[0].id
             : null,
-          matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
-            ? expense.matched_corporate_card_transactions.map((transaction) => ({
-                id: transaction.id,
-                group_id: transaction.id,
-                amount: transaction.amount,
-                vendor: transaction.merchant,
-                txn_dt: transaction.spent_at.toISOString(),
-                currency: transaction.currency,
-                description: transaction.description,
-                card_or_account_number: transaction.corporate_card_number,
-                corporate_credit_card_account_number: transaction.corporate_card_number,
-                orig_amount: transaction.foreign_amount,
-                orig_currency: transaction.foreign_currency,
-                status: transaction.status,
-              }))
-            : null,
-          source_account_id: expense.source_account_id,
-          org_category_code: expense.category?.code,
-          project_code: expense.project?.code,
-          physical_bill: expense.is_physical_bill_submitted,
-          physical_bill_at: expense.physical_bill_submitted_at,
-          // Will be provided by backend soon
-          // duplicates: expense.duplicates ?? [],
-        },
-        source: {
-          account_id: expense.source_account?.id,
-          account_type: expense.source_account.type,
-        },
-        ou: {
-          id: expense.employee?.id,
-          org_id: expense.employee?.org_id,
-        },
-      };
-      this.dateService.fixDates(updatedExpense.tx);
-      // updatedExpense.tx.createdAtPlatform = $filter('date')(updatedExpense.tx.created_at, 'MMM d, y');
-      return updatedExpense;
-    });
-    return Array.isArray(expenses) ? transformedExpenses : transformedExpenses[0];
+        split_group_id: expense.split_group_id,
+        split_group_user_amount: expense.split_group_amount,
+        receipt_required: expense.is_receipt_mandatory,
+        per_diem_rate_id: expense.per_diem_rate_id,
+        num_days: expense.per_diem_num_days,
+        mileage_rate_id: expense.mileage_rate_id,
+        mileage_rate: expense.mileage_rate?.rate,
+        mileage_vehicle_type: expense.mileage_rate?.vehicle_type,
+        mileage_is_round_trip: expense.mileage_is_round_trip,
+        mileage_calculated_distance: expense.mileage_calculated_distance,
+        mileage_calculated_amount: expense.mileage_calculated_amount,
+        manual_flag: expense.is_manually_flagged,
+        policy_flag: expense.is_policy_flagged,
+        extracted_data: expense.extracted_data
+          ? {
+              vendor: expense.extracted_data?.vendor_name,
+              currency: expense.extracted_data?.currency,
+              amount: expense.extracted_data?.amount,
+              date: expense.extracted_data?.date,
+            }
+          : null,
+        matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
+          ? expense.matched_corporate_card_transactions.map((transaction) => ({
+              id: transaction.id,
+              group_id: transaction.id,
+              amount: transaction.amount,
+              vendor: transaction.merchant,
+              txn_dt: transaction.spent_at.toISOString(),
+              currency: transaction.currency,
+              description: transaction.description,
+              card_or_account_number: transaction.corporate_card_number,
+              corporate_credit_card_account_number: transaction.corporate_card_number,
+              orig_amount: transaction.foreign_amount,
+              orig_currency: transaction.foreign_currency,
+              status: transaction.status,
+            }))
+          : null,
+        source_account_id: expense.source_account_id,
+        org_category_code: expense.category?.code,
+        project_code: expense.project?.code,
+        physical_bill: expense.is_physical_bill_submitted,
+        physical_bill_at: expense.physical_bill_submitted_at,
+        // Will be provided by backend soon
+        // duplicates: expense.duplicates ?? [],
+      },
+      source: {
+        account_id: expense.source_account?.id,
+        account_type: expense.source_account.type,
+      },
+      ou: {
+        id: expense.employee?.id,
+        org_id: expense.employee?.org_id,
+      },
+    };
+    this.dateService.fixDates(updatedExpense.tx);
+    return updatedExpense;
   }
 
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {

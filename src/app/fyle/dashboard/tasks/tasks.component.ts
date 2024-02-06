@@ -27,7 +27,6 @@ import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-r
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-tasks',
@@ -408,7 +407,7 @@ export class TasksComponent implements OnInit {
 
           return this.expensesService.getExpenseById(initial).pipe(
             map((expense) => ({
-              inital: this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>,
+              inital: this.transactionService.transformExpense(expense),
               allIds,
             }))
           );
