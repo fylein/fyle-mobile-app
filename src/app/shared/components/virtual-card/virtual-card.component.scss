@@ -1,34 +1,25 @@
 @import '../../../../theme/colors';
 
 .virtual-card {
-  height: 160px;
+  height: 250px;
   border-radius: 16px;
-  background: url('../../../../assets/images/virtual-card-settings-bg.png') no-repeat center;
-  background-size: cover;
+  background: url('../../../../assets/images/amex-virtual-card-new-logo.png') no-repeat center;
+  background-size: contain; // This is used to maintain the aspect ratio of the image
   padding: 16px;
 
-  &__virtual-card-details-container-row {
-    width: 100%;
-    height: 100%;
-  }
-  &__virtual-card-details-container-col {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-  }
   &__card-number {
+    color: $pure-white;
+    margin-top: 50px;
+    margin-bottom: 80px;
     &__card-number-mask {
       letter-spacing: 2px;
       vertical-align: sub;
       padding-top: 3px;
       gap: 12px;
-      display: flex;
       font-size: 14px;
     }
     &__card-number-unmasked {
       gap: 12px;
-      display: flex;
     }
     &__unmasked-card-digits {
       margin-left: 8px;
@@ -50,17 +41,16 @@
     justify-content: space-between;
     gap: 12px;
     font-size: 12px;
-    &__label-text {
-      font-weight: 500;
-      color: $dark-grey;
+    color: $pure-white;
+    &__cvv-field {
+      width: 60px;
     }
     &__label-text {
-      color: $blue-black;
+      font-weight: 500;
     }
     &__cvv-mask {
       font-size: 14px;
       line-height: 16px;
-      color: $blue-black;
     }
     &__cvv-copy-icon {
       height: 12px;
@@ -69,37 +59,24 @@
     }
   }
   &__footer {
-    justify-content: space-between;
     width: 100%;
+    margin-bottom: 0;
   }
   &__status-pill {
     border: 1px solid $border-tertiary;
     line-height: 12.5%;
     background-color: $pure-white;
     border-radius: 9999px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
     padding: 2px 6px;
     font-size: 10px;
     font-weight: 500;
     gap: 4px;
+    color: $dark-grey;
     &__dot {
       border-radius: 50%;
       height: 8px;
       width: 8px;
       background-color: $green;
-    }
-  }
-  &__contactless-payment {
-    line-height: 12.5%;
-    font-weight: 500;
-    font-size: 10px;
-    display: flex;
-    gap: 8px;
-    &__icon {
-      height: 14px;
-      width: 14px;
     }
   }
 }
