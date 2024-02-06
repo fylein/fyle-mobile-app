@@ -29,32 +29,29 @@
       </div>
     </div>
   </div>
-  <div class="virtual-card__footer ion-align-items-center">
-    <div class="virtual-card__card-fields ion-align-items-center d-flex">
-      <!-- remove the above -->
-      <div class="virtual-card__card-fields__cvv-field">
-        <div class="virtual-card__card-fields__label-text">CVV</div>
-        <div class="d-flex">
-          <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
-          <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
-          <ion-icon
-            class="virtual-card__card-fields__cvv-copy-icon"
-            src="../../../../../assets/svg/duplicate.svg"
-            (press)="toggleShowCvv()"
-            (pressup)="toggleShowCvv()"
-            (tap)="copyToClipboard(cvv)"
-          ></ion-icon>
-        </div>
+  <div class="virtual-card__card-fields ion-align-items-center d-flex">
+    <div class="virtual-card__card-fields__cvv-field">
+      <div class="virtual-card__card-fields__label-text">CVV</div>
+      <div class="d-flex">
+        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
+        <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
+        <ion-icon
+          class="virtual-card__card-fields__cvv-copy-icon"
+          src="../../../../../assets/svg/duplicate.svg"
+          (press)="toggleShowCvv()"
+          (pressup)="toggleShowCvv()"
+          (tap)="copyToClipboard(cvv)"
+        ></ion-icon>
       </div>
-      <div>
-        <div class="virtual-card__card-fields__label-text">Expiry</div>
-        <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
-      </div>
-      <div class="virtual-card__vertical-divider"></div>
-      <div>
-        <div class="virtual-card__card-fields__label-text">Available</div>
-        <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
-      </div>
+    </div>
+    <div>
+      <div class="virtual-card__card-fields__label-text">Expiry</div>
+      <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
+    </div>
+    <div class="virtual-card__vertical-divider"></div>
+    <div>
+      <div class="virtual-card__card-fields__label-text">Available</div>
+      <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
     </div>
   </div>
 </div>
