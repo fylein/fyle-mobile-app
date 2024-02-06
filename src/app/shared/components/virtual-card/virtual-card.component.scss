@@ -15,6 +15,8 @@
     display: flex;
     flex-direction: column;
     width: 100%;
+    font-size: 16px;
+    font-weight: 500;
     &__nickname {
       display: flex;
       justify-content: space-between;
@@ -24,7 +26,7 @@
       vertical-align: sub;
       padding-top: 3px;
       gap: 12px;
-      font-size: 14px;
+      margin-right: 12px;
     }
     &__card-number-unmasked {
       gap: 12px;
@@ -57,10 +59,27 @@
     }
     &__label-text {
       font-weight: 500;
+      margin-bottom: 4px;
     }
     &__cvv-mask {
       font-size: 14px;
       line-height: 16px;
+      letter-spacing: 0.022px;
+      width: 20px;
+      height: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    &__cvv-number {
+      font-size: 12px;
+      line-height: 1.3;
+      color: $blue-black;
+      width: 20px;
+      height: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: start;
     }
     &__cvv-copy-icon {
       height: 12px;
