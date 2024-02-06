@@ -1,32 +1,30 @@
 <div class="virtual-card ion-grid-no-padding ion-justify-content-between">
   <div class="ion-align-items-center virtual-card__card-number">
-    <div class="virtual-card__card-number">
-      <div class="virtual-card__card-number__nickname ion-justify-content-between">
-        {{ cardNickname }}
-        <div class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
-          <div class="virtual-card__status-pill__dot"></div>
-          <div>{{ cardStatus | titlecase }}</div>
-        </div>
+    <div class="virtual-card__card-number__nickname ion-justify-content-between">
+      {{ cardNickname }}
+      <div class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
+        <div class="virtual-card__status-pill__dot"></div>
+        <div>{{ cardStatus | titlecase }}</div>
       </div>
-      <div class="ion-align-items-center d-flex">
-        <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask d-flex">
-          <div>****</div>
-          <div>******</div>
-        </div>
-        <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked d-flex">
-          <div>{{ cardNumber | slice : 0 : 4 }}</div>
-          <div>{{ cardNumber | slice : 4 : 10 }}</div>
-        </div>
-        <div class="virtual-card__card-number__unmasked-card-digits">
-          {{ cardNumber | slice : 10 : 15 }}
-        </div>
-        <ion-icon
-          src="../../../../../assets/svg/duplicate.svg"
-          (press)="toggleShowCardNumber()"
-          (pressup)="toggleShowCardNumber()"
-          (tap)="copyToClipboard(cardNumber)"
-        ></ion-icon>
+    </div>
+    <div class="ion-align-items-center d-flex">
+      <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask d-flex">
+        <div>****</div>
+        <div>******</div>
       </div>
+      <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked d-flex">
+        <div>{{ cardNumber | slice : 0 : 4 }}</div>
+        <div>{{ cardNumber | slice : 4 : 10 }}</div>
+      </div>
+      <div class="virtual-card__card-number__unmasked-card-digits">
+        {{ cardNumber | slice : 10 : 15 }}
+      </div>
+      <ion-icon
+        src="../../../../../assets/svg/duplicate.svg"
+        (press)="toggleShowCardNumber()"
+        (pressup)="toggleShowCardNumber()"
+        (tap)="copyToClipboard(cardNumber)"
+      ></ion-icon>
     </div>
   </div>
   <div class="virtual-card__card-fields ion-align-items-center d-flex">
