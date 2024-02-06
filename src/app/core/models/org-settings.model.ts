@@ -355,6 +355,7 @@ export interface OrgSettingsResponse {
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
 
+  commute_deduction_settings?: CommonOrgSettings;
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
   corporate_credit_card_settings?: CCCSettings;
@@ -482,6 +483,7 @@ export interface XeProviderSettings extends CommonOrgSettings {
 export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
+  commute_deduction_settings?: CommonOrgSettings;
   advances?: CommonOrgSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;

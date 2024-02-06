@@ -34,6 +34,8 @@ import { PreferenceSetting } from 'src/app/core/models/preference-setting.model'
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -69,7 +71,7 @@ export class MyProfilePage {
 
   infoCardsData: CopyCardDetails[];
 
-  commuteDetails: any;
+  commuteDetails: CommuteDetails;
 
   mileageDistanceUnit: string;
 
@@ -80,6 +82,10 @@ export class MyProfilePage {
   isMastercardRTFEnabled: boolean;
 
   isCommuteDetailsPresent: boolean;
+
+  isMileageEnabled: boolean;
+
+  isCommuteDeductionEnabled: boolean;
 
   constructor(
     private authService: AuthService,
@@ -181,20 +187,6 @@ export class MyProfilePage {
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
-    this.eou$.subscribe((eou) => {
-      const queryParams = {
-        params: {
-          user_id: `eq.${eou.us.id}`,
-        },
-      };
-      return this.spenderService.get('/employees', queryParams).subscribe((res: any) => {
-        this.isCommuteDetailsPresent = res.data?.[0]?.commute_details?.home_location;
-        if (this.isCommuteDetailsPresent) {
-          this.commuteDetails = res.data[0].commute_details;
-          this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
-        }
-      });
-    });
 
     this.eou$.subscribe((eou) => this.setInfoCardsData(eou));
 
@@ -212,9 +204,36 @@ export class MyProfilePage {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
 
+        this.isMileageEnabled = this.orgSettings.mileage?.allowed && this.orgSettings.mileage.enabled;
+        this.isCommuteDeductionEnabled =
+          this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
+
+        if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
+          this.setCommuteDetails();
+        }
+
         this.setCCCFlags();
         this.setPreferenceSettings();
       });
+  }
+
+  setCommuteDetails(): void {
+    this.eou$.subscribe((eou) => {
+      const queryParams = {
+        params: {
+          user_id: `eq.${eou.us.id}`,
+        },
+      };
+      return this.spenderService
+        .get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', queryParams)
+        .subscribe((res) => {
+          this.isCommuteDetailsPresent = !!res.data?.[0]?.commute_details?.home_location;
+          if (this.isCommuteDetailsPresent) {
+            this.commuteDetails = res.data[0].commute_details;
+            this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
+          }
+        });
+    });
   }
 
   setCCCFlags(): void {
