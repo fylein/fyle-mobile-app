@@ -472,7 +472,8 @@ export class SplitExpensePage {
                 observables.delete = this.transactionService.delete(this.transaction.id);
               }
               if (this.transaction.corporate_credit_card_expense_group_id) {
-                observables.matchCCC = this.transactionService.matchCCCExpense(res[0], this.selectedCCCTransaction.id);
+                // need to check this selectedCCCTransaction
+                observables.matchCCC = this.transactionService.matchCCCExpense(this.selectedCCCTransaction.id, res[0]);
               }
 
               observables.violations = this.splitExpenseService.checkForPolicyViolations(

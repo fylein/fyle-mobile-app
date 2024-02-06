@@ -103,6 +103,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { TrackingService } from '../../core/services/tracking.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { MileageRatesOptions } from 'src/app/core/models/mileage-rates-options.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 type FormValue = {
   route: {
@@ -320,7 +321,8 @@ export class AddEditMileagePage implements OnInit {
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private expensesService: ExpensesService
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -375,7 +377,8 @@ export class AddEditMileagePage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -385,13 +388,14 @@ export class AddEditMileagePage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
   }
 
-  goToTransaction(expense: UnflattenedTransaction, reviewList, activeIndex: number): void {
+  goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList, activeIndex: number): void {
     let category;
 
     if (expense.tx.org_category) {
@@ -908,10 +912,18 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getEditExpense(): Observable<UnflattenedTransaction> {
-    return this.transactionService
-      .getETxnUnflattened(this.activatedRoute.snapshot.params.id as string)
-      .pipe(shareReplay(1));
+  getEditExpense(): Observable<Partial<UnflattenedTransaction>> {
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
+
+    return this.expensesService.getExpenseById(expenseId).pipe(
+      switchMap((expense) => {
+        const transformedExpense = this.transactionService.transformExpenses(
+          expense
+        ) as Partial<UnflattenedTransaction>;
+        return of(transformedExpense);
+      }),
+      shareReplay(1)
+    );
   }
 
   customDateValidator(control: AbstractControl): null | { invalidDateSelection: boolean } {
@@ -2258,8 +2270,13 @@ export class AddEditMileagePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
-              map((savedEtxn) => savedEtxn && savedEtxn.tx),
+              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
+              map((expense) => {
+                const transformedExpense = this.transactionService.transformExpenses(
+                  expense
+                ) as Partial<UnflattenedTransaction>;
+                return transformedExpense.tx;
+              }),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
                 const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
@@ -2620,7 +2637,8 @@ export class AddEditMileagePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
+          const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeMileageFromReport) {

@@ -24,6 +24,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -135,7 +137,8 @@ export class ExpensesCardComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private expensesService: ExpensesService
   ) {}
 
   get isSelected(): boolean {
@@ -230,7 +233,8 @@ export class ExpensesCardComponent implements OnInit {
             !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
+              that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
+                const etxn = that.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
                 const extractedData = etxn.tx.extracted_data;
                 if (!!extractedData) {
                   that.isScanCompleted = true;

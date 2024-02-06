@@ -47,7 +47,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { CCCExpUnflattened, CCCExpense } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Currency } from 'src/app/core/models/currency.model';
@@ -235,7 +235,7 @@ export class AddEditExpensePage implements OnInit {
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
-  selectedCCCTransaction: CCCExpense;
+  selectedCCCTransaction: Partial<MatchedCCCTransaction>;
 
   canChangeMatchingCCCTransaction = true;
 
@@ -285,7 +285,7 @@ export class AddEditExpensePage implements OnInit {
 
   isCCCPaymentModeSelected$: Observable<boolean>;
 
-  matchedCCCTransaction: MatchedCCCTransaction;
+  matchedCCCTransaction: Partial<MatchedCCCTransaction>;
 
   alreadyApprovedExpenses: Expense[];
 
@@ -841,11 +841,11 @@ export class AddEditExpensePage implements OnInit {
         deleteMethod: (): Observable<null> => {
           if (isMarkPersonal) {
             return this.transactionService
-              .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
+              .unmatchCCCExpense(this.corporateCreditCardExpenseGroupId, id)
               .pipe(switchMap(() => this.markCCCAsPersonal(id)));
           } else {
             return this.transactionService
-              .unmatchCCCExpense(id, this.matchedCCCTransaction?.id)
+              .unmatchCCCExpense(this.matchedCCCTransaction?.id, id)
               .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
           }
         },
@@ -2548,10 +2548,12 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  getEditExpenseObservable(): Observable<UnflattenedTransaction> {
-    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id as string).pipe(
-      tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
-      switchMap((etxn) => {
+  getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
+    return this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
+      switchMap((expenses) => {
+        const etxn = this.transactionService.transformExpenses(expenses) as Partial<UnflattenedTransaction>;
+        this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
+        console.log('Checking how edit epxense is working', expenses, etxn);
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
@@ -2598,7 +2600,8 @@ export class AddEditExpensePage implements OnInit {
   goToPrev(): void {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -2607,13 +2610,14 @@ export class AddEditExpensePage implements OnInit {
   goToNext(): void {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
   }
 
-  goToTransaction(expense: UnflattenedTransaction, reviewList: string[], activeIndex: number): void {
+  goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList: string[], activeIndex: number): void {
     let category: string;
 
     if (expense.tx.org_category) {
@@ -2724,6 +2728,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   initCCCTxn(): void {
+    // Can we remove this method as it not used anyhere
     const bankTxn =
       this.activatedRoute.snapshot.params.bankTxn &&
       (JSON.parse(this.activatedRoute.snapshot.params.bankTxn as string) as CCCExpUnflattened);
@@ -2738,34 +2743,30 @@ export class AddEditExpensePage implements OnInit {
     this.isCreatedFromCCC = true;
   }
 
-  handleCCCExpenses(etxn: UnflattenedTransaction): Subscription {
-    return this.corporateCreditCardExpenseService
-      .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-      .subscribe((matchedExpense: CCCExpUnflattened[]) => {
-        this.matchedCCCTransaction = matchedExpense[0].ccce;
-        this.selectedCCCTransaction = this.matchedCCCTransaction;
-        this.cardEndingDigits = (
-          this.selectedCCCTransaction.corporate_credit_card_account_number
-            ? this.selectedCCCTransaction.corporate_credit_card_account_number
-            : this.selectedCCCTransaction.card_or_account_number
-        ).slice(-4);
+  handleCCCExpenses(etxn: UnflattenedTransaction): void {
+    this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
+    this.selectedCCCTransaction = this.matchedCCCTransaction;
+    this.cardEndingDigits = (
+      this.selectedCCCTransaction.corporate_credit_card_account_number
+        ? this.selectedCCCTransaction.corporate_credit_card_account_number
+        : this.selectedCCCTransaction.card_or_account_number
+    ).slice(-4);
 
-        etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+    etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
 
-        const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
+    const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
 
-        this.selectedCCCTransaction.displayObject =
-          txnDt +
-          ' - ' +
-          (this.selectedCCCTransaction.vendor
-            ? this.selectedCCCTransaction.vendor
-            : this.selectedCCCTransaction.description) +
-          this.selectedCCCTransaction.amount;
+    this.selectedCCCTransaction.displayObject =
+      txnDt +
+      ' - ' +
+      (this.selectedCCCTransaction.vendor
+        ? this.selectedCCCTransaction.vendor
+        : this.selectedCCCTransaction.description) +
+      this.selectedCCCTransaction.amount;
 
-        if (this.selectedCCCTransaction) {
-          this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
-        }
-      });
+    if (this.selectedCCCTransaction) {
+      this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+    }
   }
 
   getSplitExpenses(splitExpenses: Expense[]): void {
@@ -3839,8 +3840,13 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
-              map((savedEtxn) => savedEtxn && savedEtxn.tx),
+              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
+              map((expense) => {
+                const transformedExpense = this.transactionService.transformExpenses(
+                  expense
+                ) as Partial<UnflattenedTransaction>;
+                return transformedExpense.tx;
+              }),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report && reportControl.report.rp && reportControl.report.rp.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
@@ -3908,9 +3914,9 @@ export class AddEditExpensePage implements OnInit {
             this.matchedCCCTransaction
           ) {
             return this.transactionService
-              .unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id)
+              .unmatchCCCExpense(this.matchedCCCTransaction.id, transaction.id)
               .pipe(
-                switchMap(() => this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id))
+                switchMap(() => this.transactionService.matchCCCExpense(this.selectedCCCTransaction.id, transaction.id))
               );
           }
         }
@@ -3921,12 +3927,12 @@ export class AddEditExpensePage implements OnInit {
           transaction.corporate_credit_card_expense_group_id &&
           this.matchedCCCTransaction
         ) {
-          return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
+          return this.transactionService.unmatchCCCExpense(this.matchedCCCTransaction.id, transaction.id);
         }
 
         // Case is for matching a normal(unmatched) expense for the first time(edit)
         if (this.selectedCCCTransaction && !transaction.corporate_credit_card_expense_group_id) {
-          return this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id);
+          return this.transactionService.matchCCCExpense(this.selectedCCCTransaction.id, transaction.id);
         }
 
         return of(transaction);
@@ -4666,7 +4672,8 @@ export class AddEditExpensePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
+          const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeExpenseFromReport) {

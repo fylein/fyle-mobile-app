@@ -5,8 +5,10 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
-import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap } from 'rxjs';
+import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
+import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
+import { UnflattenedTransaction } from '../core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -22,7 +24,8 @@ export class DeepLinkRedirectionPage {
     private transactionService: TransactionService,
     private authService: AuthService,
     private reportService: ReportService,
-    private deepLinkService: DeepLinkService
+    private deepLinkService: DeepLinkService,
+    private expensesService: ExpensesService
   ) {}
 
   ionViewWillEnter() {
@@ -62,13 +65,14 @@ export class DeepLinkRedirectionPage {
   }
 
   async redirectToExpenseModule() {
-    const expenseOrgId = this.activatedRoute.snapshot.params.orgId;
-    const txnId = this.activatedRoute.snapshot.params.id;
+    const expenseOrgId = this.activatedRoute.snapshot.params.orgId as string;
+    const txnId = this.activatedRoute.snapshot.params.id as string;
 
     if (!expenseOrgId) {
-      this.transactionService.getETxnUnflattened(txnId).subscribe((etxn) => {
+      this.expensesService.getExpenseById(txnId).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         const route = this.deepLinkService.getExpenseRoute(etxn);
-        this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+        this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id as string }]);
       });
     } else {
       const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
@@ -80,17 +84,18 @@ export class DeepLinkRedirectionPage {
         shareReplay(1)
       );
 
-      //If expenseOrgId is same as user orgId, then redirect to expense page
+      // If expenseOrgId is the same as user orgId, then redirect to the expense page
       eou$
         .pipe(
           filter((eou) => expenseOrgId === eou.ou.org_id),
-          switchMap(() => this.transactionService.getETxnUnflattened(txnId)),
+          switchMap(() => this.expensesService.getExpenseById(txnId)),
+          map((expense) => this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>),
           finalize(() => from(this.loaderService.hideLoader()))
         )
         .subscribe({
           next: (etxn) => {
             const route = this.deepLinkService.getExpenseRoute(etxn);
-            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id }]);
+            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id as string }]);
           },
           error: () => this.switchOrg(),
         });
@@ -119,12 +124,22 @@ export class DeepLinkRedirectionPage {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
 
-    this.reportService.getERpt(this.activatedRoute.snapshot.params.id).subscribe(
+    this.reportService.getERpt(this.activatedRoute.snapshot.params.id as string).subscribe(
       (res) => {
         if (currentEou.ou.id === res.rp.org_user_id) {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.activatedRoute.snapshot.params.id }]);
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'my_view_report',
+            { id: this.activatedRoute.snapshot.params.id as string },
+          ]);
         } else {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.activatedRoute.snapshot.params.id }]);
+          this.router.navigate([
+            '/',
+            'enterprise',
+            'view_team_report',
+            { id: this.activatedRoute.snapshot.params.id as string },
+          ]);
         }
       },
       () => {

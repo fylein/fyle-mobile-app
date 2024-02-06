@@ -26,6 +26,8 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 
 @Component({
   selector: 'app-tasks',
@@ -69,7 +71,8 @@ export class TasksComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit(): void {
@@ -403,9 +406,9 @@ export class TasksComponent implements OnInit {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expensesService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>,
               allIds,
             }))
           );

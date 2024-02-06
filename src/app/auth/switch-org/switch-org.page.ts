@@ -29,6 +29,8 @@ import { ResendEmailVerification } from 'src/app/core/models/resend-email-verifi
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -82,7 +84,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private snackbarProperties: SnackbarPropertiesService,
     private routerAuthService: RouterAuthService,
     private transactionService: TransactionService,
-    private deepLinkService: DeepLinkService
+    private deepLinkService: DeepLinkService,
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit() {
@@ -191,7 +194,13 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
         }),
         switchMap((eou) => {
           this.setSentryUser(eou);
-          return this.transactionService.getETxnUnflattened(txnId);
+          return this.expensesService.getExpenseById(txnId);
+        }),
+        switchMap((expense) => {
+          const transformedExpense = this.transactionService.transformExpenses(
+            expense
+          ) as Partial<UnflattenedTransaction>;
+          return of(transformedExpense);
         }),
         finalize(() => this.loaderService.hideLoader())
       )

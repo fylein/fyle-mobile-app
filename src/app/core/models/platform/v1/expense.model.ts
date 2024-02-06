@@ -73,7 +73,7 @@ export interface Expense {
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;
-  mileage_rate: Pick<PlatformMileageRates, 'id' | 'code' | 'vehicle_type'>;
+  mileage_rate: Partial<PlatformMileageRates>;
   mileage_rate_id: number;
   missing_mandatory_fields: MissingMandatoryFields;
   org_id: string;

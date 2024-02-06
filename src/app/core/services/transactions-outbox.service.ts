@@ -18,6 +18,8 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -48,7 +50,8 @@ export class TransactionsOutboxService {
     private reportService: ReportService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
-    private orgUserSettingsService: OrgUserSettingsService
+    private orgUserSettingsService: OrgUserSettingsService,
+    private expensesService: ExpensesService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -299,11 +302,12 @@ export class TransactionsOutboxService {
     });
   }
 
+  // Need to check this for matchCCC Expense and its id
   matchIfRequired(transactionId: string, cccId: string): Promise<null> {
     return new Promise((resolve) => {
       if (cccId) {
         this.transactionService
-          .matchCCCExpense(transactionId, cccId)
+          .matchCCCExpense(cccId, transactionId)
           .toPromise()
           .then(() => {
             resolve(null);
@@ -350,23 +354,26 @@ export class TransactionsOutboxService {
             });
           }
           if (entry.dataUrls && entry.dataUrls.length > 0) {
-            that.transactionService
-              .getETxnUnflattened(resp.id)
+            that.expensesService
+              .getExpenseById(resp.id)
               .toPromise()
-              .then((etxn) => {
+              .then((expense) => {
                 entry.dataUrls.forEach((dataUrl) => {
                   if (dataUrl.callBackUrl) {
+                    const transformedExpense = that.transactionService.transformExpenses(
+                      expense
+                    ) as Partial<UnflattenedTransaction>;
                     that.httpClient.post(dataUrl.callBackUrl, {
                       entered_data: {
-                        amount: etxn.tx.amount,
-                        currency: etxn.tx.currency,
-                        orig_currency: etxn.tx.orig_currency,
-                        orig_amount: etxn.tx.orig_amount,
-                        date: etxn.tx.txn_dt,
-                        vendor: etxn.tx.vendor,
-                        category: etxn.tx.fyle_category,
-                        external_id: etxn.tx.external_id,
-                        transaction_id: etxn.tx.id,
+                        amount: transformedExpense.tx.amount,
+                        currency: transformedExpense.tx.currency,
+                        orig_currency: transformedExpense.tx.orig_currency,
+                        orig_amount: transformedExpense.tx.orig_amount,
+                        date: transformedExpense.tx.txn_dt,
+                        vendor: transformedExpense.tx.vendor,
+                        category: transformedExpense.tx.fyle_category,
+                        external_id: transformedExpense.tx.external_id,
+                        transaction_id: transformedExpense.tx.id,
                       },
                     });
                   }

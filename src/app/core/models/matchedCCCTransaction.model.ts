@@ -16,4 +16,6 @@ export interface MatchedCCCTransaction {
   txn_dt: string;
   updated_at: string;
   vendor: string;
+  corporate_credit_card_account_number?: string;
+  displayObject?: string;
 }

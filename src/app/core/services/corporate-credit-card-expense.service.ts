@@ -39,7 +39,7 @@ export class CorporateCreditCardExpenseService {
     private apiV2Service: ApiV2Service,
     private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   @CacheBuster({
@@ -87,17 +87,23 @@ export class CorporateCreditCardExpenseService {
               limit: number;
               offset: number;
               url: string;
-            },
-        ),
+            }
+        )
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
+  markPersonal(id: string): Observable<null> {
+    const payload = {
+      id,
+    };
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/mark_personal', { data: payload });
   }
 
-  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
+  dismissCreditTransaction(id: string): Observable<null> {
+    const payload = {
+      id,
+    };
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/ignore', { data: payload });
   }
 
   getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
@@ -194,8 +200,8 @@ export class CorporateCreditCardExpenseService {
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
             eou.ou.id,
-          {},
-        ),
+          {}
+        )
       ),
       map((statsResponse: StatsResponse) => {
         const stats = {
@@ -212,7 +218,7 @@ export class CorporateCreditCardExpenseService {
           }
         });
         return stats;
-      }),
+      })
     );
   }
 }

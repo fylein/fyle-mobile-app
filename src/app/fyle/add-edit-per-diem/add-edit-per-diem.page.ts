@@ -107,6 +107,7 @@ import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-add-edit-per-diem',
@@ -281,7 +282,8 @@ export class AddEditPerDiemPage implements OnInit {
     private orgUserSettingsService: OrgUserSettingsService,
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private expensesService: ExpensesService
   ) {}
 
   get minPerDiemDate(): string {
@@ -385,7 +387,8 @@ export class AddEditPerDiemPage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -395,13 +398,14 @@ export class AddEditPerDiemPage implements OnInit {
     this.activeIndex = this.activatedRoute.snapshot.params.activeIndex as number;
 
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
   }
 
-  goToTransaction(expense: UnflattenedTransaction, reviewList: string[], activeIndex: number): void {
+  goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList: string[], activeIndex: number): void {
     let category: string;
 
     if (expense.tx.org_category) {
@@ -661,10 +665,18 @@ export class AddEditPerDiemPage implements OnInit {
     );
   }
 
-  getEditExpense(): Observable<UnflattenedTransaction> {
-    return this.transactionService
-      .getETxnUnflattened(this.activatedRoute.snapshot.params.id as string)
-      .pipe(shareReplay(1));
+  getEditExpense(): Observable<Partial<UnflattenedTransaction>> {
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
+
+    return this.expensesService.getExpenseById(expenseId).pipe(
+      switchMap((expense) => {
+        const transformedExpense = this.transactionService.transformExpenses(
+          expense
+        ) as Partial<UnflattenedTransaction>;
+        return of(transformedExpense);
+      }),
+      shareReplay(1)
+    );
   }
 
   setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
@@ -2031,8 +2043,13 @@ export class AddEditPerDiemPage implements OnInit {
             }
 
             return this.transactionService.upsert(etxn.tx).pipe(
-              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
-              map((savedEtxn) => savedEtxn && savedEtxn.tx),
+              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
+              map((expense) => {
+                const transformedExpense = this.transactionService.transformExpenses(
+                  expense
+                ) as Partial<UnflattenedTransaction>;
+                return transformedExpense.tx;
+              }),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
                 const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
@@ -2311,7 +2328,8 @@ export class AddEditPerDiemPage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
+          const etxn = this.transactionService.transformExpenses(expense) as Partial<UnflattenedTransaction>;
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removePerDiemFromReport) {

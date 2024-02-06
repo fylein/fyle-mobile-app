@@ -119,4 +119,17 @@ export interface Transaction {
     category?: string;
     invoice_dt?: Date;
   };
+  matched_corporate_card_transactions?: {
+    id: string;
+    group_id: string;
+    amount: number;
+    vendor: string;
+    txn_dt: string;
+    currency: string;
+    description: string;
+    card_or_account_number: string;
+    orig_amount: number;
+    orig_currency: string;
+    status: string;
+  }[];
 }
