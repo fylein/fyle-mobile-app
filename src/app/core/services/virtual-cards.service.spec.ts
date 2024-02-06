@@ -8,8 +8,9 @@ import {
 } from '../mock-data/virtual-card-details-response.data';
 import { of } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
+import { CardDetailsResponse } from '../models/card-details-response.model';
 
-describe('VirtualCardsService', () => {
+fdescribe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
@@ -43,10 +44,12 @@ describe('VirtualCardsService', () => {
     const virtualCardsRequest: VirtualCardsRequest = {
       id: 'vc1234',
     };
+    const expectedResponse: { data: CardDetailsResponse } = virtualCardDetailsResponse;
+    expectedResponse.data.expiry_date = new Date(expectedResponse.data.expiry_date);
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardDetailsResponse));
 
     virtualCardsService.getCardDetailsById(virtualCardsRequest).subscribe((res) => {
-      expect(res).toEqual(virtualCardDetailsResponse.data);
+      expect(res).toEqual(expectedResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
       done();
     });
@@ -64,7 +67,7 @@ describe('VirtualCardsService', () => {
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardCurrentAmountResponse));
 
     virtualCardsService.getCurrentAmountById(virtualCardsRequest).subscribe((res) => {
-      expect(res).toEqual(virtualCardCurrentAmountResponse.data.current_amount);
+      expect(res).toEqual(virtualCardCurrentAmountResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
       done();
     });

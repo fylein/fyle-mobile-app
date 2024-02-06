@@ -17,20 +17,22 @@ export class VirtualCardsService {
       }>('/virtual_cards/show_card_details', {
         data: virtualCardRequestPayload,
       })
-      .pipe(map((response) => {
-        const cardDetailsResponse = response.data;
-        cardDetailsResponse.expiry_date = new Date(cardDetailsResponse.expiry_date);
-        return cardDetailsResponse;
-      }));
+      .pipe(
+        map((response) => {
+          const cardDetailsResponse = response.data;
+          cardDetailsResponse.expiry_date = new Date(cardDetailsResponse.expiry_date);
+          return cardDetailsResponse;
+        })
+      );
   }
 
-  getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<number> {
+  getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
     return this.spenderPlatformV1ApiService
       .post<{
         data: CardDetailsAmountResponse;
       }>('/virtual_cards/get_current_amount', {
         data: virtualCardRequestPayload,
       })
-      .pipe(map((response) => response.data.current_amount));
+      .pipe(map((response) => response.data));
   }
 }
