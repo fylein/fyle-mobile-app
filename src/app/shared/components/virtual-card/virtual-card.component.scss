@@ -1,16 +1,24 @@
 @import '../../../../theme/colors';
 
 .virtual-card {
-  height: 250px;
+  height: 200px;
   border-radius: 16px;
   background: url('../../../../assets/images/amex-virtual-card-new-logo.png') no-repeat center;
   background-size: contain; // This is used to maintain the aspect ratio of the image
   padding: 16px;
+  display: flex;
+  flex-direction: column;
 
   &__card-number {
     color: $pure-white;
-    margin-top: 50px;
-    margin-bottom: 80px;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    &__nickname {
+      display: flex;
+      justify-content: space-between;
+    }
     &__card-number-mask {
       letter-spacing: 2px;
       vertical-align: sub;
@@ -38,12 +46,14 @@
     width: 1px;
   }
   &__card-fields {
-    justify-content: space-between;
+    justify-content: flex-start;
     gap: 12px;
     font-size: 12px;
     color: $pure-white;
+    width: 100%;
+    margin-bottom: 0;
     &__cvv-field {
-      width: 60px;
+      width: 50px;
     }
     &__label-text {
       font-weight: 500;
@@ -58,10 +68,6 @@
       margin-left: 2px;
     }
   }
-  &__footer {
-    width: 100%;
-    margin-bottom: 0;
-  }
   &__status-pill {
     border: 1px solid $border-tertiary;
     line-height: 12.5%;
@@ -72,6 +78,8 @@
     font-weight: 500;
     gap: 4px;
     color: $dark-grey;
+    display: flex;
+    flex-direction: row;
     &__dot {
       border-radius: 50%;
       height: 8px;

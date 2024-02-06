@@ -1,22 +1,22 @@
-<ion-grid class="virtual-card ion-grid-no-padding">
-  <ion-row class="ion-align-items-center virtual-card__card-number">
-    <ion-col>
-      <ion-row class="ion-justify-content-between">
+<div class="virtual-card ion-grid-no-padding ion-justify-content-between">
+  <div class="ion-align-items-center virtual-card__card-number">
+    <div class="virtual-card__card-number">
+      <div class="virtual-card__card-number__nickname ion-justify-content-between">
         {{ cardNickname }}
-        <ion-row class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
+        <div class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
           <div class="virtual-card__status-pill__dot"></div>
           <div>{{ cardStatus | titlecase }}</div>
-        </ion-row>
-      </ion-row>
-      <ion-row class="ion-align-items-center">
-        <ion-row *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask">
+        </div>
+      </div>
+      <div class="ion-align-items-center d-flex">
+        <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask d-flex">
           <div>****</div>
           <div>******</div>
-        </ion-row>
-        <ion-row *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked">
+        </div>
+        <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked d-flex">
           <div>{{ cardNumber | slice : 0 : 4 }}</div>
           <div>{{ cardNumber | slice : 4 : 10 }}</div>
-        </ion-row>
+        </div>
         <div class="virtual-card__card-number__unmasked-card-digits">
           {{ cardNumber | slice : 10 : 15 }}
         </div>
@@ -26,14 +26,15 @@
           (pressup)="toggleShowCardNumber()"
           (tap)="copyToClipboard(cardNumber)"
         ></ion-icon>
-      </ion-row>
-    </ion-col>
-  </ion-row>
-  <ion-row class="virtual-card__footer ion-align-items-center">
-    <ion-row class="virtual-card__card-fields ion-align-items-center">
-      <ion-col class="virtual-card__card-fields__cvv-field">
+      </div>
+    </div>
+  </div>
+  <div class="virtual-card__footer ion-align-items-center">
+    <div class="virtual-card__card-fields ion-align-items-center d-flex">
+      <!-- remove the above -->
+      <div class="virtual-card__card-fields__cvv-field">
         <div class="virtual-card__card-fields__label-text">CVV</div>
-        <ion-row>
+        <div class="d-flex">
           <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
           <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
           <ion-icon
@@ -43,17 +44,17 @@
             (pressup)="toggleShowCvv()"
             (tap)="copyToClipboard(cvv)"
           ></ion-icon>
-        </ion-row>
-      </ion-col>
-      <ion-col>
+        </div>
+      </div>
+      <div>
         <div class="virtual-card__card-fields__label-text">Expiry</div>
         <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
-      </ion-col>
+      </div>
       <div class="virtual-card__vertical-divider"></div>
-      <ion-col>
+      <div>
         <div class="virtual-card__card-fields__label-text">Available</div>
         <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
-      </ion-col>
-    </ion-row>
-  </ion-row>
-</ion-grid>
+      </div>
+    </div>
+  </div>
+</div>
