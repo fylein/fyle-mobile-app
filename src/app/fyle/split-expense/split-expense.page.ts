@@ -512,7 +512,7 @@ export class SplitExpensePage {
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessage });
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
     });
   }
 
@@ -578,12 +578,7 @@ export class SplitExpensePage {
   showSuccessToast(): void {
     const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: this.reportId, navigatedFromSplitExpense: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
     } else {
       this.router.navigate(['/', 'enterprise', 'my_expenses']);
     }
