@@ -39,8 +39,14 @@ export interface ExpenseProperties {
 }
 
 export interface SplittingExpenseProperties {
-  'Split Type': string;
+  Type: string;
   'Is Evenly Split': boolean;
+  Asset: string;
+  'Is part of report': boolean;
+  'Report ID': string;
+  'Expense State': string;
+  'User Role': string;
+  'Error Message'?: string;
 }
 
 export interface PolicyCorrectionProperties {

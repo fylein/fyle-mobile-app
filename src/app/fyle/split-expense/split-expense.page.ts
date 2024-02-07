@@ -49,6 +49,8 @@ import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transf
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-split-expense',
@@ -640,6 +642,9 @@ export class SplitExpensePage {
       filteredMissingFieldsViolations = null;
     }
 
+    const splitTrackingProps = this.getSplitExpensePoperties();
+    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
+
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
       componentProps: {
@@ -717,14 +722,21 @@ export class SplitExpensePage {
     this.splitExpenseService
       .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
-        catchError((err) => {
+        catchError((errResponse: HttpErrorResponse) => {
+          const splitTrackingProps = this.getSplitExpensePoperties();
+          splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
+          this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
+
           const message = 'We were unable to split your expense. Please try again later.';
           this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          return throwError(err);
+          return throwError(errResponse);
         })
       )
       .subscribe((txns) => {
+        const splitTrackingProps = this.getSplitExpensePoperties();
+        this.trackingService.splitExpenseSuccess(splitTrackingProps);
+
         const txnIds = txns.data.map((txn) => txn.id);
 
         if (comments) {
@@ -757,6 +769,18 @@ export class SplitExpensePage {
         (this.formattedSplitExpense[this.formattedSplitExpense.length - 1].amount + difference).toPrecision(15)
       );
     }
+  }
+
+  getSplitExpensePoperties(): SplittingExpenseProperties {
+    return {
+      Type: this.splitType,
+      'Is Evenly Split': this.isEvenlySplit(),
+      Asset: 'Mobile',
+      'Is part of report': !!this.reportId,
+      'Report ID': this.reportId || null,
+      'Expense State': this.transaction.state,
+      'User Role': 'spender',
+    };
   }
 
   saveV2(): void {
@@ -809,18 +833,19 @@ export class SplitExpensePage {
               this.correctTotalSplitAmount();
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
-            catchError((err) => {
+            catchError((errResponse: HttpErrorResponse) => {
+              const splitTrackingProps = this.getSplitExpensePoperties();
+              splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
+              this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
+
               const message = 'We were unable to split your expense. Please try again later.';
               this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
-              return throwError(err);
+              return throwError(errResponse);
             }),
             finalize(() => {
               this.saveSplitExpenseLoading = false;
 
-              const splitTrackingProps = {
-                'Split Type': this.splitType,
-                'Is Evenly Split': this.isEvenlySplit(),
-              };
+              const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
@@ -911,10 +936,7 @@ export class SplitExpensePage {
             finalize(() => {
               this.saveSplitExpenseLoading = false;
 
-              const splitTrackingProps = {
-                'Split Type': this.splitType,
-                'Is Evenly Split': this.isEvenlySplit(),
-              };
+              const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )

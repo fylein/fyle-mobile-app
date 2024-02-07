@@ -227,7 +227,14 @@ describe('SplitExpensePage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['addTransactions']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['showToastMessage', 'splittingExpense']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+      'showToastMessage',
+      'splittingExpense',
+      'splitExpenseSuccess',
+      'splitExpenseFailed',
+      'splitExpensePolicyCheckFailed',
+      'splitExpensePolicyAndMissingFieldsPopupShown',
+    ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', ['checkIfViolationsExist']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create', 'getTop']);
     const modalPropertiesSpy = jasmine.createSpyObj('ModalPropertiesService', ['getModalDefaultProperties']);
@@ -1754,8 +1761,13 @@ describe('SplitExpensePage', () => {
         transformedOrgCategories
       );
       expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
-        'Split Type': 'projects',
+        Type: 'projects',
         'Is Evenly Split': true,
+        Asset: 'Mobile',
+        'Is part of report': false,
+        'Report ID': null,
+        'User Role': 'spender',
+        'Expense State': 'DRAFT',
       });
       expect(component.handleSplitExpensePolicyViolations).toHaveBeenCalledOnceWith(policyVoilationData2);
     });
@@ -1781,8 +1793,13 @@ describe('SplitExpensePage', () => {
         );
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses']);
         expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
-          'Split Type': 'projects',
+          Type: 'projects',
           'Is Evenly Split': true,
+          Asset: 'Mobile',
+          'Is part of report': false,
+          'Report ID': null,
+          'User Role': 'spender',
+          'Expense State': 'DRAFT',
         });
         expect(component.handleSplitExpensePolicyViolations).not.toHaveBeenCalled();
       }
@@ -2254,8 +2271,13 @@ describe('SplitExpensePage', () => {
       expect(component.generateSplitEtxnFromFg).toHaveBeenCalledOnceWith(component.splitExpensesFormArray.value[0]);
       expect(component.handlePolicyAndMissingFieldsCheck).toHaveBeenCalledOnceWith(txnList);
       expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
-        'Split Type': 'projects',
+        Type: 'projects',
         'Is Evenly Split': true,
+        Asset: 'Mobile',
+        'Is part of report': false,
+        'Report ID': null,
+        'User Role': 'spender',
+        'Expense State': 'DRAFT',
       });
       expect(component.handleSplitExpense).toHaveBeenCalledOnceWith({ '0': 'test comment' });
     });
@@ -2280,8 +2302,13 @@ describe('SplitExpensePage', () => {
           'msb-failure-with-camera-icon'
         );
         expect(trackingService.splittingExpense).toHaveBeenCalledOnceWith({
-          'Split Type': 'projects',
+          Type: 'projects',
           'Is Evenly Split': true,
+          Asset: 'Mobile',
+          'Is part of report': false,
+          'Report ID': null,
+          'User Role': 'spender',
+          'Expense State': 'DRAFT',
         });
         expect(component.handleSplitExpense).not.toHaveBeenCalled();
       }
@@ -2396,6 +2423,7 @@ describe('SplitExpensePage', () => {
         handle: false,
       };
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
+      component.transaction = cloneDeep(txnData4);
     });
 
     it('should open policy violations and missing fields modal', async () => {
