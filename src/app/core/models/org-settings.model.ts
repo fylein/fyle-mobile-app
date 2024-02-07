@@ -448,7 +448,7 @@ export interface OrgSettingsResponse {
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
-  amex_feed_enrollment_settings: AmexFeedEnrollmentSettings;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }
 
 export interface UiPolicySettings {
@@ -560,5 +560,5 @@ export interface OrgSettings {
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
-  amex_feed_enrollment_settings: AmexFeedEnrollmentSettings;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }
