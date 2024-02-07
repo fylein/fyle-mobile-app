@@ -59,13 +59,14 @@
   <div *ngIf="isVirtualCardsEnabled$ | async" class="manage-corporate-cards__cards manage-corporate-cards__cards-list">
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
       <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
-        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
+        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__virtual-card">
           <app-virtual-card
             *ngIf="virtualCardDetails[corporateCard.virtual_card_id]; else shimmers"
             [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id]?.full_card_number"
             [cvv]="virtualCardDetails[corporateCard.virtual_card_id]?.cvv"
             [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
             [cardStatus]="corporateCard.virtual_card_state"
+            [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
           ></app-virtual-card>
         </div>
       </ng-container>

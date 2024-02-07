@@ -5,14 +5,15 @@
     [hideOptionsMenu]="true"
   ></app-corporate-card>
   <app-virtual-card
-    *ngIf="cardDetail.card.virtual_card_id"
+    *ngIf="cardDetail.card.virtual_card_id && cardDetail.virtualCardDetail"
     [cardStatus]="cardDetail.card.virtual_card_state"
-    [cardNumber]="cardDetail.virtualCardDetails?.full_card_number"
-    [expiry]="cardDetail.virtualCardDetails?.expiry_date"
-    [availableAmount]="cardDetail.virtualCardDetails?.current_amount"
+    [cardNumber]="cardDetail.virtualCardDetail?.full_card_number"
+    [expiry]="cardDetail.virtualCardDetail?.expiry_date"
+    [availableAmount]="cardDetail.virtualCardDetail?.current_amount"
+    [cardNickname]="cardDetail.virtualCardDetail?.nick_name"
   ></app-virtual-card>
 </div>
-<div class="stats--ccc-stats">
+<div class="stats--ccc-stats" [ngClass]="{ 'stats--virtual-card-stats': cardDetail.card.virtual_card_id }">
   <div>
     <div (click)="goToExpensesPage('incompleteExpenses', cardDetail)">
       <div class="stats--ccc-classified-stats">
