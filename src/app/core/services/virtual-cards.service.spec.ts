@@ -10,7 +10,7 @@ import { of } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
 import { CardDetailsResponse } from '../models/card-details-response.model';
 
-fdescribe('VirtualCardsService', () => {
+describe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
