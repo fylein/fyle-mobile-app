@@ -5,6 +5,8 @@
   <string name="package_name">com.ionicframework.fyle595781</string>
   <string name="custom_url_scheme">com.ionicframework.fyle595781</string>
   <string name="ionic_app_id">32316914</string>
+  <string name="ionic_channel_name">LIVE_UPDATE_CHANNEL</string>
+  <string name="ionic_update_method">background</string>
   <string name="ionic_max_versions">2</string>
   <string name="ionic_min_background_duration">3000000000</string>
   <string name="ionic_update_api">https://api.ionicjs.com</string>
