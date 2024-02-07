@@ -103,6 +103,11 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { TrackingService } from '../../core/services/tracking.service';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { MileageRatesOptions } from 'src/app/core/models/mileage-rates-options.data';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 
 type FormValue = {
   route: {
@@ -112,6 +117,7 @@ type FormValue = {
   };
   category: OrgCategory;
   sub_category: OrgCategory;
+  commuteDeduction: { label: string; value: string; distance: number };
   report: UnflattenedReport;
   duplicate_detection_reason: string;
   paymentMode: ExtendedAccount;
@@ -281,6 +287,14 @@ export class AddEditMileagePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
+  showCommuteDeductionField = false;
+
+  commuteDetails: CommuteDetails;
+
+  distanceUnit: string;
+
+  commuteDeductionOptions: { label: string; value: string; distance: number }[];
+
   private _isExpandedView = false;
 
   constructor(
@@ -320,7 +334,9 @@ export class AddEditMileagePage implements OnInit {
     private categoriesService: CategoriesService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private spenderService: SpenderService,
+    private expenseService: ExpensesService
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -1274,6 +1290,14 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  private getCommuteDeductionOptions(distance: number): { label: string; value: string; distance: number }[] {
+    return [
+      { label: 'One Way Distance', value: 'ONE_WAY', distance: distance || null },
+      { label: 'Round Trip Distance', value: 'ROUND_TRIP', distance: distance ? distance * 2 : null },
+      { label: 'No Deduction', value: 'NO_DEDUCTION', distance: 0 },
+    ];
+  }
+
   ionViewWillEnter(): void {
     this.initClassObservables();
 
@@ -1285,6 +1309,7 @@ export class AddEditMileagePage implements OnInit {
     this.expenseStartTime = new Date().getTime();
     this.fg = this.fb.group({
       mileage_rate_name: [],
+      commuteDeduction: [],
       dateOfSpend: [, this.customDateValidator],
       route: [],
       paymentMode: [, Validators.required],
@@ -1506,6 +1531,7 @@ export class AddEditMileagePage implements OnInit {
             recentValue: this.recentlyUsedValues$,
             recentProjects: this.recentlyUsedProjects$,
             recentCostCenters: this.recentlyUsedCostCenters$,
+            eou: this.authService.getEou(),
           })
         ),
         take(1),
@@ -1527,6 +1553,7 @@ export class AddEditMileagePage implements OnInit {
           recentValue,
           recentProjects,
           recentCostCenters,
+          eou,
         }) => {
           if (project) {
             this.selectedProject$.next(project);
@@ -1559,6 +1586,53 @@ export class AddEditMileagePage implements OnInit {
                 };
               }
             });
+
+          this.showCommuteDeductionField =
+            orgSettings.mileage?.allowed &&
+            orgSettings.mileage.enabled &&
+            orgSettings.commute_deduction_settings?.allowed &&
+            orgSettings.commute_deduction_settings.enabled;
+
+          if (this.showCommuteDeductionField) {
+            this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
+            if (etxn?.tx?.id) {
+              /**
+               * If we are editing an expense, then
+               * 1. Fetch the expense details
+               * 2. Take the commute details from the expense, if present.
+               * 3. Setup the commute deduction field options.
+               * 4. Select the commute deduction field value, if present.
+               */
+              this.expenseService.getExpenseById(etxn.tx.id).subscribe((expense) => {
+                this.commuteDetails = expense.commute_details || null;
+                this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
+                this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
+                this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
+                if (expense.commute_deduction) {
+                  this.fg.patchValue({
+                    commuteDeduction: expense.commute_deduction,
+                  });
+                }
+              });
+            } else {
+              /**
+               * If we are creating a new expense, then
+               * 1. Fetch the commute details from the platform api.
+               * 2. Setup the commute deduction field options.
+               */
+              this.spenderService
+                .get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', {
+                  params: { user_id: `eq.${eou.us.id}` },
+                })
+                .pipe(map((response) => response?.data?.[0] || null))
+                .subscribe((commuteDetailsResponse) => {
+                  this.commuteDetails = commuteDetailsResponse?.commute_details || null;
+                  this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
+                  this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
+                  this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
+                });
+            }
+          }
 
           // Check if auto-fills is enabled
           const isAutofillsEnabled =
