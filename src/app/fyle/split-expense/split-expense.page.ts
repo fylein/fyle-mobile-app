@@ -684,7 +684,7 @@ export class SplitExpensePage {
     };
 
     return this.splitExpenseService
-      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileObjs, this.transaction, reportAndCategoryParams)
+      .handlePolicyAndMissingFieldsCheck(splitEtxns, this.fileUrls, this.transaction, reportAndCategoryParams)
       .pipe(
         concatMap((res) => {
           const formattedViolations = this.transformViolationData(splitEtxns, res.policyViolations);
@@ -720,7 +720,7 @@ export class SplitExpensePage {
     };
 
     this.splitExpenseService
-      .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
+      .splitExpense(this.formattedSplitExpense, this.fileUrls, this.transaction, reportAndCategoryParams)
       .pipe(
         catchError((errResponse: HttpErrorResponse) => {
           const splitTrackingProps = this.getSplitExpensePoperties();
