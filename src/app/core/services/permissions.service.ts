@@ -1600,6 +1600,10 @@ export class PermissionsService {
           roles.splice(roles.indexOf('SUPER_ADMIN'), 1);
         }
 
+        if (roles.indexOf('ACCOUNTANT') > -1) {
+          roles.splice(roles.indexOf('ACCOUNTANT'), 1);
+        }
+
         return roles;
       })
     );

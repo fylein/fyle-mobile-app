@@ -1,68 +1,60 @@
-<div class="virtual-card">
-  <ion-row class="ion-align-items-center ion-justify-content-between">
-    <div class="virtual-card__contactless-payment ion-align-items-center">
-      <ion-icon
-        class="virtual-card__contactless-payment__icon"
-        src="../../../../../assets/svg/contactless-payment.svg"
-      ></ion-icon>
-      <div>American Express</div>
-    </div>
-    <div class="virtual-card__status-pill">
-      <div class="virtual-card__status-pill__dot"></div>
-      <div>{{ cardStatus | titlecase }}</div>
-    </div>
-  </ion-row>
-  <ion-row class="ion-align-items-center virtual-card__card-number">
-    <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask">
-      <div>****</div>
-      <div>******</div>
-    </div>
-    <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked">
-      <div>
-        {{ cardNumber.slice(0, 4) }}
+<div class="virtual-card ion-grid-no-padding ion-justify-content-between">
+  <div class="ion-align-items-center virtual-card__card-number">
+    <div class="virtual-card__card-number">
+      <div class="virtual-card__card-number__nickname ion-justify-content-between">
+        {{ cardNickname }}
+        <div class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
+          <div class="virtual-card__status-pill__dot"></div>
+          <div>{{ cardStatus | titlecase }}</div>
+        </div>
       </div>
-      <div>
-        {{ cardNumber.slice(4, 10) }}
+      <div class="ion-align-items-center d-flex">
+        <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask d-flex">
+          <div>****</div>
+          <div>******</div>
+        </div>
+        <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked d-flex">
+          <div>{{ cardNumber | slice : 0 : 4 }}</div>
+          <div>{{ cardNumber | slice : 4 : 10 }}</div>
+        </div>
+        <div class="virtual-card__card-number__unmasked-card-digits">
+          {{ cardNumber | slice : 10 : 15 }}
+        </div>
+        <ion-icon
+          src="../../../../../assets/svg/duplicate.svg"
+          (press)="toggleShowCardNumber()"
+          (pressup)="hideCardNumberAndCopy()"
+          (tap)="copyToClipboard(cardNumber)"
+        ></ion-icon>
       </div>
     </div>
-    <div class="virtual-card__card-number__unmasked-card-digits">
-      {{ cardNumber.slice(10) }}
-    </div>
-    <ion-icon
-      src="../../../../../assets/svg/duplicate.svg"
-      (press)="showCardNumber = true"
-      (pressup)="showCardNumber = false"
-      (tap)="copyToClipboard(cardNumber)"
-    ></ion-icon>
-  </ion-row>
-  <ion-row class="virtual-card__footer ion-align-items-center">
-    <ion-row class="virtual-card__card-fields ion-align-items-center">
-      <ion-col>
+  </div>
+  <div class="virtual-card__footer ion-align-items-center">
+    <div class="virtual-card__card-fields ion-align-items-center d-flex">
+      <!-- remove the above -->
+      <div class="virtual-card__card-fields__cvv-field">
         <div class="virtual-card__card-fields__label-text">CVV</div>
-        <ion-row>
-          <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">***</div>
+        <div class="d-flex">
+          <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
           <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
           <ion-icon
             class="virtual-card__card-fields__cvv-copy-icon"
             src="../../../../../assets/svg/duplicate.svg"
-            (press)="showCvv = true"
-            (pressup)="showCvv = false"
+            (press)="toggleShowCvv()"
+            (pressup)="hideCvvAndCopy()"
             (tap)="copyToClipboard(cvv)"
           ></ion-icon>
-        </ion-row>
-      </ion-col>
-      <ion-col>
+        </div>
+      </div>
+      <div>
         <div class="virtual-card__card-fields__label-text">Expiry</div>
         <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
-      </ion-col>
+      </div>
       <div class="virtual-card__vertical-divider"></div>
-      <ion-col>
+      <div>
         <div class="virtual-card__card-fields__label-text">Available</div>
         <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
-      </ion-col>
-    </ion-row>
-    <div class="virtual-card__logo-container">
-      <img src="../../../../../assets/images/amex-virtual-card-logo.png" alt="amex virtual card logo" />
+      </div>
     </div>
-  </ion-row>
+  </div>
 </div>
