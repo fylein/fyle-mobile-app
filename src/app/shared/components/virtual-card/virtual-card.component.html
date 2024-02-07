@@ -4,7 +4,13 @@
       <div class="virtual-card__card-number__nickname ion-justify-content-between">
         {{ cardNickname }}
         <div class="virtual-card__status-pill ion-align-items-center ion-justify-content-center">
-          <div class="virtual-card__status-pill__dot"></div>
+          <div
+            class="virtual-card__status-pill__dot"
+            [ngClass]="{
+              'virtual-card__status-pill__dot__danger': showErrorStatusDot,
+              'virtual-card__status-pill__dot__success': showSuccessStatusDot
+            }"
+          ></div>
           <div>{{ cardStatus | titlecase }}</div>
         </div>
       </div>
