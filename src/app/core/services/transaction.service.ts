@@ -41,6 +41,7 @@ import { PlatformMissingMandatoryFields } from '../models/platform/platform-miss
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
 import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
+import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -446,10 +447,10 @@ export class TransactionService {
     );
   }
 
-  matchCCCExpense(id: string, expenseId: string): Observable<null> {
+  matchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
     const payload = {
       id,
-      expense_ids: [`${expenseId}`],
+      expense_ids: [expenseId],
     };
 
     return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/match', { data: payload });
@@ -479,10 +480,10 @@ export class TransactionService {
     return this.getAllETxnc(data);
   }
 
-  unmatchCCCExpense(id: string, expenseId: string): Observable<null> {
+  unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
     const payload = {
       id,
-      expense_ids: [`${expenseId}`],
+      expense_ids: [expenseId],
     };
 
     return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/unmatch', { data: payload });

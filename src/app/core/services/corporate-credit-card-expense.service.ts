@@ -20,6 +20,7 @@ import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { UniqueCards } from '../models/unique-cards.model';
+import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 
 type Config = Partial<{
   offset: number;
@@ -92,7 +93,7 @@ export class CorporateCreditCardExpenseService {
       );
   }
 
-  markPersonal(id: string): Observable<null> {
+  markPersonal(id: string): Observable<CorporateCardTransactionRes> {
     const payload = {
       id,
     };

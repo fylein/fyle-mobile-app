@@ -41,6 +41,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -465,7 +466,7 @@ export class SplitExpensePage {
             concatMap((res) => {
               const observables: Partial<{
                 delete: Observable<Expense>;
-                matchCCC: Observable<null>;
+                matchCCC: Observable<CorporateCardTransactionRes>;
                 violations: Observable<PolicyViolationTxn>;
               }> = {};
               if (this.transaction.id) {

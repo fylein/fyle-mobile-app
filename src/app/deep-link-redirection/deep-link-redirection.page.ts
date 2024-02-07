@@ -71,7 +71,7 @@ export class DeepLinkRedirectionPage {
       this.expensesService.getExpenseById(txnId).subscribe((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         const route = this.deepLinkService.getExpenseRoute(etxn);
-        this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id as string }]);
+        this.router.navigate([...route, { id: txnId }]);
       });
     } else {
       const eou$ = from(this.loaderService.showLoader('Loading....')).pipe(
@@ -94,7 +94,7 @@ export class DeepLinkRedirectionPage {
         .subscribe({
           next: (etxn) => {
             const route = this.deepLinkService.getExpenseRoute(etxn);
-            this.router.navigate([...route, { id: this.activatedRoute.snapshot.params.id as string }]);
+            this.router.navigate([...route, { id: txnId }]);
           },
           error: () => this.switchOrg(),
         });

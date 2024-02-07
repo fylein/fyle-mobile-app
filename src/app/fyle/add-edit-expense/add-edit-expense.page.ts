@@ -133,6 +133,7 @@ import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.mo
 import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 
 type FormValue = {
   currencyObj: {
@@ -711,7 +712,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  markCCCAsPersonal(txnId: string): Observable<null> {
+  markCCCAsPersonal(txnId: string): Observable<CorporateCardTransactionRes> {
     return this.transactionService.delete(txnId).pipe(
       switchMap((res) => {
         if (res) {
@@ -825,7 +826,7 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<null>;
+      deleteMethod: () => Observable<CorporateCardTransactionRes>;
     };
   } {
     const id = this.activatedRoute.snapshot.params.id as string;
@@ -838,7 +839,7 @@ export class AddEditExpensePage implements OnInit {
         body: componentPropsParam.body,
         ctaText: componentPropsParam.ctaText,
         ctaLoadingText: componentPropsParam.ctaLoadingText,
-        deleteMethod: (): Observable<null> => {
+        deleteMethod: (): Observable<CorporateCardTransactionRes> => {
           if (isMarkPersonal) {
             return this.transactionService
               .unmatchCCCExpense(this.corporateCreditCardExpenseGroupId, id)
@@ -3736,7 +3737,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
+  editExpense(redirectedFrom: string): Observable<Partial<Transaction> | CorporateCardTransactionRes> {
     this.showSaveExpenseLoader(redirectedFrom);
 
     this.trackPolicyCorrections();
