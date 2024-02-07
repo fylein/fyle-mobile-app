@@ -1898,10 +1898,12 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
+          const expenseCategory = category?.enabled ? category : null;
+
           this.fg.patchValue(
             {
               project,
-              category,
+              category: expenseCategory,
               dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
@@ -2173,7 +2175,7 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
+              this.customInputsService.filterByCategory(customFields, category?.enabled && category.id)
             )
           )
         );
