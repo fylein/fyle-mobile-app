@@ -7,6 +7,8 @@ import {
   virtualCardDetailsResponse,
 } from '../mock-data/virtual-card-details-response.data';
 import { of } from 'rxjs';
+import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
+import { CardDetailsResponse } from '../models/card-details-response.model';
 
 describe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
@@ -39,10 +41,15 @@ describe('VirtualCardsService', () => {
         id: 'vc1234',
       },
     };
+    const virtualCardsRequest: VirtualCardsRequest = {
+      id: 'vc1234',
+    };
+    const expectedResponse: { data: CardDetailsResponse } = virtualCardDetailsResponse;
+    expectedResponse.data.expiry_date = new Date(expectedResponse.data.expiry_date);
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardDetailsResponse));
 
-    virtualCardsService.getCardDetailsById('vc1234').subscribe((res) => {
-      expect(res).toEqual(virtualCardDetailsResponse.data[0]);
+    virtualCardsService.getCardDetailsById(virtualCardsRequest).subscribe((res) => {
+      expect(res).toEqual(expectedResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
       done();
     });
@@ -54,10 +61,13 @@ describe('VirtualCardsService', () => {
         id: 'vc1234',
       },
     };
+    const virtualCardsRequest: VirtualCardsRequest = {
+      id: 'vc1234',
+    };
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardCurrentAmountResponse));
 
-    virtualCardsService.getCurrentAmountById('vc1234').subscribe((res) => {
-      expect(res).toEqual(virtualCardCurrentAmountResponse.data[0]);
+    virtualCardsService.getCurrentAmountById(virtualCardsRequest).subscribe((res) => {
+      expect(res).toEqual(virtualCardCurrentAmountResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
       done();
     });

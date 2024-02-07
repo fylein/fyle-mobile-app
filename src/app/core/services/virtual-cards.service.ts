@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { Observable, bufferCount, concatMap, forkJoin, from, map, mergeMap, range, switchMap, toArray } from 'rxjs';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { CardDetailsResponse } from '../models/card-details-response.model';
+import { Observable, map } from 'rxjs';
+import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
+import { CardDetailsAmountResponse, CardDetailsResponse } from '../models/card-details-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -10,25 +10,29 @@ import { CardDetailsResponse } from '../models/card-details-response.model';
 export class VirtualCardsService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  getCardDetailsById(virtualCardId: string): Observable<CardDetailsResponse> {
-    const params = {
-      data: {
-        id: virtualCardId,
-      },
-    };
+  getCardDetailsById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<CardDetailsResponse>>('/virtual_cards/show_card_details', params)
-      .pipe(map((response) => response.data[0]));
+      .post<{
+        data: CardDetailsResponse;
+      }>('/virtual_cards/show_card_details', {
+        data: virtualCardRequestPayload,
+      })
+      .pipe(
+        map((response) => {
+          const cardDetailsResponse = response.data;
+          cardDetailsResponse.expiry_date = new Date(cardDetailsResponse.expiry_date);
+          return cardDetailsResponse;
+        })
+      );
   }
 
-  getCurrentAmountById(virtualCardId: string): Observable<Record<string, number>> {
-    const params = {
-      data: {
-        id: virtualCardId,
-      },
-    };
+  getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
     return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<Record<string, number>>>('/virtual_cards/get_current_amount', params)
-      .pipe(map((response) => response.data[0]));
+      .post<{
+        data: CardDetailsAmountResponse;
+      }>('/virtual_cards/get_current_amount', {
+        data: virtualCardRequestPayload,
+      })
+      .pipe(map((response) => response.data));
   }
 }
