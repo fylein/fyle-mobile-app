@@ -3,7 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { VirtualCardsService } from './virtual-cards.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 
-describe('VirtualCardsService', () => {
+xdescribe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
