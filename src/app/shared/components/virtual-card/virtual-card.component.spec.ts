@@ -52,24 +52,23 @@ fdescribe('VirtualCardComponent', () => {
     click(copyToClipboardIcon);
     tick(100);
 
-    expect(component.copyToClipboard).toHaveBeenCalledOnceWith(component.cardNumber);
-    expect(clipboardService.writeString).toHaveBeenCalledOnceWith(component.cardNumber);
+    expect(component.copyToClipboard).toHaveBeenCalledOnceWith(component.cvv);
+    expect(clipboardService.writeString).toHaveBeenCalledOnceWith(component.cvv);
   }));
 
-  fit('showToastNotification(): should show toast notification', () => {
-    const msg = 'message';
+  fit('showToastMessage(): should show toast notification', () => {
     const props = {
       data: {
         icon: 'check-square-fill',
         showCloseButton: true,
-        message: msg,
+        message: 'Copied Successfully!',
       },
       duration: 3000,
     };
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.returnValue(props);
 
-    component.showToastMessage(msg);
+    component.showToastMessage('Copied Successfully!');
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
       ...props,
       panelClass: ['msb-info'],
