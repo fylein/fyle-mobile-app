@@ -1,6 +1,6 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Observable, from, noop, concat, Subject, BehaviorSubject } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
@@ -33,6 +33,8 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { ShareReportComponent } from './share-report/share-report.component';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -107,6 +109,8 @@ export class MyViewReportPage {
 
   timeSpentOnEditingReportName: number;
 
+  hardwareBackButtonAction: Subscription;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -123,7 +127,8 @@ export class MyViewReportPage {
     private snackbarProperties: SnackbarPropertiesService,
     private statusService: StatusService,
     private refinerService: RefinerService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -146,6 +151,7 @@ export class MyViewReportPage {
   }
 
   ionViewWillLeave(): void {
+    this.hardwareBackButtonAction.unsubscribe();
     this.onPageExit.next(null);
   }
 
@@ -265,6 +271,13 @@ export class MyViewReportPage {
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: this.getSimplifyReportSettings(orgSettings) }))
+    );
+
+    this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(
+      BackButtonActionPriority.MEDIUM,
+      () => {
+        this.router.navigate(['/', 'enterprise', 'my_reports']);
+      }
     );
   }
 
