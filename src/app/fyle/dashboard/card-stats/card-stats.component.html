@@ -1,15 +1,17 @@
 <ng-container *ngIf="isConnected$ | async">
   <div *ngIf="isCCCEnabled$ | async" class="card-stats">
     <ng-container *ngIf="cardDetails$ | async as cardDetails">
-      <div class="card-stats__header">CARD SPEND</div>
-      <ng-container *ngIf="(isVirtualCardsEnabled$ | async) === false">
-        <app-spent-cards
-          [cardDetails]="cardDetails"
-          [homeCurrency]="homeCurrency$ | async"
-          [currencySymbol]="currencySymbol$ | async"
-          [showAddCardSlide]="canAddCorporateCards$ | async"
-          (addCardClick)="openAddCorporateCardPopover()"
-        ></app-spent-cards>
+      <ng-container *ngIf="cardDetails?.length">
+        <div class="card-stats__header">CARD SPEND</div>
+        <ng-container *ngIf="(isVirtualCardsEnabled$ | async) === false">
+          <app-spent-cards
+            [cardDetails]="cardDetails"
+            [homeCurrency]="homeCurrency$ | async"
+            [currencySymbol]="currencySymbol$ | async"
+            [showAddCardSlide]="canAddCorporateCards$ | async"
+            (addCardClick)="openAddCorporateCardPopover()"
+          ></app-spent-cards>
+        </ng-container>
       </ng-container>
 
       <ng-container *ngIf="(isVirtualCardsEnabled$ | async) === true">
