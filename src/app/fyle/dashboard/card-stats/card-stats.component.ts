@@ -15,6 +15,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { toArray } from 'lodash';
 import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
+import { CardStatus } from 'src/app/core/enums/card-status.enum';
 
 @Component({
   selector: 'app-card-stats',
@@ -45,6 +46,8 @@ export class CardStatsComponent implements OnInit {
   isConnected$: Observable<boolean>;
 
   loadCardDetails$ = new BehaviorSubject<void>(null);
+
+  CardStatus: typeof CardStatus = CardStatus;
 
   constructor(
     private currencyService: CurrencyService,
@@ -145,6 +148,14 @@ export class CardStatsComponent implements OnInit {
                 cardDetails.forEach((cardDetail) => {
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
+                cardDetails = cardDetails.filter((cardDetail) =>
+                  cardDetail.card.virtual_card_id
+                    ? cardDetail.virtualCardDetail &&
+                      (cardDetail.stats?.totalTxnsCount > 0 ||
+                        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+                        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
+                    : true
+                );
                 return cardDetails;
               })
             );

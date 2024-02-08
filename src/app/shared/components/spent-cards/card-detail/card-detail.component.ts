@@ -20,10 +20,6 @@ export class CardDetailComponent implements OnInit {
 
   redirectToNewPage = false;
 
-  showVirtualCard: boolean;
-
-  CardStatus: typeof CardStatus = CardStatus;
-
   constructor(
     private router: Router,
     private trackingService: TrackingService,
@@ -31,12 +27,6 @@ export class CardDetailComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.showVirtualCard =
-      this.cardDetail.card.virtual_card_id &&
-      this.cardDetail.virtualCardDetail &&
-      (this.cardDetail.stats?.totalTxnsCount > 0 ||
-        this.cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-        this.cardDetail.card.virtual_card_state === CardStatus.PREACTIVE);
     this.orgSettingService
       .get()
       .pipe(
