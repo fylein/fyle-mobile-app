@@ -9,18 +9,25 @@
   display: flex;
   flex-direction: column;
 
+  &__nickname {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    margin-top: 60px;
+    width: 100%;
+    font-size: 16px;
+    font-weight: 500;
+  }
   &__card-number {
     color: $pure-white;
-    margin-top: 20px;
     display: flex;
     flex-direction: column;
     width: 100%;
     font-size: 16px;
     font-weight: 500;
-    &__nickname {
-      display: flex;
-      justify-content: space-between;
-      font-weight: 500;
+    &__card-number-digits {
+      align-self: self-start;
     }
     &__card-number-mask {
       letter-spacing: 2px;
