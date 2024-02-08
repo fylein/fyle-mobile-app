@@ -3,4 +3,5 @@ export interface CardDetailsResponseWithNickName {
   cvv: string;
   expiry_date: Date;
   nick_name?: string;
+  current_amount?: number;
 }

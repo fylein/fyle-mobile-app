@@ -24,7 +24,7 @@ import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-
 export class CardStatsComponent implements OnInit {
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
-  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]> | void;
+  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   homeCurrency$: Observable<string>;
 
