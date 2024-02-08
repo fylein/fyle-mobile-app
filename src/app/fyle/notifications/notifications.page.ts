@@ -295,7 +295,6 @@ export class NotificationsPage implements OnInit {
         })
       )
       .subscribe((res) => {
-        console.log('zipped event', res);
         this.notificationEvents = res[0];
         this.orgUserSettings = res[1];
         this.setEvents(this.notificationEvents, this.orgUserSettings);
