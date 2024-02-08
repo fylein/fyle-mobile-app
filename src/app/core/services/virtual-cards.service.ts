@@ -77,14 +77,13 @@ export class VirtualCardsService {
   }
 
   getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
-    // return this.spenderPlatformV1ApiService
-    //   .post<{
-    //     data: CardDetailsAmountResponse;
-    //   }>('/virtual_cards/get_current_amount', {
-    //     data: virtualCardRequestPayload,
-    //   })
-    //   .pipe(map((response) => response.data));
-    return of(virtualCardCurrentAmountResponse.data);
+    return this.spenderPlatformV1ApiService
+      .post<{
+        data: CardDetailsAmountResponse;
+      }>('/virtual_cards/get_current_amount', {
+        data: virtualCardRequestPayload,
+      })
+      .pipe(map((response) => response.data));
   }
 
   getVirtualCardById(virtualCardRequestPayload: VirtualCardsRequest): Observable<VirtualCard> {
