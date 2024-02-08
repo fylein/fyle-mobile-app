@@ -143,7 +143,6 @@ export class CardStatsComponent implements OnInit {
             return this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
               map((virtualCardsMap) => {
                 cardDetails.forEach((cardDetail) => {
-                  console.log(cardDetail);
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
                 return cardDetails;
