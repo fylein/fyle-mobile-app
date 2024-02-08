@@ -154,8 +154,6 @@ export class CardStatsComponent implements OnInit {
     });
   }
 
-  setupVirtualCardDetails(cardDetails, virtualCardDetails) {}
-
   openAddCorporateCardPopover(): void {
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
       async ([isVisaRTFEnabled, isMastercardRTFEnabled, isYodleeEnabled]) => {
