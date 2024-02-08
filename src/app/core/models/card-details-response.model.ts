@@ -3,7 +3,3 @@ export interface CardDetailsResponse {
   cvv: string;
   expiry_date: Date;
 }
-
-export interface CardDetailsAmountResponse {
-  current_amount: number;
-}
