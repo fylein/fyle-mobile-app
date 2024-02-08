@@ -1,5 +1,5 @@
-import { CardDetailsAmountResponse, CardDetailsResponse } from '../models/card-details-response.model';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { CardDetailsAmountResponse } from '../models/card-details-amount-response';
+import { CardDetailsResponse } from '../models/card-details-response.model';
 
 export const virtualCardDetailsResponse: { data: CardDetailsResponse } = {
   data: {
