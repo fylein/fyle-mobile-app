@@ -5,7 +5,7 @@
     [hideOptionsMenu]="true"
   ></app-corporate-card>
   <app-virtual-card
-    *ngIf="cardDetail.card.virtual_card_id && cardDetail.virtualCardDetail"
+    *ngIf="showVirtualCard"
     [cardStatus]="cardDetail.card.virtual_card_state"
     [cardNumber]="cardDetail.virtualCardDetail?.full_card_number"
     [expiry]="cardDetail.virtualCardDetail?.expiry_date"
