@@ -1,5 +1,4 @@
-import { CardDetailsResponseWithNickName } from './card-details-response.model';
-import { CardDetailsWithAmountResponse } from './card-details-with-amount-response.model';
+import { CardDetailsResponseWithNickName } from './card-details-response-with-nickname.model';
 import { PlatformCorporateCard } from './platform/platform-corporate-card.model';
 
 export interface PlatformCorporateCardDetail {

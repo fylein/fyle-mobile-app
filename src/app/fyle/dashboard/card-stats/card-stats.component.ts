@@ -15,6 +15,7 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { toArray } from 'lodash';
 import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
+import { CardStatus } from 'src/app/core/enums/card-status.enum';
 
 @Component({
   selector: 'app-card-stats',
@@ -24,7 +25,7 @@ import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-
 export class CardStatsComponent implements OnInit {
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
-  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]> | void;
+  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
   homeCurrency$: Observable<string>;
 
@@ -45,6 +46,8 @@ export class CardStatsComponent implements OnInit {
   isConnected$: Observable<boolean>;
 
   loadCardDetails$ = new BehaviorSubject<void>(null);
+
+  CardStatus: typeof CardStatus = CardStatus;
 
   constructor(
     private currencyService: CurrencyService,
@@ -143,9 +146,16 @@ export class CardStatsComponent implements OnInit {
             return this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
               map((virtualCardsMap) => {
                 cardDetails.forEach((cardDetail) => {
-                  console.log(cardDetail);
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
+                cardDetails = cardDetails.filter((cardDetail) =>
+                  cardDetail.card.virtual_card_id
+                    ? cardDetail.virtualCardDetail &&
+                      (cardDetail.stats?.totalTxnsCount > 0 ||
+                        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+                        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
+                    : true
+                );
                 return cardDetails;
               })
             );
@@ -154,8 +164,6 @@ export class CardStatsComponent implements OnInit {
       }
     });
   }
-
-  setupVirtualCardDetails(cardDetails, virtualCardDetails) {}
 
   openAddCorporateCardPopover(): void {
     forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$, this.isYodleeEnabled$]).subscribe(
