@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { Observable, concatMap, forkJoin, from, map, of } from 'rxjs';
+import { Observable, concatMap, forkJoin, from, map } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
 import { CardDetailsResponse } from '../models/card-details-response.model';
 import { CardDetailsAmountResponse } from '../models/card-details-amount-response';
