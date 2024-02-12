@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 
-fdescribe('VirtualCardComponent', () => {
+describe('VirtualCardComponent', () => {
   let component: VirtualCardComponent;
   let fixture: ComponentFixture<VirtualCardComponent>;
   let clipboardService: jasmine.SpyObj<ClipboardService>;
@@ -32,48 +32,101 @@ fdescribe('VirtualCardComponent', () => {
     fixture = TestBed.createComponent(VirtualCardComponent);
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
+    clipboardService = TestBed.inject(ClipboardService) as jasmine.SpyObj<ClipboardService>;
     component = fixture.componentInstance;
-    spyOn(component, 'showToastMessage');
     fixture.detectChanges();
   }));
 
-  fit('should create', () => {
+  it('should create', () => {
     expect(component).toBeTruthy();
   });
 
-  fit('copyToClipboard(): Should copy content to clipboard and trigger toast message', fakeAsync(() => {
+  it('copyToClipboard(): Should copy content to clipboard and trigger toast message', fakeAsync(() => {
     spyOn(component, 'copyToClipboard').and.callThrough();
     clipboardService.writeString.and.resolveTo();
+    component.copyToClipboard('1234');
 
-    const copyToClipboardIcon = getElementBySelector(
-      fixture,
-      '.virtual-card__card-fields__cvv-copy-icon'
-    ) as HTMLDivElement;
-    click(copyToClipboardIcon);
-    tick(100);
-
-    expect(component.copyToClipboard).toHaveBeenCalledOnceWith(component.cardNumber);
-    expect(clipboardService.writeString).toHaveBeenCalledOnceWith(component.cardNumber);
+    expect(component.copyToClipboard).toHaveBeenCalledOnceWith('1234');
+    expect(clipboardService.writeString).toHaveBeenCalledOnceWith('1234');
   }));
 
-  fit('showToastNotification(): should show toast notification', () => {
-    const msg = 'message';
-    const props = {
+  it('showToastMessage(): Should show toast message', () => {
+    const message = 'Copied Successfully!';
+    const successToastProperties = {
       data: {
-        icon: 'check-square-fill',
+        icon: 'check-circle-outline',
         showCloseButton: true,
-        message: msg,
+        message,
       },
       duration: 3000,
     };
-    matSnackBar.openFromComponent.and.callThrough();
-    snackbarProperties.setSnackbarProperties.and.returnValue(props);
 
-    component.showToastMessage(msg);
+    snackbarProperties.setSnackbarProperties.and.returnValue(successToastProperties);
+    component.showToastMessage(message);
+
     expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-      ...props,
-      panelClass: ['msb-info'],
+      ...successToastProperties,
+      panelClass: 'msb-success',
     });
-    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledTimes(1);
+
+    expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
+      'success',
+      { message },
+      'check-circle-outline'
+    );
+  });
+
+  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+    component.cvv = '1234';
+    const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
+    const tapSpy = spyOn(component, 'copyToClipboard');
+
+    cvvCopyIcon.dispatchEvent(new Event('tap'));
+
+    expect(tapSpy).toHaveBeenCalledOnceWith(component.cvv);
+  });
+
+  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+    component.cvv = '1234';
+    component.showCvv = true;
+    const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
+    const hideCvvAndCopySpy = spyOn(component, 'hideCvvAndCopy');
+    cvvCopyIcon.dispatchEvent(new Event('pressup'));
+
+    expect(hideCvvAndCopySpy).toHaveBeenCalledTimes(1);
+  });
+
+  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+    component.cvv = '1234';
+    component.showCvv = true;
+    const copyToClipboardSpy = spyOn(component, 'copyToClipboard');
+
+    component.hideCvvAndCopy();
+
+    expect(component.showCvv).toBeFalse();
+    expect(copyToClipboardSpy).toHaveBeenCalledOnceWith(component.cvv);
+  });
+
+  it('hideCardNumberAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+    component.cardNumber = '123451234512345';
+    component.showCardNumber = true;
+    const copyToClipboardSpy = spyOn(component, 'copyToClipboard');
+
+    component.hideCardNumberAndCopy();
+
+    expect(component.showCardNumber).toBeFalse();
+    expect(copyToClipboardSpy).toHaveBeenCalledOnceWith(component.cardNumber);
+  });
+
+  it('toggleShowCardNumber(): should show card number if card number is hidden', () => {
+    component.showCardNumber = false;
+    component.toggleShowCardNumber();
+    expect(component.showCardNumber).toBeTrue();
+  });
+
+  it('toggleShowCvv(): should show card number if card number is hidden', () => {
+    component.showCvv = false;
+    component.toggleShowCvv();
+    expect(component.showCvv).toBeTrue();
   });
 });
