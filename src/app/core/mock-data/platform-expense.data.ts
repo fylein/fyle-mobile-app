@@ -191,15 +191,6 @@ export const platformExpenseDataWithSubCategory: Expense = {
   category_id: 290006,
   claim_amount: 32,
   code: null,
-  // commute_deduction: null,
-  // commute_details: {
-  //     distance: null,
-  //     distance_unit: null,
-  //     home_location: null,
-  //     id: null,
-  //     work_location: null
-  // },
-  // commute_details_id: null,
   cost_center: {
     code: null,
     id: 20423,

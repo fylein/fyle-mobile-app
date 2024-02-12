@@ -4048,7 +4048,6 @@ export const editUnflattenedTransactionPlatform: Partial<Transaction> = {
   state: 'APPROVER_PENDING',
   admin_amount: null,
   policy_amount: null,
-  // matched_corporate_card_transaction_ids: [],
   skip_reimbursement: false,
   amount: 32,
   currency: 'USD',
