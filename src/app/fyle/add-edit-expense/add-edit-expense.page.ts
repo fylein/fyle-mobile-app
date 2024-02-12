@@ -287,7 +287,7 @@ export class AddEditExpensePage implements OnInit {
 
   matchedCCCTransaction: MatchedCCCTransaction;
 
-  alreadyApprovedExpenses: Expense[];
+  alreadyApprovedExpenses: PlatformExpense[];
 
   isSplitExpensesPresent: boolean;
 
@@ -2804,10 +2804,12 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  getSplitExpenses(splitExpenses: Expense[]): void {
+  getSplitExpenses(splitExpenses: PlatformExpense[]): void {
     this.isSplitExpensesPresent = splitExpenses.length > 1;
     if (this.isSplitExpensesPresent) {
-      this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
+      this.alreadyApprovedExpenses = splitExpenses.filter(
+        (splitExpense) => ['DRAFT', 'COMPLETE'].indexOf(splitExpense.state) === -1
+      );
 
       this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
     }
@@ -2823,7 +2825,7 @@ export class AddEditExpensePage implements OnInit {
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
               splitExpenses,
