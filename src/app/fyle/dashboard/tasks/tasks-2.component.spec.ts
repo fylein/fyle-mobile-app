@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -28,13 +29,18 @@ import {
 import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data';
 import { expenseList } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
-import {
-  mileageCategoryUnflattenedExpense,
-  perDiemCategoryUnflattenedExpense,
-  unflattenedTxnData,
-} from 'src/app/core/mock-data/unflattened-txn.data';
 import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 import { singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
+import {
+  mileageCategoryPlatformExpenseData,
+  perDiemCategoryPlatformExpenseData,
+  platformExpenseData,
+} from 'src/app/core/mock-data/platform-expense.data';
+import {
+  mileageCategoryTransformedExpenseData,
+  perDiemCategoryTransformedExpenseData,
+  transformedExpenseData,
+} from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -42,6 +48,7 @@ export function TestCases2(getTestBed) {
     let fixture: ComponentFixture<TasksComponent>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportService: jasmine.SpyObj<ReportService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
@@ -61,6 +68,7 @@ export function TestCases2(getTestBed) {
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -187,11 +195,14 @@ export function TestCases2(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
         transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList)));
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
       });
 
       it('should get all expenses and navigate to add_edit_mileage if category is of type mileage', fakeAsync(() => {
-        transactionService.getETxnUnflattened.and.returnValue(of(mileageCategoryUnflattenedExpense));
+        expensesService.getExpenseById.and.returnValue(of(mileageCategoryPlatformExpenseData));
+        transactionService.transformExpense.and.returnValue(mileageCategoryTransformedExpenseData);
+
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
@@ -201,18 +212,20 @@ export function TestCases2(getTestBed) {
             tx_report_id: 'is.null',
           },
         });
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(mileageCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
         ]);
       }));
 
       it('should get all expenses and navigate to add_edit_per_diem if category is of type per diem', fakeAsync(() => {
-        transactionService.getETxnUnflattened.and.returnValue(of(perDiemCategoryUnflattenedExpense));
+        expensesService.getExpenseById.and.returnValue(of(perDiemCategoryPlatformExpenseData));
+        transactionService.transformExpense.and.returnValue(perDiemCategoryTransformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
@@ -222,18 +235,20 @@ export function TestCases2(getTestBed) {
             tx_report_id: 'is.null',
           },
         });
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(perDiemCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_per_diem',
-          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          { id: perDiemCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
         ]);
       }));
 
       it('should get all expenses and navigate to add_edit_expense if category is other than mileage or per diem', fakeAsync(() => {
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
@@ -243,13 +258,14 @@ export function TestCases2(getTestBed) {
             tx_report_id: 'is.null',
           },
         });
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
-          'add_edit_expense',
-          { id: mileageCategoryUnflattenedExpense.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          'add_edit_mileage',
+          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
         ]);
       }));
     });

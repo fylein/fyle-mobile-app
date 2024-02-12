@@ -4,6 +4,7 @@ import { IonicModule, ModalController } from '@ionic/angular';
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -31,9 +32,10 @@ describe('TasksComponent', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'clearCache',
       'getAllExpenses',
-      'getETxnUnflattened',
+      'transformExpense',
       'getAllETxnc',
     ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',
@@ -87,6 +89,7 @@ describe('TasksComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
