@@ -4066,7 +4066,6 @@ export const editUnflattenedTransactionPlatform: Partial<Transaction> = {
   hotel_is_breakfast_provided: null,
   tax_group_id: 'tgyvHlipn1sF',
   creator_id: 'ou6cE4dCLH8d',
-  // request_id: null,
   report_id: null,
   org_category_id: 290006,
   cost_center_id: 20423,
