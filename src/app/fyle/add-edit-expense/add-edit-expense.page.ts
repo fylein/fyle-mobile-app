@@ -70,7 +70,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
@@ -149,7 +149,7 @@ type FormValue = {
     display_name: string;
   };
   purpose: string;
-  report: UnflattenedReport;
+  report: PlatformReport;
   tax_group: TaxGroup;
   tax_amount: number;
   location_1: string | Destination;
@@ -223,7 +223,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxSettings$: Observable<TaxSettings>;
 
-  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
+  reports$: Observable<{ label: string; value: PlatformReport }[]>;
 
   isProjectsEnabled$: Observable<boolean>;
 
@@ -705,7 +705,7 @@ export class AddEditExpensePage implements OnInit {
           currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
           fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
           selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-          selectedReportId: reportValue.report ? JSON.stringify(reportValue.report.rp.id) : null,
+          selectedReportId: reportValue.report ? JSON.stringify(reportValue.report.id) : null,
         },
       ]);
     });
@@ -1443,7 +1443,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedReport(): Observable<UnflattenedReport> {
+  getSelectedReport(): Observable<PlatformReport> {
     return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -1457,22 +1457,20 @@ export class AddEditExpensePage implements OnInit {
         }: {
           autoSubmissionReportName: string;
           etxn: UnflattenedTransaction;
-          reportOptions: { label: string; value: UnflattenedReport }[];
+          reportOptions: { label: string; value: PlatformReport }[];
         }) => {
           if (etxn.tx.report_id) {
             return reportOptions
               .map((res) => res.value)
-              .find((reportOption: UnflattenedReport) => reportOption.rp.id === etxn.tx.report_id);
+              .find((reportOption: PlatformReport) => reportOption.id === etxn.tx.report_id);
           } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
             return reportOptions
               .map((res) => res.value)
-              .find(
-                (reportOption: UnflattenedReport) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id
-              );
+              .find((reportOption: PlatformReport) => reportOption.id === this.activatedRoute.snapshot.params.rp_id);
           } else if (
             !autoSubmissionReportName &&
             reportOptions.length === 1 &&
-            reportOptions[0].value.rp.state === 'DRAFT'
+            reportOptions[0].value.state === 'DRAFT'
           ) {
             return reportOptions[0].value;
           } else {
@@ -3094,13 +3092,13 @@ export class AddEditExpensePage implements OnInit {
     );
 
     this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
-        map((reports: UnflattenedReport[]) => reports.map((report) => ({ label: report.rp.purpose, value: report })))
+        map((reports: PlatformReport[]) => reports.map((report) => ({ label: report.purpose, value: report })))
       ) as Observable<
       {
         label: string;
-        value: UnflattenedReport;
+        value: PlatformReport;
       }[]
     >;
 
@@ -3542,7 +3540,7 @@ export class AddEditExpensePage implements OnInit {
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
     }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
-      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.id;
       if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory)) {
         if (that.mode === 'add') {
           if (that.isCreatedFromPersonalCard) {
@@ -3836,7 +3834,7 @@ export class AddEditExpensePage implements OnInit {
             }
 
             const reportControl = this.fg.value as {
-              report: UnflattenedReport;
+              report: PlatformReport;
             };
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
@@ -3844,7 +3842,7 @@ export class AddEditExpensePage implements OnInit {
               switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
-                const selectedReportId = reportControl.report && reportControl.report.rp && reportControl.report.rp.id;
+                const selectedReportId = reportControl.report && reportControl.report && reportControl.report.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
@@ -4148,7 +4146,7 @@ export class AddEditExpensePage implements OnInit {
               formValues.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValues.report.rp.id;
+              reportId = formValues.report.id;
             }
 
             etxn.dataUrls = etxn.dataUrls.map((data: FileObject) => {
