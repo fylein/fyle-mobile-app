@@ -148,14 +148,14 @@ export class CardStatsComponent implements OnInit {
                 cardDetails.forEach((cardDetail) => {
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
-                // cardDetails = cardDetails.filter((cardDetail) =>
-                //   cardDetail.card.virtual_card_id
-                //     ? cardDetail.virtualCardDetail &&
-                //       (cardDetail.stats?.totalTxnsCount > 0 ||
-                //         cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-                //         cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
-                //     : true
-                // );
+                cardDetails = cardDetails.filter((cardDetail) =>
+                  cardDetail.card.virtual_card_id
+                    ? cardDetail.virtualCardDetail &&
+                      (cardDetail.stats?.totalTxnsCount > 0 ||
+                        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+                        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
+                    : true
+                );
                 return cardDetails;
               })
             );
