@@ -825,6 +825,7 @@ export class SplitExpensePage {
 
         forkJoin({
           generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
+          files: this.uploadFiles(this.fileUrls),
         })
           .pipe(
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
