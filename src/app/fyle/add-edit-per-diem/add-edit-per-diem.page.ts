@@ -153,7 +153,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   isAmountDisabled = false;
 
-  etxn$: Observable<UnflattenedTransaction>;
+  etxn$: Observable<Partial<UnflattenedTransaction>>;
 
   isIndividualProjectsEnabled$: Observable<boolean>;
 
@@ -1031,11 +1031,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.individualProjectIds$ = orgUserSettings$.pipe(map((orgUserSettings) => orgUserSettings.project_ids || []));
 
-    this.etxn$ = iif(
-      () => this.mode === 'add',
-      this.getNewExpense(),
-      this.getEditExpense()
-    ) as Observable<UnflattenedTransaction>;
+    this.etxn$ = iif(() => this.mode === 'add', this.getNewExpense(), this.getEditExpense());
 
     this.isProjectsEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.projects && orgSettings.projects.enabled)
@@ -1583,7 +1579,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   generateEtxnFromFg(
-    etxn$: Observable<UnflattenedTransaction>,
+    etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>
   ): Observable<{ tx: Partial<Transaction>; dataUrls: FileObject[]; ou: Partial<OrgUser> }> {
     return forkJoin({
@@ -1847,7 +1843,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
             const comments: string[] = [];
@@ -2001,7 +1997,7 @@ export class AddEditPerDiemPage implements OnInit {
         (err: {
           status: number;
           policyViolations: string[];
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
           type: string;
           policyAction: FinalExpensePolicyState;
         }) => {
@@ -2017,7 +2013,7 @@ export class AddEditPerDiemPage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         this.etxn$.pipe(
           switchMap((txnCopy) => {
             if (!isEqual(etxn.tx, txnCopy.tx)) {

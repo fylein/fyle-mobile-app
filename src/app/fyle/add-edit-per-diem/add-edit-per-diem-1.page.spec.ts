@@ -25,6 +25,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -53,6 +54,11 @@ import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-f
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import { platformExpenseData, platformExpenseDataWithSubCategory } from 'src/app/core/mock-data/platform-expense.data';
+import {
+  transformedExpenseData,
+  transformedExpenseDataWithSubCategory,
+} from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases1(getTestBed) {
   return describe('add-edit-per-diem test cases set 1', () => {
@@ -69,6 +75,7 @@ export function TestCases1(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -109,6 +116,7 @@ export function TestCases1(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -342,26 +350,33 @@ export function TestCases1(getTestBed) {
     it('goToPrev(): should go to the previous txn', () => {
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 1;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       fixture.detectChanges();
 
       component.goToPrev();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
     });
 
     it('goToNext(): should got to the next txn', () => {
-      const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 0;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+      component.reviewList = ['txSEM4DtjyKR', 'txD5hIQgLuR5'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
+      transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
       fixture.detectChanges();
 
       component.goToNext();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+        transformedExpenseDataWithSubCategory,
+        component.reviewList,
+        1
+      );
     });
 
     describe('goToTransaction():', () => {

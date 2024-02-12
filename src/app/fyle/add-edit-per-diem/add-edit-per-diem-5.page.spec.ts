@@ -25,6 +25,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { FormArray, FormBuilder, FormControl, Validators } from '@angular/forms';
@@ -42,6 +43,8 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
+import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases5(getTestBed) {
   return describe('add-edit-per-diem test cases set 5', () => {
@@ -58,6 +61,7 @@ export function TestCases5(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -98,6 +102,7 @@ export function TestCases5(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -351,7 +356,7 @@ export function TestCases5(getTestBed) {
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
+            'rpFE5X1Pqi9P'
           )
           .componentProps.deleteMethod();
         expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
@@ -364,7 +369,7 @@ export function TestCases5(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             false,
-            'tx5n59fvxk4z',
+            'tx5n59fvxk4z'
           )
           .componentProps.deleteMethod();
         expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
@@ -405,15 +410,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P',
+          'rpFE5X1Pqi9P'
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
-          ),
+            'rpFE5X1Pqi9P'
+          )
         );
       }));
 
@@ -443,23 +448,25 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined,
-          ),
+            undefined
+          )
         );
       }));
 
       it('should go to next expense if delete is successful and expense is not the last one in list', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         spyOn(component, 'goToTransaction');
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        // transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
+        component.reviewList = ['txvslh8aQMbu', 'txCYDX0peUw5'];
         component.activeIndex = 0;
 
         const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
@@ -485,23 +492,22 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           undefined,
           'tx5n59fvxk4z',
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             undefined,
             'tx5n59fvxk4z',
-            undefined,
-          ),
+            undefined
+          )
         );
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex],
-        );
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
-          unflattenedTxnData,
+          transformedExpenseData,
           component.reviewList,
-          +component.activeIndex,
+          +component.activeIndex
         );
       }));
 
@@ -531,15 +537,15 @@ export function TestCases5(getTestBed) {
           { header, body, ctaText, ctaLoadingText },
           true,
           'tx5n59fvxk4z',
-          'rpFE5X1Pqi9P',
+          'rpFE5X1Pqi9P'
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams(
             { header, body, ctaText, ctaLoadingText },
             true,
             'tx5n59fvxk4z',
-            'rpFE5X1Pqi9P',
-          ),
+            'rpFE5X1Pqi9P'
+          )
         );
         expect(trackingService.clickDeleteExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
       }));

@@ -25,6 +25,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -88,6 +89,8 @@ import {
   perDiemFormValuesData6,
   perDiemFormValuesData7,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -104,6 +107,7 @@ export function TestCases2(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -144,6 +148,7 @@ export function TestCases2(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -197,7 +202,7 @@ export function TestCases2(getTestBed) {
         of({
           defaultPerDiemCategory: perDiemCategory,
           perDiemCategories: [perDiemCategory],
-        }),
+        })
       );
       currencyService.getHomeCurrency.and.returnValue(of('USD'));
       authService.getEou.and.resolveTo(apiEouRes);
@@ -211,12 +216,14 @@ export function TestCases2(getTestBed) {
     });
 
     it('getEditExpense(): should call transactionService.getETxnUnflattened and return unflattened transaction data', () => {
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-      activatedRoute.snapshot.params = { id: 'tx5n59fvxk4z' };
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
+      activatedRoute.snapshot.params = { id: 'txvslh8aQMbu' };
 
       component.getEditExpense().subscribe((res) => {
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
-        expect(res).toEqual(unflattenedTxnData);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+        expect(res).toEqual(transformedExpenseData);
       });
     });
 
@@ -257,7 +264,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          }),
+          })
         );
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getAll.and.returnValue(of([mockCategoryData]));
@@ -280,7 +287,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 16577);
           const expenseFieldWithoutControl = res.map(({ control, ...otherProps }) => ({ ...otherProps }));
@@ -322,7 +329,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
           expect(component.getPerDiemCategories).not.toHaveBeenCalled();
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 247980);
@@ -348,7 +355,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getAll).not.toHaveBeenCalled();
           expect(customFieldsService.standardizeCustomFields).toHaveBeenCalledOnceWith(
             dependentCustomProperties,
-            expenseFieldResponse,
+            expenseFieldResponse
           );
           expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
           expect(customInputsService.filterByCategory).toHaveBeenCalledOnceWith(expenseFieldResponse, 38912);
@@ -415,7 +422,7 @@ export function TestCases2(getTestBed) {
           of({
             defaultPerDiemCategory: perDiemCategory,
             perDiemCategories: [perDiemCategory],
-          }),
+          })
         );
         spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
         spyOn(component, 'getNewExpense').and.returnValue(of(unflattenedTxnDataPerDiem));
@@ -445,7 +452,7 @@ export function TestCases2(getTestBed) {
         expect(dateService.addDaysToDate).toHaveBeenCalledOnceWith(today, 1);
         expect(platform.backButton.subscribeWithPriority).toHaveBeenCalledOnceWith(
           BackButtonActionPriority.MEDIUM,
-          jasmine.any(Function),
+          jasmine.any(Function)
         );
         expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
         expect(component.clusterDomain).toEqual('https://staging.fyle.tech');
@@ -519,7 +526,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             // 3 times because it is called in initializing allowedPerDiemRates$, canCreatePerDiem$ and setting up form value
@@ -538,7 +545,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -557,7 +564,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -578,7 +585,7 @@ export function TestCases2(getTestBed) {
           .pipe(
             finalize(() => {
               expect(loaderService.hideLoader).toHaveBeenCalledTimes(3);
-            }),
+            })
           )
           .subscribe((res) => {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(3);
@@ -688,7 +695,7 @@ export function TestCases2(getTestBed) {
         component.recentlyUsedCostCenters$.subscribe((res) => {
           expect(recentlyUsedItemsService.getRecentCostCenters).toHaveBeenCalledOnceWith(
             expectedCCdata3,
-            recentlyUsedRes,
+            recentlyUsedRes
           );
           expect(res).toEqual(expectedCCdata2);
         });

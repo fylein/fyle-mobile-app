@@ -17,6 +17,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -71,11 +72,13 @@ describe('AddEditPerDiemPage', () => {
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['addEntryAndSync']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'getETxnUnflattened',
+      'transformExpense',
       'checkPolicy',
       'upsert',
       'review',
       'delete',
     ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -279,6 +282,10 @@ describe('AddEditPerDiemPage', () => {
         {
           provide: Router,
           useValue: routerSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],
