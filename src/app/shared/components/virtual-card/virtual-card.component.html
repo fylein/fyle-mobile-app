@@ -22,28 +22,12 @@
       <ion-icon
         src="../../../../../assets/svg/duplicate.svg"
         (press)="toggleShowCardNumber()"
-        (pressup)="toggleShowCardNumber()"
+        (pressup)="hideCardNumberAndCopy()"
         (tap)="copyToClipboard(cardNumber)"
       ></ion-icon>
     </div>
   </div>
   <div class="virtual-card__card-fields">
-    <div class="virtual-card__card-fields__cvv-field">
-      <div class="virtual-card__card-fields__label-text">CVV</div>
-      <div class="d-flex">
-        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
-        <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
-        <ion-icon
-          class="virtual-card__card-fields__cvv-copy-icon"
-          src="../../../../../assets/svg/duplicate.svg"
-          (press)="toggleShowCardNumber()"
-          (pressup)="hideCardNumberAndCopy()"
-          (tap)="copyToClipboard(cardNumber)"
-        ></ion-icon>
-      </div>
-    </div>
-  </div>
-  <div class="virtual-card__card-fields ion-align-items-center d-flex">
     <div class="virtual-card__card-fields__cvv-field">
       <div class="virtual-card__card-fields__label-text">CVV</div>
       <div class="d-flex">
