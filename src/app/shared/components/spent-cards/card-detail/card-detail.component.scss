@@ -18,6 +18,13 @@
     z-index: 999;
   }
 
+  &--ccc-virtual-card-details {
+    display: flex;
+    justify-content: center;
+    height: fit-content;
+    width: fit-content;
+  }
+
   &--ccc-stats {
     padding: 64px 32px 32px 32px;
     background: $pure-white;
@@ -28,10 +35,6 @@
     transform: translate(-50%, 0px);
     bottom: 54px;
     box-shadow: 0px -2px 40px 0px $transparent-pearl-grey;
-  }
-
-  &--virtual-card-stats {
-    bottom: -20px;
   }
 
   &--ccc-classified-stats {
