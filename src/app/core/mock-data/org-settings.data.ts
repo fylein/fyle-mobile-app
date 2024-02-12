@@ -1210,6 +1210,15 @@ export const orgSettingsCCCDisabled: OrgSettings = {
   },
 };
 
+export const orgSettingsVirtualCardsEnabled: OrgSettings = {
+  ...orgSettingsData,
+  amex_feed_enrollment_settings: {
+    ...orgSettingsData.amex_feed_enrollment_settings,
+    allowed: false,
+    enabled: false,
+  },
+};
+
 export const orgSettingsCCCEnabled: OrgSettings = {
   ...orgSettingsData,
   corporate_credit_card_settings: {

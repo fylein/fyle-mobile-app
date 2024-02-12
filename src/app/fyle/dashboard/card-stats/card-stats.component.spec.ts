@@ -10,7 +10,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   orgSettingsCCCDisabled,
   orgSettingsCCCEnabled,
@@ -23,6 +23,7 @@ import { By } from '@angular/platform-browser';
 import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 
 @Component({
   selector: 'app-spent-cards',
@@ -61,6 +62,7 @@ describe('CardStatsComponent', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -74,6 +76,7 @@ describe('CardStatsComponent', () => {
       'clearCache',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsAndAmountInSerial']);
 
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
@@ -104,6 +107,10 @@ describe('CardStatsComponent', () => {
           useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
+        },
+        {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
@@ -118,6 +125,7 @@ describe('CardStatsComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -168,6 +176,9 @@ describe('CardStatsComponent', () => {
     it('should display the cards swiper when cards are present for the user', () => {
       component.ngOnInit();
       component.init();
+
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       fixture.detectChanges();
 
@@ -274,6 +285,9 @@ describe('CardStatsComponent', () => {
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
 
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
+
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
       spentCardsComponent.triggerEventHandler('addCardClick', null);
 
@@ -313,6 +327,10 @@ describe('CardStatsComponent', () => {
     it('should open the add corporate card modal on addCardClick event', fakeAsync(() => {
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
+
+      fixture.detectChanges();
 
       const addCardComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
       addCardComponent.triggerEventHandler('addCardClick', null);
@@ -334,6 +352,11 @@ describe('CardStatsComponent', () => {
 
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
+
+      fixture.detectChanges();
 
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
       spentCardsComponent.triggerEventHandler('addCardClick', null);
