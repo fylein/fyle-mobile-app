@@ -235,6 +235,235 @@ export const expectedErpt: UnflattenedReport[] = [
   },
 ];
 
+export const expectedErptPlatform: UnflattenedReport[] = [
+  {
+    rp: {
+      id: 'rpIfg2VWQKGJ',
+      org_user_id: 'ou6cE4dCLH8d',
+      created_at: new Date('2023-12-06T04:26:08.987Z'),
+      purpose: '#1:  Dec 2023',
+      currency: 'USD',
+      amount: 12983.793345,
+      tax: 6.86,
+      state: 'APPROVER_PENDING',
+      source: 'WEBAPP',
+      num_transactions: 43,
+      approvals: [
+        {
+          id: 55554,
+          created_at: null,
+          updated_at: null,
+          report_id: 'rpIfg2VWQKGJ',
+          approver_id: 'ouoi3rmbjYQA',
+          request_id: null,
+          state: 'APPROVAL_DISABLED',
+          added_by: null,
+          disabled_by: null,
+          last_updated_by: null,
+          rank: 99,
+          approver_name: 'Suyash 3',
+          approver_email: 'suyash.p+3@fyle.in',
+          comment: null,
+        },
+        {
+          id: 55555,
+          created_at: null,
+          updated_at: null,
+          report_id: 'rpIfg2VWQKGJ',
+          approver_id: 'ouW0Y7djsQbR',
+          request_id: null,
+          state: 'APPROVAL_PENDING',
+          added_by: null,
+          disabled_by: null,
+          last_updated_by: null,
+          rank: 97,
+          approver_name: 'Annii Dept head',
+          approver_email: 'aniruddha.s@fyle.in',
+          comment: null,
+        },
+      ],
+      settlement_id: null,
+      approved_at: null,
+      reimbursed_at: null,
+      submitted_at: new Date('2023-12-06T04:26:09.428Z'),
+      verification_state: null,
+      trip_request_id: null,
+      physical_bill: false,
+      physical_bill_at: null,
+      exported: false,
+      manual_flag: false,
+      policy_flag: true,
+      claim_number: 'C/2023/12/R/2',
+      from_dt: null,
+      to_dt: null,
+      location1: null,
+      location2: null,
+      location3: null,
+      location4: null,
+      location5: null,
+      type: 'EXPENSE',
+      locations: [],
+      risk_state_expense_count: null,
+      risk_state: null,
+    },
+    ou: {
+      id: 'ou6cE4dCLH8d',
+      org_id: 'orNbIQloYtfa',
+      location: null,
+      business_unit: null,
+      department: null,
+      sub_department: null,
+      mobile: null,
+      title: null,
+      employee_id: null,
+      level: 'Entry level',
+      status: 'ACTIVE',
+      org_name: 'Advance-test',
+      department_id: null,
+    },
+    us: {
+      full_name: 'Devendra Singh Rana',
+      email: 'devendra.r@fyle.in',
+    },
+  },
+];
+
+// export const expectedErptPlatform: UnflattenedReport[] = [{
+//   currencyObj: {
+//       amount: 32,
+//       currency: "USD",
+//       orig_amount: null,
+//       orig_currency: null
+//   },
+//   paymentMode: {
+//       acc: {
+//           id: "accO6abI7gZ6T",
+//           created_at: new Date("2023-09-08T10:36:57.477Z"),
+//           updated_at: new Date("2024-02-09T12:46:26.062Z"),
+//           name: "Personal Account",
+//           type: "PERSONAL_ACCOUNT",
+//           currency: "USD",
+//           target_balance_amount: 0,
+//           current_balance_amount: 0,
+//           tentative_balance_amount: -54571.63,
+//           category: null,
+//           displayName: "Personal Card/Cash",
+//           isReimbursable: true
+//       },
+//       ou: {
+//           id: "ou6cE4dCLH8d",
+//           org_id: "orNbIQloYtfa"
+//       },
+//       us: {
+//           email: "devendra.r@fyle.in",
+//           full_name: "Devendra Singh Rana"
+//       },
+//       org: {
+//           id: null,
+//           domain: null
+//       },
+//       advance: {
+//           purpose: null,
+//           number: null,
+//           id: null
+//       },
+//       orig: {
+//           currency: null,
+//           amount: null
+//       },
+//       currency: null,
+//       amount: null
+//   },
+//   project: {
+//       ap1_email: null,
+//       ap1_full_name: null,
+//       ap2_email: null,
+//       ap2_full_name: null,
+//       project_active: true,
+//       project_approver1_id: null,
+//       project_approver2_id: null,
+//       project_code: null,
+//       project_created_at: new Date("2023-12-18T02:01:14.842Z"),
+//       project_description: null,
+//       project_id: 325126,
+//       project_name: "Project 1",
+//       project_org_category_ids: [
+//           256618,
+//           256621,
+//           256622,
+//           256626,
+//           256627,
+//           256633,
+//           290004,
+//           290005,
+//           290006
+//       ],
+//       project_org_id: "orNbIQloYtfa",
+//       project_updated_at: new Date("2024-02-09T01:39:56.251Z"),
+//       projectv2_name: "Project 1",
+//       sub_project_name: null
+//   },
+//   category: {
+//       code: null,
+//       created_at: new Date("2024-02-09T07:09:56.206596+00:00"),
+//       displayName: "Food / Burger",
+//       enabled: true,
+//       fyle_category: "Food",
+//       id: 290006,
+//       name: "Food",
+//       org_id: "orNbIQloYtfa",
+//       sub_category: "Burger",
+//       updated_at: new Date("2024-02-09T07:09:56.206596+00:00")
+//   },
+//   dateOfSpend: new Date("2024-02-09"),
+//   vendor_id: {
+//       display_name: "test-1"
+//   },
+//   purpose: "Client Meeting",
+//   report: null,
+//   tax_group: {
+//       id: "tgyvHlipn1sF",
+//       name: "testing tax",
+//       percentage: 0.12,
+//       created_at: new Date("2024-01-18T05:53:15.597Z"),
+//       updated_at: new Date("2024-01-18T05:53:15.597Z"),
+//       org_id: "orNbIQloYtfa",
+//       is_enabled: true
+//   },
+//   tax_amount: 3.43,
+//   from_dt: null,
+//   to_dt: null,
+//   distance: null,
+//   distance_unit: null,
+//   custom_inputs: [
+//       {
+//           name: "location desc",
+//           value: "Noida"
+//       }
+//   ],
+//   billable: null,
+//   costCenter: {
+//       active: true,
+//       code: null,
+//       created_at: new Date("2023-12-13T09:02:15.230384+00:00"),
+//       description: null,
+//       id: 20423,
+//       name: "Cost Center",
+//       org_id: "orNbIQloYtfa",
+//       updated_at: new Date("2024-02-02T05:25:07.431550+00:00")
+//   },
+//   hotel_is_breakfast_provided: null,
+//   project_dependent_fields: [
+//       {
+//           id: 231094,
+//           label: "PP 1",
+//           parent_field_id: 223790,
+//           value: null
+//       }
+//   ],
+//   cost_center_dependent_fields: []
+// }];
+
 export const expectedSingleErpt: UnflattenedReport = {
   rp: {
     id: 'rprAfNrce73O',

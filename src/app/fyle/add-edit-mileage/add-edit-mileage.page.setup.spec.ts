@@ -46,6 +46,7 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { DependentFieldComponent } from 'src/app/shared/components/dependent-fields/dependent-field/dependent-field.component';
 import { FySelectComponent } from 'src/app/shared/components/fy-select/fy-select.component';
@@ -106,6 +107,7 @@ describe('AddEditMileagePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'getETxnUnflattened',
+      'transformExpense',
       'getSplitExpenses',
       'checkPolicy',
       'upsert',
@@ -114,6 +116,7 @@ describe('AddEditMileagePage', () => {
       'getETxnc',
       'getDefaultVehicleType',
     ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getCriticalPolicyRules',
@@ -438,6 +441,10 @@ describe('AddEditMileagePage', () => {
         {
           provide: PlatformHandlerService,
           useValue: platformHandlerServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

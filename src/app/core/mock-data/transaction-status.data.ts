@@ -12,6 +12,18 @@ export const txnStatusData: TransactionStatus = {
   advance_request_id: null,
 };
 
+export const expenseStatusData: TransactionStatus = {
+  advance_request_id: null,
+  comment: 'A comment',
+  created_at: new Date('2024-02-11T16:43:25.675Z'),
+  diff: null,
+  id: 'stnn4fH4i8MU',
+  org_user_id: 'ou6cE4dCLH8d',
+  report_id: null,
+  state: null,
+  transaction_id: 'txNWAit6pFgw',
+};
+
 export const txnStatusData1: TransactionStatus = {
   id: 'stjIdPp7BX81',
   created_at: new Date('2022-11-17T06:07:38.590Z'),
