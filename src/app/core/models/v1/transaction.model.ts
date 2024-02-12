@@ -1,4 +1,5 @@
 import { Destination } from '../destination.model';
+import { TransactionStatus } from '../platform/v1/expense.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -128,8 +129,10 @@ export interface Transaction {
     currency: string;
     description: string;
     card_or_account_number: string;
+    corporate_credit_card_account_number?: string;
+    displayObject?: string;
     orig_amount: number;
     orig_currency: string;
-    status: string;
+    status: TransactionStatus;
   }[];
 }

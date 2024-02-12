@@ -1,3 +1,5 @@
+import { TransactionStatus } from './platform/v1/expense.model';
+
 export interface MatchedCCCTransaction {
   amount: number;
   balance_transfer_id: number | string;
@@ -18,4 +20,5 @@ export interface MatchedCCCTransaction {
   vendor: string;
   corporate_credit_card_account_number?: string;
   displayObject?: string;
+  status?: TransactionStatus;
 }

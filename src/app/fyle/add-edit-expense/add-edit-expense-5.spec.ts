@@ -108,6 +108,7 @@ import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -263,7 +264,7 @@ export function TestCases5(getTestBed) {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
-        component.corporateCreditCardExpenseGroupId = 'cccet1B17R8gWZ';
+        component.corporateCreditCardExpenseGroupId = 'btxnBdS2Kpvzhy';
         fixture.detectChanges();
 
         component
@@ -278,7 +279,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnBdS2Kpvzhy', 'txfCdl3TEZ7K');
             expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
             done();
           });
@@ -288,7 +289,7 @@ export function TestCases5(getTestBed) {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
-        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
+        component.matchedCCCTransaction = matchedCCTransactionData;
         fixture.detectChanges();
 
         component
@@ -303,8 +304,8 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('btxnSte7sVQCM8', 'txfCdl3TEZ7K');
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'btxnSte7sVQCM8');
             done();
           });
       });
@@ -328,7 +329,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith(undefined, 'txfCdl3TEZ7K');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
           });
@@ -353,7 +354,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith(undefined, 'txfCdl3TEZ7K');
             expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
             done();
           });

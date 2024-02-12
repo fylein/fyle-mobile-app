@@ -186,7 +186,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
-  etxn$: Observable<UnflattenedTransaction>;
+  etxn$: Observable<Partial<UnflattenedTransaction>>;
 
   platformExpense$: Observable<PlatformExpense>;
 
@@ -787,7 +787,7 @@ export class AddEditExpensePage implements OnInit {
     };
 
     if (data?.status === 'success') {
-      let txnDetails: UnflattenedTransaction;
+      let txnDetails: Partial<UnflattenedTransaction>;
       this.etxn$.subscribe((etxn) => (txnDetails = etxn));
       const properties = {
         Type: 'unlink corporate card expense',
@@ -1457,7 +1457,7 @@ export class AddEditExpensePage implements OnInit {
           reportOptions,
         }: {
           autoSubmissionReportName: string;
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
           reportOptions: { label: string; value: UnflattenedReport }[];
         }) => {
           if (etxn.tx.report_id) {
@@ -1939,7 +1939,7 @@ export class AddEditExpensePage implements OnInit {
     isAutofillsEnabled: boolean;
     recentValue: RecentlyUsed;
     recentCategories: OrgCategoryListItem[];
-    etxn: UnflattenedTransaction;
+    etxn: Partial<UnflattenedTransaction>;
     category: OrgCategory;
   }): OrgCategory {
     const { isAutofillsEnabled, recentValue, recentCategories, etxn } = config;
@@ -2006,7 +2006,7 @@ export class AddEditExpensePage implements OnInit {
           orgSettings: OrgSettings;
           recentValues: RecentlyUsed;
           recentCategories: OrgCategoryListItem[];
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
@@ -2727,7 +2727,7 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  handleCCCExpenses(etxn: UnflattenedTransaction): void {
+  handleCCCExpenses(etxn: Partial<UnflattenedTransaction>): void {
     this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
     this.selectedCCCTransaction = this.matchedCCCTransaction;
     this.cardEndingDigits = (
@@ -2767,7 +2767,7 @@ export class AddEditExpensePage implements OnInit {
       .pipe(
         switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
         filter(
-          ({ orgSettings, etxn }: { orgSettings: OrgSettings; etxn: UnflattenedTransaction }) =>
+          ({ orgSettings, etxn }: { orgSettings: OrgSettings; etxn: Partial<UnflattenedTransaction> }) =>
             this.getCCCSettings(orgSettings) || !!etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
@@ -2793,19 +2793,19 @@ export class AddEditExpensePage implements OnInit {
     return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
   }
 
-  getCheckSpiltExpense(etxn: UnflattenedTransaction): boolean {
+  getCheckSpiltExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return etxn?.tx?.split_group_id !== etxn?.tx?.id;
   }
 
-  getDebitCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getDebitCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
   }
 
-  getDismissCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getDismissCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
   }
 
-  getRemoveCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getRemoveCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return (
       !!etxn?.tx?.corporate_credit_card_expense_group_id &&
       ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn.tx.state)
@@ -3016,7 +3016,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id as boolean, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
-    ) as Observable<UnflattenedTransaction>;
+    );
 
     /**
      * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
@@ -3271,7 +3271,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   generateEtxnFromFg(
-    etxn$: Observable<UnflattenedTransaction>,
+    etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
   ): Observable<Partial<UnflattenedTransaction>> {
@@ -3286,7 +3286,7 @@ export class AddEditExpensePage implements OnInit {
       attachments: attachements$,
     }).pipe(
       map((res) => {
-        const etxn: UnflattenedTransaction = res.etxn;
+        const etxn: Partial<UnflattenedTransaction> = res.etxn;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
@@ -3717,7 +3717,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  trackEditExpense(etxn: UnflattenedTransaction): void {
+  trackEditExpense(etxn: Partial<UnflattenedTransaction>): void {
     this.trackingService.editExpense({
       Type: 'Receipt',
       Amount: etxn.tx.amount,
@@ -3804,12 +3804,12 @@ export class AddEditExpensePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
           txnCopy: this.etxn$,
         }).pipe(
-          switchMap(({ txnCopy }: { txnCopy: UnflattenedTransaction }) => {
+          switchMap(({ txnCopy }: { txnCopy: Partial<UnflattenedTransaction> }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackEditExpense(etxn);
@@ -4015,7 +4015,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  trackCreateExpense(etxn: UnflattenedTransaction, isInstaFyleExpense: boolean): void {
+  trackCreateExpense(etxn: Partial<UnflattenedTransaction>, isInstaFyleExpense: boolean): void {
     this.trackingService.createExpense({
       Type: 'Receipt',
       Amount: etxn.tx.amount,
@@ -4114,7 +4114,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
             const comments: string[] = [];
@@ -4794,7 +4794,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
         ),
-        switchMap(({ etxn }: { etxn: UnflattenedTransaction }) => {
+        switchMap(({ etxn }: { etxn: Partial<UnflattenedTransaction> }) => {
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&
             (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PersonalCardTxn);

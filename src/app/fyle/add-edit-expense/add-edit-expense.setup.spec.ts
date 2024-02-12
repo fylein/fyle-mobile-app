@@ -103,6 +103,7 @@ describe('AddEditExpensePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'getETxnUnflattened',
+      'transformExpense',
       'getSplitExpenses',
       'checkPolicy',
       'checkMandatoryFields',

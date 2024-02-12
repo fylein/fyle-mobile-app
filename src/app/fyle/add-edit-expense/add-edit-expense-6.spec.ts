@@ -76,6 +76,12 @@ import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.d
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import {
+  transformedExpenseWithMatchCCCData,
+  transformedExpenseWithMatchCCCData2,
+  transformedExpenseWithMatchCCCData3,
+} from 'src/app/core/mock-data/transformed-expense.data';
+import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -470,21 +476,15 @@ export function TestCases6(getTestBed) {
 
     describe('handleCCCExpenses():', () => {
       it('should handle CCC expenses', () => {
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
-
-        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
-        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.cardNumber).toEqual('869');
-        expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
+        expect(component.cardNumber).toEqual('7620');
+        expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
       });
 
       it('should show card digits and vendor description', () => {
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of([eCCCData2]));
-
-        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
-        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.cardNumber).toEqual('869');
-        expect(component.matchedCCCTransaction).toEqual(eCCCData2.ccce);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
+        expect(component.cardNumber).toEqual('9891');
+        expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData2);
       });
     });
 
@@ -517,17 +517,6 @@ export function TestCases6(getTestBed) {
       expect(component.fg.controls.train_travel_class.value).toBeNull();
       expect(component.fg.controls.bus_travel_class.value).toBeNull();
     }));
-
-    it('initCCCTxn(): should initialize CCC txn and initialize card number and ending digits', () => {
-      activatedRoute.snapshot.params = {
-        bankTxn: JSON.stringify(eCCCData3),
-      };
-      component.initCCCTxn();
-      expect(component.showSelectedTransaction).toBeTrue();
-      expect(component.selectedCCCTransaction).toEqual(eCCCData3.ccce);
-      expect(component.isCreatedFromCCC).toBeTrue();
-      expect(component.cardEndingDigits).toEqual('6789');
-    });
 
     it('ngOnInit(): should populate report permissions', () => {
       activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);

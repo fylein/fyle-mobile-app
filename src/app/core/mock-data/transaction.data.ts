@@ -1,3 +1,4 @@
+import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { expectedTxnCustomProperties } from './txn-custom-properties.data';
@@ -4129,6 +4130,86 @@ export const editUnflattenedTransactionPlatform: Partial<Transaction> = {
 export const editUnflattenedTransactionPlatform2: Partial<Transaction> = {
   ...editUnflattenedTransactionPlatform,
   report_id: 'rpbNc3kn5baq',
+};
+
+export const editUnflattenedTransactionPlatform3: Partial<Transaction> = {
+  ...editUnflattenedTransactionPlatform,
+  report_id: 'rplD17WeBlha',
+};
+
+export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction> = {
+  id: 'txmF3wgfj0Bs',
+  created_at: new Date('2024-01-23T01:19:49.370Z'),
+  txn_dt: new Date('2018-07-03T13:00:00.000Z'),
+  categoryDisplayName: 'Unspecified',
+  num_files: 0,
+  org_category: 'Unspecified',
+  fyle_category: 'Unspecified',
+  state: 'DRAFT',
+  admin_amount: null,
+  policy_amount: null,
+  skip_reimbursement: true,
+  amount: 260.37,
+  currency: 'USD',
+  user_amount: 260.37,
+  orig_amount: null,
+  orig_currency: null,
+  from_dt: null,
+  to_dt: null,
+  vendor: 'test description',
+  distance: null,
+  distance_unit: null,
+  locations: [],
+  verification_state: null,
+  org_user_id: 'ouokfwl9OEdl',
+  expense_number: 'E/2024/01/T/39',
+  hotel_is_breakfast_provided: null,
+  tax_group_id: null,
+  creator_id: 'ouokfwl9OEdl',
+  report_id: null,
+  org_category_id: 283907,
+  cost_center_id: null,
+  project_id: null,
+  custom_properties: [],
+  purpose: null,
+  billable: null,
+  sub_category: null,
+  tax_amount: null,
+  corporate_credit_card_expense_group_id: 'btxnSte7sVQCM8',
+  split_group_id: 'txmF3wgfj0Bs',
+  split_group_user_amount: null,
+  receipt_required: null,
+  per_diem_rate_id: null,
+  num_days: null,
+  mileage_rate_id: null,
+  mileage_is_round_trip: null,
+  mileage_calculated_distance: null,
+  mileage_calculated_amount: null,
+  manual_flag: null,
+  policy_flag: null,
+  extracted_data: null,
+  matched_corporate_card_transactions: [
+    {
+      id: 'btxnSte7sVQCM8',
+      group_id: 'btxnSte7sVQCM8',
+      amount: 260.37,
+      vendor: 'test description',
+      txn_dt: '2018-07-03T18:30:00.000Z',
+      currency: 'USD',
+      description: null,
+      card_or_account_number: '7620',
+      corporate_credit_card_account_number: '7620',
+      orig_amount: null,
+      orig_currency: null,
+      status: TransactionStatus.PENDING,
+      displayObject: 'Jul 4, 2018 - test description260.37',
+    },
+  ],
+  source_account_id: 'acc7F6bwRa52p',
+  org_category_code: null,
+  physical_bill: null,
+  physical_bill_at: null,
+  matchCCCId: 'btxnSte7sVQCM8',
 };
 
 export const editTransaction2: Partial<Transaction> = {
