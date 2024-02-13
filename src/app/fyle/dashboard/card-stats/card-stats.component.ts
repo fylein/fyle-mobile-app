@@ -34,7 +34,7 @@ export class CardStatsComponent implements OnInit {
 
   isCCCEnabled$: Observable<boolean>;
 
-  isVirtualCardsEnabled$: Observable<boolean>;
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
@@ -123,12 +123,12 @@ export class CardStatsComponent implements OnInit {
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
     );
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
+      map((orgSettings) => ({
+        enabled:
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
-          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
-      )
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
     );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
@@ -149,7 +149,7 @@ export class CardStatsComponent implements OnInit {
     );
 
     this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
-      if (isVirtualCardsEnabled) {
+      if (isVirtualCardsEnabled.enabled) {
         this.virtualCardDetails$ = this.cardDetails$.pipe(
           switchMap((cardDetails) => {
             const virtualCardIds = cardDetails

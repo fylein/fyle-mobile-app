@@ -31,7 +31,7 @@ export class ManageCorporateCardsPage {
 
   isVisaRTFEnabled$: Observable<boolean>;
 
-  isVirtualCardsEnabled$: Observable<boolean>;
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
 
@@ -82,13 +82,14 @@ export class ManageCorporateCardsPage {
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
+      map((orgSettings) => ({
+        enabled:
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
-          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
-      )
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
     );
+
     this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
       if (isVirtualCardsEnabled) {
         this.virtualCardDetails$ = this.corporateCards$.pipe(
