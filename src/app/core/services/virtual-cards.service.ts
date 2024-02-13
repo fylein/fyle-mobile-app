@@ -6,7 +6,7 @@ import { CardDetailsResponse } from '../models/card-details-response.model';
 import { CardDetailsAmountResponse } from '../models/card-details-amount-response';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { VirtualCard } from '../models/virtual-card.model';
-import { CardDetailsResponseWithNickName } from '../models/card-details-response-with-nickname.model';
+import { CardDetailsCombinedResponse } from '../models/card-details-combined-response.model';
 import { VirtualCardsSerialRequest } from '../models/virtual-cards-serial-request.model';
 
 @Injectable({
@@ -52,7 +52,7 @@ export class VirtualCardsService {
 
   getCardDetailsInSerial(
     virtualCardsSerialRequestParams: VirtualCardsSerialRequest
-  ): Observable<Record<string, CardDetailsResponseWithNickName>> {
+  ): Observable<Record<string, CardDetailsCombinedResponse>> {
     return from(virtualCardsSerialRequestParams.virtualCardIds).pipe(
       concatMap((virtualCardId) => {
         return this.getCardDetails(virtualCardId, virtualCardsSerialRequestParams.includeCurrentAmount);
@@ -62,7 +62,7 @@ export class VirtualCardsService {
         virtualCard,
         currentAmount,
       })),
-      reduce((acc: Record<string, CardDetailsResponseWithNickName>, value) => {
+      reduce((acc: Record<string, CardDetailsCombinedResponse>, value) => {
         const { cardDetails, virtualCard, currentAmount } = value;
         acc[virtualCard.id] = {
           ...cardDetails,

@@ -1,4 +1,4 @@
-export interface CardDetailsResponseWithNickName {
+export interface CardDetailsCombinedResponse {
   full_card_number: string;
   cvv: string;
   expiry_date: Date;
