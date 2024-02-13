@@ -396,7 +396,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList, activeIndex: number): void {
-    let category;
+    let category: string;
 
     if (expense.tx.org_category) {
       category = expense.tx.org_category.toLowerCase();
@@ -938,7 +938,7 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getCategories(etxn: UnflattenedTransaction): Observable<OrgCategory> {
+  getCategories(etxn: Partial<UnflattenedTransaction>): Observable<OrgCategory> {
     return this.categoriesService
       .getAll()
       .pipe(
@@ -1206,15 +1206,23 @@ export class AddEditMileagePage implements OnInit {
           etxn: this.etxn$,
           mileageRates: this.mileageRates$,
         }).pipe(
-          map(({ etxn, mileageRates }: { etxn: UnflattenedTransaction; mileageRates: PlatformMileageRates[] }) => {
-            if (formValue) {
-              if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue.vehicle_type) {
-                return etxn.tx.mileage_rate;
-              } else {
-                return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
+          map(
+            ({
+              etxn,
+              mileageRates,
+            }: {
+              etxn: Partial<UnflattenedTransaction>;
+              mileageRates: PlatformMileageRates[];
+            }) => {
+              if (formValue) {
+                if (etxn.tx.mileage_rate && etxn.tx.mileage_vehicle_type === formValue.vehicle_type) {
+                  return etxn.tx.mileage_rate;
+                } else {
+                  return this.getRateByVehicleType(mileageRates, formValue.vehicle_type);
+                }
               }
             }
-          })
+          )
         )
       ),
       shareReplay(1)
@@ -1486,7 +1494,7 @@ export class AddEditMileagePage implements OnInit {
     );
 
     const selectedSubCategory$ = this.etxn$.pipe(
-      switchMap((etxn: UnflattenedTransaction) =>
+      switchMap((etxn: Partial<UnflattenedTransaction>) =>
         iif(() => !!etxn.tx.org_category_id, this.getCategories(etxn), of(null))
       )
     );
@@ -1751,7 +1759,7 @@ export class AddEditMileagePage implements OnInit {
       amount: this.amount$.pipe(take(1)),
       etxn: this.etxn$,
     }).pipe(
-      map(({ etxn, amount }: { etxn: UnflattenedTransaction; amount: number }) => {
+      map(({ etxn, amount }: { etxn: Partial<UnflattenedTransaction>; amount: number }) => {
         const formValue = this.getFormValues();
         const paymentAccount = formValue.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
@@ -2125,7 +2133,7 @@ export class AddEditMileagePage implements OnInit {
     return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
   }
 
-  trackEditExpense(etxn: UnflattenedTransaction): void {
+  trackEditExpense(etxn: Partial<UnflattenedTransaction>): void {
     const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.editExpense({
       Type: 'Mileage',
@@ -2235,7 +2243,7 @@ export class AddEditMileagePage implements OnInit {
           status?: number;
           type?: string;
           policyViolations: string[];
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
           policyAction: FinalExpensePolicyState;
         }) => {
           if (err.status === 500) {
@@ -2252,7 +2260,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
           txnCopy: this.etxn$,
@@ -2379,7 +2387,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  trackCreateExpense(etxn: UnflattenedTransaction): void {
+  trackCreateExpense(etxn: Partial<UnflattenedTransaction>): void {
     const location = etxn.tx.locations[0] as unknown as Destination;
     this.trackingService.createExpense({
       Type: 'Mileage',
@@ -2500,7 +2508,7 @@ export class AddEditMileagePage implements OnInit {
           status?: number;
           type?: string;
           policyViolations: string[];
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
           policyAction: FinalExpensePolicyState;
         }) => {
           if (err.status === 500) {
@@ -2517,7 +2525,7 @@ export class AddEditMileagePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
             const comments: string[] = [];
