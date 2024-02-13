@@ -11,6 +11,7 @@ import { StatusService } from './status.service';
 import { StorageService } from './storage.service';
 import { TrackingService } from './tracking.service';
 import { TransactionService } from './transaction.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
@@ -25,6 +26,7 @@ describe('TransactionsOutboxService', () => {
   let storageService: jasmine.SpyObj<StorageService>;
   let dateService: jasmine.SpyObj<DateService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -38,6 +40,7 @@ describe('TransactionsOutboxService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'fixDates']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['post', 'matchCCCExpense', 'upsert']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpensesById']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
@@ -51,6 +54,7 @@ describe('TransactionsOutboxService', () => {
         { provide: StorageService, useValue: storageServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: StatusService, useValue: statusServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
@@ -62,6 +66,7 @@ describe('TransactionsOutboxService', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;

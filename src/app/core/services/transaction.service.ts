@@ -431,6 +431,7 @@ export class TransactionService {
     );
   }
 
+  // Needs clean up : once we remove older my-expenses-page completely
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
@@ -453,7 +454,9 @@ export class TransactionService {
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/match', { data: payload });
+    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/match', {
+      data: payload,
+    });
   }
 
   review(txnId: string): Observable<null> {
@@ -486,7 +489,9 @@ export class TransactionService {
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/unmatch', { data: payload });
+    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/unmatch', {
+      data: payload,
+    });
   }
 
   getVendorDetails(expense: Expense): string {

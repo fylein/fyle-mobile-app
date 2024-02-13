@@ -20,6 +20,7 @@ import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail-data';
+import { ccTransactionResponseData, ccTransactionResponseData1 } from '../mock-data/corporate-card-response.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -34,7 +35,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -65,7 +66,7 @@ describe('CorporateCreditCardExpenseService', () => {
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     spenderPlatformV1ApiService = TestBed.inject(
-      SpenderPlatformV1ApiService,
+      SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     dataTransformService = TestBed.inject(DataTransformService);
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -76,21 +77,29 @@ describe('CorporateCreditCardExpenseService', () => {
   });
 
   it('markPersonal(): should mark an expense as personal', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const testId = 'ccceJN3PWAR94U';
-
-    cccExpenseService.markPersonal(testId).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/personal');
+    spenderPlatformV1ApiService.post.and.returnValue(of(ccTransactionResponseData1));
+    const id = 'btxnSte7sVQCM8';
+    const payload = {
+      id,
+    };
+    cccExpenseService.markPersonal(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/mark_personal', {
+        data: payload,
+      });
       done();
     });
   });
 
   it('dismissCreditTransaction(): should dismiss a transaction as corporate credit card expense', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const testId = 'ccceRhYsN8Fj78';
-
-    cccExpenseService.dismissCreditTransaction(testId).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/ignore');
+    spenderPlatformV1ApiService.post.and.returnValue(of(ccTransactionResponseData));
+    const id = 'btxnBdS2Kpvzhy';
+    const payload = {
+      id,
+    };
+    cccExpenseService.dismissCreditTransaction(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/ignore', {
+        data: payload,
+      });
       done();
     });
   });
@@ -127,7 +136,7 @@ describe('CorporateCreditCardExpenseService', () => {
           queryParams +
           '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
           apiEouRes.ou.id,
-        {},
+        {}
       );
       expect(cccExpenseService.constructInQueryParamStringForV2).toHaveBeenCalledOnceWith(['COMPLETE', 'DRAFT']);
       done();
@@ -143,7 +152,7 @@ describe('CorporateCreditCardExpenseService', () => {
   it('getPlatformCorporateCardDetails(): should get corporate card details', () => {
     const result = cccExpenseService.getPlatformCorporateCardDetails(
       [statementUploadedCard],
-      mastercardCCCStats.cardDetails,
+      mastercardCCCStats.cardDetails
     );
 
     expect(result).toEqual(statementUploadedCardDetail);

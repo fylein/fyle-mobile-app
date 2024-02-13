@@ -56,6 +56,7 @@ import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
+import { matchCCCExpenseResponseData, unmatchCCCExpenseResponseData } from '../mock-data/corporate-card-response.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -1068,16 +1069,20 @@ describe('TransactionService', () => {
   });
 
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(unmatchCCCExpenseResponseData));
 
-    const transactionId = 'txBldpJrBafX';
-    const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unmatch', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+    const payload = {
+      id,
+      expense_ids: [expenseId],
+    };
+
+    transactionService.unmatchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(unmatchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/unmatch', {
+        data: payload,
       });
       done();
     });
@@ -1278,6 +1283,7 @@ describe('TransactionService', () => {
     });
   });
 
+  // Needs clean up : once we remove older my-expenses-page completely
   describe('getETxnUnflattened():', () => {
     it('it should get etxn from transaction ID without sub category', (done) => {
       apiService.get.and.returnValue(of(expenseData3));
@@ -1403,16 +1409,20 @@ describe('TransactionService', () => {
   });
 
   it('matchCCCExpense(): should match ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(matchCCCExpenseResponseData));
 
-    const transactionId = 'txBRcjOg1spF';
-    const corporateCreditCardExpenseId = 'cccetzVpWd2Pgz';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.matchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/match', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+    const payload = {
+      id,
+      expense_ids: [expenseId],
+    };
+
+    transactionService.matchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(matchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/match', {
+        data: payload,
       });
       done();
     });

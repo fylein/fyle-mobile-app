@@ -1,3 +1,5 @@
+import { TransactionStatus } from './expense.model';
+
 interface CorporateCard {
   id: string;
   bank_name: string;
@@ -109,7 +111,8 @@ interface corporateCardTransactionData {
   matched_expenses: MatchedExpense[];
   last_user_matched_at: Date;
   settlement_id: string;
-  metadata: Metadata;
+  metadata?: Metadata;
+  transaction_status?: TransactionStatus;
 }
 
 export interface CorporateCardTransactionRes {
