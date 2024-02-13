@@ -1,17 +1,21 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
+import { Observable, concatMap, map, of, range, reduce, switchMap } from 'rxjs';
 import { SpenderService } from '../spender/spender.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
-import { Cacheable } from 'ts-cacheable';
+import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { expensesCacheBuster$ } from '../../../transaction.service';
 import {
   ExpenseDuplicateSet,
   ExpenseDuplicateSetsResponse,
 } from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
+import { SplitPayload } from 'src/app/core/models/platform/v1/split-payload.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
+import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
+import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 
 @Injectable({
   providedIn: 'root',
@@ -22,6 +26,14 @@ export class ExpensesService {
     private spenderService: SpenderService,
     private sharedExpenseService: SharedExpenseService
   ) {}
+
+  @CacheBuster({
+    cacheBusterNotifier: expensesCacheBuster$,
+    isInstant: true,
+  })
+  clearCache(): Observable<null> {
+    return of(null);
+  }
 
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
@@ -113,6 +125,26 @@ export class ExpensesService {
     });
   }
 
+  splitExpenseCheckPolicies(params: SplitPayload): Observable<SplitExpensePolicy> {
+    return this.spenderService.post<SplitExpensePolicy>('/expenses/split/check_policies', {
+      data: params,
+    });
+  }
+
+  splitExpenseCheckMissingFields(params: SplitPayload): Observable<SplitExpenseMissingFields> {
+    return this.spenderService.post<SplitExpenseMissingFields>('/expenses/split/check_mandatory_fields', {
+      data: params,
+    });
+  }
+
+  splitExpense(params: SplitPayload): Observable<{ data: Transaction[] }> {
+    return this.spenderService
+      .post<{ data: Transaction[] }>('/expenses/split', {
+        data: params,
+      })
+      .pipe(switchMap((res) => this.clearCache().pipe(map(() => res))));
+  }
+
   getExpenseStats(
     params: Record<string, string | string[] | boolean>
   ): Observable<{ data: { count: number; total_amount: number } }> {
@@ -121,5 +153,15 @@ export class ExpensesService {
         query_params: this.sharedExpenseService.generateStatsQueryParams(params),
       },
     });
+  }
+
+  getSplitExpenses(expenseSplitGroupId: string): Observable<Expense[]> {
+    const params: ExpensesQueryParams = {
+      queryParams: {
+        split_group_id: 'eq.' + expenseSplitGroupId,
+      },
+    };
+
+    return this.getAllExpenses(params);
   }
 }
