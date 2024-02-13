@@ -832,11 +832,7 @@ export class TransactionService {
   }
 
   sourceAccountTypePublicMapping(type: string): string {
-    if (type === 'PERSONAL_CASH_ACCOUNT') {
-      return 'PERSONAL_ACCOUNT';
-    } else {
-      return type;
-    }
+    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
   }
 
   // Todo : Remove transformExpense method once upsert in migrated to platform
