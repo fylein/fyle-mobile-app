@@ -16,7 +16,7 @@ import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service
 import { toArray } from 'lodash';
 import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { VirtualCardsSerialRequest } from 'src/app/core/models/virtual-cards-serial-request.model';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -155,7 +155,7 @@ export class CardStatsComponent implements OnInit {
             const virtualCardIds = cardDetails
               .filter((cardDetail) => cardDetail.card.virtual_card_id)
               .map((cardDetail) => cardDetail.card.virtual_card_id);
-            const virtualCardsParams: VirtualCardsSerialRequest = {
+            const virtualCardsParams: VirtualCardsCombinedRequest = {
               virtualCardIds,
               includeCurrentAmount: true,
             };

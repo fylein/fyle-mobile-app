@@ -18,7 +18,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardDetailsResponse } from 'src/app/core/models/card-details-response.model';
-import { VirtualCardsSerialRequest } from 'src/app/core/models/virtual-cards-serial-request.model';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -96,7 +96,7 @@ export class ManageCorporateCardsPage {
             const virtualCardIds = corporateCards
               .filter((card) => card.virtual_card_id)
               .map((card) => card.virtual_card_id);
-            const virtualCardsParams: VirtualCardsSerialRequest = {
+            const virtualCardsParams: VirtualCardsCombinedRequest = {
               virtualCardIds,
             };
             return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams);

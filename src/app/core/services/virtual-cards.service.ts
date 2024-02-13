@@ -7,7 +7,7 @@ import { CardDetailsAmountResponse } from '../models/card-details-amount-respons
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { VirtualCard } from '../models/virtual-card.model';
 import { CardDetailsCombinedResponse } from '../models/card-details-combined-response.model';
-import { VirtualCardsSerialRequest } from '../models/virtual-cards-serial-request.model';
+import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -51,14 +51,13 @@ export class VirtualCardsService {
   }
 
   getCardDetailsInSerial(
-    virtualCardsSerialRequestParams: VirtualCardsSerialRequest
-  ): Observable<Record<string, CardDetailsCombinedResponse>> {
-    return from(virtualCardsSerialRequestParams.virtualCardIds).pipe(
-      concatMap((virtualCardId) => {
-        return this.getCardDetails(virtualCardId, virtualCardsSerialRequestParams.includeCurrentAmount);
-      }),
-      reduce((acc: Record<string, CardDetailsCombinedResponse>, value) => {
-        const { cardDetails, virtualCard, currentAmount } = value;
+    virtualCardsCombinedRequestParams: VirtualCardsCombinedRequest
+  ): Observable<{ [id: string]: CardDetailsCombinedResponse }> {
+    return from(virtualCardsCombinedRequestParams.virtualCardIds).pipe(
+      concatMap((virtualCardId) =>
+        this.getCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
+      ),
+      reduce((acc: { [id: string]: CardDetailsCombinedResponse }, { cardDetails, virtualCard, currentAmount }) => {
         acc[virtualCard.id] = {
           ...cardDetails,
           ...currentAmount,
