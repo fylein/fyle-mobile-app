@@ -14,7 +14,6 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { toArray } from 'lodash';
-import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
