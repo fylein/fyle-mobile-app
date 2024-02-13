@@ -70,3 +70,13 @@ export const editExpenseProperties: ExpenseProperties = {
   ...createExpenseProperties3,
   Type: 'Per Diem',
 };
+
+export const editExpensePropertiesPlatform: ExpenseProperties = {
+  Type: 'Per Diem',
+  Amount: 2263.68,
+  Currency: 'USD',
+  Category: 'Mileage',
+  Time_Spent: '180 secs',
+  Used_Autofilled_Project: null,
+  Used_Autofilled_CostCenter: null,
+};
