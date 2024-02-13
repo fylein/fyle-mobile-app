@@ -71,7 +71,6 @@ describe('AddEditPerDiemPage', () => {
     ]);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['addEntryAndSync']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getETxnUnflattened',
       'transformExpense',
       'checkPolicy',
       'upsert',

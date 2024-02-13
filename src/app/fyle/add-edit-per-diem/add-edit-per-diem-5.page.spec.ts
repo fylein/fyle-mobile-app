@@ -463,7 +463,6 @@ export function TestCases5(getTestBed) {
       it('should go to next expense if delete is successful and expense is not the last one in list', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         spyOn(component, 'goToTransaction');
-        // transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.reviewList = ['txvslh8aQMbu', 'txCYDX0peUw5'];

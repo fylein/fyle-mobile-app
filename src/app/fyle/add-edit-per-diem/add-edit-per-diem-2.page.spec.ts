@@ -215,7 +215,7 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('getEditExpense(): should call transactionService.getETxnUnflattened and return unflattened transaction data', () => {
+    it('getEditExpense(): should call expensesService.getExpensesById and return expense data', () => {
       expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
       activatedRoute.snapshot.params = { id: 'txvslh8aQMbu' };

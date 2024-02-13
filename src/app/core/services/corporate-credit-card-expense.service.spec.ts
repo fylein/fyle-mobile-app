@@ -104,24 +104,6 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
-  it('getEccceByGroupId(): should get Corporate Credit Card expenses by group ID', (done) => {
-    apiService.get.and.returnValue(of(eCCCApiResponse));
-    spyOn(dataTransformService, 'unflatten').and.returnValue(expectedECccResponse[0]);
-
-    const testID = 'ccceYIJhT8Aj6U';
-
-    cccExpenseService.getEccceByGroupId(testID).subscribe((res) => {
-      expect(res).toEqual(expectedECccResponse);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/extended_corporate_credit_card_expenses', {
-        params: {
-          group_id: testID,
-        },
-      });
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));

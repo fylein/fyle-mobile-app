@@ -7,12 +7,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
+import { splitExpData } from 'src/app/core/mock-data/expense.data';
 
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -64,7 +64,6 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -137,7 +136,6 @@ export function TestCases5(getTestBed) {
     let networkService: jasmine.SpyObj<NetworkService>;
     let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
-    let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
     let recentlyUsedItemsService: jasmine.SpyObj<RecentlyUsedItemsService>;
@@ -190,9 +188,6 @@ export function TestCases5(getTestBed) {
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-      corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
-      ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
         RecentLocalStorageItemsService
@@ -1645,7 +1640,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);

@@ -3,21 +3,17 @@ import { Observable, Subject, from, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
-import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { DataTransformService } from './data-transform.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
-import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { UniqueCards } from '../models/unique-cards.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
@@ -36,9 +32,7 @@ const cacheBuster$ = new Subject<void>();
 })
 export class CorporateCreditCardExpenseService {
   constructor(
-    private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private authService: AuthService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
@@ -105,18 +99,6 @@ export class CorporateCreditCardExpenseService {
       id,
     };
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/ignore', { data: payload });
-  }
-
-  getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
-    const data = {
-      params: {
-        group_id: groupId,
-      },
-    };
-
-    return this.apiService
-      .get<CCCExpFlattened[]>('/extended_corporate_credit_card_expenses', data)
-      .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
   }
 
   constructInQueryParamStringForV2(params: string[]): string {

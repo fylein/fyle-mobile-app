@@ -102,7 +102,6 @@ describe('AddEditExpensePage', () => {
       'getRemoveCardExpenseDialogBody',
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
-      'getETxnUnflattened',
       'transformExpense',
       'getSplitExpenses',
       'checkPolicy',
@@ -150,7 +149,6 @@ describe('AddEditExpensePage', () => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
       'dismissCreditTransaction',
-      'getEccceByGroupId',
     ]);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'viewExpense',
