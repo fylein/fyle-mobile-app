@@ -1,7 +1,7 @@
-import { UnflattenedReport } from './report-unflattened.model';
+import { PlatformReport } from './platform/platform-report.model';
 
 export interface Option {
   label: string;
-  value: UnflattenedReport;
+  value: PlatformReport;
   selected?: boolean;
 }

@@ -9,7 +9,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ReportService } from 'src/app/core/services/report.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
@@ -25,7 +25,7 @@ import { ReportV1 } from 'src/app/core/models/report-v1.model';
   ],
 })
 export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAccessor {
-  @Input() options: { label: string; value: UnflattenedReport }[] = [];
+  @Input() options: { label: string; value: PlatformReport }[] = [];
 
   @Input() disabled = false;
 
@@ -53,11 +53,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   private ngControl: NgControl;
 
-  private innerValue: UnflattenedReport;
+  private innerValue: PlatformReport;
 
   private onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: UnflattenedReport) => void = noop;
+  private onChangeCallback: (_: PlatformReport) => void = noop;
 
   constructor(
     private modalController: ModalController,
@@ -76,11 +76,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  get value(): UnflattenedReport {
+  get value(): PlatformReport {
     return this.innerValue;
   }
 
-  set value(v: UnflattenedReport) {
+  set value(v: PlatformReport) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       this.setDisplayValue();
@@ -121,13 +121,13 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss<{ createDraftReport: boolean; value: UnflattenedReport }>();
+    const { data } = await selectionModal.onWillDismiss<{ createDraftReport: boolean; value: PlatformReport }>();
 
     if (data && !data.createDraftReport) {
       this.value = data.value;
       this.trackingService.addToReportFromExpense();
     }
-
+    console.log(data, data.createDraftReport);
     if (data && data.createDraftReport) {
       const reportTitle = await this.reportService.getReportPurpose({ ids: null }).toPromise();
 
@@ -151,16 +151,19 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
           purpose: data.newValue,
           source: 'MOBILE',
         };
+        console.log(report);
+        console.log('sjhdjshd jhs js hdjsh djsj dhsjhd js jdhajshd jadk askdhsa jdhkafirst');
 
         this.reportService
           .createDraft(report)
           .pipe(
             concatMap((newReport: ReportV1) =>
-              this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
-                map((reports) => reports.map((report) => ({ label: report.rp.purpose, value: report }))),
+              this.reportService.getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' }).pipe(
+                map((reports) => reports.map((report) => ({ label: report.purpose, value: report }))),
                 tap((options) => {
+                  console.log(newReport);
                   this.options = options;
-                  this.value = this.options.find((option) => isEqual(newReport.id, option.value.rp.id))?.value;
+                  this.value = this.options.find((option) => isEqual(newReport.id, option.value.id))?.value;
                 })
               )
             )
@@ -177,7 +180,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     this.onTouchedCallback();
   }
 
-  writeValue(value: UnflattenedReport): void {
+  writeValue(value: PlatformReport): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       this.setDisplayValue();
@@ -197,7 +200,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  registerOnChange(fn: (_: UnflattenedReport) => void): void {
+  registerOnChange(fn: (_: PlatformReport) => void): void {
     this.onChangeCallback = fn;
   }
 
