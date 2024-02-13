@@ -14,8 +14,8 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { toArray } from 'lodash';
-import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -33,7 +33,7 @@ export class CardStatsComponent implements OnInit {
 
   isCCCEnabled$: Observable<boolean>;
 
-  isVirtualCardsEnabled$: Observable<boolean>;
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
@@ -69,6 +69,17 @@ export class CardStatsComponent implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
+    );
+  }
+
+  filterVirtualCards(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
+    return cardDetails.filter((cardDetail) =>
+      cardDetail.card.virtual_card_id
+        ? cardDetail.virtualCardDetail &&
+          (cardDetail.stats?.totalTxnsCount > 0 ||
+            cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+            cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
+        : true
     );
   }
 
@@ -111,12 +122,12 @@ export class CardStatsComponent implements OnInit {
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
     );
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
+      map((orgSettings) => ({
+        enabled:
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
-          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
-      )
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
     );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
@@ -137,25 +148,22 @@ export class CardStatsComponent implements OnInit {
     );
 
     this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
-      if (isVirtualCardsEnabled) {
+      if (isVirtualCardsEnabled.enabled) {
         this.virtualCardDetails$ = this.cardDetails$.pipe(
           switchMap((cardDetails) => {
             const virtualCardIds = cardDetails
               .filter((cardDetail) => cardDetail.card.virtual_card_id)
               .map((cardDetail) => cardDetail.card.virtual_card_id);
-            return this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
+            const virtualCardsParams: VirtualCardsCombinedRequest = {
+              virtualCardIds,
+              includeCurrentAmount: true,
+            };
+            return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams).pipe(
               map((virtualCardsMap) => {
                 cardDetails.forEach((cardDetail) => {
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
-                cardDetails = cardDetails.filter((cardDetail) =>
-                  cardDetail.card.virtual_card_id
-                    ? cardDetail.virtualCardDetail &&
-                      (cardDetail.stats?.totalTxnsCount > 0 ||
-                        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-                        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
-                    : true
-                );
+                cardDetails = this.filterVirtualCards(cardDetails);
                 return cardDetails;
               })
             );

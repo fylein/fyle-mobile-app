@@ -18,7 +18,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardDetailsResponse } from 'src/app/core/models/card-details-response.model';
-
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -31,7 +31,7 @@ export class ManageCorporateCardsPage {
 
   isVisaRTFEnabled$: Observable<boolean>;
 
-  isVirtualCardsEnabled$: Observable<boolean>;
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
 
@@ -82,20 +82,25 @@ export class ManageCorporateCardsPage {
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
     this.isVirtualCardsEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) =>
+      map((orgSettings) => ({
+        enabled:
           orgSettings.amex_feed_enrollment_settings.allowed &&
           orgSettings.amex_feed_enrollment_settings.enabled &&
-          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled
-      )
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
     );
+
     this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
       if (isVirtualCardsEnabled) {
         this.virtualCardDetails$ = this.corporateCards$.pipe(
           switchMap((corporateCards) => {
-            const virtualCards = corporateCards.filter((card) => card.virtual_card_id);
-            const virtualCardIds = virtualCards.map((card) => card.virtual_card_id);
-            return this.virtualCardsService.getCardDetailsInSerial(virtualCardIds);
+            const virtualCardIds = corporateCards
+              .filter((card) => card.virtual_card_id)
+              .map((card) => card.virtual_card_id);
+            const virtualCardsParams: VirtualCardsCombinedRequest = {
+              virtualCardIds,
+            };
+            return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams);
           })
         );
       }

@@ -9,11 +9,13 @@
   </ion-toolbar>
 </ion-header>
 
-<div *ngIf="(isVirtualCardsEnabled$ | async) === true" class="manage-corporate-cards__segment-container">
-  <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
-    <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
-    <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
-  </ion-segment>
+<div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
+  <div *ngIf="isVirtualCardsEnabled.enabled === true" class="manage-corporate-cards__segment-container">
+    <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+      <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
+      <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+    </ion-segment>
+  </div>
 </div>
 
 <!-- Corporate Cards will always be the default segment value -->
@@ -57,8 +59,13 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
-  <div *ngIf="isVirtualCardsEnabled$ | async" class="manage-corporate-cards__cards manage-corporate-cards__cards-list">
-    <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
+  <div
+    *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled"
+    class="manage-corporate-cards__cards manage-corporate-cards__cards-list"
+  >
+    <ng-container
+      *ngIf="isVirtualCardsEnabled.enabled === true && corporateCards$ | async as corporateCards; else shimmers"
+    >
       <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__virtual-card">
           <app-virtual-card
@@ -68,6 +75,7 @@
             [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
             [cardStatus]="corporateCard.virtual_card_state"
             [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
+            class="manage-corporate-cards__virtual-cards__virtual-card"
           ></app-virtual-card>
         </div>
       </ng-container>
