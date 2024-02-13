@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { Observable, concatMap, forkJoin, from, map, of } from 'rxjs';
+import { Observable, concatMap, forkJoin, from, map, of, reduce } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
 import { CardDetailsResponse } from '../models/card-details-response.model';
 import { CardDetailsAmountResponse } from '../models/card-details-amount-response';
@@ -8,6 +8,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { VirtualCard } from '../models/virtual-card.model';
 import { virtualCardCurrentAmountResponse } from '../mock-data/virtual-card-details-response.data';
 import { CardDetailsResponseWithNickName } from '../models/card-details-response-with-nickname.model';
+import { VirtualCardsSerialRequest } from '../models/virtual-cards-serial-request.model';
 
 @Injectable({
   providedIn: 'root',
@@ -31,48 +32,46 @@ export class VirtualCardsService {
       );
   }
 
-  getCardDetailsInSerial(virtualCardIds: string[]): Observable<Record<string, CardDetailsResponseWithNickName>> {
-    const virtualCardMap: Record<string, CardDetailsResponseWithNickName> = {};
-
-    const virtualCardIds$ = from(virtualCardIds);
-
-    return virtualCardIds$.pipe(
-      concatMap((virtualCardId) =>
-        forkJoin([this.getCardDetailsById({ id: virtualCardId }), this.getVirtualCardById({ id: virtualCardId })]).pipe(
-          map(([cardDetails, virtualCard]) => {
-            virtualCardMap[virtualCardId] = cardDetails;
-            virtualCardMap[virtualCardId].nick_name = virtualCard.nick_name;
-            return virtualCardMap;
-          })
-        )
-      )
-    );
+  getCardDetails(
+    virtualCardId: string,
+    includeCurrentAmount?: boolean
+  ): Observable<{
+    cardDetails: CardDetailsResponse;
+    virtualCard: VirtualCard;
+    currentAmount?: CardDetailsAmountResponse;
+  }> {
+    const requestParam: VirtualCardsRequest = { id: virtualCardId };
+    let virtualCardRequests$ = {
+      cardDetails: this.getCardDetailsById(requestParam),
+      virtualCard: this.getVirtualCardById(requestParam),
+    };
+    if (includeCurrentAmount) {
+      virtualCardRequests$['currentAmount'] = this.getCurrentAmountById(requestParam);
+    }
+    return forkJoin(virtualCardRequests$);
   }
 
-  getCardDetailsAndAmountInSerial(
-    virtualCardIds: string[]
+  getCardDetailsInSerial(
+    virtualCardsSerialRequestParams: VirtualCardsSerialRequest
   ): Observable<Record<string, CardDetailsResponseWithNickName>> {
-    const virtualCardMap: Record<string, CardDetailsResponseWithNickName> = {};
-
-    const virtualCardIds$ = from(virtualCardIds);
-
-    return virtualCardIds$.pipe(
-      concatMap((virtualCardId) =>
-        forkJoin([
-          this.getCardDetailsById({ id: virtualCardId }),
-          this.getCurrentAmountById({ id: virtualCardId }),
-          this.getVirtualCardById({ id: virtualCardId }),
-        ]).pipe(
-          map(([cardDetails, currentAmount, virtualCardResponse]) => {
-            virtualCardMap[virtualCardId] = {
-              ...cardDetails,
-              ...currentAmount,
-              nick_name: virtualCardResponse.nick_name,
-            };
-            return virtualCardMap;
-          })
-        )
-      )
+    return from(virtualCardsSerialRequestParams.virtualCardIds).pipe(
+      concatMap((virtualCardId) => {
+        return this.getCardDetails(virtualCardId, virtualCardsSerialRequestParams.includeCurrentAmount);
+      }),
+      map(({ cardDetails, virtualCard, currentAmount }) => ({
+        cardDetails,
+        virtualCard,
+        currentAmount,
+      })),
+      reduce((acc: Record<string, CardDetailsResponseWithNickName>, value) => {
+        const { cardDetails, virtualCard, currentAmount } = value;
+        acc[virtualCard.id] = {
+          ...cardDetails,
+          ...currentAmount,
+          nick_name: virtualCard.nick_name,
+        };
+        return acc;
+      }, [])
     );
   }
 

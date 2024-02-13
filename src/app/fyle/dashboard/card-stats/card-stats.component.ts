@@ -16,6 +16,7 @@ import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service
 import { toArray } from 'lodash';
 import { CardDetailsWithAmountResponse } from 'src/app/core/models/card-details-with-amount-response.model';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { VirtualCardsSerialRequest } from 'src/app/core/models/virtual-cards-serial-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -69,6 +70,17 @@ export class CardStatsComponent implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
+    );
+  }
+
+  filterVirtualCards(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
+    return cardDetails.filter((cardDetail) =>
+      cardDetail.card.virtual_card_id
+        ? cardDetail.virtualCardDetail &&
+          (cardDetail.stats?.totalTxnsCount > 0 ||
+            cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+            cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
+        : true
     );
   }
 
@@ -143,19 +155,16 @@ export class CardStatsComponent implements OnInit {
             const virtualCardIds = cardDetails
               .filter((cardDetail) => cardDetail.card.virtual_card_id)
               .map((cardDetail) => cardDetail.card.virtual_card_id);
-            return this.virtualCardsService.getCardDetailsAndAmountInSerial(virtualCardIds).pipe(
+            const virtualCardsParams: VirtualCardsSerialRequest = {
+              virtualCardIds,
+              includeCurrentAmount: true,
+            };
+            return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams).pipe(
               map((virtualCardsMap) => {
                 cardDetails.forEach((cardDetail) => {
                   cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
                 });
-                // cardDetails = cardDetails.filter((cardDetail) =>
-                //   cardDetail.card.virtual_card_id
-                //     ? cardDetail.virtualCardDetail &&
-                //       (cardDetail.stats?.totalTxnsCount > 0 ||
-                //         cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-                //         cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
-                //     : true
-                // );
+                cardDetails = this.filterVirtualCards(cardDetails);
                 return cardDetails;
               })
             );
