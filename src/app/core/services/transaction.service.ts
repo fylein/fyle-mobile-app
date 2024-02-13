@@ -831,6 +831,14 @@ export class TransactionService {
     }
   }
 
+  sourceAccountTypePublicMapping(type: string): string {
+    if (type === 'PERSONAL_CASH_ACCOUNT') {
+      return 'PERSONAL_ACCOUNT';
+    } else {
+      return type;
+    }
+  }
+
   // Todo : Remove transformExpense method once upsert in migrated to platform
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
     const updatedExpense = {
@@ -845,7 +853,6 @@ export class TransactionService {
         state: expense.state,
         admin_amount: expense.admin_amount,
         policy_amount: expense.policy_amount,
-        matched_corporate_card_transaction_ids: expense.matched_corporate_card_transaction_ids,
         skip_reimbursement: !expense.is_reimbursable,
         amount: expense.amount,
         currency: expense.currency,
@@ -905,6 +912,8 @@ export class TransactionService {
               currency: expense.extracted_data?.currency,
               amount: expense.extracted_data?.amount,
               date: expense.extracted_data?.date,
+              category: expense.extracted_data?.category,
+              invoice_dt: expense.extracted_data?.invoice_dt,
             }
           : null,
         matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
@@ -928,12 +937,10 @@ export class TransactionService {
         project_code: expense.project?.code,
         physical_bill: expense.is_physical_bill_submitted,
         physical_bill_at: expense.physical_bill_submitted_at,
-        // Will be provided by backend soon
-        // duplicates: expense.duplicates ?? [],
       },
       source: {
         account_id: expense.source_account?.id,
-        account_type: expense.source_account.type,
+        account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
       },
       ou: {
         id: expense.employee?.id,
