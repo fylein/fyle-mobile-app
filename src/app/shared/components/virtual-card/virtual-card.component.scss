@@ -1,8 +1,8 @@
 @import '../../../../theme/colors';
 
 .virtual-card {
-  height: 200px;
-  width: 320px;
+  height: 180px;
+  width: 300px;
   border-radius: 16px;
   background: url('../../../../assets/images/amex-virtual-card-new-logo.png') no-repeat center;
   background-size: contain; // This is used to maintain the aspect ratio of the image
@@ -76,7 +76,6 @@
     font-size: 12px;
     color: $pure-white;
     width: 100%;
-    margin-bottom: 0;
     &__cvv-field {
       width: 50px;
     }

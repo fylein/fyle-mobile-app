@@ -3,7 +3,13 @@
     <div class="virtual-card__card-number__nickname">
       {{ cardNickname }}
       <div class="virtual-card__status-pill">
-        <div class="virtual-card__status-pill__dot"></div>
+        <div
+          class="virtual-card__status-pill__dot"
+          [ngClass]="{
+            'virtual-card__status-pill__dot__success': showSuccessStatusDot,
+            'virtual-card__status-pill__dot__danger': showErrorStatusDot
+          }"
+        ></div>
         <div>{{ cardStatus | titlecase }}</div>
       </div>
     </div>
