@@ -1870,7 +1870,7 @@ export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
   dataUrls: null,
 };
 
-export const newExpFromFg = {
+export const newExpFromFg: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2023,7 +2023,7 @@ export const newExpFromFg = {
   dataUrls: [],
 };
 
-export const newExpFromFg2 = {
+export const newExpFromFg2: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2177,7 +2177,7 @@ export const newExpFromFg2 = {
   dataUrls: [],
 };
 
-export const newExpFromFg3 = {
+export const newExpFromFg3: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2314,7 +2314,7 @@ export const newExpFromFg3 = {
   dataUrls: [],
 };
 
-export const newExpFromFg4 = {
+export const newExpFromFg4: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2451,7 +2451,7 @@ export const newExpFromFg4 = {
   dataUrls: [],
 };
 
-export const newExpFromFgPlatform = {
+export const newExpFromFgPlatform: Partial<UnflattenedTransaction> = {
   tx: {
     id: 'txD5hIQgLuR5',
     created_at: new Date('2024-02-09T01:20:13.098Z'),
@@ -2565,7 +2565,7 @@ export const newExpFromFgPlatform = {
   dataUrls: [],
 };
 
-export const expWithSplitGroupID = {
+export const expWithSplitGroupID: Partial<UnflattenedTransaction> = {
   ...unflattenedTxnData,
   tx: null,
 };
