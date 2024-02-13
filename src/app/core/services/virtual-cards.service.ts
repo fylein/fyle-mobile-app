@@ -70,7 +70,7 @@ export class VirtualCardsService {
           nick_name: virtualCard.nick_name,
         };
         return acc;
-      }, [])
+      }, {})
     );
   }
 
