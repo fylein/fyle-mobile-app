@@ -287,7 +287,7 @@ export class AddEditExpensePage implements OnInit {
 
   matchedCCCTransaction: MatchedCCCTransaction;
 
-  alreadyApprovedExpenses: PlatformExpense[];
+  alreadyApprovedExpenses: Expense[];
 
   isSplitExpensesPresent: boolean;
 
@@ -686,62 +686,29 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  async showSplitBlockedPopover(message: string): Promise<void> {
-    const splitBlockedPopoverSpy = await this.popoverController.create({
-      component: PopupAlertComponent,
-      componentProps: {
-        title: 'Expense cannot be split',
-        message,
-        primaryCta: {
-          text: 'OK',
-        },
-      },
-      cssClass: 'pop-up-in-center',
-    });
-
-    await splitBlockedPopoverSpy.present();
-  }
-
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
-    const formValue = this.getFormValues();
+    const reportValue = this.getFormValues();
 
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-      expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
-    }).subscribe(
-      (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
-        if (res.generatedEtxn.tx.report_id && !formValue.report?.rp?.id) {
-          const popoverMessage =
-            'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.';
-          return this.showSplitBlockedPopover(popoverMessage);
-        }
-
-        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
-          const popoverMessage =
-            'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
-          return this.showSplitBlockedPopover(popoverMessage);
-        }
-
-        this.router.navigate([
-          '/',
-          'enterprise',
-          'split_expense',
-          {
-            splitType,
-            txnFields: JSON.stringify(res.txnFields),
-            txn: JSON.stringify(res.generatedEtxn.tx),
-            currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-            fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
-            selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-            selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
-            selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
-            expenseFields: res.expenseFields ? JSON.stringify(res.expenseFields) : null,
-          },
-        ]);
-      }
-    );
+    }).subscribe((res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj }) => {
+      this.router.navigate([
+        '/',
+        'enterprise',
+        'split_expense',
+        {
+          splitType,
+          txnFields: JSON.stringify(res.txnFields),
+          txn: JSON.stringify(res.generatedEtxn.tx),
+          currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+          fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
+          selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+          selectedReportId: reportValue.report ? JSON.stringify(reportValue.report.rp.id) : null,
+        },
+      ]);
+    });
   }
 
   markCCCAsPersonal(txnId: string): Observable<null> {
@@ -1011,11 +978,10 @@ export class AddEditExpensePage implements OnInit {
           const actionSheetOptions: { text: string; handler: () => void }[] = [];
 
           if (isSplitExpenseAllowed) {
-            const areCostCentersAvailable = costCenters.length > 0 && txnFields.cost_center_id;
+            const areCostCentersAvailable = costCenters.length > 0;
             const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
             const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
             const projectField = txnFields.project_id;
-            const costCenterField = txnFields.cost_center_id;
 
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
@@ -1033,7 +999,7 @@ export class AddEditExpensePage implements OnInit {
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
-                text: 'Split Expense By ' + this.titleCasePipe.transform(costCenterField?.field_name),
+                text: 'Split Expense By Cost Center',
                 handler: () => this.splitExpCostCenterHandler(),
               });
             }
@@ -1898,12 +1864,10 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
-          const expenseCategory = category?.enabled ? category : null;
-
           this.fg.patchValue(
             {
               project,
-              category: expenseCategory,
+              category,
               dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
@@ -2175,7 +2139,7 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category?.enabled && category.id)
+              this.customInputsService.filterByCategory(customFields, category && category.id)
             )
           )
         );
@@ -2804,12 +2768,10 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  getSplitExpenses(splitExpenses: PlatformExpense[]): void {
+  getSplitExpenses(splitExpenses: Expense[]): void {
     this.isSplitExpensesPresent = splitExpenses.length > 1;
     if (this.isSplitExpensesPresent) {
-      this.alreadyApprovedExpenses = splitExpenses.filter(
-        (splitExpense) => ['DRAFT', 'COMPLETE'].indexOf(splitExpense.state) === -1
-      );
+      this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
 
       this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
     }
@@ -2825,7 +2787,7 @@ export class AddEditExpensePage implements OnInit {
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
               splitExpenses,

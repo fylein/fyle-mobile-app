@@ -5,7 +5,10 @@ import {
   etxncData,
   expenseData2,
   expenseData1,
+  expenseDataWithDateString,
   etxnData,
+  expenseList,
+  etxncListData,
   mileageExpenseWithDistance,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
@@ -424,6 +427,27 @@ describe('TransactionService', () => {
 
     // @ts-ignore
     expect(transactionService.generateTypeOrFilter(filters)).toEqual(typeOrFilter);
+  });
+
+  it('fixDates(): should fix dates', () => {
+    // @ts-ignore
+    expect(transactionService.fixDates(expenseDataWithDateString)).toEqual(expenseData1);
+  });
+
+  it('getETxnCount(): should return etxn count', (done) => {
+    apiV2Service.get.and.returnValue(of(etxncData));
+    const params = {
+      tx_org_user_id: 'eq.ouX8dwsbLCLv',
+      tx_report_id: 'eq.rpFvmTgyeBjN',
+      order: 'tx_txn_dt.desc,tx_id.desc',
+    };
+
+    // @ts-ignore
+    transactionService.getETxnCount(params).subscribe((res) => {
+      expect(res.count).toEqual(1);
+      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', { params });
+      done();
+    });
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
@@ -1032,6 +1056,17 @@ describe('TransactionService', () => {
     });
   });
 
+  it('getSplitExpenses(): should return split expenses', (done) => {
+    spyOn(transactionService, 'getAllETxnc').and.returnValue(of(expenseList));
+    const txnSplitGroupId = 'txBphgnCHHeO';
+
+    transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
+      expect(res).toEqual(expenseList);
+      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
+      done();
+    });
+  });
+
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
     apiService.post.and.returnValue(of(null));
 
@@ -1043,6 +1078,34 @@ describe('TransactionService', () => {
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unmatch', {
         transaction_id: transactionId,
         corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+      });
+      done();
+    });
+  });
+
+  it('getAllETxnc(): should return all etxnc', (done) => {
+    // @ts-ignore
+    spyOn(transactionService, 'getETxnCount').and.returnValue(of(1));
+    spyOn(transactionService, 'getETxnc').and.returnValue(of(etxncListData.data));
+
+    const params = {
+      tx_org_user_id: 'eq.ouX8dwsbLCLv',
+      tx_report_id: 'eq.rpeqN0o4X4O4',
+      order: 'tx_txn_dt.desc,tx_id.desc',
+    };
+
+    transactionService.getAllETxnc(params).subscribe((res) => {
+      expect(res).toEqual(etxncListData.data);
+      // @ts-ignore
+      expect(transactionService.getETxnCount).toHaveBeenCalledOnceWith(params);
+      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
+        offset: 0,
+        limit: 2,
+        params: {
+          tx_org_user_id: 'eq.ouX8dwsbLCLv',
+          tx_report_id: 'eq.rpeqN0o4X4O4',
+          order: 'tx_txn_dt.desc,tx_id.desc',
+        },
       });
       done();
     });

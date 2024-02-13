@@ -48,7 +48,7 @@
       </ng-container>
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="isConnected$|async as isConnected">
-          <ng-container *ngIf="!(reviewList?.length > 1)">
+          <ng-container *ngIf="!(etxn?.tx?.report_id) && !(reviewList?.length > 1)">
             <ng-container *ngIf="actionSheetOptions$|async as actionSheetOptions">
               <ng-container *ngIf="actionSheetOptions.length > 0">
                 <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">

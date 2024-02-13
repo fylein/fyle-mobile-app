@@ -2,7 +2,7 @@ import { FinalExpensePolicyState } from './platform/platform-final-expense-polic
 import { IndividualExpensePolicyState } from './platform/platform-individual-expense-policy-state.model';
 
 export interface PolicyViolation {
-  data?: {
+  data: {
     individual_desired_states: IndividualExpensePolicyState[];
     final_desired_state: FinalExpensePolicyState;
   };
@@ -10,5 +10,4 @@ export interface PolicyViolation {
   currency?: string;
   name?: string;
   type?: string;
-  isExpanded?: boolean;
 }

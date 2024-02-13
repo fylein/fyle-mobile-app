@@ -26,21 +26,3 @@ export const violationComment3: PolicyViolationComment = {
   },
   notify: true,
 };
-
-export const violationComment4: PolicyViolationComment = {
-  objectType: 'transactions',
-  txnId: 'txeqxj49dgh',
-  comment: {
-    comment: 'Policy violation explanation: test comment 1',
-  },
-  notify: true,
-};
-
-export const violationComment5: PolicyViolationComment = {
-  objectType: 'transactions',
-  txnId: 'txeqxj89ddf',
-  comment: {
-    comment: 'No policy violation explanation provided',
-  },
-  notify: true,
-};

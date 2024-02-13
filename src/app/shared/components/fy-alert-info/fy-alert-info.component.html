@@ -6,7 +6,6 @@
     svgIcon="warning-fill"
   ></mat-icon>
   <mat-icon *ngIf="type === 'error'" class="alert-info-container--icon" svgIcon="warning-fill"></mat-icon>
-  <mat-icon *ngIf="type === 'danger'" class="alert-info-container--icon--danger" svgIcon="danger-fill"></mat-icon>
   <div class="alert-info-container--message">{{ message }}</div>
   <div *ngIf="showActionButton" class="alert-info-container--button-container">
     <ion-button

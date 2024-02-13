@@ -8,10 +8,12 @@
       </ion-buttons>
 
       <div class="split-expense--header-block">
-        <div class="split-expense--header-title" mode="md">Split by {{ splitExpenseHeader }}</div>
+        <div class="split-expense--header-title" mode="md">
+          Split by {{ splitType === 'projects' ? txnFields?.project_id?.field_name : splitType }}
+        </div>
         <ion-buttons>
           <ion-button
-            (click)="saveV2()"
+            (click)="save()"
             [loadingText]="'Saving'"
             [loading]="saveSplitExpenseLoading"
             appFormButtonValidation
@@ -135,7 +137,7 @@
           <div class="split-expense--internal-block" *ngIf="splitType === 'cost centers'">
             <div *ngIf="costCenters$|async as costCenters">
               <app-fy-select
-                [label]="txnFields?.cost_center_id?.field_name"
+                [label]="'Cost Center'"
                 formControlName="cost_center"
                 [options]="costCenters"
                 [mandatory]="true"

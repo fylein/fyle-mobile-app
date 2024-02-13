@@ -8,7 +8,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { Subscription, of } from 'rxjs';
+import { of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
@@ -257,12 +257,9 @@ describe('MyViewReportPage', () => {
 
   it('ionViewWillLeave(): should call the next callback on page exit subscription', () => {
     spyOn(component.onPageExit, 'next');
-    component.hardwareBackButtonAction = new Subscription();
-    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
 
     component.ionViewWillLeave();
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
-    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
   });
 
   describe('getSimplifyReportSettings():', () => {

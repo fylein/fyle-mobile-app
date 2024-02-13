@@ -11,6 +11,7 @@ import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
 import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -25,8 +26,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 
 @Component({
   selector: 'app-tasks',
@@ -60,7 +59,6 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
-    private expensesService: ExpensesService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -68,6 +66,7 @@ export class TasksComponent implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
+    private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService
@@ -582,16 +581,17 @@ export class TasksComponent implements OnInit {
   }
 
   showOldReportsMatBottomSheet(): void {
-    const params: ExpensesQueryParams = {
-      queryParams: {
-        state: 'in.(COMPLETE)',
-        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
-        report_id: 'is.null',
-      },
-    };
-    const readyToReportExpenses$ = this.expensesService
-      .getAllExpenses(params)
-      .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+    const readyToReportEtxns$ = from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.transactionService.getAllETxnc({
+          tx_org_user_id: 'eq.' + eou.ou.id,
+          tx_state: 'in.(COMPLETE)',
+          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+          tx_report_id: 'is.null',
+        })
+      ),
+      map((expenses) => expenses.map((expenses) => expenses.tx_id))
+    );
 
     this.reportService
       .getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } })
@@ -615,7 +615,7 @@ export class TasksComponent implements OnInit {
         }),
         switchMap((data: { report: ExtendedReport }) => {
           if (data && data.report) {
-            return readyToReportExpenses$.pipe(
+            return readyToReportEtxns$.pipe(
               switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
             );
           } else {

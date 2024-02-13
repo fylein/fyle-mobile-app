@@ -15,14 +15,6 @@ $container-border: #dfdfe2;
     margin-right: 8px;
     min-width: 20px;
     color: $highlight-blue;
-
-    &--danger {
-      height: 20px;
-      width: 20px;
-      margin-right: 8px;
-      min-width: 20px;
-      color: $red;
-    }
   }
 
   &--message {

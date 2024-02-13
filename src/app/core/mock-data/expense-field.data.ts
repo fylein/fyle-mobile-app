@@ -1027,23 +1027,3 @@ export const mileageDependentFields: ExpenseField[] = [
     parent_field_id: null,
   },
 ];
-
-export const costCenterExpenseField: ExpenseField = {
-  id: 214661,
-  code: null,
-  column_name: 'cost_center_id',
-  created_at: new Date('2022-11-10T15:14:53.132Z'),
-  default_value: null,
-  field_name: 'Cost Center',
-  is_custom: false,
-  is_enabled: true,
-  is_mandatory: true,
-  options: [],
-  org_category_ids: [214309, 214310, 214311, 214312],
-  org_id: 'orOTDe765hQp',
-  placeholder: 'Select Cost Center',
-  seq: 1,
-  type: 'SELECT',
-  updated_at: new Date('2023-02-01T09:49:21.584Z'),
-  parent_field_id: null,
-};
