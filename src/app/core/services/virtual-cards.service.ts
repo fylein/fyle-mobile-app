@@ -40,14 +40,14 @@ export class VirtualCardsService {
     currentAmount?: CardDetailsAmountResponse;
   }> {
     const requestParam: VirtualCardsRequest = { id: virtualCardId };
-    let virtualCardRequests$ = {
+    let virtualCardRequests = {
       cardDetails: this.getCardDetailsById(requestParam),
       virtualCard: this.getVirtualCardById(requestParam),
     };
     if (includeCurrentAmount) {
-      virtualCardRequests$['currentAmount'] = this.getCurrentAmountById(requestParam);
+      virtualCardRequests['currentAmount'] = this.getCurrentAmountById(requestParam);
     }
-    return forkJoin(virtualCardRequests$);
+    return forkJoin(virtualCardRequests);
   }
 
   getCardDetailsInSerial(
