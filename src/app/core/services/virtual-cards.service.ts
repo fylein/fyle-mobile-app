@@ -57,11 +57,6 @@ export class VirtualCardsService {
       concatMap((virtualCardId) => {
         return this.getCardDetails(virtualCardId, virtualCardsSerialRequestParams.includeCurrentAmount);
       }),
-      map(({ cardDetails, virtualCard, currentAmount }) => ({
-        cardDetails,
-        virtualCard,
-        currentAmount,
-      })),
       reduce((acc: Record<string, CardDetailsCombinedResponse>, value) => {
         const { cardDetails, virtualCard, currentAmount } = value;
         acc[virtualCard.id] = {
