@@ -18,12 +18,20 @@ import {
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { emptyCCCStats, mastercardCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
-import { mastercardRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { By } from '@angular/platform-browser';
-import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
+import {
+  cardDetailsRes,
+  statementUploadedCardDetail,
+  virtualCardDetails,
+  virtualCardDetailsCombined,
+} from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { virtualCardDetailsResponse } from 'src/app/core/mock-data/virtual-card-details-response.data';
+import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-spent-cards',
@@ -50,7 +58,7 @@ class MockAddCardComponent {
 describe('CardStatsComponent', () => {
   const cards = [mastercardRTFCard];
   const cardStats = mastercardCCCStats;
-  const cardDetails = [cardDetailsRes[1]];
+  const cardDetails = cardDetailsRes;
 
   let component: CardStatsComponent;
   let fixture: ComponentFixture<CardStatsComponent>;
@@ -76,7 +84,7 @@ describe('CardStatsComponent', () => {
       'clearCache',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsAndAmountInSerial']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsInSerial']);
 
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
@@ -198,6 +206,24 @@ describe('CardStatsComponent', () => {
       );
     });
 
+    it('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
+      // Mock responses for service methods
+
+      component.isVirtualCardsEnabled$ = of({ enabled: true });
+
+      virtualCardsService.getCardDetailsInSerial.and.returnValue(of(virtualCardCombinedResponse));
+
+      component.ngOnInit();
+      component.init();
+
+      tick(100);
+      component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
+        expect(virtualCardDetailsRes).toBeDefined();
+        expect(virtualCardDetailsRes.length).toBe(4);
+        expect(virtualCardDetailsRes[3]).toEqual(virtualCardDetailsCombined[0]);
+      });
+    }));
+
     describe('add card zero state', () => {
       beforeEach(() => {
         corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
@@ -253,6 +279,7 @@ describe('CardStatsComponent', () => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
       dashboardService.getCCCDetails.and.returnValue(of(emptyCCCStats));
       corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue([]);
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       component.ngOnInit();
       component.init();
@@ -284,9 +311,6 @@ describe('CardStatsComponent', () => {
 
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
-
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
-      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
       spentCardsComponent.triggerEventHandler('addCardClick', null);
