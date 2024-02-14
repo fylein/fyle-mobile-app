@@ -436,6 +436,11 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: false,
   },
   mobile_app_my_expenses_beta_enabled: false,
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -864,6 +869,11 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: false,
   },
   mobile_app_my_expenses_beta_enabled: false,
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const outgoingTallyAccountObj: AccountingExportSettings = {
@@ -1404,5 +1414,10 @@ export const orgSettingsData: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
