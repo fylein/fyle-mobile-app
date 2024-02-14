@@ -13,17 +13,16 @@
               (addCardClick)="openAddCorporateCardPopover()"
             ></app-spent-cards>
           </ng-container>
-        </ng-container>
-
-        <ng-container *ngIf="isVirtualCardsEnabled.enabled === true">
-          <ng-container *ngIf="virtualCardDetails$ | async as cardDetails">
-            <app-spent-cards
-              [cardDetails]="cardDetails"
-              [homeCurrency]="homeCurrency$ | async"
-              [currencySymbol]="currencySymbol$ | async"
-              [showAddCardSlide]="canAddCorporateCards$ | async"
-              (addCardClick)="openAddCorporateCardPopover()"
-            ></app-spent-cards>
+          <ng-container *ngIf="isVirtualCardsEnabled.enabled === true">
+            <ng-container *ngIf="virtualCardDetails$ | async as cardDetails">
+              <app-spent-cards
+                [cardDetails]="cardDetails"
+                [homeCurrency]="homeCurrency$ | async"
+                [currencySymbol]="currencySymbol$ | async"
+                [showAddCardSlide]="canAddCorporateCards$ | async"
+                (addCardClick)="openAddCorporateCardPopover()"
+              ></app-spent-cards>
+            </ng-container>
           </ng-container>
         </ng-container>
 
