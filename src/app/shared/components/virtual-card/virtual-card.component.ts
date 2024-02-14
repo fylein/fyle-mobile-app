@@ -45,6 +45,16 @@ export class VirtualCardComponent {
     this.showToastMessage('Copied Successfully!');
   }
 
+  hideCvvAndCopy() {
+    this.showCvv = false;
+    this.copyToClipboard(this.cvv);
+  }
+
+  hideCardNumberAndCopy() {
+    this.showCardNumber = false;
+    this.copyToClipboard(this.cardNumber);
+  }
+
   toggleShowCardNumber() {
     this.showCardNumber = !this.showCardNumber;
   }

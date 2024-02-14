@@ -22,7 +22,7 @@
       <ion-icon
         src="../../../../../assets/svg/duplicate.svg"
         (press)="toggleShowCardNumber()"
-        (pressup)="toggleShowCardNumber()"
+        (pressup)="hideCardNumberAndCopy()"
         (tap)="copyToClipboard(cardNumber)"
       ></ion-icon>
     </div>
@@ -37,7 +37,7 @@
           class="virtual-card__card-fields__cvv-copy-icon"
           src="../../../../../assets/svg/duplicate.svg"
           (press)="toggleShowCvv()"
-          (pressup)="toggleShowCvv()"
+          (pressup)="hideCvvAndCopy()"
           (tap)="copyToClipboard(cvv)"
         ></ion-icon>
       </div>

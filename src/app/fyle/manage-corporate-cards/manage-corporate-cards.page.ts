@@ -12,9 +12,10 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { RefresherCustomEvent } from '@ionic/core';
+import { RefresherCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -32,6 +33,8 @@ export class ManageCorporateCardsPage {
 
   loadCorporateCards$ = new BehaviorSubject<void>(null);
 
+  segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
+
   constructor(
     private router: Router,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -42,6 +45,16 @@ export class ManageCorporateCardsPage {
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService
   ) {}
+
+  get Segment(): typeof ManageCardsPageSegment {
+    return ManageCardsPageSegment;
+  }
+
+  segmentChanged(event: SegmentCustomEvent): void {
+    if (event?.detail?.value) {
+      this.segmentValue = parseInt(event.detail.value, 10);
+    }
+  }
 
   refresh(event: RefresherCustomEvent): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
