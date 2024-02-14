@@ -68,33 +68,6 @@ export class VirtualCardsService {
     );
   }
 
-  getCardDetailsAndAmountInSerial(
-    virtualCardIds: string[]
-  ): Observable<Record<string, CardDetailsResponseWithNickName>> {
-    const virtualCardMap: Record<string, CardDetailsResponseWithNickName> = {};
-
-    const virtualCardIds$ = from(virtualCardIds);
-
-    return virtualCardIds$.pipe(
-      concatMap((virtualCardId) =>
-        forkJoin([
-          this.getCardDetailsById({ id: virtualCardId }),
-          this.getCurrentAmountById({ id: virtualCardId }),
-          this.getVirtualCardById({ id: virtualCardId }),
-        ]).pipe(
-          map(([cardDetails, currentAmount, virtualCardResponse]) => {
-            virtualCardMap[virtualCardId] = {
-              ...cardDetails,
-              ...currentAmount,
-              nick_name: virtualCardResponse.nick_name,
-            };
-            return virtualCardMap;
-          })
-        )
-      )
-    );
-  }
-
   getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
     return this.spenderPlatformV1ApiService
       .post<{
