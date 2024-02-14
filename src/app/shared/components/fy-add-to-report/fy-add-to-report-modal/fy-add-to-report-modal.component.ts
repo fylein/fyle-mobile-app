@@ -11,7 +11,7 @@ import {
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { getCurrencySymbol } from '@angular/common';
-import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
+import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Option } from 'src/app/core/models/option.model';
 

@@ -7,9 +7,10 @@ import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { PlatformReportService } from 'src/app/core/services/platform/v1/shared/report.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
+import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
@@ -65,6 +66,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private injector: Injector,
     private popoverController: PopoverController,
     private reportService: ReportService,
+    private platformReportService: PlatformReportService,
     private trackingService: TrackingService
   ) {}
 
@@ -158,14 +160,16 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
           .createDraft(report)
           .pipe(
             concatMap((newReport: ReportV1) =>
-              this.reportService.getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' }).pipe(
-                map((reports) => reports.map((report) => ({ label: report.purpose, value: report }))),
-                tap((options) => {
-                  console.log(newReport);
-                  this.options = options;
-                  this.value = this.options.find((option) => isEqual(newReport.id, option.value.id))?.value;
-                })
-              )
+              this.platformReportService
+                .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
+                .pipe(
+                  map((reports) => reports.map((report) => ({ label: report.purpose, value: report }))),
+                  tap((options) => {
+                    console.log(newReport);
+                    this.options = options;
+                    this.value = this.options.find((option) => isEqual(newReport.id, option.value.id))?.value;
+                  })
+                )
             )
           )
           .subscribe(noop);

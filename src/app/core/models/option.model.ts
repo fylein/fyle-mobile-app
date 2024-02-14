@@ -1,4 +1,4 @@
-import { PlatformReport } from './platform/platform-report.model';
+import { PlatformReport } from './platform/v1/platform-report.model';
 
 export interface Option {
   label: string;
