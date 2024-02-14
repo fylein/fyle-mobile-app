@@ -33,6 +33,8 @@ import { CardAddedComponent } from './card-added/card-added.component';
 import { noop } from 'lodash';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-trackers.data';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { Virtual } from 'swiper';
 
 @Component({
   selector: 'app-corporate-card',
@@ -58,6 +60,7 @@ describe('ManageCorporateCardsPage', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -71,6 +74,7 @@ describe('ManageCorporateCardsPage', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardUnenrolled']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('TrackingService', ['getCardDetailsInSerial']);
 
     TestBed.configureTestingModule({
       declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
@@ -108,6 +112,10 @@ describe('ManageCorporateCardsPage', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -124,6 +132,7 @@ describe('ManageCorporateCardsPage', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));

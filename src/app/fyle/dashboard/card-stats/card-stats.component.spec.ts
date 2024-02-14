@@ -177,7 +177,7 @@ describe('CardStatsComponent', () => {
       component.ngOnInit();
       component.init();
 
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
       component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       fixture.detectChanges();
@@ -285,7 +285,7 @@ describe('CardStatsComponent', () => {
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
 
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
       component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockAddCardComponent));
@@ -327,7 +327,7 @@ describe('CardStatsComponent', () => {
     it('should open the add corporate card modal on addCardClick event', fakeAsync(() => {
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
       component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       fixture.detectChanges();
@@ -353,7 +353,7 @@ describe('CardStatsComponent', () => {
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
 
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<boolean>(false);
+      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
       component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
 
       fixture.detectChanges();
