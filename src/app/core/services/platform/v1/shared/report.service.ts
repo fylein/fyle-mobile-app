@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, Subject, from, of, range } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
-import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
+import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ReportPlatformParams } from 'src/app/core/models/platform/v1/reports-query-params.model';

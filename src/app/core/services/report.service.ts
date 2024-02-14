@@ -7,7 +7,7 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
-import { PlatformReport } from '../models/platform/platform-report.model';
+import { PlatformReport } from '../models/platform/v1/platform-report.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';

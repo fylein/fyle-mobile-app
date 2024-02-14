@@ -13,7 +13,7 @@ import { ReportApprovals } from '../report-approvals.model';
 import { PlatformPerDiemRates } from '../platform-per-diem-rates.model';
 import { Level } from './level.model';
 import { Department } from './department.model';
-import { ReportState } from '../platform-report.model';
+import { ReportState } from './platform-report.model';
 import { Account } from './account.model';
 import { CustomFields } from '../custom-fields.model';
 import { CustomInput } from '../../custom-input.model';
