@@ -70,7 +70,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { PlatformReport } from 'src/app/core/models/platform/platform-report.model';
+import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
@@ -109,6 +109,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { PlatformReportService } from 'src/app/core/services/platform/v1/shared/report.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -433,6 +434,7 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectsService: ProjectsService,
     private reportService: ReportService,
+    private platformReportService: PlatformReportService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
@@ -3091,7 +3093,7 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    this.reports$ = this.reportService
+    this.reports$ = this.platformReportService
       .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
         map((reports: PlatformReport[]) => reports.map((report) => ({ label: report.purpose, value: report })))

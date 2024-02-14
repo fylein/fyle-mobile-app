@@ -1,4 +1,4 @@
-import { PlatformReport } from '../models/platform/platform-report.model';
+import { PlatformReport } from '../models/platform/v1/platform-report.model';
 
 export const platformReportData: PlatformReport = {
   amount: 0,

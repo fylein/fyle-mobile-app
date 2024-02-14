@@ -1,4 +1,4 @@
-import { ReportApprovals } from './report-approvals.model';
+import { ReportApprovals } from '../report-approvals.model';
 
 export interface PlatformReport {
   id: string;
