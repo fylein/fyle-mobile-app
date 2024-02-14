@@ -93,7 +93,7 @@ export const virtualCard: PlatformCorporateCard = {
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
   virtual_card_id: 'vc1234',
-  virtual_card_state: CardStatus.ACTIVE,
+  virtual_card_state: CardStatus.PREACTIVE,
 };
 
 export const bankFeedCard: PlatformCorporateCard = {

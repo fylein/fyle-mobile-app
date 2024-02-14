@@ -6,12 +6,12 @@ export const virtualCardDetails: PlatformCorporateCardDetail[] = [
   {
     card: virtualCard,
     stats: {
-      totalDraftTxns: 6,
-      totalDraftValue: 937.2,
-      totalCompleteTxns: 6,
-      totalCompleteExpensesValue: 937.2,
-      totalTxnsCount: 12,
-      totalAmountValue: 1874.4,
+      totalDraftTxns: 0,
+      totalDraftValue: 0,
+      totalCompleteTxns: 0,
+      totalCompleteExpensesValue: 0,
+      totalTxnsCount: 0,
+      totalAmountValue: 0,
     },
   },
 ];

@@ -76,7 +76,7 @@ export class CardStatsComponent implements OnInit {
     return cardDetails.filter((cardDetail) =>
       cardDetail.card.virtual_card_id
         ? cardDetail.virtualCardDetail &&
-          (cardDetail.stats?.totalTxnsCount > 0 ||
+          (cardDetail.stats.totalTxnsCount > 0 ||
             cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
             cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
         : true

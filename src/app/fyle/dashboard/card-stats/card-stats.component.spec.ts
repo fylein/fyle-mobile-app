@@ -20,12 +20,7 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import { emptyCCCStats, mastercardCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
 import { mastercardRTFCard, statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { By } from '@angular/platform-browser';
-import {
-  cardDetailsRes,
-  statementUploadedCardDetail,
-  virtualCardDetails,
-  virtualCardDetailsCombined,
-} from 'src/app/core/mock-data/platform-corporate-card-detail.data';
+import { cardDetailsRes, virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
