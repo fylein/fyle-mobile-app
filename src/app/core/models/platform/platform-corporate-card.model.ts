@@ -21,4 +21,6 @@ export interface PlatformCorporateCard {
   updated_at: string;
   user_id: string;
   verification_status: string;
+  virtual_card_id?: string;
+  virtual_card_state?: string;
 }

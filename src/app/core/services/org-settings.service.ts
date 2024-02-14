@@ -406,6 +406,11 @@ export class OrgSettingsService {
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
       mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: {
+        allowed: incoming?.amex_feed_enrollment_settings?.allowed,
+        enabled: incoming?.amex_feed_enrollment_settings?.enabled,
+        virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -554,6 +559,7 @@ export class OrgSettingsService {
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
       simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
       mobile_app_my_expenses_beta_enabled: outgoing?.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: outgoing?.amex_feed_enrollment_settings,
     };
   }
 }
