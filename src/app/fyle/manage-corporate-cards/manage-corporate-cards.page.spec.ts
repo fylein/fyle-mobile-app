@@ -6,6 +6,7 @@ import {
   IonicModule,
   PopoverController,
   RefresherCustomEvent,
+  SegmentCustomEvent,
 } from '@ionic/angular';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
@@ -21,6 +22,7 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import {
   mastercardRTFCard,
   statementUploadedCard,
+  virtualCard,
   visaRTFCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { Component, Input } from '@angular/core';
@@ -35,6 +37,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-trackers.data';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { Virtual } from 'swiper';
+import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
+import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 
 @Component({
   selector: 'app-corporate-card',
@@ -140,7 +145,7 @@ describe('ManageCorporateCardsPage', () => {
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.unenroll.and.returnValue(of(null));
-
+    component.isVirtualCardsEnabled$ = of({ enabled: true });
     spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
     fixture.detectChanges();
@@ -194,6 +199,40 @@ describe('ManageCorporateCardsPage', () => {
     backButton.click();
 
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_profile']);
+  });
+
+  describe('segmentChanged():', () => {
+    it('should show Virtual Card page', () => {
+      component.ionViewWillEnter();
+      component.segmentChanged({
+        detail: {
+          value: '1',
+        },
+      } as SegmentCustomEvent);
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.VIRTUAL_CARDS);
+    });
+    it('should show Corporate Card page', () => {
+      component.segmentChanged({
+        detail: {
+          value: '0',
+        },
+      } as SegmentCustomEvent);
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.CORPORATE_CARDS);
+    });
+  });
+
+  it('should load virtual card details when virtualCardDetails$ has enabled as true', () => {
+    // Mock responses for service methods
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([virtualCard]));
+    component.isVirtualCardsEnabled$ = of({ enabled: true });
+
+    virtualCardsService.getCardDetailsInSerial.and.returnValue(of(virtualCardCombinedResponse));
+
+    component.ionViewWillEnter();
+    component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
+      expect(virtualCardDetailsRes).toBeDefined();
+      console.log(virtualCardDetailsRes);
+    });
   });
 
   describe('add card flow', () => {

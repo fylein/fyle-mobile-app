@@ -58,7 +58,7 @@ export class ManageCorporateCardsPage {
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
-    if (event?.detail?.value) {
+    if (event.detail.value) {
       this.segmentValue = parseInt(event.detail.value, 10);
     }
   }
@@ -91,7 +91,7 @@ export class ManageCorporateCardsPage {
     );
 
     this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
-      if (isVirtualCardsEnabled) {
+      if (isVirtualCardsEnabled.enabled) {
         this.virtualCardDetails$ = this.corporateCards$.pipe(
           switchMap((corporateCards) => {
             const virtualCardIds = corporateCards
