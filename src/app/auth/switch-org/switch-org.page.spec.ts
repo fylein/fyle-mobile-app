@@ -410,7 +410,7 @@ describe('SwitchOrgPage', () => {
     const msg = 'message';
     const props = {
       data: {
-        icon: 'tick-square-filled',
+        icon: 'check-square-fill',
         showCloseButton: true,
         message: msg,
       },

@@ -782,7 +782,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense automatically merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -802,7 +802,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: '2 expenses merged to this expense',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -822,7 +822,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -902,7 +902,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense removed',
-      icon: 'fy-delete',
+      icon: 'bin',
     },
   },
   {
@@ -942,7 +942,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
   {
@@ -962,7 +962,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Unflagged',
-      icon: 'flag',
+      icon: 'flag-outline',
     },
   },
   {
@@ -1002,7 +1002,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Verified',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1062,7 +1062,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Approved',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1102,7 +1102,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Paid',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1162,7 +1162,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policies Ran Successfully',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1700,7 +1700,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
   },
@@ -1791,7 +1791,7 @@ export const eStatusWithReimbursible = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
   },
@@ -2097,7 +2097,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     show_dt: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
 ];

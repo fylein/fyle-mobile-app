@@ -159,12 +159,12 @@ export class ExpensesCardComponent implements OnInit {
     if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
       this.receiptIcon = 'assets/svg/mileage.svg';
     } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
-      this.receiptIcon = 'assets/svg/fy-calendar.svg';
+      this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
         this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
-          this.receiptIcon = 'assets/svg/fy-expense.svg';
+          this.receiptIcon = 'assets/svg/list.svg';
         }
       } else {
         this.isReceiptPresent = true;
@@ -314,9 +314,9 @@ export class ExpensesCardComponent implements OnInit {
   setOtherData(): void {
     if (this.expense.source_account_type === AccountType.CCC) {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
-        this.paymentModeIcon = 'fy-matched';
+        this.paymentModeIcon = 'card';
       } else {
-        this.paymentModeIcon = 'fy-unmatched';
+        this.paymentModeIcon = 'card';
       }
     } else {
       if (!this.expense.tx_skip_reimbursement) {

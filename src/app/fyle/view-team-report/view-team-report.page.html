@@ -87,10 +87,7 @@
             </ion-col>
             <ion-col size="4">
               <div class="view-reports--view-info" (click)="openViewReportInfoModal()">
-                <ion-icon
-                  class="view-reports--view-info__icon"
-                  src="../../../assets/svg/fy-info-gradient.svg"
-                ></ion-icon>
+                <ion-icon class="view-reports--view-info__icon" src="../../../assets/svg/info-gradient.svg"></ion-icon>
                 <span class="view-reports--view-info__content">View Info</span>
               </div>
             </ion-col>
@@ -163,17 +160,17 @@
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports-expense-card-block">
-              <div *ngFor="let etxn of etxns$|async as list; let i = index;">
-                <app-expense-card
-                  [expense]="etxn"
-                  [etxnIndex]="i"
-                  [previousExpenseTxnDate]="list[i-1]?.tx_txn_dt"
-                  [previousExpenseCreatedAt]="list[i-1]?.tx_created_at"
+              <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                <app-expense-card-v2
+                  [expense]="expense"
+                  [expenseIndex]="i"
+                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
                   (goToTransaction)="goToTransaction($event)"
                   [isFromReports]="true"
                   [isFromViewReports]="true"
                 >
-                </app-expense-card>
+                </app-expense-card-v2>
               </div>
             </div>
             <ng-template #ExpensesLoader>
@@ -306,7 +303,7 @@
         <ion-icon
           (click)="toggleTooltip()"
           class="view-reports--icon-close"
-          src="../../../../assets/svg/fy-close.svg"
+          src="../../../../assets/svg/cross.svg"
           slot="icon-only"
         ></ion-icon>
       </div>

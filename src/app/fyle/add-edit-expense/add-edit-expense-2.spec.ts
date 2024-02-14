@@ -93,6 +93,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseDuplicateSet2 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { cloneDeep } from 'lodash';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -459,9 +460,7 @@ export function TestCases2(getTestBed) {
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
             unflattenedTxnWithExtractedData.tx.extracted_data.category
           );
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(
-            new Date(unflattenedTxnWithExtractedData.tx.extracted_data.date)
-          );
+          expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
           done();
         });
@@ -484,7 +483,26 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(unflattenedTxnWithExtractedData2);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          expect(dateService.getUTCDate).not.toHaveBeenCalled();
+          done();
+        });
+      });
+
+      it('should update txn date with extracted date if txn date is not defined in original expense', (done) => {
+        const mockedTxn = cloneDeep(unflattenedTxnWithExtractedData2);
+        const extractedDate = new Date('2023-01-24');
+
+        mockedTxn.tx.txn_dt = null;
+        mockedTxn.tx.extracted_data.invoice_dt = null;
+        mockedTxn.tx.extracted_data.date = extractedDate;
+
+        transactionService.getETxnUnflattened.and.returnValue(of(mockedTxn));
+        dateService.getUTCDate.and.returnValue(extractedDate);
+
+        component.getEditExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(mockedTxn);
+          expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
+          expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
           done();
         });
       });
@@ -1574,7 +1592,7 @@ export function TestCases2(getTestBed) {
     it('showSnackBarToast(): should show snackbar with relevant properties', () => {
       const properties = {
         data: {
-          icon: 'tick-square-filled',
+          icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Message',
         },

@@ -39,6 +39,14 @@
     color: $red;
   }
 
+  &--merge {
+    color: $brand-primary;
+  }
+
+  &--success {
+    color: $green !important;
+  }
+
   &--timestamp {
     margin: 0 0 8px 20px;
     color: rgba(44, 48, 78, 0.7);
@@ -70,5 +78,13 @@
 
   &--card-filled {
     color: $green;
+  }
+
+  &--flagged {
+    color: $red;
+  }
+
+  &--unflagged {
+    color: $grey-light;
   }
 }

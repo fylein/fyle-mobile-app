@@ -2,7 +2,7 @@ import { FinalExpensePolicyState } from './platform-final-expense-policy-state.m
 import { IndividualExpensePolicyState } from './platform-individual-expense-policy-state.model';
 
 export interface ExpensePolicy {
-  data: {
+  data?: {
     individual_desired_states: IndividualExpensePolicyState[];
     final_desired_state: FinalExpensePolicyState;
   };

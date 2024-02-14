@@ -1,10 +1,10 @@
 <div *ngIf="showHeader">
-  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon *ngIf="showDragBar" class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <div class="text-center critical-policy-violation--toolbar fy-modal-toolbar">
     <div>
       <div class="critical-policy-violation--toolbar__title">
         <span class="critical-policy-violation--toolbar__close-icon" *ngIf="showCloseIcon" slot="start">
-          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+          <mat-icon (click)="cancel()" class="fy-icon-close" svgIcon="cross"></mat-icon>
         </span>
         Expense Blocked
       </div>
@@ -12,7 +12,7 @@
   </div>
 </div>
 
-<div class="critical-policy-violation--content-section">
+<div *ngIf="!isSplitBlocked" class="critical-policy-violation--content-section">
   <div class="critical-policy-violation--content">
     <div class="critical-policy-violation--info">You cannot report this expense due to the following violation(s):</div>
     <div class="inner-content">
@@ -20,9 +20,45 @@
         <ng-container *ngFor="let violation of criticalViolationMessages">
           <app-policy-violation-rule [message]="violation" [violationType]="'critical'"></app-policy-violation-rule>
         </ng-container>
+        <app-fy-alert-info
+          *ngIf="isReceiptMissing"
+          type="information"
+          message="Splitting this expense will create incomplete expenses since receipt is missing."
+        ></app-fy-alert-info>
       </ng-container>
     </div>
   </div>
+</div>
+
+<div *ngIf="isSplitBlocked" class="critical-policy-violation--content-section">
+  <ng-container *ngIf="isSplitMissingFields; else missingFieldsError">
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="danger"
+        message="Splitting this expense will create incomplete expenses."
+      ></app-fy-alert-info>
+    </div>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="information"
+        message="Please remove this expense from the report and split it from the Expenses section."
+      ></app-fy-alert-info>
+    </div>
+  </ng-container>
+  <ng-template #missingFieldsError>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="danger"
+        message="Splitting this expense will create blocked expenses."
+      ></app-fy-alert-info>
+    </div>
+    <div class="critical-policy-violation--content-split-info">
+      <app-fy-alert-info
+        type="information"
+        message="Please remove this expense from the report and split it from the Expenses section."
+      ></app-fy-alert-info>
+    </div>
+  </ng-template>
 </div>
 
 <ion-footer *ngIf="showCTA">

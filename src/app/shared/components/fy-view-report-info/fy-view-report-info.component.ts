@@ -1,17 +1,17 @@
 import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { Expense } from 'src/app/core/models/expense.model';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
-import { TransactionService } from 'src/app/core/services/transaction.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -30,14 +30,14 @@ type PaymentMode = {
 };
 
 @Component({
-  selector: 'app-fy-view-report-info',
+  selector: 'app-fy-view-report-info-v2',
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
 export class FyViewReportInfoComponent implements OnInit {
   @Input() erpt$: Observable<ExtendedReport>;
 
-  @Input() etxns$: Observable<Expense[]>;
+  @Input() expenses$: Observable<Expense[]>;
 
   @Input() view: ExpenseView;
 
@@ -61,7 +61,7 @@ export class FyViewReportInfoComponent implements OnInit {
 
   constructor(
     private modalController: ModalController,
-    private transactionService: TransactionService,
+    private sharedExpensesService: SharedExpensesService,
     private datePipe: DatePipe,
     private orgUserSettingsService: OrgUserSettingsService,
     public platform: Platform,
@@ -93,8 +93,8 @@ export class FyViewReportInfoComponent implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    combineLatest([this.etxns$, this.erpt$, orgSettings$]).subscribe(([etxns, erpt, orgSettings]) => {
-      const paymentModeWiseData: PaymentModeSummary = this.transactionService.getPaymentModeWiseSummary(etxns);
+    combineLatest([this.expenses$, this.erpt$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
+      const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
         'Total Amount': erpt.rp_amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
@@ -104,9 +104,9 @@ export class FyViewReportInfoComponent implements OnInit {
       }
     });
 
-    this.etxns$.subscribe((etxns) => {
-      this.amountCurrencyWiseDetails = this.transactionService.getCurrenyWiseSummary(etxns);
-      this.isForeignCurrency = etxns.some((etxn) => !!etxn.tx_orig_currency);
+    this.expenses$.subscribe((expenses) => {
+      this.amountCurrencyWiseDetails = this.sharedExpensesService.getCurrenyWiseSummary(expenses);
+      this.isForeignCurrency = expenses.some((expense) => !!expense.foreign_currency);
     });
   }
 

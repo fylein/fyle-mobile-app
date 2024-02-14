@@ -13,7 +13,7 @@
         (click)="searchClick()"
         *ngIf="(linkedAccountsCount$ | async) !== 0"
       >
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button
         class="personal-cards--header-btn"
@@ -57,7 +57,7 @@
     <div class="expense-report-search personal-cards--simple-search-container">
       <mat-form-field appearance="outline" class="mat-form-field-no-padding personal-cards--simple-search">
         <div class="personal-cards--simple-search-block">
-          <mat-icon class="personal-cards--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <mat-icon class="personal-cards--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
@@ -75,7 +75,7 @@
             mat-icon-button
             matSuffix
           >
-            <mat-icon svgIcon="fy-clear"></mat-icon>
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         </div>
       </mat-form-field>

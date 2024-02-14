@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -8,17 +8,14 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
-import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { RefinerService } from 'src/app/core/services/refiner.service';
-import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { getCurrencySymbol } from '@angular/common';
 import * as dayjs from 'dayjs';
@@ -31,19 +28,23 @@ import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ShareReportComponent } from './share-report/share-report.component';
+import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
   styleUrls: ['./view-team-report.page.scss'],
 })
-export class ViewTeamReportPage implements OnInit {
+export class ViewTeamReportPage {
   @ViewChild('commentInput') commentInput: ElementRef;
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
   erpt$: Observable<ExtendedReport>;
 
-  etxns$: Observable<Expense[]>;
+  expenses$: Observable<Expense[]>;
 
   sharedWith$: Observable<any[]>;
 
@@ -103,9 +104,9 @@ export class ViewTeamReportPage implements OnInit {
 
   isCommentAdded: boolean;
 
-  etxnAmountSum$: Observable<any>;
+  expensesAmountSum$: Observable<any>;
 
-  reportEtxnIds: string[];
+  reportExpensesIds: string[];
 
   isExpensesLoading: boolean;
 
@@ -132,6 +133,7 @@ export class ViewTeamReportPage implements OnInit {
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
+    private expensesService: ExpensesService,
     private authService: AuthService,
     private loaderService: LoaderService,
     private router: Router,
@@ -148,8 +150,6 @@ export class ViewTeamReportPage implements OnInit {
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService
   ) {}
-
-  ngOnInit() {}
 
   ionViewWillLeave() {
     this.onPageExit.next(null);
@@ -170,31 +170,8 @@ export class ViewTeamReportPage implements OnInit {
     });
   }
 
-  getVendorName(etxn) {
-    const category = etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
-    let vendorName = etxn.tx_vendor || 'Expense';
-
-    if (category === 'mileage') {
-      vendorName = etxn.tx_distance;
-      vendorName += ' ' + etxn.tx_distance_unit;
-    } else if (category === 'per diem') {
-      vendorName = etxn.tx_num_days;
-      vendorName += ' Days';
-    }
-
-    return vendorName;
-  }
-
   getApproverEmails(reportApprovals) {
     return reportApprovals.map((approver) => approver.approver_email);
-  }
-
-  getShowViolation(etxn) {
-    return (
-      etxn.tx_id &&
-      (etxn.tx_manual_flag || etxn.tx_policy_flag) &&
-      !(typeof etxn.tx_policy_amount === 'number' && etxn.tx_policy_amount < 0.0001)
-    );
   }
 
   loadReports(): Observable<ExtendedReport> {
@@ -324,20 +301,14 @@ export class ViewTeamReportPage implements OnInit {
       )
     );
 
-    this.etxns$ = from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.reportService.getReportETxnc(this.activatedRoute.snapshot.params.id, eou.ou.id)),
-      map((etxns) =>
-        etxns.map((etxn) => {
-          etxn.vendor = this.getVendorName(etxn);
-          etxn.violation = this.getShowViolation(etxn);
-          return etxn;
-        })
-      ),
+    this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
     );
 
-    this.etxnAmountSum$ = this.etxns$.pipe(map((etxns) => etxns.reduce((acc, curr) => acc + curr.tx_amount, 0)));
+    this.expensesAmountSum$ = this.expenses$.pipe(
+      map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0))
+    );
 
     this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
 
@@ -346,15 +317,15 @@ export class ViewTeamReportPage implements OnInit {
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
     forkJoin({
-      etxns: this.etxns$,
+      expenses: this.expenses$,
       eou: this.eou$,
       approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe((res) => {
-      this.reportEtxnIds = res.etxns.map((etxn) => etxn.tx_id);
-      this.isSequentialApprovalEnabled = this.getApprovalSettings(res.orgSettings);
+    }).subscribe(({ expenses, eou, approvals, orgSettings }) => {
+      this.reportExpensesIds = expenses.map((expense) => expense.id);
+      this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
-        ? this.isUserActiveInCurrentSeqApprovalQueue(res.eou, res.approvals)
+        ? this.isUserActiveInCurrentSeqApprovalQueue(eou, approvals)
         : true;
       this.canShowTooltip = true;
     });
@@ -414,10 +385,12 @@ export class ViewTeamReportPage implements OnInit {
       this.toggleTooltip();
     } else {
       const erpt = await this.erpt$.pipe(take(1)).toPromise();
-      const etxns = await this.etxns$.toPromise();
+      const expenses = await this.expenses$.toPromise();
 
       const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
-      const flaggedExpensesCount = etxns.filter((expense) => expense.tx_policy_flag || expense.tx_manual_flag).length;
+      const flaggedExpensesCount = expenses.filter(
+        (expense) => expense.is_policy_flagged || expense.is_manually_flagged
+      ).length;
       const popover = await this.popoverController.create({
         componentProps: {
           flaggedExpensesCount,
@@ -455,8 +428,8 @@ export class ViewTeamReportPage implements OnInit {
     }
   }
 
-  goToTransaction({ etxn, etxnIndex }) {
-    const category = etxn && etxn.tx_org_category && etxn.tx_org_category.toLowerCase();
+  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }) {
+    const category = expense.category && expense.category.name.toLowerCase();
 
     let route: string;
     if (category === 'mileage') {
@@ -469,7 +442,12 @@ export class ViewTeamReportPage implements OnInit {
     this.trackingService.viewExpenseClicked({ view: ExpenseView.team, category });
     this.router.navigate([
       route,
-      { id: etxn.tx_id, txnIds: JSON.stringify(this.reportEtxnIds), activeIndex: etxnIndex, view: ExpenseView.team },
+      {
+        id: expense.id,
+        txnIds: JSON.stringify(this.reportExpensesIds),
+        activeIndex: expenseIndex,
+        view: ExpenseView.team,
+      },
     ]);
   }
 
@@ -535,7 +513,7 @@ export class ViewTeamReportPage implements OnInit {
       component: FyViewReportInfoComponent,
       componentProps: {
         erpt$: this.erpt$,
-        etxns$: this.etxns$,
+        expenses$: this.expenses$,
         view: ExpenseView.team,
       },
       ...this.modalProperties.getModalDefaultProperties(),

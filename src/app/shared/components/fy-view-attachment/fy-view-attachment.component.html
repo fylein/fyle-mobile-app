@@ -6,12 +6,12 @@
     </ion-title>
     <ion-buttons class="view-attachments--ion-buttons" slot="start">
       <ion-button (click)="onDoneClick()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="canEdit" class="view-attachments--ion-buttons" slot="end">
       <ion-button (click)="deleteAttachment()">
-        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="fy-delete"></mat-icon>
+        <mat-icon class="view-attachments--ion-buttons__delete" svgIcon="bin"></mat-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

@@ -62,11 +62,7 @@
                   i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)
                 "
               >
-                <mat-icon
-                  (click)="removeMileageLocation(i)"
-                  class="route-selector-modal--remove-stop"
-                  svgIcon="fy-delete"
-                >
+                <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="bin">
                 </mat-icon>
               </span>
               <span *ngIf="i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10">

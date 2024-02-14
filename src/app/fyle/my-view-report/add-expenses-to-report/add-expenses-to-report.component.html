@@ -1,5 +1,5 @@
 <ion-header mode="md">
-  <mat-icon class="fy-modal-top-bar" svgIcon="fy-rectangle"></mat-icon>
+  <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar mode="md" class="fy-modal-toolbar">
     <ion-title>
       <div *ngIf="selectedElements?.length === 0" class="report-list--title text-center">Add Expenses</div>
@@ -12,7 +12,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="close()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
@@ -25,7 +25,7 @@
 
 <ion-content>
   <div class="fy-modal">
-    <div *ngIf="unReportedEtxns?.length > 0" class="add-expenses-to-report--select-all-checkbox">
+    <div *ngIf="unreportedExpenses?.length > 0" class="add-expenses-to-report--select-all-checkbox">
       <mat-checkbox
         class="custom-mat-checkbox create-new-report--checkbox"
         [(ngModel)]="isSelectedAll"
@@ -36,21 +36,21 @@
       >
     </div>
 
-    <div *ngFor="let etxn of unReportedEtxns as list; let i = index">
-      <app-expense-card
-        [expense]="etxn"
-        [etxnIndex]="i"
-        [previousExpenseTxnDate]="list[i - 1]?.tx_txn_dt"
-        [previousExpenseCreatedAt]="list[i - 1]?.tx_created_at"
+    <div *ngFor="let expense of unreportedExpenses as list; let i = index">
+      <app-expense-card-v2
+        [expense]="expense"
+        [expenseIndex]="i"
+        [previousExpenseTxnDate]="list[i - 1]?.spent_at"
+        [previousExpenseCreatedAt]="list[i - 1]?.created_at"
         [isSelectionModeEnabled]="true"
         [selectedElements]="selectedElements"
-        (cardClickedForSelection)="toggleTransaction(etxn)"
+        (cardClickedForSelection)="toggleExpense(expense)"
         [isFromViewReports]="true"
       >
-      </app-expense-card>
+      </app-expense-card-v2>
     </div>
   </div>
-  <ng-container *ngIf="unReportedEtxns?.length === 0">
+  <ng-container *ngIf="unreportedExpenses?.length === 0">
     <div class="add-expenses-to-report--zero-state">
       <div class="text-center">
         <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
@@ -74,7 +74,7 @@
       <div class="fy-footer-cta-container">
         <ion-button
           class="fy-footer-cta fy-footer-cta--primary"
-          [disabled]="!(selectedTotalTxns > 0)"
+          [disabled]="!(selectedTotalExpenses > 0)"
           (click)="addExpensestoReport()"
         >
           Add to Report

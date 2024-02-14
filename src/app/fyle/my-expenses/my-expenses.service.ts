@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { cloneDeep } from 'lodash';
 import * as dayjs from 'dayjs';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -123,9 +122,8 @@ export class MyExpensesService {
   }
 
   generateDateFilterPills(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): FilterPill[] {
-    let filterPillsCopy = cloneDeep(filterPills);
     if (filter.date === DateFilters.thisWeek) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'this Week',
@@ -133,7 +131,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.thisMonth) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'this Month',
@@ -141,7 +139,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.all) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'All',
@@ -149,7 +147,7 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.lastMonth) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: 'Last Month',
@@ -157,38 +155,37 @@ export class MyExpensesService {
     }
 
     if (filter.date === DateFilters.custom) {
-      filterPillsCopy = this.generateCustomDatePill(filter, filterPillsCopy);
+      filterPills = this.generateCustomDatePill(filter, filterPills);
     }
 
-    return filterPillsCopy;
+    return filterPills;
   }
 
   generateCustomDatePill(filter: Partial<ExpenseFilters>, filterPills: FilterPill[]): FilterPill[] {
-    const filterPillsCopy = cloneDeep(filterPills);
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
     if (startDate && endDate) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: `${startDate} to ${endDate}`,
       });
     } else if (startDate) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: `>= ${startDate}`,
       });
     } else if (endDate) {
-      filterPillsCopy.push({
+      filterPills.push({
         label: 'Date',
         type: 'date',
         value: `<= ${endDate}`,
       });
     }
 
-    return filterPillsCopy;
+    return filterPills;
   }
 
   generateReceiptsAttachedFilterPills(filterPills: FilterPill[], filter: Partial<ExpenseFilters>): void {
