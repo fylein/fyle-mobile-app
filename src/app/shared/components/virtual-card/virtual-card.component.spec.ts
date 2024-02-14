@@ -76,7 +76,7 @@ describe('VirtualCardComponent', () => {
     );
   });
 
-  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+  it('copyToClipboard(): should copy cvv on cvv copy icon tap', () => {
     component.cvv = '1234';
     const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
     const tapSpy = spyOn(component, 'copyToClipboard');
@@ -86,14 +86,26 @@ describe('VirtualCardComponent', () => {
     expect(tapSpy).toHaveBeenCalledOnceWith(component.cvv);
   });
 
-  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
-    component.cvv = '1234';
-    component.showCvv = true;
-    const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
-    const hideCvvAndCopySpy = spyOn(component, 'hideCvvAndCopy');
-    cvvCopyIcon.dispatchEvent(new Event('pressup'));
+  describe('template', () => {
+    it('should hide cvv and call method to copy text to clipboard', () => {
+      component.cvv = '1234';
+      component.showCvv = true;
+      const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
+      const hideCvvAndCopySpy = spyOn(component, 'hideCvvAndCopy');
+      cvvCopyIcon.dispatchEvent(new Event('pressup'));
 
-    expect(hideCvvAndCopySpy).toHaveBeenCalledTimes(1);
+      expect(hideCvvAndCopySpy).toHaveBeenCalledTimes(1);
+    });
+
+    it('should hide cvv and call method to copy text to clipboard', () => {
+      component.cardNumber = '123451234512345';
+      component.showCardNumber = true;
+      const cardNumberCopyIcon = getElementBySelector(fixture, '.virtual-card__card-number__copy-icon');
+      const hideCardNumberAndCopy = spyOn(component, 'hideCardNumberAndCopy');
+      cardNumberCopyIcon.dispatchEvent(new Event('pressup'));
+
+      expect(hideCardNumberAndCopy).toHaveBeenCalledTimes(1);
+    });
   });
 
   it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
