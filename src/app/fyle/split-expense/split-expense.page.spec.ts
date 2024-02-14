@@ -168,6 +168,7 @@ import {
 } from 'src/app/core/mock-data/transformed-split-expense-missing-fields.data';
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
+import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -218,6 +219,7 @@ describe('SplitExpensePage', () => {
       'filteredPolicyViolations',
       'handlePolicyAndMissingFieldsCheck',
       'checkIfMissingFieldsExist',
+      'transformSplitTo',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
@@ -2290,6 +2292,7 @@ describe('SplitExpensePage', () => {
         .createSpy()
         .and.returnValue(throwError(() => new Error('Policy Violation checks were failed!')));
       spyOn(component, 'toastWithoutCTA');
+      splitExpenseService.transformSplitTo.and.returnValue(splitPayloadData1);
 
       try {
         component.saveV2();

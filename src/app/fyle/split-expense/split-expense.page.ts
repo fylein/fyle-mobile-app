@@ -836,6 +836,15 @@ export class SplitExpensePage {
             catchError((errResponse: HttpErrorResponse) => {
               const splitTrackingProps = this.getSplitExpensePoperties();
               splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
+
+              const fileIds = this.fileObjs?.map((file) => file.id);
+              splitTrackingProps['Split Payload'] = this.splitExpenseService.transformSplitTo(
+                this.formattedSplitExpense,
+                this.transaction,
+                fileIds,
+                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
+              );
+
               this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
               const message = 'We were unable to split your expense. Please try again later.';
