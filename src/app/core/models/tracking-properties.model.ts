@@ -3,6 +3,7 @@ import { Transaction } from './v1/transaction.model';
 import { ExpenseView } from './expense-view.enum';
 import { TaskFilters } from './task-filters.model';
 import { CardNetworkType } from '../enums/card-network-type';
+import { SplitPayload } from './platform/v1/split-payload.model';
 
 export interface TrackingMethods {
   identify<T, K>(data: T, property?: K): void;
@@ -39,8 +40,15 @@ export interface ExpenseProperties {
 }
 
 export interface SplittingExpenseProperties {
-  'Split Type': string;
+  Type: string;
   'Is Evenly Split': boolean;
+  Asset: string;
+  'Is part of report': boolean;
+  'Report ID': string;
+  'Expense State': string;
+  'User Role': string;
+  'Error Message'?: string;
+  'Split Payload'?: SplitPayload;
 }
 
 export interface PolicyCorrectionProperties {
