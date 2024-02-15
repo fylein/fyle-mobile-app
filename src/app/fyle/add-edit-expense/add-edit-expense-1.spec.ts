@@ -63,6 +63,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { reportData1 } from 'src/app/core/mock-data/report.data';
@@ -523,7 +524,7 @@ export function TestCases1(getTestBed) {
         component.isSplitExpensesPresent = true;
         component.isDraftExpenseEnabled = true;
         component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = apiExpenseRes;
+        component.alreadyApprovedExpenses = expenseResponseData;
         fixture.detectChanges();
 
         component.unmatchExpense({
