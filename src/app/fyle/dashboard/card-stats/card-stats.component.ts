@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { BehaviorSubject, Observable, concat, forkJoin, map, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay, switchMap } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -84,6 +84,8 @@ export class CardStatsComponent implements OnInit {
     );
   }
 
+  mapCardDetails(virtualCardDetails) {}
+
   init(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
@@ -148,30 +150,38 @@ export class CardStatsComponent implements OnInit {
       )
     );
 
-    this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
-      if (isVirtualCardsEnabled) {
-        this.virtualCardDetails$ = this.cardDetails$.pipe(
-          switchMap((cardDetails) => {
-            const virtualCardIds = cardDetails
-              .filter((cardDetail) => cardDetail.card.virtual_card_id)
-              .map((cardDetail) => cardDetail.card.virtual_card_id);
-            const virtualCardsParams: VirtualCardsCombinedRequest = {
-              virtualCardIds,
-              includeCurrentAmount: true,
-            };
-            return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams).pipe(
-              map((virtualCardsMap) => {
-                cardDetails.forEach((cardDetail) => {
-                  cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
-                });
-                cardDetails = this.filterVirtualCards(cardDetails);
-                return cardDetails;
-              })
-            );
-          })
-        );
-      }
-    });
+    this.virtualCardDetails$ = this.getVirtualCardDetails();
+
+    this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {});
+  }
+
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled),
+      switchMap((_) => this.cardDetails$),
+      map((cardDetails) => {
+        const virtualCardIds = cardDetails
+          .filter((cardDetail) => cardDetail.card.virtual_card_id)
+          .map((cardDetail) => cardDetail.card.virtual_card_id);
+        const virtualCardsParams: VirtualCardsCombinedRequest = {
+          virtualCardIds,
+          includeCurrentAmount: true,
+        };
+        return { virtualCardsParams, cardDetails };
+      }),
+      switchMap(({ virtualCardsParams, cardDetails }) => {
+        return this.virtualCardsService
+          .getCardDetailsInSerial(virtualCardsParams)
+          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
+      }),
+      map(({ virtualCardsMap, cardDetails }) => {
+        cardDetails.forEach((cardDetail) => {
+          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
+        });
+        cardDetails = this.filterVirtualCards(cardDetails);
+        return cardDetails;
+      })
+    );
   }
 
   openAddCorporateCardPopover(): void {
