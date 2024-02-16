@@ -90,6 +90,6 @@ export class VirtualCardsService {
     };
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<VirtualCard>>('/virtual_cards', data)
-      .pipe(map((response) => response.data[0]));
+      .pipe(map((response) => response.data?.[0]));
   }
 }
