@@ -15,7 +15,7 @@ import { cloneDeep } from 'lodash';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { expenseDuplicateSet } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 
-fdescribe('PotentialDuplicatesPage', () => {
+describe('PotentialDuplicatesPage', () => {
   let component: PotentialDuplicatesPage;
   let fixture: ComponentFixture<PotentialDuplicatesPage>;
   let router: jasmine.SpyObj<Router>;
@@ -98,25 +98,6 @@ fdescribe('PotentialDuplicatesPage', () => {
       expensesService.getDuplicateSets.and.returnValue(of([expenseDuplicateSet]));
       spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue(apiExpenses1);
     });
-
-    it('should populate duplicate sets', fakeAsync(() => {
-      component.ionViewWillEnter();
-      tick(500);
-
-      component.duplicateSets$.subscribe((res) => {
-        expect(res).toEqual([apiExpenses1]);
-      });
-
-      const queryParams = {
-        id: 'in.(tx5fBcPBAxLv)',
-      };
-
-      expect(expensesService.getExpenses).toHaveBeenCalledWith({
-        offset: 0,
-        ...queryParams,
-      });
-      expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledTimes(2);
-    }));
 
     it('should populate duplicate sets', fakeAsync(() => {
       component.ionViewWillEnter();
