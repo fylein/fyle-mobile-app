@@ -268,15 +268,6 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch potential duplicate tasks', (done) => {
-    setupData();
-    expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
-    tasksService.getPotentialDuplicatesTasks().subscribe((potentialDuplicateTasks) => {
-      expect(potentialDuplicateTasks).toEqual([potentailDuplicateTaskSample]);
-      done();
-    });
-  });
-
   it('should be able to fetch incomplete tasks', (done) => {
     expensesService.getExpenseStats
       .withArgs({
@@ -664,7 +655,7 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to handle null response from duplicate detection v2 duplicates sets call', (done) => {
+  it('should be able to handle null response from duplicates sets call', (done) => {
     setupData();
     expensesService.getDuplicateSets.and.returnValue(of(null));
     tasksService.getPotentialDuplicatesTasks().subscribe((tasks) => {
