@@ -23,7 +23,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -197,7 +196,6 @@ describe('AddEditMileagePage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const titleCasePipeSpy = jasmine.createSpyObj('TitleCasePipe', ['transform']);
-    const handleDuplicatesSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicatesByExpense']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', [
       'showInvalidPaymentModeToast',
       'checkIfPaymentModeConfigurationsIsEnabled',
@@ -390,10 +388,6 @@ describe('AddEditMileagePage', () => {
         {
           provide: TitleCasePipe,
           useValue: titleCasePipeSpy,
-        },
-        {
-          provide: HandleDuplicatesService,
-          useValue: handleDuplicatesSpy,
         },
         {
           provide: PaymentModesService,

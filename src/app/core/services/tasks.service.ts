@@ -12,13 +12,11 @@ import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
 import { UserEventService } from './user-event.service';
-import { HandleDuplicatesService } from './handle-duplicates.service';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { OrgSettingsService } from './org-settings.service';
 
 @Injectable({
   providedIn: 'root',
@@ -39,8 +37,6 @@ export class TasksService {
     private humanizeCurrency: HumanizeCurrencyPipe,
     private userEventService: UserEventService,
     private authService: AuthService,
-    private handleDuplicatesService: HandleDuplicatesService,
-    private orgSettingsService: OrgSettingsService,
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
@@ -497,31 +493,12 @@ export class TasksService {
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
-    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
-        )
-      );
-
-    return isDuplicateDetectionV2Enabled$.pipe(
-      switchMap((isDuplicateDetectionV2Enabled) => {
-        if (isDuplicateDetectionV2Enabled) {
-          return this.expensesService
-            .getDuplicateSets()
-            .pipe(
-              map((duplicateSets) => (duplicateSets?.length > 0 ? duplicateSets.map((value) => value.expense_ids) : []))
-            );
+    return this.expensesService.getDuplicateSets().pipe(
+      map((duplicateSets) => {
+        if (duplicateSets?.length > 0) {
+          return duplicateSets.map((value) => value.expense_ids);
         } else {
-          return this.handleDuplicatesService
-            .getDuplicateSets()
-            .pipe(
-              map((duplicateSets) =>
-                duplicateSets?.length > 0 ? duplicateSets.map((value) => value.transaction_ids) : []
-              )
-            );
+          return [];
         }
       }),
       map((duplicateSets) => this.mapPotentialDuplicatesTasks(duplicateSets))
