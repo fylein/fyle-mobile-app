@@ -124,8 +124,9 @@ export class ManageCorporateCardsPage {
         const virtualCardsParams: VirtualCardsCombinedRequest = {
           virtualCardIds,
         };
-        return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams);
-      })
+        return virtualCardsParams;
+      }),
+      switchMap((virtualCardParams) => this.virtualCardsService.getCardDetailsInSerial(virtualCardParams))
     );
   }
 
