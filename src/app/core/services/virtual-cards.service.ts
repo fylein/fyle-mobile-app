@@ -31,7 +31,7 @@ export class VirtualCardsService {
       );
   }
 
-  getCardDetails(
+  getCombinedCardDetails(
     virtualCardId: string,
     includeCurrentAmount?: boolean
   ): Observable<{
@@ -40,12 +40,16 @@ export class VirtualCardsService {
     currentAmount?: CardDetailsAmountResponse;
   }> {
     const requestParam: VirtualCardsRequest = { id: virtualCardId };
-    let virtualCardRequests = {
+    let virtualCardRequests: {
+      cardDetails: Observable<CardDetailsResponse>;
+      virtualCard: Observable<VirtualCard>;
+      currentAmount?: Observable<CardDetailsAmountResponse>;
+    } = {
       cardDetails: this.getCardDetailsById(requestParam),
       virtualCard: this.getVirtualCardById(requestParam),
     };
     if (includeCurrentAmount) {
-      virtualCardRequests['currentAmount'] = this.getCurrentAmountById(requestParam);
+      virtualCardRequests.currentAmount = this.getCurrentAmountById(requestParam);
     }
     return forkJoin(virtualCardRequests);
   }
@@ -55,7 +59,7 @@ export class VirtualCardsService {
   ): Observable<{ [id: string]: CardDetailsCombinedResponse }> {
     return from(virtualCardsCombinedRequestParams.virtualCardIds).pipe(
       concatMap((virtualCardId) =>
-        this.getCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
+        this.getCombinedCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
       ),
       reduce((acc: { [id: string]: CardDetailsCombinedResponse }, { cardDetails, virtualCard, currentAmount }) => {
         acc[virtualCard.id] = {
