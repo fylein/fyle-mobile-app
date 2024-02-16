@@ -83,7 +83,34 @@ export class CardStatsComponent implements OnInit {
     );
   }
 
-  mapCardDetails(virtualCardDetails) {}
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.cardDetails$),
+      map((cardDetails) => {
+        const virtualCardIds = cardDetails
+          .filter((cardDetail) => cardDetail.card.virtual_card_id)
+          .map((cardDetail) => cardDetail.card.virtual_card_id);
+        const virtualCardsParams: VirtualCardsCombinedRequest = {
+          virtualCardIds,
+          includeCurrentAmount: true,
+        };
+        return { virtualCardsParams, cardDetails };
+      }),
+      switchMap(({ virtualCardsParams, cardDetails }) => {
+        return this.virtualCardsService
+          .getCardDetailsInSerial(virtualCardsParams)
+          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
+      }),
+      map(({ virtualCardsMap, cardDetails }) => {
+        cardDetails.forEach((cardDetail) => {
+          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
+        });
+        cardDetails = this.filterVirtualCards(cardDetails);
+        return cardDetails;
+      })
+    );
+  }
 
   init(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -150,35 +177,6 @@ export class CardStatsComponent implements OnInit {
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
-  }
-
-  getVirtualCardDetails() {
-    return this.isVirtualCardsEnabled$.pipe(
-      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.cardDetails$),
-      map((cardDetails) => {
-        const virtualCardIds = cardDetails
-          .filter((cardDetail) => cardDetail.card.virtual_card_id)
-          .map((cardDetail) => cardDetail.card.virtual_card_id);
-        const virtualCardsParams: VirtualCardsCombinedRequest = {
-          virtualCardIds,
-          includeCurrentAmount: true,
-        };
-        return { virtualCardsParams, cardDetails };
-      }),
-      switchMap(({ virtualCardsParams, cardDetails }) => {
-        return this.virtualCardsService
-          .getCardDetailsInSerial(virtualCardsParams)
-          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
-      }),
-      map(({ virtualCardsMap, cardDetails }) => {
-        cardDetails.forEach((cardDetail) => {
-          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
-        });
-        cardDetails = this.filterVirtualCards(cardDetails);
-        return cardDetails;
-      })
-    );
   }
 
   openAddCorporateCardPopover(): void {
