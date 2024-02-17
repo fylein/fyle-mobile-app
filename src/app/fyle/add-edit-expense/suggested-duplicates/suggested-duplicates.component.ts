@@ -2,9 +2,8 @@ import { Component, Input } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
-import { Observable, map, noop, switchMap } from 'rxjs';
+import { Observable, map, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -22,7 +21,6 @@ export class SuggestedDuplicatesComponent {
 
   constructor(
     private modalController: ModalController,
-    private handleDuplicates: HandleDuplicatesService,
     private expensesService: ExpensesService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
@@ -43,24 +41,7 @@ export class SuggestedDuplicatesComponent {
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
-    const isDuplicateDetectionV2Enabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
-        )
-      );
-
-    return isDuplicateDetectionV2Enabled$.pipe(
-      switchMap((isDuplicateDetectionV2Enabled) => {
-        if (isDuplicateDetectionV2Enabled) {
-          return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
-        } else {
-          return this.handleDuplicates.dismissAll(duplicateExpenseIds, targetExpenseIds);
-        }
-      })
-    );
+    return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
   }
 
   dismissAll(): void {

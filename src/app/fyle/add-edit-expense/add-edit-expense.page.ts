@@ -93,7 +93,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -463,7 +462,6 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -4911,53 +4909,34 @@ export class AddEditExpensePage implements OnInit {
       return;
     }
 
-    this.orgSettingsService
-      .get()
+    this.expensesService
+      .getDuplicatesByExpense(expenseId)
       .pipe(
-        switchMap((orgSettings) => {
-          const isDuplicateDetectionV2Enabled =
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled;
+        map((platformDuplicateSets) =>
+          platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
+        ),
+        switchMap((transformedDuplicateSets) => {
+          const duplicateIds = transformedDuplicateSets
+            .map((value) => value.transaction_ids)
+            .reduce((acc, curVal) => acc.concat(curVal), []);
 
-          let duplicateExpenseService$: Observable<DuplicateSet[]>;
-
-          if (isDuplicateDetectionV2Enabled) {
-            duplicateExpenseService$ = this.expensesService.getDuplicatesByExpense(expenseId).pipe(
-              // this will be removed when expenses API is migrated to platform completely
-              map((platformDuplicateSets) =>
-                platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
-              )
+          if (duplicateIds.length > 0) {
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return transformedDuplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
+              })
             );
           } else {
-            duplicateExpenseService$ = this.handleDuplicates.getDuplicatesByExpense(expenseId);
+            return of([]);
           }
-
-          return duplicateExpenseService$.pipe(
-            switchMap((duplicateSets) => {
-              const duplicateIds = duplicateSets
-                .map((value) => value.transaction_ids)
-                .reduce((acc, curVal) => acc.concat(curVal), []);
-
-              if (duplicateIds.length > 0) {
-                const params = {
-                  tx_id: `in.(${duplicateIds.join(',')})`,
-                };
-                return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-                  map((expenses) => {
-                    const expensesArray = expenses as [];
-                    return duplicateSets.map((duplicateSet) =>
-                      this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                    );
-                  })
-                );
-              } else {
-                return of([]);
-              }
-            }),
-            catchError(
-              () => EMPTY // Return an empty observable in case of an error
-            )
-          );
-        })
+        }),
+        catchError(() => EMPTY) // Return an empty observable in case of an error
       )
       .subscribe((duplicateExpensesSet) => {
         this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];

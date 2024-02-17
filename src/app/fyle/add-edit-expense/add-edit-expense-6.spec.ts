@@ -47,7 +47,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -120,7 +119,6 @@ export function TestCases6(getTestBed) {
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -185,7 +183,6 @@ export function TestCases6(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
