@@ -38,7 +38,7 @@ describe('VirtualCardsService', () => {
     expect(virtualCardsService).toBeTruthy();
   });
 
-  it('getCardDetailsById(): should get virtual card details', (done) => {
+  it('getCardDetails(): should get virtual card details', (done) => {
     const params = {
       data: {
         id: 'vc1234',
@@ -51,14 +51,14 @@ describe('VirtualCardsService', () => {
     expectedResponse.data.expiry_date = new Date(expectedResponse.data.expiry_date);
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardDetailsResponse));
 
-    virtualCardsService.getCardDetailsById(virtualCardsRequest).subscribe((res) => {
+    virtualCardsService.getCardDetails(virtualCardsRequest).subscribe((res) => {
       expect(res).toEqual(expectedResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/show_card_details', params);
       done();
     });
   });
 
-  it('getCurrentAmountById(): should get virtual card current Amount', (done) => {
+  it('getCurrentAmount(): should get virtual card current Amount', (done) => {
     const params = {
       data: {
         id: 'vc1234',
@@ -69,7 +69,7 @@ describe('VirtualCardsService', () => {
     };
     spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardCurrentAmountResponse));
 
-    virtualCardsService.getCurrentAmountById(virtualCardsRequest).subscribe((res) => {
+    virtualCardsService.getCurrentAmount(virtualCardsRequest).subscribe((res) => {
       expect(res).toEqual(virtualCardCurrentAmountResponse.data);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/virtual_cards/get_current_amount', params);
       done();

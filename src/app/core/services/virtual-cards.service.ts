@@ -15,7 +15,7 @@ import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-re
 export class VirtualCardsService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  getCardDetailsById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
+  getCardDetails(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsResponse> {
     return this.spenderPlatformV1ApiService
       .post<{
         data: CardDetailsResponse;
@@ -31,7 +31,7 @@ export class VirtualCardsService {
       );
   }
 
-  getCardDetails(
+  getCombinedCardDetails(
     virtualCardId: string,
     includeCurrentAmount?: boolean
   ): Observable<{
@@ -40,12 +40,16 @@ export class VirtualCardsService {
     currentAmount?: CardDetailsAmountResponse;
   }> {
     const requestParam: VirtualCardsRequest = { id: virtualCardId };
-    let virtualCardRequests = {
-      cardDetails: this.getCardDetailsById(requestParam),
-      virtualCard: this.getVirtualCardById(requestParam),
+    let virtualCardRequests: {
+      cardDetails: Observable<CardDetailsResponse>;
+      virtualCard: Observable<VirtualCard>;
+      currentAmount?: Observable<CardDetailsAmountResponse>;
+    } = {
+      cardDetails: this.getCardDetails(requestParam),
+      virtualCard: this.getVirtualCard(requestParam),
     };
     if (includeCurrentAmount) {
-      virtualCardRequests['currentAmount'] = this.getCurrentAmountById(requestParam);
+      virtualCardRequests.currentAmount = this.getCurrentAmount(requestParam);
     }
     return forkJoin(virtualCardRequests);
   }
@@ -55,7 +59,7 @@ export class VirtualCardsService {
   ): Observable<{ [id: string]: CardDetailsCombinedResponse }> {
     return from(virtualCardsCombinedRequestParams.virtualCardIds).pipe(
       concatMap((virtualCardId) =>
-        this.getCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
+        this.getCombinedCardDetails(virtualCardId, virtualCardsCombinedRequestParams.includeCurrentAmount)
       ),
       reduce((acc: { [id: string]: CardDetailsCombinedResponse }, { cardDetails, virtualCard, currentAmount }) => {
         acc[virtualCard.id] = {
@@ -68,7 +72,7 @@ export class VirtualCardsService {
     );
   }
 
-  getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
+  getCurrentAmount(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {
     return this.spenderPlatformV1ApiService
       .post<{
         data: CardDetailsAmountResponse;
@@ -78,7 +82,7 @@ export class VirtualCardsService {
       .pipe(map((response) => response.data));
   }
 
-  getVirtualCardById(virtualCardRequestPayload: VirtualCardsRequest): Observable<VirtualCard> {
+  getVirtualCard(virtualCardRequestPayload: VirtualCardsRequest): Observable<VirtualCard> {
     const data = {
       params: {
         id: 'eq.' + virtualCardRequestPayload.id,
@@ -86,6 +90,6 @@ export class VirtualCardsService {
     };
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<VirtualCard>>('/virtual_cards', data)
-      .pipe(map((response) => response.data[0]));
+      .pipe(map((response) => response.data?.[0]));
   }
 }

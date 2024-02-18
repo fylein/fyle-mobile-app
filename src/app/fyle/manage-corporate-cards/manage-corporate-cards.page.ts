@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, filter, forkJoin, map, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -19,6 +19,7 @@ import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-seg
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardDetailsResponse } from 'src/app/core/models/card-details-response.model';
 import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
+import { CardDetailsCombinedResponse } from 'src/app/core/models/card-details-combined-response.model';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -27,7 +28,7 @@ import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-c
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
-  virtualCardDetails$: Observable<Record<string, CardDetailsResponse>>;
+  virtualCardDetails$: Observable<{ [id: string]: CardDetailsCombinedResponse }>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
@@ -90,21 +91,7 @@ export class ManageCorporateCardsPage {
       }))
     );
 
-    this.isVirtualCardsEnabled$.subscribe((isVirtualCardsEnabled) => {
-      if (isVirtualCardsEnabled.enabled) {
-        this.virtualCardDetails$ = this.corporateCards$.pipe(
-          switchMap((corporateCards) => {
-            const virtualCardIds = corporateCards
-              .filter((card) => card.virtual_card_id)
-              .map((card) => card.virtual_card_id);
-            const virtualCardsParams: VirtualCardsCombinedRequest = {
-              virtualCardIds,
-            };
-            return this.virtualCardsService.getCardDetailsInSerial(virtualCardsParams);
-          })
-        );
-      }
-    });
+    this.virtualCardDetails$ = this.getVirtualCardDetails();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
       map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
@@ -123,6 +110,23 @@ export class ManageCorporateCardsPage {
           orgSettings.bank_data_aggregation_settings.enabled &&
           orgUserSettings.bank_data_aggregation_settings.enabled
       )
+    );
+  }
+
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.corporateCards$),
+      map((corporateCards) => {
+        const virtualCardIds = corporateCards
+          .filter((card) => card.virtual_card_id)
+          .map((card) => card.virtual_card_id);
+        const virtualCardsParams: VirtualCardsCombinedRequest = {
+          virtualCardIds,
+        };
+        return virtualCardsParams;
+      }),
+      switchMap((virtualCardParams) => this.virtualCardsService.getCardDetailsInSerial(virtualCardParams))
     );
   }
 
