@@ -74,6 +74,23 @@ export class ManageCorporateCardsPage {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.corporateCards$),
+      map((corporateCards) => {
+        const virtualCardIds = corporateCards
+          .filter((card) => card.virtual_card_id)
+          .map((card) => card.virtual_card_id);
+        const virtualCardsParams: VirtualCardsCombinedRequest = {
+          virtualCardIds,
+        };
+        return virtualCardsParams;
+      }),
+      switchMap((virtualCardParams) => this.virtualCardsService.getCardDetailsInSerial(virtualCardParams))
+    );
+  }
+
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
       switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
@@ -109,23 +126,6 @@ export class ManageCorporateCardsPage {
           orgSettings.bank_data_aggregation_settings.enabled &&
           orgUserSettings.bank_data_aggregation_settings.enabled
       )
-    );
-  }
-
-  getVirtualCardDetails() {
-    return this.isVirtualCardsEnabled$.pipe(
-      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.corporateCards$),
-      map((corporateCards) => {
-        const virtualCardIds = corporateCards
-          .filter((card) => card.virtual_card_id)
-          .map((card) => card.virtual_card_id);
-        const virtualCardsParams: VirtualCardsCombinedRequest = {
-          virtualCardIds,
-        };
-        return virtualCardsParams;
-      }),
-      switchMap((virtualCardParams) => this.virtualCardsService.getCardDetailsInSerial(virtualCardParams))
     );
   }
 
