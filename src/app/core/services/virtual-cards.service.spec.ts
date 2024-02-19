@@ -87,7 +87,7 @@ describe('VirtualCardsService', () => {
     };
     spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardResponse));
 
-    virtualCardsService.getVirtualCardById(virtualCardsRequest).subscribe((res) => {
+    virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
       expect(res).toEqual(virtualCardResponse.data[0]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards', data);
       done();
@@ -113,23 +113,23 @@ describe('VirtualCardsService', () => {
       },
     };
 
-    spyOn(virtualCardsService, 'getCardDetails').and.returnValue(of(expectedCardDetailsResponse));
+    spyOn(virtualCardsService, 'getCombinedCardDetails').and.returnValue(of(expectedCardDetailsResponse));
     virtualCardsService.getCardDetailsInSerial(virtualCardsCombinedRequest).subscribe((res) => {
       expect(res).toEqual(expectedResponse);
     });
   });
 
-  it('getCardDetails(): should return expected response for Card Details related API calls', () => {
-    spyOn(virtualCardsService, 'getCardDetailsById').and.returnValue(of(virtualCardDetailsResponse.data));
-    spyOn(virtualCardsService, 'getCurrentAmountById').and.returnValue(of(virtualCardCurrentAmountResponse.data));
-    spyOn(virtualCardsService, 'getVirtualCardById').and.returnValue(of(virtualCardResponse.data[0]));
+  it('getCombinedCardDetails(): should return expected response for Card Details related API calls', () => {
+    spyOn(virtualCardsService, 'getCardDetails').and.returnValue(of(virtualCardDetailsResponse.data));
+    spyOn(virtualCardsService, 'getCurrentAmount').and.returnValue(of(virtualCardCurrentAmountResponse.data));
+    spyOn(virtualCardsService, 'getVirtualCard').and.returnValue(of(virtualCardResponse.data[0]));
 
     const expectedResponse = {
       cardDetails: virtualCardDetailsResponse.data,
       currentAmount: virtualCardCurrentAmountResponse.data,
       virtualCard: virtualCardResponse.data[0],
     };
-    virtualCardsService.getCardDetails('vcgNQmrZvGhL', true).subscribe((res) => {
+    virtualCardsService.getCombinedCardDetails('vcgNQmrZvGhL', true).subscribe((res) => {
       expect(res).toEqual(expectedResponse);
     });
   });
