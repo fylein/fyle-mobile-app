@@ -23,3 +23,9 @@ export const virtualCardResponse: PlatformApiResponse<VirtualCard> = {
   ],
   offset: 0,
 };
+
+export const virtualCardUndefinedResponse: PlatformApiResponse<VirtualCard> = {
+  count: 0,
+  data: undefined,
+  offset: 0,
+};

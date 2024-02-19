@@ -9,7 +9,7 @@ import {
 import { of } from 'rxjs';
 import { VirtualCardsRequest } from '../models/virtual-cards-request.model';
 import { CardDetailsResponse } from '../models/card-details-response.model';
-import { virtualCardResponse } from '../mock-data/virtual-card-response.data';
+import { virtualCardResponse, virtualCardUndefinedResponse } from '../mock-data/virtual-card-response.data';
 import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-request.model';
 import { cardDetailsRes } from '../mock-data/platform-corporate-card-detail.data';
 
@@ -76,21 +76,41 @@ describe('VirtualCardsService', () => {
     });
   });
 
-  it('getVirtualCardById(): should get virtual card', (done) => {
-    const virtualCardsRequest: VirtualCardsRequest = {
-      id: 'vc1234',
-    };
-    const data = {
-      params: {
-        id: 'eq.' + virtualCardsRequest.id,
-      },
-    };
-    spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardResponse));
+  describe('getVirtualCardById(): ', () => {
+    it('should get virtual card', (done) => {
+      const virtualCardsRequest: VirtualCardsRequest = {
+        id: 'vc1234',
+      };
+      const data = {
+        params: {
+          id: 'eq.' + virtualCardsRequest.id,
+        },
+      };
+      spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardResponse));
 
-    virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
-      expect(res).toEqual(virtualCardResponse.data[0]);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards', data);
-      done();
+      virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
+        expect(res).toEqual(virtualCardResponse.data[0]);
+        expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/virtual_cards', data);
+        done();
+      });
+    });
+
+    it('should return undefined response in case of undefined data', (done) => {
+      const virtualCardsRequest: VirtualCardsRequest = {
+        id: 'vc1234',
+      };
+      const data = {
+        params: {
+          id: 'eq.' + virtualCardsRequest.id,
+        },
+      };
+      spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardUndefinedResponse));
+
+      virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
+        console.log(res);
+        expect(res).toEqual(undefined);
+        done();
+      });
     });
   });
 
