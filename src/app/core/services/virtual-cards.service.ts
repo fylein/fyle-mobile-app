@@ -18,7 +18,13 @@ export class VirtualCardsService {
       }>('/virtual_cards/show_card_details', {
         data: virtualCardRequestPayload,
       })
-      .pipe(map((response) => response.data));
+      .pipe(
+        map((response) => {
+          const cardDetailsResponse = response.data;
+          cardDetailsResponse.expiry_date = new Date(cardDetailsResponse.expiry_date);
+          return cardDetailsResponse;
+        })
+      );
   }
 
   getCurrentAmountById(virtualCardRequestPayload: VirtualCardsRequest): Observable<CardDetailsAmountResponse> {

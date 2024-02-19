@@ -9,7 +9,14 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<div class="manage-corporate-cards__segment-container">
+  <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+    <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
+    <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+  </ion-segment>
+</div>
+
+<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -44,7 +51,7 @@
   </div>
 </ion-content>
 
-<ion-footer>
+<ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS">
   <ion-toolbar mode="md">
     <div class="manage-corporate-cards__footer-toolbar">
       <ion-button
