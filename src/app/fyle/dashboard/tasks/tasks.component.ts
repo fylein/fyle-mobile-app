@@ -585,14 +585,16 @@ export class TasksComponent implements OnInit {
   showOldReportsMatBottomSheet(): void {
     const readyToReportEtxns$ = from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-          tx_report_id: 'is.null',
+        this.expensesService.getAllExpenses({
+          queryParams: {
+            employee_id: 'eq.' + eou.ou.id,
+            state: ['in.(COMPLETE)'],
+            or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+            report_id: ['is.null'],
+          },
         })
       ),
-      map((expenses) => expenses.map((expenses) => expenses.tx_id))
+      map((expenses) => expenses.map((expenses) => expenses.id))
     );
 
     this.reportService
