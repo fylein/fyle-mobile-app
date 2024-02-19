@@ -1033,7 +1033,7 @@ export class TransactionService {
       tx_physical_bill: expense.is_physical_bill_submitted,
       tx_physical_bill_at: expense.physical_bill_submitted_at,
       source_account_id: expense.source_account_id,
-      source_account_type: expense.source_account?.type,
+      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
     return updatedExpense;
   }

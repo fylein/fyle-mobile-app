@@ -196,10 +196,7 @@ export class SplitExpenseService {
   ): Observable<PolicyViolationTxn> {
     return from(txnIds).pipe(
       concatMap((expenseId) => this.expensesService.getExpenseById(expenseId)),
-      concatMap((expense) => {
-        const transformedExpense = this.transactionService.transformRawExpense(expense);
-        return of(transformedExpense);
-      }),
+      map((expense) => this.transactionService.transformRawExpense(expense)),
       toArray(),
       switchMap((etxns) => this.executePolicyCheck(etxns, fileObjs, categoryList))
     );
