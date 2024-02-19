@@ -3,7 +3,7 @@ import { AbstractControl, FormBuilder, FormGroup, Validators } from '@angular/fo
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NavController } from '@ionic/angular';
-import { BehaviorSubject, Observable, forkJoin, noop, of } from 'rxjs';
+import { BehaviorSubject, Observable, forkJoin, noop } from 'rxjs';
 import { finalize, map, reduce, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { CategoryDependentFieldsFormValues } from 'src/app/core/models/category-dependent-fields-form-values.model';
 import { CategoryDependentFieldsOptions } from 'src/app/core/models/category-dependent-fields-options.model';
@@ -196,10 +196,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         },
       })
       .pipe(
-        switchMap((expenses) => {
-          const transformedExpenses = expenses.map((expense) => this.transcationService.transformRawExpense(expense));
-          return of(transformedExpenses);
-        }),
+        map((expenses) => expenses.map((expense) => this.transcationService.transformRawExpense(expense))),
         shareReplay(1)
       );
 
