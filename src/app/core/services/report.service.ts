@@ -624,22 +624,6 @@ export class ReportService {
     );
   }
 
-  getReportETxnc(rptId: string, orgUserId: string): Observable<Expense[]> {
-    const data: {
-      params: {
-        approver_id?: string;
-      };
-    } = {
-      params: {},
-    };
-
-    if (orgUserId) {
-      data.params.approver_id = orgUserId;
-    }
-
-    return this.apiService.get('/erpts/' + rptId + '/etxns', data);
-  }
-
   approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
     const params: { data: Pick<PlatformReport, 'id' | 'source' | 'purpose'> } = {
       data: {

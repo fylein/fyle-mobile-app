@@ -1388,19 +1388,3 @@ export const orgSettingsWoV2ExpensesPage: OrgSettings = {
   ...orgSettingsRes,
   mobile_app_my_expenses_beta_enabled: false,
 };
-
-export const orgSettingsWithDuplicateDetectionV2: OrgSettings = {
-  ...orgSettingsRes,
-  duplicate_detection_v2_settings: {
-    allowed: true,
-    enabled: true,
-  },
-};
-
-export const orgSettingsWoDuplicateDetectionV2: OrgSettings = {
-  ...orgSettingsRes,
-  duplicate_detection_v2_settings: {
-    allowed: false,
-    enabled: false,
-  },
-};
