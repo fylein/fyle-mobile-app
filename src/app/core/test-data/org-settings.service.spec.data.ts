@@ -876,6 +876,20 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   },
 };
 
+export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = {
+  ...orgSettingsPostData,
+  amex_feed_enrollment_settings: null,
+};
+
+export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = {
+  ...orgSettingsGetData,
+  amex_feed_enrollment_settings: {
+    allowed: undefined,
+    enabled: undefined,
+    virtual_card_settings_enabled: undefined,
+  },
+};
+
 export const outgoingTallyAccountObj: AccountingExportSettings = {
   allowed: undefined,
   tally_settings: {
