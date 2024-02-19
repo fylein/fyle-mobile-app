@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates.component';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
@@ -18,16 +17,11 @@ import { of } from 'rxjs';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { apiExpenses1, expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import {
-  orgSettingsWithDuplicateDetectionV2,
-  orgSettingsWoDuplicateDetectionV2,
-} from 'src/app/core/mock-data/org-settings.data';
 
 describe('SuggestedDuplicatesComponent', () => {
   let component: SuggestedDuplicatesComponent;
   let fixture: ComponentFixture<SuggestedDuplicatesComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let handleDuplicatesService: jasmine.SpyObj<HandleDuplicatesService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let snackbarPropertiesService: jasmine.SpyObj<SnackbarPropertiesService>;
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
@@ -36,7 +30,6 @@ describe('SuggestedDuplicatesComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const handleDuplicatesServiceSpy = jasmine.createSpyObj('HandleDuplicatesService', ['dismissAll']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenses', 'dismissDuplicates']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesServiceSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -56,7 +49,6 @@ describe('SuggestedDuplicatesComponent', () => {
       ],
       providers: [
         { provide: ModalController, useValue: modalControllerSpy },
-        { provide: HandleDuplicatesService, useValue: handleDuplicatesServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: MatSnackBar, useValue: matSnackBarSpy },
         { provide: SnackbarPropertiesService, useValue: snackbarPropertiesServiceSpy },
@@ -67,7 +59,6 @@ describe('SuggestedDuplicatesComponent', () => {
     }).compileComponents();
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    handleDuplicatesService = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     snackbarPropertiesService = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
@@ -79,7 +70,6 @@ describe('SuggestedDuplicatesComponent', () => {
 
     component.duplicateExpenseIDs = apiExpenses1.map((expense) => expense.id);
     component.duplicateExpenses = apiExpenses1;
-    orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
 
     fixture.detectChanges();
   }));
@@ -150,20 +140,6 @@ describe('SuggestedDuplicatesComponent', () => {
   });
 
   it('should dismiss all duplicate expenses and display success toast message', () => {
-    const dismissAllSpy = handleDuplicatesService.dismissAll.and.returnValue(of(null));
-    const showDismissedSuccessToastSpy = spyOn(component, 'showDismissedSuccessToast');
-    const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
-
-    component.dismissAll();
-    fixture.detectChanges();
-
-    expect(dismissAllSpy).toHaveBeenCalledOnceWith(['txDDLtRaflUW', 'tx5WDG9lxBDT'], ['txDDLtRaflUW', 'tx5WDG9lxBDT']);
-    expect(showDismissedSuccessToastSpy).toHaveBeenCalledTimes(1);
-    expect(modalControllerDismissSpy).toHaveBeenCalledOnceWith({ action: 'dismissed' });
-  });
-
-  it('should dismiss all duplicate expenses and display success toast message if duplicate detection v2 is enabled', () => {
-    orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
     const dismissDuplicatesSpy = expensesService.dismissDuplicates.and.returnValue(of(null));
     const showDismissedSuccessToastSpy = spyOn(component, 'showDismissedSuccessToast');
     const modalControllerDismissSpy = modalController.dismiss.and.returnValue(Promise.resolve(true));
