@@ -19,6 +19,7 @@ import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
 import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 import { UtilityService } from './utility.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 
 @Injectable({
   providedIn: 'root',
@@ -35,7 +36,8 @@ export class SplitExpenseService {
     private statusService: StatusService,
     private categoriesService: CategoriesService,
     private dataTransformService: DataTransformService,
-    private utilityService: UtilityService
+    private utilityService: UtilityService,
+    private expensesService: ExpensesService
   ) {}
 
   linkTxnWithFiles(data: Partial<FileTransaction>): Observable<FileObject[]> {
@@ -160,7 +162,7 @@ export class SplitExpenseService {
 
   mapViolationDataWithEtxn(
     policyViolation: PolicyViolationTxn,
-    etxns: Expense[],
+    etxns: Partial<Expense>[],
     categoryList: OrgCategory[]
   ): { [transactionID: string]: PolicyViolation } {
     etxns.forEach((etxn) => {
@@ -178,7 +180,7 @@ export class SplitExpenseService {
   }
 
   executePolicyCheck(
-    etxns: Expense[],
+    etxns: Partial<Expense>[],
     fileObjs: FileObject[],
     categoryList: OrgCategory[]
   ): Observable<PolicyViolationTxn> {
@@ -193,7 +195,11 @@ export class SplitExpenseService {
     categoryList: OrgCategory[]
   ): Observable<PolicyViolationTxn> {
     return from(txnIds).pipe(
-      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
+      concatMap((expenseId) => this.expensesService.getExpenseById(expenseId)),
+      concatMap((expense) => {
+        const transformedExpense = this.transactionService.transformRawExpense(expense);
+        return of(transformedExpense);
+      }),
       toArray(),
       switchMap((etxns) => this.executePolicyCheck(etxns, fileObjs, categoryList))
     );
@@ -209,12 +215,14 @@ export class SplitExpenseService {
     );
   }
 
-  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
+  runPolicyCheck(etxns: Partial<Expense>[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
     if (etxns?.length > 0) {
       const platformExpensesList: PublicPolicyExpense[] = [];
       etxns.forEach((etxn) => {
         // transformTo method requires unflattend transaction object
-        const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Expense>(etxn).tx;
+        const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Partial<Expense>>(
+          etxn
+        ).tx;
         platformExpense.num_files = fileObjs ? fileObjs.length : 0;
 
         // Since expense has already been created in split expense flow, taking user_amount here.
