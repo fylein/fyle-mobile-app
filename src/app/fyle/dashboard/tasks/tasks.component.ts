@@ -390,17 +390,17 @@ export class TasksComponent implements OnInit {
 
   onReviewExpensesTaskClick(): void {
     const queryParams = {
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
+      state: 'in.(DRAFT)',
+      report_id: 'is.null',
     };
     from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
       .pipe(
         switchMap(() =>
-          this.transactionService.getAllExpenses({
+          this.expensesService.getAllExpenses({
             queryParams,
           })
         ),
-        map((etxns) => etxns.map((etxn) => etxn.tx_id)),
+        map((expenses) => expenses.map((expense) => expense.id)),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];
           const allIds = selectedIds;

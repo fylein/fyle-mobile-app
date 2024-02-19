@@ -31,11 +31,10 @@ describe('TasksComponent', () => {
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'clearCache',
-      'getAllExpenses',
       'transformExpense',
       'getAllETxnc',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',

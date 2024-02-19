@@ -800,3 +800,9 @@ export const perDiemCategoryPlatformExpenseData: Expense = {
   ...platformExpenseData,
   category: { ...platformExpenseData.category, name: 'PER DIEM' },
 };
+
+export const expensesList: Expense[] = [
+  {
+    ...platformExpenseData,
+  },
+];

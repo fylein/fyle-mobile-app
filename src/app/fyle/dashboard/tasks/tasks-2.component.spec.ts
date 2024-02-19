@@ -32,6 +32,7 @@ import { cloneDeep } from 'lodash';
 import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 import { singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
+  expensesList,
   mileageCategoryPlatformExpenseData,
   perDiemCategoryPlatformExpenseData,
   platformExpenseData,
@@ -194,7 +195,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        transactionService.getAllExpenses.and.returnValue(of(cloneDeep(expenseList)));
+        expensesService.getAllExpenses.and.returnValue(of(cloneDeep(expensesList)));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
       });
@@ -206,20 +207,20 @@ export function TestCases2(getTestBed) {
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
-        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           queryParams: {
-            tx_state: 'in.(DRAFT)',
-            tx_report_id: 'is.null',
+            state: 'in.(DRAFT)',
+            report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(mileageCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
         ]);
       }));
 
@@ -229,20 +230,20 @@ export function TestCases2(getTestBed) {
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
-        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           queryParams: {
-            tx_state: 'in.(DRAFT)',
-            tx_report_id: 'is.null',
+            state: 'in.(DRAFT)',
+            report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(perDiemCategoryPlatformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_per_diem',
-          { id: perDiemCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          { id: perDiemCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
         ]);
       }));
 
@@ -252,20 +253,20 @@ export function TestCases2(getTestBed) {
         component.onReviewExpensesTaskClick();
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('please wait while we load your expenses', 3000);
-        expect(transactionService.getAllExpenses).toHaveBeenCalledOnceWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           queryParams: {
-            tx_state: 'in.(DRAFT)',
-            tx_report_id: 'is.null',
+            state: 'in.(DRAFT)',
+            report_id: 'is.null',
           },
         });
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseList[0].tx_id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expensesList[0].id);
         expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'add_edit_mileage',
-          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txBphgnCHHeO"]', activeIndex: 0 },
+          { id: mileageCategoryTransformedExpenseData.tx.id, txnIds: '["txvslh8aQMbu"]', activeIndex: 0 },
         ]);
       }));
     });
