@@ -61,15 +61,15 @@ export class MergeExpensesService {
     });
   }
 
-  isAllAdvanceExpenses(expenses: Expense[]): boolean {
+  isAllAdvanceExpenses(expenses: Partial<Expense>[]): boolean {
     return expenses.every((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
-  checkIfAdvanceExpensePresent(expenses: Expense[]): Expense[] {
+  checkIfAdvanceExpensePresent(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense?.source_account_type === AccountType.ADVANCE);
   }
 
-  setDefaultExpenseToKeep(expenses: Expense[]): ExpensesInfo {
+  setDefaultExpenseToKeep(expenses: Partial<Expense>[]): ExpensesInfo {
     const advanceExpenses = this.checkIfAdvanceExpensePresent(expenses);
     const reportedAndAboveExpenses = expenses.filter((expense) =>
       ['APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
@@ -89,7 +89,7 @@ export class MergeExpensesService {
     return expensesInfo;
   }
 
-  isApprovedAndAbove(expenses: Expense[]): Expense[] {
+  isApprovedAndAbove(expenses: Partial<Expense>[]): Partial<Expense>[] {
     const approvedAndAboveExpenses = expenses.filter((expense) =>
       ['APPROVED', 'PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].includes(expense.tx_state)
     );
@@ -100,7 +100,7 @@ export class MergeExpensesService {
     return expensesInfo.defaultExpenses?.length === 1 && expensesInfo.isAdvancePresent;
   }
 
-  isReportedPresent(expenses: Expense[]): Expense[] {
+  isReportedPresent(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense.tx_state === 'APPROVER_PENDING');
   }
 
@@ -130,7 +130,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCorporateCardTransactions(expenses: Expense[]): Observable<CorporateCardExpense[] | []> {
+  getCorporateCardTransactions(expenses: Partial<Expense>[]): Observable<CorporateCardExpense[] | []> {
     return this.customInputsService.getAll(true).pipe(
       switchMap(() => {
         const CCCGroupIds = expenses.map((expense) => expense?.tx_corporate_credit_card_expense_group_id);
@@ -153,7 +153,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateExpenseToKeepOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
+  generateExpenseToKeepOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense) => {
         let vendorOrCategory = '';
@@ -189,7 +189,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateReceiptOptions(expenses: Expense[]): Observable<MergeExpensesOption<string>[]> {
+  generateReceiptOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOption<string>[]> {
     return from(expenses).pipe(
       map((expense, index) => ({
         label: `Receipt From Expense ${index + 1} `,
@@ -202,7 +202,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateAmountOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => {
         const isForeignAmountPresent = expense.tx_orig_currency && expense.tx_orig_amount;
@@ -242,7 +242,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateDateOfSpendOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateDateOfSpendOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_txn_dt !== null),
       map((expense) => ({
@@ -263,7 +263,7 @@ export class MergeExpensesService {
     );
   }
 
-  generatePaymentModeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generatePaymentModeOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: expense.source_account_type,
@@ -278,7 +278,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateVendorOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateVendorOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_vendor),
       map((expense) => ({
@@ -293,7 +293,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateProjectOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateProjectOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_project_id),
       map((expense) => ({
@@ -309,7 +309,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateCategoryOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateCategoryOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: '',
@@ -330,7 +330,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateTaxGroupOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateTaxGroupOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_tax_group_id !== null),
       map((expense) => ({
@@ -346,7 +346,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateTaxAmountOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateTaxAmountOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_tax !== null),
       map((expense) => ({
@@ -361,7 +361,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateCostCenterOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateCostCenterOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_cost_center_name !== null),
       map((expense) => ({
@@ -376,7 +376,7 @@ export class MergeExpensesService {
     );
   }
 
-  generatePurposeOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generatePurposeOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_purpose !== null),
       map((expense) => ({
@@ -391,7 +391,10 @@ export class MergeExpensesService {
     );
   }
 
-  generateLocationOptions(expenses: Expense[], locationIndex: number): Observable<MergeExpensesOptionsData<Location>> {
+  generateLocationOptions(
+    expenses: Partial<Expense>[],
+    locationIndex: number
+  ): Observable<MergeExpensesOptionsData<Location>> {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_locations[locationIndex]),
       map((expense) => ({
@@ -412,7 +415,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateOnwardDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateOnwardDateOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_from_dt !== null),
       map((expense) => ({
@@ -433,7 +436,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateReturnDateOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<Date>> {
+  generateReturnDateOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<Date>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_to_dt !== null),
       map((expense) => ({
@@ -454,7 +457,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateFlightJourneyTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateFlightJourneyTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_journey_travel_class !== null),
       map((expense) => ({
@@ -469,7 +472,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateFlightReturnTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateFlightReturnTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_return_travel_class !== null),
       map((expense) => ({
@@ -484,7 +487,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateTrainTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateTrainTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_train_travel_class !== null),
       map((expense) => ({
@@ -499,7 +502,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateBusTravelClassOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateBusTravelClassOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_bus_travel_class !== null),
       map((expense) => ({
@@ -514,7 +517,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateDistanceOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<number>> {
+  generateDistanceOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<number>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance !== null),
       map((expense) => ({
@@ -529,7 +532,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateDistanceUnitOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<string>> {
+  generateDistanceUnitOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<string>> {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance_unit !== null),
       map((expense) => ({
@@ -544,7 +547,7 @@ export class MergeExpensesService {
     );
   }
 
-  generateBillableOptions(expenses: Expense[]): Observable<MergeExpensesOptionsData<boolean>> {
+  generateBillableOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<boolean>> {
     return from(expenses).pipe(
       map((expense) => ({
         label: expense.tx_billable.toString(),
@@ -568,7 +571,7 @@ export class MergeExpensesService {
     );
   }
 
-  getCustomInputValues(expenses: Expense[]): Partial<CustomInput>[][] {
+  getCustomInputValues(expenses: Partial<Expense>[]): Partial<CustomInput>[][] {
     //Create a copy so that we don't modify the expense object
     const expensesCopy = cloneDeep(expenses);
     return expensesCopy
@@ -581,7 +584,7 @@ export class MergeExpensesService {
   }
 
   getDependentFieldsMapping(
-    expenses: Expense[],
+    expenses: Partial<Expense>[],
     dependentFields: TxnCustomProperties[],
     parentField: 'PROJECT' | 'COST_CENTER'
   ): {

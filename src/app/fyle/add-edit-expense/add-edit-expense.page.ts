@@ -4890,13 +4890,19 @@ export class AddEditExpensePage implements OnInit {
 
               if (duplicateIds.length > 0) {
                 const params = {
-                  tx_id: `in.(${duplicateIds.join(',')})`,
+                  offset: 0,
+                  limit: 100,
+                  queryParams: {
+                    id: `in.(${duplicateIds.join(',')})`,
+                  },
                 };
-                return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+                return this.expensesService.getAllExpenses(params).pipe(
                   map((expenses) => {
-                    const expensesArray = expenses as [];
+                    const transformedExpenses = expenses.map((expense) =>
+                      this.transactionService.transformRawExpense(expense)
+                    ) as [];
                     return duplicateSets.map((duplicateSet) =>
-                      this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                      this.addExpenseDetailsToDuplicateSets(duplicateSet, transformedExpenses)
                     );
                   })
                 );
