@@ -179,9 +179,8 @@ describe('CardStatsComponent', () => {
     it('should display the cards swiper when cards are present for the user', () => {
       component.ngOnInit();
       component.init();
-
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
-      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
+      
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       fixture.detectChanges();
 
@@ -202,8 +201,6 @@ describe('CardStatsComponent', () => {
     });
 
     it('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
-      // Mock responses for service methods
-
       component.isVirtualCardsEnabled$ = of({ enabled: true });
 
       virtualCardsService.getCardDetailsInSerial.and.returnValue(of(virtualCardCombinedResponse));
@@ -346,9 +343,7 @@ describe('CardStatsComponent', () => {
     it('should open the add corporate card modal on addCardClick event', fakeAsync(() => {
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
-      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
-
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
       fixture.detectChanges();
 
       const addCardComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
@@ -372,8 +367,7 @@ describe('CardStatsComponent', () => {
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
 
-      const mockIsVirtualCardsEnabledSubject = new BehaviorSubject<{ enabled: boolean }>({ enabled: false });
-      component.isVirtualCardsEnabled$ = mockIsVirtualCardsEnabledSubject.asObservable();
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       fixture.detectChanges();
 
