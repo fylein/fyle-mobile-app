@@ -29,7 +29,6 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { ShareReportComponent } from './share-report/share-report.component';
@@ -246,6 +245,7 @@ export class MyViewReportPage {
     const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
 
     this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
+
     this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
 
@@ -413,15 +413,8 @@ export class MyViewReportPage {
     });
   }
 
-  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }): void {
-    const canEdit = this.canEditExpense(expense.state);
-    let category: string;
-
-    if (expense.category) {
-      category = expense.category.name && expense.category.name.toLowerCase();
-    }
-
-    let route: string;
+  getTransactionRoute(category: string, canEdit: boolean): string {
+    let route = '';
 
     if (category === 'mileage') {
       route = '/enterprise/view_mileage';
@@ -439,29 +432,44 @@ export class MyViewReportPage {
         route = '/enterprise/add_edit_expense';
       }
     }
-    if (canEdit) {
-      this.erpt$.pipe(take(1)).subscribe((erpt) =>
+
+    return route;
+  }
+
+  goToTransaction({ expense, expenseIndex }: { expense: Expense; expenseIndex: number }): void {
+    this.canEdit$.subscribe((canEdit) => {
+      let category: string;
+
+      if (expense.category) {
+        category = expense.category.name && expense.category.name.toLowerCase();
+      }
+
+      const route = this.getTransactionRoute(category, canEdit);
+
+      if (canEdit) {
+        this.erpt$.pipe(take(1)).subscribe((erpt) =>
+          this.router.navigate([
+            route,
+            {
+              id: expense.id,
+              navigate_back: true,
+              remove_from_report: erpt.rp_num_transactions > 1,
+            },
+          ])
+        );
+      } else {
+        this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
         this.router.navigate([
           route,
           {
             id: expense.id,
-            navigate_back: true,
-            remove_from_report: erpt.rp_num_transactions > 1,
+            txnIds: JSON.stringify(this.reportExpenseIds),
+            activeIndex: expenseIndex,
+            view: ExpenseView.individual,
           },
-        ])
-      );
-    } else {
-      this.trackingService.viewExpenseClicked({ view: ExpenseView.individual, category });
-      this.router.navigate([
-        route,
-        {
-          id: expense.id,
-          txnIds: JSON.stringify(this.reportExpenseIds),
-          activeIndex: expenseIndex,
-          view: ExpenseView.individual,
-        },
-      ]);
-    }
+        ]);
+      }
+    });
   }
 
   async shareReport(): Promise<void> {
@@ -509,10 +517,6 @@ export class MyViewReportPage {
     await viewInfoModal?.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
-  }
-
-  canEditExpense(expenseState: ExpenseState): boolean {
-    return this.canEdit$ && ['DRAFT', 'COMPLETE', 'APPROVER_PENDING'].indexOf(expenseState) > -1;
   }
 
   segmentChanged(event: SegmentCustomEvent): void {
