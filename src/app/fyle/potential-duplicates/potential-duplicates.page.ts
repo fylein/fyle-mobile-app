@@ -4,12 +4,10 @@ import { Params, Router } from '@angular/router';
 import { BehaviorSubject, EMPTY, Observable, noop } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 type Expenses = Expense[];
 
@@ -31,28 +29,15 @@ export class PotentialDuplicatesPage {
 
   isLoading = true;
 
-  isDuplicateDetectionV2Enabled$: Observable<boolean>;
-
   constructor(
-    private handleDuplicates: HandleDuplicatesService,
     private expensesService: ExpensesService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService,
-    private orgSettingsService: OrgSettingsService
+    private trackingService: TrackingService
   ) {}
 
   ionViewWillEnter(): void {
-    this.isDuplicateDetectionV2Enabled$ = this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSettings) =>
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled
-        )
-      );
-
     this.selectedSet = 0;
 
     this.duplicateSets$ = this.loadData$.pipe(
@@ -98,19 +83,9 @@ export class PotentialDuplicatesPage {
   }
 
   getDuplicates(): Observable<string[][]> {
-    return this.isDuplicateDetectionV2Enabled$.pipe(
-      switchMap((isDuplicateDetectionV2Enabled) => {
-        if (isDuplicateDetectionV2Enabled) {
-          return this.expensesService
-            .getDuplicateSets()
-            .pipe(map((duplicateSets) => duplicateSets.map((value) => value.expense_ids)));
-        } else {
-          return this.handleDuplicates
-            .getDuplicateSets()
-            .pipe(map((duplicateSets) => duplicateSets.map((value) => value.transaction_ids)));
-        }
-      })
-    );
+    return this.expensesService
+      .getDuplicateSets()
+      .pipe(map((duplicateSets) => duplicateSets.map((value) => value.expense_ids)));
   }
 
   addExpenseDetailsToDuplicateSets(duplicateSet: string[], expensesArray: Expense[]): Expense[] {
@@ -128,15 +103,7 @@ export class PotentialDuplicatesPage {
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {
-    return this.isDuplicateDetectionV2Enabled$.pipe(
-      switchMap((isDuplicateDetectionV2Enabled) => {
-        if (isDuplicateDetectionV2Enabled) {
-          return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
-        } else {
-          return this.handleDuplicates.dismissAll(duplicateExpenseIds, targetExpenseIds);
-        }
-      })
-    );
+    return this.expensesService.dismissDuplicates(duplicateExpenseIds, targetExpenseIds);
   }
 
   dismiss(expense: Expense): void {
