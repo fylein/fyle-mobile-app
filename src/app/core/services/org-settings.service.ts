@@ -407,9 +407,9 @@ export class OrgSettingsService {
       },
       mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
       amex_feed_enrollment_settings: {
-        allowed: incoming.amex_feed_enrollment_settings?.allowed,
-        enabled: incoming.amex_feed_enrollment_settings?.enabled,
-        virtual_card_settings_enabled: incoming.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
+        allowed: incoming?.amex_feed_enrollment_settings?.allowed,
+        enabled: incoming?.amex_feed_enrollment_settings?.enabled,
+        virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
       },
     };
 
