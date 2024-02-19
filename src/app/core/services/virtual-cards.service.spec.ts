@@ -107,7 +107,6 @@ describe('VirtualCardsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardUndefinedResponse));
 
       virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
-        console.log(res);
         expect(res).toEqual(undefined);
         done();
       });
