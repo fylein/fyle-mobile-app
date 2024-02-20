@@ -580,6 +580,7 @@ export class SplitExpensePage {
   }
 
   showSuccessToast(): void {
+    this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
@@ -723,6 +724,8 @@ export class SplitExpensePage {
       .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         catchError((errResponse: HttpErrorResponse) => {
+          this.saveSplitExpenseLoading = false;
+
           const splitTrackingProps = this.getSplitExpensePoperties();
           splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
           this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
@@ -846,6 +849,8 @@ export class SplitExpensePage {
                 { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
               );
 
+              this.saveSplitExpenseLoading = false;
+
               this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
               const message = 'We were unable to split your expense. Please try again later.';
@@ -853,8 +858,6 @@ export class SplitExpensePage {
               return throwError(errResponse);
             }),
             finalize(() => {
-              this.saveSplitExpenseLoading = false;
-
               const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
             })
@@ -862,6 +865,9 @@ export class SplitExpensePage {
           .subscribe((response) => {
             if (response && response.action === 'continue') {
               this.handleSplitExpense(response.comments);
+            } else {
+              // If user clicks on cancel button, then stop the loader
+              this.saveSplitExpenseLoading = false;
             }
           });
       });
