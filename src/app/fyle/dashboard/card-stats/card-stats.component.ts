@@ -13,9 +13,7 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { toArray } from 'lodash';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
-import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',

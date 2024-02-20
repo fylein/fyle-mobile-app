@@ -17,7 +17,6 @@ import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 import { CardDetailsCombinedResponse } from 'src/app/core/models/card-details-combined-response.model';
 @Component({
   selector: 'app-manage-corporate-cards',
@@ -82,7 +81,7 @@ export class ManageCorporateCardsPage {
         const virtualCardIds = corporateCards
           .filter((card) => card.virtual_card_id)
           .map((card) => card.virtual_card_id);
-        const virtualCardsParams: VirtualCardsCombinedRequest = {
+        const virtualCardsParams = {
           virtualCardIds,
         };
         return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
