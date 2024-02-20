@@ -78,16 +78,15 @@ export class ManageCorporateCardsPage {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
       switchMap((_) => this.corporateCards$),
-      map((corporateCards) => {
+      switchMap((corporateCards) => {
         const virtualCardIds = corporateCards
           .filter((card) => card.virtual_card_id)
           .map((card) => card.virtual_card_id);
         const virtualCardsParams: VirtualCardsCombinedRequest = {
           virtualCardIds,
         };
-        return virtualCardsParams;
-      }),
-      switchMap((virtualCardParams) => this.virtualCardsService.getCardDetailsInSerial(virtualCardParams))
+        return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
+      })
     );
   }
 

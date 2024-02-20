@@ -72,41 +72,37 @@ export class CardStatsComponent implements OnInit {
     );
   }
 
-  filterVirtualCards(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
-    return cardDetails.filter((cardDetail) =>
-      cardDetail.card.virtual_card_id
-        ? cardDetail.virtualCardDetail &&
-          (cardDetail.stats?.totalTxnsCount > 0 ||
-            cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-            cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
-        : true
-    );
+  filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
+    return cardDetails.filter((cardDetail) => {
+      const virtualCardVisibility =
+        cardDetail.stats?.totalTxnsCount > 0 ||
+        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE;
+      return cardDetail.card.virtual_card_id ? virtualCardVisibility : true;
+    });
   }
 
   getVirtualCardDetails() {
     return this.isVirtualCardsEnabled$.pipe(
       filter((virtualCardEnabled) => virtualCardEnabled.enabled),
       switchMap((_) => this.cardDetails$),
-      map((cardDetails) => {
+      switchMap((cardDetails) => {
         const virtualCardIds = cardDetails
           .filter((cardDetail) => cardDetail.card.virtual_card_id)
           .map((cardDetail) => cardDetail.card.virtual_card_id);
-        const virtualCardsParams: VirtualCardsCombinedRequest = {
+        const virtualCardsParams = {
           virtualCardIds,
           includeCurrentAmount: true,
         };
-        return { virtualCardsParams, cardDetails };
-      }),
-      switchMap(({ virtualCardsParams, cardDetails }) => {
         return this.virtualCardsService
-          .getCardDetailsInSerial(virtualCardsParams)
+          .getCardDetailsMap(virtualCardsParams)
           .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
       }),
       map(({ virtualCardsMap, cardDetails }) => {
         cardDetails.forEach((cardDetail) => {
           cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
         });
-        cardDetails = this.filterVirtualCards(cardDetails);
+        cardDetails = this.filterVirtualCardsByStateAndAmount(cardDetails);
         return cardDetails;
       })
     );

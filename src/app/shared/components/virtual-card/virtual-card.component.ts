@@ -31,8 +31,6 @@ export class VirtualCardComponent implements OnInit {
 
   showSuccessStatusDot: boolean;
 
-  showErrorStatusDot: boolean;
-
   constructor(
     private clipboardService: ClipboardService,
     private matSnackBar: MatSnackBar,
@@ -52,8 +50,7 @@ export class VirtualCardComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.showErrorStatusDot = this.cardStatus !== CardStatus.ACTIVE && this.cardStatus !== CardStatus.PREACTIVE;
-    this.showSuccessStatusDot = this.cardStatus === CardStatus.ACTIVE || this.cardStatus === CardStatus.PREACTIVE;
+    this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
   }
 
   hideCvvAndCopy() {

@@ -2,7 +2,7 @@
 
 .virtual-card {
   height: 180px;
-  width: 300px;
+  width: 280px;
   border-radius: 16px;
   background: url('../../../../assets/images/amex-virtual-card-new-logo.png') no-repeat center;
   background-size: contain; // This is used to maintain the aspect ratio of the image
@@ -11,16 +11,6 @@
   flex-direction: column;
   justify-content: space-between;
 
-  &__nickname {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    font-weight: 500;
-    margin-top: 60px;
-    width: 100%;
-    font-size: 16px;
-    font-weight: 500;
-  }
   &__card-number {
     color: $pure-white;
     margin-top: 30px;
@@ -28,13 +18,14 @@
     flex-direction: column;
     align-items: center;
     width: 100%;
-    font-size: 16px;
     font-weight: 500;
+    font-size: 16px;
     &__nickname {
       display: flex;
       justify-content: space-between;
       width: 100%;
       font-weight: 500;
+      font-size: 12px;
     }
     &__card-number-container {
       display: flex;
@@ -54,10 +45,7 @@
     &__card-number-unmasked {
       width: 110px;
       display: flex;
-      gap: 12px;
-    }
-    &__unmasked-card-digits {
-      margin-left: 8px;
+      gap: 8px;
     }
   }
   &__logo-container {
@@ -68,7 +56,7 @@
     width: 44px;
   }
   &__vertical-divider {
-    background-color: $border-info-lighter;
+    background-color: $pure-white;
     height: 30px;
     width: 1px;
   }
@@ -81,7 +69,6 @@
     color: $pure-white;
     width: 100%;
     &__cvv-field {
-      width: 50px;
       &__cvv-value {
         display: flex;
       }
