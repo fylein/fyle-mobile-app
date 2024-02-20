@@ -13,7 +13,6 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { toArray } from 'lodash';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
@@ -72,18 +71,41 @@ export class CardStatsComponent implements OnInit {
     );
   }
 
-  filterVirtualCards(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
-    return cardDetails.filter((cardDetail) =>
-      cardDetail.card.virtual_card_id
-        ? cardDetail.virtualCardDetail &&
-          (cardDetail.stats.totalTxnsCount > 0 ||
-            cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
-            cardDetail.card.virtual_card_state === CardStatus.PREACTIVE)
-        : true
-    );
+  filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
+    return cardDetails.filter((cardDetail) => {
+      const virtualCardVisibility =
+        cardDetail.stats?.totalTxnsCount > 0 ||
+        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE;
+      return cardDetail.card.virtual_card_id ? virtualCardVisibility : true;
+    });
   }
 
-  mapCardDetails(virtualCardDetails) {}
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.cardDetails$),
+      switchMap((cardDetails) => {
+        const virtualCardIds = cardDetails
+          .filter((cardDetail) => cardDetail.card.virtual_card_id)
+          .map((cardDetail) => cardDetail.card.virtual_card_id);
+        const virtualCardsParams = {
+          virtualCardIds,
+          includeCurrentAmount: true,
+        };
+        return this.virtualCardsService
+          .getCardDetailsMap(virtualCardsParams)
+          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
+      }),
+      map(({ virtualCardsMap, cardDetails }) => {
+        cardDetails.forEach((cardDetail) => {
+          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
+        });
+        cardDetails = this.filterVirtualCardsByStateAndAmount(cardDetails);
+        return cardDetails;
+      })
+    );
+  }
 
   init(): void {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
@@ -150,35 +172,6 @@ export class CardStatsComponent implements OnInit {
     );
 
     this.virtualCardDetails$ = this.getVirtualCardDetails();
-  }
-
-  getVirtualCardDetails() {
-    return this.isVirtualCardsEnabled$.pipe(
-      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
-      switchMap((_) => this.cardDetails$),
-      map((cardDetails) => {
-        const virtualCardIds = cardDetails
-          .filter((cardDetail) => cardDetail.card.virtual_card_id)
-          .map((cardDetail) => cardDetail.card.virtual_card_id);
-        const virtualCardsParams: VirtualCardsCombinedRequest = {
-          virtualCardIds,
-          includeCurrentAmount: true,
-        };
-        return { virtualCardsParams, cardDetails };
-      }),
-      switchMap(({ virtualCardsParams, cardDetails }) => {
-        return this.virtualCardsService
-          .getCardDetailsInSerial(virtualCardsParams)
-          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
-      }),
-      map(({ virtualCardsMap, cardDetails }) => {
-        cardDetails.forEach((cardDetail) => {
-          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
-        });
-        cardDetails = this.filterVirtualCards(cardDetails);
-        return cardDetails;
-      })
-    );
   }
 
   openAddCorporateCardPopover(): void {

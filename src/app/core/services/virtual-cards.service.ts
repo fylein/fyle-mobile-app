@@ -54,7 +54,7 @@ export class VirtualCardsService {
     return forkJoin(virtualCardRequests);
   }
 
-  getCardDetailsInSerial(
+  getCardDetailsMap(
     virtualCardsCombinedRequestParams: VirtualCardsCombinedRequest
   ): Observable<{ [id: string]: CardDetailsCombinedResponse }> {
     return from(virtualCardsCombinedRequestParams.virtualCardIds).pipe(

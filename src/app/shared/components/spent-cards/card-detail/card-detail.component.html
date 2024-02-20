@@ -1,4 +1,4 @@
-<div class="stats--ccc-card-details">
+<div class="stats--ccc-card-details" [ngClass]="{ 'stats--ccc-virtual-card-details': cardDetail.card.virtual_card_id }">
   <app-corporate-card
     *ngIf="!cardDetail.card.virtual_card_id"
     [card]="cardDetail.card"
