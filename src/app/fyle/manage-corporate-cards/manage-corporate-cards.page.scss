@@ -6,7 +6,7 @@
   }
 
   &__segment-container {
-    padding: 20px 78px;
+    padding: 20px 15%;
     border-radius: 8px;
   }
 
@@ -41,6 +41,15 @@
   &__card {
     width: 100%;
     height: 162px;
+  }
+
+  &__virtual-cards {
+    width: 100%;
+    height: 100%;
+    &__virtual-card {
+      display: flex;
+      justify-content: center;
+    }
   }
 
   &__shimmer {

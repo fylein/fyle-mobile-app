@@ -10,22 +10,26 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
   templateUrl: './virtual-card.component.html',
   styleUrls: ['./virtual-card.component.scss'],
 })
-export class VirtualCardComponent {
-  @Input() cardNumber: string = '123451234512345';
+export class VirtualCardComponent implements OnInit {
+  @Input() cardNumber: string;
 
-  @Input() cvv: string = '1234';
+  @Input() cvv: string;
 
-  @Input() expiry: string = '2024-04-04';
+  @Input() expiry: string;
 
-  @Input() cardStatus: CardStatus = CardStatus.ACTIVE;
+  @Input() cardStatus: CardStatus;
 
-  @Input() availableAmount: number = 1000;
+  @Input() availableAmount?: number;
 
-  @Input() cardNickname: string = 'Nickname';
+  @Input() cardNickname: string;
+
+  CardStatus: typeof CardStatus = CardStatus;
 
   showCardNumber: boolean = false;
 
   showCvv: boolean = false;
+
+  showSuccessStatusDot: boolean;
 
   constructor(
     private clipboardService: ClipboardService,
@@ -43,6 +47,10 @@ export class VirtualCardComponent {
   async copyToClipboard(contentToCopy: string) {
     await this.clipboardService.writeString(contentToCopy);
     this.showToastMessage('Copied Successfully!');
+  }
+
+  ngOnInit(): void {
+    this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
   }
 
   hideCvvAndCopy() {

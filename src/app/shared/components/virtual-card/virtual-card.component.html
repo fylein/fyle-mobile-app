@@ -3,8 +3,14 @@
     <div class="virtual-card__card-number__nickname">
       {{ cardNickname }}
       <div class="virtual-card__status-pill">
-        <div class="virtual-card__status-pill__dot"></div>
-        <div>{{ cardStatus | titlecase }}</div>
+        <div
+          class="virtual-card__status-pill__dot"
+          [ngClass]="{
+            'virtual-card__status-pill__dot__success': showSuccessStatusDot,
+            'virtual-card__status-pill__dot__danger': !showSuccessStatusDot
+          }"
+        ></div>
+        <div>{{ cardStatus === CardStatus.PREACTIVE ? 'Pre-Active' : (cardStatus | titlecase) }}</div>
       </div>
     </div>
     <div class="virtual-card__card-number__card-number-container">
@@ -46,8 +52,8 @@
       <div class="virtual-card__card-fields__label-text">Expiry</div>
       <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
     </div>
-    <div class="virtual-card__vertical-divider"></div>
-    <div>
+    <div *ngIf="availableAmount !== undefined" class="virtual-card__vertical-divider"></div>
+    <div *ngIf="availableAmount !== undefined">
       <div class="virtual-card__card-fields__label-text">Available</div>
       <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
     </div>
