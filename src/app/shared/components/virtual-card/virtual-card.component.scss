@@ -29,16 +29,20 @@
       display: flex;
       align-items: center;
       width: 100%;
+      height: 20px;
       justify-content: flex-start;
     }
     &__card-number-mask {
+      width: 110px;
+      display: flex;
       letter-spacing: 2px;
       vertical-align: sub;
       padding-top: 3px;
       gap: 12px;
-      margin-right: 12px;
     }
     &__card-number-unmasked {
+      width: 110px;
+      display: flex;
       gap: 12px;
     }
     &__unmasked-card-digits {
@@ -68,6 +72,9 @@
     margin-bottom: 0;
     &__cvv-field {
       width: 50px;
+      &__cvv-value {
+        display: flex;
+      }
     }
     &__label-text {
       font-weight: 500;
@@ -75,7 +82,6 @@
     }
     &__cvv-mask {
       font-size: 14px;
-      line-height: 16px;
       width: 20px;
       height: 16px;
       display: flex;

@@ -13,7 +13,7 @@ import { CardStatus } from 'src/app/core/enums/card-status.enum';
 export class VirtualCardComponent {
   @Input() cardNumber: string = '123451234512345';
 
-  @Input() cvv: string = '123';
+  @Input() cvv: string = '1234';
 
   @Input() expiry: string = '2024-04-04';
 
