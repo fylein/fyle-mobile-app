@@ -166,22 +166,6 @@ describe('SplitExpenseService', () => {
     expect(splitExpenseService).toBeTruthy();
   });
 
-  it('getBase64Content(): should get base 64 string of txn files', (done) => {
-    fileService.base64Download.withArgs(splitExpFileObj[0].id).and.returnValue(of({ content: 'base64encodedcontent' }));
-
-    splitExpenseService.getBase64Content(splitExpFileObj).subscribe((res) => {
-      expect(res).toEqual([
-        {
-          id: 'fijCeF0G0jTl',
-          name: '000.jpeg',
-          content: 'base64encodedcontent',
-        },
-      ]);
-      expect(fileService.base64Download).toHaveBeenCalledOnceWith(splitExpFileObj[0].id);
-      done();
-    });
-  });
-
   it('postComment(): should post a comment', (done) => {
     statusService.post.and.returnValue(of(txnStatusData));
 

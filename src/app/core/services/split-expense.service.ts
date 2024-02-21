@@ -48,29 +48,6 @@ export class SplitExpenseService {
     private expensesService: ExpensesService
   ) {}
 
-  getBase64Content(fileObjs: FileObject[]): Observable<FileObject[]> {
-    const fileObservables: Observable<{ content: string }>[] = [];
-    const newFileObjs: FileObject[] = fileObjs.map((fileObj) => ({
-      id: fileObj.id,
-      name: fileObj.name,
-      content: '',
-    }));
-
-    newFileObjs.forEach((fileObj) => {
-      fileObservables.push(this.fileService.base64Download(fileObj.id));
-    });
-
-    return forkJoin(fileObservables).pipe(
-      map((data) => {
-        newFileObjs.forEach((fileObj: FileObject, index) => {
-          fileObj.content = data[index].content;
-        });
-
-        return newFileObjs;
-      })
-    );
-  }
-
   checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<PolicyViolationTxn> {
     const policyResponse = {};
 

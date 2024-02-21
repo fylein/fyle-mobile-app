@@ -210,7 +210,6 @@ describe('SplitExpensePage', () => {
       'createSplitTxns',
       'createSplitTxns',
       'formatPolicyViolations',
-      'getBase64Content',
       'splitExpense',
       'postSplitExpenseComments',
       'filteredMissingFieldsViolations',
