@@ -501,22 +501,6 @@ export class SplitExpensePage {
     );
   }
 
-  toastWithCTA(toastMessage: string): void {
-    const toastMessageData = {
-      message: toastMessage,
-      redirectionText: 'View Report',
-    };
-
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-      panelClass: ['msb-success-with-camera-icon'],
-    });
-    this.trackingService.showToastMessage({ ToastContent: toastMessage });
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-    });
-  }
-
   toastWithoutCTA(toastMessage: string, toastType: ToastType, panelClass: string): void {
     const message = toastMessage;
 

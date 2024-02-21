@@ -902,36 +902,6 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  it('toastWithCTA(): should display the toast with CTA', () => {
-    const toastMessage = 'Your expense was split successfully. All the split expenses were added to the report';
-    const toastMessageData = {
-      message: toastMessage,
-      redirectionText: 'View Report',
-    };
-
-    matSnackBar.openFromComponent.and.returnValue({
-      onAction: () => ({
-        subscribe: (callback: () => void) => {
-          callback();
-        },
-      }),
-    } as MatSnackBarRef<ToastMessageComponent>);
-
-    component.toastWithCTA(toastMessage);
-
-    expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
-      ...snackbarProperties.setSnackbarProperties('success', toastMessageData),
-      panelClass: ['msb-success-with-camera-icon'],
-    });
-    expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: toastMessage });
-    expect(router.navigate).toHaveBeenCalledOnceWith([
-      '/',
-      'enterprise',
-      'my_view_report',
-      { id: component.reportId, navigateBack: true },
-    ]);
-  });
-
   it('toastWithoutCTA(): should display the toast without CTA', () => {
     const message = 'Your expense was split successfully. All the split expenses were added to the report';
     const toastType = ToastType.SUCCESS;
