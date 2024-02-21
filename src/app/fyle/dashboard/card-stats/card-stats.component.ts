@@ -74,7 +74,7 @@ export class CardStatsComponent implements OnInit {
   filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
     return cardDetails.filter((cardDetail) => {
       const virtualCardVisibility =
-        cardDetail.stats?.totalTxnsCount > 0 ||
+        cardDetail.stats.totalTxnsCount > 0 ||
         cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
         cardDetail.card.virtual_card_state === CardStatus.PREACTIVE;
       return cardDetail.card.virtual_card_id ? virtualCardVisibility : true;
