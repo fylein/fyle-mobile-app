@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, toArray } from 'rxjs/operators';
-import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
-import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { TransactionStatus } from '../models/transaction-status.model';
@@ -15,7 +13,6 @@ import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
-import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 import { UtilityService } from './utility.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -76,55 +73,9 @@ export class SplitExpenseService {
     );
   }
 
-  formatPolicyViolations(violations: PolicyViolationTxn): {
-    [transactionID: string]: FormattedPolicyViolation;
-  } {
-    const formattedViolations = {};
-
-    for (const key of Object.keys(violations)) {
-      if (violations.hasOwnProperty(key)) {
-        // check for popup field for all polices
-        const rules = this.policyService.getPolicyRules(violations[key]);
-        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
-        const isCriticalPolicyViolation = criticalPolicyRules?.length > 0;
-
-        formattedViolations[key] = {
-          rules,
-          action: violations[key].data,
-          type: violations[key].type,
-          name: violations[key].name,
-          currency: violations[key].currency,
-          amount: violations[key].amount,
-          isCriticalPolicyViolation,
-          isExpanded: false,
-        };
-      }
-    }
-    return formattedViolations;
-  }
-
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
     return category?.displayName;
-  }
-
-  mapViolationDataWithEtxn(
-    policyViolation: PolicyViolationTxn,
-    etxns: Expense[],
-    categoryList: OrgCategory[]
-  ): { [transactionID: string]: PolicyViolation } {
-    etxns.forEach((etxn) => {
-      for (const key of Object.keys(policyViolation)) {
-        if (policyViolation.hasOwnProperty(key) && key === etxn?.tx_id) {
-          policyViolation[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
-          policyViolation[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
-          policyViolation[key].name = this.formatDisplayName(etxn.tx_org_category_id, categoryList);
-          policyViolation[key].type = 'category';
-          break;
-        }
-      }
-    });
-    return policyViolation;
   }
 
   createSplitTxns(
