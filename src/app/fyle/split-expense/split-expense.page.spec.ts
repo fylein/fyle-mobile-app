@@ -985,46 +985,6 @@ describe('SplitExpensePage', () => {
     });
   });
 
-  it('showSplitExpenseViolations(): should show the expense violations when the expense is split', async () => {
-    const violations = formattedTxnViolations;
-    spyOn(component, 'showSuccessToast');
-    const properties = {
-      cssClass: 'fy-modal',
-      showBackdrop: true,
-      canDismiss: true,
-      backdropDismiss: true,
-      animated: true,
-      initialBreakpoint: 1,
-      breakpoints: [0, 1],
-      handle: false,
-    };
-    modalProperties.getModalDefaultProperties.and.returnValue(properties);
-    const fyCriticalPolicyViolationPopOverSpy = jasmine.createSpyObj('fyCriticalPolicyViolationPopOver', [
-      'present',
-      'onWillDismiss',
-    ]);
-    fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
-      data: {
-        action: 'primary',
-      },
-    });
-
-    modalController.create.and.resolveTo(fyCriticalPolicyViolationPopOverSpy);
-    const result = await component.showSplitExpenseViolations(violations);
-    expect(result).toBeUndefined();
-    expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: SplitExpensePolicyViolationComponent,
-      componentProps: {
-        policyViolations: violations,
-      },
-      mode: 'ios',
-      presentingElement: await modalController.getTop(),
-      ...properties,
-    });
-    expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-    expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
-  });
-
   it('getActiveCategories(): should get the active categories', (done) => {
     categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
     categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);

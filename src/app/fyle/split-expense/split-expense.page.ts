@@ -21,7 +21,6 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
-import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -595,24 +594,6 @@ export class SplitExpensePage {
         return this.fileObjs;
       })
     );
-  }
-
-  async showSplitExpenseViolations(violations: { [id: string]: FormattedPolicyViolation }): Promise<void> {
-    const splitExpenseViolationsModal = await this.modalController.create({
-      component: SplitExpensePolicyViolationComponent,
-      componentProps: {
-        policyViolations: violations,
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await splitExpenseViolationsModal.present();
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unused-vars
-    const { data } = await splitExpenseViolationsModal.onWillDismiss();
-    this.showSuccessToast();
   }
 
   async showSplitExpensePolicyViolationsAndMissingFields(
