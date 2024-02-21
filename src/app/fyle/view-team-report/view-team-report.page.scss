@@ -179,6 +179,7 @@ $sent-back-color: #da1e28;
 
     &__icon {
       padding-left: 6px;
+      color: $brand-primary-light;
     }
   }
 
@@ -395,7 +396,7 @@ $sent-back-color: #da1e28;
 
   &--send-icon {
     margin-left: 10px;
-    padding: 2px 0;
+    color: $brand-primary;
   }
 
   &--add-comment-container {

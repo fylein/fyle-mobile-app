@@ -12,6 +12,7 @@ import { OrgCategory } from '../models/v1/org-category.model';
 import { AuthService } from './auth.service';
 import { DateService } from './date.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { cloneDeep } from 'lodash';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,7 @@ export class ExpenseFieldsService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private authService: AuthService,
-    private dateService: DateService,
+    private dateService: DateService
   ) {}
 
   @Cacheable()
@@ -33,10 +34,10 @@ export class ExpenseFieldsService {
             is_enabled: 'eq.true',
             is_custom: 'eq.false',
           },
-        }),
+        })
       ),
       map((res) => this.transformFrom(res.data)),
-      map((res) => this.dateService.fixDates(res)),
+      map((res) => this.dateService.fixDates(res))
     );
   }
 
@@ -131,14 +132,14 @@ export class ExpenseFieldsService {
           expenseFieldMap[expenseField.column_name] = expenseFieldsList;
         });
         return expenseFieldMap;
-      }),
+      })
     );
   }
 
   filterByOrgCategoryId(
     tfcMap: Partial<ExpenseFieldsMap>,
     fields: string[],
-    orgCategory: OrgCategory,
+    orgCategory: OrgCategory
   ): Observable<Partial<ExpenseFieldsObj>> {
     const orgCategoryId = orgCategory && orgCategory.id;
     return of(fields).pipe(
@@ -171,7 +172,7 @@ export class ExpenseFieldsService {
             }
             return filteredField;
           })
-          .filter((filteredField) => !!filteredField),
+          .filter((filteredField) => !!filteredField)
       ),
       switchMap((fields) => from(fields)),
       map((field) => ({
@@ -180,7 +181,7 @@ export class ExpenseFieldsService {
       reduce((acc, curr) => {
         acc[curr.field] = curr;
         return acc;
-      }, {}),
+      }, {})
     );
   }
 
@@ -194,7 +195,7 @@ export class ExpenseFieldsService {
       To handle both case added this, it can take the type based on use case, but, ideally, we should have a single type of response
   */
   getDefaultTxnFieldValues(
-    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>,
+    txnFields: Partial<ExpenseFieldsMap> | Partial<ExpenseFieldsObj>
   ): Partial<DefaultTxnFieldValues> {
     const defaultValues = {};
     for (const configurationColumn in txnFields) {
@@ -210,7 +211,8 @@ export class ExpenseFieldsService {
   }
 
   private formatBillableFields(expenseFields: ExpenseField[]): ExpenseField[] {
-    return expenseFields.map((field) => {
+    const expenseFieldsCopy = cloneDeep(expenseFields);
+    return expenseFieldsCopy.map((field) => {
       if (!field.is_custom && field.field_name.toLowerCase() === 'billable') {
         field.default_value = field.default_value === 'true';
       }

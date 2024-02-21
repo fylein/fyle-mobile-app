@@ -548,7 +548,14 @@ export class AddEditPerDiemPage implements OnInit {
       for (const defaultValueColumn in defaultValues) {
         if (defaultValues.hasOwnProperty(defaultValueColumn)) {
           const control = keyToControlMap[defaultValueColumn];
-          if (!control.value && defaultValueColumn !== 'billable') {
+          if (!control.value && !control.touched && defaultValueColumn !== 'billable') {
+            control.patchValue(defaultValues[defaultValueColumn]);
+          } else if (
+            defaultValueColumn === 'billable' &&
+            this.fg.controls.project.value &&
+            (control.value === undefined || control.value === null) &&
+            !control.touched
+          ) {
             control.patchValue(defaultValues[defaultValueColumn]);
           }
         }
@@ -1748,7 +1755,7 @@ export class AddEditPerDiemPage implements OnInit {
       switchMap((continueWithTransaction) => {
         if (continueWithTransaction) {
           if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
-            continueWithTransaction.comment = 'No policy violation explaination provided';
+            continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))
@@ -1925,7 +1932,7 @@ export class AddEditPerDiemPage implements OnInit {
       switchMap((continueWithTransaction) => {
         if (continueWithTransaction) {
           if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
-            continueWithTransaction.comment = 'No policy violation explaination provided';
+            continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() => of({ etxn: err.etxn, comment: continueWithTransaction.comment }))

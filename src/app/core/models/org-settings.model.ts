@@ -211,7 +211,6 @@ export interface PolicySettings {
   is_enabled?: boolean;
   is_self_serve_enabled?: boolean;
   is_trip_request_policy_enabled?: boolean;
-  is_advance_request_policy_enabled?: boolean;
   is_duplicate_detection_enabled?: boolean;
   policy_approval_workflow?: boolean;
 }
@@ -235,6 +234,10 @@ export interface ActivitySettings extends CommonOrgSettings {
 
 export interface DataExtractionSettings extends CommonOrgSettings {
   web_app_pdf?: boolean;
+}
+
+export interface AmexFeedEnrollmentSettings extends CommonOrgSettings {
+  virtual_card_settings_enabled: boolean;
 }
 
 export interface SplitExpenseSettings {
@@ -400,6 +403,7 @@ export interface OrgSettingsResponse {
   budget_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
+  duplicate_detection_v2_settings?: CommonOrgSettings;
   dynamic_form_settings?: CommonOrgSettings;
   hrms_integration_settings?: CommonOrgSettings;
   multi_org_settings?: CommonOrgSettings;
@@ -443,13 +447,14 @@ export interface OrgSettingsResponse {
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }
 
 export interface UiPolicySettings {
   allowed?: boolean;
   enabled?: boolean;
   self_serve_enabled?: boolean;
-  advance_request_policy_enabled?: boolean;
   duplicate_detection_enabled?: boolean;
   trip_request_policy_enabled?: boolean;
   policyApprovalWorkflow?: boolean;
@@ -514,6 +519,7 @@ export interface OrgSettings {
   settlements_excel_settings?: SettlementsExcelSettings;
   gmail_addon_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
+  duplicate_detection_v2_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   bulk_fyle_settings?: CommonOrgSettings;
   auto_reminder_settings?: CommonOrgSettings;
@@ -553,4 +559,6 @@ export interface OrgSettings {
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }

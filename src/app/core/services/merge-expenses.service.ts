@@ -119,7 +119,7 @@ export class MergeExpensesService {
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
-            const details = this.fileService.getReceiptsDetails(fileObj);
+            const details = this.fileService.getReceiptsDetails(fileObj.name, fileObj.url);
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;
@@ -588,10 +588,10 @@ export class MergeExpensesService {
     [fieldId: number]: Partial<CustomInput>[];
   } {
     const dependentFieldsMapping: DependentFieldsMapping = {};
-    expenses.forEach((expense) => {
+    expenses?.forEach((expense) => {
       const txDependentFields: Partial<CustomInput>[] = dependentFields
         ?.map((dependentField: TxnCustomProperties) =>
-          expense.tx_custom_properties.find(
+          expense.tx_custom_properties?.find(
             (txCustomProperty: Partial<CustomInput>) => dependentField.name === txCustomProperty.name
           )
         )

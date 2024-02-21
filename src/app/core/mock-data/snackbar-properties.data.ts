@@ -2,7 +2,7 @@ import { SnackbarProperties } from '../models/snackbar-properties.model';
 
 export const snackbarPropertiesRes = {
   data: {
-    icon: 'danger',
+    icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
   },
@@ -29,7 +29,7 @@ export const snackbarPropertiesRes3 = {
 
 export const snackbarPropertiesRes4 = {
   data: {
-    icon: 'danger',
+    icon: 'warning-fill',
     showCloseButton: true,
     message: 'We could not delete the expenses. Please try again',
   },

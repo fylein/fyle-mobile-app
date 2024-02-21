@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'src/environments/environment';
+import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root',
@@ -12,11 +13,11 @@ export class RouterApiService {
     this.ROUTER_API_ENDPOINT = environment.ROUTER_API_ENDPOINT;
   }
 
-  post(url: string, data: any) {
-    return this.httpClient.post<any>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, data);
+  post<T>(url: string, data = {}): Observable<T> {
+    return this.httpClient.post<T>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, data);
   }
 
-  get(url: string, config = {}) {
-    return this.httpClient.get<any>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, config);
+  get<T>(url: string, config = {}): Observable<T> {
+    return this.httpClient.get<T>(this.ROUTER_API_ENDPOINT + '/routerapi' + url, config);
   }
 }

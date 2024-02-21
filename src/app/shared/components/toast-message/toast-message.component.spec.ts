@@ -35,7 +35,7 @@ describe('ToastMessageComponent', () => {
   it('should display message', () => {
     const message = 'Test message';
     toastMessageComponent.data = {
-      icon: 'warning',
+      icon: 'danger-fill',
       message: 'Test message',
       redirectionText: null,
       showCloseButton: false,

@@ -248,7 +248,7 @@ export function TestCases4(getTestBed) {
               criticalPolicyViolation1,
               policyViolation1.data.final_desired_state,
             );
-            expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explaination provided' });
+            expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
           });
       });

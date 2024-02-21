@@ -948,12 +948,12 @@ describe('ReportService', () => {
       const params = 'draft';
 
       const expectedRes = {
-        state: ['DRAFT', 'DRAFT_INQUIRY'],
+        state: ['DRAFT'],
       };
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(2);
+      expect(expectedRes.state.length).toEqual(1);
     });
 
     it('generate parameters as per state | pending', () => {
@@ -1022,7 +1022,6 @@ describe('ReportService', () => {
       const expectedRes = {
         state: [
           'DRAFT',
-          'DRAFT_INQUIRY',
           'COMPLETE',
           'APPROVED',
           'APPROVER_PENDING',
@@ -1036,23 +1035,7 @@ describe('ReportService', () => {
 
       const result = reportService.getUserReportParams(params);
       expect(result).toEqual(expectedRes);
-      expect(expectedRes.state.length).toEqual(10);
-    });
-  });
-
-  it('getReportETxnc(): should get report transactions', (done) => {
-    apiService.get.and.returnValue(of(apiExpenseRes));
-    const reportID = 'rp1xCiq5WA1R';
-    const orgUserID = 'ouCI4UQ2G0K1';
-
-    reportService.getReportETxnc(reportID, orgUserID).subscribe((res) => {
-      expect(res).toEqual(apiExpenseRes);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/erpts/${reportID}/etxns`, {
-        params: {
-          approver_id: orgUserID,
-        },
-      });
-      done();
+      expect(expectedRes.state.length).toEqual(9);
     });
   });
 

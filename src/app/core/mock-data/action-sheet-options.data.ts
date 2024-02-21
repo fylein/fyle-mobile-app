@@ -23,25 +23,25 @@ export const actionSheetOptionsData = [
 export const expectedActionSheetButtonRes = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Mileage',
-    icon: 'assets/svg/fy-mileage.svg',
+    icon: 'assets/svg/mileage.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Per Diem',
-    icon: 'assets/svg/fy-calendar.svg',
+    icon: 'assets/svg/calendar.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -50,19 +50,19 @@ export const expectedActionSheetButtonRes = [
 export const expectedActionSheetButtonsWithMileage = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Mileage',
-    icon: 'assets/svg/fy-mileage.svg',
+    icon: 'assets/svg/mileage.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
@@ -71,19 +71,19 @@ export const expectedActionSheetButtonsWithMileage = [
 export const expectedActionSheetButtonsWithPerDiem = [
   {
     text: 'Capture Receipt',
-    icon: 'assets/svg/fy-camera.svg',
+    icon: 'assets/svg/camera.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Manually',
-    icon: 'assets/svg/fy-expense.svg',
+    icon: 'assets/svg/list.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },
   {
     text: 'Add Per Diem',
-    icon: 'assets/svg/fy-calendar.svg',
+    icon: 'assets/svg/calendar.svg',
     cssClass: 'capture-receipt',
     handler: undefined,
   },

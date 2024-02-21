@@ -2,11 +2,12 @@ import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filt
 import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
+import { CreateNewReportComponent as createReportV2 } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { apiExpenseRes } from './expense.data';
 import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent as v2 } from 'src/app/fyle/my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -14,13 +15,15 @@ import { FyAddToReportModalComponent } from 'src/app/shared/components/fy-add-to
 import { reportOptionsData } from './report-options.data';
 import { expectedErpt } from './report-unflattened.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
-import { PolicyViolationDialogComponent } from 'src/app/fyle/add-edit-advance-request/policy-violation-dialog/policy-violation-dialog.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
+
+import { apiExpenseRes } from './expense.data';
+import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const modalControllerParams = {
   component: FyFiltersComponent,
@@ -63,8 +66,26 @@ export const newReportModalParams = {
   ...fyModalProperties,
 };
 
+export const newReportModalParams2 = {
+  component: createReportV2,
+  componentProps: {
+    selectedExpensesToReport: apiExpenses1,
+  },
+  mode: <Mode>'ios',
+  ...fyModalProperties,
+};
+
 export const addExpenseToReportModalParams = {
   component: AddTxnToReportDialogComponent,
+  componentProps: {
+    txId: '12345',
+  },
+  mode: <Mode>'ios',
+  ...fyModalProperties,
+};
+
+export const addExpenseToReportModalParams2 = {
+  component: v2,
   componentProps: {
     txId: '12345',
   },
@@ -91,7 +112,7 @@ export const popoverControllerParams = {
 
 export const openFromComponentConfig = {
   data: {
-    icon: 'danger',
+    icon: 'warning-fill',
     showCloseButton: true,
     message: 'Please select one or more expenses to be reported',
   },
@@ -373,43 +394,6 @@ export const popoverControllerParams3 = {
     isRequired: true,
   },
   cssClass: 'fy-dialog-popover',
-};
-
-export const advanceRequestPolicyViolationParams = {
-  component: PolicyViolationDialogComponent,
-  componentProps: {
-    latestComment: 'latest comment',
-    violatedPolicyRules: ['rule1', 'rule2'],
-    policyViolationActionDescription:
-      'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit.',
-  },
-  mode: 'ios' as Mode,
-  cssClass: 'fy-modal',
-  showBackdrop: true,
-  canDismiss: true,
-  backdropDismiss: true,
-  animated: true,
-  initialBreakpoint: 1,
-  breakpoints: [0, 1],
-  handle: false,
-};
-
-export const popoverControllerParams4 = {
-  component: PopupAlertComponent,
-  componentProps: {
-    title: 'Review',
-    message:
-      'This action will save a draft advance request and will not be submitted to your approvers directly. You need to explicitly submit a draft advance request.',
-    primaryCta: {
-      text: 'Finish',
-      action: 'continue',
-    },
-    secondaryCta: {
-      text: 'Cancel',
-      action: 'cancel',
-    },
-  },
-  cssClass: 'pop-up-in-center',
 };
 
 export const modalControllerParams3 = {

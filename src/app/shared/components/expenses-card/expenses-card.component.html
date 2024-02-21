@@ -43,7 +43,10 @@
           <ion-icon
             class="expenses-card--receipt-icon"
             [src]="receiptIcon"
-            [ngClass]="{ 'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/pdf.svg' }"
+            [ngClass]="{
+              'expenses-card--receipt-icon__pdf': receiptIcon === 'assets/svg/file-pdf.svg',
+              'expenses-card--receipt-icon__image': receiptIcon === 'assets/svg/list-plus.svg'
+            }"
           ></ion-icon>
         </div>
       </ng-container>
@@ -100,7 +103,7 @@
             <ion-icon
               class="expenses-card--receipt-icon"
               *ngIf="!expense.tx_dataUrls?.length"
-              [src]="'../../../../assets/svg/fy-expense.svg'"
+              [src]="'../../../../assets/svg/list.svg'"
             ></ion-icon>
           </div>
         </ng-template>
@@ -188,7 +191,7 @@
                 <mat-icon
                   *ngIf="expense.tx_is_split_expense"
                   class="expenses-card--icons__split-icon"
-                  svgIcon="split-new"
+                  svgIcon="split"
                 ></mat-icon>
               </div>
             </div>
@@ -234,7 +237,7 @@
                   {{ expense.tx_amount | humanizeCurrency : homeCurrency : true }}
                 </ng-container>
               </span>
-              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="fy-reimbursable"></mat-icon>
+              <mat-icon *ngIf="showPaymentModeIcon" class="expenses-card--icon" svgIcon="cash"></mat-icon>
             </div>
 
             <div
@@ -261,7 +264,7 @@
         </ng-template>
       </div>
       <div *ngIf="isDismissable" (click)="dismiss($event)">
-        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
+        <ion-icon class="expenses-card--dismiss" [src]="'assets/svg/cross.svg'" slot="icon-only"></ion-icon>
       </div>
     </div>
   </ng-container>

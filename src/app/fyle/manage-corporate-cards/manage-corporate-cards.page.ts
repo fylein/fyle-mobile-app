@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
-import { BehaviorSubject, Observable, forkJoin, map, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, filter, forkJoin, map, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
@@ -12,10 +12,13 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from './card-added/card-added.component';
 import { RealTimeFeedService } from 'src/app/core/services/real-time-feed.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { RefresherCustomEvent } from '@ionic/core';
+import { RefresherCustomEvent, SegmentCustomEvent } from '@ionic/core';
 import { CardNetworkType } from 'src/app/core/enums/card-network-type';
 import { TrackingService } from 'src/app/core/services/tracking.service';
-
+import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
+import { CardDetailsCombinedResponse } from 'src/app/core/models/card-details-combined-response.model';
 @Component({
   selector: 'app-manage-corporate-cards',
   templateUrl: './manage-corporate-cards.page.html',
@@ -24,13 +27,19 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 export class ManageCorporateCardsPage {
   corporateCards$: Observable<PlatformCorporateCard[]>;
 
+  virtualCardDetails$: Observable<{ [id: string]: CardDetailsCombinedResponse }>;
+
   isVisaRTFEnabled$: Observable<boolean>;
+
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isMastercardRTFEnabled$: Observable<boolean>;
 
   isYodleeEnabled$: Observable<boolean>;
 
   loadCorporateCards$ = new BehaviorSubject<void>(null);
+
+  segmentValue = ManageCardsPageSegment.CORPORATE_CARDS;
 
   constructor(
     private router: Router,
@@ -41,7 +50,18 @@ export class ManageCorporateCardsPage {
     private orgUserSettingsService: OrgUserSettingsService,
     private realTimeFeedService: RealTimeFeedService,
     private trackingService: TrackingService,
+    private virtualCardsService: VirtualCardsService
   ) {}
+
+  get Segment(): typeof ManageCardsPageSegment {
+    return ManageCardsPageSegment;
+  }
+
+  segmentChanged(event: SegmentCustomEvent): void {
+    if (event.detail.value) {
+      this.segmentValue = parseInt(event.detail.value, 10);
+    }
+  }
 
   refresh(event: RefresherCustomEvent): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
@@ -54,25 +74,48 @@ export class ManageCorporateCardsPage {
     this.router.navigate(['/', 'enterprise', 'my_profile']);
   }
 
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.corporateCards$),
+      switchMap((corporateCards) => {
+        const virtualCardIds = corporateCards
+          .filter((card) => card.virtual_card_id)
+          .map((card) => card.virtual_card_id);
+        const virtualCardsParams = {
+          virtualCardIds,
+        };
+        return this.virtualCardsService.getCardDetailsMap(virtualCardsParams);
+      })
+    );
+  }
+
   ionViewWillEnter(): void {
     this.corporateCards$ = this.loadCorporateCards$.pipe(
-      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards()),
+      switchMap(() => this.corporateCreditCardExpenseService.getCorporateCards())
     );
 
     const orgSettings$ = this.orgSettingsService.get();
     const orgUserSettings$ = this.orgUserSettingsService.get();
+    this.isVirtualCardsEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => ({
+        enabled:
+          orgSettings.amex_feed_enrollment_settings.allowed &&
+          orgSettings.amex_feed_enrollment_settings.enabled &&
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
+    );
 
+    this.virtualCardDetails$ = this.getVirtualCardDetails();
     this.isVisaRTFEnabled$ = orgSettings$.pipe(
-      map(
-        (orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled,
-      ),
+      map((orgSettings) => orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled)
     );
 
     this.isMastercardRTFEnabled$ = orgSettings$.pipe(
       map(
         (orgSettings) =>
-          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled,
-      ),
+          orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled
+      )
     );
 
     this.isYodleeEnabled$ = forkJoin([orgSettings$, orgUserSettings$]).pipe(
@@ -80,9 +123,13 @@ export class ManageCorporateCardsPage {
         ([orgSettings, orgUserSettings]) =>
           orgSettings.bank_data_aggregation_settings.allowed &&
           orgSettings.bank_data_aggregation_settings.enabled &&
-          orgUserSettings.bank_data_aggregation_settings.enabled,
-      ),
+          orgUserSettings.bank_data_aggregation_settings.enabled
+      )
     );
+  }
+
+  getCorporateCardsLength(corporateCards): number {
+    return corporateCards.filter((card) => !card.virtual_card_id).length;
   }
 
   setActionSheetButtons(card: PlatformCorporateCard): Observable<ActionSheetButton[]> {
@@ -93,7 +140,7 @@ export class ManageCorporateCardsPage {
         if (card.is_visa_enrolled || card.is_mastercard_enrolled) {
           actionSheetButtons.push({
             text: 'Disconnect',
-            icon: 'assets/svg/fy-delete.svg',
+            icon: 'assets/svg/bin.svg',
             cssClass: 'danger',
             handler: () => {
               this.unenrollCard(card);
@@ -120,7 +167,7 @@ export class ManageCorporateCardsPage {
         }
 
         return actionSheetButtons;
-      }),
+      })
     );
   }
 
@@ -157,7 +204,7 @@ export class ManageCorporateCardsPage {
         if (popoverResponse.data?.success) {
           this.handleEnrollmentSuccess();
         }
-      },
+      }
     );
   }
 

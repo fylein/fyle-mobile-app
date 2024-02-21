@@ -4,7 +4,7 @@
     <ng-container *ngIf="attachments.length > 1">{{ activeIndex + 1 }}/{{ attachments.length }} </ng-container>
   </div>
   <div *ngIf="canEdit" (click)="addAttachments($event)" class="receipt-preview-thumbnail--add-more">
-    <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus"></mat-icon>
+    <mat-icon class="receipt-preview-thumbnail--icon" svgIcon="plus-square"></mat-icon>
     <span class="receipt-preview-thumbnail--add-more-text">Add More</span>
   </div>
 </div>

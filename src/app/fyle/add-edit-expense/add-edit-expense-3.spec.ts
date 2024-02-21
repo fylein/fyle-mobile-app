@@ -79,7 +79,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -149,7 +148,6 @@ export function TestCases3(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -205,7 +203,6 @@ export function TestCases3(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -252,35 +249,20 @@ export function TestCases3(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    describe('checkPolicyViolation():', () => {
-      it('should check if there are any policy violations and in case category is present', (done) => {
-        policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
-        transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-        component.checkPolicyViolation({ tx: publicPolicyExpenseData1, dataUrls: fileObject4 }).subscribe((res) => {
-          expect(res).toEqual(expensePolicyData);
-          expect(policyService.transformTo).toHaveBeenCalledOnceWith({ ...publicPolicyExpenseData1, num_files: 1 });
-          expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-          done();
-        });
-      });
+    it('checkPolicyViolation(): should check for policy violations', (done) => {
+      const etxn = {
+        tx: publicPolicyExpenseData1,
+        dataUrls: fileObject4,
+      };
 
-      it('should check for policy violations and populate category if not present in expense', (done) => {
-        policyService.transformTo.and.returnValue(platformPolicyExpenseData1);
-        transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
-        categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
-        component
-          .checkPolicyViolation({ tx: { ...publicPolicyExpenseData1, org_category_id: null }, dataUrls: fileObject4 })
-          .subscribe((res) => {
-            expect(res).toEqual(expensePolicyData);
-            expect(policyService.transformTo).toHaveBeenCalledOnceWith({
-              ...publicPolicyExpenseData1,
-              num_files: 1,
-              org_category_id: 16566,
-            });
-            expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
-            expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith('Unspecified');
-            done();
-          });
+      policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
+      transactionService.checkPolicy.and.returnValue(of(expensePolicyData));
+
+      component.checkPolicyViolation(etxn).subscribe((res) => {
+        expect(res).toEqual(expensePolicyData);
+        expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(etxn, component.selectedCCCTransaction);
+        expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+        done();
       });
     });
 

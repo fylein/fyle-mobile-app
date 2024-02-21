@@ -212,19 +212,19 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Dashboard',
         isVisible: true,
-        icon: 'fy-dashboard-new',
+        icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
         title: 'Expenses',
         isVisible: true,
-        icon: 'expense',
+        icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
         title: 'Cards',
         isVisible: cardOptions.length ? true : false,
-        icon: 'fy-corporate-card',
+        icon: 'card',
         disabled: !isConnected,
         isDropdownOpen: false,
         dropdownOptions: cardOptions,
@@ -232,21 +232,21 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Reports',
         isVisible: true,
-        icon: 'fy-report',
+        icon: 'folder',
         route: ['/', 'enterprise', 'my_reports'],
         disabled: !isConnected,
       },
       {
         title: 'Advances',
         isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
-        icon: 'advances',
+        icon: 'wallet',
         route: ['/', 'enterprise', 'my_advances'],
         disabled: !isConnected,
       },
       {
         title: 'Team',
         isVisible: teamOptions.length ? true : false,
-        icon: 'teams',
+        icon: 'user-three',
         isDropdownOpen: false,
         disabled: !isConnected,
         dropdownOptions: teamOptions,
@@ -258,7 +258,7 @@ export class SidemenuComponent implements OnInit {
     if (cardOptions.length === 1) {
       this.updateSidemenuOption(primaryOptions, 'Cards', {
         ...cardOptions[0],
-        icon: 'fy-corporate-card',
+        icon: 'card',
         disabled: !isConnected,
       });
     }
@@ -266,7 +266,7 @@ export class SidemenuComponent implements OnInit {
     if (teamOptions.length === 1) {
       this.updateSidemenuOption(primaryOptions, 'Team', {
         ...teamOptions[0],
-        icon: 'teams',
+        icon: 'user-three',
         disabled: !isConnected,
       });
     }
@@ -291,19 +291,19 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Dashboard',
         isVisible: true,
-        icon: 'fy-dashboard-new',
+        icon: 'dashboard',
         route: ['/', 'enterprise', 'my_dashboard'],
       },
       {
         title: 'Expenses',
         isVisible: true,
-        icon: 'expense',
+        icon: 'list',
         route: ['/', 'enterprise', 'my_expenses'],
       },
       {
         title: 'Settings',
         isVisible: true,
-        icon: 'fy-settings',
+        icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
     ];
@@ -314,7 +314,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Delegated Accounts',
         isVisible: isDelegatee && !this.isSwitchedToDelegator,
-        icon: 'delegate-switch',
+        icon: 'user-two',
         route: ['/', 'enterprise', 'delegated_accounts'],
         disabled: !isConnected,
       },
@@ -335,7 +335,7 @@ export class SidemenuComponent implements OnInit {
       {
         title: 'Settings',
         isVisible: true,
-        icon: 'fy-settings',
+        icon: 'gear',
         route: ['/', 'enterprise', 'my_profile'],
       },
       {
@@ -345,14 +345,14 @@ export class SidemenuComponent implements OnInit {
           this.orgUserSettings.in_app_chat_settings &&
           this.orgUserSettings.in_app_chat_settings.allowed &&
           this.orgUserSettings.in_app_chat_settings.enabled,
-        icon: 'fy-chat-2',
+        icon: 'chat',
         openLiveChat: true,
         disabled: !isConnected,
       },
       {
         title: 'Help',
         isVisible: true,
-        icon: 'help',
+        icon: 'question-square-outline',
         route: ['/', 'enterprise', 'help'],
         disabled: !isConnected,
       },

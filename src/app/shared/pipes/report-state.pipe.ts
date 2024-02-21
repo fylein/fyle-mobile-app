@@ -11,7 +11,6 @@ export class ReportState implements PipeTransform {
 
     const states: Record<string, string> = {
       DRAFT: 'draft',
-      DRAFT_INQUIRY: 'incomplete',
       APPROVER_PENDING: simplifyReportsEnabled ? 'submitted' : 'reported',
       SUBMITTED: 'reported',
       APPROVER_INQUIRY: 'sent_back',

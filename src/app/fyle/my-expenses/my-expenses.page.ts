@@ -78,6 +78,7 @@ import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-f
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { CategoriesService } from 'src/app/core/services/categories.service';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -351,13 +352,13 @@ export class MyExpensesPage implements OnInit {
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
+        icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
+        icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
@@ -366,7 +367,7 @@ export class MyExpensesPage implements OnInit {
     if (mileageEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
+        icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
@@ -375,7 +376,7 @@ export class MyExpensesPage implements OnInit {
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
+        icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
         handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
@@ -1176,7 +1177,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }): void {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport | ReportV1 }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -1193,7 +1194,9 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
+      // Mixed data type as CREATE report and GET report API returns different responses
+      const reportId = (config.report as ExtendedReport).rp_id || (config.report as ReportV1).id;
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
   }
 
@@ -1447,12 +1450,13 @@ export class MyExpensesPage implements OnInit {
   }
 
   mergeExpenses(): void {
+    const expenseIDs = this.selectedElements.map((expense) => expense.tx_id);
     this.router.navigate([
       '/',
       'enterprise',
       'merge_expense',
       {
-        selectedElements: JSON.stringify(this.selectedElements),
+        expenseIDs: JSON.stringify(expenseIDs),
         from: 'MY_EXPENSES',
       },
     ]);

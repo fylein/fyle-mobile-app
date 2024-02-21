@@ -1,3 +1,5 @@
+@import '../../../theme/colors.scss';
+
 $heading-shadow-color: #ababab;
 
 .notifications {
@@ -46,8 +48,8 @@ $heading-shadow-color: #ababab;
 
   &--notif-type-icon {
     vertical-align: middle;
-    width: 18px;
-    fill: gray;
+    width: 20px;
+    color: $dark-grey;
     margin-left: 8px;
   }
 

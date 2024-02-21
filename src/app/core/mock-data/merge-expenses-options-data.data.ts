@@ -551,3 +551,26 @@ export const optionsData33: MergeExpensesOptionsData<Destination> = {
   ],
   areSameValues: false,
 };
+
+export const optionsDataMergeExpenses: MergeExpensesOptionsData<string | Record<string, string[]> | string[]>[] = [
+  {
+    name: 'status',
+    value: '',
+    options: [],
+  },
+  {
+    name: 'Multi Type',
+    value: ['Multi 1'],
+    options: [
+      {
+        label: 'Multi 1',
+        value: ['Multi 1'],
+      },
+    ],
+  },
+  {
+    name: 'name',
+    value: null,
+    options: [],
+  },
+];

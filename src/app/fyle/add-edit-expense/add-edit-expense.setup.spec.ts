@@ -23,7 +23,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -58,6 +57,7 @@ import { TestCases4 } from './add-edit-expense-4.spec';
 import { TestCases5 } from './add-edit-expense-5.spec';
 import { TestCases6 } from './add-edit-expense-6.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -102,8 +102,8 @@ describe('AddEditExpensePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'getETxnUnflattened',
-      'getSplitExpenses',
       'checkPolicy',
+      'checkMandatoryFields',
       'upsert',
       'review',
       'matchCCCExpense',
@@ -114,6 +114,7 @@ describe('AddEditExpensePage', () => {
       'getCriticalPolicyRules',
       'getPolicyRules',
       'getSpenderExpensePolicyViolations',
+      'getPlatformPolicyExpense',
     ]);
     const transactionOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
       'parseReceipt',
@@ -168,6 +169,7 @@ describe('AddEditExpensePage', () => {
       'hideMoreClicked',
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
+      'showSuggestedDuplicates',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
@@ -191,7 +193,6 @@ describe('AddEditExpensePage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const titleCasePipeSpy = jasmine.createSpyObj('TitleCasePipe', ['transform']);
-    const handleDuplicatesSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicatesByExpense']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', [
       'showInvalidPaymentModeToast',
       'checkIfPaymentModeConfigurationsIsEnabled',
@@ -206,6 +207,11 @@ describe('AddEditExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'getExpenseById',
+      'getDuplicatesByExpense',
+      'getSplitExpenses',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -365,10 +371,6 @@ describe('AddEditExpensePage', () => {
           useValue: titleCasePipeSpy,
         },
         {
-          provide: HandleDuplicatesService,
-          useValue: handleDuplicatesSpy,
-        },
-        {
           provide: PaymentModesService,
           useValue: paymentModesServiceSpy,
         },
@@ -395,6 +397,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: PlatformHandlerService,
           useValue: platformHandlerServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

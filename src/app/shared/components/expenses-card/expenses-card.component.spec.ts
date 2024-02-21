@@ -73,7 +73,7 @@ describe('ExpensesCardComponent', () => {
       'post',
     ]);
 
-    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/images/add-to-list.png'));
+    fileServiceSpy.downloadUrl.and.returnValue(of('/assets/svg/list-plus.svg'));
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', [
@@ -149,7 +149,7 @@ describe('ExpensesCardComponent', () => {
     fixture = TestBed.createComponent(ExpensesCardComponent);
     component = fixture.componentInstance;
 
-    component.receiptIcon = 'assets/svg/pdf.svg';
+    component.receiptIcon = 'assets/svg/file-pdf.svg';
     component.isOutboxExpense = true;
     component.selectedElements = apiExpenseRes;
     component.expense = cloneDeep(expenseData1);
@@ -205,24 +205,24 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('getReceipt', () => {
-    it('should set the receipt icon to fy-mileage when the fyle catergory is mileage', () => {
+    it('should set the receipt icon to mileage when the fyle catergory is mileage', () => {
       component.expense = {
         ...expenseData1,
         tx_org_category: 'mileage',
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-mileage.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/mileage.svg');
     });
 
-    it('should set the receipt icon to fy-calendar when the fyle catergory is per diem', () => {
+    it('should set the receipt icon to calendar when the fyle catergory is per diem', () => {
       component.expense = {
         ...expenseData1,
         tx_org_category: 'per diem',
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-calendar.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/calendar.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
@@ -232,7 +232,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/add-receipt.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/list-plus.svg');
     });
 
     it('should set the receipt icon to add-receipt when there are no file ids', () => {
@@ -244,7 +244,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.receiptIcon).toEqual('assets/svg/fy-expense.svg');
+      expect(component.receiptIcon).toEqual('assets/svg/list.svg');
     });
   });
 
@@ -551,7 +551,7 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('setOtherData():', () => {
-    it('should set icon to fy-matched if the source account type is corporate credit card', () => {
+    it('should set icon to card if the source account type is corporate credit card', () => {
       component.expense = {
         ...expenseData1,
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
@@ -560,10 +560,10 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-matched');
+      expect(component.paymentModeIcon).toEqual('card');
     });
 
-    it('should set icon to fy-unmatched if the source account type is corporate credit card but expense group id is not present', () => {
+    it('should set icon to card if the source account type is corporate credit card but expense group id is not present', () => {
       component.expense = {
         ...expenseData1,
         source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
@@ -571,13 +571,13 @@ describe('ExpensesCardComponent', () => {
 
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-unmatched');
+      expect(component.paymentModeIcon).toEqual('card');
     });
 
     it('should set icon to fy-reimbersable if the source account type is not a corporate credit card and if the reimbersement is not skipped', () => {
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash');
     });
 
     it('should set icon to fy-non-reimbersable if the source account type is not a corporate credit card and if the reimbersement is skipped', () => {
@@ -587,7 +587,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.setOtherData();
       fixture.detectChanges();
-      expect(component.paymentModeIcon).toEqual('fy-non-reimbursable');
+      expect(component.paymentModeIcon).toEqual('cash-slash');
     });
   });
 
@@ -636,7 +636,7 @@ describe('ExpensesCardComponent', () => {
 
   describe('attachReceipt(): ', () => {
     it('should attach the receipt to the thumbnail when receipt is not a pdf', fakeAsync(() => {
-      const dataUrl = '/assets/images/add-to-list.png';
+      const dataUrl = '/assets/svg/list-plus.svg';
       const attachmentType = 'png';
       const receiptDetailsaRes = {
         dataUrl,
@@ -835,5 +835,37 @@ describe('ExpensesCardComponent', () => {
     expect(event.stopPropagation).toHaveBeenCalledTimes(1);
     expect(event.preventDefault).toHaveBeenCalledTimes(1);
     expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
+  });
+
+  describe('isPerDiemWithZeroAmount():', () => {
+    it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: 0,
+        tx_org_category: 'Per Diem',
+      };
+      const result = component.isZeroAmountPerDiem();
+      expect(result).toBeTrue();
+    });
+
+    it('should check if scan is complete and return true if it is per diem expense with user amount 0', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_amount: null,
+        tx_user_amount: 0,
+        tx_org_category: 'Per Diem',
+      };
+      const result = component.isZeroAmountPerDiem();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if org category is null', () => {
+      component.expense = {
+        ...expenseData1,
+        tx_org_category: null,
+      };
+      const result = component.isZeroAmountPerDiem();
+      expect(result).toBeFalse();
+    });
   });
 });

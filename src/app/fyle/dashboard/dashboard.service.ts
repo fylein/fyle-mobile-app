@@ -1,66 +1,48 @@
 import { Injectable } from '@angular/core';
-import { ReportService } from '../../core/services/report.service';
-import { map } from 'rxjs/operators';
-import { StatsResponse } from '../../core/models/v2/stats-response.model';
-import { TransactionService } from '../../core/services/transaction.service';
 import { Observable } from 'rxjs';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { Stats } from '../../core/models/stats.model';
-import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { map } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
+import { ReportStats } from 'src/app/core/models/report-stats.model';
+import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Stats } from '../../core/models/stats.model';
+import { StatsResponse } from '../../core/models/v2/stats-response.model';
+import { ReportService } from '../../core/services/report.service';
 
 @Injectable()
 export class DashboardService {
   constructor(
     private reportService: ReportService,
-    private transactionService: TransactionService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private expensesService: ExpensesService
   ) {}
 
   getUnreportedExpensesStats(): Observable<Stats> {
-    return this.transactionService
-      .getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(COMPLETE)',
-        or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-        tx_report_id: 'is.null',
+    return this.expensesService
+      .getExpenseStats({
+        state: 'in.(COMPLETE)',
+        report_id: 'is.null',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
       })
       .pipe(
-        map((rawStatsResponse) => {
-          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
-            (aggregate) => aggregate.function_name === 'count(tx_id)'
-          );
-          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
-            (aggregate) => aggregate.function_name === 'sum(tx_amount)'
-          );
-          return {
-            count: countAggregate && countAggregate.function_value,
-            sum: amountAggregate && amountAggregate.function_value,
-          };
-        })
+        map((stats) => ({
+          count: stats.data.count,
+          sum: stats.data.total_amount,
+        }))
       );
   }
 
   getIncompleteExpensesStats(): Observable<Stats> {
-    return this.transactionService
-      .getTransactionStats('count(tx_id),sum(tx_amount)', {
-        scalar: true,
-        tx_state: 'in.(DRAFT)',
-        tx_report_id: 'is.null',
+    return this.expensesService
+      .getExpenseStats({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
       })
       .pipe(
-        map((rawStatsResponse) => {
-          const countAggregate = rawStatsResponse[0]?.aggregates?.find(
-            (aggregate) => aggregate.function_name === 'count(tx_id)'
-          );
-          const amountAggregate = rawStatsResponse[0]?.aggregates?.find(
-            (aggregate) => aggregate.function_name === 'sum(tx_amount)'
-          );
-          return {
-            count: countAggregate && countAggregate.function_value,
-            sum: amountAggregate && amountAggregate.function_value,
-          };
-        })
+        map((stats) => ({
+          count: stats.data.count,
+          sum: stats.data.total_amount,
+        }))
       );
   }
 

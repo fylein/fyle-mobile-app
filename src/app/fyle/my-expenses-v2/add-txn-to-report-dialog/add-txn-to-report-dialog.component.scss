@@ -1,0 +1,63 @@
+@import '../../../../theme/colors.scss';
+$reports_sent_back_color: #da1e28;
+
+.report-list {
+  &--header {
+    font-size: 24px;
+    line-height: 1.3;
+    color: $black;
+    margin-bottom: 24px;
+    font-weight: 500;
+
+    &--row-icon-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  &--list {
+    margin-top: 10px;
+  }
+
+  &--currency-amount-container {
+    margin-bottom: 4px;
+  }
+
+  &--currency {
+    color: $black-light;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 1.3;
+    margin-right: 2px;
+  }
+
+  &--amount {
+    color: $black;
+    font-size: 20px;
+    line-height: 1.3;
+    font-weight: 500;
+  }
+
+  &--purpose {
+    font-weight: 500;
+    color: $black;
+    font-size: 18px;
+    line-height: 1.3;
+  }
+
+  &--count {
+    color: $blue-black;
+    line-height: 1.3;
+    margin-top: 2px;
+  }
+
+  &--divider {
+    border-bottom: 1px solid $grey-lighter;
+    margin-bottom: 14px;
+  }
+
+  &--state {
+    margin-left: auto;
+  }
+}

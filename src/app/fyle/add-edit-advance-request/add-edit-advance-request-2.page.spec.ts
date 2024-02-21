@@ -1,5 +1,4 @@
 import { ModalController, PopoverController } from '@ionic/angular';
-import { AdvanceRequestPolicyService } from 'src/app/core/services/advance-request-policy.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { AdvanceRequestsCustomFieldsService } from 'src/app/core/services/advance-requests-custom-fields.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -68,7 +67,6 @@ export function TestCases2(getTestBed) {
     let authService: jasmine.SpyObj<AuthService>;
     let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
-    let advanceRequestPolicyService: jasmine.SpyObj<AdvanceRequestPolicyService>;
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
@@ -96,9 +94,6 @@ export function TestCases2(getTestBed) {
         AdvanceRequestsCustomFieldsService
       ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
-      advanceRequestPolicyService = TestBed.inject(
-        AdvanceRequestPolicyService
-      ) as jasmine.SpyObj<AdvanceRequestPolicyService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;

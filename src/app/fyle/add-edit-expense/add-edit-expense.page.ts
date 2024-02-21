@@ -23,6 +23,7 @@ import {
   noop,
   of,
   throwError,
+  EMPTY,
 } from 'rxjs';
 import {
   catchError,
@@ -92,7 +93,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -129,6 +129,9 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { CameraOptionsPopupComponent } from './camera-options-popup/camera-options-popup.component';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
+import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 
 type FormValue = {
   currencyObj: {
@@ -182,6 +185,8 @@ export class AddEditExpensePage implements OnInit {
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
   etxn$: Observable<UnflattenedTransaction>;
+
+  platformExpense$: Observable<PlatformExpense>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -281,7 +286,7 @@ export class AddEditExpensePage implements OnInit {
 
   matchedCCCTransaction: MatchedCCCTransaction;
 
-  alreadyApprovedExpenses: Expense[];
+  alreadyApprovedExpenses: PlatformExpense[];
 
   isSplitExpensesPresent: boolean;
 
@@ -410,7 +415,13 @@ export class AddEditExpensePage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter | null>;
 
+  showReceiptMandatoryError = false;
+
   _isExpandedView = false;
+
+  recentCategoriesOriginal: OrgCategoryListItem[];
+
+  isRTFEnabled$: Observable<boolean>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -451,13 +462,13 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
-    private platformHandlerService: PlatformHandlerService
+    private platformHandlerService: PlatformHandlerService,
+    private expensesService: ExpensesService
   ) {}
 
   get isExpandedView(): boolean {
@@ -673,29 +684,62 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  async showSplitBlockedPopover(message: string): Promise<void> {
+    const splitBlockedPopoverSpy = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Expense cannot be split',
+        message,
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await splitBlockedPopoverSpy.present();
+  }
+
   openSplitExpenseModal(splitType: string): void {
     const customFields$ = this.getCustomFields();
-    const reportValue = this.getFormValues();
+    const formValue = this.getFormValues();
 
     forkJoin({
       generatedEtxn: this.generateEtxnFromFg(this.etxn$, customFields$),
       txnFields: this.txnFields$.pipe(take(1)),
-    }).subscribe((res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj }) => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'split_expense',
-        {
-          splitType,
-          txnFields: JSON.stringify(res.txnFields),
-          txn: JSON.stringify(res.generatedEtxn.tx),
-          currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
-          fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
-          selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-          selectedReportId: reportValue.report ? JSON.stringify(reportValue.report.rp.id) : null,
-        },
-      ]);
-    });
+      expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
+    }).subscribe(
+      (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
+        if (res.generatedEtxn.tx.report_id && !formValue.report?.rp?.id) {
+          const popoverMessage =
+            'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.';
+          return this.showSplitBlockedPopover(popoverMessage);
+        }
+
+        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+          const popoverMessage =
+            'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
+          return this.showSplitBlockedPopover(popoverMessage);
+        }
+
+        this.router.navigate([
+          '/',
+          'enterprise',
+          'split_expense',
+          {
+            splitType,
+            txnFields: JSON.stringify(res.txnFields),
+            txn: JSON.stringify(res.generatedEtxn.tx),
+            currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
+            fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
+            selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
+            selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
+            selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
+            expenseFields: res.expenseFields ? JSON.stringify(res.expenseFields) : null,
+          },
+        ]);
+      }
+    );
   }
 
   markCCCAsPersonal(txnId: string): Observable<null> {
@@ -885,8 +929,16 @@ export class AddEditExpensePage implements OnInit {
   showFormValidationErrors(): void {
     this.fg.markAllAsTouched();
     const formContainer = this.formContainer.nativeElement as HTMLElement;
+
     if (formContainer) {
-      const invalidElement = formContainer.querySelector('.ng-invalid');
+      let invalidElement: Element;
+
+      if (this.showReceiptMandatoryError) {
+        invalidElement = formContainer.querySelector('.receipt-mandatory-error');
+      } else {
+        invalidElement = formContainer.querySelector('.ng-invalid');
+      }
+
       if (invalidElement) {
         invalidElement.scrollIntoView({
           behavior: 'smooth',
@@ -957,10 +1009,11 @@ export class AddEditExpensePage implements OnInit {
           const actionSheetOptions: { text: string; handler: () => void }[] = [];
 
           if (isSplitExpenseAllowed) {
-            const areCostCentersAvailable = costCenters.length > 0;
+            const areCostCentersAvailable = costCenters.length > 0 && txnFields.cost_center_id;
             const areProjectsAvailable = orgSettings.projects.enabled && projects.length > 0;
             const areProjectDependentCategoriesAvailable = filteredCategories.length > 1;
             const projectField = txnFields.project_id;
+            const costCenterField = txnFields.cost_center_id;
 
             if (!showProjectMappedCategoriesInSplitExpense || areProjectDependentCategoriesAvailable) {
               actionSheetOptions.push({
@@ -978,7 +1031,7 @@ export class AddEditExpensePage implements OnInit {
 
             if (areCostCentersAvailable) {
               actionSheetOptions.push({
-                text: 'Split Expense By Cost Center',
+                text: 'Split Expense By ' + this.titleCasePipe.transform(costCenterField?.field_name),
                 handler: () => this.splitExpCostCenterHandler(),
               });
             }
@@ -1653,6 +1706,8 @@ export class AddEditExpensePage implements OnInit {
           recentCostCenters,
           taxGroups,
         }) => {
+          this.recentCategoriesOriginal = recentCategories;
+
           if (project) {
             this.selectedProject$.next(project);
           }
@@ -1841,10 +1896,12 @@ export class AddEditExpensePage implements OnInit {
             }
           }
 
+          const expenseCategory = category?.enabled ? category : null;
+
           this.fg.patchValue(
             {
               project,
-              category,
+              category: expenseCategory,
               dateOfSpend: etxn.tx.txn_dt && dayjs(etxn.tx.txn_dt).format('YYYY-MM-DD'),
               vendor_id: etxn.tx.vendor
                 ? {
@@ -2116,7 +2173,7 @@ export class AddEditExpensePage implements OnInit {
           map((customFields: ExpenseField[]) =>
             this.customFieldsService.standardizeCustomFields(
               formValue.custom_inputs || [],
-              this.customInputsService.filterByCategory(customFields, category && category.id)
+              this.customInputsService.filterByCategory(customFields, category?.enabled && category.id)
             )
           )
         );
@@ -2466,11 +2523,6 @@ export class AddEditExpensePage implements OnInit {
       };
     };
 
-    const categoryControl = this.fg.value as {
-      category: {
-        id: number;
-      };
-    };
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -2502,13 +2554,27 @@ export class AddEditExpensePage implements OnInit {
       shareReplay(1)
     );
 
+    this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
+      if (project && project.project_org_category_ids.length !== 0) {
+        this.recentCategories = this.recentCategoriesOriginal.filter((originalCategory) =>
+          project.project_org_category_ids.includes(originalCategory.value.id)
+        );
+      } else {
+        this.recentCategories = this.recentCategoriesOriginal;
+      }
+    });
+
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.fg.value as {
+        category: {
+          id: number;
+        };
+      };
       if (
-        categoryControl.category &&
-        categoryControl.category.id &&
+        formValue.category &&
+        formValue.category.id &&
         !categories.some(
-          (category: { value: { id: number } }) =>
-            categoryControl.category && categoryControl.category.id === category.value.id
+          (category: { value: { id: number } }) => formValue.category && formValue.category.id === category.value.id
         )
       ) {
         this.fg.controls.category.reset();
@@ -2530,11 +2596,11 @@ export class AddEditExpensePage implements OnInit {
             etxn.tx.currency = etxn.tx.extracted_data.currency;
           }
 
-          if (etxn.tx.extracted_data.date) {
+          if (etxn.tx.extracted_data.date && !etxn.tx.txn_dt) {
             etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
           }
 
-          if (etxn.tx.extracted_data.invoice_dt) {
+          if (etxn.tx.extracted_data.invoice_dt && !etxn.tx.txn_dt) {
             etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
           }
 
@@ -2736,10 +2802,12 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  getSplitExpenses(splitExpenses: Expense[]): void {
+  getSplitExpenses(splitExpenses: PlatformExpense[]): void {
     this.isSplitExpensesPresent = splitExpenses.length > 1;
     if (this.isSplitExpensesPresent) {
-      this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
+      this.alreadyApprovedExpenses = splitExpenses.filter(
+        (splitExpense) => ['DRAFT', 'COMPLETE'].indexOf(splitExpense.state) === -1
+      );
 
       this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
     }
@@ -2755,7 +2823,7 @@ export class AddEditExpensePage implements OnInit {
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
               splitExpenses,
@@ -2858,6 +2926,14 @@ export class AddEditExpensePage implements OnInit {
     this.orgUserSettings$ = this.orgUserSettingsService.get();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     const accounts$ = this.accountsService.getEMyAccounts();
+
+    this.isRTFEnabled$ = orgSettings$.pipe(
+      map(
+        (orgSettings) =>
+          (orgSettings.visa_enrollment_settings.allowed && orgSettings.visa_enrollment_settings.enabled) ||
+          (orgSettings.mastercard_enrollment_settings.allowed && orgSettings.mastercard_enrollment_settings.enabled)
+      )
+    );
 
     this.isAdvancesEnabled$ = orgSettings$.pipe(
       map(
@@ -2992,6 +3068,14 @@ export class AddEditExpensePage implements OnInit {
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id as boolean, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
     ) as Observable<UnflattenedTransaction>;
+
+    /**
+     * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
+     */
+    if (this.activatedRoute.snapshot.params.id) {
+      const id = this.activatedRoute.snapshot.params.id as string;
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
+    }
 
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
@@ -3342,47 +3426,69 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
+  showSaveExpenseLoader(redirectedFrom: string): void {
+    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
+    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
+    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
+    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+  }
+
+  hideSaveExpenseLoader(): void {
+    this.saveExpenseLoader = false;
+    this.saveAndNewExpenseLoader = false;
+    this.saveAndNextExpenseLoader = false;
+    this.saveAndPrevExpenseLoader = false;
+  }
+
+  checkIfReceiptIsMissingAndMandatory(redirectedFrom: string): Observable<boolean> {
+    if (this.attachedReceiptsCount > 0) {
+      return of(false);
+    }
+
+    this.showSaveExpenseLoader(redirectedFrom);
+
+    return this.isConnected$.pipe(
+      take(1),
+      switchMap((isConnected) => {
+        if (isConnected) {
+          const customFields$ = this.getCustomFields();
+          return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
+            switchMap((etxn) =>
+              // TODO: We should not use as unknown, this needs to be removed everywhere
+              this.policyService.getPlatformPolicyExpense(
+                etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+                this.selectedCCCTransaction
+              )
+            ),
+            switchMap((platformPolicyExpense) => this.transactionService.checkMandatoryFields(platformPolicyExpense)),
+            map((missingMandatoryFields) => !!missingMandatoryFields.missing_receipt),
+            tap((isReceiptMissingAndMandatory) => {
+              this.showReceiptMandatoryError = isReceiptMissingAndMandatory;
+            }),
+            catchError(() => of(false))
+          );
+        } else {
+          return of(false);
+        }
+      }),
+      finalize(() => {
+        this.hideSaveExpenseLoader();
+      })
+    );
+  }
+
   checkPolicyViolation(etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }): Observable<ExpensePolicy> {
-    const transactionCopy = cloneDeep(etxn.tx);
-    /* Adding number of attachements and sending in test call as tx_num_files
-     * If editing an expense with receipts, check for already uploaded receipts
-     */
-    if (etxn.tx) {
-      transactionCopy.num_files = etxn.tx.num_files;
+    return this.policyService.getPlatformPolicyExpense(etxn, this.selectedCCCTransaction).pipe(
+      switchMap((platformPolicyExpense) =>
+        /* Expense creation has not moved to platform yet and since policy is moved to platform,
+         * it expects the expense object in terms of platform world. Until then, the method
+         * `transformTo` act as a bridge by translating the public expense object to platform
+         * expense.
+         */
 
-      // Check for receipts uploaded from mobile
-      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
-        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
-      }
-    }
-
-    transactionCopy.is_matching_ccc_expense = !!this.selectedCCCTransaction;
-    if (!transactionCopy.org_category_id) {
-      const categoryName = 'Unspecified';
-      return this.categoriesService.getCategoryByName(categoryName).pipe(
-        map((category: OrgCategory) => {
-          transactionCopy.org_category_id = category.id;
-          return transactionCopy;
-        }),
-        switchMap((unspecifiedTransaction) => {
-          /* Expense creation has not moved to platform yet and since policy is moved to platform,
-           * it expects the expense object in terms of platform world. Until then, the method
-           * `transformTo` act as a bridge by translating the public expense object to platform
-           * expense.
-           */
-          const policyExpense = this.policyService.transformTo(unspecifiedTransaction);
-          return this.transactionService.checkPolicy(policyExpense);
-        })
-      );
-    } else {
-      /* Expense creation has not moved to platform yet and since policy is moved to platform,
-       * it expects the expense object in terms of platform world. Until then, the method
-       * `transformTo` act as a bridge by translating the public expense object to platform
-       * expense.
-       */
-      const policyExpense = this.policyService.transformTo(transactionCopy);
-      return this.transactionService.checkPolicy(policyExpense);
-    }
+        this.transactionService.checkPolicy(platformPolicyExpense)
+      )
+    );
   }
 
   getProjectDependentFields(): TxnCustomProperties[] {
@@ -3466,132 +3572,138 @@ export class AddEditExpensePage implements OnInit {
     const that = this;
     const formValues = this.getFormValues();
 
-    that
-      .checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
-        if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode)) {
-          if (that.mode === 'add') {
-            if (that.isCreatedFromPersonalCard) {
-              that.saveAndMatchWithPersonalCardTxn();
-            } else {
-              if (saveIncompleteExpense && !that.fg.valid) {
-                this.trackingService.saveReceiptWithInvalidForm();
-              }
-
-              that
-                .addExpense('SAVE_EXPENSE')
-                .pipe(
-                  switchMap((txnData) => {
-                    if (txnData) {
-                      return from(txnData as Promise<OutboxQueue>);
-                    } else {
-                      return of(null);
-                    }
-                  }),
-                  finalize(() => {
-                    this.saveExpenseLoader = false;
-                  })
-                )
-                .subscribe(() => this.goBack());
-            }
+    forkJoin({
+      invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
+      isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
+      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+      if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory)) {
+        if (that.mode === 'add') {
+          if (that.isCreatedFromPersonalCard) {
+            that.saveAndMatchWithPersonalCardTxn();
           } else {
-            // to do edit
-            that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
+            if (saveIncompleteExpense && !that.fg.valid) {
+              this.trackingService.saveReceiptWithInvalidForm();
+            }
+
+            that
+              .addExpense('SAVE_EXPENSE')
+              .pipe(
+                switchMap((txnData) => {
+                  if (txnData) {
+                    return from(txnData as Promise<OutboxQueue>);
+                  } else {
+                    return of(null);
+                  }
+                }),
+                finalize(() => {
+                  this.saveExpenseLoader = false;
+                })
+              )
+              .subscribe(() => this.goBack());
           }
         } else {
-          that.showFormValidationErrors();
-
-          if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
-            setTimeout(() => {
-              that.invalidPaymentMode = false;
-            }, 3000);
-          }
+          // to do edit
+          that.editExpense('SAVE_EXPENSE').subscribe(() => this.goBack());
         }
-      });
+      } else {
+        that.showFormValidationErrors();
+
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveAndNewExpense(): void {
     const that = this;
     this.trackingService.clickSaveAddNew();
-    that
-      .checkIfInvalidPaymentMode()
-      .pipe(take(1))
-      .subscribe((invalidPaymentMode) => {
-        if (that.fg.valid && !invalidPaymentMode) {
-          if (that.mode === 'add') {
-            that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
-              this.reloadCurrentRoute();
-            });
-          } else {
-            that.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
-              that.goBack();
-            });
-          }
+
+    forkJoin({
+      invalidPaymentMode: that.checkIfInvalidPaymentMode(),
+      isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEW_EXPENSE'),
+    }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
+      if (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
+            this.reloadCurrentRoute();
+          });
         } else {
-          that.showFormValidationErrors();
-          if (invalidPaymentMode) {
-            that.invalidPaymentMode = true;
-            setTimeout(() => {
-              that.invalidPaymentMode = false;
-            }, 3000);
-          }
+          that.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
+            that.goBack();
+          });
         }
-      });
+      } else {
+        that.showFormValidationErrors();
+        if (invalidPaymentMode) {
+          that.invalidPaymentMode = true;
+          setTimeout(() => {
+            that.invalidPaymentMode = false;
+          }, 3000);
+        }
+      }
+    });
   }
 
   saveExpenseAndGotoPrev(): void {
     const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === 0) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToPrev();
-          }
-        });
+
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_PREV_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+      if (that.fg.valid && !isReceiptMissingAndMandatory) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === 0) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToPrev();
+            }
+          });
+        } else {
+          // to do edit
+          that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === 0) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToPrev();
+            }
+          });
+        }
       } else {
-        // to do edit
-        that.editExpense('SAVE_AND_PREV_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === 0) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToPrev();
-          }
-        });
+        that.showFormValidationErrors();
       }
-    } else {
-      that.showFormValidationErrors();
-    }
+    });
   }
 
   saveExpenseAndGotoNext(): void {
     const that = this;
-    if (that.fg.valid) {
-      if (that.mode === 'add') {
-        that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === this.reviewList.length - 1) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToNext();
-          }
-        });
+    that.checkIfReceiptIsMissingAndMandatory('SAVE_AND_NEXT_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+      if (that.fg.valid && !isReceiptMissingAndMandatory) {
+        if (that.mode === 'add') {
+          that.addExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === this.reviewList.length - 1) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToNext();
+            }
+          });
+        } else {
+          // to do edit
+          that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
+            if (+this.activeIndex === this.reviewList.length - 1) {
+              that.closeAddEditExpenses();
+            } else {
+              that.goToNext();
+            }
+          });
+        }
       } else {
-        // to do edit
-        that.editExpense('SAVE_AND_NEXT_EXPENSE').subscribe(() => {
-          if (+this.activeIndex === this.reviewList.length - 1) {
-            that.closeAddEditExpenses();
-          } else {
-            that.goToNext();
-          }
-        });
+        that.showFormValidationErrors();
       }
-    } else {
-      that.showFormValidationErrors();
-    }
+    });
   }
 
   async continueWithCriticalPolicyViolation(criticalPolicyViolations: string[]): Promise<boolean> {
@@ -3677,10 +3789,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
-    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
-    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
-    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
-    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    this.showSaveExpenseLoader(redirectedFrom);
 
     this.trackPolicyCorrections();
 
@@ -3859,10 +3968,7 @@ export class AddEditExpensePage implements OnInit {
         return of(transaction);
       }),
       finalize(() => {
-        this.saveExpenseLoader = false;
-        this.saveAndNewExpenseLoader = false;
-        this.saveAndNextExpenseLoader = false;
-        this.saveAndPrevExpenseLoader = false;
+        this.hideSaveExpenseLoader();
       })
     );
   }
@@ -3941,7 +4047,7 @@ export class AddEditExpensePage implements OnInit {
       switchMap((continueWithTransaction: { comment: string }) => {
         if (continueWithTransaction) {
           if (continueWithTransaction.comment === '' || continueWithTransaction.comment === null) {
-            continueWithTransaction.comment = 'No policy violation explaination provided';
+            continueWithTransaction.comment = 'No policy violation explanation provided';
           }
           return from(this.loaderService.showLoader()).pipe(
             switchMap(() =>
@@ -3979,10 +4085,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   addExpense(redirectedFrom: string): Observable<OutboxQueue | Promise<OutboxQueue>> {
-    this.saveExpenseLoader = redirectedFrom === 'SAVE_EXPENSE';
-    this.saveAndNewExpenseLoader = redirectedFrom === 'SAVE_AND_NEW_EXPENSE';
-    this.saveAndNextExpenseLoader = redirectedFrom === 'SAVE_AND_NEXT_EXPENSE';
-    this.saveAndPrevExpenseLoader = redirectedFrom === 'SAVE_AND_PREV_EXPENSE';
+    this.showSaveExpenseLoader(redirectedFrom);
 
     const customFields$ = this.getCustomFields();
 
@@ -4134,9 +4237,7 @@ export class AddEditExpensePage implements OnInit {
         )
       ),
       finalize(() => {
-        this.saveAndNewExpenseLoader = false;
-        this.saveAndNextExpenseLoader = false;
-        this.saveAndPrevExpenseLoader = false;
+        this.hideSaveExpenseLoader();
       })
     );
   }
@@ -4439,6 +4540,7 @@ export class AddEditExpensePage implements OnInit {
         this.attachReceipts(receiptDetails as { type: string; dataUrl: string });
         const message = 'Receipt added to Expense successfully';
         this.showSnackBarToast({ message }, 'success', ['msb-success-with-camera-icon']);
+        this.showReceiptMandatoryError = false;
 
         this.trackingService.showToastMessage({ ToastContent: message });
       }
@@ -4801,36 +4903,44 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getDuplicateExpenses(): void {
-    if (this.activatedRoute.snapshot.params.id) {
-      this.handleDuplicates
-        .getDuplicatesByExpense(this.activatedRoute.snapshot.params.id as string)
-        .pipe(
-          switchMap((duplicateSets) => {
-            const duplicateIds = duplicateSets
-              .map((value) => value.transaction_ids)
-              .reduce((acc, curVal) => acc.concat(curVal), []);
+    const expenseId = this.activatedRoute.snapshot.params.id as string;
 
-            if (duplicateIds.length > 0) {
-              const params = {
-                tx_id: `in.(${duplicateIds.join(',')})`,
-              };
-              return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-                map((expenses) => {
-                  const expensesArray = expenses as [];
-                  return duplicateSets.map((duplicateSet) =>
-                    this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                  );
-                })
-              );
-            } else {
-              return of([]);
-            }
-          })
-        )
-        .subscribe((duplicateExpensesSet) => {
-          this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];
-        });
+    if (!expenseId) {
+      return;
     }
+
+    this.expensesService
+      .getDuplicatesByExpense(expenseId)
+      .pipe(
+        map((platformDuplicateSets) =>
+          platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
+        ),
+        switchMap((transformedDuplicateSets) => {
+          const duplicateIds = transformedDuplicateSets
+            .map((value) => value.transaction_ids)
+            .reduce((acc, curVal) => acc.concat(curVal), []);
+
+          if (duplicateIds.length > 0) {
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return transformedDuplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
+              })
+            );
+          } else {
+            return of([]);
+          }
+        }),
+        catchError(() => EMPTY) // Return an empty observable in case of an error
+      )
+      .subscribe((duplicateExpensesSet) => {
+        this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];
+      });
   }
 
   addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]): Expense[] {
@@ -4840,10 +4950,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   async showSuggestedDuplicates(duplicateExpenses: Expense[]): Promise<void> {
+    this.trackingService.showSuggestedDuplicates();
+
+    const txnIDs = duplicateExpenses.map((expense) => expense.tx_id);
     const currencyModal = await this.modalController.create({
       component: SuggestedDuplicatesComponent,
       componentProps: {
-        duplicateExpenses,
+        duplicateExpenseIDs: txnIDs,
       },
       mode: 'ios',
       ...this.modalProperties.getModalDefaultProperties(),
@@ -4894,5 +5007,17 @@ export class AddEditExpensePage implements OnInit {
     });
 
     await sizeLimitExceededPopover.present();
+  }
+
+  async openTransactionStatusInfoModal(transactionStatus: TransactionStatus): Promise<void> {
+    const popover = await this.popoverController.create({
+      component: TransactionStatusInfoPopoverComponent,
+      componentProps: {
+        transactionStatus,
+      },
+      cssClass: 'fy-dialog-popover',
+    });
+
+    await popover.present();
   }
 }

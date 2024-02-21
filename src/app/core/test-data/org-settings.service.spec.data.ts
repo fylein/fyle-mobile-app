@@ -1,7 +1,6 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import {
   AccountingExportSettings,
-  EmailEvents,
   IncomingAccountObject,
   OrgSettings,
   OrgSettingsResponse,
@@ -64,7 +63,6 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     trip_request_policy_enabled: true,
     policyApprovalWorkflow: true,
@@ -313,6 +311,10 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  duplicate_detection_v2_settings: {
+    allowed: true,
+    enabled: true,
+  },
   custom_category_settings: {
     allowed: true,
     enabled: true,
@@ -433,6 +435,12 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: false,
     enabled: false,
   },
+  mobile_app_my_expenses_beta_enabled: false,
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -525,7 +533,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enable_individual_mileage_rates: true,
   },
   policy_settings: {
-    is_advance_request_policy_enabled: true,
     allowed: true,
     is_duplicate_detection_enabled: true,
     is_enabled: true,
@@ -729,6 +736,10 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
   },
+  duplicate_detection_v2_settings: {
+    allowed: true,
+    enabled: true,
+  },
   custom_category_settings: {
     allowed: true,
     enabled: true,
@@ -856,6 +867,26 @@ export const orgSettingsPostData: OrgSettingsResponse = {
   simplified_report_closure_settings: {
     allowed: false,
     enabled: false,
+  },
+  mobile_app_my_expenses_beta_enabled: false,
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
+};
+
+export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = {
+  ...orgSettingsPostData,
+  amex_feed_enrollment_settings: null,
+};
+
+export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = {
+  ...orgSettingsGetData,
+  amex_feed_enrollment_settings: {
+    allowed: undefined,
+    enabled: undefined,
+    virtual_card_settings_enabled: undefined,
   },
 };
 
@@ -1058,7 +1089,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -1398,5 +1428,10 @@ export const orgSettingsData: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };

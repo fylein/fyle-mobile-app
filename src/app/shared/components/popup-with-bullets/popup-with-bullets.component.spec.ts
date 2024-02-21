@@ -56,7 +56,7 @@ describe('PopupWithBulletsComponent', () => {
     component.listHeader = 'Now you can:';
     component.listItems = [
       {
-        icon: 'message',
+        icon: 'envelope',
         text: 'Message your receipts to Fyle at (302) 440-2921 and we will create an expense for you.',
         textToCopy: '(302) 440-2921',
       },
@@ -97,7 +97,7 @@ describe('PopupWithBulletsComponent', () => {
     const message = 'Phone Number Copied Successfully';
     const successToastProperties = {
       data: {
-        icon: 'tick-circle-outline-white',
+        icon: 'check-circle-outline',
         showCloseButton: true,
         message,
       },
@@ -115,7 +115,7 @@ describe('PopupWithBulletsComponent', () => {
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(
       'success',
       { message },
-      'tick-circle-outline-white'
+      'check-circle-outline'
     );
   });
 });

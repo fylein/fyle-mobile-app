@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 20 20" id="fy-card">
-  <defs>
-    <path id="card-a" d="M1,2 C0.446,2 0,2.448 0,3 L0,17 C0,17.552 0.446,18 1,18 L19,18 C19.553,18 20,17.552 20,17 L20,3 C20,2.448 19.553,2 19,2 L1,2 Z M2,6 L18,6 L18,4 L2,4 L2,6 Z M2,15.999 L18,15.999 L18,10 L2,10 L2,15.999 Z M5,12 C4.447,12 4,12.448 4,13 C4,13.552 4.447,14 5,14 L8,14 C8.554,14 9,13.552 9,13 C9,12.448 8.554,12 8,12 L5,12 Z"/>
-  </defs>
-  <use fill-rule="evenodd" xlink:href="#card-a"/>
-</svg>

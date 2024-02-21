@@ -101,7 +101,7 @@ export class ViewTeamAdvanceRequestPage implements OnInit {
         this.fileService.downloadUrl(fileObj.id).pipe(
           map((downloadUrl) => {
             fileObj.url = downloadUrl;
-            const details = this.fileService.getReceiptsDetails(fileObj);
+            const details = this.fileService.getReceiptsDetails(fileObj.name, fileObj.url);
             fileObj.type = details.type;
             fileObj.thumbnail = details.thumbnail;
             return fileObj;

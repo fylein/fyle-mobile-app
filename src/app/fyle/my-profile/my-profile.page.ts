@@ -266,7 +266,7 @@ export class MyProfilePage {
     const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
     let snackbarIcon: string;
     if (message.toLowerCase().includes('copied')) {
-      snackbarIcon = 'tick-circle-outline-white';
+      snackbarIcon = 'check-circle-outline';
     }
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties(type, { message }, snackbarIcon),
@@ -279,12 +279,12 @@ export class MyProfilePage {
     const fyleMobileNumber = '(302) 440-2921';
     const listItems = [
       {
-        icon: 'message',
+        icon: 'envelope',
         text: `Message your receipts to Fyle at ${fyleMobileNumber} and we will create an expense for you.`,
         textToCopy: fyleMobileNumber,
       },
       {
-        icon: 'fy-reimbursable',
+        icon: 'cash',
         text: 'Standard messaging rates applicable',
       },
     ];

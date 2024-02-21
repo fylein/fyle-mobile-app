@@ -19,12 +19,12 @@ describe('SnackbarPropertiesService', () => {
     //act
     const properties = service.setSnackbarProperties('success', { message: 'Success message' });
     //assert
-    expect(properties.data.icon).toEqual('tick-square-filled');
+    expect(properties.data.icon).toEqual('check-square-fill');
   });
 
   it('should return the correct icon for a failure toast message', () => {
     const properties = service.setSnackbarProperties('failure', { message: 'Failure message' });
-    expect(properties.data.icon).toEqual('danger');
+    expect(properties.data.icon).toEqual('warning-fill');
   });
 
   it('should return correct icon for a information toast message', () => {

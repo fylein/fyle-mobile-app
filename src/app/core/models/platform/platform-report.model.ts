@@ -61,3 +61,13 @@ export interface PlatformReport {
   next_approver_user_ids: string[];
   state_display_name: string;
 }
+
+export enum ReportState {
+  APPROVED = 'APPROVED',
+  APPROVER_INQUIRY = 'APPROVER_INQUIRY',
+  APPROVER_PENDING = 'APPROVER_PENDING',
+  DRAFT = 'DRAFT',
+  PAID = 'PAID',
+  PAYMENT_PENDING = 'PAYMENT_PENDING',
+  PAYMENT_PROCESSING = 'PAYMENT_PROCESSING',
+}

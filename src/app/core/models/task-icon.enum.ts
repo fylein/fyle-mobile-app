@@ -1,6 +1,6 @@
 export enum TaskIcon {
-  REPORT = 'fy-expense',
-  WARNING = 'warning-new',
-  ADVANCE = 'advances',
-  MOBILE = 'call',
+  REPORT = 'list',
+  WARNING = 'warning-outline',
+  ADVANCE = 'wallet',
+  MOBILE = 'phone',
 }

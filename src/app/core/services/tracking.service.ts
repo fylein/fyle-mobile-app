@@ -32,7 +32,7 @@ import {
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
-import { ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
+import { ReportFilters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
@@ -139,6 +139,22 @@ export class TrackingService {
 
   splittingExpense(properties: SplittingExpenseProperties): void {
     this.eventTrack('Splitting Expense', properties);
+  }
+
+  splitExpenseSuccess(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Success', properties);
+  }
+
+  splitExpenseFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Failed', properties);
+  }
+
+  splitExpensePolicyCheckFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy check failed', properties);
+  }
+
+  splitExpensePolicyAndMissingFieldsPopupShown(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy and Missing Fields Popup Shown', properties);
   }
 
   // view expense event
@@ -625,5 +641,9 @@ export class TrackingService {
 
   enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
     this.eventTrack('Enrolling Non RTF Card', properties);
+  }
+
+  showSuggestedDuplicates(): void {
+    this.eventTrack('Show Suggested Duplicates');
   }
 }

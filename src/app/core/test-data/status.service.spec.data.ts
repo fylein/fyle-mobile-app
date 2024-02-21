@@ -722,7 +722,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Created',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -762,7 +762,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -782,7 +782,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense automatically merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -802,7 +802,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: '2 expenses merged to this expense',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -822,7 +822,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -842,7 +842,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -862,7 +862,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policy Violation',
-      icon: 'danger',
+      icon: 'warning-fill',
     },
   },
   {
@@ -882,7 +882,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Receipt Removed',
-      icon: 'no-attachment',
+      icon: 'attachment-none',
     },
   },
   {
@@ -902,7 +902,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense removed',
-      icon: 'fy-delete',
+      icon: 'bin',
     },
   },
   {
@@ -942,7 +942,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
   {
@@ -962,7 +962,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Unflagged',
-      icon: 'flag',
+      icon: 'flag-outline',
     },
   },
   {
@@ -982,7 +982,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Failed to run policies',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1002,7 +1002,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Verified',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1042,7 +1042,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Approver Pending',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1062,7 +1062,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Approved',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1082,7 +1082,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Processing Payment',
-      icon: 'fy-recently-used',
+      icon: 'clock',
     },
   },
   {
@@ -1102,7 +1102,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Paid',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1142,7 +1142,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Issues',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1162,7 +1162,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policies Ran Successfully',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1182,7 +1182,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Card Transaction Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1202,7 +1202,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Unmatched',
-      icon: 'fy-corporate-card',
+      icon: 'card',
     },
   },
   {
@@ -1222,7 +1222,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1282,7 +1282,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1302,7 +1302,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1342,7 +1342,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Rule Applied',
-      icon: 'expense-rule',
+      icon: 'file-lightning-indicator',
     },
   },
   {
@@ -1605,7 +1605,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1625,7 +1625,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1666,7 +1666,7 @@ export const estatusSample = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1700,7 +1700,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
   },
@@ -1727,7 +1727,7 @@ export const eStatusWithProjectName = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1754,7 +1754,7 @@ export const eStatusWithProjectName2 = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1791,7 +1791,7 @@ export const eStatusWithReimbursible = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
   },
@@ -2054,7 +2054,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'repots Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -2077,7 +2077,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    st: { category: 'Policy Violation', icon: 'danger' },
+    st: { category: 'Policy Violation', icon: 'warning-fill' },
   },
   {
     st_id: 'st8dHUhDzXxr',
@@ -2097,7 +2097,7 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
     show_dt: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
 ];

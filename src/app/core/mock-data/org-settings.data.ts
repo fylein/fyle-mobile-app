@@ -59,7 +59,6 @@ export const orgSettingsRes: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -402,6 +401,11 @@ export const orgSettingsRes: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
@@ -462,7 +466,6 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -806,6 +809,11 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParamWoCCC: OrgSettings = {
@@ -865,7 +873,6 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -1186,6 +1193,11 @@ export const orgSettingsParamWoCCC: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
@@ -1262,6 +1274,18 @@ export const orgSettingsWoTax: OrgSettings = {
   },
   advance_requests: {
     enabled: true,
+  },
+};
+
+export const orgSettingsWoTaxAndRtf: OrgSettings = {
+  ...orgSettingsWoTax,
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: false,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: false,
   },
 };
 
@@ -1353,4 +1377,14 @@ export const orgSettingsWithUnsubscribeEvent: OrgSettings = {
     ...orgSettingsRes.admin_email_settings,
     unsubscribed_events: [EmailEvents.DELEGATOR_SUBSCRIPTION, EmailEvents.EADVANCES_CREATED],
   },
+};
+
+export const orgSettingsWithV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: true,
+};
+
+export const orgSettingsWoV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: false,
 };

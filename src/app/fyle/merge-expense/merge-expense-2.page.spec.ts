@@ -272,7 +272,7 @@ export function TestCases2(getTestBed) {
         const costCenterCall = mergeExpensesService.getFieldValueOnChange.calls.argsFor(9);
         expect(costCenterCall[0]).toEqual(optionsData13);
         expect(costCenterCall[1]).toEqual(true);
-        expect(costCenterCall[2]).toEqual('213');
+        expect(costCenterCall[2]).toEqual(12488);
         expect(costCenterCall[3]).toEqual('COST_CENTER_1');
       });
 

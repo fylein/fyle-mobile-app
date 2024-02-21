@@ -175,17 +175,6 @@ describe('FileService', () => {
     });
   });
 
-  it('uploadComplete(): to be called when the file upload is complete', (done) => {
-    apiService.post.and.returnValue(of(null));
-
-    const fileId = 'fiHv71XQgoZp';
-    fileService.uploadComplete(fileId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/files/' + fileId + '/upload_completed');
-      done();
-    });
-  });
-
   it('uploadUrl(): should upload the file url', (done) => {
     apiService.post.and.returnValue(of({ url: fileObjectAdv[0].url }));
 
@@ -200,7 +189,7 @@ describe('FileService', () => {
   describe('getReceiptsDetails():', () => {
     it('should return the receipt details', () => {
       spyOn(fileService, 'getReceiptExtension').and.returnValue('jpeg');
-      expect(fileService.getReceiptsDetails(fileObjectAdv[0])).toEqual({
+      expect(fileService.getReceiptsDetails(fileObjectAdv[0].name, fileObjectAdv[0].url)).toEqual({
         thumbnail: fileObjectAdv[0].thumbnail,
         type: fileObjectAdv[0].type,
       });
@@ -209,7 +198,7 @@ describe('FileService', () => {
 
     it('should return the pdf receipt details', () => {
       spyOn(fileService, 'getReceiptExtension').and.returnValue('pdf');
-      expect(fileService.getReceiptsDetails(fileObjectAdv1)).toEqual({
+      expect(fileService.getReceiptsDetails(fileObjectAdv1.name, fileObjectAdv1.url)).toEqual({
         thumbnail: 'img/fy-pdf.svg',
         type: fileObjectAdv1.type,
       });

@@ -11,14 +11,12 @@ import { DashboardTask } from '../models/dashboard-task.model';
 import { AdvanceRequestService } from './advance-request.service';
 import { AuthService } from './auth.service';
 import { ReportService } from './report.service';
-import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { HandleDuplicatesService } from './handle-duplicates.service';
-import { DuplicateSet } from '../models/v2/duplicate-sets.model';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 
 @Injectable({
   providedIn: 'root',
@@ -36,14 +34,13 @@ export class TasksService {
 
   constructor(
     private reportService: ReportService,
-    private transactionService: TransactionService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private userEventService: UserEventService,
     private authService: AuthService,
-    private handleDuplicatesService: HandleDuplicatesService,
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
-    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService
+    private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
+    private expensesService: ExpensesService
   ) {
     this.refreshOnTaskClear();
   }
@@ -496,9 +493,16 @@ export class TasksService {
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
-    return this.handleDuplicatesService
-      .getDuplicateSets()
-      .pipe(map((duplicateSets) => (duplicateSets?.length > 0 ? this.mapPotentialDuplicatesTasks(duplicateSets) : [])));
+    return this.expensesService.getDuplicateSets().pipe(
+      map((duplicateSets) => {
+        if (duplicateSets?.length > 0) {
+          return duplicateSets.map((value) => value.expense_ids);
+        } else {
+          return [];
+        }
+      }),
+      map((duplicateSets) => this.mapPotentialDuplicatesTasks(duplicateSets))
+    );
   }
 
   mapMobileNumberVerificationTask(type: 'Add' | 'Verify'): DashboardTask[] {
@@ -520,26 +524,29 @@ export class TasksService {
     return task;
   }
 
-  mapPotentialDuplicatesTasks(duplicateSets: DuplicateSet[]): DashboardTask[] {
-    const duplicateIds = duplicateSets
-      .map((value) => value.transaction_ids)
-      .reduce((acc, curVal) => acc.concat(curVal), []);
-    const task = [
-      {
-        hideAmount: true,
-        count: duplicateSets.length,
-        header: `${duplicateIds.length} Potential Duplicates`,
-        subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
-        icon: TaskIcon.WARNING,
-        ctas: [
-          {
-            content: 'Review',
-            event: TASKEVENT.openPotentialDuplicates,
-          },
-        ],
-      } as DashboardTask,
-    ];
-    return task;
+  mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {
+    if (duplicateSets.length > 0) {
+      const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);
+
+      const task = [
+        {
+          hideAmount: true,
+          count: duplicateSets.length,
+          header: `${duplicateIds.length} Potential Duplicates`,
+          subheader: `We detected ${duplicateIds.length} expenses which may be duplicates`,
+          icon: TaskIcon.WARNING,
+          ctas: [
+            {
+              content: 'Review',
+              event: TASKEVENT.openPotentialDuplicates,
+            },
+          ],
+        } as DashboardTask,
+      ];
+      return task;
+    } else {
+      return [];
+    }
   }
 
   getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
@@ -558,13 +565,19 @@ export class TasksService {
     );
   }
 
-  getUnreportedExpensesStats(): Observable<Datum[]> {
-    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_state: 'in.(COMPLETE)',
-      or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-      tx_report_id: 'is.null',
-    });
+  getUnreportedExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
+    return this.expensesService
+      .getExpenseStats({
+        state: 'in.(COMPLETE)',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+        report_id: 'is.null',
+      })
+      .pipe(
+        map((stats) => ({
+          totalCount: stats.data.count,
+          totalAmount: stats.data.total_amount,
+        }))
+      );
   }
 
   getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
@@ -577,18 +590,30 @@ export class TasksService {
       transactionStats: this.getUnreportedExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ transactionStats, homeCurrency }: { transactionStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToUnreportedExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
+      map(
+        ({
+          transactionStats,
+          homeCurrency,
+        }: {
+          transactionStats: { totalCount: number; totalAmount: number };
+          homeCurrency: string;
+        }) => this.mapAggregateToUnreportedExpensesTask(transactionStats, homeCurrency)
       )
     );
   }
 
-  getDraftExpensesStats(): Observable<Datum[]> {
-    return this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-      scalar: true,
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
-    });
+  getDraftExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
+    return this.expensesService
+      .getExpenseStats({
+        state: 'in.(DRAFT)',
+        report_id: 'is.null',
+      })
+      .pipe(
+        map((stats) => ({
+          totalCount: stats.data.count,
+          totalAmount: stats.data.total_amount,
+        }))
+      );
   }
 
   getDraftExpensesTasks(): Observable<DashboardTask[]> {
@@ -596,8 +621,14 @@ export class TasksService {
       transactionStats: this.getDraftExpensesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ transactionStats, homeCurrency }: { transactionStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToDraftExpensesTask(this.mapScalarStatsResponse(transactionStats), homeCurrency)
+      map(
+        ({
+          transactionStats,
+          homeCurrency,
+        }: {
+          transactionStats: { totalCount: number; totalAmount: number };
+          homeCurrency: string;
+        }) => this.mapAggregateToDraftExpensesTask(transactionStats, homeCurrency)
       )
     );
   }
@@ -795,9 +826,5 @@ export class TasksService {
 
   mapScalarAdvanceStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
-  }
-
-  mapScalarStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
-    return this.getStatsFromResponse(statsResponse, 'count(tx_id)', 'sum(tx_amount)');
   }
 }

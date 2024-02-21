@@ -209,8 +209,6 @@ export class NotificationsPage implements OnInit {
   }
 
   removeDisabledFeatures(): void {
-    this.updateAdvanceRequestFeatures();
-
     const activeFeatures = this.notificationEvents.events.reduce((accumulator, notificationEvent) => {
       if (accumulator.indexOf(notificationEvent.feature) === -1) {
         accumulator.push(notificationEvent.feature);
@@ -235,6 +233,7 @@ export class NotificationsPage implements OnInit {
       };
     });
     this.notificationEvents.features = newFeatures;
+    this.updateAdvanceRequestFeatures();
   }
 
   updateNotificationEvents(): void {

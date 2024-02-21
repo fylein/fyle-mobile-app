@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule, PopoverController } from '@ionic/angular';
 
 import { AddCorporateCardComponent } from './add-corporate-card.component';
@@ -168,7 +168,7 @@ describe('AddCorporateCardComponent', () => {
   });
 
   describe('card number validation errors', () => {
-    it('should show an error message when the user has entered an invalid card number', fakeAsync(() => {
+    it('should show an error message when the user has entered an invalid card number', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.OTHERS);
 
@@ -181,14 +181,12 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
-      expect(errorMessage.innerText).toBe('Please enter a valid card number.');
-    }));
+      expect(errorMessage.textContent).toContain('Please enter a valid card number.');
+    });
 
-    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', fakeAsync(() => {
+    it('should show an error message if only mastercard rtf is enabled but the user has entered a non-mastercard number', () => {
       component.isMastercardRTFEnabled = true;
       component.isVisaRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -205,17 +203,15 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
-      expect(errorMessage.innerText).toBe(
+      expect(errorMessage.textContent).toContain(
         'Enter a valid Mastercard number. If you have other cards, please contact your admin.'
       );
-    }));
+    });
 
-    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', fakeAsync(() => {
+    it('should show an error message if only visa rtf is enabled but the user has entered a non-visa number', () => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = false;
       component.isYodleeEnabled = false;
@@ -232,17 +228,15 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
-      expect(errorMessage.innerText).toBe(
+      expect(errorMessage.textContent).toContain(
         'Enter a valid Visa number. If you have other cards, please contact your admin.'
       );
-    }));
+    });
 
-    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', fakeAsync(() => {
+    it('should show an error message if user has entered a non visa/mastercard card number and yodlee is disabled in the org', () => {
       component.isVisaRTFEnabled = true;
       component.isMastercardRTFEnabled = true;
       component.isYodleeEnabled = false;
@@ -259,14 +253,12 @@ describe('AddCorporateCardComponent', () => {
       cardNumberInput.dispatchEvent(new Event('blur'));
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
-      expect(errorMessage.innerText).toBe(
+      expect(errorMessage.textContent).toContain(
         'Enter a valid Visa or Mastercard number. If you have other cards, please contact your admin.'
       );
-    }));
+    });
   });
 
   describe('card enrollment flow', () => {
@@ -320,7 +312,7 @@ describe('AddCorporateCardComponent', () => {
       expect(trackingService.cardEnrolled).toHaveBeenCalledOnceWith(cardEnrolledProperties2);
     });
 
-    it('should show the error message received from backend when we face api errors while enrolling the card', fakeAsync(() => {
+    it('should show the error message received from backend when we face api errors while enrolling the card', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error('This card already exists in the system')));
@@ -339,17 +331,15 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-      expect(errorMessage.innerText).toBe('This card already exists in the system');
+      expect(errorMessage.textContent).toContain('This card already exists in the system');
       expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledWith(cardEnrollmentErrorsProperties1);
-    }));
+    });
 
-    it('should show a default error message when we face api errors from backend but we dont have the error message', fakeAsync(() => {
+    it('should show a default error message when we face api errors from backend but we dont have the error message', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(true);
       realTimeFeedService.getCardTypeFromNumber.and.returnValue(CardNetworkType.VISA);
       realTimeFeedService.enroll.and.returnValue(throwError(() => new Error()));
@@ -368,15 +358,13 @@ describe('AddCorporateCardComponent', () => {
       addCorporateCardBtn.click();
 
       fixture.detectChanges();
-      tick(500);
-      fixture.detectChanges();
 
       const errorMessage = getElementBySelector(fixture, '[data-testid="error-message"]') as HTMLElement;
 
       expect(realTimeFeedService.enroll).toHaveBeenCalledOnceWith('4555555555555555', null);
-      expect(errorMessage.innerText).toBe('Something went wrong. Please try after some time.');
+      expect(errorMessage.textContent).toContain('Something went wrong. Please try after some time.');
       expect(trackingService.cardEnrollmentErrors).toHaveBeenCalledOnceWith(cardEnrollmentErrorsProperties2);
-    }));
+    });
 
     it('should disallow card enrollment if the entered card number is invalid', () => {
       realTimeFeedService.isCardNumberValid.and.returnValue(false);

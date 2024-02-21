@@ -5,10 +5,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { DomSanitizer } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
-import { Subscription, of, throwError } from 'rxjs';
+import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { duplicateSetData1 } from 'src/app/core/mock-data/duplicate-sets.data';
+import { duplicateSetData1, duplicateSetData4 } from 'src/app/core/mock-data/duplicate-sets.data';
 import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
@@ -44,7 +44,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -77,6 +76,18 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { setFormValid } from './add-edit-expense.setup.spec';
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
+import { customFieldData1 } from 'src/app/core/mock-data/custom-field.data';
+import {
+  missingMandatoryFieldsData1,
+  missingMandatoryFieldsData2,
+} from 'src/app/core/mock-data/missing-mandatory-fields.data';
+import { platformPolicyExpenseData1 } from 'src/app/core/mock-data/platform-policy-expense.data';
+import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { CustomField } from 'src/app/core/models/custom_field.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { expenseDuplicateSet2 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import { cloneDeep } from 'lodash';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -131,12 +142,12 @@ export function TestCases2(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -169,11 +180,11 @@ export function TestCases2(getTestBed) {
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
       corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService,
+        CorporateCreditCardExpenseService
       ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
-        RecentLocalStorageItemsService,
+        RecentLocalStorageItemsService
       ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
       recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService) as jasmine.SpyObj<RecentlyUsedItemsService>;
       tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
@@ -187,12 +198,12 @@ export function TestCases2(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -240,10 +251,10 @@ export function TestCases2(getTestBed) {
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCDisabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         fixture.detectChanges();
@@ -264,10 +275,10 @@ export function TestCases2(getTestBed) {
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(null));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
         spyOn(component, 'getCCCSettings').and.returnValue(false);
@@ -289,10 +300,10 @@ export function TestCases2(getTestBed) {
         accountsService.getEMyAccounts.and.returnValue(of(accountsData));
         orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
         orgUserSettingsService.getAllowedPaymentModes.and.returnValue(
-          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY]),
+          of([AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY])
         );
         paymentModesService.checkIfPaymentModeConfigurationsIsEnabled.and.returnValue(
-          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed),
+          of(orgSettingsData.payment_mode_settings.enabled && orgSettingsData.payment_mode_settings.allowed)
         );
         spyOn(component, 'getCCCSettings').and.returnValue(true);
         accountsService.getPaymentModes.and.returnValue(paymentModesData);
@@ -337,7 +348,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z'),
+            new Date('2023-02-15T06:30:00.000Z')
           );
           done();
         });
@@ -439,11 +450,9 @@ export function TestCases2(getTestBed) {
           expect(res).toEqual(expectedUnflattendedTxnData1);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            unflattenedTxnWithExtractedData.tx.extracted_data.category,
+            unflattenedTxnWithExtractedData.tx.extracted_data.category
           );
-          expect(dateService.getUTCDate).toHaveBeenCalledWith(
-            new Date(unflattenedTxnWithExtractedData.tx.extracted_data.date),
-          );
+          expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
           done();
         });
@@ -466,7 +475,26 @@ export function TestCases2(getTestBed) {
         component.getEditExpenseObservable().subscribe((res) => {
           expect(res).toEqual(unflattenedTxnWithExtractedData2);
           expect(transactionService.getETxnUnflattened).toHaveBeenCalledTimes(1);
-          expect(dateService.getUTCDate).toHaveBeenCalledTimes(2);
+          expect(dateService.getUTCDate).not.toHaveBeenCalled();
+          done();
+        });
+      });
+
+      it('should update txn date with extracted date if txn date is not defined in original expense', (done) => {
+        const mockedTxn = cloneDeep(unflattenedTxnWithExtractedData2);
+        const extractedDate = new Date('2023-01-24');
+
+        mockedTxn.tx.txn_dt = null;
+        mockedTxn.tx.extracted_data.invoice_dt = null;
+        mockedTxn.tx.extracted_data.date = extractedDate;
+
+        transactionService.getETxnUnflattened.and.returnValue(of(mockedTxn));
+        dateService.getUTCDate.and.returnValue(extractedDate);
+
+        component.getEditExpenseObservable().subscribe((res) => {
+          expect(res).toEqual(mockedTxn);
+          expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(mockedTxn.tx.extracted_data.date);
+          expect(mockedTxn.tx.txn_dt).toEqual(extractedDate);
           done();
         });
       });
@@ -559,6 +587,7 @@ export function TestCases2(getTestBed) {
     describe('saveExpense():', () => {
       it('should save an expense and match as personal if created from a personal card', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         setFormValid(component);
         component.isCreatedFromPersonalCard = true;
         component.mode = 'add';
@@ -566,6 +595,7 @@ export function TestCases2(getTestBed) {
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.saveAndMatchWithPersonalCardTxn).toHaveBeenCalledTimes(1);
       });
 
@@ -575,11 +605,13 @@ export function TestCases2(getTestBed) {
         activatedRoute.snapshot.params.dataUrl = 'url';
         spyOn(component, 'editExpense').and.returnValue(of(editExpTxn));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goBack');
         fixture.detectChanges();
 
         component.saveExpense();
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.goBack).toHaveBeenCalledOnceWith();
       });
@@ -589,18 +621,21 @@ export function TestCases2(getTestBed) {
           get: () => false,
         });
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
         fixture.detectChanges();
 
         component.saveExpense();
         tick(3500);
 
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledOnceWith();
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
       }));
 
       it('should add expense in add mode', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url1']);
         component.mode = 'add';
@@ -610,11 +645,13 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
 
       it('should return null if add expense fails', () => {
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         component.fg.controls.report.setValue(null);
         activatedRoute.snapshot.params.dataUrl = JSON.stringify(['url']);
         component.mode = 'add';
@@ -624,6 +661,7 @@ export function TestCases2(getTestBed) {
         component.saveExpense();
 
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
       });
     });
@@ -632,6 +670,7 @@ export function TestCases2(getTestBed) {
       it('should save and create expense if the form is valid and is in add mode', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
         spyOn(component, 'reloadCurrentRoute');
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         component.mode = 'add';
         component.fg.clearValidators();
@@ -644,11 +683,13 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.reloadCurrentRoute).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense if the form is valid and is in edit mode ', () => {
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(false));
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
         spyOn(component, 'goBack');
@@ -660,26 +701,172 @@ export function TestCases2(getTestBed) {
         component.saveAndNewExpense();
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
         expect(component.checkIfInvalidPaymentMode).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.goBack).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if payment mode is invalid', fakeAsync(() => {
         spyOn(component, 'showFormValidationErrors');
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'checkIfInvalidPaymentMode').and.returnValue(of(true));
 
         component.saveAndNewExpense();
         tick(3000);
 
         expect(trackingService.clickSaveAddNew).toHaveBeenCalledTimes(1);
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEW_EXPENSE');
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
         expect(component.invalidPaymentMode).toBeFalse();
       }));
     });
 
+    describe('showSaveExpenseLoader()', () => {
+      it('should set saveExpenseLoader to true if redirected from save expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_EXPENSE');
+        expect(component.saveExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndNewExpenseLoader to true if redirected from save and new expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_NEW_EXPENSE');
+        expect(component.saveAndNewExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndNextExpenseLoader to true if redirected from save and next expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_NEXT_EXPENSE');
+        expect(component.saveAndNextExpenseLoader).toBeTrue();
+      });
+
+      it('should set saveAndPrevExpenseLoader to true if redirected from save and prev expense flow', () => {
+        component.showSaveExpenseLoader('SAVE_AND_PREV_EXPENSE');
+        expect(component.saveAndPrevExpenseLoader).toBeTrue();
+      });
+    });
+
+    it('hideSaveExpenseLoader(): it should set all the save expense loader flags to false', () => {
+      component.hideSaveExpenseLoader();
+
+      expect(component.saveExpenseLoader).toBeFalse();
+      expect(component.saveAndNewExpenseLoader).toBeFalse();
+      expect(component.saveAndNextExpenseLoader).toBeFalse();
+      expect(component.saveAndPrevExpenseLoader).toBeFalse();
+    });
+
+    describe('checkIfReceiptIsMissingAndMandatory()', () => {
+      let customFields$: Observable<CustomField[]>;
+
+      beforeEach(() => {
+        customFields$ = of(customFieldData1);
+        component.isConnected$ = of(true);
+
+        spyOn(component, 'getCustomFields').and.returnValue(customFields$);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedTxnData));
+        spyOn(component, 'showSaveExpenseLoader');
+        spyOn(component, 'hideSaveExpenseLoader');
+
+        policyService.getPlatformPolicyExpense.and.returnValue(of(platformPolicyExpenseData1));
+        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData1));
+      });
+
+      it('should return true if receipt is missing and mandatory', (done) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeTrue();
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
+            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+            component.selectedCCCTransaction
+          );
+          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+
+          done();
+        });
+      });
+
+      it('should show save expense loader while checking if receipt is invalid', (done) => {
+        const isReceiptInvalid$ = component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE');
+        expect(component.showSaveExpenseLoader).toHaveBeenCalledOnceWith('SAVE_EXPENSE');
+
+        isReceiptInvalid$
+          .pipe(
+            finalize(() => {
+              expect(component.hideSaveExpenseLoader).toHaveBeenCalledTimes(1);
+              done();
+            })
+          )
+          .subscribe();
+      });
+
+      it('should set showReceiptMandatoryError to true if receipt is missing and mandatory', (done) => {
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(component.showReceiptMandatoryError).toBeTrue();
+          done();
+        });
+      });
+
+      it('should return false if receipt is not missing or not mandatory', (done) => {
+        transactionService.checkMandatoryFields.and.returnValue(of(missingMandatoryFieldsData2));
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
+            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+            component.selectedCCCTransaction
+          );
+          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+
+          done();
+        });
+      });
+
+      it('should return false if offline', (done) => {
+        component.isConnected$ = of(false);
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).not.toHaveBeenCalled();
+          expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
+          expect(policyService.getPlatformPolicyExpense).not.toHaveBeenCalled();
+          expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
+
+          done();
+        });
+      });
+
+      it('should return false if expense has receipts attached', (done) => {
+        component.attachedReceiptsCount = 1;
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).not.toHaveBeenCalled();
+          expect(component.generateEtxnFromFg).not.toHaveBeenCalled();
+          expect(policyService.getPlatformPolicyExpense).not.toHaveBeenCalled();
+          expect(transactionService.checkMandatoryFields).not.toHaveBeenCalled();
+
+          done();
+        });
+      });
+
+      it('should return false if check_mandatory_fields call fails', (done) => {
+        transactionService.checkMandatoryFields.and.returnValue(throwError(() => new Error()));
+        component.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE').subscribe((isReceiptMissingAndMandatory) => {
+          expect(isReceiptMissingAndMandatory).toBeFalse();
+          expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+          expect(component.generateEtxnFromFg).toHaveBeenCalledOnceWith(component.etxn$, customFields$, true);
+          expect(policyService.getPlatformPolicyExpense).toHaveBeenCalledOnceWith(
+            unflattenedTxnData as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+            component.selectedCCCTransaction
+          );
+          expect(transactionService.checkMandatoryFields).toHaveBeenCalledOnceWith(platformPolicyExpenseData1);
+
+          done();
+        });
+      });
+    });
+
     describe('saveExpenseAndGotoPrev():', () => {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -690,11 +877,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the previous expense if not the first one in list', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'add';
@@ -705,11 +894,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.goToPrev).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -720,11 +911,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should save an edited expense and go to the previous expense', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToPrev');
         component.activeIndex = 1;
         component.mode = 'edit';
@@ -735,21 +928,25 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoPrev();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_PREV_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
         expect(component.goToPrev).toHaveBeenCalledOnceWith();
       });
 
       it('should show validation errors if the form is not valid', () => {
         spyOn(component, 'showFormValidationErrors');
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
 
         component.saveExpenseAndGotoPrev();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledWith('SAVE_AND_PREV_EXPENSE');
       });
     });
 
     describe('saveExpenseAndGotoNext():', () => {
       it('should add a new expense and close the form', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.reviewList = ['id1'];
@@ -761,11 +958,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledOnceWith();
       });
 
       it('should add a new expense and go to the next expense if not the first one in list', () => {
         spyOn(component, 'addExpense').and.returnValue(of(Promise.resolve(outboxQueueData1[0])));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'add';
@@ -777,11 +976,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.addExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and close the form', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'closeAddEditExpenses');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -793,11 +994,13 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.closeAddEditExpenses).toHaveBeenCalledTimes(1);
       });
 
       it('should save an edited expense and go to the next expense', () => {
         spyOn(component, 'editExpense').and.returnValue(of(txnData2));
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(false));
         spyOn(component, 'goToNext');
         component.activeIndex = 0;
         component.mode = 'edit';
@@ -809,15 +1012,18 @@ export function TestCases2(getTestBed) {
 
         component.saveExpenseAndGotoNext();
         expect(component.editExpense).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
         expect(component.goToNext).toHaveBeenCalledTimes(1);
       });
 
       it('should show validation errors if the form is not valid', () => {
+        spyOn(component, 'checkIfReceiptIsMissingAndMandatory').and.returnValue(of(true));
         spyOn(component, 'showFormValidationErrors');
 
         component.saveExpenseAndGotoNext();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledOnceWith();
+        expect(component.checkIfReceiptIsMissingAndMandatory).toHaveBeenCalledOnceWith('SAVE_AND_NEXT_EXPENSE');
       });
     });
 
@@ -860,7 +1066,7 @@ export function TestCases2(getTestBed) {
 
       const result = await component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state,
+        splitPolicyExp4.data.final_desired_state
       );
 
       expect(result).toEqual({ comment: 'primary' });
@@ -918,7 +1124,7 @@ export function TestCases2(getTestBed) {
           expect(currencyService.getExchangeRate).toHaveBeenCalledOnceWith(
             'USD',
             'INR',
-            new Date('2023-02-15T06:30:00.000Z'),
+            new Date('2023-02-15T06:30:00.000Z')
           );
         });
       }));
@@ -977,7 +1183,7 @@ export function TestCases2(getTestBed) {
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
             true,
-            'rpId',
+            'rpId'
           )
           .componentProps.deleteMethod();
         expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
@@ -988,7 +1194,7 @@ export function TestCases2(getTestBed) {
         component
           .getDeleteReportParams(
             { header: 'Header', body: 'body', ctaText: 'Action', ctaLoadingText: 'Loading' },
-            false,
+            false
           )
           .componentProps.deleteMethod();
         expect(transactionService.delete).toHaveBeenCalledTimes(1);
@@ -1022,10 +1228,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           true,
-          'rpFE5X1Pqi9P',
+          'rpFE5X1Pqi9P'
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P'),
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, true, 'rpFE5X1Pqi9P')
         );
       }));
 
@@ -1055,10 +1261,10 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
         );
       }));
 
@@ -1092,18 +1298,18 @@ export function TestCases2(getTestBed) {
         expect(component.getDeleteReportParams).toHaveBeenCalledOnceWith(
           { header, body, ctaText, ctaLoadingText },
           undefined,
-          undefined,
+          undefined
         );
         expect(popoverController.create).toHaveBeenCalledOnceWith(
-          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined),
+          component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
         );
         expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex],
+          component.reviewList[+component.activeIndex]
         );
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
           unflattenedTxnData,
           component.reviewList,
-          +component.activeIndex,
+          +component.activeIndex
         );
       }));
     });
@@ -1183,7 +1389,7 @@ export function TestCases2(getTestBed) {
 
       expect(component.policyDetails).toEqual(individualExpPolicyStateData2);
       expect(policyService.getSpenderExpensePolicyViolations).toHaveBeenCalledOnceWith(
-        activatedRoute.snapshot.params.id,
+        activatedRoute.snapshot.params.id
       );
     });
 
@@ -1237,27 +1443,42 @@ export function TestCases2(getTestBed) {
     });
 
     describe('getDuplicateExpenses():', () => {
-      it('should get duplicate expenses', () => {
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
+      it('should return early if expenseId is not provided', () => {
+        activatedRoute.snapshot.params.id = ''; // No expenseId provided
+
+        component.getDuplicateExpenses();
+
+        expect(expensesService.getDuplicatesByExpense).not.toHaveBeenCalled();
+        expect(transactionService.getETxnc).not.toHaveBeenCalled();
+      });
+
+      it('should get duplicate expenses from platform', () => {
+        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+        const expenseId = activatedRoute.snapshot.params.id;
+
+        expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet2]));
         transactionService.getETxnc.and.returnValue(of([expenseData1]));
         spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
 
         component.getDuplicateExpenses();
-        expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+        expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
         expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
           params: { tx_id: `in.(tx5fBcPBAxLv)` },
         });
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData4, [expenseData1]);
       });
 
-      it('should return empty array if no duplicate is found', () => {
+      it('should return empty array if no duplicate is found in platform', () => {
         activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([]));
+
+        expensesService.getDuplicatesByExpense.and.returnValue(of([]));
 
         component.getDuplicateExpenses();
-        expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+
+        expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
         expect(component.duplicateExpenses).toBeUndefined();
       });
     });
@@ -1281,10 +1502,11 @@ export function TestCases2(getTestBed) {
         component.showSuggestedDuplicates([expenseData1]);
         tick(500);
 
+        expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenses: [expenseData1],
+            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
           },
           mode: 'ios',
           ...properties,
@@ -1306,10 +1528,11 @@ export function TestCases2(getTestBed) {
         component.showSuggestedDuplicates([expenseData1]);
         tick(500);
 
+        expect(trackingService.showSuggestedDuplicates).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: SuggestedDuplicatesComponent,
           componentProps: {
-            duplicateExpenses: [expenseData1],
+            duplicateExpenseIDs: ['tx5fBcPBAxLv'],
           },
           mode: 'ios',
           ...properties,
@@ -1322,7 +1545,7 @@ export function TestCases2(getTestBed) {
     it('showSnackBarToast(): should show snackbar with relevant properties', () => {
       const properties = {
         data: {
-          icon: 'tick-square-filled',
+          icon: 'check-square-fill',
           showCloseButton: true,
           message: 'Message',
         },

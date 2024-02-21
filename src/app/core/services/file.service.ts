@@ -77,10 +77,6 @@ export class FileService {
     return this.apiService.post<File>('/files/' + fileId + '/upload_url').pipe(map((data) => data.url));
   }
 
-  uploadComplete(fileId: string): Observable<File> {
-    return this.apiService.post<File>('/files/' + fileId + '/upload_completed');
-  }
-
   findByTransactionId(txnId: string): Observable<FileObject[]> {
     return this.apiService.get('/files', {
       params: {
@@ -176,8 +172,8 @@ export class FileService {
     return dataUrl.split(';')[0].split(':')[1];
   }
 
-  getReceiptsDetails(file: FileObject): ReceiptInfo {
-    const receiptExtn = this.getReceiptExtension(file.name);
+  getReceiptsDetails(fileName: string, downloadUrl: string): ReceiptInfo {
+    const receiptExtn = this.getReceiptExtension(fileName);
     const receiptInfo = {
       type: 'unknown',
       thumbnail: 'img/fy-receipt.svg',
@@ -188,7 +184,7 @@ export class FileService {
       receiptInfo.thumbnail = 'img/fy-pdf.svg';
     } else if (receiptExtn && ['png', 'jpg', 'jpeg', 'gif'].indexOf(receiptExtn) > -1) {
       receiptInfo.type = 'image';
-      receiptInfo.thumbnail = file.url;
+      receiptInfo.thumbnail = downloadUrl;
     }
     return receiptInfo;
   }
