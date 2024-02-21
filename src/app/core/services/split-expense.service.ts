@@ -146,16 +146,6 @@ export class SplitExpenseService {
     return policyViolation;
   }
 
-  executePolicyCheck(
-    etxns: Expense[],
-    fileObjs: FileObject[],
-    categoryList: OrgCategory[]
-  ): Observable<PolicyViolationTxn> {
-    return this.runPolicyCheck(etxns, fileObjs).pipe(
-      map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
-    );
-  }
-
   checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<PolicyViolationTxn> {
     return from(etxns).pipe(
       concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
@@ -164,25 +154,6 @@ export class SplitExpenseService {
         return accumulator;
       }, {})
     );
-  }
-
-  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
-    if (etxns?.length > 0) {
-      const platformExpensesList: PublicPolicyExpense[] = [];
-      etxns.forEach((etxn) => {
-        // transformTo method requires unflattend transaction object
-        const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Expense>(etxn).tx;
-        platformExpense.num_files = fileObjs ? fileObjs.length : 0;
-
-        // Since expense has already been created in split expense flow, taking user_amount here.
-        platformExpense.amount =
-          typeof platformExpense.user_amount === 'number' ? platformExpense.user_amount : platformExpense.amount;
-        platformExpensesList.push(platformExpense);
-      });
-      return this.checkPolicyForTransactions(platformExpensesList);
-    } else {
-      return of({});
-    }
   }
 
   createSplitTxns(
