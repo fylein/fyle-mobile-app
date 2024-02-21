@@ -7,7 +7,6 @@ import {
   formattedPolicyViolation2,
 } from 'src/app/core/mock-data/formatted-policy-violation.data';
 import { FormArray, FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { SplitExpenseService } from 'src/app/core/services/split-expense.service';
 import { of } from 'rxjs';
 import { cloneDeep } from 'lodash';
 import {
@@ -23,7 +22,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
   let component: SplitExpensePolicyViolationComponent;
   let fixture: ComponentFixture<SplitExpensePolicyViolationComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
-  let splitExpenseService: jasmine.SpyObj<SplitExpenseService>;
   let comments: FormArray;
 
   beforeEach(waitForAsync(() => {
@@ -43,7 +41,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
 
     fixture = TestBed.createComponent(SplitExpensePolicyViolationComponent);
     component = fixture.componentInstance;
-    splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.policyViolations = {
       0: cloneDeep(filteredSplitPolicyViolationsData),
