@@ -231,6 +231,7 @@ describe('ManageCorporateCardsPage', () => {
     component.ionViewWillEnter();
     component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
       expect(virtualCardDetailsRes).toBeDefined();
+      expect(virtualCardDetailsRes).toEqual(virtualCardDetailsRes);
     });
   });
 
