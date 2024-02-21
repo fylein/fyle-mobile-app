@@ -402,6 +402,11 @@ export const orgSettingsRes: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParams2: OrgSettings = {
@@ -804,6 +809,11 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParamWoCCC: OrgSettings = {
@@ -1183,6 +1193,11 @@ export const orgSettingsParamWoCCC: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 

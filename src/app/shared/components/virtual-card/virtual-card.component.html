@@ -1,0 +1,62 @@
+<div class="virtual-card">
+  <div class="virtual-card__card-number">
+    <div class="virtual-card__card-number__nickname">
+      {{ cardNickname }}
+      <div class="virtual-card__status-pill">
+        <div
+          class="virtual-card__status-pill__dot"
+          [ngClass]="{
+            'virtual-card__status-pill__dot__success': showSuccessStatusDot,
+            'virtual-card__status-pill__dot__danger': !showSuccessStatusDot
+          }"
+        ></div>
+        <div>{{ cardStatus === CardStatus.PREACTIVE ? 'Pre-Active' : (cardStatus | titlecase) }}</div>
+      </div>
+    </div>
+    <div class="virtual-card__card-number__card-number-container">
+      <div *ngIf="!showCardNumber" class="virtual-card__card-number__card-number-mask">
+        <div>****</div>
+        <div>******</div>
+      </div>
+      <div *ngIf="showCardNumber" class="virtual-card__card-number__card-number-unmasked">
+        <div>{{ cardNumber | slice : 0 : 4 }}</div>
+        <div>{{ cardNumber | slice : 4 : 10 }}</div>
+      </div>
+      <div class="virtual-card__card-number__unmasked-card-digits">
+        {{ cardNumber | slice : 10 : 15 }}
+      </div>
+      <ion-icon
+        src="../../../../../assets/svg/duplicate.svg"
+        (press)="toggleShowCardNumber()"
+        (pressup)="hideCardNumberAndCopy()"
+        (tap)="copyToClipboard(cardNumber)"
+        class="virtual-card__card-number__copy-icon"
+      ></ion-icon>
+    </div>
+  </div>
+  <div class="virtual-card__card-fields">
+    <div class="virtual-card__card-fields__cvv-field">
+      <div class="virtual-card__card-fields__label-text">CVV</div>
+      <div class="virtual-card__card-fields__cvv-field__cvv-value">
+        <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
+        <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
+        <ion-icon
+          class="virtual-card__card-fields__cvv-copy-icon"
+          src="../../../../../assets/svg/duplicate.svg"
+          (press)="toggleShowCvv()"
+          (pressup)="hideCvvAndCopy()"
+          (tap)="copyToClipboard(cvv)"
+        ></ion-icon>
+      </div>
+    </div>
+    <div>
+      <div class="virtual-card__card-fields__label-text">Expiry</div>
+      <div class="virtual-card__card-fields__value-text">{{ expiry | date : 'MM/yy' }}</div>
+    </div>
+    <div *ngIf="availableAmount !== undefined" class="virtual-card__vertical-divider"></div>
+    <div *ngIf="availableAmount !== undefined">
+      <div class="virtual-card__card-fields__label-text">Available</div>
+      <div class="virtual-card__card-fields__value-text">{{ availableAmount | currency : 'USD' }}</div>
+    </div>
+  </div>
+</div>
