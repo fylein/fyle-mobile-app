@@ -14,6 +14,7 @@ import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card
 import { NetworkService } from 'src/app/core/services/network.service';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -73,7 +74,7 @@ export class CardStatsComponent implements OnInit {
   filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
     return cardDetails.filter((cardDetail) => {
       const virtualCardVisibility =
-        cardDetail.stats?.totalTxnsCount > 0 ||
+        cardDetail.stats.totalTxnsCount > 0 ||
         cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
         cardDetail.card.virtual_card_state === CardStatus.PREACTIVE;
       return cardDetail.card.virtual_card_id ? virtualCardVisibility : true;

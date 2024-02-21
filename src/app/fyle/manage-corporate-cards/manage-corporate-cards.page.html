@@ -10,7 +10,7 @@
 </ion-header>
 
 <div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
-  <div *ngIf="isVirtualCardsEnabled.enabled === true" class="manage-corporate-cards__segment-container">
+  <div *ngIf="isVirtualCardsEnabled.enabled" class="manage-corporate-cards__segment-container">
     <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
       <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
       <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
@@ -19,7 +19,7 @@
 </div>
 
 <!-- Corporate Cards will always be the default segment value -->
-<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS">
+<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS" class="manage-corporate-cards__corporate-cards">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -54,7 +54,7 @@
     </ng-template>
   </div>
 </ion-content>
-<ion-content *ngIf="segmentValue === Segment.VIRTUAL_CARDS">
+<ion-content *ngIf="segmentValue === Segment.VIRTUAL_CARDS" class="manage-corporate-cards__virtual-cards">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
@@ -63,9 +63,7 @@
     *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled"
     class="manage-corporate-cards__cards manage-corporate-cards__cards-list"
   >
-    <ng-container
-      *ngIf="isVirtualCardsEnabled.enabled === true && corporateCards$ | async as corporateCards; else shimmers"
-    >
+    <ng-container *ngIf="isVirtualCardsEnabled.enabled && corporateCards$ | async as corporateCards; else shimmers">
       <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__virtual-card">
           <app-virtual-card

@@ -38,8 +38,13 @@ export class VirtualCardComponent implements OnInit {
   ) {}
 
   showToastMessage(message: string): void {
+    const successToastProperties = this.snackbarProperties.setSnackbarProperties(
+      'success',
+      { message },
+      'check-circle-outline'
+    );
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', { message }, 'check-circle-outline'),
+      ...successToastProperties,
       panelClass: 'msb-success',
     });
   }

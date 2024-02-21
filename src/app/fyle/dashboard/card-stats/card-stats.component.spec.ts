@@ -10,7 +10,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   orgSettingsCCCDisabled,
   orgSettingsCCCEnabled,
@@ -18,11 +18,15 @@ import {
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { emptyCCCStats, mastercardCCCStats } from 'src/app/core/mock-data/ccc-expense.details.data';
-import { mastercardRTFCard } from 'src/app/core/mock-data/platform-corporate-card.data';
+import { mastercardRTFCard, statementUploadedCard } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { By } from '@angular/platform-browser';
-import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
+import { cardDetailsRes, virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corporate-card/add-corporate-card.component';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { virtualCardDetailsResponse } from 'src/app/core/mock-data/virtual-card-details-response.data';
+import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-spent-cards',
@@ -49,7 +53,7 @@ class MockAddCardComponent {
 describe('CardStatsComponent', () => {
   const cards = [mastercardRTFCard];
   const cardStats = mastercardCCCStats;
-  const cardDetails = [cardDetailsRes[1]];
+  const cardDetails = cardDetailsRes;
 
   let component: CardStatsComponent;
   let fixture: ComponentFixture<CardStatsComponent>;
@@ -61,6 +65,7 @@ describe('CardStatsComponent', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
+  let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
 
   beforeEach(waitForAsync(() => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
@@ -74,6 +79,7 @@ describe('CardStatsComponent', () => {
       'clearCache',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsMap']);
 
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
@@ -104,6 +110,10 @@ describe('CardStatsComponent', () => {
           useValue: corporateCreditCardExpenseServiceSpy,
         },
         {
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
+        },
+        {
           provide: PopoverController,
           useValue: popoverControllerSpy,
         },
@@ -118,6 +128,7 @@ describe('CardStatsComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
+    virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
     corporateCreditCardExpenseService = TestBed.inject(
       CorporateCreditCardExpenseService
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
@@ -169,6 +180,8 @@ describe('CardStatsComponent', () => {
       component.ngOnInit();
       component.init();
 
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
+
       fixture.detectChanges();
 
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
@@ -186,6 +199,22 @@ describe('CardStatsComponent', () => {
         cardStats.cardDetails
       );
     });
+
+    it('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
+      component.isVirtualCardsEnabled$ = of({ enabled: true });
+
+      virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
+
+      component.ngOnInit();
+      component.init();
+
+      tick(100);
+      component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
+        expect(virtualCardDetailsRes).toBeDefined();
+        expect(virtualCardDetailsRes.length).toBe(4);
+        expect(virtualCardDetailsRes[3]).toEqual(virtualCardDetailsCombined[0]);
+      });
+    }));
 
     describe('add card zero state', () => {
       beforeEach(() => {
@@ -242,6 +271,7 @@ describe('CardStatsComponent', () => {
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
       dashboardService.getCCCDetails.and.returnValue(of(emptyCCCStats));
       corporateCreditCardExpenseService.getPlatformCorporateCardDetails.and.returnValue([]);
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       component.ngOnInit();
       component.init();
@@ -313,6 +343,8 @@ describe('CardStatsComponent', () => {
     it('should open the add corporate card modal on addCardClick event', fakeAsync(() => {
       // Returning empty object, because we don't want to trigger the success flow, we are just testing if the popover opens or not
       addCardPopoverSpy.onDidDismiss.and.resolveTo({});
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
+      fixture.detectChanges();
 
       const addCardComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
       addCardComponent.triggerEventHandler('addCardClick', null);
@@ -334,6 +366,10 @@ describe('CardStatsComponent', () => {
 
     it('should open the card added modal on successful card addition and reload the cards', fakeAsync(() => {
       addCardPopoverSpy.onDidDismiss.and.resolveTo({ data: { success: true } });
+
+      component.isVirtualCardsEnabled$ = of({ enabled: false });
+
+      fixture.detectChanges();
 
       const spentCardsComponent = fixture.debugElement.query(By.directive(MockSpentCardsComponent));
       spentCardsComponent.triggerEventHandler('addCardClick', null);

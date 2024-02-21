@@ -21,6 +21,8 @@ import {
   incomingQuickbooksAccountingObjWithoutSettings,
   outgoingAccountingQuickbooksObjWithoutSettings,
   outgoingAccountingTallyObjWithoutSettings,
+  orgSettingsAmexFeedDataRequest,
+  orgSettingsAmexFeedDataResponse,
 } from '../test-data/org-settings.service.spec.data';
 
 import { OrgSettingsService } from './org-settings.service';
@@ -131,5 +133,13 @@ describe('OrgSettingsService', () => {
     expect(orgSettingsService.setOutgoingAccountingObject(incomingQuickbooksAccountingObjectWithoutSettings)).toEqual(
       outgoingAccountingQuickbooksObjectWithoutSettings
     );
+  });
+
+  it('should be able to get the org settings properly for undefined amex feed enrollment values', (done) => {
+    apiService.get.and.returnValue(of(orgSettingsAmexFeedDataRequest));
+    orgSettingsService.get().subscribe((res) => {
+      expect(res).toEqual(orgSettingsAmexFeedDataResponse);
+      done();
+    });
   });
 });
