@@ -32,6 +32,10 @@
     flex-direction: column;
   }
 
+  &__tab-available {
+    padding-top: 0;
+  }
+
   &__cards-list {
     display: flex;
     flex-direction: column;

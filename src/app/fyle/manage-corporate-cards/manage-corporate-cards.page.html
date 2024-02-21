@@ -61,7 +61,7 @@
 
   <div
     *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled"
-    class="manage-corporate-cards__cards manage-corporate-cards__cards-list"
+    class="manage-corporate-cards__cards manage-corporate-cards__cards-list manage-corporate-cards__tab-available"
   >
     <ng-container *ngIf="isVirtualCardsEnabled.enabled && corporateCards$ | async as corporateCards; else shimmers">
       <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
