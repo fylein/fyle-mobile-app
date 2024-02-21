@@ -48,31 +48,6 @@ export class SplitExpenseService {
     return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
   }
 
-  postCommentsFromUsers(
-    transactionIDs: string[],
-    comments: { [transactionID: string]: string }
-  ): Observable<TransactionStatus[]> {
-    const payloadData = [];
-    transactionIDs.forEach((transactionID) => {
-      const comment =
-        comments[transactionID] && comments[transactionID] !== ''
-          ? this.prependPolicyViolationMessage + comments[transactionID]
-          : this.defaultPolicyViolationMessage;
-      const apiPayload = {
-        objectType: 'transactions',
-        txnId: transactionID,
-        comment: { comment },
-        notify: true,
-      };
-      payloadData.push(apiPayload);
-    });
-
-    return from(payloadData).pipe(
-      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
-      toArray()
-    );
-  }
-
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
     return category?.displayName;

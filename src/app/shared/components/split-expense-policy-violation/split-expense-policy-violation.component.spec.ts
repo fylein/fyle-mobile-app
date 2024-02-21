@@ -28,17 +28,12 @@ describe('SplitExpensePolicyViolationComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const splitExpenseServiceSpy = jasmine.createSpyObj('SplitExpenseService', ['postCommentsFromUsers']);
     TestBed.configureTestingModule({
       declarations: [SplitExpensePolicyViolationComponent],
       imports: [IonicModule.forRoot(), ReactiveFormsModule],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         FormBuilder,
-        {
-          provide: SplitExpenseService,
-          useValue: splitExpenseServiceSpy,
-        },
         {
           provide: ModalController,
           useValue: modalControllerSpy,
@@ -95,7 +90,6 @@ describe('SplitExpensePolicyViolationComponent', () => {
   it('should post comments from users and dismiss the modal', () => {
     comments.at(0).get('comment').setValue('comment1');
     comments.at(1).get('comment').setValue('comment2');
-    splitExpenseService.postCommentsFromUsers.and.returnValue(of(null));
 
     component.continue();
 
