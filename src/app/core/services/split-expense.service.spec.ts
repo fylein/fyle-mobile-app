@@ -544,27 +544,6 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  it('checkForPolicyViolations(): check for policy violations', (done) => {
-    transactionService.getEtxn.withArgs(splitExpData2[0].tx_id).and.returnValue(of(splitExpData2[0]));
-    transactionService.getEtxn.withArgs(splitExpData2[1].tx_id).and.returnValue(of(splitExpData2[1]));
-    spyOn(splitExpenseService, 'executePolicyCheck').and.returnValue(of(policyViolationData4));
-
-    splitExpenseService
-      .checkForPolicyViolations([splitExpData2[0].tx_id, splitExpData2[1].tx_id], fileObject4, transformedOrgCategories)
-      .subscribe((res) => {
-        expect(res).toEqual(policyViolationData4);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[0].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[1].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledTimes(2);
-        expect(splitExpenseService.executePolicyCheck).toHaveBeenCalledOnceWith(
-          [splitExpData2[0], splitExpData2[1]],
-          fileObject4,
-          transformedOrgCategories
-        );
-        done();
-      });
-  });
-
   describe('createTxns(): ', () => {
     beforeEach(() => {
       spyOn(splitExpenseService, 'setUpSplitExpenseBillable').and.returnValue(true);

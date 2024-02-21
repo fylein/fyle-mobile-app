@@ -211,7 +211,6 @@ describe('SplitExpensePage', () => {
       'createSplitTxns',
       'linkTxnWithFiles',
       'formatPolicyViolations',
-      'checkForPolicyViolations',
       'getBase64Content',
       'splitExpense',
       'postSplitExpenseComments',
@@ -1836,7 +1835,6 @@ describe('SplitExpensePage', () => {
       component.amount = 2000;
       component.totalSplitAmount = 2000;
       component.isCorporateCardsEnabled$ = of(true);
-      splitExpenseService.checkForPolicyViolations.and.returnValue(of(policyVoilationData2));
       component.save();
 
       expect(component.generateSplitEtxnFromFg).toHaveBeenCalledOnceWith(component.splitExpensesFormArray.value[0]);

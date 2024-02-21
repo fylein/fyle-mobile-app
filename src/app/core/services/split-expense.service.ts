@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, switchMap, toArray } from 'rxjs/operators';
+import { concatMap, map, reduce, toArray } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
 import { FileTransaction } from '../models/file-txn.model';
@@ -195,18 +195,6 @@ export class SplitExpenseService {
   ): Observable<PolicyViolationTxn> {
     return this.runPolicyCheck(etxns, fileObjs).pipe(
       map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
-    );
-  }
-
-  checkForPolicyViolations(
-    txnIds: string[],
-    fileObjs: FileObject[],
-    categoryList: OrgCategory[]
-  ): Observable<PolicyViolationTxn> {
-    return from(txnIds).pipe(
-      concatMap((txnId) => this.transactionService.getEtxn(txnId)),
-      toArray(),
-      switchMap((etxns) => this.executePolicyCheck(etxns, fileObjs, categoryList))
     );
   }
 
