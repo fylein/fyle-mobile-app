@@ -1025,24 +1025,6 @@ describe('SplitExpensePage', () => {
     expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
   });
 
-  describe('handleSplitExpensePolicyViolations():', () => {
-    it('should handle polciy violations when the expense is split', () => {
-      const violations = policyVoilationData2;
-      spyOn(component, 'showSplitExpenseViolations');
-      policyService.checkIfViolationsExist.and.returnValue(true);
-      splitExpenseService.formatPolicyViolations.and.returnValue(formattedTxnViolations);
-      component.handleSplitExpensePolicyViolations(violations);
-      expect(component.showSplitExpenseViolations).toHaveBeenCalledOnceWith(formattedTxnViolations);
-    });
-
-    it('should show success toast when the expense is split and there are no violations', () => {
-      policyService.checkIfViolationsExist.and.returnValue(false);
-      spyOn(component, 'showSuccessToast');
-      component.handleSplitExpensePolicyViolations(policyViolationData3);
-      expect(component.showSuccessToast).toHaveBeenCalledTimes(1);
-    });
-  });
-
   it('getActiveCategories(): should get the active categories', (done) => {
     categoriesService.getAll.and.returnValue(of(filterOrgCategoryParam));
     categoriesService.filterRequired.and.returnValue(expectedFilterOrgCategory);

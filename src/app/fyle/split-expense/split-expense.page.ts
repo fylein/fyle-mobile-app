@@ -615,16 +615,6 @@ export class SplitExpensePage {
     this.showSuccessToast();
   }
 
-  handleSplitExpensePolicyViolations(violations: { [transactionID: string]: PolicyViolation }): void {
-    const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
-    if (doViolationsExist) {
-      const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
-      this.showSplitExpenseViolations(formattedViolations);
-    } else {
-      this.showSuccessToast();
-    }
-  }
-
   async showSplitExpensePolicyViolationsAndMissingFields(
     splitEtxns: Transaction[],
     policyViolations: { [id: number]: PolicyViolation },
