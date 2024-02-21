@@ -166,40 +166,6 @@ describe('SplitExpenseService', () => {
     expect(splitExpenseService).toBeTruthy();
   });
 
-  describe('linkTxnWithFiles():', () => {
-    it('should link transactions with files', (done) => {
-      transactionService.uploadBase64File
-        .withArgs(fileTxns.txns[0].id, fileTxns.files[0].name, fileTxns.files[0].content)
-        .and.returnValue(of(splitExpFile2));
-      transactionService.uploadBase64File
-        .withArgs(fileTxns.txns[1].id, fileTxns.files[0].name, fileTxns.files[0].content)
-        .and.returnValue(of(splitExpFile3));
-
-      splitExpenseService.linkTxnWithFiles(fileTxns).subscribe((res) => {
-        expect(res).toEqual([splitExpFile2, splitExpFile3]);
-        expect(transactionService.uploadBase64File).toHaveBeenCalledWith(
-          fileTxns.txns[0].id,
-          fileTxns.files[0].name,
-          fileTxns.files[0].content
-        );
-        expect(transactionService.uploadBase64File).toHaveBeenCalledWith(
-          fileTxns.txns[1].id,
-          fileTxns.files[0].name,
-          fileTxns.files[0].content
-        );
-        expect(transactionService.uploadBase64File).toHaveBeenCalledTimes(2);
-        done();
-      });
-    });
-
-    it('should return null if no files are present', (done) => {
-      splitExpenseService.linkTxnWithFiles({ ...fileTxns, files: null }).subscribe((res) => {
-        expect(res).toEqual([null]);
-        done();
-      });
-    });
-  });
-
   it('getBase64Content(): should get base 64 string of txn files', (done) => {
     fileService.base64Download.withArgs(splitExpFileObj[0].id).and.returnValue(of({ content: 'base64encodedcontent' }));
 

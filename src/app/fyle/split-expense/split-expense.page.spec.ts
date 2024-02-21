@@ -209,7 +209,6 @@ describe('SplitExpensePage', () => {
     const splitExpenseServiceSpy = jasmine.createSpyObj('SplitExpenseService', [
       'createSplitTxns',
       'createSplitTxns',
-      'linkTxnWithFiles',
       'formatPolicyViolations',
       'getBase64Content',
       'splitExpense',

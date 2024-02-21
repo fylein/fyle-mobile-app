@@ -3,7 +3,6 @@ import { forkJoin, from, Observable, of } from 'rxjs';
 import { concatMap, map, reduce, toArray } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
-import { FileTransaction } from '../models/file-txn.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
@@ -48,24 +47,6 @@ export class SplitExpenseService {
     private utilityService: UtilityService,
     private expensesService: ExpensesService
   ) {}
-
-  linkTxnWithFiles(data: Partial<FileTransaction>): Observable<FileObject[]> {
-    const observables = [];
-    const files = data.files;
-    const txns = data.txns;
-
-    if (files && files.length > 0) {
-      files.forEach((file) => {
-        txns.forEach((txn) => {
-          observables.push(this.transactionService.uploadBase64File(txn.id, file.name, file.content));
-        });
-      });
-    } else {
-      observables.push(of(null));
-    }
-
-    return forkJoin(observables);
-  }
 
   getBase64Content(fileObjs: FileObject[]): Observable<FileObject[]> {
     const fileObservables: Observable<{ content: string }>[] = [];
