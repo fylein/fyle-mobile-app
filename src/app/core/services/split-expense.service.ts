@@ -1,12 +1,11 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, toArray } from 'rxjs/operators';
+import { concatMap, toArray } from 'rxjs/operators';
 import { Expense } from '../models/expense.model';
 import { FileObject } from '../models/file-obj.model';
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { Transaction } from '../models/v1/transaction.model';
@@ -47,24 +46,6 @@ export class SplitExpenseService {
     private utilityService: UtilityService,
     private expensesService: ExpensesService
   ) {}
-
-  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<PolicyViolationTxn> {
-    const policyResponse = {};
-
-    /*
-    Expense creation has not moved to platform yet and since policy is moved to platform,
-    it expects the expense object in terms of platform world. Until then, the method
-    `transformTo` act as a bridge by translating the public expense object to platform
-    expense.
-    */
-    const platformPolicyExpense = this.policyService.transformTo(etxn);
-    return this.transactionService.checkPolicy(platformPolicyExpense).pipe(
-      map((policyViolationresponse) => {
-        policyResponse[etxn.id] = policyViolationresponse;
-        return policyResponse;
-      })
-    );
-  }
 
   postComment(apiPayload: PolicyViolationComment): Observable<TransactionStatus> {
     return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
@@ -144,16 +125,6 @@ export class SplitExpenseService {
       }
     });
     return policyViolation;
-  }
-
-  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<PolicyViolationTxn> {
-    return from(etxns).pipe(
-      concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
-      reduce((accumulator, violation) => {
-        accumulator = { ...accumulator, ...violation };
-        return accumulator;
-      }, {})
-    );
   }
 
   createSplitTxns(

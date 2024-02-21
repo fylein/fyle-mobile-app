@@ -309,36 +309,6 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  it('checkPolicyForTransaction(): should check policy for a transaction', (done) => {
-    policyService.transformTo.and.returnValue(splitExpensePolicyExp);
-    transactionService.checkPolicy.and.returnValue(of(splitExpPolicyData));
-
-    splitExpenseService.checkPolicyForTransaction(splitPolicyExp).subscribe((res) => {
-      expect(res).toEqual({
-        txqhb1IwrujH: policyViolation1,
-      });
-      expect(policyService.transformTo).toHaveBeenCalledOnceWith(splitPolicyExp);
-      expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(splitExpensePolicyExp);
-      done();
-    });
-  });
-
-  it('checkPolicyForTransactions(): should check policy for multiple transactions', (done) => {
-    spyOn(splitExpenseService, 'checkPolicyForTransaction').and.returnValue(
-      of({
-        txqhb1IwrujH: policyViolation1,
-      })
-    );
-
-    splitExpenseService.checkPolicyForTransactions([splitPolicyExp]).subscribe((res) => {
-      expect(res).toEqual({
-        txqhb1IwrujH: policyViolation1,
-      });
-      expect(splitExpenseService.checkPolicyForTransaction).toHaveBeenCalledOnceWith(splitPolicyExp);
-      done();
-    });
-  });
-
   describe('mapViolationDataWithEtxn(): ', () => {
     beforeEach(() => {
       const formatDisplayNameSpy = spyOn(splitExpenseService, 'formatDisplayName');
