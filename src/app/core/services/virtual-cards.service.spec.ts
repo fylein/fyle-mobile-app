@@ -12,6 +12,7 @@ import { CardDetailsResponse } from '../models/card-details-response.model';
 import { virtualCardResponse, virtualCardUndefinedResponse } from '../mock-data/virtual-card-response.data';
 import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-request.model';
 import { cardDetailsRes } from '../mock-data/platform-corporate-card-detail.data';
+import { virtualCardCombinedRequest } from '../mock-data/virtual-cards-combined-request.data';
 
 describe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
@@ -113,11 +114,7 @@ describe('VirtualCardsService', () => {
     });
   });
 
-  it('getCardDetailsInSerial(): should return serialised card details', () => {
-    const virtualCardsCombinedRequest: VirtualCardsCombinedRequest = {
-      virtualCardIds: ['vcgNQmrZvGhL'],
-      includeCurrentAmount: true,
-    };
+  it('getCardDetailsMap(): should return serialised card details', () => {
     const expectedCardDetailsResponse = {
       cardDetails: virtualCardDetailsResponse.data,
       currentAmount: virtualCardCurrentAmountResponse.data,
@@ -133,7 +130,7 @@ describe('VirtualCardsService', () => {
     };
 
     spyOn(virtualCardsService, 'getCombinedCardDetails').and.returnValue(of(expectedCardDetailsResponse));
-    virtualCardsService.getCardDetailsInSerial(virtualCardsCombinedRequest).subscribe((res) => {
+    virtualCardsService.getCardDetailsMap(virtualCardCombinedRequest).subscribe((res) => {
       expect(res).toEqual(expectedResponse);
     });
   });

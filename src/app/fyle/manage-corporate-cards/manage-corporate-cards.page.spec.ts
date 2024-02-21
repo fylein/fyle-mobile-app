@@ -79,7 +79,7 @@ describe('ManageCorporateCardsPage', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardUnenrolled']);
-    const virtualCardsServiceSpy = jasmine.createSpyObj('TrackingService', ['getCardDetailsInSerial']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('TrackingService', ['getCardDetailsMap']);
 
     TestBed.configureTestingModule({
       declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
@@ -203,7 +203,6 @@ describe('ManageCorporateCardsPage', () => {
 
   describe('segmentChanged():', () => {
     it('should show Virtual Card page', () => {
-      component.ionViewWillEnter();
       component.segmentChanged({
         detail: {
           value: '1',
@@ -211,6 +210,7 @@ describe('ManageCorporateCardsPage', () => {
       } as SegmentCustomEvent);
       expect(component.segmentValue).toEqual(ManageCardsPageSegment.VIRTUAL_CARDS);
     });
+
     it('should show Corporate Card page', () => {
       component.segmentChanged({
         detail: {
@@ -226,7 +226,7 @@ describe('ManageCorporateCardsPage', () => {
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([virtualCard]));
     component.isVirtualCardsEnabled$ = of({ enabled: true });
 
-    virtualCardsService.getCardDetailsInSerial.and.returnValue(of(virtualCardCombinedResponse));
+    virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
 
     component.ionViewWillEnter();
     component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {

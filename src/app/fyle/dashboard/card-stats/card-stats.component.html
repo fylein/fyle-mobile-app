@@ -13,7 +13,7 @@
               (addCardClick)="openAddCorporateCardPopover()"
             ></app-spent-cards>
           </ng-container>
-          <ng-container *ngIf="isVirtualCardsEnabled.enabled === true">
+          <ng-container *ngIf="isVirtualCardsEnabled.enabled">
             <ng-container *ngIf="virtualCardDetails$ | async as cardDetails">
               <app-spent-cards
                 [cardDetails]="cardDetails"

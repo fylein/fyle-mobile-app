@@ -79,7 +79,7 @@ describe('CardStatsComponent', () => {
       'clearCache',
     ]);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsInSerial']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('VirtualCardsService', ['getCardDetailsMap']);
 
     TestBed.configureTestingModule({
       declarations: [CardStatsComponent, MockSpentCardsComponent, MockAddCardComponent],
@@ -179,7 +179,7 @@ describe('CardStatsComponent', () => {
     it('should display the cards swiper when cards are present for the user', () => {
       component.ngOnInit();
       component.init();
-      
+
       component.isVirtualCardsEnabled$ = of({ enabled: false });
 
       fixture.detectChanges();
@@ -203,7 +203,7 @@ describe('CardStatsComponent', () => {
     it('should set virtualCardDetails$ when isVirtualCardsEnabled is true', fakeAsync(() => {
       component.isVirtualCardsEnabled$ = of({ enabled: true });
 
-      virtualCardsService.getCardDetailsInSerial.and.returnValue(of(virtualCardCombinedResponse));
+      virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
 
       component.ngOnInit();
       component.init();

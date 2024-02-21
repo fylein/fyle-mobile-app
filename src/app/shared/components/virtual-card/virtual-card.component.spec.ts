@@ -41,14 +41,26 @@ describe('VirtualCardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('copyToClipboard(): Should copy content to clipboard and trigger toast message', fakeAsync(() => {
-    spyOn(component, 'copyToClipboard').and.callThrough();
-    clipboardService.writeString.and.resolveTo();
-    component.copyToClipboard('1234');
+  describe('copyToClipboard(): ', () => {
+    it('should copy content to clipboard and trigger toast message', fakeAsync(() => {
+      spyOn(component, 'copyToClipboard').and.callThrough();
+      clipboardService.writeString.and.resolveTo();
+      component.copyToClipboard('1234');
 
-    expect(component.copyToClipboard).toHaveBeenCalledOnceWith('1234');
-    expect(clipboardService.writeString).toHaveBeenCalledOnceWith('1234');
-  }));
+      expect(component.copyToClipboard).toHaveBeenCalledOnceWith('1234');
+      expect(clipboardService.writeString).toHaveBeenCalledOnceWith('1234');
+    }));
+
+    it('should copy cvv on cvv copy icon tap', () => {
+      component.cvv = '1234';
+      const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
+      const tapSpy = spyOn(component, 'copyToClipboard');
+
+      cvvCopyIcon.dispatchEvent(new Event('tap'));
+
+      expect(tapSpy).toHaveBeenCalledOnceWith(component.cvv);
+    });
+  });
 
   it('showToastMessage(): Should show toast message', () => {
     const message = 'Copied Successfully!';
@@ -74,16 +86,6 @@ describe('VirtualCardComponent', () => {
       { message },
       'check-circle-outline'
     );
-  });
-
-  it('copyToClipboard(): should copy cvv on cvv copy icon tap', () => {
-    component.cvv = '1234';
-    const cvvCopyIcon = getElementBySelector(fixture, '.virtual-card__card-fields__cvv-copy-icon');
-    const tapSpy = spyOn(component, 'copyToClipboard');
-
-    cvvCopyIcon.dispatchEvent(new Event('tap'));
-
-    expect(tapSpy).toHaveBeenCalledOnceWith(component.cvv);
   });
 
   describe('template', () => {
