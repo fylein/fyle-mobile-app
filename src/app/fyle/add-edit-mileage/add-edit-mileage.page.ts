@@ -407,6 +407,12 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
+  calculateMileage(distance: number): number {
+    const mileageCalculatedDistance = distance;
+    console.log('mileageCalculatedDistance', mileageCalculatedDistance);
+    return mileageCalculatedDistance;
+  }
+
   goToTransaction(expense: UnflattenedTransaction, reviewList, activeIndex: number): void {
     let category;
 

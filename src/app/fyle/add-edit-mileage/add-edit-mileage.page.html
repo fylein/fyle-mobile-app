@@ -143,6 +143,7 @@
                           [unit]="etxn.tx.distance_unit || mileageConfig.unit"
                           [touchedInParent]="fg.controls.route.touched"
                           [validInParent]="fg.controls.route.valid"
+                          (mileageCalculatedDistance)="calculateMileage($event)"
                         ></app-route-selector>
                       </ng-container>
                     </ng-container>
