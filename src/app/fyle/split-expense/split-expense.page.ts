@@ -580,6 +580,7 @@ export class SplitExpensePage {
   }
 
   showSuccessToast(): void {
+    this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
@@ -723,6 +724,8 @@ export class SplitExpensePage {
       .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
         catchError((errResponse: HttpErrorResponse) => {
+          this.saveSplitExpenseLoading = false;
+
           const splitTrackingProps = this.getSplitExpensePoperties();
           splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
           this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
@@ -846,6 +849,8 @@ export class SplitExpensePage {
                 { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
               );
 
+              this.saveSplitExpenseLoading = false;
+
               this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
 
               const message = 'We were unable to split your expense. Please try again later.';
@@ -853,8 +858,6 @@ export class SplitExpensePage {
               return throwError(errResponse);
             }),
             finalize(() => {
-              this.saveSplitExpenseLoading = false;
-
               const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
             })
@@ -862,6 +865,9 @@ export class SplitExpensePage {
           .subscribe((response) => {
             if (response && response.action === 'continue') {
               this.handleSplitExpense(response.comments);
+            } else {
+              // If user clicks on cancel button, then stop the loader
+              this.saveSplitExpenseLoading = false;
             }
           });
       });
@@ -1175,7 +1181,7 @@ export class SplitExpensePage {
     // Last split should have the remaining amount after even split to make sure we get the total amount
 
     const evenlySplitTotalAmount = parseFloat((evenAmount * lastSplitIndex).toPrecision(15));
-    const lastSplitAmount = parseFloat((this.amount - evenlySplitTotalAmount).toPrecision(15));
+    const lastSplitAmount = parseFloat((this.amount - evenlySplitTotalAmount).toFixed(7));
     const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
 
     this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);
