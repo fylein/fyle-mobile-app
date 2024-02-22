@@ -1,6 +1,6 @@
-import { PlatformReport } from '../models/platform/v1/platform-report.model';
+import { Report } from '../models/platform/v1/report.model';
 
-export const platformReportData: PlatformReport = {
+export const platformReportData: Report = {
   amount: 0,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),

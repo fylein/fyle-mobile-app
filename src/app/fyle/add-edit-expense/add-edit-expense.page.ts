@@ -70,7 +70,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
@@ -150,7 +150,7 @@ type FormValue = {
     display_name: string;
   };
   purpose: string;
-  report: PlatformReport;
+  report: Report;
   tax_group: TaxGroup;
   tax_amount: number;
   location_1: string | Destination;
@@ -224,7 +224,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxSettings$: Observable<TaxSettings>;
 
-  reports$: Observable<{ label: string; value: PlatformReport }[]>;
+  reports$: Observable<{ label: string; value: Report }[]>;
 
   isProjectsEnabled$: Observable<boolean>;
 
@@ -1445,7 +1445,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedReport(): Observable<PlatformReport> {
+  getSelectedReport(): Observable<Report> {
     return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -1459,16 +1459,16 @@ export class AddEditExpensePage implements OnInit {
         }: {
           autoSubmissionReportName: string;
           etxn: UnflattenedTransaction;
-          reportOptions: { label: string; value: PlatformReport }[];
+          reportOptions: { label: string; value: Report }[];
         }) => {
           if (etxn.tx.report_id) {
             return reportOptions
               .map((res) => res.value)
-              .find((reportOption: PlatformReport) => reportOption.id === etxn.tx.report_id);
+              .find((reportOption: Report) => reportOption.id === etxn.tx.report_id);
           } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
             return reportOptions
               .map((res) => res.value)
-              .find((reportOption: PlatformReport) => reportOption.id === this.activatedRoute.snapshot.params.rp_id);
+              .find((reportOption: Report) => reportOption.id === this.activatedRoute.snapshot.params.rp_id);
           } else if (
             !autoSubmissionReportName &&
             reportOptions.length === 1 &&
@@ -3096,11 +3096,14 @@ export class AddEditExpensePage implements OnInit {
     this.reports$ = this.platformReportService
       .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
-        map((reports: PlatformReport[]) => reports.map((report) => ({ label: report.purpose, value: report })))
+        map((reports) =>
+          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+        ),
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
       ) as Observable<
       {
         label: string;
-        value: PlatformReport;
+        value: Report;
       }[]
     >;
 
@@ -3836,7 +3839,7 @@ export class AddEditExpensePage implements OnInit {
             }
 
             const reportControl = this.fg.value as {
-              report: PlatformReport;
+              report: Report;
             };
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
