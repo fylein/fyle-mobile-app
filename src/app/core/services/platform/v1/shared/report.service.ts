@@ -5,7 +5,8 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
-import { ReportPlatformParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { ReportPlatformParams, CreateDraftParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { UserEventService } from '../../../user-event.service';
 import { PAGINATION_SIZE } from 'src/app/constants';
 
@@ -23,6 +24,15 @@ export class PlatformReportService {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(map((res) => res.data));
   }
 
   @Cacheable({

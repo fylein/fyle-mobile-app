@@ -1,7 +1,7 @@
-import { PlatformReport } from './platform/v1/platform-report.model';
+import { Report } from './platform/v1/report.model';
 
 export interface Option {
   label: string;
-  value: PlatformReport;
+  value: Report;
   selected?: boolean;
 }
