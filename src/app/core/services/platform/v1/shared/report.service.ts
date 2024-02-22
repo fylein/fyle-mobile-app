@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@angular/core';
 import { Observable, Subject, from, of, range } from 'rxjs';
 import { catchError, concatMap, map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
-import { PlatformReport } from 'src/app/core/models/platform/v1/platform-report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ReportPlatformParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
@@ -28,14 +28,14 @@ export class PlatformReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getAllReportsByParams(queryParams: ReportPlatformParams): Observable<PlatformReport[]> {
+  getAllReportsByParams(queryParams: ReportPlatformParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
         return range(0, count);
       }),
       concatMap((page) => this.getReportsByParams(queryParams, this.paginationSize * page, this.paginationSize)),
-      reduce((acc, curr) => acc.concat(curr.data), [] as PlatformReport[])
+      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
     );
   }
 
@@ -47,7 +47,7 @@ export class PlatformReportService {
     queryParams: ReportPlatformParams = {},
     offset: number = 0,
     limit: number = 1
-  ): Observable<PlatformApiResponse<PlatformReport>> {
+  ): Observable<PlatformApiResponse<Report>> {
     const config = {
       params: {
         ...queryParams,
@@ -55,6 +55,6 @@ export class PlatformReportService {
         limit,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformReport>>('/reports', config);
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
   }
 }

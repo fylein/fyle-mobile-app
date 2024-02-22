@@ -1,6 +1,6 @@
 import { ReportApprovals } from '../report-approvals.model';
 
-export interface PlatformReport {
+export interface Report {
   id: string;
   org_id: string;
   created_at: Date;
