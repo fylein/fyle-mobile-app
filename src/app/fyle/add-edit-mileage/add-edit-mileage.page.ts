@@ -295,6 +295,12 @@ export class AddEditMileagePage implements OnInit {
 
   commuteDeductionOptions: { label: string; value: string; distance: number }[];
 
+  initialDistance: number;
+
+  previousCommuteDeductionType: string;
+
+  previousRouteValue: { roundTrip: boolean; mileageLocations: Location[]; distance: number };
+
   private _isExpandedView = false;
 
   constructor(
@@ -613,6 +619,11 @@ export class AddEditMileagePage implements OnInit {
         }
       }
     });
+  }
+
+  onCalculatedDistanceChange(distance: number): void {
+    // this.initialDistance = distance;
+    console.log('Distance:', distance);
   }
 
   getPaymentModes(): Observable<AccountOption[]> {
@@ -1290,6 +1301,36 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
+  private updateDistance(commuteDeductionType: string): void {
+    console.log('Update Distance:', this.fg.value.route);
+    let distance = this.fg.value.route?.distance;
+    if (distance > 0 && commuteDeductionType) {
+      const selectedCommuteDeduction = this.commuteDeductionOptions.find(
+        (option) => option.value === commuteDeductionType
+      );
+
+      if (this.previousCommuteDeductionType) {
+        // If there is a previous commute deduction type, add previosly deducted distance to the distance
+        const commuteDeduction = this.commuteDeductionOptions.find(
+          (option) => option.value === this.previousCommuteDeductionType
+        );
+        this.initialDistance = distance + commuteDeduction.distance;
+      } else {
+        // User choosing the commute deduction type for the first time
+        this.initialDistance = distance;
+      }
+
+      let commuteDeductedDistance = this.initialDistance - selectedCommuteDeduction.distance;
+      if (commuteDeductedDistance < 0) {
+        this.previousCommuteDeductionType = null;
+        this.fg.controls.route.patchValue({ distance: 0 });
+      } else {
+        this.previousCommuteDeductionType = commuteDeductionType;
+        this.fg.controls.route.patchValue({ distance: commuteDeductedDistance });
+      }
+    }
+  }
+
   private getCommuteDeductionOptions(distance: number): { label: string; value: string; distance: number }[] {
     return [
       { label: 'One Way Distance', value: 'ONE_WAY', distance: distance || null },
@@ -1595,6 +1636,18 @@ export class AddEditMileagePage implements OnInit {
 
           if (this.showCommuteDeductionField) {
             this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
+            this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType) => {
+              this.updateDistance(commuteDeductionType);
+            });
+
+            this.fg.controls.route.valueChanges.subscribe((route) => {
+              if (this.previousRouteValue && route && this.previousRouteValue.roundTrip !== route.roundTrip) {
+              }
+              console.log('Route:', route);
+              //this.updateDistance(this.fg.value.commuteDeduction);
+              this.previousRouteValue = route;
+            });
+
             if (etxn?.tx?.id) {
               /**
                * If we are editing an expense, then
@@ -1609,9 +1662,12 @@ export class AddEditMileagePage implements OnInit {
                 this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
                 this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
                 if (expense.commute_deduction) {
-                  this.fg.patchValue({
-                    commuteDeduction: expense.commute_deduction,
-                  });
+                  this.fg.patchValue(
+                    {
+                      commuteDeduction: expense.commute_deduction,
+                    },
+                    { emitEvent: false }
+                  );
                 }
               });
             } else {
