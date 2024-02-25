@@ -20,7 +20,6 @@ describe('PlatformReportService', () => {
       providers: [
         PlatformReportService,
         { provide: PAGINATION_SIZE, useValue: 2 },
-        { provide: 'UserEventService', useValue: {} },
         { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceMock },
       ],
     });
@@ -65,6 +64,45 @@ describe('PlatformReportService', () => {
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams, 2, 2);
       expect(getReportsByParams).toHaveBeenCalledTimes(2);
       done();
+    });
+  });
+
+  describe('getReportsByParams()', () => {
+    it('should get reports with specified parameters', (done) => {
+      const queryParams = {
+        state: 'DRAFT',
+      };
+      const expectedConfig = {
+        params: {
+          ...queryParams,
+          offset: 0,
+          limit: 2,
+        },
+      };
+      spenderPlatformV1ApiServiceMock.get.and.returnValue(of(allReportsPaginated1));
+      platformReportService.getReportsByParams(queryParams, 0, 2).subscribe((response) => {
+        expect(response).toEqual(allReportsPaginated1);
+        expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledWith('/reports', expectedConfig);
+        done();
+      });
+    });
+
+    it('should use default limit =1  and offset =0', (done) => {
+      const queryParams = {
+        state: 'DRAFT',
+      };
+      const expectedConfig = {
+        params: {
+          ...queryParams,
+          offset: 0,
+          limit: 1,
+        },
+      };
+      spenderPlatformV1ApiServiceMock.get.and.returnValue(of(allReportsPaginated1));
+      platformReportService.getReportsByParams(queryParams).subscribe((response) => {
+        expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledWith('/reports', expectedConfig);
+        done();
+      });
     });
   });
 });
