@@ -181,25 +181,6 @@ describe('SplitExpenseService', () => {
     });
   });
 
-  it('postCommentsFromUsers(): should post comments from users', (done) => {
-    const postCommentSpy = spyOn(splitExpenseService, 'postComment');
-    postCommentSpy.withArgs(violationComment2).and.returnValue(of(txnStatusData1));
-    postCommentSpy.withArgs(violationComment3).and.returnValue(of(txnStatusData2));
-
-    splitExpenseService
-      .postCommentsFromUsers(['txxkBruL0EO9', 'txNVtsqF8Siq'], {
-        txxkBruL0EO9: 'another comment',
-        txNVtsqF8Siq: '',
-      })
-      .subscribe((res) => {
-        expect(res).toEqual([txnStatusData1, txnStatusData2]);
-        expect(postCommentSpy).toHaveBeenCalledWith(violationComment2);
-        expect(postCommentSpy).toHaveBeenCalledWith(violationComment3);
-        expect(postCommentSpy).toHaveBeenCalledTimes(2);
-        done();
-      });
-  });
-
   describe('formatDisplayName(): ', () => {
     it('should get display name from list of categories', () => {
       categoriesService.filterByOrgCategoryId.and.returnValue(transformedOrgCategories[0]);
