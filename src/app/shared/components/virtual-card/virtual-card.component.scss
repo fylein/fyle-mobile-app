@@ -13,7 +13,7 @@
 
   &__card-number {
     color: $pure-white;
-    margin-top: 30px;
+    margin-top: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -26,6 +26,10 @@
       width: 100%;
       font-weight: 500;
       font-size: 12px;
+    }
+    &__copy-icon {
+      height: 22px;
+      width: 22px;
     }
     &__card-number-container {
       display: flex;
@@ -95,8 +99,8 @@
       align-items: start;
     }
     &__cvv-copy-icon {
-      height: 12px;
-      width: 12px;
+      height: 16px;
+      width: 16px;
       margin: 2px 0 0 2px;
     }
   }

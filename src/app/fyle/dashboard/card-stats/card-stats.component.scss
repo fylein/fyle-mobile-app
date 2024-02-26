@@ -15,4 +15,17 @@
     padding-inline: 16px;
     padding-bottom: 8px;
   }
+
+  &__shimmers {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    &__card {
+      height: 180px;
+      width: 280px;
+      border-radius: 16px;
+      margin-right: 24px;
+      margin-top: 20px;
+    }
+  }
 }

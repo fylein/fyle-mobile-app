@@ -4,6 +4,7 @@ import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { CardAddedComponent } from 'src/app/fyle/manage-corporate-cards/card-added/card-added.component';
 
 @Component({
   selector: 'app-virtual-card',
@@ -56,6 +57,7 @@ export class VirtualCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
+    this.cardStatus = CardStatus.EXPIRED;
   }
 
   hideCvvAndCopy() {

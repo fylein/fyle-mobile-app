@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
-import { ActionSheetButton, ActionSheetController, PopoverController } from '@ionic/angular';
+import { ActionSheetButton, ActionSheetController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, filter, forkJoin, map, switchMap } from 'rxjs';
 import { DataFeedSource } from 'src/app/core/enums/data-feed-source.enum';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
@@ -61,6 +61,10 @@ export class ManageCorporateCardsPage {
     if (event.detail.value) {
       this.segmentValue = parseInt(event.detail.value, 10);
     }
+  }
+
+  isVirtualCardsPresent(corporateCards: PlatformCorporateCard[]) {
+    return corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
   }
 
   refresh(event: RefresherCustomEvent): void {
