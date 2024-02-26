@@ -1,13 +1,9 @@
 import { Injectable } from '@angular/core';
 import { forkJoin, from, Observable, of } from 'rxjs';
-import { concatMap, map, reduce, toArray } from 'rxjs/operators';
-import { Expense } from '../models/expense.model';
+import { concatMap, toArray } from 'rxjs/operators';
 import { FileObject } from '../models/file-obj.model';
-import { FileTransaction } from '../models/file-txn.model';
-import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 import { PolicyViolationComment } from '../models/policy-violation-comment.model';
 import { PolicyViolation } from '../models/policy-violation.model';
-import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { TransactionStatus } from '../models/transaction-status.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { Transaction } from '../models/v1/transaction.model';
@@ -17,7 +13,6 @@ import { FileService } from './file.service';
 import { PolicyService } from './policy.service';
 import { StatusService } from './status.service';
 import { TransactionService } from './transaction.service';
-import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
 import { UtilityService } from './utility.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { ExpenseField } from '../models/v1/expense-field.model';
@@ -49,182 +44,13 @@ export class SplitExpenseService {
     private expensesService: ExpensesService
   ) {}
 
-  linkTxnWithFiles(data: Partial<FileTransaction>): Observable<FileObject[]> {
-    const observables = [];
-    const files = data.files;
-    const txns = data.txns;
-
-    if (files && files.length > 0) {
-      files.forEach((file) => {
-        txns.forEach((txn) => {
-          observables.push(this.transactionService.uploadBase64File(txn.id, file.name, file.content));
-        });
-      });
-    } else {
-      observables.push(of(null));
-    }
-
-    return forkJoin(observables);
-  }
-
-  getBase64Content(fileObjs: FileObject[]): Observable<FileObject[]> {
-    const fileObservables: Observable<{ content: string }>[] = [];
-    const newFileObjs: FileObject[] = fileObjs.map((fileObj) => ({
-      id: fileObj.id,
-      name: fileObj.name,
-      content: '',
-    }));
-
-    newFileObjs.forEach((fileObj) => {
-      fileObservables.push(this.fileService.base64Download(fileObj.id));
-    });
-
-    return forkJoin(fileObservables).pipe(
-      map((data) => {
-        newFileObjs.forEach((fileObj: FileObject, index) => {
-          fileObj.content = data[index].content;
-        });
-
-        return newFileObjs;
-      })
-    );
-  }
-
-  checkPolicyForTransaction(etxn: PublicPolicyExpense): Observable<PolicyViolationTxn> {
-    const policyResponse = {};
-
-    /*
-    Expense creation has not moved to platform yet and since policy is moved to platform,
-    it expects the expense object in terms of platform world. Until then, the method
-    `transformTo` act as a bridge by translating the public expense object to platform
-    expense.
-    */
-    const platformPolicyExpense = this.policyService.transformTo(etxn);
-    return this.transactionService.checkPolicy(platformPolicyExpense).pipe(
-      map((policyViolationresponse) => {
-        policyResponse[etxn.id] = policyViolationresponse;
-        return policyResponse;
-      })
-    );
-  }
-
   postComment(apiPayload: PolicyViolationComment): Observable<TransactionStatus> {
     return this.statusService.post(apiPayload.objectType, apiPayload.txnId, apiPayload.comment, apiPayload.notify);
-  }
-
-  postCommentsFromUsers(
-    transactionIDs: string[],
-    comments: { [transactionID: string]: string }
-  ): Observable<TransactionStatus[]> {
-    const payloadData = [];
-    transactionIDs.forEach((transactionID) => {
-      const comment =
-        comments[transactionID] && comments[transactionID] !== ''
-          ? this.prependPolicyViolationMessage + comments[transactionID]
-          : this.defaultPolicyViolationMessage;
-      const apiPayload = {
-        objectType: 'transactions',
-        txnId: transactionID,
-        comment: { comment },
-        notify: true,
-      };
-      payloadData.push(apiPayload);
-    });
-
-    return from(payloadData).pipe(
-      concatMap((payload: PolicyViolationComment) => this.postComment(payload)),
-      toArray()
-    );
-  }
-
-  formatPolicyViolations(violations: PolicyViolationTxn): {
-    [transactionID: string]: FormattedPolicyViolation;
-  } {
-    const formattedViolations = {};
-
-    for (const key of Object.keys(violations)) {
-      if (violations.hasOwnProperty(key)) {
-        // check for popup field for all polices
-        const rules = this.policyService.getPolicyRules(violations[key]);
-        const criticalPolicyRules = this.policyService.getCriticalPolicyRules(violations[key]);
-        const isCriticalPolicyViolation = criticalPolicyRules?.length > 0;
-
-        formattedViolations[key] = {
-          rules,
-          action: violations[key].data,
-          type: violations[key].type,
-          name: violations[key].name,
-          currency: violations[key].currency,
-          amount: violations[key].amount,
-          isCriticalPolicyViolation,
-          isExpanded: false,
-        };
-      }
-    }
-    return formattedViolations;
   }
 
   formatDisplayName(model: number, categoryList: OrgCategory[]): string {
     const category = this.categoriesService.filterByOrgCategoryId(model, categoryList);
     return category?.displayName;
-  }
-
-  mapViolationDataWithEtxn(
-    policyViolation: PolicyViolationTxn,
-    etxns: Expense[],
-    categoryList: OrgCategory[]
-  ): { [transactionID: string]: PolicyViolation } {
-    etxns.forEach((etxn) => {
-      for (const key of Object.keys(policyViolation)) {
-        if (policyViolation.hasOwnProperty(key) && key === etxn?.tx_id) {
-          policyViolation[key].amount = etxn.tx_orig_amount || etxn.tx_amount;
-          policyViolation[key].currency = etxn.tx_orig_currency || etxn.tx_currency;
-          policyViolation[key].name = this.formatDisplayName(etxn.tx_org_category_id, categoryList);
-          policyViolation[key].type = 'category';
-          break;
-        }
-      }
-    });
-    return policyViolation;
-  }
-
-  executePolicyCheck(
-    etxns: Expense[],
-    fileObjs: FileObject[],
-    categoryList: OrgCategory[]
-  ): Observable<PolicyViolationTxn> {
-    return this.runPolicyCheck(etxns, fileObjs).pipe(
-      map((policyViolation) => this.mapViolationDataWithEtxn(policyViolation, etxns, categoryList))
-    );
-  }
-
-  checkPolicyForTransactions(etxns: PublicPolicyExpense[]): Observable<PolicyViolationTxn> {
-    return from(etxns).pipe(
-      concatMap((etxn) => this.checkPolicyForTransaction(etxn)),
-      reduce((accumulator, violation) => {
-        accumulator = { ...accumulator, ...violation };
-        return accumulator;
-      }, {})
-    );
-  }
-
-  runPolicyCheck(etxns: Expense[], fileObjs: FileObject[]): Observable<PolicyViolationTxn> {
-    if (etxns?.length > 0) {
-      const platformExpensesList: PublicPolicyExpense[] = [];
-      etxns.forEach((etxn) => {
-        // transformTo method requires unflattend transaction object
-        const platformExpense = this.dataTransformService.unflatten<{ tx: PublicPolicyExpense }, Expense>(etxn).tx;
-        platformExpense.num_files = fileObjs ? fileObjs.length : 0;
-
-        // Since expense has already been created in split expense flow, taking user_amount here.
-        platformExpense.amount =
-          typeof platformExpense.user_amount === 'number' ? platformExpense.user_amount : platformExpense.amount;
-        platformExpensesList.push(platformExpense);
-      });
-      return this.checkPolicyForTransactions(platformExpensesList);
-    } else {
-      return of({});
-    }
   }
 
   createSplitTxns(
