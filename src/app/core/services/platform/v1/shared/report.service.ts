@@ -27,7 +27,7 @@ export class PlatformReportService {
     );
   }
 
-  getReportsCount(queryParams?: ReportPlatformParams): Observable<number> {
+  getReportsCount(queryParams: ReportPlatformParams): Observable<number> {
     return this.getReportsByParams(queryParams).pipe(map((res) => res.count));
   }
 

@@ -8,6 +8,7 @@ import {
   expectedReportsPaginated,
   allReportsPaginated2,
   platformReportCountRes,
+  expectedReportsSinglePage,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportPlatformParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 
@@ -63,6 +64,25 @@ describe('PlatformReportService', () => {
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams, 0, 2);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams, 2, 2);
       expect(getReportsByParams).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('getAllReportsByParams(): should get all reports single page', (done) => {
+    const getReportsByParams = spyOn(platformReportService, 'getReportsByParams');
+    spyOn(platformReportService, 'getReportsCount').and.returnValue(of(1));
+
+    const expectedParams: ReportPlatformParams = {
+      state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+    };
+
+    getReportsByParams.withArgs(expectedParams, 0, 2).and.returnValue(of(allReportsPaginated1));
+
+    platformReportService.getAllReportsByParams(expectedParams).subscribe((res) => {
+      expect(res).toEqual(expectedReportsSinglePage);
+      expect(platformReportService.getReportsCount).toHaveBeenCalledTimes(1);
+      expect(getReportsByParams).toHaveBeenCalledWith(expectedParams, 0, 2);
+      expect(getReportsByParams).toHaveBeenCalledTimes(1);
       done();
     });
   });
