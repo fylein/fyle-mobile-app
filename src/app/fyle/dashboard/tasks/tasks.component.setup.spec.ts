@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { TasksComponent } from './tasks.component';
@@ -19,6 +19,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './tasks-1.component.spec';
 import { TestCases2 } from './tasks-2.component.spec';
 import { TestCases3 } from './tasks-3.component.spec';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -32,8 +33,8 @@ describe('TasksComponent', () => {
       'clearCache',
       'getAllExpenses',
       'getETxnUnflattened',
-      'getAllETxnc',
     ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',
@@ -75,6 +76,7 @@ describe('TasksComponent', () => {
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },

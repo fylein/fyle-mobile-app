@@ -141,6 +141,22 @@ export class TrackingService {
     this.eventTrack('Splitting Expense', properties);
   }
 
+  splitExpenseSuccess(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Success', properties);
+  }
+
+  splitExpenseFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Failed', properties);
+  }
+
+  splitExpensePolicyCheckFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy check failed', properties);
+  }
+
+  splitExpensePolicyAndMissingFieldsPopupShown(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy and Missing Fields Popup Shown', properties);
+  }
+
   // view expense event
   viewExpense(properties: { Type: string }): void {
     this.eventTrack('View Expense', properties);

@@ -25,6 +25,11 @@ $small-screen: 700px;
     padding: 16px;
   }
 
+  &--content-split-info {
+    width: 95%;
+    margin: 10px auto;
+  }
+
   &--header {
     color: $black;
     font-weight: 500;

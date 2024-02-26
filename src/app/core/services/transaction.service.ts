@@ -135,20 +135,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
-    return this.getETxnCount(params).pipe(
-      switchMap((res) => {
-        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
-
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
@@ -469,14 +455,6 @@ export class TransactionService {
       name,
     };
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
-  }
-
-  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
-    const data = {
-      tx_split_group_id: 'eq.' + txnSplitGroupId,
-    };
-
-    return this.getAllETxnc(data);
   }
 
   unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
@@ -847,28 +825,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private getETxnCount(params: EtxnParams): Observable<{ count: number }> {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
-  }
-
-  private fixDates(data: Expense): Expense {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
