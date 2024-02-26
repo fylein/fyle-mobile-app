@@ -57,7 +57,6 @@ export class VirtualCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.showSuccessStatusDot = [CardStatus.ACTIVE, CardStatus.PREACTIVE].some((a) => a === this.cardStatus);
-    this.cardStatus = CardStatus.EXPIRED;
   }
 
   hideCvvAndCopy() {
