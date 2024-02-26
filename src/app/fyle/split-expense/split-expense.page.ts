@@ -470,53 +470,6 @@ export class SplitExpensePage {
     );
   }
 
-  createAndLinkTxnsWithFiles(splitExpenses: Transaction[]): Observable<string[]> {
-    const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(
-        this.transaction,
-        this.totalSplitAmount,
-        splitExpenses,
-        this.expenseFields
-      ),
-    };
-
-    if (this.fileObjs && this.fileObjs.length > 0) {
-      splitExpense$.files = this.splitExpenseService.getBase64Content(this.fileObjs);
-    }
-
-    return forkJoin(splitExpense$).pipe(
-      switchMap((data) => {
-        this.splitExpenseTxn = data.txns.map((txn) => txn);
-        this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
-        if (this.completeTxnIds.length !== 0 && this.reportId) {
-          return this.reportService.addTransactions(this.reportId, this.completeTxnIds).pipe(map(() => data));
-        } else {
-          return of(data);
-        }
-      }),
-      switchMap((data) => {
-        const txnIds = data.txns.map((txn) => txn.id);
-        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-      })
-    );
-  }
-
-  toastWithCTA(toastMessage: string): void {
-    const toastMessageData = {
-      message: toastMessage,
-      redirectionText: 'View Report',
-    };
-
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-      panelClass: ['msb-success-with-camera-icon'],
-    });
-    this.trackingService.showToastMessage({ ToastContent: toastMessage });
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-    });
-  }
-
   toastWithoutCTA(toastMessage: string, toastType: ToastType, panelClass: string): void {
     const message = toastMessage;
 
