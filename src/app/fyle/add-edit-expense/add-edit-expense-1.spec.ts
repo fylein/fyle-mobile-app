@@ -743,6 +743,23 @@ export function TestCases1(getTestBed) {
           'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.'
         );
       });
+
+      it('should not block split if it is a credit charge and tax amount is present', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: -100, tax_amount: -12 } })
+        );
+        component.fg.controls.report.setValue(null);
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(router.navigate).not.toHaveBeenCalled();
+        expect(component.showSplitBlockedPopover).not.toHaveBeenCalled();
+      });
     });
 
     describe('markCCCAsPersonal():', () => {
