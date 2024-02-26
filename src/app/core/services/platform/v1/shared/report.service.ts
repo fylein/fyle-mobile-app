@@ -26,15 +26,6 @@ export class PlatformReportService {
     });
   }
 
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(map((res) => res.data));
-  }
-
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
@@ -66,5 +57,11 @@ export class PlatformReportService {
       },
     };
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
+  }
+
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(map((res) => res.data));
   }
 }

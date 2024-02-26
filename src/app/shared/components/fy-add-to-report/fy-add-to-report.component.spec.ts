@@ -141,7 +141,7 @@ describe('FyAddToReportComponent', () => {
     spyOn(component, 'setDisplayValue');
     //@ts-ignore
     spyOn(component, 'onChangeCallback');
-
+    // TODO: spec update -hp
     component.value = unflattenedErptcArrayItem1;
     //@ts-ignore
     expect(component.innerValue).toEqual(unflattenedErptcArrayItem1);
