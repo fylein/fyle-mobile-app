@@ -1057,13 +1057,23 @@ export class MyExpensesV2Page implements OnInit {
       this.sharedExpenseService.isExpenseInDraft(expense)
     );
 
+    const expensesWithPendingTxns = selectedElements.filter((expense) =>
+      this.sharedExpenseService.isExpenseInPendingState(expense)
+    );
+
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
+    const noOfExpensesWithPendingTxns = expensesWithPendingTxns.length;
 
     if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
     } else if (noOfExpensesInDraftState === selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
+    } else if (
+      noOfExpensesWithPendingTxns === selectedElements.length &&
+      this.sharedExpenseService.restrictPendingTxnsEnabled
+    ) {
+      this.showNonReportableExpenseSelectedToast('You can’t add expenses with pending transactions to a report.');
     } else if (!this.isReportableExpensesSelected) {
       this.showNonReportableExpenseSelectedToast(
         'You cannot add draft expenses and critical policy violated expenses to a report'

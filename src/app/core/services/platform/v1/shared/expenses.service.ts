@@ -12,11 +12,13 @@ import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expens
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
-
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
+  //TODO : ADD CONDITION BASED ON ORG SETTING
+  restrictPendingTxnsEnabled = true;
+
   constructor(private dateService: DateService) {}
 
   isExpenseInDraft(expense: Expense): boolean {
@@ -25,6 +27,15 @@ export class ExpensesService {
 
   isCriticalPolicyViolatedExpense(expense: Expense): boolean {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
+  }
+
+  isExpenseInPendingState(expense: Expense): boolean {
+    return (
+      expense.state &&
+      expense.state === ExpenseState.COMPLETE &&
+      expense.matched_corporate_card_transactions?.length &&
+      expense.matched_corporate_card_transactions[0]?.status === 'PENDING'
+    );
   }
 
   excludeCCCExpenses(expenses: Expense[]): Expense[] {
@@ -104,9 +115,19 @@ export class ExpensesService {
   }
 
   getReportableExpenses(expenses: Expense[]): Expense[] {
-    return expenses.filter(
-      (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
-    );
+    if (this.restrictPendingTxnsEnabled) {
+      return expenses.filter(
+        (expense) =>
+          !this.isCriticalPolicyViolatedExpense(expense) &&
+          !this.isExpenseInDraft(expense) &&
+          expense.id &&
+          !this.isExpenseInPendingState(expense)
+      );
+    } else {
+      return expenses.filter(
+        (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
+      );
+    }
   }
 
   isMergeAllowed(expenses: Expense[]): boolean {
