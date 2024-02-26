@@ -88,7 +88,7 @@ export class AppVersionService {
           appSupportDetails: AppSupportedDetails;
           lastLoggedInVersion: string;
           eou: ExtendedOrgUser;
-        }) => !appVersionDetails.appSupportDetails.supported && environment.production
+        }) => !appVersionDetails.appSupportDetails.supported
       ),
       map((appVersionDetails) => ({ ...appVersionDetails, deviceInfo }))
     );
@@ -96,8 +96,8 @@ export class AppVersionService {
 
   isSupported(deviceInfo: ExtendedDeviceInfo): Observable<AppSupportedDetails> {
     const data = {
-      app_version: deviceInfo.appVersion,
-      device_os: deviceInfo.platform,
+      app_version: '6.14.0',
+      device_os: 'IOS',
     };
     return this.routerApiService.post<AppSupportedDetails>('/mobileapp/check', data);
   }
