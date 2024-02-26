@@ -208,8 +208,6 @@ describe('SplitExpensePage', () => {
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['getUTCDate', 'addDaysToDate']);
     const splitExpenseServiceSpy = jasmine.createSpyObj('SplitExpenseService', [
       'createSplitTxns',
-      'createSplitTxns',
-      'formatPolicyViolations',
       'splitExpense',
       'postSplitExpenseComments',
       'filteredMissingFieldsViolations',
