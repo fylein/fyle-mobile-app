@@ -2,7 +2,7 @@
   <mat-icon class="fy-modal-top-bar" svgIcon="notch"></mat-icon>
   <ion-toolbar class="text-center policy-violation--toolbar fy-modal-toolbar">
     <ion-title>
-      <div class="split-expense-policy-violation--toolbar__title">Policy Violation Found</div>
+      <div class="split-expense-policy-violation--toolbar__title">{{ splitExpenseModalHeader }}</div>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -58,7 +58,7 @@
                   [showComment]="false"
                   [policyAction]="policyViolations[transaction].action.final_desired_state"
                 ></app-fy-policy-violation>
-                <ng-container>
+                <ng-container *ngIf="!isSplitBlocked">
                   <form [formGroup]="form">
                     <div formArrayName="comments">
                       <div [formGroup]="formComments.controls[i]">
@@ -87,6 +87,65 @@
                 [criticalViolationMessages]="policyViolations[transaction].rules"
                 [showHeader]="false"
                 [showCTA]="false"
+                [isSplitBlocked]="isSplitBlocked"
+                [isReceiptMissing]="policyViolations[transaction].action.final_desired_state?.is_receipt_mandatory"
+              ></app-fy-critical-policy-violation>
+            </ng-container>
+          </ng-container>
+        </div>
+      </div>
+    </ng-container>
+  </ng-container>
+  <ng-container *ngIf="missingFieldsViolations" class="policy-violation--body">
+    <ng-container *ngFor="let missingField of missingFieldsIDs">
+      <div
+        *ngIf="missingFieldsViolations[missingField].isMissingFields"
+        class="split-expense-policy-violation--accordion"
+      >
+        <div (click)="toggleMissingFieldsExpansion(missingField)">
+          <div class="split-expense-policy-violation--header-slot">
+            <div class="split-expense-policy-violation--fields-violations-count"></div>
+            <span class="split-expense-policy-violation--dropdown-icon">
+              <ion-icon
+                class="split-expense-policy-violation--dropdown-container__icon"
+                [ngClass]="{
+                  'split-expense-policy-violation--dropdown-container__icon--rotate':
+                    !missingFieldsViolations[missingField].isExpanded
+                }"
+                [src]="'../../../../assets/svg/arrow-down.svg'"
+              ></ion-icon>
+            </span>
+          </div>
+          <div class="split-expense-policy-violation--sub-header-slot">
+            <div class="split-expense-policy-violation--split-by-type-container">
+              <div class="split-expense-policy-violation--placeholder">
+                {{ missingFieldsViolations[missingField].type | uppercase }}
+              </div>
+              <div class="split-expense-policy-violation--value">{{ missingFieldsViolations[missingField].name }}</div>
+            </div>
+            <div class="split-expense-policy-violation--policy-amount-container">
+              <div class="split-expense-policy-violation--placeholder">SPLIT AMOUNT</div>
+              <div class="split-expense-policy-violation--value text-right">
+                {{
+                  missingFieldsViolations[missingField].amount
+                    | currency : missingFieldsViolations[missingField].currency : 'symbol-narrow'
+                }}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div
+          class="split-expense-policy-violation--dropdown-items"
+          *ngIf="missingFieldsViolations[missingField].isExpanded"
+        >
+          <ng-container>
+            <ng-container>
+              <app-fy-critical-policy-violation
+                [criticalViolationMessages]="[]"
+                [showHeader]="false"
+                [showCTA]="false"
+                [isSplitBlocked]="isSplitBlocked"
+                [isSplitMissingFields]="true"
               ></app-fy-critical-policy-violation>
             </ng-container>
           </ng-container>
@@ -98,8 +157,13 @@
 
 <ion-footer>
   <ion-toolbar mode="md">
-    <div class="fy-footer-cta-container">
+    <div *ngIf="!isSplitBlocked" class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--tertiary-secondary" (click)="cancel()"> Cancel </ion-button>
       <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="continue()"> Continue </ion-button>
+    </div>
+
+    <div *ngIf="isSplitBlocked" class="fy-footer-cta-container">
+      <ion-button class="fy-footer-cta fy-footer-cta--primary" (click)="cancel()"> Okay </ion-button>
     </div>
   </ion-toolbar>
 </ion-footer>

@@ -30,6 +30,7 @@ export class IconModule {
     'calendar.svg',
     'camera.svg',
     'car.svg',
+    'card.svg',
     'cash-slash.svg',
     'cash.svg',
     'check-circle-outline.svg',

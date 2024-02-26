@@ -45,6 +45,14 @@
     color: $red;
   }
 
+  &--fields-violations-count {
+    padding: 6px 10px;
+    gap: 4px;
+    height: 32px;
+    background: transparent;
+    color: $red;
+  }
+
   &--textarea {
     width: 94%;
     border: 1px solid #a9acbc;

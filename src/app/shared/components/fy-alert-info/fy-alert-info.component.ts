@@ -8,7 +8,7 @@ import { Component, Input, EventEmitter, Output } from '@angular/core';
 export class FyAlertInfoComponent {
   @Input() message: string;
 
-  @Input() type: 'information' | 'warning' | 'error';
+  @Input() type: 'information' | 'warning' | 'error' | 'danger';
 
   @Input() showActionButton = false;
 
