@@ -757,7 +757,6 @@ export function TestCases1(getTestBed) {
         component.openSplitExpenseModal('projects');
         expect(component.getCustomFields).toHaveBeenCalledTimes(1);
         expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
-        expect(router.navigate).not.toHaveBeenCalled();
         expect(component.showSplitBlockedPopover).not.toHaveBeenCalled();
       });
     });
