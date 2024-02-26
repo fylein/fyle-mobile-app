@@ -716,7 +716,10 @@ export class AddEditExpensePage implements OnInit {
           return this.showSplitBlockedPopover(popoverMessage);
         }
 
-        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+        if (
+          res.generatedEtxn.tx.tax_amount &&
+          Math.abs(res.generatedEtxn.tx.amount) < Math.abs(res.generatedEtxn.tx.tax_amount)
+        ) {
           const popoverMessage =
             'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
