@@ -1042,6 +1042,18 @@ export class MyExpensesV2Page implements OnInit {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
+  isSelectionContainsException(
+    policyViolationsCount: number,
+    draftCount: number,
+    pendingTransactionsCount: number
+  ): boolean {
+    return (
+      policyViolationsCount > 0 ||
+      draftCount > 0 ||
+      (this.sharedExpenseService.restrictPendingTxnsEnabled && pendingTransactionsCount > 0)
+    );
+  }
+
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
@@ -1091,7 +1103,13 @@ export class MyExpensesV2Page implements OnInit {
       let title = '';
       let message = '';
 
-      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
+      if (
+        this.isSelectionContainsException(
+          noOfExpensesWithCriticalPolicyViolations,
+          noOfExpensesInDraftState,
+          noOfExpensesWithPendingTxns
+        )
+      ) {
         this.homeCurrency$.subscribe(() => {
           if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
             title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
