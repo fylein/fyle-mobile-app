@@ -192,7 +192,7 @@ export function TestCases2(getTestBed) {
       });
     }));
 
-    xit('getNewExpense(): should return new expense object', (done) => {
+    xit('getNewExpense(): should return new expense object', () => {
       spyOn(component, 'getPerDiemCategories').and.returnValue(
         of({
           defaultPerDiemCategory: perDiemCategory,
@@ -207,7 +207,6 @@ export function TestCases2(getTestBed) {
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         expect(res).toEqual(unflattenedTxnDataPerDiem);
-        done();
       });
     });
 
