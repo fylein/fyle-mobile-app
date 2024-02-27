@@ -12,7 +12,7 @@
 <div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
   <div *ngIf="corporateCards$ | async as corporateCards">
     <div
-      *ngIf="isVirtualCardsEnabled.enabled && isVirtualCardsPresent(corporateCards)"
+      *ngIf="isVirtualCardsEnabled.enabled && areVirtualCardsPresent(corporateCards)"
       class="manage-corporate-cards__segment-container"
     >
       <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
