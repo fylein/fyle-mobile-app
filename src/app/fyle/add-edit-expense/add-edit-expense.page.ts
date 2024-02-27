@@ -3086,8 +3086,8 @@ export class AddEditExpensePage implements OnInit {
       if (this.pendingTransactionRestrictionEnabled) {
         this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
           if (
-            transaction.matched_corporate_card_transactions.length &&
-            transaction.matched_corporate_card_transactions[0].status === TransactionStatus.PENDING
+            transaction.matched_corporate_card_transactions?.length &&
+            transaction.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
