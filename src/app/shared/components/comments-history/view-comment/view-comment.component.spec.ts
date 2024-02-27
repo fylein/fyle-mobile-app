@@ -120,23 +120,25 @@ describe('ViewCommentComponent', () => {
       expect(modalController.dismiss).toHaveBeenCalled();
     }));
 
-    it('should close the comment modal if no changes have been made and comment added', () => {
+    it('should close the comment modal if no changes have been made and comment added', fakeAsync(() => {
       component.newComment = null;
       component.isCommentAdded = true;
       component.closeCommentModal();
+      tick(100);
       modalController.dismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
       expect(modalController.dismiss).toHaveBeenCalled();
       expect(trackingService.addComment).toHaveBeenCalledTimes(1);
-    });
+    }));
 
-    it('should close the comment modal if no changes have been made and no comment is added', () => {
+    it('should close the comment modal if no changes have been made and no comment is added', fakeAsync(() => {
       component.newComment = null;
       component.isCommentAdded = false;
       component.closeCommentModal();
+      tick(100);
       modalController.dismiss.and.returnValue(Promise.resolve(Promise.resolve({ data: { updated: false } } as any)));
       expect(modalController.dismiss).toHaveBeenCalled();
       expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   describe('segmentChanged(): ', () => {

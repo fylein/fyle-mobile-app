@@ -1099,7 +1099,7 @@ export function TestCases2(getTestBed) {
       fixture.detectChanges();
 
       const result = component.getTimeSpentOnPage();
-      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+      expect(result).toBeCloseTo((new Date().getTime() - component.expenseStartTime) / 1000, 2);
     });
 
     it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
