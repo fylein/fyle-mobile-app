@@ -4,7 +4,7 @@ export const optionData1: Option[] = [
   {
     label: 'report 1',
     value: {
-      amount: 0,
+      amount: 1348.09332,
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
@@ -56,7 +56,7 @@ export const optionData1: Option[] = [
       source: 'WEBAPP',
       state: 'DRAFT',
       state_display_name: 'Draft',
-      tax: null,
+      tax: 1277.14,
       updated_at: new Date('2023-08-09T13:02:35.097839+00:00'),
       user: {
         email: 'ajain@fyle.in',

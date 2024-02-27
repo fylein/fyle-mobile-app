@@ -6,6 +6,8 @@ import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.se
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
+import { CreateDraftParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 
 @Injectable({
   providedIn: 'root',
@@ -50,5 +52,11 @@ export class ReportsService {
       },
     };
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
+  }
+
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(map((res) => res.data));
   }
 }
