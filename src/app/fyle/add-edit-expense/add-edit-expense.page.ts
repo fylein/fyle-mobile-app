@@ -426,7 +426,7 @@ export class AddEditExpensePage implements OnInit {
   pendingTransactionAllowedToReportAndSplit = true;
 
   //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = true;
+  pendingTransactionRestrictionEnabled = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
