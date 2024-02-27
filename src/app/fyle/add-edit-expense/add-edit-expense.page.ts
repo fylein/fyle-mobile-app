@@ -426,7 +426,7 @@ export class AddEditExpensePage implements OnInit {
   pendingTransactionAllowedToReportAndSplit = true;
 
   //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
+  pendingTransactionRestrictionEnabled = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -968,27 +968,47 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('categories');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('categories');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpProjectHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('projects');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('projects');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpCostCenterHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('cost centers');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('cost centers');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
+  }
+
+  showTransactionPendingToast(): void {
+    this.showSnackBarToast(
+      { message: "Can't split as the Transaction status is pending. Please wait until it's Posted." },
+      'failure',
+      ['msb-failure']
+    );
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {

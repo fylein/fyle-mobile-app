@@ -1128,6 +1128,16 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCategoryHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpProjectHandler():', () => {
@@ -1148,6 +1158,16 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpProjectHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpCostCenterHandler():', () => {
@@ -1166,6 +1186,16 @@ export function TestCases1(getTestBed) {
         component.splitExpCostCenterHandler();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCostCenterHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
       });
     });
 
