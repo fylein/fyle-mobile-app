@@ -402,6 +402,11 @@ export const orgSettingsRes: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParams2: OrgSettings = {
@@ -804,6 +809,11 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParamWoCCC: OrgSettings = {
@@ -1184,6 +1194,11 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsCCCDisabled: OrgSettings = {
@@ -1372,20 +1387,4 @@ export const orgSettingsWithV2ExpensesPage: OrgSettings = {
 export const orgSettingsWoV2ExpensesPage: OrgSettings = {
   ...orgSettingsRes,
   mobile_app_my_expenses_beta_enabled: false,
-};
-
-export const orgSettingsWithDuplicateDetectionV2: OrgSettings = {
-  ...orgSettingsRes,
-  duplicate_detection_v2_settings: {
-    allowed: true,
-    enabled: true,
-  },
-};
-
-export const orgSettingsWoDuplicateDetectionV2: OrgSettings = {
-  ...orgSettingsRes,
-  duplicate_detection_v2_settings: {
-    allowed: false,
-    enabled: false,
-  },
 };

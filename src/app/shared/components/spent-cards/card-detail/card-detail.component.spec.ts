@@ -8,7 +8,7 @@ import { FyCurrencyPipe } from 'src/app/shared/pipes/fy-currency.pipe';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { CardDetailComponent } from './card-detail.component';
-import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
+import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { Component, Input } from '@angular/core';
 import { PlatformCorporateCard } from 'src/app/core/models/platform/platform-corporate-card.model';
 import { By } from '@angular/platform-browser';

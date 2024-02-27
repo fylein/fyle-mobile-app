@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { Params, Router } from '@angular/router';
 import { map, noop } from 'rxjs';
+import { CardStatus } from 'src/app/core/enums/card-status.enum';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';

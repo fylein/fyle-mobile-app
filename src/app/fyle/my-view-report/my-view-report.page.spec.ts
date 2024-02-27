@@ -8,7 +8,7 @@ import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router, UrlSerializer } from '@angular/router';
 import { IonicModule, ModalController, NavController, PopoverController, SegmentCustomEvent } from '@ionic/angular';
 import { cloneDeep } from 'lodash';
-import { of } from 'rxjs';
+import { Subscription, of } from 'rxjs';
 import { click, getElementBySelector } from 'src/app/core/dom-helpers';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
@@ -257,9 +257,12 @@ describe('MyViewReportPage', () => {
 
   it('ionViewWillLeave(): should call the next callback on page exit subscription', () => {
     spyOn(component.onPageExit, 'next');
+    component.hardwareBackButtonAction = new Subscription();
+    spyOn(component.hardwareBackButtonAction, 'unsubscribe');
 
     component.ionViewWillLeave();
     expect(component.onPageExit.next).toHaveBeenCalledOnceWith(null);
+    expect(component.hardwareBackButtonAction.unsubscribe).toHaveBeenCalledTimes(1);
   });
 
   describe('getSimplifyReportSettings():', () => {
@@ -661,8 +664,11 @@ describe('MyViewReportPage', () => {
   });
 
   describe('goToTransaction():', () => {
-    it('should go to view expense page', () => {
-      spyOn(component, 'canEditExpense').and.returnValue(false);
+    beforeEach(() => {
+      component.canEdit$ = of(false);
+    });
+
+    it('should go to view expense page if canEdit is false', () => {
       component.goToTransaction({
         expense: expenseData,
         expenseIndex: 0,
@@ -683,12 +689,11 @@ describe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditExpense).toHaveBeenCalledOnceWith(expenseData.state);
     });
-    it('should go to view edit expense page', () => {
+    it('should go to edit expense page if canEdit is true', () => {
+      component.canEdit$ = of(true);
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
         expense: expenseData,
@@ -707,8 +712,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view mileage page', () => {
-      spyOn(component, 'canEditExpense').and.returnValue(false);
+    it('should go to view mileage page if category is mileage and canEdit is false', () => {
       component.goToTransaction({
         expense: mileageExpense,
         expenseIndex: 0,
@@ -729,13 +733,12 @@ describe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditExpense).toHaveBeenCalledOnceWith(mileageExpense.state);
     });
 
-    it('should go to edit mileage page', () => {
+    it('should go to edit mileage page if category is mileage and canEdit is true', () => {
+      component.canEdit$ = of(true);
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
         expense: mileageExpense,
@@ -754,8 +757,7 @@ describe('MyViewReportPage', () => {
       ]);
     });
 
-    it('should go to view per diem page', () => {
-      spyOn(component, 'canEditExpense').and.returnValue(false);
+    it('should go to view per diem page if category is per diem and canEdit is false', () => {
       component.goToTransaction({
         expense: perDiemExpense,
         expenseIndex: 0,
@@ -776,13 +778,12 @@ describe('MyViewReportPage', () => {
           view: ExpenseView.individual,
         },
       ]);
-      expect(component.canEditExpense).toHaveBeenCalledOnceWith(perDiemExpense.state);
     });
 
-    it('should go to edit per diem page', () => {
+    it('should go to edit per diem page if category is per diem and canEdit is true', () => {
+      component.canEdit$ = of(true);
       component.erpt$ = of(expectedAllReports[0]);
 
-      component.canEditExpense = () => true;
       fixture.detectChanges();
       component.goToTransaction({
         expense: perDiemExpense,
@@ -867,32 +868,6 @@ describe('MyViewReportPage', () => {
     });
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
     expect(trackingService.clickViewReportInfo).toHaveBeenCalledOnceWith({ view: ExpenseView.individual });
-  });
-
-  describe('canEditTxn():', () => {
-    it('should show whether the user can edit txn', () => {
-      component.canEdit$ = of(true);
-      fixture.detectChanges();
-
-      const result = component.canEditExpense(ExpenseState.DRAFT);
-      expect(result).toBeTrue();
-    });
-
-    it('should show that the user cannot edit the txn', () => {
-      component.canEdit$ = of(false);
-      fixture.detectChanges();
-
-      const result = component.canEditExpense(ExpenseState.APPROVED);
-      expect(result).toBeFalse();
-    });
-
-    it('should show that the user cannot edit the txn if state does not match', () => {
-      component.canEdit$ = of(true);
-      fixture.detectChanges();
-
-      const result = component.canEditExpense(ExpenseState.APPROVED);
-      expect(result).toBeFalse();
-    });
   });
 
   describe('segmentChanged():', () => {

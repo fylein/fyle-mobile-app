@@ -43,7 +43,7 @@ import {
   recentlyUsedRes,
 } from 'src/app/core/mock-data/recently-used.data';
 import { reportOptionsData, reportOptionsData2, reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { expectedTaxGroupData, taxGroupData } from 'src/app/core/mock-data/tax-group.data';
 import { TxnCustomProperties3, txnCustomPropertiesData } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
@@ -71,7 +71,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -86,6 +85,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -121,6 +121,7 @@ export function TestCases5(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let platformReportService: jasmine.SpyObj<ReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -150,7 +151,6 @@ export function TestCases5(getTestBed) {
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -173,6 +173,7 @@ export function TestCases5(getTestBed) {
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+      platformReportService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
@@ -208,7 +209,6 @@ export function TestCases5(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -595,7 +595,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.getSelectedReport().subscribe((res) => {
-          expect(res).toEqual(expectedErpt[0]);
+          expect(res).toEqual(expectedReportsPaginated[0]);
           done();
         });
       });
@@ -608,7 +608,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
 
         component.getSelectedReport().subscribe((res) => {
-          expect(res).toEqual(expectedErpt[1]);
+          expect(res).toEqual(expectedReportsPaginated[1]);
           done();
         });
       });
@@ -816,7 +816,7 @@ export function TestCases5(getTestBed) {
       it('should setup form', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -877,7 +877,7 @@ export function TestCases5(getTestBed) {
       it('should setup form and set payment mode as default payment mode if selectedPaymentMode is undefined', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(undefined));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -924,7 +924,7 @@ export function TestCases5(getTestBed) {
       it('should setup form if custom field has a date type field', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -998,7 +998,7 @@ export function TestCases5(getTestBed) {
       it('should setup up form for a draft expense with policy violation', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -1055,7 +1055,7 @@ export function TestCases5(getTestBed) {
       it('setup form without currency and amount', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -1115,7 +1115,7 @@ export function TestCases5(getTestBed) {
       it('setup form without amount and same currency as home currency', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -1175,7 +1175,7 @@ export function TestCases5(getTestBed) {
       it('setup form for an expense with different currencies and DRAFT state', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -1235,7 +1235,7 @@ export function TestCases5(getTestBed) {
       it('setup form for an expense with different currencies and DRAFT state if recently used categories are undefined', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
-        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedErpt[0]));
+        spyOn(component, 'getSelectedReport').and.returnValue(of(expectedReportsPaginated[0]));
         spyOn(component, 'getSelectedPaymentModes').and.returnValue(of(unflattenedAccount1Data));
         spyOn(component, 'getRecentCostCenters').and.returnValue(of(recentlyUsedCostCentersRes));
         spyOn(component, 'getRecentProjects').and.returnValue(of(recentlyUsedProjectRes));
@@ -1366,7 +1366,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupFilteredCategories');
         spyOn(component, 'setupExpenseFields');
 
-        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         recentlyUsedItemsService.getRecentCategories.and.returnValue(of(recentUsedCategoriesRes));
 
         spyOn(component, 'setupFormInit');
@@ -1524,7 +1524,9 @@ export function TestCases5(getTestBed) {
 
         expect(taxGroupService.get).toHaveBeenCalledTimes(2);
 
-        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
         expect(component.setupFormInit).toHaveBeenCalledTimes(1);
         expect(component.setupCustomFields).toHaveBeenCalledTimes(1);
         expect(component.clearCategoryOnValueChange).toHaveBeenCalledTimes(1);
@@ -1575,7 +1577,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupFilteredCategories');
         spyOn(component, 'setupExpenseFields');
 
-        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         recentlyUsedItemsService.getRecentCategories.and.returnValue(of(recentUsedCategoriesRes));
 
         spyOn(component, 'setupFormInit');
@@ -1643,7 +1645,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
         corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
         fileService.downloadUrl.and.returnValue(of('url'));
@@ -1658,7 +1659,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'setupFilteredCategories');
         spyOn(component, 'setupExpenseFields');
 
-        reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+        platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         recentlyUsedItemsService.getRecentCategories.and.returnValue(of(recentUsedCategoriesRes));
 
         spyOn(component, 'setupFormInit');
@@ -1807,7 +1808,9 @@ export function TestCases5(getTestBed) {
           expect(res).toBeFalse();
         });
 
-        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
         expect(recentlyUsedItemsService.getRecentCategories).toHaveBeenCalledTimes(1);
         expect(component.setupFormInit).toHaveBeenCalledTimes(1);
         expect(component.setupCustomFields).toHaveBeenCalledTimes(1);

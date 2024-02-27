@@ -23,7 +23,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -39,6 +38,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -95,6 +95,7 @@ describe('AddEditExpensePage', () => {
       'addTransactions',
       'removeTransaction',
     ]);
+    const reportsServiceSpy = jasmine.createSpyObj('ReportsService', ['getAllReportsByParams']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -103,7 +104,6 @@ describe('AddEditExpensePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'getETxnUnflattened',
-      'getSplitExpenses',
       'checkPolicy',
       'checkMandatoryFields',
       'upsert',
@@ -195,7 +195,6 @@ describe('AddEditExpensePage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const titleCasePipeSpy = jasmine.createSpyObj('TitleCasePipe', ['transform']);
-    const handleDuplicatesSpy = jasmine.createSpyObj('HandleDuplicatesService', ['getDuplicatesByExpense']);
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', [
       'showInvalidPaymentModeToast',
       'checkIfPaymentModeConfigurationsIsEnabled',
@@ -210,7 +209,11 @@ describe('AddEditExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getDuplicatesByExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'getExpenseById',
+      'getDuplicatesByExpense',
+      'getSplitExpenses',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],
@@ -252,6 +255,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: ReportService,
           useValue: reportServiceSpy,
+        },
+        {
+          provide: ReportsService,
+          useValue: reportsServiceSpy,
         },
         {
           provide: CustomInputsService,
@@ -368,10 +375,6 @@ describe('AddEditExpensePage', () => {
         {
           provide: TitleCasePipe,
           useValue: titleCasePipeSpy,
-        },
-        {
-          provide: HandleDuplicatesService,
-          useValue: handleDuplicatesSpy,
         },
         {
           provide: PaymentModesService,
