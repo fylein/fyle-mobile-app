@@ -203,13 +203,12 @@ export function TestCases2(getTestBed) {
       authService.getEou.and.resolveTo(apiEouRes);
 
       component.getNewExpense().subscribe((res) => {
+        const mockUnflattenedTxnDataPerDiem = cloneDeep(unflattenedTxnDataPerDiem);
+        mockUnflattenedTxnDataPerDiem.tx.txn_dt = new Date();
         expect(component.getPerDiemCategories).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(res).toEqual({
-          ...unflattenedTxnDataPerDiem,
-          tx: { ...unflattenedTxnDataPerDiem.tx, txn_dt: new Date() },
-        });
+        expect(res).toEqual(mockUnflattenedTxnDataPerDiem);
         done();
       });
     });
