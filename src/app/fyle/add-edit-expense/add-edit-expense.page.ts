@@ -423,6 +423,11 @@ export class AddEditExpensePage implements OnInit {
 
   isRTFEnabled$: Observable<boolean>;
 
+  pendingTransactionAllowedToReportAndSplit = true;
+
+  //TODO : Assign its value from org settings
+  pendingTxnRestrictionEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -3075,6 +3080,16 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
+      if (this.pendingTxnRestrictionEnabled) {
+        this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
+          if (
+            transaction?.matched_corporate_card_transactions?.length &&
+            transaction?.matched_corporate_card_transactions[0]?.status === 'PENDING'
+          ) {
+            this.pendingTransactionAllowedToReportAndSplit = false;
+          }
+        });
+      }
     }
 
     this.attachments$ = this.loadAttachments$.pipe(
