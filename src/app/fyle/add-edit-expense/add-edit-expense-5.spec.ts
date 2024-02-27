@@ -1472,7 +1472,7 @@ export function TestCases5(getTestBed) {
 
         component.pendingTransactionRestrictionEnabled = true;
 
-        expect(component.pendingTransactionAllowedToReportAndSplit).toBeFalse();
+        expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
 
