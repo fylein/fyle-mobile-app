@@ -192,6 +192,9 @@ export class MyExpensesV2Page implements OnInit {
 
   isDisabled = false;
 
+  //TODO : Assign its value from org settings
+  pendingTransactionRestrictionEnabled = true;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -1042,6 +1045,72 @@ export class MyExpensesV2Page implements OnInit {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
+  isSelectionContainsException(
+    policyViolationsCount: number,
+    draftCount: number,
+    pendingTransactionsCount: number
+  ): boolean {
+    return (
+      policyViolationsCount > 0 ||
+      draftCount > 0 ||
+      (this.sharedExpenseService.restrictPendingTransactionsEnabled && pendingTransactionsCount > 0)
+    );
+  }
+
+  unreportableExpenseExceptionHandler(
+    draftCount: number,
+    policyViolationsCount: number,
+    pendingTransactionsCount: number
+  ): void {
+    // This Map contains different messages based on different conditions , the first character in map key is draft, second is policy violation, third is pending transactions
+    // draft, policy, pending
+    const toastMessage = new Map([
+      ['111', "You can't add draft expenses and expenses with critical policy violation & pending transactions."],
+      ['110', "You can't add draft expenses & expenses with critical policy violations to a report."],
+      ['101', "You can't add draft expenses & expenses with pending transactions to a report."],
+      ['011', "You can't add expenses with critical policy violation & pending transactions to a report."],
+      ['100', "You can't add draft expenses to a report."],
+      ['010', "You can't add expenses with critical policy violations to a report."],
+      ['001', "You can't add expenses with pending transactions to a report."],
+    ]);
+    const messageConfig = `${policyViolationsCount > 0 ? 1 : 0}${draftCount > 0 ? 1 : 0}${
+      pendingTransactionsCount > 0 ? 1 : 0
+    }`;
+
+    if (toastMessage.has(messageConfig)) {
+      this.showNonReportableExpenseSelectedToast(toastMessage.get(messageConfig));
+    }
+  }
+
+  reportableExpenseDialogHandler(
+    draftCount: number,
+    policyViolationsCount: number,
+    pendingTransactionsCount: number,
+    reportType: 'oldReport' | 'newReport'
+  ): void {
+    const totalBlockingExpenseCount = draftCount + pendingTransactionsCount + pendingTransactionsCount;
+    const title = `${totalBlockingExpenseCount}  ${
+      totalBlockingExpenseCount > 1 ? 'Expenses' : 'Expense'
+    } Blocking the way`;
+    let message = '';
+
+    if (draftCount > 0) {
+      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'}  in draft state.`;
+    }
+    if (pendingTransactionsCount > 0) {
+      message += `${message.length ? '<br><br>' : ''} ${pendingTransactionsCount} ${
+        pendingTransactionsCount > 1 ? 'expenses' : 'expense'
+      } with pending transactions.`;
+    }
+    if (policyViolationsCount > 0) {
+      message += `${message.length ? '<br><br>' : ''} ${policyViolationsCount} ${
+        policyViolationsCount > 1 ? 'expenses' : 'expense'
+      } with Critical Policy Violations.`;
+    }
+
+    this.openCriticalPolicyViolationPopOver({ title, message, reportType });
+  }
+
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
@@ -1056,49 +1125,36 @@ export class MyExpensesV2Page implements OnInit {
     const expensesInDraftState = selectedElements.filter((expense) =>
       this.sharedExpenseService.isExpenseInDraft(expense)
     );
+    let expensesWithPendingTransactions = [];
+    //only handle pending txns if it is enabled from settings
+    if (this.pendingTransactionRestrictionEnabled) {
+      expensesWithPendingTransactions = selectedElements.filter((expense) =>
+        this.sharedExpenseService.isExpenseInPendingState(expense)
+      );
+    }
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
+    const noOfExpensesWithPendingTransactions = expensesWithPendingTransactions.length;
 
-    if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
-    } else if (noOfExpensesInDraftState === selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
-    } else if (!this.isReportableExpensesSelected) {
-      this.showNonReportableExpenseSelectedToast(
-        'You cannot add draft expenses and critical policy violated expenses to a report'
+    if (!this.isReportableExpensesSelected) {
+      this.unreportableExpenseExceptionHandler(
+        noOfExpensesInDraftState,
+        noOfExpensesWithCriticalPolicyViolations,
+        noOfExpensesWithPendingTransactions
       );
     } else {
       this.trackingService.addToReport();
-      const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce(
-        (prev, current) => {
-          const amount = current.amount || current.claim_amount;
-          return prev + amount;
-        },
-        0
-      );
+      const totalUnreportableCount =
+        noOfExpensesInDraftState + noOfExpensesWithCriticalPolicyViolations + noOfExpensesWithPendingTransactions;
 
-      let title = '';
-      let message = '';
-
-      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
-        this.homeCurrency$.subscribe(() => {
-          if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
-              ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
-              Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
-          } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
-            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
-          } else if (noOfExpensesInDraftState > 0) {
-            title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-            message = `${noOfExpensesInDraftState} expenses are in draft states.`;
-          }
-          this.openCriticalPolicyViolationPopOver({ title, message, reportType });
-        });
+      if (totalUnreportableCount > 0) {
+        this.reportableExpenseDialogHandler(
+          noOfExpensesInDraftState,
+          noOfExpensesWithCriticalPolicyViolations,
+          noOfExpensesWithPendingTransactions,
+          reportType
+        );
       } else {
         if (reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
