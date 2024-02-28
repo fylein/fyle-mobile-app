@@ -1111,12 +1111,14 @@ export function TestCases1(getTestBed) {
     });
 
     describe('splitExpCategoryHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by category', () => {
         setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         component.splitExpCategoryHandler();
 
@@ -1125,8 +1127,6 @@ export function TestCases1(getTestBed) {
 
       it('should validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         component.splitExpCategoryHandler();
 
@@ -1145,10 +1145,12 @@ export function TestCases1(getTestBed) {
     });
 
     describe('splitExpProjectHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by project', () => {
         setFormValid();
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         spyOn(component, 'openSplitExpenseModal');
 
@@ -1159,8 +1161,6 @@ export function TestCases1(getTestBed) {
 
       it('should show validation errors if any inside the form', () => {
         spyOn(component, 'showFormValidationErrors');
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         component.splitExpProjectHandler();
 
@@ -1179,12 +1179,14 @@ export function TestCases1(getTestBed) {
     });
 
     describe('splitExpCostCenterHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by cost centers', () => {
         setFormValid();
 
         spyOn(component, 'openSplitExpenseModal');
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         component.splitExpCostCenterHandler();
 
@@ -1193,8 +1195,6 @@ export function TestCases1(getTestBed) {
 
       it('The form should display the validation errors if they are found.', () => {
         spyOn(component, 'showFormValidationErrors');
-
-        component.pendingTransactionAllowedToReportAndSplit = true;
 
         component.splitExpCostCenterHandler();
 
