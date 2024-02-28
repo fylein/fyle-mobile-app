@@ -403,6 +403,7 @@ describe('MyCreateReportPage', () => {
         state: 'in.(COMPLETE)',
         order: 'spent_at.desc',
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        and: '()',
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
