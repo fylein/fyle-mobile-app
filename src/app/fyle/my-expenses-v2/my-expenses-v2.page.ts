@@ -1050,7 +1050,7 @@ export class MyExpensesV2Page implements OnInit {
     return (
       policyViolationsCount > 0 ||
       draftCount > 0 ||
-      (this.sharedExpenseService.restrictPendingTransactionsEnabled && pendingTransactionsCount > 0)
+      (this.sharedExpenseService.restrictPendingTransactionsEnabled() && pendingTransactionsCount > 0)
     );
   }
 
@@ -1124,7 +1124,7 @@ export class MyExpensesV2Page implements OnInit {
     );
     let expensesWithPendingTransactions = [];
     //only handle pending txns if it is enabled from settings
-    if (this.sharedExpenseService.restrictPendingTransactionsEnabled) {
+    if (this.sharedExpenseService.restrictPendingTransactionsEnabled()) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
         this.sharedExpenseService.isExpenseInPendingState(expense)
       );

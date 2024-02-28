@@ -17,10 +17,12 @@ import { DateService } from '../../../date.service';
   providedIn: 'root',
 })
 export class ExpensesService {
-  //TODO : ADD CONDITION BASED ON ORG SETTING
-  restrictPendingTransactionsEnabled = true;
-
   constructor(private dateService: DateService) {}
+
+  //TODO : ADD CONDITION BASED ON ORG SETTING
+  restrictPendingTransactionsEnabled(): boolean {
+    return false;
+  }
 
   isExpenseInDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;
@@ -116,7 +118,7 @@ export class ExpensesService {
   }
 
   getReportableExpenses(expenses: Expense[]): Expense[] {
-    if (this.restrictPendingTransactionsEnabled) {
+    if (this.restrictPendingTransactionsEnabled()) {
       return expenses.filter(
         (expense) =>
           !this.isCriticalPolicyViolatedExpense(expense) &&
