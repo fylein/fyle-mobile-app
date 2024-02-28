@@ -141,6 +141,7 @@ import { AddCardComponent } from './components/add-card/add-card.component';
 import { CardNumberComponent } from './components/card-number/card-number.component';
 import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
 import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
+import { VirtualCardComponent } from './components/virtual-card/virtual-card.component';
 import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
@@ -265,6 +266,7 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     AutofocusDirective,
     TransactionStatusComponent,
     TransactionStatusInfoPopoverComponent,
+    VirtualCardComponent,
   ],
   imports: [
     CommonModule,
@@ -391,6 +393,7 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     AutofocusDirective,
     TransactionStatusComponent,
     TransactionStatusInfoPopoverComponent,
+    VirtualCardComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

@@ -6,6 +6,7 @@ import {
   IonicModule,
   PopoverController,
   RefresherCustomEvent,
+  SegmentCustomEvent,
 } from '@ionic/angular';
 
 import { ManageCorporateCardsPage } from './manage-corporate-cards.page';
@@ -21,6 +22,7 @@ import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.da
 import {
   mastercardRTFCard,
   statementUploadedCard,
+  virtualCard,
   visaRTFCard,
 } from 'src/app/core/mock-data/platform-corporate-card.data';
 import { Component, Input } from '@angular/core';
@@ -33,6 +35,11 @@ import { CardAddedComponent } from './card-added/card-added.component';
 import { noop } from 'lodash';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-trackers.data';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { Virtual } from 'swiper';
+import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
+import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
+import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 
 @Component({
   selector: 'app-corporate-card',
@@ -58,6 +65,7 @@ describe('ManageCorporateCardsPage', () => {
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let realTimeFeedService: jasmine.SpyObj<RealTimeFeedService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
+  let virtualCardsService: jasmine.SpyObj<VirtualCardsService>;
 
   beforeEach(waitForAsync(() => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -71,6 +79,7 @@ describe('ManageCorporateCardsPage', () => {
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const realTimeFeedServiceSpy = jasmine.createSpyObj('RealTimeFeedService', ['getCardType', 'unenroll']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['cardUnenrolled']);
+    const virtualCardsServiceSpy = jasmine.createSpyObj('TrackingService', ['getCardDetailsMap']);
 
     TestBed.configureTestingModule({
       declarations: [ManageCorporateCardsPage, MockCorporateCardComponent],
@@ -108,6 +117,10 @@ describe('ManageCorporateCardsPage', () => {
           provide: TrackingService,
           useValue: trackingServiceSpy,
         },
+        {
+          provide: VirtualCardsService,
+          useValue: virtualCardsServiceSpy,
+        },
       ],
     }).compileComponents();
 
@@ -124,6 +137,7 @@ describe('ManageCorporateCardsPage', () => {
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     realTimeFeedService = TestBed.inject(RealTimeFeedService) as jasmine.SpyObj<RealTimeFeedService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+    virtualCardsService = TestBed.inject(VirtualCardsService) as jasmine.SpyObj<VirtualCardsService>;
 
     // Default return values
     orgSettingsService.get.and.returnValue(of(orgSettingsCCCEnabled));
@@ -131,7 +145,7 @@ describe('ManageCorporateCardsPage', () => {
     corporateCreditCardExpenseService.clearCache.and.returnValue(of(null));
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
     realTimeFeedService.unenroll.and.returnValue(of(null));
-
+    component.isVirtualCardsEnabled$ = of({ enabled: true });
     spyOn(component.loadCorporateCards$, 'next').and.callThrough();
 
     fixture.detectChanges();
@@ -185,6 +199,40 @@ describe('ManageCorporateCardsPage', () => {
     backButton.click();
 
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_profile']);
+  });
+
+  describe('segmentChanged():', () => {
+    it('should show Virtual Card page', () => {
+      component.segmentChanged({
+        detail: {
+          value: '1',
+        },
+      } as SegmentCustomEvent);
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.VIRTUAL_CARDS);
+    });
+
+    it('should show Corporate Card page', () => {
+      component.segmentChanged({
+        detail: {
+          value: '0',
+        },
+      } as SegmentCustomEvent);
+      expect(component.segmentValue).toEqual(ManageCardsPageSegment.CORPORATE_CARDS);
+    });
+  });
+
+  it('should load virtual card details when virtualCardDetails$ has enabled as true', () => {
+    // Mock responses for service methods
+    corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([virtualCard]));
+    component.isVirtualCardsEnabled$ = of({ enabled: true });
+
+    virtualCardsService.getCardDetailsMap.and.returnValue(of(virtualCardCombinedResponse));
+
+    component.ionViewWillEnter();
+    component.virtualCardDetails$.subscribe((virtualCardDetailsRes) => {
+      expect(virtualCardDetailsRes).toBeDefined();
+      expect(virtualCardDetailsRes).toEqual(virtualCardDetailsRes);
+    });
   });
 
   describe('add card flow', () => {

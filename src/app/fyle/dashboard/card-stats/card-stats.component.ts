@@ -2,7 +2,7 @@ import { Component, EventEmitter, OnInit } from '@angular/core';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { DashboardService } from '../dashboard.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { BehaviorSubject, Observable, concat, forkJoin, map, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, Observable, concat, filter, forkJoin, map, shareReplay, switchMap } from 'rxjs';
 import { getCurrencySymbol } from '@angular/common';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { PlatformCorporateCardDetail } from 'src/app/core/models/platform-corporate-card-detail.model';
@@ -12,6 +12,9 @@ import { AddCorporateCardComponent } from '../../manage-corporate-cards/add-corp
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CardAddedComponent } from '../../manage-corporate-cards/card-added/card-added.component';
 import { NetworkService } from 'src/app/core/services/network.service';
+import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
+import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { VirtualCardsCombinedRequest } from 'src/app/core/models/virtual-cards-combined-request.model';
 
 @Component({
   selector: 'app-card-stats',
@@ -21,11 +24,15 @@ import { NetworkService } from 'src/app/core/services/network.service';
 export class CardStatsComponent implements OnInit {
   cardDetails$: Observable<PlatformCorporateCardDetail[]>;
 
+  virtualCardDetails$: Observable<PlatformCorporateCardDetail[]>;
+
   homeCurrency$: Observable<string>;
 
   currencySymbol$: Observable<string>;
 
   isCCCEnabled$: Observable<boolean>;
+
+  isVirtualCardsEnabled$: Observable<{ enabled: boolean }>;
 
   isVisaRTFEnabled$: Observable<boolean>;
 
@@ -39,6 +46,8 @@ export class CardStatsComponent implements OnInit {
 
   loadCardDetails$ = new BehaviorSubject<void>(null);
 
+  CardStatus: typeof CardStatus = CardStatus;
+
   constructor(
     private currencyService: CurrencyService,
     private dashboardService: DashboardService,
@@ -46,7 +55,8 @@ export class CardStatsComponent implements OnInit {
     private networkService: NetworkService,
     private orgUserSettingsService: OrgUserSettingsService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private virtualCardsService: VirtualCardsService
   ) {}
 
   ngOnInit(): void {
@@ -58,6 +68,42 @@ export class CardStatsComponent implements OnInit {
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
+    );
+  }
+
+  filterVirtualCardsByStateAndAmount(cardDetails: PlatformCorporateCardDetail[]): PlatformCorporateCardDetail[] {
+    return cardDetails.filter((cardDetail) => {
+      const virtualCardVisibility =
+        cardDetail.stats.totalTxnsCount > 0 ||
+        cardDetail.card.virtual_card_state === CardStatus.ACTIVE ||
+        cardDetail.card.virtual_card_state === CardStatus.PREACTIVE;
+      return cardDetail.card.virtual_card_id ? virtualCardVisibility : true;
+    });
+  }
+
+  getVirtualCardDetails() {
+    return this.isVirtualCardsEnabled$.pipe(
+      filter((virtualCardEnabled) => virtualCardEnabled.enabled),
+      switchMap((_) => this.cardDetails$),
+      switchMap((cardDetails) => {
+        const virtualCardIds = cardDetails
+          .filter((cardDetail) => cardDetail.card.virtual_card_id)
+          .map((cardDetail) => cardDetail.card.virtual_card_id);
+        const virtualCardsParams = {
+          virtualCardIds,
+          includeCurrentAmount: true,
+        };
+        return this.virtualCardsService
+          .getCardDetailsMap(virtualCardsParams)
+          .pipe(map((virtualCardsMap) => ({ virtualCardsMap, cardDetails })));
+      }),
+      map(({ virtualCardsMap, cardDetails }) => {
+        cardDetails.forEach((cardDetail) => {
+          cardDetail.virtualCardDetail = virtualCardsMap[cardDetail.card.virtual_card_id];
+        });
+        cardDetails = this.filterVirtualCardsByStateAndAmount(cardDetails);
+        return cardDetails;
+      })
     );
   }
 
@@ -99,6 +145,14 @@ export class CardStatsComponent implements OnInit {
     this.canAddCorporateCards$ = forkJoin([this.isVisaRTFEnabled$, this.isMastercardRTFEnabled$]).pipe(
       map(([isVisaRTFEnabled, isMastercardRTFEnabled]) => isVisaRTFEnabled || isMastercardRTFEnabled)
     );
+    this.isVirtualCardsEnabled$ = orgSettings$.pipe(
+      map((orgSettings) => ({
+        enabled:
+          orgSettings.amex_feed_enrollment_settings.allowed &&
+          orgSettings.amex_feed_enrollment_settings.enabled &&
+          orgSettings.amex_feed_enrollment_settings.virtual_card_settings_enabled,
+      }))
+    );
 
     this.cardDetails$ = this.loadCardDetails$.pipe(
       switchMap(() =>
@@ -106,12 +160,18 @@ export class CardStatsComponent implements OnInit {
           this.corporateCreditCardExpenseService.getCorporateCards(),
           this.dashboardService.getCCCDetails().pipe(map((details) => details.cardDetails)),
         ]).pipe(
-          map(([corporateCards, corporateCardStats]) =>
-            this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(corporateCards, corporateCardStats)
-          )
+          map(([corporateCards, corporateCardStats]) => {
+            let cardDetails = this.corporateCreditCardExpenseService.getPlatformCorporateCardDetails(
+              corporateCards,
+              corporateCardStats
+            );
+            return cardDetails;
+          })
         )
       )
     );
+
+    this.virtualCardDetails$ = this.getVirtualCardDetails();
   }
 
   openAddCorporateCardPopover(): void {
