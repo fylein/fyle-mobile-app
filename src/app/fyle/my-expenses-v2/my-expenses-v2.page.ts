@@ -1085,22 +1085,19 @@ export class MyExpensesV2Page implements OnInit {
     pendingTransactionsCount: number,
     reportType: 'oldReport' | 'newReport'
   ): void {
-    const totalBlockingExpenseCount = draftCount + pendingTransactionsCount + pendingTransactionsCount;
-    const title = `${totalBlockingExpenseCount}  ${
-      totalBlockingExpenseCount > 1 ? 'Expenses' : 'Expense'
-    } Blocking the way`;
+    const title = "Can't add these expenses...";
     let message = '';
 
     if (draftCount > 0) {
-      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'}  in draft state.`;
+      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'} in draft state.`;
     }
     if (pendingTransactionsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''} ${pendingTransactionsCount} ${
+      message += `${message.length ? '<br><br>' : ''}${pendingTransactionsCount} ${
         pendingTransactionsCount > 1 ? 'expenses' : 'expense'
       } with pending transactions.`;
     }
     if (policyViolationsCount > 0) {
-      message += `${message.length ? '<br><br>' : ''} ${policyViolationsCount} ${
+      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
         policyViolationsCount > 1 ? 'expenses' : 'expense'
       } with Critical Policy Violations.`;
     }
