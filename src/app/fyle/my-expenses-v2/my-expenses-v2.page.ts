@@ -192,9 +192,6 @@ export class MyExpensesV2Page implements OnInit {
 
   isDisabled = false;
 
-  //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = true;
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -1127,7 +1124,7 @@ export class MyExpensesV2Page implements OnInit {
     );
     let expensesWithPendingTransactions = [];
     //only handle pending txns if it is enabled from settings
-    if (this.pendingTransactionRestrictionEnabled) {
+    if (this.sharedExpenseService.restrictPendingTransactionsEnabled) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
         this.sharedExpenseService.isExpenseInPendingState(expense)
       );
