@@ -2027,7 +2027,7 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  fdescribe('openCreateReportWithSelectedIds(): ', () => {
+  describe('openCreateReportWithSelectedIds(): ', () => {
     beforeEach(() => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
       spyOn(component, 'openCriticalPolicyViolationPopOver');
@@ -2141,7 +2141,7 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  fdescribe('unreportableExpenseExceptionHandler():', () => {
+  describe('unreportableExpenseExceptionHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
       sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
@@ -2161,7 +2161,7 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  fdescribe('reportableExpenseDialogHandler():', () => {
+  describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
       sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
