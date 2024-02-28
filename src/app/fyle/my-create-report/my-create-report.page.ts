@@ -49,7 +49,7 @@ export class MyCreateReportPage implements OnInit {
   emptyInput = false;
 
   //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
+  pendingTransactionRestrictionEnabled = true;
 
   constructor(
     private transactionService: TransactionService,
