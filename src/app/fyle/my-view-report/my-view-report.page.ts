@@ -110,6 +110,9 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
+  //TODO : Assign its value from org settings
+  pendingTransactionRestrictionEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -251,12 +254,20 @@ export class MyViewReportPage {
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
-    const queryParams = {
+    let queryParams = {
       report_id: 'is.null',
       state: 'in.(COMPLETE)',
       order: 'spent_at.desc',
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+      and: '()',
     };
+
+    if (this.pendingTransactionRestrictionEnabled) {
+      queryParams = {
+        ...queryParams,
+        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+      };
+    }
 
     this.expensesService
       .getAllExpenses({ queryParams })

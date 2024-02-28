@@ -48,6 +48,9 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
+  //TODO : Assign its value from org settings
+  pendingTransactionRestrictionEnabled = false;
+
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -211,12 +214,20 @@ export class MyCreateReportPage implements OnInit {
 
     this.checkTxnIds();
 
-    const queryParams = {
+    let queryParams = {
       report_id: 'is.null',
       state: 'in.(COMPLETE)',
       order: 'spent_at.desc',
       or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+      and: '()',
     };
+
+    if (this.pendingTransactionRestrictionEnabled) {
+      queryParams = {
+        ...queryParams,
+        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+      };
+    }
 
     from(this.loaderService.showLoader())
       .pipe(

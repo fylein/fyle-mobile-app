@@ -423,6 +423,11 @@ export class AddEditExpensePage implements OnInit {
 
   isRTFEnabled$: Observable<boolean>;
 
+  pendingTransactionAllowedToReportAndSplit = true;
+
+  //TODO : Assign its value from org settings
+  pendingTransactionRestrictionEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -716,7 +721,10 @@ export class AddEditExpensePage implements OnInit {
           return this.showSplitBlockedPopover(popoverMessage);
         }
 
-        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+        if (
+          res.generatedEtxn.tx.tax_amount &&
+          Math.abs(res.generatedEtxn.tx.amount) < Math.abs(res.generatedEtxn.tx.tax_amount)
+        ) {
           const popoverMessage =
             'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
@@ -960,27 +968,47 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('categories');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('categories');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpProjectHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('projects');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('projects');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpCostCenterHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('cost centers');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('cost centers');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
+  }
+
+  showTransactionPendingToast(): void {
+    this.showSnackBarToast(
+      { message: "Can't split as the Transaction status is pending. Please wait until it's Posted." },
+      'failure',
+      ['msb-failure']
+    );
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
@@ -3075,6 +3103,16 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
+      if (this.pendingTransactionRestrictionEnabled) {
+        this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
+          if (
+            transaction.matched_corporate_card_transactions?.length &&
+            transaction.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+          ) {
+            this.pendingTransactionAllowedToReportAndSplit = false;
+          }
+        });
+      }
     }
 
     this.attachments$ = this.loadAttachments$.pipe(

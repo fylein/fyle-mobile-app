@@ -1470,6 +1470,10 @@ export function TestCases5(getTestBed) {
           expect(expense).toEqual(expenseData);
         });
 
+        component.pendingTransactionRestrictionEnabled = true;
+
+        expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
+
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
 
         component.attachments$.subscribe((res) => {
@@ -1754,6 +1758,7 @@ export function TestCases5(getTestBed) {
         });
 
         expect(component.platformExpense$).toBeUndefined();
+        expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
         expect(expensesService.getExpenseById).not.toHaveBeenCalled();
 
         component.attachments$.subscribe((res) => {

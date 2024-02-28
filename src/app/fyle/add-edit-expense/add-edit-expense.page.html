@@ -1127,15 +1127,17 @@
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
             <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
               <ng-container *ngIf="reports$|async as reports">
-                <div class="add-edit-expense--internal-block">
-                  <app-fy-add-to-report
-                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                    [autoSubmissionReportName]="autoSubmissionReportName$|async"
-                    [options]="reports"
-                    [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-                    formControlName="report"
-                  ></app-fy-add-to-report>
-                </div>
+                <ng-container *ngIf="pendingTransactionAllowedToReportAndSplit">
+                  <div class="add-edit-expense--internal-block">
+                    <app-fy-add-to-report
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                      [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                      [options]="reports"
+                      [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+                      formControlName="report"
+                    ></app-fy-add-to-report>
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
