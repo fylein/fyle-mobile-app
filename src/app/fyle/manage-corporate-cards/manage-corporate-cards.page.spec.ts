@@ -52,7 +52,7 @@ class MockCorporateCardComponent {
   @Input() isMastercardRTFEnabled: boolean;
 }
 
-fdescribe('ManageCorporateCardsPage', () => {
+describe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
