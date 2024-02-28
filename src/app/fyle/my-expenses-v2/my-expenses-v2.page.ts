@@ -997,7 +997,11 @@ export class MyExpensesV2Page implements OnInit {
     }
   }
 
-  async openExceptionExpensesDialog(config: { title: string; message: string; reportType: string }): Promise<void> {
+  async openCriticalPolicyViolationPopOver(config: {
+    title: string;
+    message: string;
+    reportType: string;
+  }): Promise<void> {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -1101,7 +1105,7 @@ export class MyExpensesV2Page implements OnInit {
       } with Critical Policy Violations.`;
     }
 
-    this.openExceptionExpensesDialog({ title, message, reportType });
+    this.openCriticalPolicyViolationPopOver({ title, message, reportType });
   }
 
   async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
