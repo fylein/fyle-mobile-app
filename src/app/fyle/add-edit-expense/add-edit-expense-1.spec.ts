@@ -1111,6 +1111,10 @@ export function TestCases1(getTestBed) {
     });
 
     describe('splitExpCategoryHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by category', () => {
         setFormValid();
 
@@ -1128,9 +1132,23 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCategoryHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpProjectHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by project', () => {
         setFormValid();
 
@@ -1148,11 +1166,26 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpProjectHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpCostCenterHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by cost centers', () => {
         setFormValid();
+
         spyOn(component, 'openSplitExpenseModal');
 
         component.splitExpCostCenterHandler();
@@ -1166,6 +1199,16 @@ export function TestCases1(getTestBed) {
         component.splitExpCostCenterHandler();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCostCenterHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
       });
     });
 
