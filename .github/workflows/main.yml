@@ -13,7 +13,7 @@ jobs:
         uses: actions/checkout@v3
 
       - name: AI Code Reviewer
-        uses: fylein/ai-code-reviewer@main
+        uses: fylein/fyle-mobile-app@main
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
