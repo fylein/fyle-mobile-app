@@ -36,7 +36,6 @@ import { noop } from 'lodash';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { cardUnenrolledProperties } from 'src/app/core/mock-data/corporate-card-trackers.data';
 import { VirtualCardsService } from 'src/app/core/services/virtual-cards.service';
-import { Virtual } from 'swiper';
 import { ManageCardsPageSegment } from 'src/app/core/enums/manage-cards-page-segment.enum';
 import { virtualCardCombinedResponse } from 'src/app/core/mock-data/virtual-card-combined-response.data';
 import { virtualCardDetailsCombined } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
@@ -53,7 +52,7 @@ class MockCorporateCardComponent {
   @Input() isMastercardRTFEnabled: boolean;
 }
 
-describe('ManageCorporateCardsPage', () => {
+fdescribe('ManageCorporateCardsPage', () => {
   let component: ManageCorporateCardsPage;
   let fixture: ComponentFixture<ManageCorporateCardsPage>;
 
@@ -233,6 +232,11 @@ describe('ManageCorporateCardsPage', () => {
       expect(virtualCardDetailsRes).toBeDefined();
       expect(virtualCardDetailsRes).toEqual(virtualCardDetailsRes);
     });
+  });
+
+  it('areVirtualCardsPresent(): check in corporateCards list if any of the cards is a virtual card', () => {
+    const response = component.areVirtualCardsPresent([virtualCard]);
+    expect(response).toEqual(true);
   });
 
   describe('add card flow', () => {

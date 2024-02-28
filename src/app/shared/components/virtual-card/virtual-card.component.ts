@@ -60,20 +60,26 @@ export class VirtualCardComponent implements OnInit {
   }
 
   hideCvvAndCopy() {
-    this.showCvv = false;
+    setTimeout(() => {
+      this.showCvv = false;
+    }, 1000);
+
     this.copyToClipboard(this.cvv);
   }
 
   hideCardNumberAndCopy() {
-    this.showCardNumber = false;
+    setTimeout(() => {
+      this.showCardNumber = false;
+    }, 1000);
+
     this.copyToClipboard(this.cardNumber);
   }
 
   toggleShowCardNumber() {
-    this.showCardNumber = !this.showCardNumber;
+    this.showCardNumber = true;
   }
 
   toggleShowCvv() {
-    this.showCvv = !this.showCvv;
+    this.showCvv = true;
   }
 }
