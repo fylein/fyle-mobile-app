@@ -441,6 +441,10 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
+  commute_deduction_settings: {
+    allowed: true,
+    enabled: true,
+  },
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -873,6 +877,10 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
     virtual_card_settings_enabled: true,
+  },
+  commute_deduction_settings: {
+    allowed: true,
+    enabled: true,
   },
 };
 

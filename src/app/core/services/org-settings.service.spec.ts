@@ -68,11 +68,9 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get the org settings properly', (done) => {
-    const mockOrgSettingsData = getApiData;
-    mockOrgSettingsData.commute_deduction_settings = { allowed: undefined, enabled: undefined };
     apiService.get.and.returnValue(of(postApiData));
     orgSettingsService.get().subscribe((res) => {
-      expect(res).toEqual(mockOrgSettingsData);
+      expect(res).toEqual(getApiData);
       done();
     });
   });
