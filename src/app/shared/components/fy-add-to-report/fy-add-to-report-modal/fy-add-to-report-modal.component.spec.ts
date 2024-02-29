@@ -156,11 +156,11 @@ describe('FyAddToReportModalComponent', () => {
     const reportCards = getAllElementsBySelector(fixture, '[data-testid="reports"]');
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--purpose')[0])).toEqual(
-      optionData1[0].value.rp.purpose
+      optionData1[0].value.purpose
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--count')[0])).toEqual(
-      `${optionData1[0].value.rp.num_transactions} Expense${optionData1[0].value.rp.num_transactions > 1 ? 's' : ''}`
+      `${optionData1[0].value.num_expenses} Expense${optionData1[0].value.num_expenses > 1 ? 's' : ''}`
     );
 
     expect(getTextContent(reportCards[0].getElementsByClassName('report-list--currency')[0])).toEqual('$');

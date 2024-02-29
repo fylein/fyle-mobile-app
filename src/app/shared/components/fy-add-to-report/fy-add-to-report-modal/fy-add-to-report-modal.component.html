@@ -48,21 +48,21 @@
         <ion-grid class="ion-no-padding">
           <ion-row>
             <ion-col class="ion-no-padding report-list--purpose-count-container">
-              <div class="report-list--purpose">{{ option.value.rp.purpose }}</div>
+              <div class="report-list--purpose">{{ option.value.purpose }}</div>
               <div class="report-list--count">
-                {{ option.value.rp.num_transactions }} Expense{{ option.value.rp.num_transactions > 1 ? 's' : '' }}
+                {{ option.value.num_expenses }} Expense{{ option.value.num_expenses > 1 ? 's' : '' }}
               </div>
             </ion-col>
             <ion-col size="3.5" class="ion-no-padding ion-text-right">
               <div class="report-list--currency-amount-container">
                 <span class="report-list--currency">{{ reportCurrencySymbol }}</span>
                 <span class="report-list--amount">{{
-                  option.value.rp.amount || 0 | humanizeCurrency : option.value.rp.currency : true
+                  option.value.amount || 0 | humanizeCurrency : option.value.currency : true
                 }}</span>
               </div>
               <div class="ion-text-right">
-                <div class="text-center report-list--state state-pill state-{{ option.value.rp.state | reportState }}">
-                  {{ option.value.rp.state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
+                <div class="text-center report-list--state state-pill state-{{ option.value.state | reportState }}">
+                  {{ option.value.state | reportState : isNewReportsFlowEnabled | snakeCaseToSpaceCase | titlecase }}
                 </div>
               </div>
             </ion-col>
