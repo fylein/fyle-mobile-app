@@ -175,13 +175,13 @@ export class ViewTeamReportPage {
   }
 
   loadReports(): Observable<ExtendedReport> {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    const reportId = this.activatedRoute.snapshot.params.id;
+
     return this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
-      switchMap(() =>
-        this.reportService
-          .getReport(this.activatedRoute.snapshot.params.id)
-          .pipe(finalize(() => this.loaderService.hideLoader()))
-      ),
+      switchMap(() => this.fetchReport(reportId)),
+      finalize(() => this.loaderService.hideLoader()),
       shareReplay(1)
     );
   }
