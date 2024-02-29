@@ -1,7 +1,7 @@
 import { Component, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
 import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -36,6 +36,8 @@ import { SpenderService } from 'src/app/core/services/platform/v1/spender/spende
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -104,7 +106,9 @@ export class MyProfilePage {
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private spenderService: SpenderService,
-    private activatedRoute: ActivatedRoute
+    private activatedRoute: ActivatedRoute,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -420,5 +424,15 @@ export class MyProfilePage {
     this.trackingService.updateMobileNumber({
       popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
     });
+  }
+
+  async openCommuteDetailsModal(): Promise<void> {
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      componentProps: {},
+      mode: 'ios',
+    });
+
+    await commuteDetailsModal.present();
   }
 }
