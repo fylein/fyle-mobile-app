@@ -337,6 +337,8 @@ export const allReportsPaginated2: PlatformApiResponse<Report> = {
   offset: 2,
 };
 
+export const expectedSingleReport: Report[] = [allReportsPaginated1.data[0]];
+
 export const expectedReportsSinglePage: Report[] = [...allReportsPaginated1.data];
 
 export const expectedReportsPaginated: Report[] = [...allReportsPaginated1.data, ...allReportsPaginated2.data];

@@ -1,6 +1,6 @@
 import { CustomInput } from './custom-input.model';
 import { ExtendedAccount } from './extended-account.model';
-import { UnflattenedReport } from './report-unflattened.model';
+import { Report } from './platform/v1/report.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
@@ -19,7 +19,7 @@ export interface PerDiemFormValue {
   sub_category: OrgCategory;
   purpose: string;
   num_days: number;
-  report: UnflattenedReport;
+  report: Report;
   from_dt: string;
   to_dt: string;
   custom_inputs: CustomInput[];
