@@ -17,6 +17,7 @@ import { ReportState } from '../platform-report.model';
 import { Account } from './account.model';
 import { CustomFields } from '../custom-fields.model';
 import { CustomInput } from '../../custom-input.model';
+import { CommuteDetails } from './commute-details.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -32,6 +33,9 @@ export interface Expense {
   category_id: number;
   claim_amount: number;
   code: string;
+  commute_deduction?: 'ONE_WAY' | 'ROUND_TRIP' | 'NO_DEDUCTION';
+  commute_details?: CommuteDetails;
+  commute_details_id?: number;
   cost_center_id: number;
   cost_center: Pick<PlatformCostCenter, 'id' | 'name' | 'code'>;
   created_at: Date;

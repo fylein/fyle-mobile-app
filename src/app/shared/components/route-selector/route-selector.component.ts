@@ -1,4 +1,14 @@
-import { Component, DoCheck, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DoCheck,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -56,6 +66,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     recent_end_locations?: string[];
     recent_locations?: string[];
   };
+
+  @Output() calculatedDistanceChange = new EventEmitter<number>();
 
   skipRoundTripUpdate = false;
 
@@ -157,10 +169,14 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         }
       }
 
-      this.form.patchValue({
-        distance: value.distance,
-        roundTrip: value.roundTrip,
-      });
+      let patchValue: { distance?: string | number; roundTrip?: boolean } = {};
+      if (typeof parseFloat(value.distance) === 'number') {
+        patchValue.distance = value.distance;
+      }
+      if (value.roundTrip !== undefined) {
+        patchValue.roundTrip = value.roundTrip;
+      }
+      this.form.patchValue(patchValue);
     }
   }
 
@@ -232,6 +248,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         distance: parseFloat(data.distance),
         roundTrip: data.roundTrip,
       });
+
+      this.calculatedDistanceChange.emit(data.distance);
     }
   }
 

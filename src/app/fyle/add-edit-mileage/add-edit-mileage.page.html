@@ -150,6 +150,52 @@
                 </ng-container>
               </ng-container>
 
+              <ng-container *ngIf="showCommuteDeductionField && commuteDeductionOptions">
+                <div
+                  class="add-edit-mileage--internal-block"
+                  [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
+                >
+                  <app-fy-select
+                    [enableSearch]="false"
+                    [label]="'Commute Deduction'"
+                    [mandatory]="true"
+                    [nullOption]="false"
+                    [options]="commuteDeductionOptions"
+                    [selectModalHeader]="'Select Commute Deduction'"
+                    formControlName="commuteDeduction"
+                    [selectionElement]="commuteDeduction"
+                    [touchedInParent]="fg.controls.commuteDeduction.touched"
+                    [validInParent]="fg.controls.commuteDeduction.valid"
+                  >
+                  </app-fy-select>
+                  <ng-template
+                    #commuteDeduction
+                    let-label="label"
+                    let-value="value"
+                    let-distance="distance"
+                    let-selected="selected"
+                  >
+                    <div>
+                      <div class="add-edit-mileage--commute-deduction">{{label}}</div>
+                      <div *ngIf="distance > 0" class="add-edit-mileage--payment-mode-section">
+                        {{distance.toFixed(2) + ' ' + distanceUnit}}
+                      </div>
+                      <div *ngIf="distance === 0" class="add-edit-mileage--payment-mode-section">
+                        {{distance + ' ' + distanceUnit}}
+                      </div>
+                      <div *ngIf="distance === null">Add Location</div>
+                    </div>
+                    <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
+                  </ng-template>
+                </div>
+                <div
+                  *ngIf="fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid"
+                  class="add-edit-mileage--error"
+                >
+                  Select Commute Deduction.
+                </div>
+              </ng-container>
+
               <ng-container *ngIf="mileageRatesOptions$|async as mileageRatesOptions">
                 <div
                   *ngIf="mileageRatesOptions.length > 1"
