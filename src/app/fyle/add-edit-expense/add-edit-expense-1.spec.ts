@@ -22,7 +22,7 @@ import {
   getMarkDismissModalParamsData1,
   getMarkDismissModalParamsData2,
 } from 'src/app/core/mock-data/popover-params.data';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { UndoMergeData2 } from 'src/app/core/mock-data/undo-merge.data';
 import { unflattenedExpData, unflattenedTxn } from 'src/app/core/mock-data/unflattened-expense.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
@@ -615,7 +615,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
         component.txnFields$ = of(expenseFieldObjData);
         component.selectedCCCTransaction = expectedECccResponse[0].ccce;
-        component.fg.controls.report.setValue(expectedErpt[0]);
+        component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         spyOn(component, 'generateEtxnFromFg').and.returnValue(of(unflattenedExpData));
         fixture.detectChanges();
 
@@ -694,7 +694,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
           of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
         );
-        component.fg.controls.report.setValue({ ...expectedErpt[0], rp: null });
+        component.fg.controls.report.setValue(null);
         spyOn(component, 'showSplitBlockedPopover');
 
         component.openSplitExpenseModal('projects');
@@ -713,7 +713,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'generateEtxnFromFg').and.returnValue(
           of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, report_id: 'rprAfNrce73O' } })
         );
-        component.fg.controls.report.setValue({ ...expectedErpt[0], rp: { ...expectedErpt[0].rp, id: null } });
+        component.fg.controls.report.setValue({ ...expectedReportsPaginated[0], id: null });
         spyOn(component, 'showSplitBlockedPopover');
 
         component.openSplitExpenseModal('projects');
