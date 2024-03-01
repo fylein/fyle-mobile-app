@@ -338,14 +338,14 @@ export class TasksService {
             !filters?.sentBackAdvances
           ) {
             return mobileNumberVerification
+              .concat(setCommuteDetails)
               .concat(potentialDuplicates)
               .concat(sentBackReports)
               .concat(draftExpenses)
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances)
-              .concat(setCommuteDetails);
+              .concat(sentBackAdvances);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
