@@ -15,7 +15,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 export class FySelectCommuteDetailsComponent implements OnInit {
   @Input() distanceUnit: string;
 
-  @Input() existingCommuteDetails?: CommuteDetails;
+  @Input() existingCommuteDetails: CommuteDetails;
 
   commuteDetails: FormGroup;
 
