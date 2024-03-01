@@ -206,7 +206,7 @@ export class MyProfilePage {
 
         this.isMileageEnabled = this.orgSettings.mileage?.allowed && this.orgSettings.mileage.enabled;
         this.isCommuteDeductionEnabled =
-          this.orgSettings.commute_deduction_settings.allowed && this.orgSettings.commute_deduction_settings.enabled;
+          this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
 
         if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
           this.setCommuteDetails();
