@@ -10,7 +10,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 export class EmployeesService {
   constructor(private spenderService: SpenderService) {}
 
-  postCommuteDetails(commuteDetails: CommuteDetails): Observable<CommuteDetailsResponse> {
+  postCommuteDetails(commuteDetails: CommuteDetails): Observable<{ data: CommuteDetailsResponse }> {
     return this.spenderService.post('/employees/commute_details', {
       data: {
         commute_details: commuteDetails,
