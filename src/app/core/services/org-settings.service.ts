@@ -415,6 +415,10 @@ export class OrgSettingsService {
         enabled: incoming?.amex_feed_enrollment_settings?.enabled,
         virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
       },
+      pending_cct_expense_restriction: {
+        allowed: incoming.pending_cct_expense_restriction?.allowed,
+        enabled: incoming.pending_cct_expense_restriction?.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {

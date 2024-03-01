@@ -17,6 +17,8 @@ import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { OrgSettingsService } from './org-settings.service';
+import { OrgSettings } from '../models/org-settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -32,6 +34,8 @@ export class TasksService {
 
   advancesTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
 
+  orgSettings!: OrgSettings;
+
   constructor(
     private reportService: ReportService,
     private humanizeCurrency: HumanizeCurrencyPipe,
@@ -40,9 +44,15 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private orgSettingsService: OrgSettingsService
   ) {
     this.refreshOnTaskClear();
+    this.setOrgSettings();
+  }
+
+  setOrgSettings(): void {
+    this.orgSettingsService.get().subscribe((settings) => (this.orgSettings = settings));
   }
 
   refreshOnTaskClear(): void {
@@ -566,18 +576,29 @@ export class TasksService {
   }
 
   getUnreportedExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
-    return this.expensesService
-      .getExpenseStats({
-        state: 'in.(COMPLETE)',
-        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
-        report_id: 'is.null',
-      })
-      .pipe(
-        map((stats) => ({
-          totalCount: stats.data.count,
-          totalAmount: stats.data.total_amount,
-        }))
-      );
+    let queryParams = {
+      state: 'in.(COMPLETE)',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      report_id: 'is.null',
+      and: '()',
+    };
+
+    if (
+      this.orgSettings?.corporate_credit_card_settings?.enabled &&
+      this.orgSettings?.pending_cct_expense_restriction?.enabled
+    ) {
+      queryParams = {
+        ...queryParams,
+        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+      };
+    }
+
+    return this.expensesService.getExpenseStats(queryParams).pipe(
+      map((stats) => ({
+        totalCount: stats.data.count,
+        totalAmount: stats.data.total_amount,
+      }))
+    );
   }
 
   getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
