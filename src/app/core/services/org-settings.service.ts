@@ -133,8 +133,8 @@ export class OrgSettingsService {
           incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates,
       },
       commute_deduction_settings: {
-        allowed: incoming.commute_deduction_settings?.allowed,
-        enabled: incoming.commute_deduction_settings?.enabled,
+        allowed: incoming.commute_deduction_settings && incoming.commute_deduction_settings.allowed,
+        enabled: incoming.commute_deduction_settings && incoming.commute_deduction_settings.enabled,
       },
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -458,8 +458,8 @@ export class OrgSettingsService {
         mileage_location_enabled: outgoing.mileage.location_mandatory,
       },
       commute_deduction_settings: {
-        allowed: outgoing.commute_deduction_settings?.allowed,
-        enabled: outgoing.commute_deduction_settings?.enabled,
+        allowed: outgoing.commute_deduction_settings.allowed,
+        enabled: outgoing.commute_deduction_settings.enabled,
       },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
