@@ -404,7 +404,6 @@ export interface OrgSettingsResponse {
   budget_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
-  duplicate_detection_v2_settings?: CommonOrgSettings;
   dynamic_form_settings?: CommonOrgSettings;
   hrms_integration_settings?: CommonOrgSettings;
   multi_org_settings?: CommonOrgSettings;
@@ -521,7 +520,6 @@ export interface OrgSettings {
   settlements_excel_settings?: SettlementsExcelSettings;
   gmail_addon_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
-  duplicate_detection_v2_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   bulk_fyle_settings?: CommonOrgSettings;
   auto_reminder_settings?: CommonOrgSettings;
