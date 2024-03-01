@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, take } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -33,12 +33,11 @@ import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
-import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -107,7 +106,8 @@ export class MyProfilePage {
     private spenderService: SpenderService,
     private activatedRoute: ActivatedRoute,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private employeesService: EmployeesService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -224,16 +224,7 @@ export class MyProfilePage {
 
   setCommuteDetails(): void {
     from(this.authService.getEou())
-      .pipe(
-        map((eou) => ({
-          params: {
-            user_id: `eq.${eou.us.id}`,
-          },
-        })),
-        switchMap((queryParams) =>
-          this.spenderService.get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', queryParams)
-        )
-      )
+      .pipe(switchMap((eou) => this.employeesService.getCommuteDetails(eou)))
       .subscribe((res) => {
         this.commuteDetails = res.data[0].commute_details;
         this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
