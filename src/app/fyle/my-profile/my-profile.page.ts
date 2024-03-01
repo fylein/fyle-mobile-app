@@ -38,6 +38,7 @@ import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
 
 @Component({
   selector: 'app-my-profile',
@@ -211,6 +212,8 @@ export class MyProfilePage {
         this.isMileageEnabled = this.orgSettings.mileage?.allowed && this.orgSettings.mileage.enabled;
         this.isCommuteDeductionEnabled =
           this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
+
+        this.mileageDistanceUnit = this.orgSettings.mileage?.unit;
 
         if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
           this.setCommuteDetails();
@@ -429,10 +432,21 @@ export class MyProfilePage {
   async openCommuteDetailsModal(): Promise<void> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
-      componentProps: {},
+      componentProps: {
+        distanceUnit: this.mileageDistanceUnit,
+        existingCommuteDetails: this.commuteDetails,
+      },
       mode: 'ios',
     });
 
     await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+
+    // If the user edited or saved the commute details, refresh the page and show the toast message
+    if (data.action === 'save') {
+      this.reset();
+      this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
+    }
   }
 }
