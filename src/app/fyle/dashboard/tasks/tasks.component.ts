@@ -27,6 +27,8 @@ import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pil
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 
 @Component({
   selector: 'app-tasks',
@@ -371,6 +373,9 @@ export class TasksComponent implements OnInit {
       case TASKEVENT.mobileNumberVerification:
         this.onMobileNumberVerificationTaskClick(taskCta);
         break;
+      case TASKEVENT.commuteDetails:
+        this.onCommuteDetailsTaskClick();
+        break;
       default:
         break;
     }
@@ -644,5 +649,31 @@ export class TasksComponent implements OnInit {
     this.trackingService.autoSubmissionInfoCardClicked({
       isSeparateCard,
     });
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure'): void {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async onCommuteDetailsTaskClick(): Promise<void> {
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      mode: 'ios',
+    });
+
+    await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+
+    // Show toast message and refresh the page once commute details are saved
+    if (data.action === 'save') {
+      this.showToastMessage('Commute details saved successfully', 'success');
+      this.doRefresh();
+    }
   }
 }

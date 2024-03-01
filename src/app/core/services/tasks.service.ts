@@ -17,6 +17,8 @@ import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { OrgSettingsService } from './org-settings.service';
+import { EmployeesService } from './platform/v1/spender/employees.service';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +42,9 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private orgSettingsService: OrgSettingsService,
+    private employeesService: EmployeesService
   ) {
     this.refreshOnTaskClear();
   }
@@ -294,6 +298,7 @@ export class TasksService {
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
+      setCommuteDetails: this.getCommuteDetailsTasks(),
     }).pipe(
       map(
         ({
@@ -305,6 +310,7 @@ export class TasksService {
           draftExpenses,
           teamReports,
           sentBackAdvances,
+          setCommuteDetails,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -314,7 +320,8 @@ export class TasksService {
               unreportedExpenses.length +
               teamReports.length +
               potentialDuplicates.length +
-              sentBackAdvances.length
+              sentBackAdvances.length +
+              setCommuteDetails.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -337,7 +344,8 @@ export class TasksService {
               .concat(unsubmittedReports)
               .concat(unreportedExpenses)
               .concat(teamReports)
-              .concat(sentBackAdvances);
+              .concat(sentBackAdvances)
+              .concat(setCommuteDetails);
           } else {
             return this.getFilteredTaskList(filters, {
               potentialDuplicates,
@@ -826,5 +834,53 @@ export class TasksService {
 
   mapScalarAdvanceStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
+  }
+
+  getCommuteDetailsTasks(): Observable<DashboardTask[]> {
+    const isCommuteDeductionEnabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.mileage?.allowed &&
+            orgSettings.mileage.enabled &&
+            orgSettings.commute_deduction_settings?.allowed &&
+            orgSettings.commute_deduction_settings.enabled
+        )
+      );
+
+    const commuteDetails$ = from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.employeesService.getCommuteDetails(eou))
+    );
+
+    return forkJoin({
+      isCommuteDeductionEnabled: isCommuteDeductionEnabled$,
+      commuteDetails: commuteDetails$,
+    }).pipe(
+      switchMap(({ isCommuteDeductionEnabled, commuteDetails }) => {
+        if (isCommuteDeductionEnabled && !commuteDetails.data[0]?.commute_details?.home_location) {
+          return of(this.mapCommuteDetailsTask());
+        }
+        return of<DashboardTask[]>([]);
+      })
+    );
+  }
+
+  mapCommuteDetailsTask(): DashboardTask[] {
+    const task = [
+      {
+        hideAmount: true,
+        header: 'Add Commute Details',
+        subheader: 'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
+        icon: TaskIcon.LOCATION,
+        ctas: [
+          {
+            content: 'Add',
+            event: TASKEVENT.commuteDetails,
+          },
+        ],
+      },
+    ];
+    return task;
   }
 }
