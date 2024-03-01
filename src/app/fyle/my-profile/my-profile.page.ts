@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
-import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { InfoCardData } from 'src/app/core/models/info-card-data.model';
 import { Org } from 'src/app/core/models/org.model';
@@ -83,8 +83,6 @@ export class MyProfilePage {
   isVisaRTFEnabled: boolean;
 
   isMastercardRTFEnabled: boolean;
-
-  isCommuteDetailsPresent: boolean;
 
   isMileageEnabled: boolean;
 
@@ -225,22 +223,21 @@ export class MyProfilePage {
   }
 
   setCommuteDetails(): void {
-    this.eou$.subscribe((eou) => {
-      const queryParams = {
-        params: {
-          user_id: `eq.${eou.us.id}`,
-        },
-      };
-      return this.spenderService
-        .get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', queryParams)
-        .subscribe((res) => {
-          this.isCommuteDetailsPresent = !!res.data?.[0]?.commute_details?.home_location;
-          if (this.isCommuteDetailsPresent) {
-            this.commuteDetails = res.data[0].commute_details;
-            this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
-          }
-        });
-    });
+    from(this.authService.getEou())
+      .pipe(
+        map((eou) => ({
+          params: {
+            user_id: `eq.${eou.us.id}`,
+          },
+        })),
+        switchMap((queryParams) =>
+          this.spenderService.get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', queryParams)
+        )
+      )
+      .subscribe((res) => {
+        this.commuteDetails = res.data[0].commute_details;
+        this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
+      });
   }
 
   setCCCFlags(): void {

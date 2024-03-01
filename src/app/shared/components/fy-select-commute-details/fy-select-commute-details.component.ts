@@ -33,7 +33,7 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     });
 
     // In case if spender tries to edit the commute details, prefill form with existing details
-    if (this.existingCommuteDetails) {
+    if (this.existingCommuteDetails?.home_location) {
       const homeLocation = {
         ...this.existingCommuteDetails.home_location,
         display: this.existingCommuteDetails.home_location.formatted_address,
