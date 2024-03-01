@@ -40,7 +40,7 @@
       <ng-container *ngIf="false && isMileageEnabled && isCommuteDeductionEnabled">
         <div class="my-profile__section-header">Commute Details</div>
         <div
-          *ngIf="!isCommuteDetailsPresent"
+          *ngIf="!commuteDetails?.home_location"
           class="my-profile__card"
           [routerLink]="[ '/', 'enterprise', 'add_commute_details' ]"
           matRipple
