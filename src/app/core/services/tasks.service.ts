@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { map, switchMap, take } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -52,7 +52,10 @@ export class TasksService {
   }
 
   setOrgSettings(): void {
-    this.orgSettingsService.get().subscribe((settings) => (this.orgSettings = settings));
+    this.orgSettingsService
+      .get()
+      .pipe(take(1))
+      .subscribe((settings) => (this.orgSettings = settings));
   }
 
   refreshOnTaskClear(): void {
