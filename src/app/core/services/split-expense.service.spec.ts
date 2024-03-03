@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SplitExpenseService } from './split-expense.service';
 import { TransactionService } from './transaction.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PolicyService } from './policy.service';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
@@ -40,7 +41,7 @@ import {
   policyViolationData4,
   policyVoilationData2,
 } from '../mock-data/policy-violation.data';
-import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
+import { splitExpData, splitExpData2, splitExpTransformedData } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import { violationComment1, violationComment2, violationComment3 } from '../mock-data/policy-violcation-comment.data';
@@ -48,10 +49,13 @@ import { unflattenExp1, unflattenExp2 } from '../mock-data/unflattened-expense.d
 import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data/crtical-policy-violations.data';
 import { UtilityService } from './utility.service';
 import { cloneDeep } from 'lodash';
+import { platformExpenseData } from '../mock-data/platform-expense.data';
+import { splitExpensesData } from '../mock-data/platform/v1/expense.data';
 
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let fileService: jasmine.SpyObj<FileService>;
@@ -63,9 +67,10 @@ describe('SplitExpenseService', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'uploadBase64File',
       'checkPolicy',
-      'getEtxn',
       'upsert',
+      'transformRawExpense',
     ]);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
       'getPolicyRules',
@@ -83,6 +88,10 @@ describe('SplitExpenseService', () => {
         {
           provide: TransactionService,
           useValue: transactionServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
           provide: PolicyService,
@@ -113,6 +122,7 @@ describe('SplitExpenseService', () => {
 
     splitExpenseService = TestBed.inject(SplitExpenseService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
@@ -500,19 +510,27 @@ describe('SplitExpenseService', () => {
   });
 
   it('checkForPolicyViolations(): check for policy violations', (done) => {
-    transactionService.getEtxn.withArgs(splitExpData2[0].tx_id).and.returnValue(of(splitExpData2[0]));
-    transactionService.getEtxn.withArgs(splitExpData2[1].tx_id).and.returnValue(of(splitExpData2[1]));
+    expensesService.getExpenseById.withArgs(splitExpensesData[0].id).and.returnValue(of(splitExpensesData[0]));
+    transactionService.transformRawExpense.withArgs(splitExpensesData[0]).and.returnValue(splitExpTransformedData[0]);
+    expensesService.getExpenseById.withArgs(splitExpensesData[1].id).and.returnValue(of(splitExpensesData[1]));
+    transactionService.transformRawExpense.withArgs(splitExpensesData[1]).and.returnValue(splitExpTransformedData[1]);
     spyOn(splitExpenseService, 'executePolicyCheck').and.returnValue(of(policyViolationData4));
 
     splitExpenseService
-      .checkForPolicyViolations([splitExpData2[0].tx_id, splitExpData2[1].tx_id], fileObject4, transformedOrgCategories)
+      .checkForPolicyViolations(
+        [splitExpensesData[0].id, splitExpensesData[1].id],
+        fileObject4,
+        transformedOrgCategories
+      )
       .subscribe((res) => {
         expect(res).toEqual(policyViolationData4);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[0].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[1].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledTimes(2);
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith(splitExpensesData[0].id);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[0]);
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith(splitExpensesData[1].id);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[1]);
+        expect(expensesService.getExpenseById).toHaveBeenCalledTimes(2);
         expect(splitExpenseService.executePolicyCheck).toHaveBeenCalledOnceWith(
-          [splitExpData2[0], splitExpData2[1]],
+          [splitExpTransformedData[0], splitExpTransformedData[1]],
           fileObject4,
           transformedOrgCategories
         );

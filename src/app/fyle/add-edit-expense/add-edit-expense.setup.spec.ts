@@ -109,7 +109,7 @@ describe('AddEditExpensePage', () => {
       'upsert',
       'review',
       'matchCCCExpense',
-      'getETxnc',
+      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -209,7 +209,11 @@ describe('AddEditExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getDuplicatesByExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
+      'getExpenseById',
+      'getDuplicatesByExpense',
+      'getAllExpenses',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [AddEditExpensePage, MaskNumber, FySelectComponent, EllipsisPipe, DependentFieldComponent],

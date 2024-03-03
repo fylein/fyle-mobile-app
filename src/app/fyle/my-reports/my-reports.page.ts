@@ -18,7 +18,6 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -119,7 +118,6 @@ export class MyReportsPage {
     private router: Router,
     private currencyService: CurrencyService,
     private activatedRoute: ActivatedRoute,
-    private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
