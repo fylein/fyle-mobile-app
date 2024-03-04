@@ -67,7 +67,7 @@ import { customFieldData2 } from 'src/app/core/mock-data/custom-field.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { createExpenseProperties3 } from 'src/app/core/mock-data/track-expense-properties.data';
-import { extendedReportParam } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases3(getTestBed) {
@@ -256,7 +256,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -280,7 +280,7 @@ export function TestCases3(getTestBed) {
         dateService.getUTCDate.and.returnValues(
           new Date('2023-02-13T17:00:00.000Z'),
           new Date('2023-08-01T17:00:00.000Z'),
-          new Date('2023-08-03T17:00:00.000Z'),
+          new Date('2023-08-03T17:00:00.000Z')
         );
 
         const expectedEtxn$ = component.generateEtxnFromFg(etxn, customProperties);
@@ -312,7 +312,7 @@ export function TestCases3(getTestBed) {
               value: null,
             },
           ],
-          expenseFieldResponse,
+          expenseFieldResponse
         );
 
         expect(res).toEqual(txnCustomPropertiesData5);
@@ -338,7 +338,7 @@ export function TestCases3(getTestBed) {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       const fyCriticalPolicyViolationPopOverSpy: jasmine.SpyObj<HTMLIonModalElement> = jasmine.createSpyObj(
         'fyCriticalPolicyViolationPopOver',
-        ['present', 'onWillDismiss'],
+        ['present', 'onWillDismiss']
       );
       fyCriticalPolicyViolationPopOverSpy.onWillDismiss.and.resolveTo({
         data: {
@@ -384,7 +384,7 @@ export function TestCases3(getTestBed) {
 
       const result = component.continueWithPolicyViolations(
         criticalPolicyViolation2,
-        splitPolicyExp4.data.final_desired_state,
+        splitPolicyExp4.data.final_desired_state
       );
       tick(100);
 
@@ -464,7 +464,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -489,7 +489,7 @@ export function TestCases3(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
@@ -530,12 +530,12 @@ export function TestCases3(getTestBed) {
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' }),
+          of({ etxn: unflattenedTxnData, comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           ...perDiemFormValuesData10,
-          report: extendedReportParam[0],
+          report: expectedReportsPaginated[0],
         });
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         component.etxn$ = of(unflattenedTxnData);
@@ -552,7 +552,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -579,7 +579,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               [],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -595,7 +595,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -622,7 +622,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -641,7 +641,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -668,7 +668,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -685,7 +685,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -712,7 +712,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -729,7 +729,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe({
             next: (res) => {
@@ -752,7 +752,7 @@ export function TestCases3(getTestBed) {
                 unflattenedTxnData.tx,
                 undefined,
                 ['comment'],
-                'rp5eUkeNm9wB',
+                'rprAfNrce73O'
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -774,7 +774,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -797,7 +797,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -813,7 +813,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -832,7 +832,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -854,7 +854,7 @@ export function TestCases3(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -877,7 +877,7 @@ export function TestCases3(getTestBed) {
               mockTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB',
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();

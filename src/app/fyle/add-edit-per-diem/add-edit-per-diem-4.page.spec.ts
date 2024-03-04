@@ -41,7 +41,7 @@ import { expensePolicyData } from 'src/app/core/mock-data/expense-policy.data';
 import { txnCustomProperties4 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { perDiemFormValuesData10 } from 'src/app/core/mock-data/per-diem-form-value.data';
-import { extendedReportParam } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { createExpenseProperties3, editExpenseProperties } from 'src/app/core/mock-data/track-expense-properties.data';
 import { cloneDeep } from 'lodash';
@@ -223,7 +223,7 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'comment' });
             done();
@@ -246,7 +246,7 @@ export function TestCases4(getTestBed) {
             expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
             expect(component.continueWithPolicyViolations).toHaveBeenCalledOnceWith(
               criticalPolicyViolation1,
-              policyViolation1.data.final_desired_state,
+              policyViolation1.data.final_desired_state
             );
             expect(res).toEqual({ etxn: unflattenedTxnData, comment: 'No policy violation explanation provided' });
             done();
@@ -287,12 +287,12 @@ export function TestCases4(getTestBed) {
         policyService.getPolicyRules.and.returnValue(['The expense will be flagged']);
         spyOn(component, 'editExpenseCriticalPolicyViolationHandler').and.returnValue(of({ etxn: unflattenedTxnData }));
         spyOn(component, 'editExpensePolicyViolationHandler').and.returnValue(
-          of({ etxn: unflattenedTxnData, comment: 'comment' }),
+          of({ etxn: unflattenedTxnData, comment: 'comment' })
         );
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           ...perDiemFormValuesData10,
-          report: extendedReportParam[0],
+          report: expectedReportsPaginated[0],
         });
         transactionService.upsert.and.returnValue(of(unflattenedTxnData.tx));
         transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
@@ -315,7 +315,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -339,7 +339,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -360,7 +360,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -384,7 +384,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).not.toHaveBeenCalled();
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'tx3qHxFNgRcZ');
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -406,7 +406,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -449,7 +449,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -475,7 +475,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -483,13 +483,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -508,7 +508,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -534,7 +534,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -542,13 +542,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -565,7 +565,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -591,7 +591,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -599,13 +599,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -622,7 +622,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -647,7 +647,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -655,7 +655,7 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).not.toHaveBeenCalled();
             expect(res).toEqual(unflattenedTxnData.tx);
@@ -677,7 +677,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -710,13 +710,13 @@ export function TestCases4(getTestBed) {
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
               unflattenedTxnData.tx.id,
               'transactions',
-              unflattenedTxnData.tx.org_user_id,
+              unflattenedTxnData.tx.org_user_id
             );
             expect(statusService.post).toHaveBeenCalledOnceWith(
               'transactions',
               unflattenedTxnData.tx.id,
               { comment: 'comment' },
-              true,
+              true
             );
             expect(res).toEqual(unflattenedTxnData.tx);
             done();
@@ -733,7 +733,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe((res) => {
             expect(component.savePerDiemLoader).toBeTrue();
@@ -753,7 +753,7 @@ export function TestCases4(getTestBed) {
             expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
             expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
             expect(reportService.removeTransaction).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -773,7 +773,7 @@ export function TestCases4(getTestBed) {
               expect(component.savePerDiemLoader).toBeFalse();
               expect(component.saveAndNextPerDiemLoader).toBeFalse();
               expect(component.saveAndPrevPerDiemLoader).toBeFalse();
-            }),
+            })
           )
           .subscribe({
             next: (res) => {
@@ -798,7 +798,7 @@ export function TestCases4(getTestBed) {
               expect(trackingService.viewExpense).toHaveBeenCalledOnceWith({ Type: 'Per Diem' });
               expect(transactionService.upsert).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
               expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
-              expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rp5eUkeNm9wB', ['tx3qHxFNgRcZ']);
+              expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx3qHxFNgRcZ']);
               expect(reportService.removeTransaction).not.toHaveBeenCalled();
               expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
               expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
