@@ -56,6 +56,10 @@ import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
+import {
+  matchCCCExpenseResponseData,
+  unmatchCCCExpenseResponseData,
+} from '../mock-data/corporate-card-transaction-response.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -245,26 +249,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getETxnc(): should get list of extended transactions', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const params = {
-      offset: 0,
-      limit: 1,
-      params: {
-        tx_org_user_id: 'eq.ouX8dwsbLCLv',
-        tx_report_id: 'eq.rpFvmTgyeBjN',
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      },
-    };
-
-    transactionService.getETxnc(params).subscribe((res) => {
-      expect(res).toEqual(etxncData.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', params);
-      done();
-    });
-  });
-
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
     storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));
@@ -432,22 +416,6 @@ describe('TransactionService', () => {
   it('fixDates(): should fix dates', () => {
     // @ts-ignore
     expect(transactionService.fixDates(expenseDataWithDateString)).toEqual(expenseData1);
-  });
-
-  it('getETxnCount(): should return etxn count', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-    const params = {
-      tx_org_user_id: 'eq.ouX8dwsbLCLv',
-      tx_report_id: 'eq.rpFvmTgyeBjN',
-      order: 'tx_txn_dt.desc,tx_id.desc',
-    };
-
-    // @ts-ignore
-    transactionService.getETxnCount(params).subscribe((res) => {
-      expect(res.count).toEqual(1);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', { params });
-      done();
-    });
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
@@ -891,35 +859,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('getEtxn():', () => {
-    it('it should get etxn from transaction ID without sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData1));
-      dateService.fixDates.and.returnValue(expenseData1);
-
-      const transactionID = 'tx5fBcPBAxLv';
-      transactionService.getEtxn(transactionID).subscribe((res) => {
-        expect(res).toEqual(expenseData1);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
-        done();
-      });
-    });
-
-    it('it should get etxn from transaction ID with sub category', (done) => {
-      apiService.get.and.returnValue(of(etxnData));
-      dateService.fixDates.and.returnValue(etxnData);
-
-      const transactionID = 'txCBp2jIK6G3';
-
-      transactionService.getEtxn(transactionID).subscribe((res) => {
-        expect(res).toEqual(etxnData);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
-        done();
-      });
-    });
-  });
-
   it('getTransactionStats(): should return transaction stats', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(eouRes2));
     apiV2Service.getStats.and.returnValue(of(txnStats));
@@ -1056,56 +995,21 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getSplitExpenses(): should return split expenses', (done) => {
-    spyOn(transactionService, 'getAllETxnc').and.returnValue(of(expenseList));
-    const txnSplitGroupId = 'txBphgnCHHeO';
-
-    transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
-      expect(res).toEqual(expenseList);
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
-      done();
-    });
-  });
-
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(unmatchCCCExpenseResponseData));
 
-    const transactionId = 'txBldpJrBafX';
-    const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unmatch', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
-      });
-      done();
-    });
-  });
-
-  it('getAllETxnc(): should return all etxnc', (done) => {
-    // @ts-ignore
-    spyOn(transactionService, 'getETxnCount').and.returnValue(of(1));
-    spyOn(transactionService, 'getETxnc').and.returnValue(of(etxncListData.data));
-
-    const params = {
-      tx_org_user_id: 'eq.ouX8dwsbLCLv',
-      tx_report_id: 'eq.rpeqN0o4X4O4',
-      order: 'tx_txn_dt.desc,tx_id.desc',
+    const payload = {
+      id,
+      expense_ids: [expenseId],
     };
 
-    transactionService.getAllETxnc(params).subscribe((res) => {
-      expect(res).toEqual(etxncListData.data);
-      // @ts-ignore
-      expect(transactionService.getETxnCount).toHaveBeenCalledOnceWith(params);
-      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 2,
-        params: {
-          tx_org_user_id: 'eq.ouX8dwsbLCLv',
-          tx_report_id: 'eq.rpeqN0o4X4O4',
-          order: 'tx_txn_dt.desc,tx_id.desc',
-        },
+    transactionService.unmatchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(unmatchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/unmatch', {
+        data: payload,
       });
       done();
     });
@@ -1143,16 +1047,6 @@ describe('TransactionService', () => {
 
     it('should retuen vendor details for per diem expense with multiple days', () => {
       expect(transactionService.getVendorDetails(perDiemExpenseMultipleNumDays)).toEqual('3 Days');
-    });
-  });
-
-  describe('getDeletableTxns():', () => {
-    it('should return deletable transactions', () => {
-      expect(transactionService.getDeletableTxns(apiExpenseRes)).toEqual(apiExpenseRes);
-    });
-
-    it('should return undefined if no transaction ', () => {
-      expect(transactionService.getDeletableTxns(undefined)).toBeUndefined();
     });
   });
 
@@ -1278,6 +1172,7 @@ describe('TransactionService', () => {
     });
   });
 
+  // Needs clean up : once we remove older my-expenses-page completely
   describe('getETxnUnflattened():', () => {
     it('it should get etxn from transaction ID without sub category', (done) => {
       apiService.get.and.returnValue(of(expenseData3));
@@ -1403,16 +1298,20 @@ describe('TransactionService', () => {
   });
 
   it('matchCCCExpense(): should match ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(matchCCCExpenseResponseData));
 
-    const transactionId = 'txBRcjOg1spF';
-    const corporateCreditCardExpenseId = 'cccetzVpWd2Pgz';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.matchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/match', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+    const payload = {
+      id,
+      expense_ids: [expenseId],
+    };
+
+    transactionService.matchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(matchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/match', {
+        data: payload,
       });
       done();
     });

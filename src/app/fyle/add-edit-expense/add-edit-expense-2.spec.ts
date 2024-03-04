@@ -8,8 +8,18 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { duplicateSetData1, duplicateSetData4 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import {
+  duplicateSetData1,
+  duplicateSetData4,
+  duplicateSetData5,
+  duplicateSetData6,
+} from 'src/app/core/mock-data/duplicate-sets.data';
+import {
+  expenseData1,
+  expenseData2,
+  splitExpTransformedData,
+  transformedPlatformedExpense,
+} from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
@@ -92,7 +102,10 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { expenseDuplicateSet2 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import {
+  expenseDuplicateSet2,
+  expenseDuplicateSet3,
+} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { cloneDeep } from 'lodash';
 import {
   platformExpenseData,
@@ -106,6 +119,7 @@ import {
   transformedExpenseWithExtractedData,
   transformedExpenseWithExtractedData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -247,7 +261,6 @@ export function TestCases2(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -1483,49 +1496,61 @@ export function TestCases2(getTestBed) {
 
         expect(orgSettingsService.get).not.toHaveBeenCalled();
         expect(expensesService.getDuplicatesByExpense).not.toHaveBeenCalled();
-        expect(transactionService.getETxnc).not.toHaveBeenCalled();
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
       });
 
       it('should get duplicate expenses from platform when duplicate detection v2 is enabled', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+        activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
         const expenseId = activatedRoute.snapshot.params.id;
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
-        expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet2]));
-        transactionService.getETxnc.and.returnValue(of([expenseData1]));
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
+        expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet3]));
+        expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
+        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
 
         component.getDuplicateExpenses();
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
-        expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: `in.(tx5fBcPBAxLv)` },
+          queryParams: {
+            id: 'in.(txal5xGjbZ1R)',
+          },
         });
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData4, [expenseData1]);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, [
+          transformedPlatformedExpense,
+        ]);
       });
 
       it('should get duplicate expenses from public when duplicate detection v2 is disabled', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+        activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
         const expenseId = activatedRoute.snapshot.params.id;
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
-        transactionService.getETxnc.and.returnValue(of([expenseData1]));
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
+        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData5]));
+        expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
+        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
 
         component.getDuplicateExpenses();
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
-        expect(transactionService.getETxnc).toHaveBeenCalledWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: 'in.(tx5fBcPBAxLv)' },
+          queryParams: {
+            id: 'in.(txal5xGjbZ1R)',
+          },
         });
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData5, [
+          transformedPlatformedExpense,
+        ]);
       });
 
       it('should return empty array if no duplicate is found in public', () => {
