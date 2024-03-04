@@ -99,27 +99,6 @@ export class TransactionService {
     return of(null);
   }
 
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-  getEtxn(txnId: string): Observable<Expense> {
-    // TODO api v2
-    return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
-      map((transaction: Expense) => {
-        let categoryDisplayName = transaction.tx_org_category;
-        if (
-          transaction.tx_sub_category &&
-          transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()
-        ) {
-          categoryDisplayName += ' / ' + transaction.tx_sub_category;
-        }
-        transaction.tx_categoryDisplayName = categoryDisplayName;
-
-        return this.dateService.fixDates(transaction);
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
@@ -137,20 +116,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
-    return this.getETxnCount(params).pipe(
-      switchMap((res) => {
-        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
 
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
+  // Needs clean up : once we remove older my-expenses-page completely
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
@@ -190,6 +157,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
+
+  // Needs clean up : once we remove older my-expenses-page completely
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
@@ -213,6 +182,7 @@ export class TransactionService {
     cacheBusterObserver: expensesCacheBuster$,
   })
   // TODO: Remove `any` type once the stats response implementation is fixed
+  // Needs clean up : once we remove older my-expenses-page completely
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
@@ -345,6 +315,7 @@ export class TransactionService {
     );
   }
 
+  // Needs clean up : once we remove older my-expenses-page completely
   getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -361,14 +332,7 @@ export class TransactionService {
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
-    return this.apiV2Service
-      .get<Expense, {}>('/expenses', {
-        ...params,
-      })
-      .pipe(map((etxns) => etxns.data));
-  }
-
+  // Needs clean up : once we remove older my-expenses-page completely
   getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
@@ -475,14 +439,6 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
-    const data = {
-      tx_split_group_id: 'eq.' + txnSplitGroupId,
-    };
-
-    return this.getAllETxnc(data);
-  }
-
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
     const payload = {
       id,
@@ -529,10 +485,6 @@ export class TransactionService {
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
-  }
-
-  getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses?.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
@@ -1055,10 +1007,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private getETxnCount(params: EtxnParams): Observable<{ count: number }> {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
   }
 
   private fixDates(data: Expense): Expense {
