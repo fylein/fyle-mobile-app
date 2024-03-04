@@ -875,7 +875,6 @@ export class AddEditPerDiemPage implements OnInit {
       from_dt: [],
       to_dt: [, this.customDateValidator.bind(this)],
       custom_inputs: new FormArray([]),
-      duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
       project_dependent_fields: this.fb.array([]),
@@ -1561,7 +1560,6 @@ export class AddEditPerDiemPage implements OnInit {
             from_dt: etxn.tx.from_dt ? dayjs(new Date(etxn.tx.from_dt)).format('YYYY-MM-DD') : null,
             to_dt: etxn.tx.to_dt ? dayjs(new Date(etxn.tx.to_dt)).format('YYYY-MM-DD') : null,
             billable: etxn.tx.billable,
-            duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
             costCenter,
           });
 
@@ -1632,7 +1630,6 @@ export class AddEditPerDiemPage implements OnInit {
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code,
-            user_reason_for_duplicate_expenses: formValue.duplicate_detection_reason,
           },
           dataUrls: [],
           ou: etxn.ou,
@@ -2069,15 +2066,6 @@ export class AddEditPerDiemPage implements OnInit {
                     );
                   }
                 }
-
-                return of(null).pipe(map(() => tx));
-              }),
-              switchMap((tx) => {
-                const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
-                if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
-                  return this.transactionService.review(tx.id).pipe(map(() => tx));
-                }
-
                 return of(null).pipe(map(() => tx));
               })
             );

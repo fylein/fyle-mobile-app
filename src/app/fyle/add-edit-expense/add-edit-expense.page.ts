@@ -164,7 +164,6 @@ type FormValue = {
   distance: number;
   distance_unit: string;
   custom_inputs: CustomInput[];
-  duplicate_detection_reason: string;
   billable: boolean;
   costCenter: CostCenter;
   hotel_is_breakfast_provided: boolean;
@@ -250,8 +249,6 @@ export class AddEditExpensePage implements OnInit {
 
   individualProjectIds$: Observable<number[]>;
 
-  isNotReimbursable$: Observable<boolean>;
-
   costCenters$: Observable<CostCenterOptions[]>;
 
   isAmountCapped$: Observable<boolean>;
@@ -288,7 +285,7 @@ export class AddEditExpensePage implements OnInit {
 
   matchedCCCTransaction: Partial<MatchedCCCTransaction>;
 
-  alreadyApprovedExpenses: Expense[];
+  alreadyApprovedExpenses: Partial<Expense>[];
 
   isSplitExpensesPresent: boolean;
 
@@ -1888,7 +1885,6 @@ export class AddEditExpensePage implements OnInit {
               bus_travel_class: etxn.tx.bus_travel_class,
               distance: etxn.tx.distance,
               distance_unit: etxn.tx.distance_unit,
-              duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
               billable: etxn.tx.billable,
               custom_inputs: customInputValues,
 
@@ -2753,7 +2749,7 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  getSplitExpenses(splitExpenses: Expense[]): void {
+  getSplitExpenses(splitExpenses: Partial<Expense>[]): void {
     this.isSplitExpensesPresent = splitExpenses.length > 1;
     if (this.isSplitExpensesPresent) {
       this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
@@ -2772,17 +2768,19 @@ export class AddEditExpensePage implements OnInit {
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
-            map((splitExpenses) => ({
-              etxn,
-              splitExpenses,
-            }))
+          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+            map((splitExpenses) => {
+              const transformedSplitExpenses = splitExpenses.map((expense) =>
+                this.transactionService.transformRawExpense(expense)
+              );
+              return { etxn, transformedSplitExpenses };
+            })
           )
         )
       )
-      .subscribe(({ etxn, splitExpenses }) => {
-        if (splitExpenses && splitExpenses.length > 0) {
-          this.getSplitExpenses(splitExpenses);
+      .subscribe(({ etxn, transformedSplitExpenses }) => {
+        if (transformedSplitExpenses && transformedSplitExpenses.length > 0) {
+          this.getSplitExpenses(transformedSplitExpenses);
         }
 
         this.handleCCCExpenses(etxn);
@@ -2845,7 +2843,6 @@ export class AddEditExpensePage implements OnInit {
       distance: [],
       distance_unit: [],
       custom_inputs: new FormArray([]),
-      duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
@@ -3110,8 +3107,6 @@ export class AddEditExpensePage implements OnInit {
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
     );
 
-    this.isNotReimbursable$ = this.etxn$.pipe(map((etxn) => !etxn.tx.user_can_delete && this.mode === 'edit'));
-
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
     );
@@ -3262,10 +3257,6 @@ export class AddEditExpensePage implements OnInit {
     return this.getFormValues()?.hotel_is_breakfast_provided;
   }
 
-  getDuplicateReason(): string {
-    return this.getFormValues()?.duplicate_detection_reason;
-  }
-
   getAmount(): number {
     return this.getFormValues()?.currencyObj?.amount;
   }
@@ -3365,7 +3356,6 @@ export class AddEditExpensePage implements OnInit {
             distance: this.getDistance(),
             distance_unit: this.getDistanceUnit(),
             hotel_is_breakfast_provided: this.getBreakfastProvided(),
-            user_reason_for_duplicate_expenses: this.getDuplicateReason(),
             ...costCenter,
           },
           ou: etxn.ou,
@@ -3854,14 +3844,6 @@ export class AddEditExpensePage implements OnInit {
                       map(() => tx)
                     );
                   }
-                }
-
-                return of(null).pipe(map(() => tx));
-              }),
-              switchMap((tx) => {
-                const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
-                if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
-                  return this.transactionService.review(tx.id).pipe(map(() => tx));
                 }
 
                 return of(null).pipe(map(() => tx));

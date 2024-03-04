@@ -122,4 +122,11 @@ export class ExpensesService {
       },
     });
   }
+
+  getSplitExpenses(splitGroupId: string): Observable<Expense[]> {
+    const queryParams = {
+      split_group_id: 'eq.' + splitGroupId,
+    };
+    return this.getAllExpenses({ queryParams });
+  }
 }
