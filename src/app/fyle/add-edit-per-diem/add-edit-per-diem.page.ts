@@ -665,9 +665,6 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   getEditExpense(): Observable<UnflattenedTransaction> {
-    console.log('-------------------');
-    console.log('getting edit expense');
-    console.log('-------------------');
     return this.transactionService
       .getETxnUnflattened(this.activatedRoute.snapshot.params.id as string)
       .pipe(shareReplay(1));
@@ -2052,7 +2049,7 @@ export class AddEditPerDiemPage implements OnInit {
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
-                const selectedReportId = formValue.report && formValue.report.id;
+                const selectedReportId = formValue.report?.id;
                 const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
