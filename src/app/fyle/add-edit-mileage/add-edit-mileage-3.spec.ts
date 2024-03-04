@@ -223,7 +223,6 @@ export function TestCases3(getTestBed) {
         custom_inputs: new FormArray([]),
         costCenter: [],
         report: [],
-        duplicate_detection_reason: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
       });
@@ -638,7 +637,7 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(newExpFromFgPlatform.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErptPlatform[0].rp.id, [
             transformedExpenseDataWithSubCategory.tx.id,
           ]);
@@ -960,7 +959,7 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(newExpFromFgPlatform.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErptPlatform[0].rp.id, [
             'txD5hIQgLuR5',
           ]);

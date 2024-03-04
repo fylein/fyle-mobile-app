@@ -143,7 +143,6 @@ export function TestCases5(getTestBed) {
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),

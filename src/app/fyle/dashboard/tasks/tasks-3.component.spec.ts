@@ -4,6 +4,7 @@ import { ModalController } from '@ionic/angular';
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -27,6 +28,8 @@ import { extendedOrgUserResponse } from 'src/app/core/test-data/tasks.service.sp
 import { ComponentType } from '@angular/cdk/portal';
 import { TemplateRef } from '@angular/core';
 import { etxnParamsData1 } from 'src/app/core/mock-data/etxn-params.data';
+import { allExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
+import { apiExpenses1 } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -34,6 +37,7 @@ export function TestCases3(getTestBed) {
     let fixture: ComponentFixture<TasksComponent>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let reportService: jasmine.SpyObj<ReportService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
@@ -53,6 +57,7 @@ export function TestCases3(getTestBed) {
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -129,7 +134,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         authService.getEou.and.resolveTo(extendedOrgUserResponse);
         reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
-        transactionService.getAllETxnc.and.returnValue(of(apiExpenseRes));
+        expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
         spyOn(component, 'showAddToReportSuccessToast');
       });
 
@@ -150,11 +155,14 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(allExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], ['tx3nHShG60zq']);
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], [
+          'txDDLtRaflUW',
+          'tx5WDG9lxBDT',
+        ]);
         expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
           message: 'Expenses added to report successfully',
           report: apiExtendedReportRes[0],
@@ -186,11 +194,14 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(allExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReport[0], ['tx3nHShG60zq']);
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReport[0], [
+          'txDDLtRaflUW',
+          'tx5WDG9lxBDT',
+        ]);
         expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
           message: 'Expenses added to report successfully',
           report: mockReport[0],
@@ -217,11 +228,14 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith(etxnParamsData1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(allExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockExtendedReportRes[0], ['tx3nHShG60zq']);
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockExtendedReportRes[0], [
+          'txDDLtRaflUW',
+          'tx5WDG9lxBDT',
+        ]);
         expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
           message: 'Expenses added to an existing draft report',
           report: mockExtendedReportRes[0],
@@ -245,7 +259,7 @@ export function TestCases3(getTestBed) {
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
-        expect(transactionService.getAllETxnc).not.toHaveBeenCalled();
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
