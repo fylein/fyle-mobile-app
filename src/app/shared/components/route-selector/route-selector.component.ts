@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
-import { Subscription } from 'rxjs';
+import { distinctUntilChanged, Subscription } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 
 @Component({
@@ -181,7 +181,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
-    this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {
+    this.form.controls.roundTrip.valueChanges.pipe(distinctUntilChanged()).subscribe((roundTrip) => {
       if (!this.skipRoundTripUpdate) {
         if (this.formInitialized) {
           if (this.form.value.distance) {
