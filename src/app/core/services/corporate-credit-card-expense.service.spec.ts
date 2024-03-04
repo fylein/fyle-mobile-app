@@ -20,7 +20,10 @@ import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail-data';
-import { ccTransactionResponseData, ccTransactionResponseData1 } from '../mock-data/corporate-card-response.data';
+import {
+  ccTransactionResponseData,
+  ccTransactionResponseData1,
+} from '../mock-data/corporate-card-transaction-response.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;

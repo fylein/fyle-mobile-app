@@ -56,7 +56,10 @@ import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
 import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
-import { matchCCCExpenseResponseData, unmatchCCCExpenseResponseData } from '../mock-data/corporate-card-response.data';
+import {
+  matchCCCExpenseResponseData,
+  unmatchCCCExpenseResponseData,
+} from '../mock-data/corporate-card-transaction-response.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
