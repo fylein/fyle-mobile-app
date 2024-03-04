@@ -103,7 +103,6 @@ describe('AddEditExpensePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'transformExpense',
-      'getSplitExpenses',
       'checkPolicy',
       'checkMandatoryFields',
       'upsert',
@@ -213,6 +212,7 @@ describe('AddEditExpensePage', () => {
       'getExpenseById',
       'getDuplicatesByExpense',
       'getAllExpenses',
+      'getSplitExpenses',
     ]);
 
     TestBed.configureTestingModule({

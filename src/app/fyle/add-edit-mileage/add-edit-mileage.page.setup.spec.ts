@@ -107,7 +107,6 @@ describe('AddEditMileagePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'transformExpense',
-      'getSplitExpenses',
       'checkPolicy',
       'upsert',
       'review',
