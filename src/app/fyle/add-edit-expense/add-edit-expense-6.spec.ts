@@ -485,7 +485,7 @@ export function TestCases6(getTestBed) {
 
     describe('handleCCCExpenses():', () => {
       it('should handle CCC expenses', () => {
-        const date = new Date('2018-07-03T13:00:00.000Z');
+        const date = new Date('2018-07-04T13:00:00.000Z');
         jasmine.clock().mockDate(date);
         component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
         expect(component.cardNumber).toEqual('7620');
@@ -493,7 +493,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should show card digits and vendor description', () => {
-        const date = new Date('2018-06-05T18:30:00.000Z');
+        const date = new Date('2018-06-06T18:30:00.000Z');
         jasmine.clock().mockDate(date);
         component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
         expect(component.cardNumber).toEqual('9891');
