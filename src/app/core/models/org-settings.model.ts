@@ -359,6 +359,7 @@ export interface OrgSettingsResponse {
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
 
+  commute_deduction_settings?: CommonOrgSettings;
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
   corporate_credit_card_settings?: CCCSettings;
@@ -403,7 +404,6 @@ export interface OrgSettingsResponse {
   budget_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
-  duplicate_detection_v2_settings?: CommonOrgSettings;
   dynamic_form_settings?: CommonOrgSettings;
   hrms_integration_settings?: CommonOrgSettings;
   multi_org_settings?: CommonOrgSettings;
@@ -487,6 +487,7 @@ export interface XeProviderSettings extends CommonOrgSettings {
 export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
+  commute_deduction_settings?: CommonOrgSettings;
   advances?: CommonOrgSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
@@ -519,7 +520,6 @@ export interface OrgSettings {
   settlements_excel_settings?: SettlementsExcelSettings;
   gmail_addon_settings?: CommonOrgSettings;
   duplicate_detection_settings?: CommonOrgSettings;
-  duplicate_detection_v2_settings?: CommonOrgSettings;
   custom_category_settings?: CommonOrgSettings;
   bulk_fyle_settings?: CommonOrgSettings;
   auto_reminder_settings?: CommonOrgSettings;

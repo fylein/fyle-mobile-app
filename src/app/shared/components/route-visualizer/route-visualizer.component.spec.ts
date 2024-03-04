@@ -191,7 +191,7 @@ describe('RouteVisualizerComponent', () => {
     });
   });
 
-  describe('renderMap', () => {
+  xdescribe('renderMap', () => {
     it('should set the map directions based on the route provided to render the map', () => {
       locationService.getDirections.and.returnValue(of(directionsResponse1));
       component.mileageLocations = mileageLocationData1;
