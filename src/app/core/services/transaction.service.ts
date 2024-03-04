@@ -117,7 +117,7 @@ export class TransactionService {
     cacheBusterObserver: expensesCacheBuster$,
   })
 
-  // Needs clean up : once we remove older my-expenses-page completely
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
@@ -158,7 +158,7 @@ export class TransactionService {
     cacheBusterObserver: expensesCacheBuster$,
   })
 
-  // Needs clean up : once we remove older my-expenses-page completely
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
@@ -181,8 +181,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-  // TODO: Remove `any` type once the stats response implementation is fixed
-  // Needs clean up : once we remove older my-expenses-page completely
+
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
@@ -315,7 +315,7 @@ export class TransactionService {
     );
   }
 
-  // Needs clean up : once we remove older my-expenses-page completely
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -332,7 +332,7 @@ export class TransactionService {
     );
   }
 
-  // Needs clean up : once we remove older my-expenses-page completely
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
@@ -395,7 +395,7 @@ export class TransactionService {
     );
   }
 
-  // Needs clean up : once we remove older my-expenses-page completely
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
