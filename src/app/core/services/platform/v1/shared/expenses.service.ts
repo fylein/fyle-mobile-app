@@ -32,7 +32,7 @@ export class ExpensesService {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
-  isExpenseInPendingState(expense: Expense): boolean {
+  doesExpenseHavePendingCardTransaction(expense: Expense): boolean {
     return (
       expense.state &&
       expense.state === ExpenseState.COMPLETE &&
@@ -124,7 +124,7 @@ export class ExpensesService {
           !this.isCriticalPolicyViolatedExpense(expense) &&
           !this.isExpenseInDraft(expense) &&
           expense.id &&
-          !this.isExpenseInPendingState(expense)
+          !this.doesExpenseHavePendingCardTransaction(expense)
       );
     } else {
       return expenses.filter(

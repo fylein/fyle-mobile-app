@@ -282,7 +282,7 @@ describe('MyExpensesV2Page', () => {
       'getCCCExpenseMessage',
       'getDeleteDialogBody',
       'restrictPendingTransactionsEnabled',
-      'isExpenseInPendingState',
+      'doesExpenseHavePendingCardTransaction',
     ]);
 
     TestBed.configureTestingModule({
@@ -2126,15 +2126,15 @@ describe('MyExpensesV2Page', () => {
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
         expect(component.showNewReportModal).not.toHaveBeenCalled();
       }));
-      it('should call isExpenseInPendingState', fakeAsync(() => {
+      it('should call doesExpenseHavePendingCardTransaction', fakeAsync(() => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
-        expect(sharedExpenseService.isExpenseInPendingState).toHaveBeenCalledTimes(2);
-        expect(sharedExpenseService.isExpenseInPendingState).toHaveBeenCalledWith(apiExpenses1[0]);
-        expect(sharedExpenseService.isExpenseInPendingState).toHaveBeenCalledWith(apiExpenses1[1]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledTimes(2);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[0]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[1]);
         component.isReportableExpensesSelected = false;
         expect(component.unreportableExpenseExceptionHandler).toHaveBeenCalledOnceWith(1, 2, 0);
       }));

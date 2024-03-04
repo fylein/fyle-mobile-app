@@ -1123,7 +1123,7 @@ export class MyExpensesV2Page implements OnInit {
     //only handle pending txns if it is enabled from settings
     if (this.sharedExpenseService.restrictPendingTransactionsEnabled()) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
-        this.sharedExpenseService.isExpenseInPendingState(expense)
+        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense)
       );
     }
 
