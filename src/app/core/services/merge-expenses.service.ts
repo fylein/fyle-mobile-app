@@ -282,7 +282,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_vendor),
       map((expense) => ({
-        label: expense.tx_vendor.toString(),
+        label: expense.tx_vendor?.toString(),
         value: expense.tx_vendor,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -297,7 +297,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => !!expense.tx_project_id),
       map((expense) => ({
-        label: expense.tx_project_id.toString(),
+        label: expense.tx_project_id?.toString(),
         value: expense.tx_project_id,
       })),
       mergeMap((option) => this.formatProjectOptions(option)),
@@ -350,7 +350,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_tax !== null),
       map((expense) => ({
-        label: expense.tx_tax.toString(),
+        label: expense.tx_tax?.toString(),
         value: expense.tx_tax,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
@@ -365,7 +365,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_cost_center_name !== null),
       map((expense) => ({
-        label: expense.tx_cost_center_name.toString(),
+        label: expense.tx_cost_center_name?.toString(),
         value: expense.tx_cost_center_id,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
@@ -380,7 +380,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_purpose !== null),
       map((expense) => ({
-        label: expense.tx_purpose.toString(),
+        label: expense.tx_purpose?.toString(),
         value: expense.tx_purpose,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -461,7 +461,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_journey_travel_class !== null),
       map((expense) => ({
-        label: expense.tx_flight_journey_travel_class.toString(),
+        label: expense.tx_flight_journey_travel_class?.toString(),
         value: expense.tx_flight_journey_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -476,7 +476,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_flight_return_travel_class !== null),
       map((expense) => ({
-        label: expense.tx_flight_return_travel_class.toString(),
+        label: expense.tx_flight_return_travel_class?.toString(),
         value: expense.tx_flight_return_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -491,7 +491,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_train_travel_class !== null),
       map((expense) => ({
-        label: expense.tx_train_travel_class.toString(),
+        label: expense.tx_train_travel_class?.toString(),
         value: expense.tx_train_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -506,7 +506,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_bus_travel_class !== null),
       map((expense) => ({
-        label: expense.tx_bus_travel_class.toString(),
+        label: expense.tx_bus_travel_class?.toString(),
         value: expense.tx_bus_travel_class,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -521,7 +521,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance !== null),
       map((expense) => ({
-        label: expense.tx_distance.toString(),
+        label: expense.tx_distance?.toString(),
         value: expense.tx_distance,
       })),
       reduce((acc: MergeExpensesOption<number>[], curr) => {
@@ -536,7 +536,7 @@ export class MergeExpensesService {
     return from(expenses).pipe(
       filter((expense) => expense.tx_distance_unit !== null),
       map((expense) => ({
-        label: expense.tx_distance_unit.toString(),
+        label: expense.tx_distance_unit?.toString(),
         value: expense.tx_distance_unit,
       })),
       reduce((acc: MergeExpensesOption<string>[], curr) => {
@@ -550,7 +550,7 @@ export class MergeExpensesService {
   generateBillableOptions(expenses: Partial<Expense>[]): Observable<MergeExpensesOptionsData<boolean>> {
     return from(expenses).pipe(
       map((expense) => ({
-        label: expense.tx_billable.toString(),
+        label: expense.tx_billable?.toString(),
         value: expense.tx_billable,
       })),
       map((option) => this.formatBillableOptions(option)),
@@ -681,7 +681,7 @@ export class MergeExpensesService {
         if (isValidDate) {
           formatedlabel = this.setFormattedDate(field.value);
         } else {
-          formatedlabel = field.value.toString();
+          formatedlabel = field.value?.toString();
         }
         if (existing) {
           const existingIndex = customProperty.indexOf(existing);
