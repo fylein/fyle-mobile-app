@@ -106,14 +106,11 @@ describe('AddEditMileagePage', () => {
       'getRemoveCardExpenseDialogBody',
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
-      'getETxnUnflattened',
       'transformExpense',
-      'getSplitExpenses',
       'checkPolicy',
       'upsert',
       'review',
       'matchCCCExpense',
-      'getETxnc',
       'getDefaultVehicleType',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
@@ -154,7 +151,6 @@ describe('AddEditMileagePage', () => {
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'markPersonal',
       'dismissCreditTransaction',
-      'getEccceByGroupId',
     ]);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'viewExpense',

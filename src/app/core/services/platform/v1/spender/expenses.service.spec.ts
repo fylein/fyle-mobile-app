@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ExpensesService } from './expenses.service';
 import { SpenderService } from './spender.service';
-import { expenseData, readyToReportExpensesData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  expenseData,
+  readyToReportExpensesData2,
+  splitExpensesData,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
@@ -169,7 +173,7 @@ describe('ExpensesService', () => {
       expect(spenderService.get).toHaveBeenCalledOnceWith('/expenses/duplicate_sets', {
         params: {
           expense_id: 'txaiCW1efU0n',
-         },
+        },
       });
       done();
     });
@@ -217,6 +221,20 @@ describe('ExpensesService', () => {
           },
         ],
       });
+      done();
+    });
+  });
+
+  it('getSplitExpenses(): should return the list of expenses based on splitGroupId', (done) => {
+    const splitGroupId = 'tx6I9xcOZFU6';
+    const queryParams = {
+      split_group_id: 'eq.tx6I9xcOZFU6',
+    };
+    spyOn(service, 'getAllExpenses').and.returnValue(of(splitExpensesData));
+
+    service.getSplitExpenses(splitGroupId).subscribe((res) => {
+      expect(res).toEqual(splitExpensesData);
+      expect(service.getAllExpenses).toHaveBeenCalledOnceWith({ queryParams });
       done();
     });
   });
