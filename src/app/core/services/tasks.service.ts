@@ -18,7 +18,6 @@ import { CorporateCreditCardExpenseService } from './corporate-credit-card-expen
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
-import { OrgSettings } from '../models/org-settings.model';
 
 @Injectable({
   providedIn: 'root',
@@ -33,8 +32,6 @@ export class TasksService {
   teamReportsTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
 
   advancesTaskCount$: BehaviorSubject<number> = new BehaviorSubject(0);
-
-  orgSettings!: OrgSettings;
 
   constructor(
     private reportService: ReportService,
