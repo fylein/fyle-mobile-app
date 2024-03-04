@@ -139,7 +139,6 @@ describe('TasksService', () => {
   });
 
   it('should be created', () => {
-    console.log('service', tasksService);
     expect(tasksService).toBeTruthy();
   });
 
