@@ -1704,8 +1704,8 @@ describe('SplitExpensePage', () => {
       expect(component.createAndLinkTxnsWithFiles).toHaveBeenCalledOnceWith([txnList[0]]);
       expect(transactionService.delete).toHaveBeenCalledOnceWith(txnList[0].id);
       expect(transactionService.matchCCCExpense).toHaveBeenCalledOnceWith(
-        'txSQ9yM7IYEy',
-        matchedCCCTransactionData1.id
+        matchedCCCTransactionData1.id,
+        'txSQ9yM7IYEy'
       );
       expect(splitExpenseService.checkForPolicyViolations).toHaveBeenCalledOnceWith(
         ['txSQ9yM7IYEy', 'txbSFbl4vmf1'],

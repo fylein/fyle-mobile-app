@@ -430,3 +430,13 @@ export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction
     ],
   },
 };
+
+export const mileageCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = {
+  ...transformedExpenseData,
+  tx: { ...transformedExpenseData.tx, org_category: 'MILEAGE' },
+};
+
+export const perDiemCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = {
+  ...transformedExpenseData,
+  tx: { ...transformedExpenseData.tx, org_category: 'PER DIEM' },
+};

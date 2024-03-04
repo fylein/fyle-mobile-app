@@ -189,7 +189,6 @@ export function TestCases2(getTestBed) {
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),
@@ -215,7 +214,7 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('getEditExpense(): should call transactionService.getETxnUnflattened and return unflattened transaction data', () => {
+    it('getEditExpense(): should call expensesService.getExpensesById and return expense data', () => {
       expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
       transactionService.transformExpense.and.returnValue(transformedExpenseData);
       activatedRoute.snapshot.params = { id: 'txvslh8aQMbu' };
