@@ -1388,3 +1388,9 @@ export const orgSettingsWoV2ExpensesPage: OrgSettings = {
   ...orgSettingsRes,
   mobile_app_my_expenses_beta_enabled: false,
 };
+
+export const orgSettingsPendingRestrictions: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: { enabled: true },
+  pending_cct_expense_restriction: { enabled: true },
+};

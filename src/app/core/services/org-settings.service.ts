@@ -133,8 +133,8 @@ export class OrgSettingsService {
           incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates,
       },
       commute_deduction_settings: {
-        allowed: incoming.commute_deduction_settings?.allowed,
-        enabled: incoming.commute_deduction_settings?.enabled,
+        allowed: incoming.commute_deduction_settings && incoming.commute_deduction_settings.allowed,
+        enabled: incoming.commute_deduction_settings && incoming.commute_deduction_settings.enabled,
       },
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
@@ -291,10 +291,6 @@ export class OrgSettingsService {
         allowed: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.allowed,
         enabled: incoming.duplicate_detection_settings && incoming.duplicate_detection_settings.enabled,
       },
-      duplicate_detection_v2_settings: {
-        allowed: incoming.duplicate_detection_v2_settings && incoming.duplicate_detection_v2_settings.allowed,
-        enabled: incoming.duplicate_detection_v2_settings && incoming.duplicate_detection_v2_settings.enabled,
-      },
       custom_category_settings: {
         allowed: incoming.custom_category_settings && incoming.custom_category_settings.allowed,
         enabled: incoming.custom_category_settings && incoming.custom_category_settings.enabled,
@@ -415,6 +411,10 @@ export class OrgSettingsService {
         enabled: incoming?.amex_feed_enrollment_settings?.enabled,
         virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
       },
+      pending_cct_expense_restriction: {
+        allowed: incoming.pending_cct_expense_restriction?.allowed,
+        enabled: incoming.pending_cct_expense_restriction?.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -462,8 +462,8 @@ export class OrgSettingsService {
         mileage_location_enabled: outgoing.mileage.location_mandatory,
       },
       commute_deduction_settings: {
-        allowed: outgoing.commute_deduction_settings?.allowed,
-        enabled: outgoing.commute_deduction_settings?.enabled,
+        allowed: outgoing.commute_deduction_settings && outgoing.commute_deduction_settings.allowed,
+        enabled: outgoing.commute_deduction_settings && outgoing.commute_deduction_settings.enabled,
       },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
@@ -540,7 +540,6 @@ export class OrgSettingsService {
       transaction_field_configurations: outgoing.transaction_field_configurations,
       gmail_addon_settings: outgoing.gmail_addon_settings,
       duplicate_detection_settings: outgoing.duplicate_detection_settings,
-      duplicate_detection_v2_settings: outgoing.duplicate_detection_v2_settings,
       custom_category_settings: outgoing.custom_category_settings,
       org_bulk_fyle_settings: outgoing.bulk_fyle_settings,
       auto_reminder_settings: outgoing.auto_reminder_settings,
