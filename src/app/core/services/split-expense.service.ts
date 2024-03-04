@@ -195,8 +195,8 @@ export class SplitExpenseService {
     categoryList: OrgCategory[]
   ): Observable<PolicyViolationTxn> {
     return from(txnIds).pipe(
-      map((expenseId) => this.expensesService.getExpenseById(expenseId)),
-      concatMap((expense$) => expense$.pipe(map((expense) => this.transactionService.transformRawExpense(expense)))),
+      concatMap((expenseId) => this.expensesService.getExpenseById(expenseId)),
+      map((expense) => this.transactionService.transformRawExpense(expense)),
       toArray(),
       switchMap((etxns) => this.executePolicyCheck(etxns, fileObjs, categoryList))
     );
