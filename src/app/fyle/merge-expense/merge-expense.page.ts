@@ -196,10 +196,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         },
       })
       .pipe(
-        map((expenses) => {
-          const transformedExpenses = expenses.map((expense) => this.transcationService.transformRawExpense(expense));
-          return transformedExpenses;
-        }),
+        map((expenses) => expenses.map((expense) => this.transcationService.transformRawExpense(expense))),
         shareReplay(1)
       );
 
