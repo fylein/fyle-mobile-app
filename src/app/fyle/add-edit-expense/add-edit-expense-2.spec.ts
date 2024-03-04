@@ -261,7 +261,6 @@ export function TestCases2(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],

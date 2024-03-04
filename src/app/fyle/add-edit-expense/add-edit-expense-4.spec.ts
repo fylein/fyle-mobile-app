@@ -229,7 +229,6 @@ export function TestCases4(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -1073,7 +1072,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithSubCategory.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
-          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           done();
         });
       });
@@ -1139,7 +1138,7 @@ export function TestCases4(getTestBed) {
             { comment: 'A comment' },
             true
           );
-          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(2);
+          expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
           done();
         });
       });
