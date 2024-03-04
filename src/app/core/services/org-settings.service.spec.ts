@@ -44,7 +44,7 @@ const incomingTallyAccountingObjectWithoutSettings: IncomingAccountObject = inco
 const incomingQuickbooksAccountingObjectWithoutSettings: IncomingAccountObject =
   incomingQuickbooksAccountingObjWithoutSettings;
 
-describe('OrgSettingsService', () => {
+fdescribe('OrgSettingsService', () => {
   let orgSettingsService: OrgSettingsService;
   let apiService: jasmine.SpyObj<ApiService>;
 

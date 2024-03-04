@@ -586,7 +586,6 @@ export class TasksService {
           orgSettings?.corporate_credit_card_settings?.enabled &&
           orgSettings?.pending_cct_expense_restriction?.enabled
         ) {
-          console.log('intered here');
           queryParams = {
             ...queryParams,
             and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',

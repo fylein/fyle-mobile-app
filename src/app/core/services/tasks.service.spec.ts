@@ -44,7 +44,7 @@ import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
 import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 
-fdescribe('TasksService', () => {
+describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -135,10 +135,11 @@ fdescribe('TasksService', () => {
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
   });
 
   it('should be created', () => {
-    console.log('service', orgSettingsService);
+    console.log('service', tasksService);
     expect(tasksService).toBeTruthy();
   });
 
@@ -186,6 +187,7 @@ fdescribe('TasksService', () => {
         state: 'in.(COMPLETE)',
         or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
         report_id: 'is.null',
+        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       })
       .and.returnValue(of(completeStats));
 
@@ -195,7 +197,6 @@ fdescribe('TasksService', () => {
   it('should be able to fetch unreported expenses tasks', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     humanizeCurrencyPipe.transform
       .withArgs(completeStats.data.total_amount, homeCurrency, true)
       .and.returnValue('142.26K');
