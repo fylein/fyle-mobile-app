@@ -751,30 +751,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  markCCCAsPersonal(txnId: string): Observable<CorporateCardTransactionRes> {
-    return this.transactionService.delete(txnId).pipe(
-      switchMap((res) => {
-        if (res) {
-          this.trackingService.deleteExpense({ Type: 'Marked Personal' });
-          return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
-        } else {
-          return of(null);
-        }
-      })
-    );
+  markCCCAsPersonal(): Observable<CorporateCardTransactionRes> {
+    this.trackingService.deleteExpense({ Type: 'Marked Personal' });
+    return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
   }
 
-  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
-    return this.transactionService.delete(txnId).pipe(
-      switchMap((res) => {
-        if (res) {
-          this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
-          return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
-        } else {
-          return of(null);
-        }
-      })
-    );
+  dismissCCC(corporateCreditCardExpenseId: string): Observable<CorporateCardTransactionRes> {
+    this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
+    return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
   }
 
   getRemoveCCCExpModalParams(
@@ -868,7 +852,6 @@ export class AddEditExpensePage implements OnInit {
       deleteMethod: () => Observable<CorporateCardTransactionRes>;
     };
   } {
-    const id = this.activatedRoute.snapshot.params.id as string;
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -880,13 +863,9 @@ export class AddEditExpensePage implements OnInit {
         ctaLoadingText: componentPropsParam.ctaLoadingText,
         deleteMethod: (): Observable<CorporateCardTransactionRes> => {
           if (isMarkPersonal) {
-            return this.transactionService
-              .unmatchCCCExpense(this.corporateCreditCardExpenseGroupId, id)
-              .pipe(switchMap(() => this.markCCCAsPersonal(id)));
+            return this.markCCCAsPersonal();
           } else {
-            return this.transactionService
-              .unmatchCCCExpense(this.matchedCCCTransaction?.id, id)
-              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
+            return this.dismissCCC(this.matchedCCCTransaction?.id);
           }
         },
       },
