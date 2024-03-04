@@ -2274,7 +2274,7 @@ export class AddEditMileagePage implements OnInit {
               map((savedEtxn) => savedEtxn && savedEtxn.tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
-                const selectedReportId = formValue.report && formValue.report.id;
+                const selectedReportId = formValue.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
