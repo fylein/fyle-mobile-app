@@ -154,4 +154,14 @@ export class ExpensesService {
       },
     });
   }
+
+  getSplitExpenses(expenseSplitGroupId: string): Observable<Expense[]> {
+    const params: ExpensesQueryParams = {
+      queryParams: {
+        split_group_id: 'eq.' + expenseSplitGroupId,
+      },
+    };
+
+    return this.getAllExpenses(params);
+  }
 }

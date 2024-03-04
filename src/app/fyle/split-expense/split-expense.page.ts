@@ -21,7 +21,6 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { SplitExpensePolicyViolationComponent } from 'src/app/shared/components/split-expense-policy-violation/split-expense-policy-violation.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
-import { FormattedPolicyViolation } from 'src/app/core/models/formatted-policy-violation.model';
 import { PolicyViolation } from 'src/app/core/models/policy-violation.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
@@ -39,17 +38,16 @@ import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { PolicyViolationTxn } from 'src/app/core/models/policy-violation-txn.model';
-import { Expense } from 'src/app/core/models/expense.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
 import { TransformedSplitExpenseMissingFields } from 'src/app/core/models/transformed-split-expense-missing-fields.model';
 import { SplitExpenseViolationsPopup } from 'src/app/core/models/split-expense-violations-popup.model';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
+import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-split-expense',
@@ -472,53 +470,6 @@ export class SplitExpensePage {
     );
   }
 
-  createAndLinkTxnsWithFiles(splitExpenses: Transaction[]): Observable<string[]> {
-    const splitExpense$: Partial<{ txns: Observable<Transaction[]>; files: Observable<FileObject[]> }> = {
-      txns: this.splitExpenseService.createSplitTxns(
-        this.transaction,
-        this.totalSplitAmount,
-        splitExpenses,
-        this.expenseFields
-      ),
-    };
-
-    if (this.fileObjs && this.fileObjs.length > 0) {
-      splitExpense$.files = this.splitExpenseService.getBase64Content(this.fileObjs);
-    }
-
-    return forkJoin(splitExpense$).pipe(
-      switchMap((data) => {
-        this.splitExpenseTxn = data.txns.map((txn) => txn);
-        this.completeTxnIds = this.splitExpenseTxn.filter((tx) => tx.state === 'COMPLETE').map((txn) => txn.id);
-        if (this.completeTxnIds.length !== 0 && this.reportId) {
-          return this.reportService.addTransactions(this.reportId, this.completeTxnIds).pipe(map(() => data));
-        } else {
-          return of(data);
-        }
-      }),
-      switchMap((data) => {
-        const txnIds = data.txns.map((txn) => txn.id);
-        return this.splitExpenseService.linkTxnWithFiles(data).pipe(map(() => txnIds));
-      })
-    );
-  }
-
-  toastWithCTA(toastMessage: string): void {
-    const toastMessageData = {
-      message: toastMessage,
-      redirectionText: 'View Report',
-    };
-
-    const expensesAddedToReportSnackBar = this.matSnackBar.openFromComponent(ToastMessageComponent, {
-      ...this.snackbarProperties.setSnackbarProperties('success', toastMessageData),
-      panelClass: ['msb-success-with-camera-icon'],
-    });
-    this.trackingService.showToastMessage({ ToastContent: toastMessage });
-    expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId, navigateBack: true }]);
-    });
-  }
-
   toastWithoutCTA(toastMessage: string, toastType: ToastType, panelClass: string): void {
     const message = toastMessage;
 
@@ -579,6 +530,7 @@ export class SplitExpensePage {
   }
 
   showSuccessToast(): void {
+    this.saveSplitExpenseLoading = false;
     const toastMessage = 'Expense split successfully.';
     if (this.reportId) {
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: this.reportId }]);
@@ -597,34 +549,6 @@ export class SplitExpensePage {
     );
   }
 
-  async showSplitExpenseViolations(violations: { [id: string]: FormattedPolicyViolation }): Promise<void> {
-    const splitExpenseViolationsModal = await this.modalController.create({
-      component: SplitExpensePolicyViolationComponent,
-      componentProps: {
-        policyViolations: violations,
-      },
-      mode: 'ios',
-      presentingElement: await this.modalController.getTop(),
-      ...this.modalProperties.getModalDefaultProperties(),
-    });
-
-    await splitExpenseViolationsModal.present();
-
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unused-vars
-    const { data } = await splitExpenseViolationsModal.onWillDismiss();
-    this.showSuccessToast();
-  }
-
-  handleSplitExpensePolicyViolations(violations: { [transactionID: string]: PolicyViolation }): void {
-    const doViolationsExist = this.policyService.checkIfViolationsExist(violations);
-    if (doViolationsExist) {
-      const formattedViolations = this.splitExpenseService.formatPolicyViolations(violations);
-      this.showSplitExpenseViolations(formattedViolations);
-    } else {
-      this.showSuccessToast();
-    }
-  }
-
   async showSplitExpensePolicyViolationsAndMissingFields(
     splitEtxns: Transaction[],
     policyViolations: { [id: number]: PolicyViolation },
@@ -640,6 +564,9 @@ export class SplitExpensePage {
     } else {
       filteredMissingFieldsViolations = null;
     }
+
+    const splitTrackingProps = this.getSplitExpensePoperties();
+    this.trackingService.splitExpensePolicyAndMissingFieldsPopupShown(splitTrackingProps);
 
     const splitExpenseViolationsModal = await this.modalController.create({
       component: SplitExpensePolicyViolationComponent,
@@ -718,14 +645,23 @@ export class SplitExpensePage {
     this.splitExpenseService
       .splitExpense(this.formattedSplitExpense, this.fileObjs, this.transaction, reportAndCategoryParams)
       .pipe(
-        catchError((err) => {
+        catchError((errResponse: HttpErrorResponse) => {
+          this.saveSplitExpenseLoading = false;
+
+          const splitTrackingProps = this.getSplitExpensePoperties();
+          splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
+          this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
+
           const message = 'We were unable to split your expense. Please try again later.';
           this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
           this.router.navigate(['/', 'enterprise', 'my_expenses']);
-          return throwError(err);
+          return throwError(errResponse);
         })
       )
       .subscribe((txns) => {
+        const splitTrackingProps = this.getSplitExpensePoperties();
+        this.trackingService.splitExpenseSuccess(splitTrackingProps);
+
         const txnIds = txns.data.map((txn) => txn.id);
 
         if (comments) {
@@ -760,7 +696,19 @@ export class SplitExpensePage {
     }
   }
 
-  saveV2(): void {
+  getSplitExpensePoperties(): SplittingExpenseProperties {
+    return {
+      Type: this.splitType,
+      'Is Evenly Split': this.isEvenlySplit(),
+      Asset: 'Mobile',
+      'Is part of report': !!this.reportId,
+      'Report ID': this.reportId || null,
+      'Expense State': this.transaction.state,
+      'User Role': 'spender',
+    };
+  }
+
+  save(): void {
     if (this.splitExpensesFormArray.valid) {
       this.showErrorBlock = false;
       if (this.amount && parseFloat(this.amount.toFixed(3)) !== this.totalSplitAmount) {
@@ -802,6 +750,7 @@ export class SplitExpensePage {
 
         forkJoin({
           generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
+          files: this.uploadFiles(this.fileUrls),
         })
           .pipe(
             concatMap(({ generatedSplitEtxn }) => this.createSplitTxns(generatedSplitEtxn)),
@@ -810,118 +759,38 @@ export class SplitExpensePage {
               this.correctTotalSplitAmount();
               return this.handlePolicyAndMissingFieldsCheck(formattedSplitExpense);
             }),
-            catchError((err) => {
-              const message = 'We were unable to split your expense. Please try again later.';
-              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
-              return throwError(err);
-            }),
-            finalize(() => {
+            catchError((errResponse: HttpErrorResponse) => {
+              const splitTrackingProps = this.getSplitExpensePoperties();
+              splitTrackingProps['Error Message'] = (errResponse?.error as { message: string })?.message;
+
+              const fileIds = this.fileObjs?.map((file) => file.id);
+              splitTrackingProps['Split Payload'] = this.splitExpenseService.transformSplitTo(
+                this.formattedSplitExpense,
+                this.transaction,
+                fileIds,
+                { reportId: this.reportId, unspecifiedCategory: this.unspecifiedCategory }
+              );
+
               this.saveSplitExpenseLoading = false;
 
-              const splitTrackingProps = {
-                'Split Type': this.splitType,
-                'Is Evenly Split': this.isEvenlySplit(),
-              };
+              this.trackingService.splitExpensePolicyCheckFailed(splitTrackingProps);
+
+              const message = 'We were unable to split your expense. Please try again later.';
+              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
+              return throwError(errResponse);
+            }),
+            finalize(() => {
+              const splitTrackingProps = this.getSplitExpensePoperties();
               this.trackingService.splittingExpense(splitTrackingProps);
             })
           )
           .subscribe((response) => {
             if (response && response.action === 'continue') {
               this.handleSplitExpense(response.comments);
-            }
-          });
-      });
-    } else {
-      this.splitExpensesFormArray.markAllAsTouched();
-    }
-  }
-
-  save(): void {
-    if (this.splitExpensesFormArray.valid) {
-      this.showErrorBlock = false;
-      if (this.amount && this.amount !== this.totalSplitAmount) {
-        this.showErrorBlock = true;
-        this.errorMessage = 'Split amount cannot be more than ' + this.amount + '.';
-        setTimeout(() => {
-          this.showErrorBlock = false;
-        }, 2500);
-        return;
-      }
-      let canCreateNegativeExpense = true;
-
-      this.saveSplitExpenseLoading = true;
-
-      this.isCorporateCardsEnabled$.subscribe((isCorporateCardsEnabled) => {
-        canCreateNegativeExpense = (this.splitExpensesFormArray.value as SplitExpense[]).reduce(
-          (defaultValue: boolean, splitExpenseValue) => {
-            const negativeAmountPresent = splitExpenseValue.amount && splitExpenseValue.amount <= 0;
-            if (!isCorporateCardsEnabled && negativeAmountPresent) {
-              defaultValue = false;
-            }
-            return defaultValue;
-          },
-          true
-        );
-
-        if (!canCreateNegativeExpense) {
-          this.showErrorBlock = true;
-          this.errorMessage = 'Amount should be greater than 0.01';
-          setTimeout(() => {
-            this.showErrorBlock = false;
-          }, 2500);
-          return;
-        }
-
-        const generatedSplitEtxn$ = (this.splitExpensesFormArray.value as SplitExpense[]).map((splitExpenseValue) =>
-          this.generateSplitEtxnFromFg(splitExpenseValue)
-        );
-
-        forkJoin({
-          generatedSplitEtxn: forkJoin(generatedSplitEtxn$),
-          files: this.uploadFiles(this.fileUrls),
-        })
-          .pipe(
-            concatMap(({ generatedSplitEtxn }) => this.createAndLinkTxnsWithFiles(generatedSplitEtxn)),
-            concatMap((res) => {
-              const observables: Partial<{
-                delete: Observable<Expense>;
-                matchCCC: Observable<CorporateCardTransactionRes>;
-                violations: Observable<PolicyViolationTxn>;
-              }> = {};
-              if (this.transaction.id) {
-                observables.delete = this.transactionService.delete(this.transaction.id);
-              }
-              if (this.transaction.corporate_credit_card_expense_group_id) {
-                // need to check this selectedCCCTransaction
-                observables.matchCCC = this.transactionService.matchCCCExpense(this.selectedCCCTransaction.id, res[0]);
-              }
-
-              observables.violations = this.splitExpenseService.checkForPolicyViolations(
-                res,
-                this.fileObjs,
-                this.categoryList
-              );
-
-              return forkJoin(observables);
-            }),
-            catchError((err) => {
-              const message = 'We were unable to split your expense. Please try again later.';
-              this.toastWithoutCTA(message, ToastType.FAILURE, 'msb-failure-with-camera-icon');
-              this.router.navigate(['/', 'enterprise', 'my_expenses']);
-              return throwError(err);
-            }),
-            finalize(() => {
+            } else {
+              // If user clicks on cancel button, then stop the loader
               this.saveSplitExpenseLoading = false;
-
-              const splitTrackingProps = {
-                'Split Type': this.splitType,
-                'Is Evenly Split': this.isEvenlySplit(),
-              };
-              this.trackingService.splittingExpense(splitTrackingProps);
-            })
-          )
-          .subscribe((response) => {
-            this.handleSplitExpensePolicyViolations(response.violations as { [id: string]: PolicyViolation });
+            }
           });
       });
     } else {
@@ -1145,7 +1014,7 @@ export class SplitExpensePage {
     // Last split should have the remaining amount after even split to make sure we get the total amount
 
     const evenlySplitTotalAmount = parseFloat((evenAmount * lastSplitIndex).toPrecision(15));
-    const lastSplitAmount = parseFloat((this.amount - evenlySplitTotalAmount).toPrecision(15));
+    const lastSplitAmount = parseFloat((this.amount - evenlySplitTotalAmount).toFixed(7));
     const lastSplitPercentage = parseFloat((100 - evenPercentage * lastSplitIndex).toFixed(3));
 
     this.setEvenSplit(evenAmount, evenPercentage, lastSplitAmount, lastSplitPercentage);

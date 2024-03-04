@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
-import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail-data';
+import { cardDetailsRes } from 'src/app/core/mock-data/platform-corporate-card-detail.data';
 import { SpentCardsComponent } from './spent-cards.component';
 import { SwiperModule } from 'swiper/angular';
 import { getAllElementsBySelector, getElementBySelector } from 'src/app/core/dom-helpers';

@@ -36,7 +36,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -63,6 +62,7 @@ import { orgSettingsData, unflattenedAccount1Data } from 'src/app/core/test-data
 import { projectsV1Data } from 'src/app/core/test-data/projects.spec.data';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
+import { expenseResponseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
 import { expectedProjects4 } from 'src/app/core/mock-data/extended-projects.data';
 import { reportData1 } from 'src/app/core/mock-data/report.data';
@@ -109,7 +109,6 @@ export function TestCases1(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -165,7 +164,6 @@ export function TestCases1(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -523,7 +521,7 @@ export function TestCases1(getTestBed) {
         component.isSplitExpensesPresent = true;
         component.isDraftExpenseEnabled = true;
         component.isSplitExpensesPresent = true;
-        component.alreadyApprovedExpenses = apiExpenseRes;
+        component.alreadyApprovedExpenses = expenseResponseData;
         fixture.detectChanges();
 
         component.unmatchExpense({
@@ -744,6 +742,22 @@ export function TestCases1(getTestBed) {
         expect(component.showSplitBlockedPopover).toHaveBeenCalledOnceWith(
           'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.'
         );
+      });
+
+      it('should not block split if it is a credit charge and tax amount is present', () => {
+        spyOn(component, 'getCustomFields').and.returnValue(of(customFieldData1));
+        customInputsService.getAll.and.returnValue(of(null));
+        component.txnFields$ = of(expenseFieldObjData);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(
+          of({ ...unflattenedExpData, tx: { ...unflattenedExpData.tx, amount: -100, tax_amount: -12 } })
+        );
+        component.fg.controls.report.setValue(null);
+        spyOn(component, 'showSplitBlockedPopover');
+
+        component.openSplitExpenseModal('projects');
+        expect(component.getCustomFields).toHaveBeenCalledTimes(1);
+        expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(1);
+        expect(component.showSplitBlockedPopover).not.toHaveBeenCalled();
       });
     });
 
@@ -1097,6 +1111,10 @@ export function TestCases1(getTestBed) {
     });
 
     describe('splitExpCategoryHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by category', () => {
         setFormValid();
 
@@ -1114,9 +1132,23 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCategoryHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpProjectHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by project', () => {
         setFormValid();
 
@@ -1134,11 +1166,26 @@ export function TestCases1(getTestBed) {
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
       });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpProjectHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
+      });
     });
 
     describe('splitExpCostCenterHandler():', () => {
+      beforeEach(() => {
+        component.pendingTransactionAllowedToReportAndSplit = true;
+      });
+
       it('should call method to display split expense modal and split by cost centers', () => {
         setFormValid();
+
         spyOn(component, 'openSplitExpenseModal');
 
         component.splitExpCostCenterHandler();
@@ -1152,6 +1199,16 @@ export function TestCases1(getTestBed) {
         component.splitExpCostCenterHandler();
 
         expect(component.showFormValidationErrors).toHaveBeenCalledTimes(1);
+      });
+
+      it('should show toast message if pendingTransactionAllowedToReportAndSplit is false', () => {
+        spyOn(component, 'showTransactionPendingToast');
+
+        component.pendingTransactionAllowedToReportAndSplit = false;
+
+        component.splitExpCostCenterHandler();
+
+        expect(component.showTransactionPendingToast).toHaveBeenCalledTimes(1);
       });
     });
 

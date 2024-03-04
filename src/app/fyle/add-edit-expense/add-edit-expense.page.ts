@@ -93,7 +93,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -288,7 +287,7 @@ export class AddEditExpensePage implements OnInit {
 
   matchedCCCTransaction: Partial<MatchedCCCTransaction>;
 
-  alreadyApprovedExpenses: Expense[];
+  alreadyApprovedExpenses: PlatformExpense[];
 
   isSplitExpensesPresent: boolean;
 
@@ -425,6 +424,11 @@ export class AddEditExpensePage implements OnInit {
 
   isRTFEnabled$: Observable<boolean>;
 
+  pendingTransactionAllowedToReportAndSplit = true;
+
+  //TODO : Assign its value from org settings
+  pendingTransactionRestrictionEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -464,7 +468,6 @@ export class AddEditExpensePage implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     public platform: Platform,
     private titleCasePipe: TitleCasePipe,
-    private handleDuplicates: HandleDuplicatesService,
     private paymentModesService: PaymentModesService,
     private taxGroupService: TaxGroupService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -719,7 +722,10 @@ export class AddEditExpensePage implements OnInit {
           return this.showSplitBlockedPopover(popoverMessage);
         }
 
-        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+        if (
+          res.generatedEtxn.tx.tax_amount &&
+          Math.abs(res.generatedEtxn.tx.amount) < Math.abs(res.generatedEtxn.tx.tax_amount)
+        ) {
           const popoverMessage =
             'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
@@ -963,27 +969,47 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('categories');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('categories');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpProjectHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('projects');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('projects');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpCostCenterHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('cost centers');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('cost centers');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
+  }
+
+  showTransactionPendingToast(): void {
+    this.showSnackBarToast(
+      { message: "Can't split as the Transaction status is pending. Please wait until it's Posted." },
+      'failure',
+      ['msb-failure']
+    );
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
@@ -2789,10 +2815,12 @@ export class AddEditExpensePage implements OnInit {
     }
   }
 
-  getSplitExpenses(splitExpenses: Expense[]): void {
+  getSplitExpenses(splitExpenses: PlatformExpense[]): void {
     this.isSplitExpensesPresent = splitExpenses.length > 1;
     if (this.isSplitExpensesPresent) {
-      this.alreadyApprovedExpenses = splitExpenses.filter((txn) => ['DRAFT', 'COMPLETE'].indexOf(txn.tx_state) === -1);
+      this.alreadyApprovedExpenses = splitExpenses.filter(
+        (splitExpense) => ['DRAFT', 'COMPLETE'].indexOf(splitExpense.state) === -1
+      );
 
       this.canEditCCCMatchedSplitExpense = this.alreadyApprovedExpenses.length < 1;
     }
@@ -2808,7 +2836,7 @@ export class AddEditExpensePage implements OnInit {
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.transactionService.getSplitExpenses(etxn.tx.split_group_id).pipe(
+          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
             map((splitExpenses) => ({
               etxn,
               splitExpenses,
@@ -3060,6 +3088,16 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
+      if (this.pendingTransactionRestrictionEnabled) {
+        this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
+          if (
+            transaction.matched_corporate_card_transactions?.length &&
+            transaction.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+          ) {
+            this.pendingTransactionAllowedToReportAndSplit = false;
+          }
+        });
+      }
     }
 
     this.attachments$ = this.loadAttachments$.pipe(
@@ -4898,53 +4936,34 @@ export class AddEditExpensePage implements OnInit {
       return;
     }
 
-    this.orgSettingsService
-      .get()
+    this.expensesService
+      .getDuplicatesByExpense(expenseId)
       .pipe(
-        switchMap((orgSettings) => {
-          const isDuplicateDetectionV2Enabled =
-            orgSettings.duplicate_detection_v2_settings.allowed && orgSettings.duplicate_detection_v2_settings.enabled;
+        map((platformDuplicateSets) =>
+          platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
+        ),
+        switchMap((transformedDuplicateSets) => {
+          const duplicateIds = transformedDuplicateSets
+            .map((value) => value.transaction_ids)
+            .reduce((acc, curVal) => acc.concat(curVal), []);
 
-          let duplicateExpenseService$: Observable<DuplicateSet[]>;
-
-          if (isDuplicateDetectionV2Enabled) {
-            duplicateExpenseService$ = this.expensesService.getDuplicatesByExpense(expenseId).pipe(
-              // this will be removed when expenses API is migrated to platform completely
-              map((platformDuplicateSets) =>
-                platformDuplicateSets.map((duplicateSet) => ({ transaction_ids: duplicateSet.expense_ids }))
-              )
+          if (duplicateIds.length > 0) {
+            const params = {
+              tx_id: `in.(${duplicateIds.join(',')})`,
+            };
+            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+              map((expenses) => {
+                const expensesArray = expenses as [];
+                return transformedDuplicateSets.map((duplicateSet) =>
+                  this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
+                );
+              })
             );
           } else {
-            duplicateExpenseService$ = this.handleDuplicates.getDuplicatesByExpense(expenseId);
+            return of([]);
           }
-
-          return duplicateExpenseService$.pipe(
-            switchMap((duplicateSets) => {
-              const duplicateIds = duplicateSets
-                .map((value) => value.transaction_ids)
-                .reduce((acc, curVal) => acc.concat(curVal), []);
-
-              if (duplicateIds.length > 0) {
-                const params = {
-                  tx_id: `in.(${duplicateIds.join(',')})`,
-                };
-                return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
-                  map((expenses) => {
-                    const expensesArray = expenses as [];
-                    return duplicateSets.map((duplicateSet) =>
-                      this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
-                    );
-                  })
-                );
-              } else {
-                return of([]);
-              }
-            }),
-            catchError(
-              () => EMPTY // Return an empty observable in case of an error
-            )
-          );
-        })
+        }),
+        catchError(() => EMPTY) // Return an empty observable in case of an error
       )
       .subscribe((duplicateExpensesSet) => {
         this.duplicateExpenses = duplicateExpensesSet[0] as Expense[];

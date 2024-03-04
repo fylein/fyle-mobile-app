@@ -2134,6 +2134,11 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsAdvDisabledData: OrgSettings = {
@@ -2524,6 +2529,11 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
