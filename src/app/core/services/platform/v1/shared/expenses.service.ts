@@ -12,16 +12,34 @@ import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expens
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
+import { BehaviorSubject, map } from 'rxjs';
+import { OrgSettingsService } from '../../../org-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
-  constructor(private dateService: DateService) {}
+  private pendingTxnSettingsEnabled$ = new BehaviorSubject<boolean>(false);
+
+  constructor(private dateService: DateService, private orgSettingsService: OrgSettingsService) {
+    this.setTransactionPendingSettingStatus();
+  }
 
   //TODO : ADD CONDITION BASED ON ORG SETTING
   restrictPendingTransactionsEnabled(): boolean {
-    return false;
+    return this.pendingTxnSettingsEnabled$.value;
+  }
+
+  setTransactionPendingSettingStatus(): void {
+    this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSetting) => orgSetting?.corporate_credit_card_settings?.enabled //&& orgSetting?.pending_cct_expense_restriction?.enabled
+        )
+      )
+      .subscribe((pendingTxnEnabled) => this.pendingTxnSettingsEnabled$.next(pendingTxnEnabled));
+    this.pendingTxnSettingsEnabled$.next(true);
   }
 
   isExpenseInDraft(expense: Expense): boolean {

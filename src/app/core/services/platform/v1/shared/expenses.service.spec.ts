@@ -31,17 +31,27 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from './expenses.service';
 import { cloneDeep } from 'lodash';
 import { DateService } from '../../../date.service';
+import { OrgSettingsService } from '../../../org-settings.service';
 
-describe('ExpensesService', () => {
+fdescribe('ExpensesService', () => {
   let service: ExpensesService;
   let dateService: DateService;
-
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   beforeEach(() => {
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     TestBed.configureTestingModule({
-      providers: [DateService],
+      providers: [
+        DateService,
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+      ],
     });
     service = TestBed.inject(ExpensesService);
     dateService = TestBed.inject(DateService);
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
   });
 
   it('should be created', () => {
