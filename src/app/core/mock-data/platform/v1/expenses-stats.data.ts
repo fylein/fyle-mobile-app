@@ -18,3 +18,10 @@ export const incompleteStats = {
     total_amount: 76234.4729069240282984,
   },
 };
+
+export const completeStats1 = {
+  data: {
+    count: 4,
+    total_amount: 3494,
+  },
+};

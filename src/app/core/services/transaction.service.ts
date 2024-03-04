@@ -99,27 +99,6 @@ export class TransactionService {
     return of(null);
   }
 
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
-  getEtxn(txnId: string): Observable<Expense> {
-    // TODO api v2
-    return this.apiService.get<Expense>('/etxns/' + txnId).pipe(
-      map((transaction: Expense) => {
-        let categoryDisplayName = transaction.tx_org_category;
-        if (
-          transaction.tx_sub_category &&
-          transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()
-        ) {
-          categoryDisplayName += ' / ' + transaction.tx_sub_category;
-        }
-        transaction.tx_categoryDisplayName = categoryDisplayName;
-
-        return this.dateService.fixDates(transaction);
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
@@ -137,20 +116,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
-    return this.getETxnCount(params).pipe(
-      switchMap((res) => {
-        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
 
-  @Cacheable({
-    cacheBusterObserver: expensesCacheBuster$,
-  })
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
@@ -190,6 +157,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
+
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
@@ -212,7 +181,8 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-  // TODO: Remove `any` type once the stats response implementation is fixed
+
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
@@ -345,6 +315,7 @@ export class TransactionService {
     );
   }
 
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getPaginatedETxncCount(): Observable<{ count: number }> {
     return this.networkService.isOnline().pipe(
       switchMap((isOnline) => {
@@ -361,14 +332,7 @@ export class TransactionService {
     );
   }
 
-  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
-    return this.apiV2Service
-      .get<Expense, {}>('/expenses', {
-        ...params,
-      })
-      .pipe(map((etxns) => etxns.data));
-  }
-
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
@@ -431,6 +395,7 @@ export class TransactionService {
     );
   }
 
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
     return this.apiService.get('/etxns/' + txnId).pipe(
       map((data) => {
@@ -453,7 +418,9 @@ export class TransactionService {
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/match', { data: payload });
+    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/match', {
+      data: payload,
+    });
   }
 
   review(txnId: string): Observable<null> {
@@ -472,21 +439,15 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
-    const data = {
-      tx_split_group_id: 'eq.' + txnSplitGroupId,
-    };
-
-    return this.getAllETxnc(data);
-  }
-
   unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
     const payload = {
       id,
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post('/corporate_card_transactions/unmatch', { data: payload });
+    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/unmatch', {
+      data: payload,
+    });
   }
 
   getVendorDetails(expense: Expense): string {
@@ -524,10 +485,6 @@ export class TransactionService {
 
   excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
-  }
-
-  getDeletableTxns(expenses: Partial<Expense>[]): Partial<Expense>[] {
-    return expenses?.filter((expense) => expense && expense.tx_user_can_delete);
   }
 
   getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
@@ -831,6 +788,10 @@ export class TransactionService {
     }
   }
 
+  sourceAccountTypePublicMapping(type: string): string {
+    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
+  }
+
   // Todo : Remove transformExpense method once upsert in migrated to platform
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
     const updatedExpense = {
@@ -944,6 +905,91 @@ export class TransactionService {
     return updatedExpense;
   }
 
+  // Todo : Remove transformRawExpenses method once upsert in migrated to platform
+  transformRawExpense(expense: PlatformExpense): Partial<Expense> {
+    const updatedExpense = {
+      tx_id: expense.id,
+      tx_txn_dt: expense.spent_at,
+      tx_expense_number: expense.seq_num,
+      tx_num_files: expense.files?.length,
+      tx_org_category: expense.category?.name,
+      tx_amount: expense.amount,
+      tx_purpose: expense.purpose,
+      tx_currency: expense.currency,
+      tx_vendor: expense.merchant,
+      tx_split_group_id: expense.split_group_id,
+      tx_split_group_user_amount: expense.split_group_amount,
+      tx_skip_reimbursement: !expense.is_reimbursable,
+      tx_file_ids: expense.file_ids,
+      tx_creator_id: expense.employee?.id,
+      tx_state: expense.state,
+      tx_tax_org_id: expense.tax_group_id,
+      tg_name: expense.tax_group?.name,
+      tx_project_name: expense.project?.name,
+      tx_project_id: expense.project_id,
+      tx_cost_center_name: expense.cost_center?.name,
+      tx_cost_center_id: expense.cost_center_id,
+      tx_corporate_credit_card_expense_group_id:
+        expense.matched_corporate_card_transactions?.length > 0
+          ? expense.matched_corporate_card_transactions[0].id
+          : null,
+      tx_custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
+      tx_locations: expense.locations,
+      tx_hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
+      tx_billable: expense.is_billable,
+      tx_fyle_category: expense.category?.system_category,
+      tx_orig_currency: expense.foreign_currency,
+      tx_orig_amount: expense.foreign_amount,
+      tx_taxi_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_bus_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_flight_journey_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
+      tx_train_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_distance: expense.distance,
+      tx_distance_unit: expense.distance_unit,
+      tx_per_diem_rate_id: expense.per_diem_rate_id?.toString(),
+      tx_num_days: expense.per_diem_num_days,
+      tx_mileage_rate_id: expense.mileage_rate_id?.toString(),
+      tx_mileage_rate: expense.mileage_rate?.rate,
+      tx_mileage_vehicle_type: expense.mileage_rate?.vehicle_type,
+      tx_mileage_is_round_trip: expense.mileage_is_round_trip,
+      tx_mileage_calculated_distance: expense.mileage_calculated_distance,
+      tx_mileage_calculated_amount: expense.mileage_calculated_amount,
+      tx_manual_flag: expense.is_manually_flagged,
+      tx_policy_flag: expense.is_policy_flagged,
+      tx_extracted_data: expense.extracted_data
+        ? {
+            vendor: expense.extracted_data?.vendor_name,
+            currency: expense.extracted_data?.currency,
+            amount: expense.extracted_data?.amount,
+            date: expense.extracted_data?.date,
+          }
+        : null,
+      tx_matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
+        ? expense.matched_corporate_card_transactions.map((transaction) => ({
+            id: transaction.id,
+            group_id: transaction.id,
+            amount: transaction.amount,
+            vendor: transaction.merchant,
+            txn_dt: transaction.spent_at.toISOString(),
+            currency: transaction.currency,
+            description: transaction.description,
+            card_or_account_number: transaction.corporate_card_number,
+            orig_amount: transaction.foreign_amount,
+            orig_currency: transaction.foreign_currency,
+            status: transaction.status,
+          }))
+        : null,
+      tx_org_category_code: expense.category?.code,
+      tx_project_code: expense.project?.code,
+      tx_physical_bill: expense.is_physical_bill_submitted,
+      tx_physical_bill_at: expense.physical_bill_submitted_at,
+      source_account_id: expense.source_account_id,
+      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+    };
+    return updatedExpense;
+  }
+
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
@@ -961,10 +1007,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private getETxnCount(params: EtxnParams): Observable<{ count: number }> {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
   }
 
   private fixDates(data: Expense): Expense {

@@ -187,7 +187,6 @@ describe('MyExpensesV2Page', () => {
       'delete',
       'getReportableExpenses',
       'isMergeAllowed',
-      'getDeletableTxns',
       'excludeCCCExpenses',
       'isCriticalPolicyViolatedExpense',
       'isExpenseInDraft',
@@ -1074,7 +1073,6 @@ describe('MyExpensesV2Page', () => {
     it('should set headerState to base if searchString is defined in loadData and if expense is selected', () => {
       component.loadExpenses$ = new BehaviorSubject({});
       transactionService.getReportableExpenses.and.returnValue([]);
-      transactionService.getDeletableTxns.and.returnValue([]);
       transactionService.excludeCCCExpenses.and.returnValue([]);
 
       component.switchOutboxSelectionMode(apiExpenseRes[0]);
@@ -3002,7 +3000,6 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'setOutboxExpenseStatsOnSelect');
       component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
-      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
     });
 
