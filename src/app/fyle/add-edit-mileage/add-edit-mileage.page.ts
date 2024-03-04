@@ -114,7 +114,6 @@ type FormValue = {
   category: OrgCategory;
   sub_category: OrgCategory;
   report: UnflattenedReport;
-  duplicate_detection_reason: string;
   paymentMode: ExtendedAccount;
   custom_inputs: CustomInput[];
   mileage_rate_name: PlatformMileageRates;
@@ -1313,7 +1312,6 @@ export class AddEditMileagePage implements OnInit {
       custom_inputs: new FormArray([]),
       costCenter: [],
       report: [],
-      duplicate_detection_reason: [],
       project_dependent_fields: this.fb.array([]),
       cost_center_dependent_fields: this.fb.array([]),
     });
@@ -1681,7 +1679,6 @@ export class AddEditMileagePage implements OnInit {
             billable: etxn.tx.billable,
             sub_category: subCategory,
             costCenter,
-            duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
             report,
           });
 
@@ -2095,7 +2092,6 @@ export class AddEditMileagePage implements OnInit {
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code,
-            user_reason_for_duplicate_expenses: formValue.duplicate_detection_reason,
           },
           dataUrls: [],
           ou: etxn.ou,
@@ -2307,14 +2303,6 @@ export class AddEditMileagePage implements OnInit {
                       map(() => tx)
                     );
                   }
-                }
-
-                return of(null).pipe(map(() => tx));
-              }),
-              switchMap((tx) => {
-                const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
-                if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
-                  return this.transactionService.review(tx.id).pipe(map(() => tx));
                 }
 
                 return of(null).pipe(map(() => tx));

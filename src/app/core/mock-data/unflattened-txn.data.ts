@@ -1811,6 +1811,14 @@ export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
   ],
 };
 
+export const unflattenedExpWithCCCExpn1: UnflattenedTransaction = {
+  ...unflattenedExpWithCCCExpn,
+  tx: {
+    ...unflattenedExpWithCCCExpn.tx,
+    split_group_id: 'tx6I9xcOZFU6',
+  },
+};
+
 export const trackCreateExpData: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
@@ -1905,7 +1913,7 @@ export const newExpFromFg: Partial<UnflattenedTransaction> = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2058,7 +2066,7 @@ export const newExpFromFg2: Partial<UnflattenedTransaction> = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2212,7 +2220,7 @@ export const newExpFromFg3: Partial<UnflattenedTransaction> = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2349,7 +2357,7 @@ export const newExpFromFg4: Partial<UnflattenedTransaction> = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: null,
     cost_center_code: null,
@@ -3161,7 +3169,7 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
     policy_amount: null,
     admin_amount: null,
     billable: undefined,
-    user_reason_for_duplicate_expenses: undefined,
+    user_reason_for_duplicate_expenses: null,
     tax: 52.47,
     tax_amount: 52.47,
     tax_group_id: 'tg3iWuqWhfzB',
@@ -3367,7 +3375,7 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = {
     receipt_required: false,
     user_can_delete: true,
     billable: undefined,
-    user_reason_for_duplicate_expenses: undefined,
+    user_reason_for_duplicate_expenses: null,
     mileage_vehicle_type: undefined,
     txn_dt: new Date('2023-02-13T01:00:00.000Z'),
     category: null,

@@ -5,6 +5,7 @@ import { LoaderService } from '../core/services/loader.service';
 import { AdvanceRequestService } from '../core/services/advance-request.service';
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
+import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { ReportService } from '../core/services/report.service';
 import { DeepLinkRedirectionPage } from './deep-link-redirection.page';
 import { expectedSingleErpt } from '../core/mock-data/report-unflattened.data';
@@ -13,6 +14,8 @@ import { apiEouRes } from '../core/mock-data/extended-org-user.data';
 import { unflattenedTxnData } from '../core/mock-data/unflattened-txn.data';
 import { singleErqUnflattened } from '../core/mock-data/extended-advance-request.data';
 import { DeepLinkService } from '../core/services/deep-link.service';
+import { platformExpenseData } from '../core/mock-data/platform-expense.data';
+import { transformedExpenseData } from '../core/mock-data/transformed-expense.data';
 
 describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
@@ -21,6 +24,7 @@ describe('DeepLinkRedirectionPage', () => {
   let loaderService: jasmine.SpyObj<LoaderService>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let reportService: jasmine.SpyObj<ReportService>;
   let authService: jasmine.SpyObj<AuthService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
@@ -30,7 +34,8 @@ describe('DeepLinkRedirectionPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getEReq']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getERpt']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
@@ -43,6 +48,7 @@ describe('DeepLinkRedirectionPage', () => {
         { provide: LoaderService, useValue: loaderServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AuthService, useValue: authServiceSpy },
         { provide: DeepLinkService, useValue: deepLinkServiceSpy },
@@ -64,6 +70,7 @@ describe('DeepLinkRedirectionPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
@@ -166,7 +173,8 @@ describe('DeepLinkRedirectionPage', () => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
 
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       deepLinkService.getExpenseRoute.and.returnValue(['/', 'enterprise', 'view_expense']);
 
       authService.getEou.and.resolveTo(apiEouRes);
@@ -174,7 +182,7 @@ describe('DeepLinkRedirectionPage', () => {
     });
 
     it('should redirect to the expense page in logged-in org if orgId is not present in route param', fakeAsync(() => {
-      const txnId = 'txAfNrce75O';
+      const txnId = 'txvslh8aQMbu';
       activeroutemock.snapshot.params = {
         sub_module: 'expense',
         id: txnId,
@@ -183,14 +191,15 @@ describe('DeepLinkRedirectionPage', () => {
       component.redirectToExpenseModule();
       tick(200);
 
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
-      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(txnId);
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(transformedExpenseData);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'view_expense', { id: txnId }]);
     }));
 
     it('should redirect to the expense page if expense orgId is same as logged-in org id', fakeAsync(() => {
       const orgId = 'orNVthTo2Zyo';
-      const txnId = 'tx3qHxFNgRcZ';
+      const txnId = 'txvslh8aQMbu';
       activeroutemock.snapshot.params = {
         sub_module: 'expense',
         id: txnId,
@@ -201,9 +210,10 @@ describe('DeepLinkRedirectionPage', () => {
       tick(200);
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       expect(authService.getEou).toHaveBeenCalledOnceWith();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(txnId);
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(2);
-      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(transformedExpenseData);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'view_expense', { id: txnId }]);
     }));
 
@@ -246,7 +256,7 @@ describe('DeepLinkRedirectionPage', () => {
         id: txnId,
         orgId,
       };
-      transactionService.getETxnUnflattened.and.returnValue(throwError(() => {}));
+      expensesService.getExpenseById.and.returnValue(throwError(() => {}));
       component.redirectToExpenseModule();
       tick(500);
       expect(component.switchOrg).toHaveBeenCalledOnceWith();

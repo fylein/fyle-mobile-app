@@ -7,11 +7,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
-import {
-  eCCCData2,
-  eCCCData3,
-  expectedECccResponse,
-} from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { defaultTxnFieldValuesData3 } from 'src/app/core/mock-data/default-txn-field-values.data';
 import {
@@ -20,7 +15,12 @@ import {
   txnFieldsData2,
   txnFieldsData3,
 } from 'src/app/core/mock-data/expense-fields-map.data';
-import { policyExpense2, splitExpData } from 'src/app/core/mock-data/expense.data';
+import {
+  policyExpense2,
+  splitExpData,
+  splitExpTransformedData,
+  splitExpTransformedData1,
+} from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { TaxiCategory, orgCategoryData1 } from 'src/app/core/mock-data/org-category.data';
 import {
@@ -35,6 +35,7 @@ import {
   checkSplitExpData1,
   checkSplitExpData2,
   unflattenedExpWithCCCExpn,
+  unflattenedExpWithCCCExpn1,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -76,6 +77,14 @@ import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.d
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import {
+  transformedExpenseWithMatchCCCData,
+  transformedExpenseWithMatchCCCData2,
+  transformedExpenseWithMatchCCCData3,
+} from 'src/app/core/mock-data/transformed-expense.data';
+import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -92,6 +101,7 @@ export function TestCases6(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -151,6 +161,7 @@ export function TestCases6(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -212,7 +223,6 @@ export function TestCases6(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -442,49 +452,52 @@ export function TestCases6(getTestBed) {
 
     describe('initSplitTxn():', () => {
       it('should initialize split txns made using ccc', () => {
-        transactionService.getSplitExpenses.and.returnValue(of(splitExpData));
-        component.etxn$ = of(unflattenedExpWithCCCExpn);
+        expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
+        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
+        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
+        component.etxn$ = of(unflattenedExpWithCCCExpn1);
         spyOn(component, 'handleCCCExpenses');
         spyOn(component, 'getSplitExpenses');
         fixture.detectChanges();
 
         component.initSplitTxn(of(orgSettingsData));
-        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
-        expect(component.getSplitExpenses).toHaveBeenCalledOnceWith(splitExpData);
+        expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx6I9xcOZFU6');
+        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[0]);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[1]);
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn1);
+        expect(component.getSplitExpenses).toHaveBeenCalledWith(splitExpTransformedData1);
       });
 
       it('should initialize CCC expenses with group ID', () => {
-        transactionService.getSplitExpenses.and.returnValue(of(null));
+        expensesService.getSplitExpenses.and.returnValue(of([]));
         component.etxn$ = of(unflattenedExpWithCCCExpn);
         spyOn(component, 'handleCCCExpenses');
         spyOn(component, 'getSplitExpenses');
         fixture.detectChanges();
 
         component.initSplitTxn(of(orgSettingsParamWoCCC));
-        expect(transactionService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(transactionService.transformRawExpense).not.toHaveBeenCalled();
         expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
-        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith(splitExpData);
+        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith(splitExpTransformedData);
       });
     });
 
     describe('handleCCCExpenses():', () => {
       it('should handle CCC expenses', () => {
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
-
-        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
-        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.cardNumber).toEqual('869');
-        expect(component.matchedCCCTransaction).toEqual(expectedECccResponse[0].ccce);
+        const date = new Date('2018-07-04T13:00:00.000Z');
+        jasmine.clock().mockDate(date);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
+        expect(component.cardNumber).toEqual('7620');
+        expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
       });
 
       it('should show card digits and vendor description', () => {
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of([eCCCData2]));
-
-        component.handleCCCExpenses(unflattenedExpWithCCCExpn);
-        expect(corporateCreditCardExpenseService.getEccceByGroupId).toHaveBeenCalledOnceWith('cccet1B17R8gWZ');
-        expect(component.cardNumber).toEqual('869');
-        expect(component.matchedCCCTransaction).toEqual(eCCCData2.ccce);
+        const date = new Date('2018-06-06T18:30:00.000Z');
+        jasmine.clock().mockDate(date);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
+        expect(component.cardNumber).toEqual('9891');
+        expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData2);
       });
     });
 
@@ -517,17 +530,6 @@ export function TestCases6(getTestBed) {
       expect(component.fg.controls.train_travel_class.value).toBeNull();
       expect(component.fg.controls.bus_travel_class.value).toBeNull();
     }));
-
-    it('initCCCTxn(): should initialize CCC txn and initialize card number and ending digits', () => {
-      activatedRoute.snapshot.params = {
-        bankTxn: JSON.stringify(eCCCData3),
-      };
-      component.initCCCTxn();
-      expect(component.showSelectedTransaction).toBeTrue();
-      expect(component.selectedCCCTransaction).toEqual(eCCCData3.ccce);
-      expect(component.isCreatedFromCCC).toBeTrue();
-      expect(component.cardEndingDigits).toEqual('6789');
-    });
 
     it('ngOnInit(): should populate report permissions', () => {
       activatedRoute.snapshot.params.remove_from_report = JSON.stringify(true);
@@ -922,22 +924,6 @@ export function TestCases6(getTestBed) {
         setFormValueNull();
 
         const result = component.getBreakfastProvided();
-        expect(result).toBeUndefined();
-      });
-    });
-
-    describe('getDuplicateReason():', () => {
-      it('should get duplicate expense reason', () => {
-        component.fg.controls.duplicate_detection_reason.setValue('reason');
-
-        const result = component.getDuplicateReason();
-        expect(result).toEqual('reason');
-      });
-
-      it('should return null', () => {
-        setFormValueNull();
-
-        const result = component.getDuplicateReason();
         expect(result).toBeUndefined();
       });
     });

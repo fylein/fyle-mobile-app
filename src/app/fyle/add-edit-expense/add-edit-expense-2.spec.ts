@@ -8,8 +8,18 @@ import { ActionSheetController, ModalController, NavController, Platform, Popove
 import { Observable, Subscription, finalize, of, throwError } from 'rxjs';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { criticalPolicyViolation2 } from 'src/app/core/mock-data/crtical-policy-violations.data';
-import { duplicateSetData1, duplicateSetData4 } from 'src/app/core/mock-data/duplicate-sets.data';
-import { expenseData1, expenseData2 } from 'src/app/core/mock-data/expense.data';
+import {
+  duplicateSetData1,
+  duplicateSetData4,
+  duplicateSetData5,
+  duplicateSetData6,
+} from 'src/app/core/mock-data/duplicate-sets.data';
+import {
+  expenseData1,
+  expenseData2,
+  splitExpTransformedData,
+  transformedPlatformedExpense,
+} from 'src/app/core/mock-data/expense.data';
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
@@ -92,8 +102,24 @@ import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.m
 import { FileObject } from 'src/app/core/models/file-obj.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { expenseDuplicateSet2 } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
+import {
+  expenseDuplicateSet2,
+  expenseDuplicateSet3,
+} from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { cloneDeep } from 'lodash';
+import {
+  platformExpenseData,
+  platformExpenseDataWithSubCategory,
+  platformExpenseWithExtractedData,
+  platformExpenseWithExtractedData2,
+} from 'src/app/core/mock-data/platform-expense.data';
+import {
+  transformedExpenseData,
+  transformedExpenseDataWithSubCategory,
+  transformedExpenseWithExtractedData,
+  transformedExpenseWithExtractedData2,
+} from 'src/app/core/mock-data/transformed-expense.data';
+import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -235,7 +261,6 @@ export function TestCases2(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -450,15 +475,17 @@ export function TestCases2(getTestBed) {
 
     describe('getEditExpenseObservable(): ', () => {
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData);
         categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(expectedUnflattendedTxnData1);
-          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+          expect(res).toEqual(transformedExpenseWithExtractedData);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            unflattenedTxnWithExtractedData.tx.extracted_data.category
+            transformedExpenseWithExtractedData.tx.extracted_data.category
           );
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
@@ -467,36 +494,40 @@ export function TestCases2(getTestBed) {
       });
 
       it('should return txn if state is not DRAFT', (done) => {
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnData);
-          expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+          expect(res).toEqual(transformedExpenseData);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
           done();
         });
       });
 
       it('should return txn when the expense or the extracted data does not contain any category', (done) => {
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnWithExtractedData2));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
+        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData2);
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(unflattenedTxnWithExtractedData2);
-          expect(transactionService.getETxnUnflattened).toHaveBeenCalledTimes(1);
+          expect(res).toEqual(transformedExpenseWithExtractedData2);
+          expect(expensesService.getExpenseById).toHaveBeenCalledTimes(1);
+          expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData2);
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           done();
         });
       });
 
       it('should update txn date with extracted date if txn date is not defined in original expense', (done) => {
-        const mockedTxn = cloneDeep(unflattenedTxnWithExtractedData2);
+        const mockedTxn = cloneDeep(transformedExpenseWithExtractedData2);
         const extractedDate = new Date('2023-01-24');
 
         mockedTxn.tx.txn_dt = null;
         mockedTxn.tx.extracted_data.invoice_dt = null;
         mockedTxn.tx.extracted_data.date = extractedDate;
-
-        transactionService.getETxnUnflattened.and.returnValue(of(mockedTxn));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
+        transactionService.transformExpense.and.returnValue(mockedTxn);
         dateService.getUTCDate.and.returnValue(extractedDate);
 
         component.getEditExpenseObservable().subscribe((res) => {
@@ -511,26 +542,33 @@ export function TestCases2(getTestBed) {
     it('goToPrev(): should go to the previous txn', () => {
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 1;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       fixture.detectChanges();
 
       component.goToPrev();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
     });
 
     it('goToNext(): should got to the next txn', () => {
-      const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 0;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+      component.reviewList = ['txSEM4DtjyKR', 'txD5hIQgLuR5'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithSubCategory));
+      transactionService.transformExpense.and.returnValue(transformedExpenseDataWithSubCategory);
       fixture.detectChanges();
 
       component.goToNext();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(
+        transformedExpenseDataWithSubCategory,
+        component.reviewList,
+        1
+      );
     });
 
     describe('goToTransaction():', () => {
@@ -1279,8 +1317,9 @@ export function TestCases2(getTestBed) {
       it('should go to next expense if delete successful', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         spyOn(component, 'goToTransaction');
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
+        component.reviewList = ['txvslh8aQMbu', 'txCYDX0peUw5'];
         component.activeIndex = 0;
 
         const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
@@ -1311,11 +1350,10 @@ export function TestCases2(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText }, undefined, undefined)
         );
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex]
-        );
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
-          unflattenedTxnData,
+          transformedExpenseData,
           component.reviewList,
           +component.activeIndex
         );
@@ -1458,49 +1496,61 @@ export function TestCases2(getTestBed) {
 
         expect(orgSettingsService.get).not.toHaveBeenCalled();
         expect(expensesService.getDuplicatesByExpense).not.toHaveBeenCalled();
-        expect(transactionService.getETxnc).not.toHaveBeenCalled();
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
       });
 
       it('should get duplicate expenses from platform when duplicate detection v2 is enabled', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+        activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
         const expenseId = activatedRoute.snapshot.params.id;
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
-        expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet2]));
-        transactionService.getETxnc.and.returnValue(of([expenseData1]));
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
+        expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet3]));
+        expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
+        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
 
         component.getDuplicateExpenses();
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
-        expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: `in.(tx5fBcPBAxLv)` },
+          queryParams: {
+            id: 'in.(txal5xGjbZ1R)',
+          },
         });
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData4, [expenseData1]);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData6, [
+          transformedPlatformedExpense,
+        ]);
       });
 
       it('should get duplicate expenses from public when duplicate detection v2 is disabled', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
+        activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
         const expenseId = activatedRoute.snapshot.params.id;
 
         orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData1]));
-        transactionService.getETxnc.and.returnValue(of([expenseData1]));
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([expenseData1]);
+        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData5]));
+        expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
+        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
+        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
 
         component.getDuplicateExpenses();
 
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
-        expect(transactionService.getETxnc).toHaveBeenCalledWith({
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 100,
-          params: { tx_id: 'in.(tx5fBcPBAxLv)' },
+          queryParams: {
+            id: 'in.(txal5xGjbZ1R)',
+          },
         });
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData1, [expenseData1]);
+        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
+        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData5, [
+          transformedPlatformedExpense,
+        ]);
       });
 
       it('should return empty array if no duplicate is found in public', () => {
