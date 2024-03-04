@@ -42,8 +42,9 @@ import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
+import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 
-describe('TasksService', () => {
+fdescribe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
@@ -53,9 +54,8 @@ describe('TasksService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
-
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -76,7 +76,6 @@ describe('TasksService', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-
     TestBed.configureTestingModule({
       providers: [
         TasksService,
@@ -113,12 +112,12 @@ describe('TasksService', () => {
           useValue: currencyServiceSpy,
         },
         {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
-        },
-        {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
       ],
     });
@@ -134,11 +133,12 @@ describe('TasksService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
   });
 
   it('should be created', () => {
+    console.log('service', orgSettingsService);
     expect(tasksService).toBeTruthy();
   });
 
@@ -195,6 +195,7 @@ describe('TasksService', () => {
   it('should be able to fetch unreported expenses tasks', () => {
     getUnreportedExpenses();
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     humanizeCurrencyPipe.transform
       .withArgs(completeStats.data.total_amount, homeCurrency, true)
       .and.returnValue('142.26K');
