@@ -311,10 +311,6 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
-  duplicate_detection_v2_settings: {
-    allowed: true,
-    enabled: true,
-  },
   custom_category_settings: {
     allowed: true,
     enabled: true,
@@ -737,10 +733,6 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   duplicate_detection_settings: {
-    allowed: true,
-    enabled: true,
-  },
-  duplicate_detection_v2_settings: {
     allowed: true,
     enabled: true,
   },
