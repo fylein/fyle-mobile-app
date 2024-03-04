@@ -781,3 +781,19 @@ export const platformExpenseWithMatchCCC2: Expense = {
   matched_corporate_card_transaction_ids: [],
   matched_corporate_card_transactions: [],
 };
+
+export const mileageCategoryPlatformExpenseData: Expense = {
+  ...platformExpenseData,
+  category: { ...platformExpenseData.category, name: 'MILEAGE' },
+};
+
+export const perDiemCategoryPlatformExpenseData: Expense = {
+  ...platformExpenseData,
+  category: { ...platformExpenseData.category, name: 'PER DIEM' },
+};
+
+export const expensesList: Expense[] = [
+  {
+    ...platformExpenseData,
+  },
+];

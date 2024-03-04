@@ -39,8 +39,11 @@ import { FyZeroStateComponent } from 'src/app/shared/components/fy-zero-state/fy
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -68,6 +71,7 @@ describe('SwitchOrgPage', () => {
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let routerAuthService: jasmine.SpyObj<RouterAuthService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let deepLinkService: jasmine.SpyObj<DeepLinkService>;
 
   beforeEach(waitForAsync(() => {
@@ -102,7 +106,8 @@ describe('SwitchOrgPage', () => {
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resendVerificationLink']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnUnflattened']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
 
     TestBed.configureTestingModule({
@@ -209,6 +214,10 @@ describe('SwitchOrgPage', () => {
           useValue: transactionServiceSpy,
         },
         {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
           provide: DeepLinkService,
           useValue: deepLinkServiceSpy,
         },
@@ -241,6 +250,7 @@ describe('SwitchOrgPage', () => {
     routerAuthService = TestBed.inject(RouterAuthService) as jasmine.SpyObj<RouterAuthService>;
     deepLinkService = TestBed.inject(DeepLinkService) as jasmine.SpyObj<DeepLinkService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
     component.searchRef = fixture.debugElement.query(By.css('#search'));
     component.searchOrgsInput = fixture.debugElement.query(By.css('.smartlook-show'));
@@ -350,7 +360,8 @@ describe('SwitchOrgPage', () => {
       userEventService.clearTaskCache.and.returnValue();
       recentLocalStorageItemsService.clearRecentLocalStorageCache.and.returnValue();
       authService.getEou.and.resolveTo(apiEouRes);
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       deepLinkService.getExpenseRoute.and.returnValue(['/', 'enterprise', 'add_edit_expense']);
 
       spyOn(component, 'setSentryUser').and.returnValue();
@@ -358,7 +369,7 @@ describe('SwitchOrgPage', () => {
     });
 
     it('should redirect to expense page if txn found in org', fakeAsync(() => {
-      const txnId = 'tx3qHxFNgRcZ';
+      const txnId = 'txvslh8aQMbu';
       const orgId = 'orNVthTo2Zyo';
       component.redirectToExpensePage(orgId, txnId);
 
@@ -373,10 +384,11 @@ describe('SwitchOrgPage', () => {
       expect(authService.getEou).toHaveBeenCalledOnceWith();
 
       expect(component.setSentryUser).toHaveBeenCalledOnceWith(apiEouRes);
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(txnId);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(txnId);
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(loaderService.hideLoader).toHaveBeenCalledOnceWith();
 
-      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(unflattenedTxnData);
+      expect(deepLinkService.getExpenseRoute).toHaveBeenCalledOnceWith(transformedExpenseData);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'add_edit_expense', { id: txnId }]);
     }));
 
