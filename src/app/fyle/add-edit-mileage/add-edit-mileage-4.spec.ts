@@ -33,7 +33,7 @@ import {
 } from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
-import { draftReportPerDiemData, expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import {
   txnCustomProperties4,
   txnCustomPropertiesData,
@@ -556,12 +556,12 @@ export function TestCases4(getTestBed) {
         component.reports$ = of([
           {
             label: 'report 1',
-            value: expectedErpt[0],
+            value: expectedReportsPaginated[0],
           },
         ]);
 
         component.getReports().subscribe((res) => {
-          expect(res).toEqual(expectedErpt[0]);
+          expect(res).toEqual(expectedReportsPaginated[0]);
           done();
         });
       });
@@ -572,12 +572,12 @@ export function TestCases4(getTestBed) {
         component.reports$ = of([
           {
             label: 'report 1',
-            value: draftReportPerDiemData[0],
+            value: expectedReportsPaginated[0],
           },
         ]);
 
         component.getReports().subscribe((res) => {
-          expect(res).toEqual(draftReportPerDiemData[0]);
+          expect(res).toEqual(expectedReportsPaginated[0]);
           done();
         });
       });
