@@ -1,6 +1,6 @@
 // TODO: Very hard to fix this file without making massive changes
 /* eslint-disable complexity */
-import { Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef, EventEmitter, HostListener, OnInit, ViewChild } from '@angular/core';
 import { AbstractControl, FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -342,7 +342,8 @@ export class AddEditMileagePage implements OnInit {
     private platformHandlerService: PlatformHandlerService,
     private storageService: StorageService,
     private expenseService: ExpensesService,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -1319,14 +1320,15 @@ export class AddEditMileagePage implements OnInit {
       console.log(commuteDeductedDistance);
       if (commuteDeductedDistance < 0) {
         this.previousCommuteDeductionType = null;
-        this.fg.controls.route.patchValue({ distance: 0 }, { emitEvent: false });
+        this.fg.controls.route.patchValue({ ...this.fg.controls.route.value, distance: 0 }, { emitEvent: false });
       } else {
         this.previousCommuteDeductionType = commuteDeductionType;
-        this.fg.controls.route.patchValue({ distance: 1 }, { emitEvent: false });
+        this.fg.controls.route.patchValue({ ...this.fg.controls.route.value, distance: 1 }, { emitEvent: false });
         console.log(this.fg.value);
         console.log(commuteDeductedDistance);
       }
     }
+    this.changeDetectorRef.detectChanges();
   }
 
   getCommuteDeductionOptions(distance: number): { label: string; value: string; distance: number }[] {
