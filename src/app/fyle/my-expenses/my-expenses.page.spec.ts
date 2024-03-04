@@ -167,7 +167,6 @@ describe('MyExpensesPage', () => {
       'delete',
       'getReportableExpenses',
       'isMergeAllowed',
-      'getDeletableTxns',
       'excludeCCCExpenses',
       'getIsCriticalPolicyViolated',
       'getIsDraft',
@@ -1707,7 +1706,6 @@ describe('MyExpensesPage', () => {
       spyOn(component, 'setExpenseStatsOnSelect');
       component.selectedElements = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
-      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
     });
 
@@ -2623,7 +2621,6 @@ describe('MyExpensesPage', () => {
   describe('onSelectAll(): ', () => {
     beforeEach(() => {
       transactionService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenseRes)));
-      transactionService.getDeletableTxns.and.returnValue(apiExpenseRes);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
       transactionService.getReportableExpenses.and.returnValue(apiExpenseRes);
       apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
@@ -2657,7 +2654,6 @@ describe('MyExpensesPage', () => {
         queryParams: { tx_report_id: 'is.null', tx_state: 'in.(COMPLETE,DRAFT)' },
       });
       expect(transactionService.excludeCCCExpenses).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
-      expect(transactionService.getDeletableTxns).toHaveBeenCalledOnceWith([...apiExpenseRes, ...expenseList4]);
       expect(component.cccExpenses).toBe(3);
       expect(component.selectedElements).toEqual([...apiExpenseRes, ...expenseList4]);
       expect(component.allExpensesCount).toBe(4);

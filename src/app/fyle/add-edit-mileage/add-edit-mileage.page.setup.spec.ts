@@ -107,12 +107,10 @@ describe('AddEditMileagePage', () => {
       'removeCorporateCardExpense',
       'unmatchCCCExpense',
       'transformExpense',
-      'getSplitExpenses',
       'checkPolicy',
       'upsert',
       'review',
       'matchCCCExpense',
-      'getETxnc',
       'getDefaultVehicleType',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
