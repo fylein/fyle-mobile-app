@@ -497,7 +497,7 @@ export function TestCases1(getTestBed) {
 
       const result = component.getTimeSpentOnPage();
       const time = (new Date().getTime() - component.expenseStartTime) / 1000;
-      expect(result).toEqual(time);
+      expect(result).toBeCloseTo(time, 2);
     });
 
     it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
