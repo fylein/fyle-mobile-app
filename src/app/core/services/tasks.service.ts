@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, forkJoin, from, noop, Observable, of } from 'rxjs';
-import { map, switchMap, take } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -574,27 +574,25 @@ export class TasksService {
       report_id: 'is.null',
       and: '()',
     };
-
-    this.orgSettingsService
-      .get()
-      .pipe(take(1))
-      .subscribe((orgSettings) => {
-        if (
-          orgSettings?.corporate_credit_card_settings?.enabled &&
-          orgSettings?.pending_cct_expense_restriction?.enabled
-        ) {
+    return this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+      ),
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
           queryParams = {
             ...queryParams,
             and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
           };
         }
-      });
-
-    return this.expensesService.getExpenseStats(queryParams).pipe(
-      map((stats) => ({
-        totalCount: stats.data.count,
-        totalAmount: stats.data.total_amount,
-      }))
+        return this.expensesService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            totalCount: stats.data.count,
+            totalAmount: stats.data.total_amount,
+          }))
+        );
+      })
     );
   }
 
