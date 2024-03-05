@@ -51,7 +51,7 @@ import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properti
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
-import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases4(getTestBed) {

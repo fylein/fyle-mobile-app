@@ -196,10 +196,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
           this.setSentryUser(eou);
           return this.expensesService.getExpenseById(txnId);
         }),
-        switchMap((expense) => {
-          const transformedExpense = this.transactionService.transformExpense(expense);
-          return of(transformedExpense);
-        }),
+        map((expense) => this.transactionService.transformExpense(expense)),
         finalize(() => this.loaderService.hideLoader())
       )
       .subscribe({

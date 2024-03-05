@@ -37,7 +37,7 @@ import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camer
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { DebugElement, EventEmitter } from '@angular/core';
-import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform-expense.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseWithExtractedData,

@@ -31,6 +31,9 @@ import { MyProfilePage } from './my-profile.page';
 import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { HttpClient } from '@angular/common/http';
+import { HttpClientTestingModule } from '@angular/common/http/testing';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -77,7 +80,7 @@ describe('MyProfilePage', () => {
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
-      imports: [IonicModule.forRoot(), RouterTestingModule],
+      imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
       providers: [
         {
           provide: ActivatedRoute,
@@ -153,6 +156,7 @@ describe('MyProfilePage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        SpenderService,
       ],
     }).compileComponents();
 

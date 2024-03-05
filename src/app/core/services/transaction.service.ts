@@ -78,8 +78,7 @@ export class TransactionService {
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
-    private accountsService: AccountsService,
-    private spenderPlatformAPIV1Service: SpenderPlatformV1ApiService
+    private accountsService: AccountsService
   ) {
     expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -418,9 +417,7 @@ export class TransactionService {
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/match', {
-      data: payload,
-    });
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
   }
 
   review(txnId: string): Observable<null> {
@@ -445,9 +442,7 @@ export class TransactionService {
       expense_ids: [expenseId],
     };
 
-    return this.spenderPlatformAPIV1Service.post<CorporateCardTransactionRes>('/corporate_card_transactions/unmatch', {
-      data: payload,
-    });
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/unmatch', { data: payload });
   }
 
   getVendorDetails(expense: Expense): string {

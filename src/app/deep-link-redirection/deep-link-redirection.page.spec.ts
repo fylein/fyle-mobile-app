@@ -14,7 +14,7 @@ import { apiEouRes } from '../core/mock-data/extended-org-user.data';
 import { unflattenedTxnData } from '../core/mock-data/unflattened-txn.data';
 import { singleErqUnflattened } from '../core/mock-data/extended-advance-request.data';
 import { DeepLinkService } from '../core/services/deep-link.service';
-import { platformExpenseData } from '../core/mock-data/platform-expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from '../core/mock-data/transformed-expense.data';
 
 describe('DeepLinkRedirectionPage', () => {

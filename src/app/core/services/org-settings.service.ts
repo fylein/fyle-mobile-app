@@ -132,6 +132,10 @@ export class OrgSettingsService {
         enable_individual_mileage_rates:
           incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates,
       },
+      commute_deduction_settings: {
+        allowed: incoming.commute_deduction_settings?.allowed,
+        enabled: incoming.commute_deduction_settings?.enabled,
+      },
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.enabled,
@@ -406,6 +410,11 @@ export class OrgSettingsService {
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
       mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: {
+        allowed: incoming?.amex_feed_enrollment_settings?.allowed,
+        enabled: incoming?.amex_feed_enrollment_settings?.enabled,
+        virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
@@ -451,6 +460,10 @@ export class OrgSettingsService {
         allowed: outgoing.mileage.allowed,
         enabled: outgoing.mileage.enabled,
         mileage_location_enabled: outgoing.mileage.location_mandatory,
+      },
+      commute_deduction_settings: {
+        allowed: outgoing.commute_deduction_settings?.allowed,
+        enabled: outgoing.commute_deduction_settings?.enabled,
       },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
@@ -552,8 +565,9 @@ export class OrgSettingsService {
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
-      simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
-      mobile_app_my_expenses_beta_enabled: outgoing?.mobile_app_my_expenses_beta_enabled,
+      simplified_report_closure_settings: outgoing.simplified_report_closure_settings,
+      mobile_app_my_expenses_beta_enabled: outgoing.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: outgoing.amex_feed_enrollment_settings,
     };
   }
 }

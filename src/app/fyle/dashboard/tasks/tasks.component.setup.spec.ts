@@ -1,10 +1,9 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { TasksComponent } from './tasks.component';
 import { TasksService } from 'src/app/core/services/tasks.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
@@ -20,6 +19,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases1 } from './tasks-1.component.spec';
 import { TestCases2 } from './tasks-2.component.spec';
 import { TestCases3 } from './tasks-3.component.spec';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -33,6 +33,7 @@ describe('TasksComponent', () => {
       'clearCache',
       'transformExpense',
       'transformRawExpense',
+      'getAllExpenses',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -76,6 +77,7 @@ describe('TasksComponent', () => {
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },

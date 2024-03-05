@@ -669,10 +669,7 @@ export class AddEditPerDiemPage implements OnInit {
     const expenseId = this.activatedRoute.snapshot.params.id as string;
 
     return this.expensesService.getExpenseById(expenseId).pipe(
-      switchMap((expense) => {
-        const transformedExpense = this.transactionService.transformExpense(expense);
-        return of(transformedExpense);
-      }),
+      switchMap((expense) => of(this.transactionService.transformExpense(expense))),
       shareReplay(1)
     );
   }
@@ -2035,10 +2032,7 @@ export class AddEditPerDiemPage implements OnInit {
 
             return this.transactionService.upsert(etxn.tx).pipe(
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
-              map((expense) => {
-                const transformedExpense = this.transactionService.transformExpense(expense);
-                return transformedExpense.tx;
-              }),
+              map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
                 const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;

@@ -79,7 +79,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -106,11 +105,6 @@ import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-d
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
-import {
-  missingMandatoryFieldsData1,
-  missingMandatoryFieldsData2,
-} from 'src/app/core/mock-data/missing-mandatory-fields.data';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -154,7 +148,6 @@ export function TestCases3(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -210,7 +203,6 @@ export function TestCases3(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;

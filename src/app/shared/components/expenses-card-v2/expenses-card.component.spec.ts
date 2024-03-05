@@ -39,7 +39,7 @@ import { expenseData, expenseResponseData } from 'src/app/core/mock-data/platfor
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
-import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform-expense.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseWithExtractedData,

@@ -9,16 +9,27 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
+  <div *ngIf="isVirtualCardsEnabled.enabled" class="manage-corporate-cards__segment-container">
+    <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+      <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
+      <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+    </ion-segment>
+  </div>
+</div>
+
+<!-- Corporate Cards will always be the default segment value -->
+<ion-content *ngIf="segmentValue === Segment.CORPORATE_CARDS" class="manage-corporate-cards__corporate-cards">
   <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
 
   <div class="manage-corporate-cards__cards">
     <ng-container *ngIf="corporateCards$ | async as corporateCards; else shimmers">
-      <div *ngIf="corporateCards.length > 0; else zeroState" class="manage-corporate-cards__cards-list">
+      <div *ngIf="getCorporateCardsLength(corporateCards); else zeroState" class="manage-corporate-cards__cards-list">
         <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__card">
           <app-corporate-card
+            *ngIf="!corporateCard.virtual_card_id"
             [card]="corporateCard"
             [isVisaRTFEnabled]="isVisaRTFEnabled$ | async"
             [isMastercardRTFEnabled]="isMastercardRTFEnabled$ | async"
@@ -43,8 +54,38 @@
     </ng-template>
   </div>
 </ion-content>
+<ion-content *ngIf="segmentValue === Segment.VIRTUAL_CARDS" class="manage-corporate-cards__virtual-cards">
+  <ion-refresher slot="fixed" (ionRefresh)="refresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
-<ion-footer>
+  <div
+    *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled"
+    class="manage-corporate-cards__cards manage-corporate-cards__cards-list manage-corporate-cards__tab-available"
+  >
+    <ng-container *ngIf="isVirtualCardsEnabled.enabled && corporateCards$ | async as corporateCards; else shimmers">
+      <ng-container *ngIf="virtualCardDetails$ | async as virtualCardDetails; else shimmers">
+        <div *ngFor="let corporateCard of corporateCards" class="manage-corporate-cards__virtual-card">
+          <app-virtual-card
+            *ngIf="virtualCardDetails[corporateCard.virtual_card_id]; else shimmers"
+            [cardNumber]="virtualCardDetails[corporateCard.virtual_card_id]?.full_card_number"
+            [cvv]="virtualCardDetails[corporateCard.virtual_card_id]?.cvv"
+            [expiry]="virtualCardDetails[corporateCard.virtual_card_id]?.expiry_date"
+            [cardStatus]="corporateCard.virtual_card_state"
+            [cardNickname]="virtualCardDetails[corporateCard.virtual_card_id]?.nick_name"
+            class="manage-corporate-cards__virtual-cards__virtual-card"
+          ></app-virtual-card>
+        </div>
+      </ng-container>
+    </ng-container>
+
+    <ng-template #shimmers>
+      <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+    </ng-template>
+  </div>
+</ion-content>
+
+<ion-footer *ngIf="segmentValue === Segment.CORPORATE_CARDS">
   <ion-toolbar mode="md">
     <div class="manage-corporate-cards__footer-toolbar">
       <ion-button

@@ -19,11 +19,11 @@ import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.d
 import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
-import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail-data';
 import {
   ccTransactionResponseData,
   ccTransactionResponseData1,
 } from '../mock-data/corporate-card-transaction-response.data';
+import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;

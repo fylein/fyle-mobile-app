@@ -43,7 +43,7 @@ import { ViewCommentComponent } from 'src/app/shared/components/comments-history
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
-import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases5(getTestBed) {

@@ -54,7 +54,10 @@ import { defaultTxnFieldValuesData2 } from 'src/app/core/mock-data/default-txn-f
 import { orgSettingsCCCDisabled } from 'src/app/core/mock-data/org-settings.data';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
-import { platformExpenseData, platformExpenseDataWithSubCategory } from 'src/app/core/mock-data/platform-expense.data';
+import {
+  platformExpenseData,
+  platformExpenseDataWithSubCategory,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseDataWithSubCategory,

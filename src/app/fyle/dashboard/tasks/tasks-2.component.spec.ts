@@ -36,7 +36,7 @@ import {
   mileageCategoryPlatformExpenseData,
   perDiemCategoryPlatformExpenseData,
   platformExpenseData,
-} from 'src/app/core/mock-data/platform-expense.data';
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   mileageCategoryTransformedExpenseData,
   perDiemCategoryTransformedExpenseData,

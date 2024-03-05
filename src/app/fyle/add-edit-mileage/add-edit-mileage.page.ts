@@ -915,10 +915,7 @@ export class AddEditMileagePage implements OnInit {
     const expenseId = this.activatedRoute.snapshot.params.id as string;
 
     return this.expensesService.getExpenseById(expenseId).pipe(
-      switchMap((expense) => {
-        const transformedExpense = this.transactionService.transformExpense(expense);
-        return of(transformedExpense);
-      }),
+      map((expense) => this.transactionService.transformExpense(expense)),
       shareReplay(1)
     );
   }
@@ -1389,11 +1386,12 @@ export class AddEditMileagePage implements OnInit {
     this.mileageRates$ = forkJoin({
       orgUserMileageSettings: this.mileageService.getOrgUserMileageSettings(),
       allMileageRates: this.mileageRateService.getAllMileageRates(),
+      orgSettings: orgSettings$,
     }).pipe(
-      map(({ orgUserMileageSettings, allMileageRates }) => {
+      map(({ orgUserMileageSettings, allMileageRates, orgSettings }) => {
         let enabledMileageRates = this.mileageRatesService.filterEnabledMileageRates(allMileageRates);
         const mileageRateSettings = orgUserMileageSettings?.mileage_rate_labels || [];
-        if (mileageRateSettings.length > 0) {
+        if (orgSettings.mileage?.enable_individual_mileage_rates && mileageRateSettings.length > 0) {
           enabledMileageRates = enabledMileageRates.filter((rate) => mileageRateSettings.includes(rate.vehicle_type));
         }
         return enabledMileageRates;
@@ -2273,10 +2271,7 @@ export class AddEditMileagePage implements OnInit {
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
-              map((expense) => {
-                const transformedExpense = this.transactionService.transformExpense(expense);
-                return transformedExpense.tx;
-              }),
+              map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
                 const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;

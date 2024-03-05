@@ -15,12 +15,7 @@ import {
   txnFieldsData2,
   txnFieldsData3,
 } from 'src/app/core/mock-data/expense-fields-map.data';
-import {
-  policyExpense2,
-  splitExpData,
-  splitExpTransformedData,
-  splitExpTransformedData1,
-} from 'src/app/core/mock-data/expense.data';
+import { policyExpense2 } from 'src/app/core/mock-data/expense.data';
 import { categorieListRes } from 'src/app/core/mock-data/org-category-list-item.data';
 import { TaxiCategory, orgCategoryData1 } from 'src/app/core/mock-data/org-category.data';
 import {
@@ -48,7 +43,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -77,14 +71,13 @@ import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.d
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
-  transformedExpenseWithMatchCCCData2,
   transformedExpenseWithMatchCCCData3,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
-import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -101,7 +94,6 @@ export function TestCases6(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
-    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -128,7 +120,6 @@ export function TestCases6(getTestBed) {
     let matSnackBar: jasmine.SpyObj<MatSnackBar>;
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -136,6 +127,7 @@ export function TestCases6(getTestBed) {
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let platform: jasmine.SpyObj<Platform>;
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
 
     function setFormValueNull() {
       Object.defineProperty(component.fg, 'value', {
@@ -193,13 +185,13 @@ export function TestCases6(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform) as jasmine.SpyObj<Platform>;
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -452,24 +444,20 @@ export function TestCases6(getTestBed) {
 
     describe('initSplitTxn():', () => {
       it('should initialize split txns made using ccc', () => {
-        expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
-        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
-        component.etxn$ = of(unflattenedExpWithCCCExpn1);
+        expensesService.getSplitExpenses.and.returnValue(of([expenseData, expenseData]));
+        component.etxn$ = of(unflattenedExpWithCCCExpn);
         spyOn(component, 'handleCCCExpenses');
         spyOn(component, 'getSplitExpenses');
         fixture.detectChanges();
 
         component.initSplitTxn(of(orgSettingsData));
-        expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx6I9xcOZFU6');
-        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[0]);
-        expect(transactionService.transformRawExpense).toHaveBeenCalledWith(splitExpensesData[1]);
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn1);
-        expect(component.getSplitExpenses).toHaveBeenCalledWith(splitExpTransformedData1);
+        expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.getSplitExpenses).toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
 
       it('should initialize CCC expenses with group ID', () => {
-        expensesService.getSplitExpenses.and.returnValue(of([]));
+        expensesService.getSplitExpenses.and.returnValue(of(null));
         component.etxn$ = of(unflattenedExpWithCCCExpn);
         spyOn(component, 'handleCCCExpenses');
         spyOn(component, 'getSplitExpenses');
@@ -477,15 +465,14 @@ export function TestCases6(getTestBed) {
 
         component.initSplitTxn(of(orgSettingsParamWoCCC));
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(transactionService.transformRawExpense).not.toHaveBeenCalled();
         expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
-        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith(splitExpTransformedData);
+        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
     });
 
     describe('handleCCCExpenses():', () => {
       it('should handle CCC expenses', () => {
-        const date = new Date('2018-07-04T13:00:00.000Z');
+        const date = new Date('2018-07-03T13:00:00.000Z');
         jasmine.clock().mockDate(date);
         component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
         expect(component.cardNumber).toEqual('7620');
@@ -493,7 +480,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should show card digits and vendor description', () => {
-        const date = new Date('2018-06-06T18:30:00.000Z');
+        const date = new Date('2018-06-05T18:30:00.000Z');
         jasmine.clock().mockDate(date);
         component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
         expect(component.cardNumber).toEqual('9891');
@@ -502,10 +489,10 @@ export function TestCases6(getTestBed) {
     });
 
     it('getSplitExpenses(): should get split expenses', () => {
-      component.getSplitExpenses(splitExpData);
+      component.getSplitExpenses([expenseData, expenseData]);
 
       expect(component.isSplitExpensesPresent).toBeTrue();
-      expect(component.canEditCCCMatchedSplitExpense).toBeTrue();
+      expect(component.canEditCCCMatchedSplitExpense).toBeFalse();
     });
 
     it('clearCategoryOnValueChange(): should clear category dependent fields if category changes', fakeAsync(() => {

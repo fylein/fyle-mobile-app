@@ -41,8 +41,7 @@ import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
-import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
-import { platformExpenseData } from 'src/app/core/mock-data/platform-expense.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 const roles = ['OWNER', 'USER', 'FYLER'];

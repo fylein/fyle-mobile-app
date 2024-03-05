@@ -23,12 +23,7 @@ import {
 import { fileObject7, fileObjectData } from 'src/app/core/mock-data/file-object.data';
 import { individualExpPolicyStateData2 } from 'src/app/core/mock-data/individual-expense-policy-state.data';
 import { filterOrgCategoryParam, orgCategoryData } from 'src/app/core/mock-data/org-category.data';
-import {
-  orgSettingsCCCDisabled,
-  orgSettingsCCCEnabled,
-  orgSettingsWoDuplicateDetectionV2,
-  orgSettingsWithDuplicateDetectionV2,
-} from 'src/app/core/mock-data/org-settings.data';
+import { orgSettingsCCCDisabled, orgSettingsCCCEnabled } from 'src/app/core/mock-data/org-settings.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import {
   expectedInstaFyleData1,
@@ -59,7 +54,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { DateService } from 'src/app/core/services/date.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { FileService } from 'src/app/core/services/file.service';
-import { HandleDuplicatesService } from 'src/app/core/services/handle-duplicates.service';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -112,7 +106,7 @@ import {
   platformExpenseDataWithSubCategory,
   platformExpenseWithExtractedData,
   platformExpenseWithExtractedData2,
-} from 'src/app/core/mock-data/platform-expense.data';
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseData,
   transformedExpenseDataWithSubCategory,
@@ -174,7 +168,6 @@ export function TestCases2(getTestBed) {
     let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
     let platform: Platform;
     let titleCasePipe: jasmine.SpyObj<TitleCasePipe>;
-    let handleDuplicates: jasmine.SpyObj<HandleDuplicatesService>;
     let paymentModesService: jasmine.SpyObj<PaymentModesService>;
     let taxGroupService: jasmine.SpyObj<TaxGroupService>;
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
@@ -231,7 +224,6 @@ export function TestCases2(getTestBed) {
       snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
       platform = TestBed.inject(Platform);
       titleCasePipe = TestBed.inject(TitleCasePipe) as jasmine.SpyObj<TitleCasePipe>;
-      handleDuplicates = TestBed.inject(HandleDuplicatesService) as jasmine.SpyObj<HandleDuplicatesService>;
       paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
       taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
@@ -1145,7 +1137,7 @@ export function TestCases2(getTestBed) {
       fixture.detectChanges();
 
       const result = component.getTimeSpentOnPage();
-      expect(result).toEqual((new Date().getTime() - component.expenseStartTime) / 1000);
+      expect(result).toBeCloseTo((new Date().getTime() - component.expenseStartTime) / 1000, 2);
     });
 
     it('closeAddEditExpenses(): should close the form and navigate back to my_expenses page', () => {
@@ -1494,16 +1486,14 @@ export function TestCases2(getTestBed) {
 
         component.getDuplicateExpenses();
 
-        expect(orgSettingsService.get).not.toHaveBeenCalled();
         expect(expensesService.getDuplicatesByExpense).not.toHaveBeenCalled();
         expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
       });
 
-      it('should get duplicate expenses from platform when duplicate detection v2 is enabled', () => {
+      it('should get duplicate expenses from platform', () => {
         activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
         const expenseId = activatedRoute.snapshot.params.id;
 
-        orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
         expensesService.getDuplicatesByExpense.and.returnValue(of([expenseDuplicateSet3]));
         expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
         transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
@@ -1511,7 +1501,6 @@ export function TestCases2(getTestBed) {
 
         component.getDuplicateExpenses();
 
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
           offset: 0,
@@ -1526,55 +1515,13 @@ export function TestCases2(getTestBed) {
         ]);
       });
 
-      it('should get duplicate expenses from public when duplicate detection v2 is disabled', () => {
-        activatedRoute.snapshot.params.id = 'txal5xGjbZ1R';
-        const expenseId = activatedRoute.snapshot.params.id;
-
-        orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([duplicateSetData5]));
-        expensesService.getAllExpenses.and.returnValue(of(apiExpenses2));
-        transactionService.transformRawExpense.and.returnValue(transformedPlatformedExpense);
-        spyOn(component, 'addExpenseDetailsToDuplicateSets').and.returnValue([transformedPlatformedExpense]);
-
-        component.getDuplicateExpenses();
-
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledWith(expenseId);
-        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith({
-          offset: 0,
-          limit: 100,
-          queryParams: {
-            id: 'in.(txal5xGjbZ1R)',
-          },
-        });
-        expect(transactionService.transformRawExpense).toHaveBeenCalledOnceWith(apiExpenses2[0]);
-        expect(component.addExpenseDetailsToDuplicateSets).toHaveBeenCalledOnceWith(duplicateSetData5, [
-          transformedPlatformedExpense,
-        ]);
-      });
-
-      it('should return empty array if no duplicate is found in public', () => {
-        activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
-
-        orgSettingsService.get.and.returnValue(of(orgSettingsWoDuplicateDetectionV2));
-        handleDuplicates.getDuplicatesByExpense.and.returnValue(of([]));
-
-        component.getDuplicateExpenses();
-
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(handleDuplicates.getDuplicatesByExpense).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
-        expect(component.duplicateExpenses).toBeUndefined();
-      });
-
       it('should return empty array if no duplicate is found in platform', () => {
         activatedRoute.snapshot.params.id = 'tx5fBcPBAxLv';
 
-        orgSettingsService.get.and.returnValue(of(orgSettingsWithDuplicateDetectionV2));
         expensesService.getDuplicatesByExpense.and.returnValue(of([]));
 
         component.getDuplicateExpenses();
 
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getDuplicatesByExpense).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
         expect(component.duplicateExpenses).toBeUndefined();
       });

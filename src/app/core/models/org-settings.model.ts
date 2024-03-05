@@ -236,6 +236,10 @@ export interface DataExtractionSettings extends CommonOrgSettings {
   web_app_pdf?: boolean;
 }
 
+export interface AmexFeedEnrollmentSettings extends CommonOrgSettings {
+  virtual_card_settings_enabled: boolean;
+}
+
 export interface SplitExpenseSettings {
   enabled?: boolean;
 }
@@ -355,6 +359,7 @@ export interface OrgSettingsResponse {
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
 
+  commute_deduction_settings?: CommonOrgSettings;
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
   corporate_credit_card_settings?: CCCSettings;
@@ -444,6 +449,7 @@ export interface OrgSettingsResponse {
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }
 
 export interface UiPolicySettings {
@@ -482,6 +488,7 @@ export interface XeProviderSettings extends CommonOrgSettings {
 export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
+  commute_deduction_settings?: CommonOrgSettings;
   advances?: CommonOrgSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
@@ -555,4 +562,5 @@ export interface OrgSettings {
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
 }
