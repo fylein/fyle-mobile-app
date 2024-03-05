@@ -49,8 +49,6 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
-  pendingTransactionRestrictionEnabled = false;
-
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -210,11 +208,6 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
-    this.orgSettingsService.get().subscribe((orgSetting) => {
-      this.pendingTransactionRestrictionEnabled =
-        orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled;
-    });
-
     this.isSelectedAll = true;
     this.selectedElements = [];
 
@@ -228,17 +221,27 @@ export class MyCreateReportPage implements OnInit {
       and: '()',
     };
 
-    if (this.pendingTransactionRestrictionEnabled) {
-      queryParams = {
-        ...queryParams,
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-      };
-    }
-
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
-          this.expensesService.getAllExpenses({ queryParams }).pipe(
+          this.orgSettingsService
+            .get()
+            .pipe(
+              map(
+                (orgSetting) =>
+                  orgSetting?.corporate_credit_card_settings?.enabled &&
+                  orgSetting?.pending_cct_expense_restriction?.enabled
+              )
+            )
+        ),
+        switchMap((filterPendingTxn: boolean) => {
+          if (filterPendingTxn) {
+            queryParams = {
+              ...queryParams,
+              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+            };
+          }
+          return this.expensesService.getAllExpenses({ queryParams }).pipe(
             map((expenses) => {
               this.selectedElements = expenses;
               expenses.forEach((expense) => {
@@ -250,8 +253,8 @@ export class MyCreateReportPage implements OnInit {
               });
               return expenses;
             })
-          )
-        ),
+          );
+        }),
         finalize(() => from(this.loaderService.hideLoader())),
         shareReplay(1)
       )
