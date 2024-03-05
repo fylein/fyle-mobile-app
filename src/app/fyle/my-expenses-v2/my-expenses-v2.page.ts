@@ -969,7 +969,8 @@ export class MyExpensesV2Page implements OnInit {
       this.selectedElements.push(expense);
     }
     this.isReportableExpensesSelected =
-      this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+      this.sharedExpenseService.getReportableExpenses(this.selectedElements, this.restrictPendingTransactionsEnabled)
+        .length > 0;
 
     if (this.selectedElements.length > 0) {
       this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
@@ -1166,7 +1167,10 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   async showNewReportModal(): Promise<void> {
-    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(this.selectedElements);
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
+      this.selectedElements,
+      this.restrictPendingTransactionsEnabled
+    );
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
@@ -1343,7 +1347,10 @@ export class MyExpensesV2Page implements OnInit {
   }
 
   showOldReportsMatBottomSheet(): void {
-    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(this.selectedElements);
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
+      this.selectedElements,
+      this.restrictPendingTransactionsEnabled
+    );
     const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.id);
 
     this.openReports$
