@@ -593,19 +593,17 @@ export class TasksComponent implements OnInit {
       },
     };
 
-    const readyToReportExpenses$ = this.expensesService
-      .getAllExpenses(params)
-      .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
-
-    this.orgSettingsService.get().pipe(
+    const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
       map(
         (orgSetting) =>
           orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
       ),
       switchMap((filterPendingTxn: boolean) => {
         if (filterPendingTxn) {
-          params.queryParams.and =
-            '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING)';
+          params.queryParams = {
+            ...params.queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
         }
         return this.expensesService
           .getAllExpenses(params)
