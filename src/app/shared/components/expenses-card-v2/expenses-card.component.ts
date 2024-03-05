@@ -25,6 +25,7 @@ import { SnackbarPropertiesService } from '../../../core/services/snackbar-prope
 import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -141,7 +142,8 @@ export class ExpensesCardComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private expensesService: ExpensesService
   ) {}
 
   get isSelected(): boolean {
@@ -236,7 +238,8 @@ export class ExpensesCardComponent implements OnInit {
             !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxnUnflattened(that.expense.id).subscribe((etxn) => {
+              that.expensesService.getExpenseById(that.expense.id).subscribe((expense) => {
+                const etxn = that.transactionService.transformExpense(expense);
                 const extractedData = etxn.tx.extracted_data;
                 if (!!extractedData) {
                   that.isScanCompleted = true;

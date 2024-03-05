@@ -1,5 +1,6 @@
 import { CustomInput } from './custom-input.model';
 import { Destination } from './destination.model';
+import { MatchedCCCTransaction } from './matchedCCCTransaction.model';
 
 export interface Expense {
   isCriticalPolicyViolated?: boolean;
@@ -106,6 +107,7 @@ export interface Expense {
   tx_mileage_calculated_distance?: number;
   tx_mileage_is_round_trip?: boolean;
   tx_mileage_rate?: number;
+  tx_mileage_rate_id?: string;
   tx_mileage_vehicle_type?: string;
   tx_num_days?: number;
   tx_num_files: number;
@@ -217,4 +219,5 @@ export interface Expense {
   duplicates?: { fields: string[]; percent: number; reason: string; transaction_id: string }[];
   tx_is_split_expense?: boolean;
   custom_fields?: Record<string, string | boolean | number | Date | string[] | { display: string }>;
+  tx_matched_corporate_card_transactions?: Partial<MatchedCCCTransaction>[];
 }

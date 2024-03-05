@@ -7,12 +7,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ActionSheetController, ModalController, NavController, Platform, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subject, Subscription, of } from 'rxjs';
 import { accountOptionData1 } from 'src/app/core/mock-data/account-option.data';
-import { eCCCData1, expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
+import { expectedECccResponse } from 'src/app/core/mock-data/corporate-card-expense-unflattened.data';
 import { costCentersData, expectedCCdata, expectedCCdata2 } from 'src/app/core/mock-data/cost-centers.data';
 import { apiAllCurrencies } from 'src/app/core/mock-data/currency.data';
 import { projectDependentFields } from 'src/app/core/mock-data/dependent-field.data';
 import { dependentCustomFields2, expenseFieldResponse } from 'src/app/core/mock-data/expense-field.data';
-import { expenseData1, splitExpData } from 'src/app/core/mock-data/expense.data';
+import { splitExpData, splitExpTransformedData } from 'src/app/core/mock-data/expense.data';
 
 import { expenseFieldObjData } from 'src/app/core/mock-data/expense-field-obj.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -64,7 +64,6 @@ import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
-import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
@@ -105,8 +104,9 @@ import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/te
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
-import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { apiExpenses2, expenseData, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -135,7 +135,6 @@ export function TestCases5(getTestBed) {
     let networkService: jasmine.SpyObj<NetworkService>;
     let popupService: jasmine.SpyObj<PopupService>;
     let navController: jasmine.SpyObj<NavController>;
-    let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
     let trackingService: jasmine.SpyObj<TrackingService>;
     let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
     let recentlyUsedItemsService: jasmine.SpyObj<RecentlyUsedItemsService>;
@@ -187,9 +186,6 @@ export function TestCases5(getTestBed) {
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       popupService = TestBed.inject(PopupService) as jasmine.SpyObj<PopupService>;
       navController = TestBed.inject(NavController) as jasmine.SpyObj<NavController>;
-      corporateCreditCardExpenseService = TestBed.inject(
-        CorporateCreditCardExpenseService
-      ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
       trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
       recentLocalStorageItemsService = TestBed.inject(
         RecentLocalStorageItemsService
@@ -235,7 +231,6 @@ export function TestCases5(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -257,10 +252,9 @@ export function TestCases5(getTestBed) {
 
     describe('getMarkDismissModalParams():', () => {
       it('should get modal params with method to mark as personal', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
-        component.corporateCreditCardExpenseGroupId = 'cccet1B17R8gWZ';
+        component.corporateCreditCardExpenseGroupId = 'btxnBdS2Kpvzhy';
         fixture.detectChanges();
 
         component
@@ -275,17 +269,15 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'cccet1B17R8gWZ');
-            expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith('txfCdl3TEZ7K');
+            expect(component.markCCCAsPersonal).toHaveBeenCalledOnceWith();
             done();
           });
       });
 
       it('should get modal params with method to dismiss expense', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
-        component.matchedCCCTransaction = expectedECccResponse[0].ccce;
+        component.matchedCCCTransaction = matchedCCTransactionData;
         fixture.detectChanges();
 
         component
@@ -300,14 +292,12 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', 'ccceYIJhT8Aj6U');
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith('btxnSte7sVQCM8');
             done();
           });
       });
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
@@ -325,14 +315,12 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith(undefined);
             done();
           });
       });
 
       it('should get modal params with method to dismiss expense if matched expense does not exist', (done) => {
-        transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'dismissCCC').and.returnValue(of(null));
         activatedRoute.snapshot.params.id = 'txfCdl3TEZ7K';
         component.matchedCCCTransaction = null;
@@ -350,8 +338,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod()
           .subscribe(() => {
-            expect(transactionService.unmatchCCCExpense).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
-            expect(component.dismissCCC).toHaveBeenCalledOnceWith('txfCdl3TEZ7K', undefined);
+            expect(component.dismissCCC).toHaveBeenCalledOnceWith(undefined);
             done();
           });
       });
@@ -1507,10 +1494,6 @@ export function TestCases5(getTestBed) {
           expect(res).toBeFalse();
         });
 
-        component.isNotReimbursable$.subscribe((res) => {
-          expect(res).toBeFalse();
-        });
-
         component.isAmountCapped$.subscribe((res) => {
           expect(res).toBeFalse();
         });
@@ -1644,7 +1627,9 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getActiveCategories').and.returnValue(of(sortedCategory));
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
-        corporateCreditCardExpenseService.getEccceByGroupId.and.returnValue(of(expectedECccResponse));
+        expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
+        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
+        transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
         fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);
@@ -1789,10 +1774,6 @@ export function TestCases5(getTestBed) {
         });
 
         component.transactionInReport$.subscribe((res) => {
-          expect(res).toBeFalse();
-        });
-
-        component.isNotReimbursable$.subscribe((res) => {
           expect(res).toBeFalse();
         });
 
