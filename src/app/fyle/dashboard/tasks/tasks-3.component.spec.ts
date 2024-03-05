@@ -130,6 +130,7 @@ export function TestCases3(getTestBed) {
         reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
         expensesService.getAllExpenses.and.returnValue(of([expenseData]));
         spyOn(component, 'showAddToReportSuccessToast');
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       });
 
       it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', fakeAsync(() => {
@@ -148,6 +149,7 @@ export function TestCases3(getTestBed) {
           data: { openReports: apiExtendedReportRes },
           panelClass: ['mat-bottom-sheet-1'],
         });
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
@@ -226,6 +228,7 @@ export function TestCases3(getTestBed) {
 
       it('should call matBottomSheet.open and should not call showAddToReportSuccessToast if data.report is null', fakeAsync(() => {
         spyOn(component, 'addTransactionsToReport');
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
         matBottomSheet.open.and.returnValue({
           afterDismissed: () =>
             of({
@@ -240,7 +243,7 @@ export function TestCases3(getTestBed) {
           data: { openReports: apiExtendedReportRes },
           panelClass: ['mat-bottom-sheet-1'],
         });
-        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
