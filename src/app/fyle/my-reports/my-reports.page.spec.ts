@@ -6,7 +6,7 @@ import { TasksService } from 'src/app/core/services/tasks.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { BehaviorSubject, of } from 'rxjs';
@@ -82,7 +82,7 @@ import {
   expectedFilterPill8,
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
-import { transactionDatum1, transactionDatum2 } from 'src/app/core/mock-data/stats-response.data';
+import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -91,7 +91,7 @@ describe('MyReportsPage', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let reportService: jasmine.SpyObj<ReportService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let router: jasmine.SpyObj<Router>;
@@ -114,7 +114,7 @@ describe('MyReportsPage', () => {
       'delete',
     ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline', 'connectivityWatcher']);
@@ -148,7 +148,7 @@ describe('MyReportsPage', () => {
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: ApiV2Service, useValue: apiV2ServiceSpy },
-        { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: Router, useValue: jasmine.createSpyObj('Router', ['navigate', 'createUrlTree']) },
@@ -202,7 +202,7 @@ describe('MyReportsPage', () => {
     tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
@@ -236,7 +236,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -287,11 +287,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({
@@ -375,7 +374,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(undefined));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -426,11 +425,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({
@@ -514,7 +512,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of({ payment_mode_settings: { allowed: true, enabled: true } }));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -565,11 +563,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({
@@ -649,7 +646,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReportsCount.and.returnValue(of(0));
       orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum2));
+      expensesService.getExpenseStats.and.returnValue(of(emptyStats));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -706,11 +703,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({
@@ -784,7 +780,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
       activatedRoute.snapshot.queryParams.filters = '{"sortDir": "desc"}';
 
@@ -839,11 +835,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({
@@ -936,7 +931,7 @@ describe('MyReportsPage', () => {
 
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
-      transactionService.getTransactionStats.and.returnValue(of(transactionDatum1));
+      expensesService.getExpenseStats.and.returnValue(of(completeStats1));
 
       activatedRoute.snapshot.params.state = 'needsreceipt';
 
@@ -991,11 +986,10 @@ describe('MyReportsPage', () => {
       );
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
-        expect(transactionService.getTransactionStats).toHaveBeenCalledOnceWith('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          state: 'in.(COMPLETE)',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+          report_id: 'is.null',
         });
 
         expect(expenseAmountStates).toEqual({

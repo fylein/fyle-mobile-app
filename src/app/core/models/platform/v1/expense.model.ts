@@ -54,6 +54,7 @@ export interface Expense {
   foreign_currency: string;
   hotel_is_breakfast_provided: boolean;
   id: string;
+  invoice_number?: string;
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
   is_manually_flagged: boolean;
@@ -106,6 +107,7 @@ export interface Expense {
   updated_at: Date;
   user: User;
   user_id: string;
+  verifications?: string[];
   verifier_comments: string[];
   report_last_paid_at: Date;
   report_last_approved_at: Date;
@@ -122,6 +124,8 @@ export interface Employee {
   has_accepted_invite: boolean;
   id: string;
   is_enabled: boolean;
+  joined_at?: Date;
+  mobile?: string;
   level: Pick<Level, 'id' | 'name' | 'band'>;
   location: string;
   org_id: string;

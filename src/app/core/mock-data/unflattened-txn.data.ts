@@ -1811,6 +1811,14 @@ export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
   ],
 };
 
+export const unflattenedExpWithCCCExpn1: UnflattenedTransaction = {
+  ...unflattenedExpWithCCCExpn,
+  tx: {
+    ...unflattenedExpWithCCCExpn.tx,
+    split_group_id: 'tx6I9xcOZFU6',
+  },
+};
+
 export const trackCreateExpData: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {
@@ -1870,7 +1878,7 @@ export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
   dataUrls: null,
 };
 
-export const newExpFromFg = {
+export const newExpFromFg: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -1905,7 +1913,7 @@ export const newExpFromFg = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2023,7 +2031,7 @@ export const newExpFromFg = {
   dataUrls: [],
 };
 
-export const newExpFromFg2 = {
+export const newExpFromFg2: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2058,7 +2066,7 @@ export const newExpFromFg2 = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2177,7 +2185,7 @@ export const newExpFromFg2 = {
   dataUrls: [],
 };
 
-export const newExpFromFg3 = {
+export const newExpFromFg3: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2212,7 +2220,7 @@ export const newExpFromFg3 = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: 'SMS1',
     cost_center_code: null,
@@ -2314,7 +2322,7 @@ export const newExpFromFg3 = {
   dataUrls: [],
 };
 
-export const newExpFromFg4 = {
+export const newExpFromFg4: Partial<UnflattenedTransaction> = {
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2349,7 +2357,7 @@ export const newExpFromFg4 = {
     project_code: null,
     skip_reimbursement: false,
     creator_id: 'ouX8dwsbLCLv',
-    user_reason_for_duplicate_expenses: 'reason',
+    user_reason_for_duplicate_expenses: null,
     external_id: null,
     cost_center_name: null,
     cost_center_code: null,
@@ -2451,7 +2459,121 @@ export const newExpFromFg4 = {
   dataUrls: [],
 };
 
-export const expWithSplitGroupID = {
+export const newExpFromFgPlatform: Partial<UnflattenedTransaction> = {
+  tx: {
+    id: 'txD5hIQgLuR5',
+    created_at: new Date('2024-02-09T01:20:13.098Z'),
+    txn_dt: new Date('2024-02-08T18:30:00.000Z'),
+    categoryDisplayName: 'Food / Burger',
+    num_files: 0,
+    org_category: 'Food',
+    fyle_category: 'Food',
+    state: 'APPROVER_PENDING',
+    admin_amount: null,
+    policy_amount: null,
+    skip_reimbursement: false,
+    amount: 32,
+    currency: 'USD',
+    user_amount: 32,
+    orig_amount: null,
+    orig_currency: null,
+    from_dt: null,
+    to_dt: null,
+    vendor: 'test-1',
+    distance: null,
+    distance_unit: null,
+    locations: [],
+    verification_state: null,
+    org_user_id: 'ou6cE4dCLH8d',
+    expense_number: 'E/2024/02/T/137',
+    hotel_is_breakfast_provided: null,
+    tax_group_id: 'tgyvHlipn1sF',
+    creator_id: 'ou6cE4dCLH8d',
+    report_id: null,
+    org_category_id: 290006,
+    cost_center_id: 20423,
+    cost_center_name: 'Cost Center',
+    cost_center_code: null,
+    project_id: 325126,
+    project_name: 'Project 1',
+    custom_properties: [
+      {
+        id: 231167,
+        mandatory: true,
+        name: 'location desc',
+        options: [],
+        placeholder: 'enter location desc',
+        prefix: '',
+        type: 'TEXT',
+        value: 'Noida',
+      },
+      {
+        id: 231228,
+        prefix: '',
+        name: 'PP1 where',
+        value: null,
+        placeholder: 'PP1 where',
+        type: 'DEPENDENT_SELECT',
+        mandatory: false,
+        options: [],
+        parent_field_id: 231094,
+      },
+      {
+        id: 231094,
+        prefix: '',
+        name: 'PP 1',
+        value: null,
+        placeholder: 'PP 1',
+        type: 'DEPENDENT_SELECT',
+        mandatory: false,
+        options: [],
+        parent_field_id: 223790,
+      },
+      {
+        id: 230824,
+        prefix: '',
+        name: 'CC 1',
+        value: null,
+        placeholder: 'CC 1',
+        type: 'DEPENDENT_SELECT',
+        mandatory: false,
+        options: [],
+        parent_field_id: 223789,
+      },
+    ],
+    purpose: 'Client Meeting',
+    billable: null,
+    sub_category: 'Burger',
+    tax_amount: 3.43,
+    corporate_credit_card_expense_group_id: null,
+    split_group_id: 'txD5hIQgLuR5',
+    split_group_user_amount: null,
+    receipt_required: null,
+    per_diem_rate_id: null,
+    num_days: null,
+    mileage_rate_id: null,
+    mileage_is_round_trip: null,
+    mileage_calculated_distance: null,
+    mileage_calculated_amount: null,
+    manual_flag: null,
+    policy_flag: null,
+    extracted_data: null,
+    matched_corporate_card_transactions: [],
+    source_account_id: 'accO6abI7gZ6T',
+    org_category_code: null,
+    project_code: null,
+    physical_bill: null,
+    physical_bill_at: null,
+    source: 'MOBILE',
+  },
+  ou: {
+    id: 'ou6cE4dCLH8d',
+    org_id: 'orNbIQloYtfa',
+  },
+  dataUrls: [],
+};
+
+export const expWithSplitGroupID: Partial<UnflattenedTransaction> = {
   ...unflattenedTxnData,
   tx: null,
 };
@@ -3047,7 +3169,7 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
     policy_amount: null,
     admin_amount: null,
     billable: undefined,
-    user_reason_for_duplicate_expenses: undefined,
+    user_reason_for_duplicate_expenses: null,
     tax: 52.47,
     tax_amount: 52.47,
     tax_group_id: 'tg3iWuqWhfzB',
@@ -3253,7 +3375,7 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = {
     receipt_required: false,
     user_can_delete: true,
     billable: undefined,
-    user_reason_for_duplicate_expenses: undefined,
+    user_reason_for_duplicate_expenses: null,
     mileage_vehicle_type: undefined,
     txn_dt: new Date('2023-02-13T01:00:00.000Z'),
     category: null,
