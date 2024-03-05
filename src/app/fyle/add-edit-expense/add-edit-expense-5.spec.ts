@@ -109,7 +109,7 @@ import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 export function TestCases5(getTestBed) {
-  return fdescribe('AddEditExpensePage-5', () => {
+  return describe('AddEditExpensePage-5', () => {
     let component: AddEditExpensePage;
     let fixture: ComponentFixture<AddEditExpensePage>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -255,7 +255,7 @@ export function TestCases5(getTestBed) {
       expect(component).toBeTruthy();
     });
 
-    fdescribe('getMarkDismissModalParams():', () => {
+    describe('getMarkDismissModalParams():', () => {
       it('should get modal params with method to mark as personal', (done) => {
         transactionService.unmatchCCCExpense.and.returnValue(of(null));
         spyOn(component, 'markCCCAsPersonal').and.returnValue(of(null));
@@ -357,7 +357,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('setupBalanceFlag():', () => {
+    describe('setupBalanceFlag():', () => {
       it('should setup balance available flag', fakeAsync(() => {
         accountsService.getEMyAccounts.and.returnValue(of(multiplePaymentModesData));
         component.setupBalanceFlag();
@@ -404,7 +404,7 @@ export function TestCases5(getTestBed) {
       }));
     });
 
-    fdescribe('setupFilteredCategories():', () => {
+    describe('setupFilteredCategories():', () => {
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
@@ -455,7 +455,7 @@ export function TestCases5(getTestBed) {
       }));
     });
 
-    fdescribe('setupCustomFields():', () => {
+    describe('setupCustomFields():', () => {
       it('should setup custom fields using category', fakeAsync(() => {
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         component.mode = 'add';
@@ -479,7 +479,7 @@ export function TestCases5(getTestBed) {
       }));
     });
 
-    fdescribe('ionViewWillLeave(): ', () => {
+    describe('ionViewWillLeave(): ', () => {
       it('should unsubscribe and complete observable as component leaves', () => {
         const dependentFieldSpy = jasmine.createSpyObj('DependentFieldComponent', ['ngOnDestroy']);
 
@@ -518,7 +518,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getSelectedCategory():', () => {
+    describe('getSelectedCategory():', () => {
       it('should get selected category', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getCategoryById.and.returnValue(of(orgCategoryData));
@@ -543,7 +543,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getSelectedProjects():', () => {
+    describe('getSelectedProjects():', () => {
       it('should return the selected project from the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
@@ -584,7 +584,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getSelectedReport():', () => {
+    describe('getSelectedReport():', () => {
       it('should get the selected report', (done) => {
         component.reports$ = of(reportOptionsData);
         component.autoSubmissionReportName$ = of('June #23');
@@ -651,7 +651,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getDefaultPaymentModes():', () => {
+    describe('getDefaultPaymentModes():', () => {
       it('should get default payment modes', (done) => {
         component.paymentModes$ = of(accountOptionData1);
         component.orgUserSettings$ = of(orgUserSettingsData2);
@@ -727,7 +727,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getSelectedCostCenters():', () => {
+    describe('getSelectedCostCenters():', () => {
       it('should get cost center ID from expense', (done) => {
         component.etxn$ = of(unflattenedExpWithCostCenter);
         component.costCenters$ = of(expectedCCdata);
@@ -768,7 +768,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('getReceiptCount():', () => {
+    describe('getReceiptCount():', () => {
       it('should get receipt count', (done) => {
         component.etxn$ = of(unflattenedTxnData);
         fileService.findByTransactionId.and.returnValue(of(fileObject4));
@@ -809,7 +809,7 @@ export function TestCases5(getTestBed) {
       expect(component.setCategoryFromVendor).toHaveBeenCalledOnceWith('TAXI');
     }));
 
-    fdescribe('setupFormInit():', () => {
+    describe('setupFormInit():', () => {
       it('should setup form', fakeAsync(() => {
         spyOn(component, 'getSelectedProjects').and.returnValue(of(expectedProjectsResponse[0]));
         spyOn(component, 'getSelectedCategory').and.returnValue(of(orgCategoryData));
@@ -1320,7 +1320,7 @@ export function TestCases5(getTestBed) {
       });
     });
 
-    fdescribe('ionViewWillEnter():', () => {
+    describe('ionViewWillEnter():', () => {
       it('should setup class variables', (done) => {
         component.isConnected$ = of(true);
         component.txnFields$ = of(txnFieldsData2);
