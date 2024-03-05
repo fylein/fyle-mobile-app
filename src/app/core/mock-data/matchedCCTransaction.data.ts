@@ -6,7 +6,7 @@ export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = {
   group_id: 'btxnSte7sVQCM8',
   amount: 260.37,
   vendor: 'test description',
-  txn_dt: '2018-07-03T18:30:00.000Z',
+  txn_dt: '2018-07-03T13:00:00.000Z',
   currency: 'USD',
   description: null,
   card_or_account_number: '7620',
@@ -14,7 +14,7 @@ export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = {
   orig_amount: null,
   orig_currency: null,
   status: TransactionStatus.PENDING,
-  displayObject: 'Jul 4, 2018 - test description260.37',
+  displayObject: 'Jul 3, 2018 - test description260.37',
 };
 
 export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = {
@@ -22,7 +22,7 @@ export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = {
   group_id: 'btxnBdS2Kpvzhy',
   amount: 205.21,
   vendor: 'test description',
-  txn_dt: '2018-06-05T18:30:00.000Z',
+  txn_dt: '2018-06-06T08:30:00.000Z',
   currency: 'USD',
   description: null,
   card_or_account_number: '9891',

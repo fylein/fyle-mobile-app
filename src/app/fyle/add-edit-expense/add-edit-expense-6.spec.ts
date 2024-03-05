@@ -480,7 +480,7 @@ export function TestCases6(getTestBed) {
       });
 
       it('should show card digits and vendor description', () => {
-        const date = new Date('2018-06-05T18:30:00.000Z');
+        const date = new Date('2018-06-06T08:30:00.000Z');
         jasmine.clock().mockDate(date);
         component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
         expect(component.cardNumber).toEqual('9891');
