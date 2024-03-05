@@ -1,131 +1,51 @@
-import { TestBed } from '@angular/core/testing';
-import { currencySummaryData } from 'src/app/core/mock-data/currency-summary.data';
-import {
-  expenseFiltersData1,
-  expenseFiltersDataAllStates,
-  expenseFiltersDataLastMonth,
-  expenseFiltersDataMonth,
-  expenseFiltersDataWCustom,
-  expenseFiltersDataWithCustomEnd,
-  expenseFiltersDataWithCustomStart,
-  expenseFiltersDataWoCards,
-  expenseFiltersDataWoReceipts,
-  expenseFiltersDataWoSplit,
-} from 'src/app/core/mock-data/expense-filters.data';
-import {
-  apiExpenses1,
-  criticalPolicyViolatedExpense,
-  draftExpense,
-  expenseData,
-  expenseResponseData2,
-  expenseResponseData3,
-  mileageExpense,
-  mileageExpenseWithDistance,
-  mileageExpenseWithoutDistance,
-  perDiemExpenseWithMultipleNumDays,
-  perDiemExpenseWithSingleNumDays,
-} from 'src/app/core/mock-data/platform/v1/expense.data';
+import { Injectable } from '@angular/core';
+import { cloneDeep } from 'lodash';
+import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
+import { FilterState } from 'src/app/core/enums/filter-state.enum';
+import { CurrencySummary } from 'src/app/core/models/currency-summary.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { NameKeyPair } from 'src/app/core/models/name-key-pair.model';
+import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { ExpensesService } from './expenses.service';
-import { cloneDeep } from 'lodash';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
-import { OrgSettingsService } from '../../../org-settings.service';
 
-fdescribe('ExpensesService', () => {
-  let service: ExpensesService;
-  let dateService: DateService;
-  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  beforeEach(() => {
-    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    TestBed.configureTestingModule({
-      providers: [
-        DateService,
-        {
-          provide: OrgSettingsService,
-          useValue: orgSettingsServiceSpy,
-        },
-      ],
-    });
-    service = TestBed.inject(ExpensesService);
-    dateService = TestBed.inject(DateService);
-    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
-    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
-  });
+@Injectable({
+  providedIn: 'root',
+})
+export class ExpensesService {
+  constructor(private dateService: DateService) {}
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  isExpenseInDraft(expense: Expense): boolean {
+    return expense.state && expense.state === ExpenseState.DRAFT;
+  }
 
-  describe('isCriticalPolicyViolatedExpense():', () => {
-    it('should return false if critical policy is not violated', () => {
-      expect(service.isCriticalPolicyViolatedExpense(expenseData)).toBeFalse();
-    });
+  isCriticalPolicyViolatedExpense(expense: Expense): boolean {
+    return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
+  }
 
-    it('should return true if critical policy is violated', () => {
-      expect(service.isCriticalPolicyViolatedExpense(criticalPolicyViolatedExpense)).toBeTrue();
-    });
-  });
+  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter((expense) => expense.matched_corporate_card_transaction_ids?.length === 0);
+  }
 
-  describe('isExpenseInDraft():', () => {
-    it('should return true if transaction is draft', () => {
-      const expense: Expense = {
-        ...expenseData,
-        state: ExpenseState.DRAFT,
-      };
-      expect(service.isExpenseInDraft(expense)).toBeTrue();
-    });
+  getVendorDetails(expense: Expense): string {
+    const { category, merchant, distance, distance_unit, per_diem_num_days } = expense;
+    const systemCategory = category?.system_category?.toLowerCase();
+    let vendorDisplayName = merchant;
 
-    it('should return false if transaction is not draft', () => {
-      const expense: Expense = {
-        ...expenseData,
-        state: ExpenseState.COMPLETE,
-      };
-      expect(service.isExpenseInDraft(expense)).toBeFalse();
-    });
-  });
+    if (systemCategory === 'mileage') {
+      vendorDisplayName = `${distance || 0} ${distance_unit}`;
+    } else if (systemCategory === 'per diem') {
+      vendorDisplayName = `${per_diem_num_days || 0} ${per_diem_num_days && per_diem_num_days > 1 ? 'Days' : 'Day'}`;
+    }
 
-  describe('getVendorDetails():', () => {
-    it('should return vendor details for normal expense', () => {
-      const merchant = 'UberTest';
-      const expense: Expense = {
-        ...expenseData,
-        merchant,
-      };
-      expect(service.getVendorDetails(expense)).toEqual(merchant);
-    });
+    return vendorDisplayName;
+  }
 
-    it('should return vendor details for mileage expense with distance', () => {
-      expect(service.getVendorDetails(mileageExpenseWithDistance)).toEqual('25 KM');
-    });
-
-    it('should return vendor details for mileage expense without distance', () => {
-      expect(service.getVendorDetails(mileageExpenseWithoutDistance)).toEqual('0 KM');
-    });
-
-    it('should return vendor details for per diem expense with 1 day', () => {
-      expect(service.getVendorDetails(perDiemExpenseWithSingleNumDays)).toEqual('1 Day');
-    });
-
-    it('should return vendor details for per diem expense with multiple days', () => {
-      expect(service.getVendorDetails(perDiemExpenseWithMultipleNumDays)).toEqual('3 Days');
-    });
-
-    it('should return vendor details per diem expense for 0 days', () => {
-      expect(service.getVendorDetails({ ...perDiemExpenseWithMultipleNumDays, per_diem_num_days: null })).toContain(
-        '0'
-      );
-    });
-  });
-
-  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
-    // @ts-ignore
-    spyOn(service, 'getPaymentModeForExpense').and.returnValue({
-      name: 'Reimbursable',
-      key: 'reimbursable',
-    });
-
+  getPaymentModeWiseSummary(expenses: Expense[]): PaymentModeSummary {
     const paymentModes = [
       {
         name: 'Reimbursable',
@@ -145,515 +65,376 @@ fdescribe('ExpensesService', () => {
       },
     ];
 
-    const summary = {
-      reimbursable: {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-        amount: 20,
-        count: 2,
-      },
-    };
+    return expenses
+      .map((expense) => ({
+        ...expense,
+        paymentMode: this.getPaymentModeForExpense(expense, paymentModes),
+      }))
+      .reduce((paymentMap: PaymentModeSummary, expenseData) => {
+        if (paymentMap.hasOwnProperty(expenseData.paymentMode.key)) {
+          paymentMap[expenseData.paymentMode.key].name = expenseData.paymentMode.name;
+          paymentMap[expenseData.paymentMode.key].key = expenseData.paymentMode.key;
+          paymentMap[expenseData.paymentMode.key].amount += expenseData.amount;
+          paymentMap[expenseData.paymentMode.key].count++;
+        } else {
+          paymentMap[expenseData.paymentMode.key] = {
+            name: expenseData.paymentMode.name,
+            key: expenseData.paymentMode.key,
+            amount: expenseData.amount,
+            count: 1,
+          };
+        }
+        return paymentMap;
+      }, {});
+  }
 
-    expect(service.getPaymentModeWiseSummary(expenseResponseData2)).toEqual(summary);
-    // @ts-ignore
-    expect(service.getPaymentModeForExpense).toHaveBeenCalledWith(expenseResponseData2[0], paymentModes);
-    // @ts-ignore
-    expect(service.getPaymentModeForExpense).toHaveBeenCalledWith(expenseResponseData2[1], paymentModes);
+  getCurrenyWiseSummary(expenses: Expense[]): CurrencySummary[] {
+    const currencyMap: Record<string, CurrencySummary> = {};
+    for (const expense of expenses) {
+      if (!(expense.foreign_currency && expense.foreign_amount)) {
+        this.addExpenseToCurrencyMap(currencyMap, expense.currency, expense.amount);
+      } else {
+        this.addExpenseToCurrencyMap(currencyMap, expense.foreign_currency, expense.amount, expense.foreign_amount);
+      }
+    }
 
-    // @ts-ignore
-    expect(service.getPaymentModeForExpense).toHaveBeenCalledTimes(2);
-  });
+    return Object.keys(currencyMap)
+      .map((currency) => currencyMap[currency])
+      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
+  }
 
-  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
-    // @ts-ignore
-    spyOn(service, 'addExpenseToCurrencyMap').and.callThrough();
-
-    const currencyMap = {
-      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
-      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
-      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
-    };
-
-    expect(service.getCurrenyWiseSummary(expenseResponseData3)).toEqual(currencySummaryData);
-    // @ts-ignore
-    expect(service.addExpenseToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
-    // @ts-ignore
-    expect(service.addExpenseToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
-    // @ts-ignore
-    expect(service.addExpenseToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
-    // @ts-ignore
-    expect(service.addExpenseToCurrencyMap).toHaveBeenCalledTimes(3);
-  });
-
-  it('getPaymentModeForExpense(): should return payment mode for expense', () => {
-    spyOn(service, 'isExpenseInPaymentMode').and.returnValue(true);
-    const paymentModeList = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
-    const expensePaymentMode: { name: string; key: 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc' } = {
-      name: 'Reimbursable',
-      key: 'reimbursable',
-    };
-    // @ts-ignore
-    expect(service.getPaymentModeForExpense(expenseData, paymentModeList)).toEqual(expensePaymentMode);
-    expect(service.isExpenseInPaymentMode).toHaveBeenCalledOnceWith(
-      expenseData.is_reimbursable,
-      expenseData.source_account.type,
-      expensePaymentMode.key
+  getReportableExpenses(expenses: Expense[]): Expense[] {
+    return expenses.filter(
+      (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
     );
-  });
+  }
 
-  describe('addExpenseToCurrencyMap():', () => {
-    it('should add a new currency to the map when the currencyMap does not exist', () => {
-      const currencyMap = {};
-      const expenseCurrency = 'USD';
-      const expenseAmount = 10;
-      // @ts-ignore
-      service.addExpenseToCurrencyMap(currencyMap, expenseCurrency, expenseAmount);
+  isMergeAllowed(expenses: Expense[]): boolean {
+    if (expenses.length === 2) {
+      const areSomeMileageOrPerDiemExpenses = expenses.some((expense) =>
+        ['Mileage', 'Per Diem'].includes(expense.category.system_category)
+      );
+      const areAllExpensesSubmitted = expenses.every((expense) =>
+        [
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+          ExpenseState.PAYMENT_PROCESSING,
+          ExpenseState.PAID,
+        ].includes(expense.state)
+      );
+      const areAllCCCMatchedExpenses = expenses.every(
+        (expense) => expense.matched_corporate_card_transactions.length > 0
+      );
+      return !areSomeMileageOrPerDiemExpenses && !areAllExpensesSubmitted && !areAllCCCMatchedExpenses;
+    } else {
+      return false;
+    }
+  }
 
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      });
-    });
+  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
+    return `You are about to permanently delete ${
+      expensesToBeDeleted?.length === 1 ? '1 selected expense.' : expensesToBeDeleted?.length + ' selected expenses.'
+    }`;
+  }
 
-    it('should add a new currency to the map with the orig currency', () => {
-      const currencyMap = {};
-      const expenseCurrency = 'USD';
-      const expenseAmount = 10;
-      const expenseForeignAmount = 200;
-      // @ts-ignore
-      service.addExpenseToCurrencyMap(currencyMap, expenseCurrency, expenseAmount, expenseForeignAmount);
+  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+    return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
+      cccExpenses > 1 ? 'expenses' : 'expense'
+    } from the selection which can\'t be deleted. ${
+      expensesToBeDeleted?.length > 0 ? 'However you can delete the other expenses from the selection.' : ''
+    }`;
+  }
 
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 200,
-          count: 1,
-        },
-      });
-    });
+  getDeleteDialogBody(
+    expensesToBeDeletedCount: number,
+    cccExpenses: number,
+    expenseDeletionMessage: string,
+    cccExpensesMessage: string
+  ): string {
+    let dialogBody: string;
 
-    it('should add the transaction amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const expenseCurrency = 'USD';
-      const expenseAmount = 20;
-      // @ts-ignore
-      service.addExpenseToCurrencyMap(currencyMap, expenseCurrency, expenseAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 30,
-          count: 2,
-        },
-      });
-    });
-
-    it('should add the transaction amount and original amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const expenseCurrency = 'USD';
-      const expenseAmount = 20;
-      const expenseForeignAmount = 30;
-      // @ts-ignore
-      service.addExpenseToCurrencyMap(currencyMap, expenseCurrency, expenseAmount, expenseForeignAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 40,
-          count: 2,
-        },
-      });
-    });
-  });
-
-  describe('isMergeAllowed():', () => {
-    it('should not allow merge if number of expenses less than 2', () => {
-      const result = service.isMergeAllowed([expenseData]);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should allow merge if expenses are 2', () => {
-      const result = service.isMergeAllowed(apiExpenses1);
-
-      expect(result).toBeTrue();
-    });
-  });
-
-  describe('isExpenseInPaymentMode():', () => {
-    it('should return isExpenseInPaymentMode with reimbursable payment mode', () => {
-      const isExpenseReimbursable = true;
-      const expensePaymentMode = 'reimbursable';
-      const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
-      expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isExpenseInPaymentMode with non-reimbursable payment mode', () => {
-      const isExpenseReimbursable = false;
-      const expensePaymentMode = 'nonReimbursable';
-      const expenseSourceAccountType = AccountType.PERSONAL_CASH_ACCOUNT;
-      expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isExpenseInPaymentMode with advance payment mode', () => {
-      const isExpenseReimbursable = true;
-      const expensePaymentMode = 'advance';
-      const expenseSourceAccountType = AccountType.PERSONAL_ADVANCE_ACCOUNT;
-      expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isExpenseInPaymentMode with advance payment mode', () => {
-      const isExpenseReimbursable = true;
-      const expensePaymentMode = 'ccc';
-      const expenseSourceAccountType = AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
-      expect(
-        service.isExpenseInPaymentMode(isExpenseReimbursable, expenseSourceAccountType, expensePaymentMode)
-      ).toBeTrue();
-    });
-  });
-
-  describe('getDeleteDialogBody():', () => {
-    it('should give dialog body for multiple ccc expenses', () => {
-      const result = service.getDeleteDialogBody(2, 2, 'Delete', 'CCC message');
-
-      expect(result.includes('CCC message')).toBeTrue();
-    });
-
-    it('should give dialog body for 0 ccc expenses', () => {
-      const result = service.getDeleteDialogBody(2, 0, 'Delete', 'CCC message');
-
-      expect(result).toEqual(`<ul class="text-left">
-      <li>Delete</li>
+    if (expensesToBeDeletedCount > 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+        <li>${cccExpensesMessage}</li>
+        <li>Once deleted, the action can't be reversed.</li>
+        </ul>
+        <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeletedCount > 0 && cccExpenses === 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${expenseDeletionMessage}</li>
       <li>Once deleted, the action can't be reversed.</li>
       </ul>
-      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`);
-    });
+      <p class="confirmation-message text-left">Are you sure to <b>permanently</b> delete the selected expenses?</p>`;
+    } else if (expensesToBeDeletedCount === 0 && cccExpenses > 0) {
+      dialogBody = `<ul class="text-left">
+      <li>${cccExpensesMessage}</li>
+      </ul>`;
+    }
 
-    it('should give dialog body if 0 expenses to delete', () => {
-      const result = service.getDeleteDialogBody(0, 2, 'Delete', 'deleting ccc');
+    return dialogBody;
+  }
 
-      expect(result).toEqual(`<ul class="text-left">
-      <li>deleting ccc</li>
-      </ul>`);
-    });
-  });
+  generateCardNumberParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.cardNumbers?.length > 0) {
+      let cardNumberString = '';
+      cardNumberString = filters.cardNumbers.join(',');
+      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
+      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
+        'in.(' + cardNumberString + ')';
+    }
 
-  describe('excludeCCCExpenses():', () => {
-    it('should exclude ccc expenses', () => {
-      const result = service.excludeCCCExpenses([expenseData, mileageExpense]);
+    return newQueryParamsCopy;
+  }
 
-      expect(result).toEqual([mileageExpense]);
-    });
+  generateDateParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    let newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date) {
+      filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
+      filters.customDateEnd = filters.customDateEnd && new Date(filters.customDateEnd);
+      if (filters.date === DateFilters.thisMonth) {
+        const thisMonth = this.dateService.getThisMonthRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${thisMonth.from.toISOString()},spent_at.lt.${thisMonth.to.toISOString()})`;
+      }
 
-    it('should exclude expenses without ccc ids', () => {
-      const result = service.excludeCCCExpenses([
-        { ...expenseData, matched_corporate_card_transaction_ids: null },
-        mileageExpense,
-      ]);
+      if (filters.date === DateFilters.thisWeek) {
+        const thisWeek = this.dateService.getThisWeekRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${thisWeek.from.toISOString()},spent_at.lt.${thisWeek.to.toISOString()})`;
+      }
 
-      expect(result).toEqual([mileageExpense]);
-    });
-  });
+      if (filters.date === DateFilters.lastMonth) {
+        const lastMonth = this.dateService.getLastMonthRange();
+        newQueryParamsCopy.and = `(spent_at.gte.${lastMonth.from.toISOString()},spent_at.lt.${lastMonth.to.toISOString()})`;
+      }
 
-  it('getReportableExpenses(): should get reportable expenese', () => {
-    const hasCriticalPolicyViolationSpy = spyOn(service, 'isCriticalPolicyViolatedExpense');
-    hasCriticalPolicyViolationSpy.withArgs(expenseData).and.returnValue(false);
-    hasCriticalPolicyViolationSpy.withArgs(draftExpense).and.returnValue(false);
-    const isExpenseInDraftSpy = spyOn(service, 'isExpenseInDraft');
-    isExpenseInDraftSpy.withArgs(expenseData).and.returnValue(false);
-    isExpenseInDraftSpy.withArgs(draftExpense).and.returnValue(true);
+      newQueryParamsCopy = this.generateCustomDateParams(newQueryParamsCopy, filters);
+    }
 
-    const result = service.getReportableExpenses([expenseData, draftExpense]);
+    return newQueryParamsCopy;
+  }
 
-    expect(result).toEqual([expenseData]);
+  generateCustomDateParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.date === DateFilters.custom) {
+      const startDate = filters.customDateStart?.toISOString();
+      const endDate = filters.customDateEnd?.toISOString();
+      if (filters.customDateStart && filters.customDateEnd) {
+        newQueryParamsCopy.and = `(spent_at.gte.${startDate},spent_at.lt.${endDate})`;
+      } else if (filters.customDateStart) {
+        newQueryParamsCopy.and = `(spent_at.gte.${startDate})`;
+      } else if (filters.customDateEnd) {
+        newQueryParamsCopy.and = `(spent_at.lt.${endDate})`;
+      }
+    }
 
-    expect(service.isCriticalPolicyViolatedExpense).toHaveBeenCalledTimes(2);
-    expect(service.isCriticalPolicyViolatedExpense).toHaveBeenCalledWith(expenseData);
-    expect(service.isCriticalPolicyViolatedExpense).toHaveBeenCalledWith(draftExpense);
-    expect(service.isExpenseInDraft).toHaveBeenCalledTimes(2);
-    expect(service.isExpenseInDraft).toHaveBeenCalledWith(expenseData);
-    expect(service.isExpenseInDraft).toHaveBeenCalledWith(draftExpense);
-  });
+    return newQueryParamsCopy;
+  }
 
-  describe('getExpenseDeletionMessage():', () => {
-    it('should get delete message for a single expense', () => {
-      const result = service.getExpenseDeletionMessage([expenseData]);
+  generateReceiptAttachedParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    if (filters.receiptsAttached) {
+      if (filters.receiptsAttached === 'YES') {
+        newQueryParamsCopy.file_ids = 'not_like.[]';
+      }
 
-      expect(result).toEqual('You are about to permanently delete 1 selected expense.');
-    });
+      if (filters.receiptsAttached === 'NO') {
+        newQueryParamsCopy.file_ids = 'like.[]';
+      }
+    }
+    return newQueryParamsCopy;
+  }
 
-    it('should get delete message for multiple expense', () => {
-      const result = service.getExpenseDeletionMessage([expenseData, draftExpense]);
+  generateStateFilters(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
+    const or_arr = [];
 
-      expect(result).toEqual('You are about to permanently delete 2 selected expenses.');
-    });
-  });
+    if (stateOrFilter.length > 0) {
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedStateOrFilter = `(${combinedStateOrFilter})`;
+      or_arr.push(combinedStateOrFilter);
+      newQueryParamsCopy.or = or_arr;
+    }
 
-  describe('getCCCExpenseMessage():', () => {
-    it('should get ccc message for 1 expense', () => {
-      const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 1);
+    return newQueryParamsCopy;
+  }
 
-      expect(result).toEqual(
-        `There is 1 corporate card expense from the selection which can't be deleted. However you can delete the other expenses from the selection.`
-      );
-    });
+  generateStateOrFilter(
+    filters: Partial<ExpenseFilters>,
+    newQueryParamsCopy: Record<string, string | string[] | boolean>
+  ): string[] {
+    const stateOrFilter: string[] = [];
+    if (filters.state) {
+      newQueryParamsCopy.report_id = 'is.null';
+      if (filters.state.includes(FilterState.READY_TO_REPORT)) {
+        stateOrFilter.push('and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))');
+      }
 
-    it('should get ccc message for multiple expenses', () => {
-      const result = service.getCCCExpenseMessage([expenseData, mileageExpense], 2);
+      if (filters.state.includes(FilterState.POLICY_VIOLATED)) {
+        stateOrFilter.push('and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))');
+      }
 
-      expect(result).toEqual(
-        `There are 2 corporate card expenses from the selection which can't be deleted. However you can delete the other expenses from the selection.`
-      );
-    });
+      if (filters.state.includes(FilterState.CANNOT_REPORT)) {
+        stateOrFilter.push('policy_amount.lt.0.0001');
+      }
 
-    it('should get ccc message for 0 expenses', () => {
-      const result = service.getCCCExpenseMessage([], 0);
+      if (filters.state.includes(FilterState.DRAFT)) {
+        stateOrFilter.push('state.in.(DRAFT)');
+      }
+    }
 
-      expect(result).toEqual(`There is 0 corporate card expense from the selection which can't be deleted. `);
-    });
-  });
+    return stateOrFilter;
+  }
 
-  describe('generateCardNumberParams(): ', () => {
-    it('should generate card number params', () => {
-      const result = service.generateCardNumberParams({}, expenseFiltersData1);
+  generateTypeFilters(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const typeOrFilter = this.generateTypeOrFilter(filters);
+    const type_or_arr = [];
 
-      expect(result).toEqual({
-        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(1234,5678)',
-      });
-    });
+    if (typeOrFilter.length > 0) {
+      let combinedTypeOrFilter = typeOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
+      combinedTypeOrFilter = `(${combinedTypeOrFilter})`;
+      type_or_arr.push(combinedTypeOrFilter);
+      newQueryParamsCopy.or = type_or_arr;
+    }
 
-    it('should return empty params if no card numbers in filters', () => {
-      const result = service.generateCardNumberParams({}, expenseFiltersDataWoCards);
+    return newQueryParamsCopy;
+  }
 
-      expect(result).toEqual({});
-    });
-  });
+  generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
+    const typeOrFilter: string[] = [];
+    if (filters.type) {
+      if (filters.type.includes(ExpenseType.MILEAGE)) {
+        typeOrFilter.push('category->system_category.eq.Mileage');
+      }
 
-  //Commenting for now, will fix later
-  describe('generateDateParams():', () => {
-    it('should generate date params for filters this week', () => {
-      const result = service.generateDateParams({}, cloneDeep(expenseFiltersData1));
-      spyOn(service, 'generateCustomDateParams');
+      if (filters.type.includes(ExpenseType.PER_DIEM)) {
+        // The space encoding is done by angular into %20 so no worries here
+        typeOrFilter.push('category->system_category.eq.Per Diem');
+      }
 
-      // expect(result).toEqual({
-      //   and: '(spent_at.gte.2023-12-02T18:30:00.000Z,spent_at.lt.2023-12-09T18:30:00.000Z)',
-      // });
-    });
+      if (filters.type.includes('RegularExpenses')) {
+        typeOrFilter.push('category->system_category.not_in.(Mileage,Per Diem)');
+      }
+    }
 
-    it('should generate date params for filters this month', () => {
-      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataMonth));
-      spyOn(service, 'generateCustomDateParams');
+    return typeOrFilter;
+  }
 
-      // expect(result).toEqual({
-      //   and: '(spent_at.gte.2023-11-30T18:30:00.000Z,spent_at.lt.2023-12-31T18:29:00.000Z)',
-      // });
-    });
+  setSortParams(
+    currentParams: Partial<GetExpenseQueryParam>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<GetExpenseQueryParam> {
+    const currentParamsCopy = cloneDeep(currentParams);
+    if (filters.sortParam && filters.sortDir) {
+      currentParamsCopy.sortParam = filters.sortParam;
+      currentParamsCopy.sortDir = filters.sortDir;
+    } else {
+      currentParamsCopy.sortParam = 'spent_at';
+      currentParamsCopy.sortDir = 'desc';
+    }
 
-    it('should generate date params for filters last month', () => {
-      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataLastMonth));
-      spyOn(service, 'generateCustomDateParams');
+    return currentParamsCopy;
+  }
 
-      // expect(result).toEqual({
-      //   and: '(spent_at.gte.2023-10-31T18:30:00.000Z,spent_at.lt.2023-11-30T18:29:00.000Z)',
-      // });
-    });
+  generateSplitExpenseParams(
+    newQueryParams: Record<string, string | string[] | boolean>,
+    filters: Partial<ExpenseFilters>
+  ): Record<string, string | string[] | boolean> {
+    const newQueryParamsCopy = cloneDeep(newQueryParams);
+    const split_or_arr = [];
+    if (filters.splitExpense) {
+      if (filters.splitExpense === 'YES') {
+        split_or_arr.push('(is_split.eq.true)');
+        newQueryParamsCopy.or = split_or_arr;
+      } else if (filters.splitExpense === 'NO') {
+        split_or_arr.push('(is_split.eq.false)');
+        newQueryParamsCopy.or = split_or_arr;
+      }
+    }
 
-    it('should generate custom date params', () => {
-      const result = service.generateDateParams({}, cloneDeep(expenseFiltersDataWCustom));
-      spyOn(service, 'generateCustomDateParams').and.returnValue({
-        and: '(spent_at.gte.2023-01-04T00:00:00.000Z,spent_at.lt.2023-01-10T00:00:00.000Z)',
-      });
+    return newQueryParamsCopy;
+  }
 
-      expect(result).toEqual({
-        and: '(spent_at.gte.2023-01-04T00:00:00.000Z,spent_at.lt.2023-01-10T00:00:00.000Z)',
-      });
-    });
-  });
+  isExpenseInPaymentMode(
+    expenseIsReimbursable: boolean,
+    expenseSourceAccountType: string,
+    paymentMode: 'reimbursable' | 'nonReimbursable' | 'advance' | 'ccc'
+  ): boolean {
+    let expenseInPaymentMode = false;
+    const isAdvanceOrCCCExpense =
+      expenseSourceAccountType === AccountType.PERSONAL_ADVANCE_ACCOUNT ||
+      expenseSourceAccountType === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
 
-  describe('generateCustomDateParams():', () => {
-    it('should generate params for custom date with both start and end', () => {
-      const result = service.generateCustomDateParams({}, expenseFiltersDataWCustom);
-
-      expect(result).toEqual({
-        and: '(spent_at.gte.2023-01-04T00:00:00.000Z,spent_at.lt.2023-01-10T00:00:00.000Z)',
-      });
-    });
-
-    it('should generate params for custom date with only start', () => {
-      const result = service.generateCustomDateParams({}, expenseFiltersDataWithCustomStart);
-
-      expect(result).toEqual({
-        and: '(spent_at.gte.2023-01-04T00:00:00.000Z)',
-      });
-    });
-
-    it('should generate params for custom date with only end', () => {
-      const result = service.generateCustomDateParams({}, expenseFiltersDataWithCustomEnd);
-
-      expect(result).toEqual({
-        and: '(spent_at.lt.2023-01-10T00:00:00.000Z)',
-      });
-    });
-  });
-
-  describe('generateReceiptAttachedParams():', () => {
-    it('should generate params for receipts', () => {
-      const result = service.generateReceiptAttachedParams({}, expenseFiltersData1);
-
-      expect(result).toEqual({
-        file_ids: 'not_like.[]',
-      });
-    });
-
-    it('should generate params for excluding receipts', () => {
-      const result = service.generateReceiptAttachedParams({}, expenseFiltersDataWoReceipts);
-
-      expect(result).toEqual({
-        file_ids: 'like.[]',
-      });
-    });
-  });
-
-  describe('generateStateFilters():', () => {
-    it('should generate state filter', () => {
-      spyOn(service, 'generateStateOrFilter').and.returnValue([
-        'and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))',
-        'and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))',
-        'policy_amount.lt.0.0001',
-        'state.in.(DRAFT)',
-      ]);
-
-      const result = service.generateStateFilters({}, expenseFiltersDataAllStates);
-
-      expect(result).toEqual({
-        or: [
-          '(and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001)), and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001)), policy_amount.lt.0.0001, state.in.(DRAFT))',
-        ],
-      });
-    });
-  });
-
-  describe('generateStateOrFilter():', () => {
-    it('should get state order filter for all type of expenses', () => {
-      const result = service.generateStateOrFilter(expenseFiltersDataAllStates, {});
-
-      expect(result).toEqual([
-        'and(state.in.(COMPLETE),or(policy_amount.is.null,policy_amount.gt.0.0001))',
-        'and(is_policy_flagged.eq.true,or(policy_amount.is.null,policy_amount.gt.0.0001))',
-        'policy_amount.lt.0.0001',
-        'state.in.(DRAFT)',
-      ]);
-    });
-  });
-
-  describe('generateTypeOrFilter():', () => {
-    it('should generate type filters for all expenses', () => {
-      const result = service.generateTypeFilters({}, expenseFiltersDataWCustom);
-
-      expect(result).toEqual({
-        or: [
-          '(category->system_category.eq.Mileage, category->system_category.eq.Per Diem, category->system_category.not_in.(Mileage,Per Diem))',
-        ],
-      });
-    });
-  });
-
-  describe('setSortParams():', () => {
-    it('should get sort params if specified', () => {
-      const result = service.setSortParams({}, expenseFiltersData1);
-
-      expect(result).toEqual({
-        sortParam: 'category->name',
-        sortDir: 'asc',
-      });
-    });
-
-    it('should get sort params if not specified', () => {
-      const result = service.setSortParams({}, expenseFiltersDataWoSplit);
-
-      expect(result).toEqual({
-        sortParam: 'spent_at',
-        sortDir: 'desc',
-      });
-    });
-  });
-
-  it('generateStatsQueryParams(): should generate stats query params', () => {
-    const queryParams = {
-      state: 'in.(COMPLETE)',
-      report_id: 'is.null',
-      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+    const expensePaymentModeConditions = {
+      //Paid by Employee: reimbursable
+      reimbursable: expenseIsReimbursable && !isAdvanceOrCCCExpense,
+      //Paid by Company: not reimbursable
+      nonReimbursable: !expenseIsReimbursable && !isAdvanceOrCCCExpense,
+      //Paid from Advance account: not reimbursable
+      advance: expenseSourceAccountType === AccountType.PERSONAL_ADVANCE_ACCOUNT,
+      //Paid from CCC: not reimbursable
+      ccc: expenseSourceAccountType === AccountType.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT,
     };
+    expenseInPaymentMode = expensePaymentModeConditions[paymentMode];
+    return expenseInPaymentMode;
+  }
 
-    const result = service.generateStatsQueryParams(queryParams);
-    expect(result).toEqual('state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)');
-  });
-
-  describe('generateSplitExpenseParams():', () => {
-    it('should generate params for split expense', () => {
-      const result = service.generateSplitExpenseParams({}, expenseFiltersData1);
-
-      expect(result).toEqual({
-        or: ['(is_split.eq.true)'],
-      });
+  generateStatsQueryParams(params: Record<string, string | string[] | boolean>): string {
+    const paramKeys = Object.keys(params);
+    const queryParams = [];
+    paramKeys.forEach((key) => {
+      queryParams.push(`${key}=${params[key]}`);
     });
 
-    it('should generate params for excluding split expense', () => {
-      const result = service.generateSplitExpenseParams({}, expenseFiltersDataWoSplit);
+    return queryParams.join('&');
+  }
 
-      expect(result).toEqual({
-        or: ['(is_split.eq.false)'],
-      });
-    });
-  });
-});
+  private getPaymentModeForExpense(expense: Expense, paymentModes: NameKeyPair[]): NameKeyPair {
+    const expenseIsReimbursable = expense.is_reimbursable;
+    const expenseSourceAccountType = expense.source_account?.type;
+    return paymentModes.find((paymentMode) =>
+      this.isExpenseInPaymentMode(expenseIsReimbursable, expenseSourceAccountType, paymentMode.key)
+    );
+  }
+
+  private addExpenseToCurrencyMap(
+    currencyMap: Record<string, CurrencySummary>,
+    expenseCurrency: string,
+    expenseAmount: number,
+    expenseForeignAmount: number = null
+  ): void {
+    if (currencyMap.hasOwnProperty(expenseCurrency)) {
+      currencyMap[expenseCurrency].origAmount += expenseForeignAmount ? expenseForeignAmount : expenseAmount;
+      currencyMap[expenseCurrency].amount += expenseAmount;
+      currencyMap[expenseCurrency].count++;
+    } else {
+      currencyMap[expenseCurrency] = {
+        name: expenseCurrency,
+        currency: expenseCurrency,
+        amount: expenseAmount,
+        origAmount: expenseForeignAmount ? expenseForeignAmount : expenseAmount,
+        count: 1,
+      };
+    }
+  }
+}

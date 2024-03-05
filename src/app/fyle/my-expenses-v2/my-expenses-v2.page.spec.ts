@@ -2039,7 +2039,7 @@ describe('MyExpensesV2Page', () => {
 
     describe('when restrictPendingTransactionsEnabled is false', () => {
       beforeEach(() => {
-        sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
+        component.restrictPendingTransactionsEnabled = false;
       });
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
@@ -2110,7 +2110,7 @@ describe('MyExpensesV2Page', () => {
 
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
-        sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
+        component.restrictPendingTransactionsEnabled = true;
       });
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
@@ -2144,7 +2144,7 @@ describe('MyExpensesV2Page', () => {
   describe('unreportableExpenseExceptionHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
-      sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
+      component.restrictPendingTransactionsEnabled = true;
     });
     it('should call showNonReportableExpenseSelectedToast when mix of expense types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 1);
@@ -2164,7 +2164,7 @@ describe('MyExpensesV2Page', () => {
   describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
-      sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
+      component.restrictPendingTransactionsEnabled = true;
     });
     describe('reportableExpenseDialogHandler():', () => {
       it('should set proper message when only draft count is greater than 0', () => {

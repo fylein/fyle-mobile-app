@@ -192,6 +192,8 @@ export class MyExpensesV2Page implements OnInit {
 
   isDisabled = false;
 
+  restrictPendingTransactionsEnabled = false;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -465,6 +467,10 @@ export class MyExpensesV2Page implements OnInit {
 
     this.orgSettings$.subscribe((orgSettings) => {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
+      this.restrictPendingTransactionsEnabled =
+        (orgSettings?.corporate_credit_card_settings?.enabled &&
+          orgSettings?.pending_cct_expense_restriction?.enabled) ||
+        false;
     });
 
     forkJoin({
@@ -1050,7 +1056,7 @@ export class MyExpensesV2Page implements OnInit {
     return (
       policyViolationsCount > 0 ||
       draftCount > 0 ||
-      (this.sharedExpenseService.restrictPendingTransactionsEnabled() && pendingTransactionsCount > 0)
+      (this.restrictPendingTransactionsEnabled && pendingTransactionsCount > 0)
     );
   }
 
@@ -1121,7 +1127,7 @@ export class MyExpensesV2Page implements OnInit {
     );
     let expensesWithPendingTransactions = [];
     //only handle pending txns if it is enabled from settings
-    if (this.sharedExpenseService.restrictPendingTransactionsEnabled()) {
+    if (this.restrictPendingTransactionsEnabled) {
       expensesWithPendingTransactions = selectedElements.filter((expense) =>
         this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense)
       );

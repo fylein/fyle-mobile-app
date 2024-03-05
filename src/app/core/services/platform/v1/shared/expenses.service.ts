@@ -12,35 +12,12 @@ import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expens
 import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
-import { BehaviorSubject, map } from 'rxjs';
-import { OrgSettingsService } from '../../../org-settings.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ExpensesService {
-  private pendingTxnSettingsEnabled$ = new BehaviorSubject<boolean>(false);
-
-  constructor(private dateService: DateService, private orgSettingsService: OrgSettingsService) {
-    this.setTransactionPendingSettingStatus();
-  }
-
-  //TODO : ADD CONDITION BASED ON ORG SETTING
-  restrictPendingTransactionsEnabled(): boolean {
-    return this.pendingTxnSettingsEnabled$.value;
-  }
-
-  setTransactionPendingSettingStatus(): void {
-    this.orgSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgSetting) => orgSetting?.corporate_credit_card_settings?.enabled //&& orgSetting?.pending_cct_expense_restriction?.enabled
-        )
-      )
-      .subscribe((pendingTxnEnabled) => this.pendingTxnSettingsEnabled$.next(pendingTxnEnabled));
-    this.pendingTxnSettingsEnabled$.next(true);
-  }
+  constructor(private dateService: DateService) {}
 
   isExpenseInDraft(expense: Expense): boolean {
     return expense.state && expense.state === ExpenseState.DRAFT;
@@ -135,8 +112,8 @@ export class ExpensesService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
-    if (this.restrictPendingTransactionsEnabled()) {
+  getReportableExpenses(expenses: Expense[], filterPendingTransactions = false): Expense[] {
+    if (filterPendingTransactions) {
       return expenses.filter(
         (expense) =>
           !this.isCriticalPolicyViolatedExpense(expense) &&
