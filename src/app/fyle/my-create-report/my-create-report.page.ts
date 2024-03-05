@@ -14,6 +14,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -48,7 +49,6 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
-  //TODO : Assign its value from org settings
   pendingTransactionRestrictionEnabled = false;
 
   constructor(
@@ -61,7 +61,8 @@ export class MyCreateReportPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private refinerService: RefinerService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   detectTitleChange(): void {
@@ -209,6 +210,11 @@ export class MyCreateReportPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.orgSettingsService.get().subscribe((orgSetting) => {
+      this.pendingTransactionRestrictionEnabled =
+        orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled;
+    });
+
     this.isSelectedAll = true;
     this.selectedElements = [];
 

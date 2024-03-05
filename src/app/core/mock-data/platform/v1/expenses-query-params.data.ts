@@ -9,5 +9,6 @@ export const unreportedExpensesQueryParams: ExpensesQueryParams = {
     state: 'in.(COMPLETE)',
     or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
     report_id: 'is.null',
+    and: '()',
   },
 };

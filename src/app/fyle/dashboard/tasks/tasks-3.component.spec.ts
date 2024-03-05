@@ -23,6 +23,8 @@ import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-r
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -42,13 +44,14 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
-
+    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -61,6 +64,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     }));
 
     it('onPotentialDuplicatesTaskClick(): should navigate to potential duplicate page', () => {

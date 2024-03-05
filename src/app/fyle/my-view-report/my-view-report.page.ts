@@ -110,7 +110,6 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
-  //TODO : Assign its value from org settings
   pendingTransactionRestrictionEnabled = false;
 
   constructor(
@@ -162,6 +161,10 @@ export class MyViewReportPage {
   }
 
   ionViewWillEnter(): void {
+    this.orgSettingsService.get().subscribe((orgSetting) => {
+      this.pendingTransactionRestrictionEnabled =
+        orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled;
+    });
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;

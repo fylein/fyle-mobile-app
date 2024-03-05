@@ -1393,7 +1393,7 @@ export function TestCases5(getTestBed) {
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);
@@ -1685,7 +1685,7 @@ export function TestCases5(getTestBed) {
         expect(component.getCCCpaymentMode).toHaveBeenCalledTimes(1);
         expect(component.setUpTaxCalculations).toHaveBeenCalledTimes(1);
 
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
         expect(accountsService.getEMyAccounts).toHaveBeenCalledTimes(1);

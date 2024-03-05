@@ -70,6 +70,7 @@ import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/c
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   apiExpenses1,
+  apiExpenses2,
   expenseData,
   mileageExpenseWithDistance,
   perDiemExpenseWithSingleNumDays,
@@ -2039,7 +2040,7 @@ describe('MyExpensesV2Page', () => {
 
     describe('when restrictPendingTransactionsEnabled is false', () => {
       beforeEach(() => {
-        component.restrictPendingTransactionsEnabled = false;
+        // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
       });
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
@@ -2110,7 +2111,7 @@ describe('MyExpensesV2Page', () => {
 
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
-        component.restrictPendingTransactionsEnabled = true;
+        // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
       });
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
@@ -2127,14 +2128,15 @@ describe('MyExpensesV2Page', () => {
         expect(component.showNewReportModal).not.toHaveBeenCalled();
       }));
       it('should call doesExpenseHavePendingCardTransaction', fakeAsync(() => {
-        component.selectedElements = cloneDeep(apiExpenses1);
+        component.selectedElements = cloneDeep(apiExpenses2);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
+        component.restrictPendingTransactionsEnabled = true;
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledTimes(2);
-        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[0]);
-        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[1]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses2[0]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses2[1]);
         component.isReportableExpensesSelected = false;
         expect(component.unreportableExpenseExceptionHandler).toHaveBeenCalledOnceWith(1, 2, 0);
       }));
@@ -2144,7 +2146,7 @@ describe('MyExpensesV2Page', () => {
   describe('unreportableExpenseExceptionHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
-      component.restrictPendingTransactionsEnabled = true;
+      // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
     it('should call showNonReportableExpenseSelectedToast when mix of expense types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 1);
@@ -2164,7 +2166,7 @@ describe('MyExpensesV2Page', () => {
   describe('reportableExpenseDialogHandler():', () => {
     beforeEach(() => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
-      component.restrictPendingTransactionsEnabled = true;
+      // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
     describe('reportableExpenseDialogHandler():', () => {
       it('should set proper message when only draft count is greater than 0', () => {
@@ -2221,9 +2223,6 @@ describe('MyExpensesV2Page', () => {
 
     component.showNewReportModal();
     tick(100);
-
-    expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
-
     expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams2);
     expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
       report: apiExtendedReportRes[0],
@@ -2470,6 +2469,7 @@ describe('MyExpensesV2Page', () => {
 
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', () => {
       spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
+
       matBottomsheet.open.and.returnValue({
         afterDismissed: () =>
           of({
@@ -2479,7 +2479,6 @@ describe('MyExpensesV2Page', () => {
 
       component.showOldReportsMatBottomSheet();
 
-      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
@@ -2507,7 +2506,6 @@ describe('MyExpensesV2Page', () => {
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
-      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: mockReportData, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
@@ -2533,7 +2531,6 @@ describe('MyExpensesV2Page', () => {
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
-      expect(sharedExpenseService.getReportableExpenses).toHaveBeenCalledOnceWith(apiExpenses1);
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
         data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],

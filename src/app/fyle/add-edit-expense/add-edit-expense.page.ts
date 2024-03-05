@@ -425,7 +425,6 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
-  //TODO : Assign its value from org settings
   pendingTransactionRestrictionEnabled = false;
 
   constructor(
@@ -2892,6 +2891,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.orgSettingsService.get().subscribe((orgSetting) => {
+      this.pendingTransactionRestrictionEnabled =
+        orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled;
+    });
     this.initClassObservables();
 
     this.newExpenseDataUrls = [];
