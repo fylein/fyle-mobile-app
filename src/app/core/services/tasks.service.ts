@@ -859,14 +859,14 @@ export class TasksService {
     }).pipe(
       switchMap(({ isCommuteDeductionEnabled, commuteDetails }) => {
         if (isCommuteDeductionEnabled && !commuteDetails.data[0]?.commute_details?.home_location) {
-          return of(this.mapCommuteDetailsTask());
+          return of(this.getCommuteDetailsTask());
         }
         return of<DashboardTask[]>([]);
       })
     );
   }
 
-  mapCommuteDetailsTask(): DashboardTask[] {
+  getCommuteDetailsTask(): DashboardTask[] {
     const task = [
       {
         hideAmount: true,
