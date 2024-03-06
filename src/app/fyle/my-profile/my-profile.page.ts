@@ -421,7 +421,6 @@ export class MyProfilePage {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
       componentProps: {
-        distanceUnit: this.mileageDistanceUnit,
         existingCommuteDetails: this.commuteDetails,
       },
       mode: 'ios',

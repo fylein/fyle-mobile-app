@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { switchMap } from 'rxjs';
+import { forkJoin, map, switchMap } from 'rxjs';
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 import { LocationService } from 'src/app/core/services/location.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 @Component({
@@ -13,9 +14,7 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
   styleUrls: ['./fy-select-commute-details.component.scss'],
 })
 export class FySelectCommuteDetailsComponent implements OnInit {
-  @Input() distanceUnit: string;
-
-  @Input() existingCommuteDetails: CommuteDetails;
+  @Input() existingCommuteDetails?: CommuteDetails;
 
   commuteDetails: FormGroup;
 
@@ -23,7 +22,8 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private modalController: ModalController,
     private locationService: LocationService,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit(): void {
@@ -48,9 +48,9 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     }
   }
 
-  getCalculatedDistance(distanceResponse: number): number {
+  getCalculatedDistance(distanceResponse: number, distanceUnit: string): number {
     const distanceInKM = distanceResponse / 1000;
-    const finalDistance = this.distanceUnit === 'Miles' ? distanceInKM * 0.6213 : distanceInKM;
+    const finalDistance = distanceUnit === 'MILES' ? distanceInKM * 0.6213 : distanceInKM;
     return finalDistance;
   }
 
@@ -64,16 +64,23 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     if (this.commuteDetails.valid) {
       const commuteDetailsFormValue = this.commuteDetails.value as { homeLocation: Location; workLocation: Location };
 
-      this.locationService
-        .getDistance(commuteDetailsFormValue.homeLocation, commuteDetailsFormValue.workLocation)
+      const getMileageUnit$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage?.unit));
+
+      forkJoin({
+        getMileageUnit: getMileageUnit$,
+        distanceResponse: this.locationService.getDistance(
+          commuteDetailsFormValue.homeLocation,
+          commuteDetailsFormValue.workLocation
+        ),
+      })
         .pipe(
-          switchMap((distanceResponse) => {
-            const distance = this.getCalculatedDistance(distanceResponse);
+          switchMap(({ getMileageUnit, distanceResponse }) => {
+            const distance = this.getCalculatedDistance(distanceResponse, getMileageUnit);
             const commuteDetails = {
               home_location: this.formatLocation(commuteDetailsFormValue.homeLocation),
               work_location: this.formatLocation(commuteDetailsFormValue.workLocation),
               distance,
-              distance_unit: this.distanceUnit.toUpperCase(),
+              distance_unit: getMileageUnit.toUpperCase(),
             };
 
             return this.employeesService.postCommuteDetails(commuteDetails);

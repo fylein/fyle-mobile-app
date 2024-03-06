@@ -42,6 +42,9 @@ import { OrgSettingsService } from './org-settings.service';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
+import { EmployeesService } from './platform/v1/spender/employees.service';
+import { orgSettingsRes } from '../mock-data/org-settings.data';
+import { commuteDetailsResponseData } from '../mock-data/commute-details-response.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -55,6 +58,7 @@ describe('TasksService', () => {
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let employeesService: jasmine.SpyObj<EmployeesService>;
 
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
@@ -76,6 +80,7 @@ describe('TasksService', () => {
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -120,6 +125,10 @@ describe('TasksService', () => {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
+        {
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -136,6 +145,7 @@ describe('TasksService', () => {
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
   });
 
   it('should be created', () => {
@@ -700,6 +710,8 @@ describe('TasksService', () => {
       .and.returnValue(of(incompleteStats));
 
     corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+    orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+    employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
   }
 
   it('should be able to fetch tasks with no filters', (done) => {
