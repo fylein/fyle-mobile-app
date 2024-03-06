@@ -197,6 +197,15 @@ describe('TasksService', () => {
         state: 'in.(COMPLETE)',
         or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
         report_id: 'is.null',
+        and: '()',
+      })
+      .and.returnValue(of(completeStats));
+
+    expensesService.getExpenseStats
+      .withArgs({
+        state: 'in.(COMPLETE)',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+        report_id: 'is.null',
         and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       })
       .and.returnValue(of(completeStats));
