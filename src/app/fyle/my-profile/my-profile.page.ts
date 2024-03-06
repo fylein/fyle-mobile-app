@@ -33,11 +33,11 @@ import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
-import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
-import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -83,8 +83,6 @@ export class MyProfilePage {
 
   isMastercardRTFEnabled: boolean;
 
-  isCommuteDetailsPresent: boolean;
-
   isMileageEnabled: boolean;
 
   isCommuteDeductionEnabled: boolean;
@@ -108,7 +106,8 @@ export class MyProfilePage {
     private spenderService: SpenderService,
     private activatedRoute: ActivatedRoute,
     private modalController: ModalController,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private employeesService: EmployeesService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -212,6 +211,8 @@ export class MyProfilePage {
         this.isCommuteDeductionEnabled =
           this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
 
+        this.mileageDistanceUnit = this.orgSettings.mileage?.unit;
+
         if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
           this.setCommuteDetails();
         }
@@ -222,22 +223,12 @@ export class MyProfilePage {
   }
 
   setCommuteDetails(): void {
-    this.eou$.subscribe((eou) => {
-      const queryParams = {
-        params: {
-          user_id: `eq.${eou.us.id}`,
-        },
-      };
-      return this.spenderService
-        .get<PlatformApiResponse<CommuteDetailsResponse>>('/employees', queryParams)
-        .subscribe((res) => {
-          this.isCommuteDetailsPresent = !!res.data?.[0]?.commute_details?.home_location;
-          if (this.isCommuteDetailsPresent) {
-            this.commuteDetails = res.data[0].commute_details;
-            this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
-          }
-        });
-    });
+    from(this.authService.getEou())
+      .pipe(switchMap((eou) => this.employeesService.getCommuteDetails(eou)))
+      .subscribe((res) => {
+        this.commuteDetails = res.data[0].commute_details;
+        this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
+      });
   }
 
   setCCCFlags(): void {
@@ -429,10 +420,20 @@ export class MyProfilePage {
   async openCommuteDetailsModal(): Promise<void> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
-      componentProps: {},
+      componentProps: {
+        existingCommuteDetails: this.commuteDetails,
+      },
       mode: 'ios',
     });
 
     await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+
+    // If the user edited or saved the commute details, refresh the page and show the toast message
+    if (data.action === 'save') {
+      this.reset();
+      this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
+    }
   }
 }
