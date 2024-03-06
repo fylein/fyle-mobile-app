@@ -1075,7 +1075,7 @@ export class MyExpensesV2Page implements OnInit {
       ['010', "You can't add expenses with critical policy violations to a report."],
       ['001', "You can't add expenses with pending transactions to a report."],
     ]);
-    const messageConfig = `${policyViolationsCount > 0 ? 1 : 0}${draftCount > 0 ? 1 : 0}${
+    const messageConfig = `${draftCount > 0 ? 1 : 0}${policyViolationsCount > 0 ? 1 : 0}${
       pendingTransactionsCount > 0 ? 1 : 0
     }`;
 
