@@ -2557,7 +2557,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
       if (project && project.project_org_category_ids.length !== 0) {
-        this.recentCategories = this.recentCategoriesOriginal.filter((originalCategory) =>
+        this.recentCategories = this.recentCategoriesOriginal?.filter((originalCategory) =>
           project.project_org_category_ids.includes(originalCategory.value.id)
         );
       } else {
