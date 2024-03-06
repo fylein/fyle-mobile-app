@@ -32,11 +32,12 @@ describe('TasksComponent', () => {
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'clearCache',
+      'transformExpense',
+      'transformRawExpense',
       'getAllExpenses',
-      'getETxnUnflattened',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',
@@ -78,7 +79,6 @@ describe('TasksComponent', () => {
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
-        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
@@ -92,6 +92,7 @@ describe('TasksComponent', () => {
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

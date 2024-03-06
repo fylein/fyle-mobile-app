@@ -934,8 +934,6 @@ export class MyExpensesV2Page implements OnInit {
       this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
 
     if (this.selectedOutboxExpenses.length > 0) {
-      this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedOutboxExpenses);
-
       this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
 
       this.cccExpenses = this.selectedOutboxExpenses.length - this.outboxExpensesToBeDeleted.length;
@@ -1516,12 +1514,6 @@ export class MyExpensesV2Page implements OnInit {
           .subscribe((allExpenses) => {
             this.selectedElements = this.selectedElements.concat(allExpenses);
             if (this.selectedElements.length > 0) {
-              if (this.outboxExpensesToBeDeleted?.length) {
-                this.outboxExpensesToBeDeleted = this.transactionService.getDeletableTxns(
-                  this.outboxExpensesToBeDeleted
-                );
-              }
-
               this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
 
               this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
