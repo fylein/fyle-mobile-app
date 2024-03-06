@@ -145,6 +145,7 @@ import { VirtualCardComponent } from './components/virtual-card/virtual-card.com
 import { AutofocusDirective } from './directive/autofocus.directive';
 import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
+import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
 
 @NgModule({
   declarations: [
@@ -267,6 +268,7 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     TransactionStatusComponent,
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
+    FySelectCommuteDetailsComponent,
   ],
   imports: [
     CommonModule,
@@ -394,6 +396,7 @@ import { TransactionStatusComponent } from './components/transaction-status/tran
     TransactionStatusComponent,
     TransactionStatusInfoPopoverComponent,
     VirtualCardComponent,
+    FySelectCommuteDetailsComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

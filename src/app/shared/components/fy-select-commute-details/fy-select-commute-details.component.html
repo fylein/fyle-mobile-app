@@ -1,0 +1,78 @@
+<ion-header mode="md">
+  <ion-toolbar class="text-center fy-modal-toolbar">
+    <ion-buttons slot="start">
+      <ion-button (click)="close()">
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-buttons slot="end">
+      <ion-button
+        (click)="save()"
+        [loadingText]="'Saving'"
+        [loading]="saveCommuteDetailsLoading"
+        appFormButtonValidation
+        class="commute-details--header-save text-right"
+      >
+        Save
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      <div>Commute Details</div>
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="commute-details--container">
+    <div class="commute-details--home-location">
+      <div>
+        <mat-icon class="home-icon" svgIcon="house-outline"></mat-icon>
+      </div>
+      <div class="commute-details--location-field">
+        <app-fy-location
+          [label]="'Home'"
+          class="route-selector--input"
+          [formControl]="commuteDetails.controls.homeLocation"
+          [mandatory]="true"
+          [hideSuffix]="true"
+          [placeholder]="'Enter Location'"
+          [touchedInParent]="commuteDetails.controls.homeLocation?.touched"
+          [validInParent]="commuteDetails.controls.homeLocation?.valid"
+        >
+        </app-fy-location>
+        <div
+          *ngIf="commuteDetails.controls.homeLocation.touched && !commuteDetails.controls.homeLocation.valid"
+          class="commute-details--error"
+        >
+          Please select home location
+        </div>
+      </div>
+    </div>
+    <div class="commute-details--work-location">
+      <div>
+        <mat-icon class="work-icon" svgIcon="building"></mat-icon>
+      </div>
+      <div class="commute-details--location-field">
+        <app-fy-location
+          [label]="'Work'"
+          class="route-selector--input"
+          [formControl]="commuteDetails.controls.workLocation"
+          [mandatory]="true"
+          [hideSuffix]="true"
+          [placeholder]="'Enter Location'"
+          [touchedInParent]="commuteDetails.controls.workLocation?.touched"
+          [validInParent]="commuteDetails.controls.workLocation?.valid"
+        >
+        </app-fy-location>
+        <div
+          *ngIf="commuteDetails.controls.workLocation.touched && !commuteDetails.controls.workLocation.valid"
+          class="commute-details--error"
+        >
+          Please select work location
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer> </ion-footer>

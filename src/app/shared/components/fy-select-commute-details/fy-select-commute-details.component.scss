@@ -1,0 +1,46 @@
+@import '../../../../theme/colors.scss';
+
+.commute-details {
+  &--header {
+    &-save {
+      --color: $brand-primary;
+      color: $brand-primary;
+      width: 66px;
+      font-size: 16px;
+      line-height: 20px;
+      font-weight: 500;
+      text-transform: none;
+      margin: 0;
+    }
+  }
+
+  &--container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px 24px 24px 16px;
+    .home-icon,
+    .work-icon {
+      width: 16px;
+      height: 16px;
+      fill: $black-light;
+    }
+  }
+
+  &--work-location,
+  &--home-location {
+    display: flex;
+    gap: 28px;
+  }
+
+  &--location-field {
+    width: 90%;
+  }
+
+  &--error {
+    color: $red;
+    line-height: 16px;
+    font-size: 12px;
+    margin-top: 2px;
+  }
+}
