@@ -2109,7 +2109,7 @@ describe('MyExpensesV2Page', () => {
 
     describe('when restrictPendingTransactionsEnabled is true', () => {
       beforeEach(() => {
-        // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
+        component.restrictPendingTransactionsEnabled = true;
       });
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
@@ -2126,15 +2126,15 @@ describe('MyExpensesV2Page', () => {
         expect(component.showNewReportModal).not.toHaveBeenCalled();
       }));
       it('should call doesExpenseHavePendingCardTransaction', fakeAsync(() => {
-        component.selectedElements = cloneDeep(apiExpenses2);
+        component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
         component.restrictPendingTransactionsEnabled = true;
         component.openCreateReportWithSelectedIds('oldReport');
         tick(100);
         expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledTimes(2);
-        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses2[0]);
-        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses2[1]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[0]);
+        expect(sharedExpenseService.doesExpenseHavePendingCardTransaction).toHaveBeenCalledWith(apiExpenses1[1]);
         component.isReportableExpensesSelected = false;
         expect(component.unreportableExpenseExceptionHandler).toHaveBeenCalledOnceWith(1, 2, 0);
       }));
