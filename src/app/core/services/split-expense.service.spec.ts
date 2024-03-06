@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SplitExpenseService } from './split-expense.service';
 import { TransactionService } from './transaction.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PolicyService } from './policy.service';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
@@ -49,7 +50,7 @@ import {
   policyVoilationData2,
   splitPolicyExp4,
 } from '../mock-data/policy-violation.data';
-import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
+import { splitExpData, splitExpData2, splitExpTransformedData } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import {
@@ -64,7 +65,6 @@ import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data
 import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
-import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
 import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
 import { splitData2, splitsData1 } from '../mock-data/splits.data';
@@ -82,20 +82,20 @@ import {
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'uploadBase64File',
       'checkPolicy',
-      'getEtxn',
       'upsert',
+      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -111,6 +111,7 @@ describe('SplitExpenseService', () => {
       'splitExpenseCheckPolicies',
       'splitExpenseCheckMissingFields',
       'splitExpense',
+      'getExpenseById',
     ]);
 
     TestBed.configureTestingModule({
@@ -119,6 +120,10 @@ describe('SplitExpenseService', () => {
         {
           provide: TransactionService,
           useValue: transactionServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
           provide: PolicyService,
@@ -153,6 +158,7 @@ describe('SplitExpenseService', () => {
 
     splitExpenseService = TestBed.inject(SplitExpenseService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;

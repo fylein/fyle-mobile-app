@@ -1,4 +1,5 @@
 import { Destination } from '../destination.model';
+import { TransactionStatus } from '../platform/v1/expense.model';
 import { TxnCustomProperties } from '../txn-custom-properties.model';
 
 export interface Transaction {
@@ -119,4 +120,19 @@ export interface Transaction {
     category?: string;
     invoice_dt?: Date;
   };
+  matched_corporate_card_transactions?: {
+    id: string;
+    group_id: string;
+    amount: number;
+    vendor: string;
+    txn_dt: string;
+    currency: string;
+    description: string;
+    card_or_account_number: string;
+    corporate_credit_card_account_number?: string;
+    displayObject?: string;
+    orig_amount: number;
+    orig_currency: string;
+    status: TransactionStatus;
+  }[];
 }

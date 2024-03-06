@@ -1159,13 +1159,6 @@
         </ng-template>
       </div>
 
-      <app-fy-alert-info
-        *ngIf="isNotReimbursable$|async"
-        [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
-        [type]="'information'"
-      >
-      </app-fy-alert-info>
-
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="txnFields$|async as txnFields">
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
