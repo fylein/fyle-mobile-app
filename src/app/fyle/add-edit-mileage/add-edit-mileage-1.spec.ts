@@ -62,6 +62,7 @@ import { TaxGroupService } from 'src/app/core/services/tax-group.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import {
   multiplePaymentModesData,
@@ -74,6 +75,8 @@ import { FyCriticalPolicyViolationComponent } from 'src/app/shared/components/fy
 import { FyPolicyViolationComponent } from 'src/app/shared/components/fy-policy-violation/fy-policy-violation.component';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { extendedAccountData1 } from 'src/app/core/mock-data/extended-account.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -90,6 +93,7 @@ export function TestCases1(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -144,6 +148,7 @@ export function TestCases1(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -196,7 +201,6 @@ export function TestCases1(getTestBed) {
         custom_inputs: new FormArray([]),
         costCenter: [],
         report: [],
-        duplicate_detection_reason: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
       });
@@ -214,26 +218,29 @@ export function TestCases1(getTestBed) {
     it('goToPrev(): should go to the previous txn', () => {
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 1;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
+      component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       fixture.detectChanges();
 
       component.goToPrev();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txSEM4DtjyKR');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(unflattenedTxnData, component.reviewList, 0);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 0);
     });
 
     it('goToNext(): should got to the next txn', () => {
-      const etxn = { ...unflattenedTxnData, tx: { ...unflattenedTxnData.tx, id: 'txNyI8ot5CuJ' } };
       spyOn(component, 'goToTransaction');
       activatedRoute.snapshot.params.activeIndex = 0;
-      component.reviewList = ['txSEM4DtjyKR', 'txNyI8ot5CuJ'];
-      transactionService.getETxnUnflattened.and.returnValue(of(etxn));
+      component.reviewList = ['txNyI8ot5CuJ', 'txvslh8aQMbu'];
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
       fixture.detectChanges();
 
       component.goToNext();
-      expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('txNyI8ot5CuJ');
-      expect(component.goToTransaction).toHaveBeenCalledOnceWith(etxn, component.reviewList, 1);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+      expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+      expect(component.goToTransaction).toHaveBeenCalledOnceWith(transformedExpenseData, component.reviewList, 1);
     });
 
     it('getPolicyDetails(): should get policy details', () => {
@@ -497,7 +504,7 @@ export function TestCases1(getTestBed) {
 
       const result = component.getTimeSpentOnPage();
       const time = (new Date().getTime() - component.expenseStartTime) / 1000;
-      expect(result).toEqual(time);
+      expect(result).toBeCloseTo(time, 2);
     });
 
     it('reloadCurrentRoute(): should reload the current load', fakeAsync(() => {
@@ -665,11 +672,14 @@ export function TestCases1(getTestBed) {
       it('should delete mileage and go to the next transaction', fakeAsync(() => {
         spyOn(component, 'getDeleteReportParams');
         spyOn(component, 'goToTransaction');
-        transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-        component.reviewList = ['txfCdl3TEZ7K', 'txCYDX0peUw5'];
+
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+        transactionService.transformExpense.and.returnValue(transformedExpenseData);
+
+        component.reviewList = ['txvslh8aQMbu', 'txNyI8ot5CuJ'];
         component.activeIndex = 0;
         component.isRedirectedFromReport = true;
-        activatedRoute.snapshot.params.id = JSON.stringify('txfCdl3TEZ7K');
+        activatedRoute.snapshot.params.id = JSON.stringify('txvslh8aQMbu');
         fixture.detectChanges();
 
         const deletePopoverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
@@ -691,18 +701,17 @@ export function TestCases1(getTestBed) {
           body: 'Are you sure you want to delete this mileage expense?',
           ctaText: 'Delete',
           ctaLoadingText: 'Deleting',
-          id: '"txfCdl3TEZ7K"',
+          id: '"txvslh8aQMbu"',
           reportId: undefined,
           removeMileageFromReport: undefined,
         });
         expect(popoverController.create).toHaveBeenCalledOnceWith(
           component.getDeleteReportParams({ header, body, ctaText, ctaLoadingText })
         );
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith(
-          component.reviewList[+component.activeIndex]
-        );
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.reviewList[+component.activeIndex]);
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
         expect(component.goToTransaction).toHaveBeenCalledOnceWith(
-          unflattenedTxnData,
+          transformedExpenseData,
           component.reviewList,
           +component.activeIndex
         );
@@ -921,10 +930,11 @@ export function TestCases1(getTestBed) {
     });
 
     it('getEditExpense(): should return an unflattened expense to edit', (done) => {
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-      activatedRoute.snapshot.params.id = unflattenedTxnData.tx.id;
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
+      activatedRoute.snapshot.params.id = transformedExpenseData.tx.id;
       component.getEditExpense().subscribe((res) => {
-        expect(res).toEqual(unflattenedTxnData);
+        expect(res).toEqual(transformedExpenseData);
         done();
       });
     });

@@ -13,7 +13,7 @@ import { Transaction } from '../models/v1/transaction.model';
 import { cloneDeep } from 'lodash';
 import { CategoriesService } from './categories.service';
 import { FileObject } from '../models/file-obj.model';
-import { CCCExpense } from '../models/corporate-card-expense-unflattened.model';
+import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -164,7 +164,7 @@ export class PolicyService {
 
   prepareEtxnForPolicyCheck(
     etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
-    selectedCCCTransaction: CCCExpense
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>
   ): Observable<PublicPolicyExpense> {
     const transactionCopy = cloneDeep(etxn.tx);
     /* Adding number of attachements and sending in test call as tx_num_files
@@ -200,7 +200,7 @@ export class PolicyService {
       tx: PublicPolicyExpense;
       dataUrls: Partial<FileObject>[];
     },
-    selectedCCCTransaction: CCCExpense
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>
   ): Observable<PlatformPolicyExpense> {
     return this.prepareEtxnForPolicyCheck(etxn, selectedCCCTransaction).pipe(
       map((publicPolicyExpense) => this.transformTo(publicPolicyExpense))

@@ -192,7 +192,6 @@ export function TestCases1(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -763,12 +762,10 @@ export function TestCases1(getTestBed) {
 
     describe('markCCCAsPersonal():', () => {
       it('should mark a CCC txn as personal', (done) => {
-        transactionService.delete.and.returnValue(of(expenseData1));
         trackingService.deleteExpense.and.returnValue(null);
         corporateCreditCardExpenseService.markPersonal.and.returnValue(of(null));
 
-        component.markCCCAsPersonal(expenseData1.tx_id).subscribe(() => {
-          expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
+        component.markCCCAsPersonal().subscribe(() => {
           expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Marked Personal' });
           expect(corporateCreditCardExpenseService.markPersonal).toHaveBeenCalledOnceWith(
             component.corporateCreditCardExpenseGroupId
@@ -776,46 +773,20 @@ export function TestCases1(getTestBed) {
           done();
         });
       });
-
-      it('should return null if delete operation fails', (done) => {
-        transactionService.delete.and.returnValue(of(null));
-
-        component.markCCCAsPersonal(expenseData1.tx_id).subscribe((res) => {
-          expect(res).toBeNull();
-          expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
-          done();
-        });
-      });
     });
 
     describe('dismissCCC():', () => {
       it('should dismiss CCC txn', (done) => {
-        transactionService.delete.and.returnValue(of(expenseData1));
         trackingService.deleteExpense.and.returnValue(null);
         corporateCreditCardExpenseService.dismissCreditTransaction.and.returnValue(of(null));
 
-        component
-          .dismissCCC(expenseData1.tx_id, expenseData1.tx_corporate_credit_card_expense_group_id)
-          .subscribe(() => {
-            expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
-            expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Dismiss as Card Payment' });
-            expect(corporateCreditCardExpenseService.dismissCreditTransaction).toHaveBeenCalledOnceWith(
-              expenseData1.tx_corporate_credit_card_expense_group_id
-            );
-            done();
-          });
-      });
-
-      it('should return null if delete operation fails', (done) => {
-        transactionService.delete.and.returnValue(of(null));
-
-        component
-          .dismissCCC(expenseData1.tx_id, expenseData1.tx_corporate_credit_card_expense_group_id)
-          .subscribe((res) => {
-            expect(res).toBeNull();
-            expect(transactionService.delete).toHaveBeenCalledOnceWith(expenseData1.tx_id);
-            done();
-          });
+        component.dismissCCC(expenseData1.tx_corporate_credit_card_expense_group_id).subscribe(() => {
+          expect(trackingService.deleteExpense).toHaveBeenCalledOnceWith({ Type: 'Dismiss as Card Payment' });
+          expect(corporateCreditCardExpenseService.dismissCreditTransaction).toHaveBeenCalledOnceWith(
+            expenseData1.tx_corporate_credit_card_expense_group_id
+          );
+          done();
+        });
       });
     });
 

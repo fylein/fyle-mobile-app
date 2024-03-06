@@ -31,10 +31,11 @@ describe('TasksComponent', () => {
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'clearCache',
+      'transformExpense',
+      'transformRawExpense',
       'getAllExpenses',
-      'getETxnUnflattened',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',
@@ -89,6 +90,7 @@ describe('TasksComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

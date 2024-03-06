@@ -574,18 +574,32 @@ export class TasksService {
   }
 
   getUnreportedExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
-    return this.expensesService
-      .getExpenseStats({
-        state: 'in.(COMPLETE)',
-        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
-        report_id: 'is.null',
+    let queryParams = {
+      state: 'in.(COMPLETE)',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      report_id: 'is.null',
+      and: '()',
+    };
+    return this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+      ),
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
+          queryParams = {
+            ...queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
+        }
+        return this.expensesService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            totalCount: stats.data.count,
+            totalAmount: stats.data.total_amount,
+          }))
+        );
       })
-      .pipe(
-        map((stats) => ({
-          totalCount: stats.data.count,
-          totalAmount: stats.data.total_amount,
-        }))
-      );
+    );
   }
 
   getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
