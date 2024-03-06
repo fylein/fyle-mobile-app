@@ -110,9 +110,6 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
-  //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -262,16 +259,22 @@ export class MyViewReportPage {
       and: '()',
     };
 
-    if (this.pendingTransactionRestrictionEnabled) {
-      queryParams = {
-        ...queryParams,
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-      };
-    }
-
-    this.expensesService
-      .getAllExpenses({ queryParams })
+    this.orgSettingsService
+      .get()
       .pipe(
+        map(
+          (orgSetting) =>
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+        ),
+        switchMap((filterPendingTxn: boolean) => {
+          if (filterPendingTxn) {
+            queryParams = {
+              ...queryParams,
+              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+            };
+          }
+          return this.expensesService.getAllExpenses({ queryParams });
+        }),
         map((expenses) => cloneDeep(expenses)),
         map((expenses: Expense[]) => {
           this.unreportedExpenses = expenses;

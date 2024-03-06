@@ -423,9 +423,6 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
-  //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
-
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -3062,16 +3059,30 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
-      if (this.pendingTransactionRestrictionEnabled) {
-        this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
+      const pendingTxnRestrictionEnabled$ = this.orgSettingsService
+        .get()
+        .pipe(
+          map(
+            (orgSetting) =>
+              orgSetting?.corporate_credit_card_settings?.enabled &&
+              orgSetting?.pending_cct_expense_restriction?.enabled
+          )
+        );
+
+      forkJoin({
+        platformExpenses: this.platformExpense$,
+        pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
+      })
+        .pipe(take(1))
+        .subscribe((config) => {
           if (
-            transaction.matched_corporate_card_transactions?.length &&
-            transaction.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.pendingTxnRestrictionEnabled &&
+            config.platformExpenses.matched_corporate_card_transactions?.length &&
+            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
         });
-      }
     }
 
     this.attachments$ = this.loadAttachments$.pipe(

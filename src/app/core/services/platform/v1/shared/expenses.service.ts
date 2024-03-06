@@ -27,6 +27,15 @@ export class ExpensesService {
     return typeof expense.policy_amount === 'number' && expense.policy_amount < 0.0001;
   }
 
+  doesExpenseHavePendingCardTransaction(expense: Expense): boolean {
+    return (
+      expense.state &&
+      expense.state === ExpenseState.COMPLETE &&
+      expense.matched_corporate_card_transactions?.length &&
+      expense.matched_corporate_card_transactions[0]?.status === 'PENDING'
+    );
+  }
+
   excludeCCCExpenses(expenses: Expense[]): Expense[] {
     return expenses.filter((expense) => expense.matched_corporate_card_transaction_ids?.length === 0);
   }
@@ -103,10 +112,20 @@ export class ExpensesService {
       .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
-    return expenses.filter(
-      (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
-    );
+  getReportableExpenses(expenses: Expense[], filterPendingTransactions = false): Expense[] {
+    if (filterPendingTransactions) {
+      return expenses.filter(
+        (expense) =>
+          !this.isCriticalPolicyViolatedExpense(expense) &&
+          !this.isExpenseInDraft(expense) &&
+          expense.id &&
+          !this.doesExpenseHavePendingCardTransaction(expense)
+      );
+    } else {
+      return expenses.filter(
+        (expense) => !this.isCriticalPolicyViolatedExpense(expense) && !this.isExpenseInDraft(expense) && expense.id
+      );
+    }
   }
 
   isMergeAllowed(expenses: Expense[]): boolean {
