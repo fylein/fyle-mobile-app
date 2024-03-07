@@ -581,7 +581,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       (expense) => expense.source_account_type === this.genericFieldsFormValues.paymentMode
     );
     const amountExpense = this.expenses.find((expense) => expense.tx_id === this.genericFieldsFormValues.amount);
-    const CCCMatchedExpense = this.expenses.find((expense) => !!expense.tx_corporate_credit_card_expense_group_id);
     let locations: Destination[];
     if (this.categoryDependentFieldsFormValues.location_1 && this.categoryDependentFieldsFormValues.location_2) {
       locations = [
@@ -614,7 +613,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         ...projectDependantFieldValues,
         ...costCenterDependentFieldValues,
       ],
-      ccce_group_id: CCCMatchedExpense?.tx_corporate_credit_card_expense_group_id,
       from_dt: this.categoryDependentFieldsFormValues.from_dt,
       to_dt: this.categoryDependentFieldsFormValues.to_dt,
       flight_journey_travel_class: this.categoryDependentFieldsFormValues.flight_journey_travel_class,

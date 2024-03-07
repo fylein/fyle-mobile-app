@@ -17,7 +17,7 @@ export interface GeneratedFormProperties {
   txn_dt: Date;
   receipt_ids: string[];
   custom_properties: Partial<CustomInput>[];
-  ccce_group_id: string;
+  ccce_group_id?: string;
   from_dt: Date;
   to_dt: Date;
   flight_journey_travel_class: string;
