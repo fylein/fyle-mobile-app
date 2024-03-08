@@ -1083,7 +1083,7 @@ export class MyExpensesV2Page implements OnInit {
       this.showNonReportableExpenseSelectedToast(toastMessage.get(messageConfig));
     }
     if (pendingTransactionsCount > 0) {
-      this.trackingService.spenderSelectedPendinTxnFromMyExpenses();
+      this.trackingService.spenderSelectedPendingTxnFromMyExpenses();
     }
   }
 
