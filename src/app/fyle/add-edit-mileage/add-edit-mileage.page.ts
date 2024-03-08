@@ -109,6 +109,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 type FormValue = {
   route: {
@@ -302,6 +303,8 @@ export class AddEditMileagePage implements OnInit {
   previousRouteValue: { roundTrip: boolean; mileageLocations?: Location[]; distance?: number };
 
   existingCommuteDeduction: string;
+
+  expenseId: string;
 
   private _isExpandedView = false;
 
@@ -776,6 +779,7 @@ export class AddEditMileagePage implements OnInit {
           recentValue: RecentlyUsed;
           mileageRates: PlatformMileageRates[];
         }) => {
+          console.log(orgUserSettings);
           const isRecentVehicleTypePresent =
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
@@ -1327,6 +1331,11 @@ export class AddEditMileagePage implements OnInit {
         (option) => option.value === commuteDeduction
       ).distance;
 
+      /*
+       * On changing route in commute deduction,
+       * it shouldn't just double or half the distance,
+       * rather it should first double the distance and then deduct commute from it
+       */
       if (currentRoundTrip) {
         const modifiedDistance = parseFloat((distance * 2 + commuteDeductedDistance).toFixed(2));
         this.fg.controls.route.patchValue(
@@ -1348,8 +1357,30 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  updateDistanceOnDeductionChange(etxn: Partial<UnflattenedTransaction>, commuteDeductionType: string): void {
+  calculateNetDistanceForDeduction(
+    commuteDeductionType: string,
+    selectedCommuteDeduction: { label: string; value: string; distance: number }
+  ): void {
+    const commuteDeductedDistance = parseFloat((this.initialDistance - selectedCommuteDeduction.distance).toFixed(2));
+    const routeValue = this.getFormValues().route;
+
+    if (commuteDeductedDistance <= 0) {
+      if (this.getFormValues().route?.mileageLocations?.length > 1) {
+        this.previousCommuteDeductionType = commuteDeductionType;
+      }
+      this.fg.controls.route.patchValue({ distance: 0, roundTrip: routeValue.roundTrip }, { emitEvent: false });
+    } else {
+      this.previousCommuteDeductionType = commuteDeductionType;
+      this.fg.controls.route.patchValue(
+        { distance: commuteDeductedDistance, roundTrip: routeValue.roundTrip },
+        { emitEvent: false }
+      );
+    }
+  }
+
+  updateDistanceOnDeductionChange(commuteDeductionType: string): void {
     const distance = this.getFormValues().route?.distance;
+    const mileageLocations = this.getFormValues().route?.mileageLocations;
 
     if (distance !== null && distance >= 0 && commuteDeductionType) {
       const selectedCommuteDeduction = this.commuteDeductionOptions.find(
@@ -1367,7 +1398,7 @@ export class AddEditMileagePage implements OnInit {
         }
       } else {
         // Prefill the initial distance with the distance from the transaction
-        if (etxn.tx?.id && this.existingCommuteDeduction) {
+        if (this.expenseId && this.existingCommuteDeduction) {
           const commuteDeduction = this.commuteDeductionOptions.find(
             (option) => option.value === this.existingCommuteDeduction
           );
@@ -1377,20 +1408,25 @@ export class AddEditMileagePage implements OnInit {
           this.initialDistance = distance;
         }
       }
+      /*
+       * Edit case when mileage locations are present
+       * and distance is 0
+       * and commute deduction type is NO_DEDUCTION
+       */
 
-      const commuteDeductedDistance = parseFloat((this.initialDistance - selectedCommuteDeduction.distance).toFixed(2));
-      const routeValue = this.getFormValues().route;
-      if (commuteDeductedDistance <= 0) {
-        if (this.getFormValues().route?.mileageLocations?.length > 1) {
+      if (this.expenseId && mileageLocations?.length > 1 && distance === 0) {
+        this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
           this.previousCommuteDeductionType = commuteDeductionType;
-        }
-        this.fg.controls.route.patchValue({ distance: 0, roundTrip: routeValue.roundTrip }, { emitEvent: false });
+          const distanceInKm = distance / 1000;
+          const finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+          const commuteDeduction = this.commuteDeductionOptions.find(
+            (option) => option.value === this.existingCommuteDeduction
+          );
+          this.initialDistance = parseFloat((finalDistance + commuteDeduction.distance).toFixed(2));
+          this.calculateNetDistanceForDeduction(commuteDeductionType, selectedCommuteDeduction);
+        });
       } else {
-        this.previousCommuteDeductionType = commuteDeductionType;
-        this.fg.controls.route.patchValue(
-          { distance: commuteDeductedDistance, roundTrip: routeValue.roundTrip },
-          { emitEvent: false }
-        );
+        this.calculateNetDistanceForDeduction(commuteDeductionType, selectedCommuteDeduction);
       }
     }
   }
@@ -1440,8 +1476,19 @@ export class AddEditMileagePage implements OnInit {
     ];
   }
 
+  isCommuteDeductionEnabled(orgSettings: OrgSettings): boolean {
+    return (
+      orgSettings.mileage?.allowed &&
+      orgSettings.mileage.enabled &&
+      orgSettings.commute_deduction_settings?.allowed &&
+      orgSettings.commute_deduction_settings.enabled
+    );
+  }
+
   ionViewWillEnter(): void {
     this.initClassObservables();
+
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
@@ -1680,6 +1727,21 @@ export class AddEditMileagePage implements OnInit {
             eou: from(this.authService.getEou()),
           })
         ),
+        switchMap(({ eou, ...mileageProperties }) => {
+          if (this.isCommuteDeductionEnabled(mileageProperties.orgSettings)) {
+            return this.employeesService
+              .getCommuteDetails(eou)
+              .pipe(
+                map((commuteDetailsResponse) => ({
+                  eou,
+                  ...mileageProperties,
+                  commuteDetailsResponse: commuteDetailsResponse?.data?.[0],
+                }))
+              );
+          } else {
+            return of({ eou, ...mileageProperties, commuteDetailsResponse: null as CommuteDetailsResponse });
+          }
+        }),
         take(1),
         finalize(() => from(this.loaderService.hideLoader()))
       )
@@ -1699,7 +1761,7 @@ export class AddEditMileagePage implements OnInit {
           recentValue,
           recentProjects,
           recentCostCenters,
-          eou,
+          commuteDetailsResponse,
         }) => {
           if (project) {
             this.selectedProject$.next(project);
@@ -1733,19 +1795,17 @@ export class AddEditMileagePage implements OnInit {
               }
             });
 
-          this.showCommuteDeductionField =
-            orgSettings.mileage?.allowed &&
-            orgSettings.mileage.enabled &&
-            orgSettings.commute_deduction_settings?.allowed &&
-            orgSettings.commute_deduction_settings.enabled;
+          this.showCommuteDeductionField = this.isCommuteDeductionEnabled(orgSettings);
 
           if (this.showCommuteDeductionField) {
             this.distanceUnit = orgSettings.mileage?.unit === 'MILES' ? 'Miles' : 'km';
+
             this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType: string) => {
-              this.updateDistanceOnDeductionChange(etxn, commuteDeductionType);
+              this.updateDistanceOnDeductionChange(commuteDeductionType);
             });
 
             this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('mileageLocations')).subscribe(() => {
+              // Changes were not triggering when commuteDeduction field is already selected
               if (this.getFormValues().commuteDeduction) {
                 setTimeout(() => {
                   this.updateDistanceOnLocationChange();
@@ -1759,6 +1819,10 @@ export class AddEditMileagePage implements OnInit {
               this.updateDistanceOnRouteChange();
             });
 
+            this.commuteDetails = commuteDetailsResponse?.commute_details || null;
+
+            this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
+
             if (etxn?.tx?.id) {
               /**
                * If we are editing an expense, then
@@ -1767,48 +1831,19 @@ export class AddEditMileagePage implements OnInit {
                * 3. Setup the commute deduction field options.
                * 4. Select the commute deduction field value, if present.
                */
-              forkJoin({
-                expense: this.expensesService.getExpenseById(etxn.tx.id),
-                commuteDetailsResponse: this.employeesService.getCommuteDetails(eou),
-              })
-                .pipe(
-                  map(({ expense, commuteDetailsResponse }) => ({
-                    expense,
-                    commuteDetails: commuteDetailsResponse?.data?.[0] || null,
-                  }))
-                )
-                .subscribe(({ expense, commuteDetails }) => {
-                  this.commuteDetails = commuteDetails?.commute_details || null;
-                  this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
-                  this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
-                  this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
-                  this.existingCommuteDeduction = expense.commute_deduction;
-                  if (expense.commute_deduction) {
-                    this.previousRouteValue = this.getFormValues().route;
-                    this.previousCommuteDeductionType = expense.commute_deduction;
-                    this.fg.patchValue(
-                      {
-                        commuteDeduction: expense.commute_deduction,
-                      },
-                      { emitEvent: false }
-                    );
-                  }
-                });
-            } else {
-              /**
-               * If we are creating a new expense, then
-               * 1. Fetch the commute details from the platform api.
-               * 2. Setup the commute deduction field options.
-               */
-              this.employeesService
-                .getCommuteDetails(eou)
-                .pipe(map((response) => response?.data?.[0] || null))
-                .subscribe((commuteDetailsResponse) => {
-                  this.commuteDetails = commuteDetailsResponse?.commute_details || null;
-                  this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
-                  this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
-                  this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
-                });
+              this.existingCommuteDeduction = etxn.tx?.commute_deduction;
+
+              if (this.existingCommuteDeduction) {
+                // If its edit case, we don't need to update the distance on route change
+                this.previousCommuteDeductionType = this.existingCommuteDeduction;
+
+                this.fg.patchValue(
+                  {
+                    commuteDeduction: this.existingCommuteDeduction,
+                  },
+                  { emitEvent: false }
+                );
+              }
             }
           }
 
@@ -1922,6 +1957,10 @@ export class AddEditMileagePage implements OnInit {
           this.fg.patchValue({ project }, { emitEvent: false });
 
           this.initialFetch = false;
+
+          if (this.existingCommuteDeduction) {
+            this.previousRouteValue = this.getFormValues().route;
+          }
 
           setTimeout(() => {
             this.fg.controls.custom_inputs.patchValue(customInputValues);
@@ -2329,6 +2368,8 @@ export class AddEditMileagePage implements OnInit {
             cost_center_id: formValue.costCenter && formValue.costCenter.id,
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code,
+            commute_deduction: this.showCommuteDeductionField ? formValue.commuteDeduction : null,
+            commute_details_id: this.showCommuteDeductionField ? this.commuteDetails?.id : null,
           },
           dataUrls: [],
           ou: etxn.ou,
@@ -2971,6 +3012,8 @@ export class AddEditMileagePage implements OnInit {
           this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
           this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
           this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
+          // If the user has saved the commute details, update the commute deduction field to no deduction
+          this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
         });
     }
   }

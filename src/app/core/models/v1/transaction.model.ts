@@ -110,6 +110,8 @@ export interface Transaction {
   matchCCCId?: string;
   is_matching_ccc_expense?: boolean;
   mileage_rate_id?: number;
+  commute_deduction?: string;
+  commute_details_id?: number;
   custom_attributes?: { name: string; value: string }[];
   transcribed_data?: {
     amount?: number;
