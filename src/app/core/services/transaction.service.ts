@@ -789,7 +789,6 @@ export class TransactionService {
 
   // Todo : Remove transformExpense method once upsert in migrated to platform
   transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
-    console.log(expense);
     const updatedExpense = {
       tx: {
         id: expense.id,
