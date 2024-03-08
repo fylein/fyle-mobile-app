@@ -646,4 +646,8 @@ export class TrackingService {
   showSuggestedDuplicates(): void {
     this.eventTrack('Show Suggested Duplicates');
   }
+
+  spenderSelectedPendingTxnFromMyExpenses(): void {
+    this.eventTrack('Spenders select expenses with Pending transactions');
+  }
 }

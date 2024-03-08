@@ -252,6 +252,7 @@ describe('MyExpensesV2Page', () => {
       'addToReport',
       'clickCreateReport',
       'myExpensesBulkDeleteExpenses',
+      'spenderSelectedPendingTxnFromMyExpenses',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);

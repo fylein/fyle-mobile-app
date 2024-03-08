@@ -1082,6 +1082,9 @@ export class MyExpensesV2Page implements OnInit {
     if (toastMessage.has(messageConfig)) {
       this.showNonReportableExpenseSelectedToast(toastMessage.get(messageConfig));
     }
+    if (pendingTransactionsCount > 0) {
+      this.trackingService.spenderSelectedPendingTxnFromMyExpenses();
+    }
   }
 
   reportableExpenseDialogHandler(
