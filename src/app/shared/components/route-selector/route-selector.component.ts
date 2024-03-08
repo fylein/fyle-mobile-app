@@ -12,7 +12,7 @@ import {
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
-import { Subscription } from 'rxjs';
+import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 
 @Component({
@@ -51,13 +51,13 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
 
   @Input() validInParent = true;
 
+  @Input() locationDistance = 0;
+
   @Input() recentlyUsedMileageLocations: {
     recent_start_locations?: string[];
     recent_end_locations?: string[];
     recent_locations?: string[];
   };
-
-  skipRoundTripUpdate = false;
 
   onChangeSub: Subscription;
 
@@ -181,19 +181,15 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
-    this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {
-      if (!this.skipRoundTripUpdate) {
-        if (this.formInitialized) {
-          if (this.form.value.distance) {
-            if (roundTrip) {
-              this.form.controls.distance.setValue((+this.form.value.distance * 2).toFixed(2));
-            } else {
-              this.form.controls.distance.setValue((+this.form.value.distance / 2).toFixed(2));
-            }
+    this.form.controls.roundTrip.valueChanges.pipe(distinctUntilChanged()).subscribe((roundTrip) => {
+      if (this.formInitialized) {
+        if (this.form.value.distance) {
+          if (roundTrip) {
+            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance * 2).toFixed(2)));
+          } else {
+            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance / 2).toFixed(2)));
           }
         }
-      } else {
-        this.skipRoundTripUpdate = false;
       }
     });
   }
@@ -217,7 +213,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.skipRoundTripUpdate = true;
       this.mileageLocations.clear({
         emitEvent: false,
       });
