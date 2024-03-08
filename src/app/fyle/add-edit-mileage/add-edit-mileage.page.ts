@@ -110,6 +110,8 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
+import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 type FormValue = {
   route: {
@@ -294,7 +296,7 @@ export class AddEditMileagePage implements OnInit {
 
   distanceUnit: string;
 
-  commuteDeductionOptions: { label: string; value: string; distance: number }[];
+  commuteDeductionOptions: CommuteDeductionOptions[];
 
   initialDistance: number;
 
@@ -779,7 +781,6 @@ export class AddEditMileagePage implements OnInit {
           recentValue: RecentlyUsed;
           mileageRates: PlatformMileageRates[];
         }) => {
-          console.log(orgUserSettings);
           const isRecentVehicleTypePresent =
             orgSettings.org_expense_form_autofills &&
             orgSettings.org_expense_form_autofills.allowed &&
@@ -1359,7 +1360,7 @@ export class AddEditMileagePage implements OnInit {
 
   calculateNetDistanceForDeduction(
     commuteDeductionType: string,
-    selectedCommuteDeduction: { label: string; value: string; distance: number }
+    selectedCommuteDeduction: CommuteDeductionOptions
   ): void {
     const commuteDeductedDistance = parseFloat((this.initialDistance - selectedCommuteDeduction.distance).toFixed(2));
     const routeValue = this.getFormValues().route;
@@ -1393,6 +1394,7 @@ export class AddEditMileagePage implements OnInit {
           (option) => option.value === this.previousCommuteDeductionType
         );
 
+        // If the distance is non-zero, correctly calculate what was the initial distance
         if (distance !== 0) {
           this.initialDistance = parseFloat((distance + commuteDeduction.distance).toFixed(2));
         }
@@ -1468,11 +1470,11 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  getCommuteDeductionOptions(distance: number): { label: string; value: string; distance: number }[] {
+  getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
     return [
-      { label: 'One Way Distance', value: 'ONE_WAY', distance: distance || null },
-      { label: 'Round Trip Distance', value: 'ROUND_TRIP', distance: distance ? distance * 2 : null },
-      { label: 'No Deduction', value: 'NO_DEDUCTION', distance: 0 },
+      { label: 'One Way Distance', value: CommuteDeduction.ONE_WAY, distance: distance || null },
+      { label: 'Round Trip Distance', value: CommuteDeduction.ROUND_TRIP, distance: distance ? distance * 2 : null },
+      { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
     ];
   }
 
@@ -1729,15 +1731,13 @@ export class AddEditMileagePage implements OnInit {
         ),
         switchMap(({ eou, ...mileageProperties }) => {
           if (this.isCommuteDeductionEnabled(mileageProperties.orgSettings)) {
-            return this.employeesService
-              .getCommuteDetails(eou)
-              .pipe(
-                map((commuteDetailsResponse) => ({
-                  eou,
-                  ...mileageProperties,
-                  commuteDetailsResponse: commuteDetailsResponse?.data?.[0],
-                }))
-              );
+            return this.employeesService.getCommuteDetails(eou).pipe(
+              map((commuteDetailsResponse) => ({
+                eou,
+                ...mileageProperties,
+                commuteDetailsResponse: commuteDetailsResponse?.data?.[0],
+              }))
+            );
           } else {
             return of({ eou, ...mileageProperties, commuteDetailsResponse: null as CommuteDetailsResponse });
           }
@@ -1823,7 +1823,7 @@ export class AddEditMileagePage implements OnInit {
 
             this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
 
-            if (etxn?.tx?.id) {
+            if (this.expenseId) {
               /**
                * If we are editing an expense, then
                * 1. Fetch the expense details
@@ -2989,9 +2989,6 @@ export class AddEditMileagePage implements OnInit {
   async openCommuteDetailsModal(): Promise<Subscription> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
-      componentProps: {
-        existingCommuteDetails: this.commuteDetails,
-      },
       mode: 'ios',
     });
 
@@ -2999,7 +2996,6 @@ export class AddEditMileagePage implements OnInit {
 
     const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
 
-    // If the user edited or saved the commute details, refresh the page and show the toast message
     if (data.action === 'save') {
       return from(this.authService.getEou())
         .pipe(
@@ -3009,8 +3005,6 @@ export class AddEditMileagePage implements OnInit {
         )
         .subscribe((commuteDetailsResponse) => {
           this.commuteDetails = commuteDetailsResponse?.commute_details || null;
-          this.distanceUnit = this.commuteDetails?.distance_unit || this.distanceUnit;
-          this.distanceUnit = this.distanceUnit === 'MILES' ? 'Miles' : 'km';
           this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
           // If the user has saved the commute details, update the commute deduction field to no deduction
           this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
