@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { cloneDeep } from 'lodash';
+import { cloneDeep, filter } from 'lodash';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { FilterState } from 'src/app/core/enums/filter-state.enum';
 import { CurrencySummary } from 'src/app/core/models/currency-summary.model';
@@ -9,7 +9,7 @@ import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.mod
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
 
@@ -198,13 +198,12 @@ export class ExpensesService {
     newQueryParams: Record<string, string | string[] | boolean>,
     filters: Partial<ExpenseFilters>
   ): Record<string, string | string[] | boolean> {
+    console.log(filters);
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
-      let cardNumberString = '';
-      cardNumberString = filters.cardNumbers.join(',');
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
-      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
-        'in.(' + cardNumberString + ')';
+      const cardNumberString = filters.cardNumbers.map((cardNumber) => `"${cardNumber}"`).join(',');
+      //cardNumberString = cardNumberString.slice(0, cardNumberString.length);
+      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] = `in.(${cardNumberString})`;
     }
 
     return newQueryParamsCopy;

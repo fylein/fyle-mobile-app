@@ -18,7 +18,7 @@ import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -577,13 +577,14 @@ export class TransactionService {
 
   generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
+    console.log(filters);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       filters.cardNumbers.forEach((cardNumber) => {
         cardNumberString += cardNumber + ',';
       });
       cardNumberString = cardNumberString.slice(0, cardNumberString.length - 1);
-      newQueryParamsCopy.corporate_credit_card_account_number = 'in.(' + cardNumberString + ')';
+      newQueryParamsCopy.corporate_credit_card_account_number = `in.("${cardNumberString}")`;
     }
 
     return newQueryParamsCopy;
