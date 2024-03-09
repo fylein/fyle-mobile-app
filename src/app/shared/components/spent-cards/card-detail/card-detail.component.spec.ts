@@ -101,7 +101,7 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('incompleteExpenses', component.cardDetail);
       expect(trackingService.dashboardOnIncompleteCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
     });
@@ -119,7 +119,7 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('totalExpenses', component.cardDetail);
       expect(trackingService.dashboardOnTotalCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
     });
