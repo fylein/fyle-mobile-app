@@ -577,7 +577,6 @@ export class TransactionService {
 
   generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
-    console.log(filters);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
       filters.cardNumbers.forEach((cardNumber) => {
