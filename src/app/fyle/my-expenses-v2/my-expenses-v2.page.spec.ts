@@ -55,7 +55,6 @@ import {
   expectedCurrentParamsWoFilterState,
 } from 'src/app/core/mock-data/get-expenses-query-params-with-filters.data';
 import {
-  addExpenseToReportModalParams,
   addExpenseToReportModalParams2,
   modalControllerParams,
   modalControllerParams2,

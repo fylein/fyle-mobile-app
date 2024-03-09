@@ -18,7 +18,7 @@ import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';

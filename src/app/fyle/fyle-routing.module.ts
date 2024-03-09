@@ -13,11 +13,6 @@ const routes: Routes = [
     loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
   },
   {
-    path: 'my_expenses',
-    loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
-    canActivate: [MyExpensesGuardGuard],
-  },
-  {
     path: 'my_advances',
     loadChildren: () => import('./my-advances/my-advances.module').then((m) => m.MyAdvancesPageModule),
   },
@@ -141,10 +136,6 @@ const routes: Routes = [
     path: 'manage_corporate_cards',
     loadChildren: () =>
       import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
-  },
-  {
-    path: 'my-expenses',
-    loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
   },
 ];
 
