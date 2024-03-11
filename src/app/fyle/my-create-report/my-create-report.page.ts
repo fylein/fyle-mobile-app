@@ -14,6 +14,7 @@ import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -48,9 +49,6 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
-  //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
-
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -61,7 +59,8 @@ export class MyCreateReportPage implements OnInit {
     private trackingService: TrackingService,
     private storageService: StorageService,
     private refinerService: RefinerService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   detectTitleChange(): void {
@@ -222,17 +221,27 @@ export class MyCreateReportPage implements OnInit {
       and: '()',
     };
 
-    if (this.pendingTransactionRestrictionEnabled) {
-      queryParams = {
-        ...queryParams,
-        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
-      };
-    }
-
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() =>
-          this.expensesService.getAllExpenses({ queryParams }).pipe(
+          this.orgSettingsService
+            .get()
+            .pipe(
+              map(
+                (orgSetting) =>
+                  orgSetting?.corporate_credit_card_settings?.enabled &&
+                  orgSetting?.pending_cct_expense_restriction?.enabled
+              )
+            )
+        ),
+        switchMap((filterPendingTxn: boolean) => {
+          if (filterPendingTxn) {
+            queryParams = {
+              ...queryParams,
+              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+            };
+          }
+          return this.expensesService.getAllExpenses({ queryParams }).pipe(
             map((expenses) => {
               this.selectedElements = expenses;
               expenses.forEach((expense) => {
@@ -244,8 +253,8 @@ export class MyCreateReportPage implements OnInit {
               });
               return expenses;
             })
-          )
-        ),
+          );
+        }),
         finalize(() => from(this.loaderService.hideLoader())),
         shareReplay(1)
       )

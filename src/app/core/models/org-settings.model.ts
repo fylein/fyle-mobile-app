@@ -449,6 +449,7 @@ export interface OrgSettingsResponse {
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
+  pending_cct_expense_restriction?: CommonOrgSettings;
 }
 
 export interface UiPolicySettings {
@@ -561,4 +562,5 @@ export interface OrgSettings {
   simplified_report_closure_settings?: CommonOrgSettings;
   mobile_app_my_expenses_beta_enabled?: boolean;
   amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
+  pending_cct_expense_restriction?: CommonOrgSettings;
 }

@@ -19,6 +19,10 @@ import { eCCCApiResponse } from '../mock-data/corporate-card-expense-flattened.d
 import { mastercardRTFCard, statementUploadedCard } from '../mock-data/platform-corporate-card.data';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { bankFeedSourcesData } from '../mock-data/bank-feed-sources.data';
+import {
+  ccTransactionResponseData,
+  ccTransactionResponseData1,
+} from '../mock-data/corporate-card-transaction-response.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail.data';
 
 describe('CorporateCreditCardExpenseService', () => {
@@ -34,7 +38,7 @@ describe('CorporateCreditCardExpenseService', () => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -76,39 +80,29 @@ describe('CorporateCreditCardExpenseService', () => {
   });
 
   it('markPersonal(): should mark an expense as personal', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const testId = 'ccceJN3PWAR94U';
-
-    cccExpenseService.markPersonal(testId).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/personal');
+    spenderPlatformV1ApiService.post.and.returnValue(of(ccTransactionResponseData1));
+    const id = 'btxnSte7sVQCM8';
+    const payload = {
+      id,
+    };
+    cccExpenseService.markPersonal(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/mark_personal', {
+        data: payload,
+      });
       done();
     });
   });
 
   it('dismissCreditTransaction(): should dismiss a transaction as corporate credit card expense', (done) => {
-    apiService.post.and.returnValue(of(null));
-    const testId = 'ccceRhYsN8Fj78';
-
-    cccExpenseService.dismissCreditTransaction(testId).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith('/corporate_credit_card_expenses/' + testId + '/ignore');
-      done();
-    });
-  });
-
-  it('getEccceByGroupId(): should get Corporate Credit Card expenses by group ID', (done) => {
-    apiService.get.and.returnValue(of(eCCCApiResponse));
-    spyOn(dataTransformService, 'unflatten').and.returnValue(expectedECccResponse[0]);
-
-    const testID = 'ccceYIJhT8Aj6U';
-
-    cccExpenseService.getEccceByGroupId(testID).subscribe((res) => {
-      expect(res).toEqual(expectedECccResponse);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/extended_corporate_credit_card_expenses', {
-        params: {
-          group_id: testID,
-        },
+    spenderPlatformV1ApiService.post.and.returnValue(of(ccTransactionResponseData));
+    const id = 'btxnBdS2Kpvzhy';
+    const payload = {
+      id,
+    };
+    cccExpenseService.dismissCreditTransaction(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/ignore', {
+        data: payload,
       });
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(1);
       done();
     });
   });

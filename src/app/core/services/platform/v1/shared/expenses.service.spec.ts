@@ -28,20 +28,34 @@ import {
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpensesService } from './expenses.service';
 import { cloneDeep } from 'lodash';
 import { DateService } from '../../../date.service';
+import { OrgSettingsService } from '../../../org-settings.service';
+import { of } from 'rxjs';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
   let dateService: DateService;
-
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   beforeEach(() => {
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     TestBed.configureTestingModule({
-      providers: [DateService],
+      providers: [
+        DateService,
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
+        },
+      ],
     });
     service = TestBed.inject(ExpensesService);
     dateService = TestBed.inject(DateService);
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
   });
 
   it('should be created', () => {
@@ -458,7 +472,7 @@ describe('ExpensesService', () => {
       const result = service.generateCardNumberParams({}, expenseFiltersData1);
 
       expect(result).toEqual({
-        'matched_corporate_card_transactions->0->corporate_card_number': 'in.(1234,5678)',
+        'matched_corporate_card_transactions->0->corporate_card_number': 'in.("1234","5678")',
       });
     });
 

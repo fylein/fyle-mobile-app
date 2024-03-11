@@ -441,6 +441,7 @@ export const orgSettingsGetData: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  pending_cct_expense_restriction: { enabled: true, allowed: true },
 };
 
 export const orgSettingsPostData: OrgSettingsResponse = {
@@ -874,6 +875,7 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     allowed: true,
     enabled: true,
   },
+  pending_cct_expense_restriction: { enabled: true, allowed: true },
 };
 
 export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = {

@@ -22,11 +22,12 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 @Component({
   selector: 'app-tasks',
@@ -70,7 +71,8 @@ export class TasksComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit(): void {
@@ -389,24 +391,24 @@ export class TasksComponent implements OnInit {
 
   onReviewExpensesTaskClick(): void {
     const queryParams = {
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
+      state: 'in.(DRAFT)',
+      report_id: 'is.null',
     };
     from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
       .pipe(
         switchMap(() =>
-          this.transactionService.getAllExpenses({
+          this.expensesService.getAllExpenses({
             queryParams,
           })
         ),
-        map((etxns) => etxns.map((etxn) => etxn.tx_id)),
+        map((expenses) => expenses.map((expense) => expense.id)),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expensesService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: this.transactionService.transformExpense(expense),
               allIds,
             }))
           );
@@ -587,11 +589,27 @@ export class TasksComponent implements OnInit {
         state: 'in.(COMPLETE)',
         or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
         report_id: 'is.null',
+        and: '()',
       },
     };
-    const readyToReportExpenses$ = this.expensesService
-      .getAllExpenses(params)
-      .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+
+    const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+      ),
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
+          params.queryParams = {
+            ...params.queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
+        }
+        return this.expensesService
+          .getAllExpenses(params)
+          .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+      })
+    );
 
     this.reportService
       .getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } })

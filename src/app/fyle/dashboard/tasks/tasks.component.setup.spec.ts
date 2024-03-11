@@ -20,6 +20,7 @@ import { TestCases1 } from './tasks-1.component.spec';
 import { TestCases2 } from './tasks-2.component.spec';
 import { TestCases3 } from './tasks-3.component.spec';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -31,10 +32,12 @@ describe('TasksComponent', () => {
     ]);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'clearCache',
+      'transformExpense',
+      'transformRawExpense',
       'getAllExpenses',
-      'getETxnUnflattened',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'clearCache',
@@ -76,7 +79,6 @@ describe('TasksComponent', () => {
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
-        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: ReportService, useValue: reportServiceSpy },
         { provide: AdvanceRequestService, useValue: advanceRequestServiceSpy },
         { provide: ModalController, useValue: modalControllerSpy },
@@ -89,6 +91,8 @@ describe('TasksComponent', () => {
         { provide: Router, useValue: routerSpy },
         { provide: ActivatedRoute, useValue: activatedRouteSpy },
         { provide: NetworkService, useValue: networkServiceSpy },
+        { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
