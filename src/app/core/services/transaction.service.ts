@@ -18,7 +18,6 @@ import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -42,6 +41,7 @@ import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platf
 import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
+import { ExpenseFilters } from '../models/expense-filters.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',

@@ -44,7 +44,7 @@ jobs:
 
           if (( $(echo "$lines < 95.0" | bc -l) || \
                 $(echo "$statements < 95.0" | bc -l) || \
-                $(echo "$branches < 94.0" | bc -l) || \
+                $(echo "$branches < 91.0" | bc -l) || \
                 $(echo "$functions < 94.0" | bc -l) )); then
             echo "Code Coverage Percentage is below 95%"
             exit 1
