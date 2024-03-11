@@ -17,6 +17,7 @@ import { ReportState } from '../platform-report.model';
 import { Account } from './account.model';
 import { CustomFields } from '../custom-fields.model';
 import { CustomInput } from '../../custom-input.model';
+import { CommuteDetails } from './commute-details.model';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -111,6 +112,9 @@ export interface Expense {
   verifier_comments: string[];
   report_last_paid_at: Date;
   report_last_approved_at: Date;
+  commute_deduction?: string;
+  commute_details?: CommuteDetails;
+  commute_details_id?: number;
 }
 
 export interface Employee {
