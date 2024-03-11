@@ -1,4 +1,14 @@
-import { Component, DoCheck, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DoCheck,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -56,6 +66,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     recent_end_locations?: string[];
     recent_locations?: string[];
   };
+
+  @Output() distanceChange = new EventEmitter<number>();
 
   onChangeSub: Subscription;
 
@@ -225,6 +237,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         distance: parseFloat(data.distance),
         roundTrip: data.roundTrip,
       });
+
+      this.distanceChange.emit(data.distance);
     }
   }
 

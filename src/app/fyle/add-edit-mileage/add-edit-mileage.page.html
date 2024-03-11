@@ -143,6 +143,7 @@
                           [unit]="etxn.tx.distance_unit || mileageConfig.unit"
                           [touchedInParent]="fg.controls.route.touched"
                           [validInParent]="fg.controls.route.valid"
+                          (distanceChange)="updateDistanceOnLocationChange()"
                         ></app-route-selector>
                       </ng-container>
                     </ng-container>
@@ -150,7 +151,7 @@
                 </ng-container>
               </ng-container>
 
-              <ng-container *ngIf="showCommuteDeductionField && commuteDeductionOptions">
+              <ng-container *ngIf="showCommuteDeductionField">
                 <div
                   class="add-edit-mileage--internal-block"
                   [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
