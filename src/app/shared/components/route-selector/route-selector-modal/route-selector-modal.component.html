@@ -90,8 +90,12 @@
     >
     </app-fy-alert-info>
 
-    <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
-      <mat-checkbox [disabled]="isAmountDisabled" formControlName="roundTrip">
+    <div
+      class="route-selector-modal--internal-block"
+      *ngIf="mileageLocations.controls.length < 3"
+      [ngClass]="{ 'route-selector-modal--input-disabled': !distance }"
+    >
+      <mat-checkbox [disabled]="!distance" formControlName="roundTrip">
         <span class="route-selector-modal--checkbox"> Round Trip </span>
       </mat-checkbox>
     </div>
