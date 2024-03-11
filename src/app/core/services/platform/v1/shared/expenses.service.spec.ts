@@ -9,7 +9,7 @@ import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.mod
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
 
