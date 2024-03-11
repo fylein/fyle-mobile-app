@@ -1,5 +1,5 @@
-export type Filters = Partial<{
-  state: string[];
+export type ReportFilters = Partial<{
+  state: string | string[];
   date: string;
   customDateStart: Date;
   customDateEnd: Date;

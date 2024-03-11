@@ -31,12 +31,12 @@ import {
   EnrollingNonRTFCardProperties,
 } from '../models/tracking-properties.model';
 import { ExpenseView } from '../models/expense-view.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
-import { ReportFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { TaskFilters } from '../models/task-filters.model';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { TeamReportsFilters } from '../models/team-reports-filters.model';
 import { forkJoin, from } from 'rxjs';
+import { ExpenseFilters } from '../models/expense-filters.model';
+import { ReportFilters } from '../models/report-filters.model';
 
 @Injectable({
   providedIn: 'root',

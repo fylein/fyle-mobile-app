@@ -1,7 +1,7 @@
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { FilterState } from '../enums/filter-state.enum';
+import { ExpenseFilters } from '../models/expense-filters.model';
 
 export const expenseFiltersData1: Partial<ExpenseFilters> = {
   state: ['DRAFT', 'READY_TO_REPORT'],
