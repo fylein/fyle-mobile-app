@@ -838,8 +838,8 @@ export class TransactionService {
         sub_category: expense.category?.sub_category,
         tax_amount: expense?.tax_amount,
         corporate_credit_card_expense_group_id:
-          expense.matched_corporate_card_transactions?.length > 0
-            ? expense.matched_corporate_card_transactions[0].id
+          expense.matched_corporate_card_transaction_ids?.length > 0
+            ? expense.matched_corporate_card_transaction_ids[0]
             : null,
         split_group_id: expense.split_group_id,
         split_group_user_amount: expense.split_group_amount,
@@ -924,8 +924,8 @@ export class TransactionService {
       tx_cost_center_name: expense.cost_center?.name,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
-        expense.matched_corporate_card_transactions?.length > 0
-          ? expense.matched_corporate_card_transactions[0].id
+        expense.matched_corporate_card_transaction_ids?.length > 0
+          ? expense.matched_corporate_card_transaction_ids[0]
           : null,
       tx_custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
       tx_locations: expense.locations,
