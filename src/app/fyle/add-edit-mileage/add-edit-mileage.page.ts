@@ -2986,6 +2986,30 @@ export class AddEditMileagePage implements OnInit {
     this.onPageExit$.complete();
   }
 
+  getCommuteUpdatedTextBody(): string {
+    return `<div>
+              <p>Your Commute Details have been successfully added to your Profile
+              Settings.</p>
+              <p>You can now easily deduct commute from your Mileage expenses.<p>  
+            </div>`;
+  }
+
+  async showCommuteUpdatedPopover(): Promise<void> {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Commute Updated!',
+        message: this.getCommuteUpdatedTextBody(),
+        primaryCta: {
+          text: 'Proceed',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
+  }
+
   async openCommuteDetailsModal(): Promise<Subscription> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
@@ -3008,6 +3032,7 @@ export class AddEditMileagePage implements OnInit {
           this.commuteDeductionOptions = this.getCommuteDeductionOptions(this.commuteDetails?.distance);
           // If the user has saved the commute details, update the commute deduction field to no deduction
           this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
+          this.showCommuteUpdatedPopover();
         });
     }
   }
