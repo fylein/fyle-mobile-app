@@ -63,6 +63,10 @@ export class ManageCorporateCardsPage {
     }
   }
 
+  areVirtualCardsPresent(corporateCards: PlatformCorporateCard[]) {
+    return corporateCards.filter((corporateCard) => corporateCard.virtual_card_id).length > 0;
+  }
+
   refresh(event: RefresherCustomEvent): void {
     this.corporateCreditCardExpenseService.clearCache().subscribe(() => {
       this.loadCorporateCards$.next();

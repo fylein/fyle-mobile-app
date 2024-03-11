@@ -10,11 +10,18 @@
 </ion-header>
 
 <div *ngIf="isVirtualCardsEnabled$ | async as isVirtualCardsEnabled">
-  <div *ngIf="isVirtualCardsEnabled.enabled" class="manage-corporate-cards__segment-container">
-    <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
-      <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize">Corporate Cards</ion-segment-button>
-      <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
-    </ion-segment>
+  <div *ngIf="corporateCards$ | async as corporateCards">
+    <div
+      *ngIf="isVirtualCardsEnabled.enabled && areVirtualCardsPresent(corporateCards)"
+      class="manage-corporate-cards__segment-container"
+    >
+      <ion-segment (ionChange)="segmentChanged($event)" [value]="segmentValue" class="manage-corporate-cards__segment">
+        <ion-segment-button [value]="Segment.CORPORATE_CARDS" class="text-capitalize"
+          >Corporate Cards</ion-segment-button
+        >
+        <ion-segment-button [value]="Segment.VIRTUAL_CARDS" class="text-capitalize">Virtual Cards</ion-segment-button>
+      </ion-segment>
+    </div>
   </div>
 </div>
 
@@ -80,7 +87,11 @@
     </ng-container>
 
     <ng-template #shimmers>
-      <ion-skeleton-text data-testid="shimmer" animated class="manage-corporate-cards__shimmer"></ion-skeleton-text>
+      <ion-skeleton-text
+        data-testid="shimmer"
+        animated
+        class="manage-corporate-cards__virtual-card-shimmer"
+      ></ion-skeleton-text>
     </ng-template>
   </div>
 </ion-content>
