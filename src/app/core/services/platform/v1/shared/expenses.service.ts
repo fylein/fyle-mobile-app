@@ -9,7 +9,7 @@ import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.mod
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses-v2/my-expenses-filters.model';
+import { ExpenseFilters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { DateService } from '../../../date.service';
 
@@ -200,11 +200,8 @@ export class ExpensesService {
   ): Record<string, string | string[] | boolean> {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
-      let cardNumberString = '';
-      cardNumberString = filters.cardNumbers.join(',');
-      cardNumberString = cardNumberString.slice(0, cardNumberString.length);
-      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] =
-        'in.(' + cardNumberString + ')';
+      const cardNumberString = filters.cardNumbers.map((cardNumber) => `"${cardNumber}"`).join(',');
+      newQueryParamsCopy['matched_corporate_card_transactions->0->corporate_card_number'] = `in.(${cardNumberString})`;
     }
 
     return newQueryParamsCopy;

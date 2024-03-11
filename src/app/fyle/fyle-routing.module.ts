@@ -1,7 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { MyExpensesGuardGuard } from '../core/guards/my-expenses-guard.guard';
-import { BetaPageFeatureFlagGuard } from '../core/guards/beta-page-feature-flag.guard';
 
 const routes: Routes = [
   {
@@ -9,8 +7,8 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
   {
-    path: 'my_expenses_v2',
-    loadChildren: () => import('./my-expenses-v2/my-expenses-v2.module').then((m) => m.MyExpensesV2PageModule),
+    path: 'my_expenses',
+    loadChildren: () => import('./my-expenses/my-expenses.module').then((m) => m.MyExpensesPageModule),
   },
   {
     path: 'my_advances',

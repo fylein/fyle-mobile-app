@@ -121,13 +121,13 @@ import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { environment } from 'src/environments/environment';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { MyExpensesV2Page } from './my-expenses-v2.page';
+import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 
 describe('MyExpensesV2Page', () => {
-  let component: MyExpensesV2Page;
-  let fixture: ComponentFixture<MyExpensesV2Page>;
+  let component: MyExpensesPage;
+  let fixture: ComponentFixture<MyExpensesPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let reportService: jasmine.SpyObj<ReportService>;
@@ -286,7 +286,7 @@ describe('MyExpensesV2Page', () => {
     ]);
 
     TestBed.configureTestingModule({
-      declarations: [MyExpensesV2Page, ReportState, MaskNumber],
+      declarations: [MyExpensesPage, ReportState, MaskNumber],
       imports: [IonicModule.forRoot(), RouterTestingModule, HttpClientTestingModule],
       providers: [
         { provide: TasksService, useValue: tasksServiceSpy },
@@ -395,7 +395,7 @@ describe('MyExpensesV2Page', () => {
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MyExpensesV2Page);
+    fixture = TestBed.createComponent(MyExpensesPage);
     component = fixture.componentInstance;
 
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;

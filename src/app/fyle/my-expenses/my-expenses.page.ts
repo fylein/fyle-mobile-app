@@ -80,10 +80,10 @@ import { MyExpensesService } from './my-expenses.service';
 
 @Component({
   selector: 'app-my-expenses',
-  templateUrl: './my-expenses-v2.page.html',
-  styleUrls: ['./my-expenses-v2.page.scss'],
+  templateUrl: './my-expenses.page.html',
+  styleUrls: ['./my-expenses.page.scss'],
 })
-export class MyExpensesV2Page implements OnInit {
+export class MyExpensesPage implements OnInit {
   @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
