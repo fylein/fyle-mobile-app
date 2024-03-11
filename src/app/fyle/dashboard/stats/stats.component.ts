@@ -200,23 +200,20 @@ export class StatsComponent implements OnInit {
   }
 
   goToExpensesPage(state: string): void {
-    this.redirectToNewPage$.subscribe((redirect) => {
-      const endpoint = redirect ? 'my_expenses_v2' : 'my_expenses';
-      if (state === 'COMPLETE') {
-        const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
-        this.router.navigate(['/', 'enterprise', endpoint], {
-          queryParams,
-        });
+    if (state === 'COMPLETE') {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['READY_TO_REPORT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
 
-        this.trackingService.dashboardOnUnreportedExpensesClick();
-      } else {
-        const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
-        this.router.navigate(['/', 'enterprise', endpoint], {
-          queryParams,
-        });
-        this.trackingService.dashboardOnIncompleteExpensesClick();
-      }
-    });
+      this.trackingService.dashboardOnUnreportedExpensesClick();
+    } else {
+      const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
+      this.router.navigate(['/', 'enterprise', 'my_expenses'], {
+        queryParams,
+      });
+      this.trackingService.dashboardOnIncompleteExpensesClick();
+    }
   }
 
   private trackDashboardLaunchTime(): void {
