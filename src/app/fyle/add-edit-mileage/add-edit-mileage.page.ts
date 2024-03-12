@@ -280,8 +280,6 @@ export class AddEditMileagePage implements OnInit {
 
   existingCommuteDeduction: string;
 
-  expenseId: string;
-
   private _isExpandedView = false;
 
   constructor(
@@ -333,6 +331,10 @@ export class AddEditMileagePage implements OnInit {
 
   get route(): AbstractControl {
     return this.fg.controls.route;
+  }
+
+  get expenseId(): string {
+    return this.activatedRoute.snapshot.params.id as string;
   }
 
   get isExpandedView(): boolean {
@@ -1446,8 +1448,6 @@ export class AddEditMileagePage implements OnInit {
 
   ionViewWillEnter(): void {
     this.initClassObservables();
-
-    this.expenseId = this.activatedRoute.snapshot.params.id as string;
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
       this.clusterDomain = clusterDomain;
