@@ -306,6 +306,32 @@
       </ion-row>
     </ion-grid>
 
+    <ion-grid *ngIf="expense.commute_deduction" class="view-mileage--grid">
+      <ion-row>
+        <ion-col>
+          <ion-grid>
+            <ion-row>
+              <ion-col class="view-mileage--icon-container">
+                <div class="view-mileage--icon-container__background">
+                  <ion-icon
+                    class="view-mileage--icon-container__icon-lg"
+                    src="../../../assets/svg/location.svg"
+                  ></ion-icon>
+                </div>
+              </ion-col>
+              <ion-col class="view-mileage--content-container">
+                <div class="view-mileage--label">Commute Deduction</div>
+                <div class="view-mileage--value">
+                  {{commuteDeduction}} - {{expense.commute_details?.distance?.toFixed(2)}}
+                  {{expense.commute_details?.distance_unit | titlecase}}
+                </div>
+              </ion-col>
+            </ion-row>
+          </ion-grid>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+
     <ion-grid *ngIf="expense.distance || expense.mileage_calculated_distance" class="view-mileage--grid">
       <ion-row>
         <ion-col *ngIf="expense.distance" size="6">
