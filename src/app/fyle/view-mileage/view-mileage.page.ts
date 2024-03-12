@@ -88,8 +88,6 @@ export class ViewMileagePage {
 
   expenseCurrencySymbol: string;
 
-  vehicleType: string;
-
   view: ExpenseView;
 
   isProjectShown: boolean;
@@ -352,11 +350,6 @@ export class ViewMileagePage {
       } else {
         this.paymentMode = 'Paid by Employee';
         this.paymentModeIcon = 'cash';
-      }
-
-      if (expense.mileage_rate) {
-        const vehicleType = expense.mileage_rate.vehicle_type.toLowerCase();
-        this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'scooter';
       }
 
       if (expense.commute_deduction) {

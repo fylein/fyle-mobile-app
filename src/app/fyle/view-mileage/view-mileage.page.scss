@@ -176,6 +176,10 @@
     --ion-grid-padding: 0;
     --ion-grid-column-padding: 0;
     margin-top: 16px;
+
+    &__col {
+      margin-bottom: 12px;
+    }
   }
 
   &--content-container {
