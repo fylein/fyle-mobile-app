@@ -75,13 +75,6 @@ describe('CardDetailComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('ngOnInit():should set redirection flag', () => {
-    orgSettingService.get.and.returnValue(of(orgSettingsWithV2ExpensesPage));
-
-    expect(component.redirectToNewPage).toBeTrue();
-    expect(orgSettingService.get).toHaveBeenCalledTimes(1);
-  });
-
   it('should display the card correctly', () => {
     const card = fixture.debugElement.query(By.directive(MockCorporateCardComponent));
     expect(card).toBeTruthy();
@@ -101,7 +94,7 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('incompleteExpenses', component.cardDetail);
       expect(trackingService.dashboardOnIncompleteCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
     });
@@ -119,7 +112,7 @@ describe('CardDetailComponent', () => {
 
       component.goToExpensesPage('totalExpenses', component.cardDetail);
       expect(trackingService.dashboardOnTotalCardExpensesClick).toHaveBeenCalledTimes(1);
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses_v2'], {
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
     });

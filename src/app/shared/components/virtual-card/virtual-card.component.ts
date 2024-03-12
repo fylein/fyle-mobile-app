@@ -4,6 +4,7 @@ import { ClipboardService } from 'src/app/core/services/clipboard.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { CardStatus } from 'src/app/core/enums/card-status.enum';
+import { CardAddedComponent } from 'src/app/fyle/manage-corporate-cards/card-added/card-added.component';
 
 @Component({
   selector: 'app-virtual-card',
@@ -59,20 +60,26 @@ export class VirtualCardComponent implements OnInit {
   }
 
   hideCvvAndCopy() {
-    this.showCvv = false;
+    setTimeout(() => {
+      this.showCvv = false;
+    }, 1000);
+
     this.copyToClipboard(this.cvv);
   }
 
   hideCardNumberAndCopy() {
-    this.showCardNumber = false;
+    setTimeout(() => {
+      this.showCardNumber = false;
+    }, 1000);
+
     this.copyToClipboard(this.cardNumber);
   }
 
   toggleShowCardNumber() {
-    this.showCardNumber = !this.showCardNumber;
+    this.showCardNumber = true;
   }
 
   toggleShowCvv() {
-    this.showCvv = !this.showCvv;
+    this.showCvv = true;
   }
 }
