@@ -78,6 +78,7 @@ import {
   transformedExpenseWithMatchCCCData3,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
+import { ccTransactionData } from 'src/app/core/mock-data/cc-transaction.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -452,7 +453,7 @@ export function TestCases6(getTestBed) {
 
         component.initSplitTxn(of(orgSettingsData));
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn, ccTransactionData);
         expect(component.getSplitExpenses).toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
 
@@ -465,7 +466,7 @@ export function TestCases6(getTestBed) {
 
         component.initSplitTxn(of(orgSettingsParamWoCCC));
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn, ccTransactionData);
         expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
     });
@@ -474,7 +475,7 @@ export function TestCases6(getTestBed) {
       it('should handle CCC expenses', () => {
         const date = new Date('2018-07-03T13:00:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData, ccTransactionData);
         expect(component.cardNumber).toEqual('7620');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
       });
@@ -482,7 +483,7 @@ export function TestCases6(getTestBed) {
       it('should show card digits and vendor description', () => {
         const date = new Date('2018-06-06T08:30:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3, ccTransactionData);
         expect(component.cardNumber).toEqual('9891');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData2);
       });
