@@ -1028,11 +1028,12 @@ export class AddEditMileagePage implements OnInit {
             txn_dt: this.fg.controls.dateOfSpend,
             project_id: this.fg.controls.project,
             billable: this.fg.controls.billable,
+            commute_deduction: this.fg.controls.commuteDeduction,
           };
 
           for (const [key, control] of Object.entries(keyToControlMap)) {
             control.clearValidators();
-            if (key === 'project_id') {
+            if (key === 'project_id' || key === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
               });
@@ -1059,11 +1060,13 @@ export class AddEditMileagePage implements OnInit {
                     ? null
                     : Validators.required
                 );
+              } else if (txnFieldKey === 'commute_deduction') {
+                control.setValidators(orgSettings.commute_deduction_settings.enabled ? Validators.required : null);
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
               }
             }
-            if (txnFieldKey === 'project_id') {
+            if (txnFieldKey === 'project_id' || txnFieldKey === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
               });
