@@ -2380,7 +2380,8 @@ export class AddEditMileagePage implements OnInit {
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code,
             commute_deduction: this.showCommuteDeductionField ? formValue.commuteDeduction : null,
-            commute_details_id: this.showCommuteDeductionField ? this.commuteDetails?.id : null,
+            commute_details_id:
+              this.showCommuteDeductionField && formValue.commuteDeduction ? this.commuteDetails?.id : null,
           },
           dataUrls: [],
           ou: etxn.ou,
