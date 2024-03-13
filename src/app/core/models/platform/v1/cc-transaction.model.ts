@@ -13,12 +13,12 @@ export interface corporateCardTransaction {
     email: string;
     full_name: string;
   };
-  created_at: Date;
-  updated_at: Date;
+  created_at: string;
+  updated_at: string;
   amount: number;
   currency: string;
-  spent_at: Date;
-  post_date: Date;
+  spent_at: string;
+  post_date: string;
   description: string;
   statement_id: string;
   can_delete: boolean;
