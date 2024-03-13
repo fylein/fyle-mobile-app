@@ -172,7 +172,6 @@ describe('MyExpensesV2Page', () => {
     ]);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
-      'getTransactionStats',
       'getMyExpensesCount',
       'getMyExpenses',
       'getPaginatedETxncCount',

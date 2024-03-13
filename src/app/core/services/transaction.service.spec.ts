@@ -857,31 +857,6 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getTransactionStats(): should return transaction stats', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
-    apiV2Service.getStats.and.returnValue(of(txnStats));
-
-    const aggregates = 'count(tx_id),sum(tx_amount)';
-    const queryParams = {
-      scalar: true,
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
-    };
-
-    transactionService.getTransactionStats(aggregates, queryParams).subscribe((res) => {
-      expect(res).toEqual(txnStats.data);
-      expect(apiV2Service.getStats).toHaveBeenCalledOnceWith('/expenses/stats', {
-        params: {
-          aggregates,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('getMyExpenses(): should return my expenses with order', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(eouRes2));
     apiV2Service.get.and.returnValue(of(expenseV2Data));

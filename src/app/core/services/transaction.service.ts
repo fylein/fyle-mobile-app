@@ -180,23 +180,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
-          params: {
-            aggregates,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...queryParams,
-          },
-        })
-      ),
-      map((res) => res.data)
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
