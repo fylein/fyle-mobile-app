@@ -101,6 +101,13 @@ export class CorporateCreditCardExpenseService {
     return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/ignore', { data: payload });
   }
 
+  getMatchedTransactionById(id: string): Observable<CorporateCardTransactionRes> {
+    const params = {
+      id: 'eq.' + id,
+    };
+    return this.spenderPlatformV1ApiService.get('/corporate_card_transactions', { params });
+  }
+
   constructInQueryParamStringForV2(params: string[]): string {
     // in.(IN_PROGRESS,SETTLED)
     let queryString = 'in.(';
