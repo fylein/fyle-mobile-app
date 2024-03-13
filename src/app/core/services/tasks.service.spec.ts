@@ -21,7 +21,6 @@ import { ReportService } from './report.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 
 import { TasksService } from './tasks.service';
-import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 
 import {
@@ -47,7 +46,6 @@ import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
-  let transactionService: jasmine.SpyObj<TransactionService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
   let authService: jasmine.SpyObj<AuthService>;
   let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
@@ -65,7 +63,6 @@ describe('TasksService', () => {
       'getReportStatsData',
       'getAllExtendedReports',
     ]);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getTransactionStats']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -82,10 +79,6 @@ describe('TasksService', () => {
         {
           provide: ReportService,
           useValue: reportServiceSpy,
-        },
-        {
-          provide: TransactionService,
-          useValue: transactionServiceSpy,
         },
         {
           provide: HumanizeCurrencyPipe,
@@ -124,7 +117,6 @@ describe('TasksService', () => {
     tasksService = TestBed.inject(TasksService);
 
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
