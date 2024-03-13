@@ -2764,24 +2764,7 @@ export class AddEditExpensePage implements OnInit {
 
   handleCCCExpenses(etxn: Partial<UnflattenedTransaction>, matchedTransaction: corporateCardTransaction): void {
     if (matchedTransaction) {
-      this.matchedCCCTransaction = {
-        id: matchedTransaction.id,
-        amount: matchedTransaction.amount,
-        card_or_account_number: matchedTransaction.corporate_card?.card_number,
-        created_at: matchedTransaction.created_at,
-        creator_id: matchedTransaction.user_id,
-        currency: matchedTransaction.currency,
-        description: matchedTransaction.description,
-        group_id: matchedTransaction.id,
-        orig_amount: matchedTransaction.foreign_amount,
-        orig_currency: matchedTransaction.foreign_currency,
-        settlement_id: matchedTransaction.settlement_id,
-        txn_dt: matchedTransaction.spent_at,
-        updated_at: matchedTransaction.updated_at,
-        vendor: matchedTransaction.merchant,
-        corporate_credit_card_account_number: matchedTransaction.corporate_card?.card_number,
-        status: matchedTransaction.transaction_status,
-      };
+      this.matchedCCCTransaction = this.corporateCreditCardExpenseService.transformCCTransaction(matchedTransaction);
     } else {
       this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
     }

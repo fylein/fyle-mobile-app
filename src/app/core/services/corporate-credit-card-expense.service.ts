@@ -17,6 +17,8 @@ import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { UniqueCards } from '../models/unique-cards.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
+import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
+import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
 type Config = Partial<{
   offset: number;
@@ -210,5 +212,27 @@ export class CorporateCreditCardExpenseService {
         return stats;
       })
     );
+  }
+
+  transformCCTransaction(ccTransaction: corporateCardTransaction): Partial<MatchedCCCTransaction> {
+    const updatedCCTransaction = {
+      id: ccTransaction.id,
+      amount: ccTransaction.amount,
+      card_or_account_number: ccTransaction.corporate_card?.card_number,
+      created_at: ccTransaction.created_at,
+      creator_id: ccTransaction.user_id,
+      currency: ccTransaction.currency,
+      description: ccTransaction.description,
+      group_id: ccTransaction.id,
+      orig_amount: ccTransaction.foreign_amount,
+      orig_currency: ccTransaction.foreign_currency,
+      settlement_id: ccTransaction.settlement_id,
+      txn_dt: ccTransaction.spent_at,
+      updated_at: ccTransaction.updated_at,
+      vendor: ccTransaction.merchant,
+      corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
+      status: ccTransaction.transaction_status,
+    };
+    return updatedCCTransaction;
   }
 }
