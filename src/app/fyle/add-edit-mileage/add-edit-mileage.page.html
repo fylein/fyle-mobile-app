@@ -151,59 +151,62 @@
               </ng-container>
 
               <ng-container *ngIf="showCommuteDeductionField && commuteDeductionOptions">
-                <div
-                  class="add-edit-mileage--internal-block"
-                  [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
-                >
-                  <app-fy-select
-                    [enableSearch]="false"
-                    [label]="'Commute Deduction'"
-                    [mandatory]="true"
-                    [nullOption]="false"
-                    [options]="commuteDeductionOptions"
-                    [selectModalHeader]="'Commute Deduction'"
-                    formControlName="commuteDeduction"
-                    [selectionElement]="commuteDeduction"
-                    [touchedInParent]="fg.controls.commuteDeduction.touched"
-                    [validInParent]="fg.controls.commuteDeduction.valid"
+                <ng-container *ngIf="txnFields$|async as txnFields">
+                  <div
+                    class="add-edit-mileage--internal-block"
+                    [ngClass]="{'add-edit-mileage--internal-block__invalid': fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid}"
                   >
-                  </app-fy-select>
-                  <ng-template
-                    #commuteDeduction
-                    let-label="label"
-                    let-value="value"
-                    let-distance="distance"
-                    let-selected="selected"
+                    <app-fy-select
+                      [enableSearch]="false"
+                      [label]="'Commute Deduction'"
+                      [mandatory]="txnFields.commute_deduction?.is_mandatory"
+                      [nullOption]="false"
+                      [options]="commuteDeductionOptions"
+                      [selectModalHeader]="'Commute Deduction'"
+                      formControlName="commuteDeduction"
+                      [selectionElement]="commuteDeduction"
+                      [touchedInParent]="fg.controls.commuteDeduction.touched"
+                      [validInParent]="fg.controls.commuteDeduction.valid"
+                      [placeholder]="txnFields.commute_deduction?.placeholder || 'Select Commute Deduction'"
+                    >
+                    </app-fy-select>
+                    <ng-template
+                      #commuteDeduction
+                      let-label="label"
+                      let-value="value"
+                      let-distance="distance"
+                      let-selected="selected"
+                    >
+                      <div>
+                        <div class="add-edit-mileage--commute-deduction">{{label}}</div>
+                        <div *ngIf="distance > 0" class="add-edit-mileage--payment-mode-section">
+                          {{distance.toFixed(2) + ' ' + distanceUnit}}
+                        </div>
+                        <div *ngIf="distance === 0" class="add-edit-mileage--payment-mode-section">
+                          {{distance + ' ' + distanceUnit}}
+                        </div>
+                        <div
+                          *ngIf="distance === null"
+                          class="add-edit-mileage--add-location"
+                          (click)="openCommuteDetailsModal()"
+                        >
+                          <ion-icon
+                            class="add-edit-mileage--add-location--icon"
+                            src="../../../assets/svg/plus-square.svg"
+                          ></ion-icon>
+                          Add Location
+                        </div>
+                      </div>
+                      <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
+                    </ng-template>
+                  </div>
+                  <div
+                    *ngIf="fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid"
+                    class="add-edit-mileage--error"
                   >
-                    <div>
-                      <div class="add-edit-mileage--commute-deduction">{{label}}</div>
-                      <div *ngIf="distance > 0" class="add-edit-mileage--payment-mode-section">
-                        {{distance.toFixed(2) + ' ' + distanceUnit}}
-                      </div>
-                      <div *ngIf="distance === 0" class="add-edit-mileage--payment-mode-section">
-                        {{distance + ' ' + distanceUnit}}
-                      </div>
-                      <div
-                        *ngIf="distance === null"
-                        class="add-edit-mileage--add-location"
-                        (click)="openCommuteDetailsModal()"
-                      >
-                        <ion-icon
-                          class="add-edit-mileage--add-location--icon"
-                          src="../../../assets/svg/plus-square.svg"
-                        ></ion-icon>
-                        Add Location
-                      </div>
-                    </div>
-                    <mat-icon *ngIf="selected" class="add-edit-mileage--check"> check </mat-icon>
-                  </ng-template>
-                </div>
-                <div
-                  *ngIf="fg.controls.commuteDeduction.touched && !fg.controls.commuteDeduction.valid"
-                  class="add-edit-mileage--error"
-                >
-                  Select Commute Deduction.
-                </div>
+                    Please select commute deduction.
+                  </div>
+                </ng-container>
               </ng-container>
 
               <ng-container *ngIf="mileageRatesOptions$|async as mileageRatesOptions">
