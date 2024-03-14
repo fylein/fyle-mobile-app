@@ -526,7 +526,15 @@ export class AddEditMileagePage implements OnInit {
         }).pipe(
           switchMap(({ expenseFieldsMap, mileageCategoriesContainer }) => {
             // skipped distance unit, location 1 and location 2 - confirm this these are not used at all
-            const fields = ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'];
+            const fields = [
+              'purpose',
+              'txn_dt',
+              'cost_center_id',
+              'project_id',
+              'distance',
+              'billable',
+              'commute_deduction',
+            ];
 
             return this.expenseFieldsService.filterByOrgCategoryId(
               expenseFieldsMap,
@@ -996,11 +1004,12 @@ export class AddEditMileagePage implements OnInit {
             txn_dt: this.fg.controls.dateOfSpend,
             project_id: this.fg.controls.project,
             billable: this.fg.controls.billable,
+            commute_deduction: this.fg.controls.commuteDeduction,
           };
 
           for (const [key, control] of Object.entries(keyToControlMap)) {
             control.clearValidators();
-            if (key === 'project_id') {
+            if (key === 'project_id' || key === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
               });
@@ -1027,11 +1036,13 @@ export class AddEditMileagePage implements OnInit {
                     ? null
                     : Validators.required
                 );
+              } else if (txnFieldKey === 'commute_deduction') {
+                control.setValidators(orgSettings.commute_deduction_settings.enabled ? Validators.required : null);
               } else {
                 control.setValidators(isConnected ? Validators.required : null);
               }
             }
-            if (txnFieldKey === 'project_id') {
+            if (txnFieldKey === 'project_id' || txnFieldKey === 'commute_deduction') {
               control.updateValueAndValidity({
                 emitEvent: false,
               });
@@ -2319,7 +2330,8 @@ export class AddEditMileagePage implements OnInit {
             cost_center_name: formValue.costCenter && formValue.costCenter.name,
             cost_center_code: formValue.costCenter && formValue.costCenter.code,
             commute_deduction: this.showCommuteDeductionField ? formValue.commuteDeduction : null,
-            commute_details_id: this.showCommuteDeductionField ? this.commuteDetails?.id : null,
+            commute_details_id:
+              this.showCommuteDeductionField && formValue.commuteDeduction ? this.commuteDetails?.id : null,
           },
           dataUrls: [],
           ou: etxn.ou,
@@ -2936,6 +2948,30 @@ export class AddEditMileagePage implements OnInit {
     this.onPageExit$.complete();
   }
 
+  getCommuteUpdatedTextBody(): string {
+    return `<div>
+              <p>Your Commute Details have been successfully added to your Profile
+              Settings.</p>
+              <p>You can now easily deduct commute from your Mileage expenses.<p>  
+            </div>`;
+  }
+
+  async showCommuteUpdatedPopover(): Promise<void> {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Commute Updated',
+        message: this.getCommuteUpdatedTextBody(),
+        primaryCta: {
+          text: 'Proceed',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
+  }
+
   async openCommuteDetailsModal(): Promise<Subscription> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
@@ -2958,6 +2994,7 @@ export class AddEditMileagePage implements OnInit {
           this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(this.commuteDetails?.distance);
           // If the user has saved the commute details, update the commute deduction field to no deduction
           this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
+          this.showCommuteUpdatedPopover();
         });
     }
   }

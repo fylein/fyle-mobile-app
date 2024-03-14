@@ -83,6 +83,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     return this.form.controls.mileageLocations as FormArray;
   }
 
+  get isRoundTripEnabled(): boolean {
+    return this.isAmountDisabled || !this.form.controls.distance?.value;
+  }
+
   onTouched = () => {};
 
   ngDoCheck() {
@@ -95,10 +99,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     this.onChangeSub.unsubscribe();
   }
 
-  customDistanceValidator(control: AbstractControl) {
+  customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
-      return passedInDistance > 0
+      return passedInDistance >= 0
         ? null
         : {
             invalidDistance: true,
