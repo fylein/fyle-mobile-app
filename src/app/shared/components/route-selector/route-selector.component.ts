@@ -87,10 +87,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     this.onChangeSub.unsubscribe();
   }
 
-  customDistanceValidator(control: AbstractControl) {
+  customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
-      return passedInDistance > 0
+      return passedInDistance >= 0
         ? null
         : {
             invalidDistance: true,
