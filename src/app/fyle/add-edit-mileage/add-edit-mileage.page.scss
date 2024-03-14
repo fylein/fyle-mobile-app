@@ -446,13 +446,13 @@
     display: flex;
     align-items: center;
     margin-top: 6px;
-    gap: 6px;
     font-weight: 500;
 
     &--icon {
       width: 14px;
       height: 14px;
       color: $brand-primary;
+      margin-right: 8px;
     }
   }
 
