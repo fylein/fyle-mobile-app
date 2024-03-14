@@ -33,6 +33,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() cacheName;
 
+  @Input() disableEnteringManualLocation = false;
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;
