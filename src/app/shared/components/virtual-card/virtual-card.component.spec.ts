@@ -110,27 +110,31 @@ describe('VirtualCardComponent', () => {
     });
   });
 
-  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+  it('hideCvvAndCopy(): should hide cvv and call method to copy text to clipboard', fakeAsync(() => {
     component.cvv = '1234';
     component.showCvv = true;
     const copyToClipboardSpy = spyOn(component, 'copyToClipboard');
 
     component.hideCvvAndCopy();
 
+    tick(1000);
+
     expect(component.showCvv).toBeFalse();
     expect(copyToClipboardSpy).toHaveBeenCalledOnceWith(component.cvv);
-  });
+  }));
 
-  it('hideCardNumberAndCopy(): should hide cvv and call method to copy text to clipboard', () => {
+  it('hideCardNumberAndCopy(): should hide cvv and call method to copy text to clipboard', fakeAsync(() => {
     component.cardNumber = '123451234512345';
     component.showCardNumber = true;
     const copyToClipboardSpy = spyOn(component, 'copyToClipboard');
 
     component.hideCardNumberAndCopy();
 
+    tick(1000);
+
     expect(component.showCardNumber).toBeFalse();
     expect(copyToClipboardSpy).toHaveBeenCalledOnceWith(component.cardNumber);
-  });
+  }));
 
   it('toggleShowCardNumber(): should show card number if card number is hidden', () => {
     component.showCardNumber = false;

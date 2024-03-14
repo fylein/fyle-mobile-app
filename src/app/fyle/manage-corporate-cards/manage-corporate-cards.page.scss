@@ -34,6 +34,8 @@
 
   &__tab-available {
     padding-top: 0;
+    display: flex;
+    align-items: center;
   }
 
   &__cards-list {
@@ -58,6 +60,12 @@
 
   &__shimmer {
     height: 162px;
+    border-radius: 16px;
+  }
+
+  &__virtual-card-shimmer {
+    height: 180px;
+    width: 280px;
     border-radius: 16px;
   }
 

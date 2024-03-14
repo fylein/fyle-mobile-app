@@ -26,6 +26,7 @@
         {{ cardNumber | slice : 10 : 15 }}
       </div>
       <ion-icon
+        *ngIf="cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED"
         src="../../../../../assets/svg/duplicate.svg"
         (press)="toggleShowCardNumber()"
         (pressup)="hideCardNumberAndCopy()"
@@ -41,6 +42,7 @@
         <div *ngIf="!showCvv" class="virtual-card__card-fields__cvv-mask">****</div>
         <div *ngIf="showCvv" class="virtual-card__card-fields__cvv-number">{{ cvv }}</div>
         <ion-icon
+          *ngIf="cardStatus !== CardStatus.DELETED && cardStatus !== CardStatus.EXPIRED"
           class="virtual-card__card-fields__cvv-copy-icon"
           src="../../../../../assets/svg/duplicate.svg"
           (press)="toggleShowCvv()"
