@@ -24,6 +24,7 @@ import {
   ccTransactionResponseData1,
 } from '../mock-data/corporate-card-transaction-response.data';
 import { statementUploadedCardDetail } from '../mock-data/platform-corporate-card-detail.data';
+import { matchedCCTransactionData3 } from '../mock-data/matchedCCTransaction.data';
 
 describe('CorporateCreditCardExpenseService', () => {
   let cccExpenseService: CorporateCreditCardExpenseService;
@@ -107,6 +108,19 @@ describe('CorporateCreditCardExpenseService', () => {
     });
   });
 
+  it('getMatchedTransactionById(): should return the matched corporate card transaction with id', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(ccTransactionResponseData));
+    const id = 'btxnBdS2Kpvzhy';
+    const params = {
+      id: 'eq.' + id,
+    };
+
+    cccExpenseService.getMatchedTransactionById(id).subscribe(() => {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/corporate_card_transactions', { params });
+      done();
+    });
+  });
+
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
@@ -182,5 +196,10 @@ describe('CorporateCreditCardExpenseService', () => {
   it('getBankFeedSources(): should get all the bank feed sources', () => {
     const res = cccExpenseService.getBankFeedSources();
     expect(res).toEqual(bankFeedSourcesData);
+  });
+
+  it('transformCCTransaction(): should transform the corporate card transaction response to matched corporate card transaction', () => {
+    const res = cccExpenseService.transformCCTransaction(ccTransactionResponseData.data[0]);
+    expect(res).toEqual(matchedCCTransactionData3);
   });
 });
