@@ -1650,10 +1650,12 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
+    const eou$ = from(this.authService.getEou()).pipe(shareReplay(1));
+
     this.recentlyUsedProjects$ = forkJoin({
       recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
-      eou: this.authService.getEou(),
+      eou: eou$,
     }).pipe(
       switchMap(({ recentValues, mileageCategoryIds, eou }) =>
         this.recentlyUsedItemsService.getRecentlyUsedProjects({
@@ -1676,7 +1678,7 @@ export class AddEditMileagePage implements OnInit {
     const customExpenseFields$ = this.customInputsService.getAll(true).pipe(shareReplay(1));
 
     const commuteDeductionDetails$ = forkJoin({
-      eou: from(this.authService.getEou()),
+      eou: eou$,
       orgSettings: orgSettings$,
     }).pipe(
       switchMap(({ eou, orgSettings }) => {
