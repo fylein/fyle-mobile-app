@@ -37,7 +37,7 @@
       </ng-container>
 
       <!-- TODO - Re-enable again at the time of release -->
-      <ng-container *ngIf="false && isMileageEnabled && isCommuteDeductionEnabled">
+      <ng-container *ngIf="isMileageEnabled && isCommuteDeductionEnabled">
         <div class="my-profile__section-header">Commute Details</div>
         <div
           *ngIf="!commuteDetails?.home_location"
