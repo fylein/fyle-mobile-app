@@ -108,6 +108,8 @@ export class ViewMileagePage {
 
   mileageRate$: Observable<PlatformMileageRates>;
 
+  commuteDeduction: string;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
@@ -270,6 +272,20 @@ export class ViewMileagePage {
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
+  setCommuteDeductionDetails(commuteDeduction: string): void {
+    switch (commuteDeduction) {
+      case 'ONE_WAY':
+        this.commuteDeduction = 'One Way';
+        break;
+      case 'ROUND_TRIP':
+        this.commuteDeduction = 'Round Trip';
+        break;
+      default:
+        this.commuteDeduction = 'No Deduction';
+        break;
+    }
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
 
@@ -355,6 +371,10 @@ export class ViewMileagePage {
       if (expense.mileage_rate) {
         const vehicleType = expense.mileage_rate.vehicle_type.toLowerCase();
         this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'scooter';
+      }
+
+      if (expense.commute_deduction) {
+        this.setCommuteDeductionDetails(expense.commute_deduction);
       }
 
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
