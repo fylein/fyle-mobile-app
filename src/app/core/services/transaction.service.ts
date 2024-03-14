@@ -18,7 +18,6 @@ import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ExpenseFilters } from 'src/app/fyle/my-expenses/expense-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -42,6 +41,7 @@ import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platf
 import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
+import { ExpenseFilters } from '../models/expense-filters.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -180,23 +180,6 @@ export class TransactionService {
   @Cacheable({
     cacheBusterObserver: expensesCacheBuster$,
   })
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<Datum[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.getStats<StatsResponse>('/expenses/stats', {
-          params: {
-            aggregates,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...queryParams,
-          },
-        })
-      ),
-      map((res) => res.data)
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: expensesCacheBuster$,
   })
@@ -838,8 +821,8 @@ export class TransactionService {
         sub_category: expense.category?.sub_category,
         tax_amount: expense?.tax_amount,
         corporate_credit_card_expense_group_id:
-          expense.matched_corporate_card_transactions?.length > 0
-            ? expense.matched_corporate_card_transactions[0].id
+          expense.matched_corporate_card_transaction_ids?.length > 0
+            ? expense.matched_corporate_card_transaction_ids[0]
             : null,
         split_group_id: expense.split_group_id,
         split_group_user_amount: expense.split_group_amount,
@@ -852,6 +835,8 @@ export class TransactionService {
         mileage_is_round_trip: expense.mileage_is_round_trip,
         mileage_calculated_distance: expense.mileage_calculated_distance,
         mileage_calculated_amount: expense.mileage_calculated_amount,
+        commute_deduction: expense.commute_deduction,
+        commute_deduction_id: expense.commute_details_id,
         manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data
@@ -924,8 +909,8 @@ export class TransactionService {
       tx_cost_center_name: expense.cost_center?.name,
       tx_cost_center_id: expense.cost_center_id,
       tx_corporate_credit_card_expense_group_id:
-        expense.matched_corporate_card_transactions?.length > 0
-          ? expense.matched_corporate_card_transactions[0].id
+        expense.matched_corporate_card_transaction_ids?.length > 0
+          ? expense.matched_corporate_card_transaction_ids[0]
           : null,
       tx_custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
       tx_locations: expense.locations,

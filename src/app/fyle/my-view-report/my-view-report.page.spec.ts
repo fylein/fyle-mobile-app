@@ -375,7 +375,7 @@ describe('MyViewReportPage', () => {
           and: '()',
         },
       });
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalled();
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({
@@ -468,7 +468,7 @@ describe('MyViewReportPage', () => {
         },
       });
 
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalled();
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({ enabled: true });

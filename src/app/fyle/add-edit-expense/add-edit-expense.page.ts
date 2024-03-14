@@ -133,6 +133,7 @@ import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/mode
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 
 type FormValue = {
   currencyObj: {
@@ -422,9 +423,6 @@ export class AddEditExpensePage implements OnInit {
   isRTFEnabled$: Observable<boolean>;
 
   pendingTransactionAllowedToReportAndSplit = true;
-
-  //TODO : Assign its value from org settings
-  pendingTransactionRestrictionEnabled = false;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -2560,7 +2558,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
       if (project && project.project_org_category_ids.length !== 0) {
-        this.recentCategories = this.recentCategoriesOriginal.filter((originalCategory) =>
+        this.recentCategories = this.recentCategoriesOriginal?.filter((originalCategory) =>
           project.project_org_category_ids.includes(originalCategory.value.id)
         );
       } else {
@@ -2764,8 +2762,12 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  handleCCCExpenses(etxn: Partial<UnflattenedTransaction>): void {
-    this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
+  handleCCCExpenses(etxn: Partial<UnflattenedTransaction>, matchedTransaction: corporateCardTransaction): void {
+    if (matchedTransaction) {
+      this.matchedCCCTransaction = this.corporateCreditCardExpenseService.transformCCTransaction(matchedTransaction);
+    } else {
+      this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
+    }
     this.selectedCCCTransaction = this.matchedCCCTransaction;
     this.cardEndingDigits = (
       this.selectedCCCTransaction.corporate_credit_card_account_number
@@ -2802,29 +2804,31 @@ export class AddEditExpensePage implements OnInit {
   }
 
   initSplitTxn(orgSettings$: Observable<OrgSettings>): void {
-    orgSettings$
+    combineLatest([orgSettings$, this.etxn$])
       .pipe(
-        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
+        map(([orgSettings, etxn]) => ({ orgSettings, etxn })),
         filter(
-          ({ orgSettings, etxn }: { orgSettings: OrgSettings; etxn: Partial<UnflattenedTransaction> }) =>
+          ({ orgSettings, etxn }) =>
             this.getCCCSettings(orgSettings) || !!etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
-            map((splitExpenses) => ({
-              etxn,
-              splitExpenses,
-            }))
-          )
+          forkJoin({
+            splitExpenses: this.expensesService.getSplitExpenses(etxn.tx.split_group_id),
+            matchedTransaction:
+              etxn.tx?.matched_corporate_card_transactions?.length === 0
+                ? this.corporateCreditCardExpenseService.getMatchedTransactionById(
+                    etxn.tx.corporate_credit_card_expense_group_id
+                  )
+                : of(null),
+          }).pipe(map(({ splitExpenses, matchedTransaction }) => ({ etxn, splitExpenses, matchedTransaction })))
         )
       )
-      .subscribe(({ etxn, splitExpenses }) => {
+      .subscribe(({ etxn, splitExpenses, matchedTransaction }) => {
         if (splitExpenses && splitExpenses.length > 0) {
           this.getSplitExpenses(splitExpenses);
         }
-
-        this.handleCCCExpenses(etxn);
+        this.handleCCCExpenses(etxn, matchedTransaction?.data[0]);
       });
   }
 
@@ -3062,16 +3066,30 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
-      if (this.pendingTransactionRestrictionEnabled) {
-        this.platformExpense$.pipe(take(1)).subscribe((transaction) => {
+      const pendingTxnRestrictionEnabled$ = this.orgSettingsService
+        .get()
+        .pipe(
+          map(
+            (orgSetting) =>
+              orgSetting?.corporate_credit_card_settings?.enabled &&
+              orgSetting?.pending_cct_expense_restriction?.enabled
+          )
+        );
+
+      forkJoin({
+        platformExpenses: this.platformExpense$,
+        pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
+      })
+        .pipe(take(1))
+        .subscribe((config) => {
           if (
-            transaction.matched_corporate_card_transactions?.length &&
-            transaction.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.pendingTxnRestrictionEnabled &&
+            config.platformExpenses.matched_corporate_card_transactions?.length &&
+            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
         });
-      }
     }
 
     this.attachments$ = this.loadAttachments$.pipe(

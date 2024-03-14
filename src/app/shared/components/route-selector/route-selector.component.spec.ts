@@ -45,7 +45,6 @@ describe('RouteSelectorComponent', () => {
     fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.mileageConfig = orgSettingsRes.mileage;
-    component.skipRoundTripUpdate = false;
     component.formInitialized = true;
     component.onChangeSub = of(null).subscribe();
     component.form = fb.group({

@@ -1,4 +1,14 @@
-import { Component, DoCheck, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core';
+import {
+  Component,
+  DoCheck,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import {
   AbstractControl,
   ControlValueAccessor,
@@ -12,7 +22,7 @@ import {
 } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
 import { intersection, isEqual } from 'lodash';
-import { Subscription } from 'rxjs';
+import { Subscription, distinctUntilChanged } from 'rxjs';
 import { RouteSelectorModalComponent } from './route-selector-modal/route-selector-modal.component';
 
 @Component({
@@ -57,7 +67,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     recent_locations?: string[];
   };
 
-  skipRoundTripUpdate = false;
+  @Output() distanceChange = new EventEmitter<number>();
 
   onChangeSub: Subscription;
 
@@ -73,6 +83,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     return this.form.controls.mileageLocations as FormArray;
   }
 
+  get isRoundTripEnabled(): boolean {
+    return this.isAmountDisabled || !this.form.controls.distance?.value;
+  }
+
   onTouched = () => {};
 
   ngDoCheck() {
@@ -85,10 +99,10 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     this.onChangeSub.unsubscribe();
   }
 
-  customDistanceValidator(control: AbstractControl) {
+  customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
     const passedInDistance = control.value && +control.value;
     if (passedInDistance !== null) {
-      return passedInDistance > 0
+      return passedInDistance >= 0
         ? null
         : {
             invalidDistance: true,
@@ -181,19 +195,15 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   ngOnInit() {
-    this.form.controls.roundTrip.valueChanges.subscribe((roundTrip) => {
-      if (!this.skipRoundTripUpdate) {
-        if (this.formInitialized) {
-          if (this.form.value.distance) {
-            if (roundTrip) {
-              this.form.controls.distance.setValue((+this.form.value.distance * 2).toFixed(2));
-            } else {
-              this.form.controls.distance.setValue((+this.form.value.distance / 2).toFixed(2));
-            }
+    this.form.controls.roundTrip.valueChanges.pipe(distinctUntilChanged()).subscribe((roundTrip) => {
+      if (this.formInitialized) {
+        if (this.form.value.distance) {
+          if (roundTrip) {
+            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance * 2).toFixed(2)));
+          } else {
+            this.form.controls.distance.setValue(parseFloat((+this.form.value.distance / 2).toFixed(2)));
           }
         }
-      } else {
-        this.skipRoundTripUpdate = false;
       }
     });
   }
@@ -217,7 +227,6 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     const { data } = await selectionModal.onWillDismiss();
 
     if (data) {
-      this.skipRoundTripUpdate = true;
       this.mileageLocations.clear({
         emitEvent: false,
       });
@@ -232,6 +241,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
         distance: parseFloat(data.distance),
         roundTrip: data.roundTrip,
       });
+
+      this.distanceChange.emit(data.distance);
     }
   }
 
