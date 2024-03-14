@@ -3010,7 +3010,7 @@ export class AddEditMileagePage implements OnInit {
     const sizeLimitExceededPopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
-        title: 'Commute Updated!',
+        title: 'Commute Updated',
         message: this.getCommuteUpdatedTextBody(),
         primaryCta: {
           text: 'Proceed',
