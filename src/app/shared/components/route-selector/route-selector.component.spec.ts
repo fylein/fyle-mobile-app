@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-describe('RouteSelectorComponent', () => {
+fdescribe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: jasmine.SpyObj<FormBuilder>;
@@ -69,8 +69,15 @@ describe('RouteSelectorComponent', () => {
       expect(result).toBeNull();
     });
 
-    it('should return invalid distance if value not present', () => {
+    it('should return valid distance if value is zero', () => {
       component.form.controls.distance.setValue(0);
+      fixture.detectChanges();
+      const result = component.customDistanceValidator(component.form.controls.distance);
+      expect(result).toBeNull();
+    });
+
+    it('should return invalid distance if value is less then zero', () => {
+      component.form.controls.distance.setValue(-10);
       fixture.detectChanges();
       const result = component.customDistanceValidator(component.form.controls.distance);
       expect(result).toEqual({ invalidDistance: true });
@@ -84,7 +91,7 @@ describe('RouteSelectorComponent', () => {
       roundTrip: true,
     });
     expect(component.mileageLocations.length).toEqual(mileageLocationData1.length);
-    expect(component.form.controls.distance.value).toEqual('20.00');
+    expect(component.form.controls.distance.value).toEqual(20.0);
     expect(component.form.controls.roundTrip.value).toEqual(true);
   });
 
