@@ -15,7 +15,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
 
-fdescribe('RouteSelectorComponent', () => {
+describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
   let fixture: ComponentFixture<RouteSelectorComponent>;
   let fb: jasmine.SpyObj<FormBuilder>;
