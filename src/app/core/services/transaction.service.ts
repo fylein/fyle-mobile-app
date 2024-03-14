@@ -34,7 +34,6 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
-import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
 import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';

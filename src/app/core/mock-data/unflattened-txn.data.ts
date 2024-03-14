@@ -1819,6 +1819,15 @@ export const unflattenedExpWithCCCExpn1: UnflattenedTransaction = {
   },
 };
 
+export const unflattenedExpWithoutCCExpnSync: UnflattenedTransaction = {
+  ...unflattenedExpWithCCCExpn,
+  tx: {
+    ...unflattenedExpWithCCCExpn.tx,
+    matched_corporate_card_transactions: [],
+    split_group_id: 'tx6I9xcOZFU6',
+  },
+};
+
 export const trackCreateExpData: UnflattenedTransaction = {
   ...unflattenedExp2,
   tx: {

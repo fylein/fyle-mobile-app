@@ -30,7 +30,7 @@ import {
   checkSplitExpData1,
   checkSplitExpData2,
   unflattenedExpWithCCCExpn,
-  unflattenedExpWithCCCExpn1,
+  unflattenedExpWithoutCCExpnSync,
 } from 'src/app/core/mock-data/unflattened-txn.data';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { AccountsService } from 'src/app/core/services/accounts.service';
@@ -76,8 +76,11 @@ import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData3,
+  transformedExpenseWithMatchCCCData4,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
+import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc-transaction.data';
+import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -452,7 +455,8 @@ export function TestCases6(getTestBed) {
 
         component.initSplitTxn(of(orgSettingsData));
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn, undefined);
+        expect(corporateCreditCardExpenseService.getMatchedTransactionById).not.toHaveBeenCalled();
         expect(component.getSplitExpenses).toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
 
@@ -465,16 +469,47 @@ export function TestCases6(getTestBed) {
 
         component.initSplitTxn(of(orgSettingsParamWoCCC));
         expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn);
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(unflattenedExpWithCCCExpn, undefined);
+        expect(corporateCreditCardExpenseService.getMatchedTransactionById).not.toHaveBeenCalled();
+        expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
+      });
+
+      it('should initialize CCC expenses with group Id if not synced up', () => {
+        expensesService.getSplitExpenses.and.returnValue(of(null));
+        corporateCreditCardExpenseService.getMatchedTransactionById.and.returnValue(of(ccTransactionResponseData));
+        component.etxn$ = of(unflattenedExpWithoutCCExpnSync);
+        spyOn(component, 'handleCCCExpenses');
+        spyOn(component, 'getSplitExpenses');
+        fixture.detectChanges();
+
+        component.initSplitTxn(of(orgSettingsParamWoCCC));
+        expect(expensesService.getSplitExpenses).toHaveBeenCalledOnceWith('tx6I9xcOZFU6');
+        expect(component.handleCCCExpenses).toHaveBeenCalledOnceWith(
+          unflattenedExpWithoutCCExpnSync,
+          ccTransactionData1
+        );
+        expect(corporateCreditCardExpenseService.getMatchedTransactionById).toHaveBeenCalledOnceWith(
+          unflattenedExpWithoutCCExpnSync.tx.corporate_credit_card_expense_group_id
+        );
         expect(component.getSplitExpenses).not.toHaveBeenCalledOnceWith([expenseData, expenseData]);
       });
     });
 
     describe('handleCCCExpenses():', () => {
-      it('should handle CCC expenses', () => {
+      it('should handle CCC expenses if expenses have matched_corporate_card_transaction synced', () => {
         const date = new Date('2018-07-03T13:00:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData, null);
+        expect(component.cardNumber).toEqual('7620');
+        expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
+      });
+
+      it('should handle CCC expenses if expense does not have matched_corporate_card_transaction synced', () => {
+        const date = new Date('2018-07-03T13:00:00.000Z');
+        jasmine.clock().mockDate(date);
+        corporateCreditCardExpenseService.transformCCTransaction.and.returnValue(matchedCCTransactionData);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData4, ccTransactionData);
+        expect(corporateCreditCardExpenseService.transformCCTransaction).toHaveBeenCalledOnceWith(ccTransactionData);
         expect(component.cardNumber).toEqual('7620');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
       });
@@ -482,7 +517,7 @@ export function TestCases6(getTestBed) {
       it('should show card digits and vendor description', () => {
         const date = new Date('2018-06-06T08:30:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3);
+        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3, null);
         expect(component.cardNumber).toEqual('9891');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData2);
       });
