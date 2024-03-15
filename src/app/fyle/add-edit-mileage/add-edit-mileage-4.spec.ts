@@ -213,6 +213,7 @@ export function TestCases4(getTestBed) {
         report: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
+        commuteDeduction: [],
       });
 
       component.hardwareBackButtonAction = new Subscription();
