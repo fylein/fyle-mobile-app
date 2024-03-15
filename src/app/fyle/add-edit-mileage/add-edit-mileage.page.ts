@@ -2975,7 +2975,6 @@ export class AddEditMileagePage implements OnInit {
   async openCommuteDetailsModal(): Promise<Subscription> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
-      mode: 'ios',
     });
 
     await commuteDetailsModal.present();
