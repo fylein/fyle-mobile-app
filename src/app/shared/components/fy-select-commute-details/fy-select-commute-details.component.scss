@@ -1,6 +1,10 @@
 @import '../../../../theme/colors.scss';
 
 .commute-details {
+  &--toolbar {
+    margin-top: calc(env(safe-area-inset-top));
+  }
+
   &--header {
     &-save {
       --color: $brand-primary;
