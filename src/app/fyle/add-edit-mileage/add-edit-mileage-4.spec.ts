@@ -89,6 +89,9 @@ import { TransactionsOutboxService } from 'src/app/core/services/transactions-ou
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
 import { AddEditMileagePage } from './add-edit-mileage.page';
+import { commuteDetailsData } from 'src/app/core/mock-data/commute-details.data';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { cloneDeep } from 'lodash';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditMileage-4', () => {
@@ -213,6 +216,7 @@ export function TestCases4(getTestBed) {
         report: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
+        commuteDeduction: [],
       });
 
       component.hardwareBackButtonAction = new Subscription();
@@ -685,6 +689,9 @@ export function TestCases4(getTestBed) {
         dateService.getUTCDate.and.returnValue(new Date('2023-02-13T01:00:00.000Z'));
         spyOn(component, 'getFormValues').and.returnValue(formValue1);
         spyOn(component, 'getRateByVehicleType').and.returnValue(10);
+        component.showCommuteDeductionField = true;
+        component.commuteDetails = commuteDetailsData;
+        component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
         fixture.detectChanges();
 
         component
@@ -770,6 +777,7 @@ export function TestCases4(getTestBed) {
         report: null,
         project_dependent_fields: [],
         cost_center_dependent_fields: [],
+        commuteDeduction: null,
       });
     });
 

@@ -1,3 +1,4 @@
+import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { personalCardTxn } from './transaction.data';
@@ -3350,6 +3351,8 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
     ],
     is_implicit_merge_blocked: false,
     categoryDisplayName: 'Software',
+    commute_deduction: CommuteDeduction.ONE_WAY,
+    commute_details_id: 12345,
   },
   dataUrls: [],
   ou: {
@@ -3468,6 +3471,8 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = {
     custom_properties: [],
     is_implicit_merge_blocked: false,
     categoryDisplayName: 'Software',
+    commute_deduction: null,
+    commute_details_id: null,
   },
   dataUrls: [],
   ou: {

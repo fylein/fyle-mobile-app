@@ -540,7 +540,7 @@ export function TestCases3(getTestBed) {
         expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(
           expenseFieldsMapResponse,
-          ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable'],
+          ['purpose', 'txn_dt', 'cost_center_id', 'project_id', 'distance', 'billable', 'commute_deduction'],
           mileageCategories2[0]
         );
         done();
