@@ -681,6 +681,7 @@ export class TasksComponent implements OnInit {
   async onCommuteDetailsTaskClick(): Promise<void> {
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
+      mode: 'ios',
     });
 
     await commuteDetailsModal.present();
