@@ -1691,10 +1691,10 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType: string) => {
-      if (!this.commuteDetails) {
-        this.openCommuteDetailsModal();
-      } else {
+      if (this.commuteDetails?.id) {
         this.updateDistanceOnDeductionChange(commuteDeductionType);
+      } else {
+        this.openCommuteDetailsModal();
       }
     });
 
@@ -2976,37 +2976,33 @@ export class AddEditMileagePage implements OnInit {
     await sizeLimitExceededPopover.present();
   }
 
-  async openCommuteDetailsModal(): Promise<Subscription | null> {
-    if (this.commuteDetails?.distance === null) {
-      const commuteDetailsModal = await this.modalController.create({
-        component: FySelectCommuteDetailsComponent,
-        mode: 'ios',
-      });
+  async openCommuteDetailsModal(): Promise<Subscription> {
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      mode: 'ios',
+    });
 
-      await commuteDetailsModal.present();
+    await commuteDetailsModal.present();
 
-      const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
 
-      if (data.action === 'save') {
-        return from(this.authService.getEou())
-          .pipe(
-            concatMap((eou) =>
-              this.employeesService.getCommuteDetails(eou).pipe(map((response) => response?.data?.[0] || null))
-            )
+    if (data.action === 'save') {
+      return from(this.authService.getEou())
+        .pipe(
+          concatMap((eou) =>
+            this.employeesService.getCommuteDetails(eou).pipe(map((response) => response?.data?.[0] || null))
           )
-          .subscribe((commuteDetailsResponse) => {
-            this.commuteDetails = commuteDetailsResponse?.commute_details || null;
-            this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(
-              this.commuteDetails?.distance
-            );
-            // If the user has saved the commute details, update the commute deduction field to no deduction
-            this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
-            this.showCommuteUpdatedPopover();
-          });
-      } else {
-        // If user closes the modal without saving the commute details, reset the commute deduction field to null
-        this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
-      }
+        )
+        .subscribe((commuteDetailsResponse) => {
+          this.commuteDetails = commuteDetailsResponse?.commute_details || null;
+          this.commuteDeductionOptions = this.mileageService.getCommuteDeductionOptions(this.commuteDetails?.distance);
+          // If the user has saved the commute details, update the commute deduction field to no deduction
+          this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
+          this.showCommuteUpdatedPopover();
+        });
+    } else {
+      // If user closes the modal without saving the commute details, reset the commute deduction field to null
+      this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
   }
 }
