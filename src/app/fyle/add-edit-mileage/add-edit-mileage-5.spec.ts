@@ -82,6 +82,8 @@ import { EmployeesService } from 'src/app/core/services/platform/v1/spender/empl
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 import { commuteDeductionOptionsData1 } from 'src/app/core/mock-data/commute-deduction-options.data';
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditMileage-5', () => {
@@ -852,6 +854,92 @@ export function TestCases5(getTestBed) {
 
       expect(component.isRedirectedFromReport).toBeTrue();
       expect(component.canRemoveFromReport).toBeTrue();
+    });
+
+    it('getCommuteUpdatedTextBody(): should return body text of commute updated popover', () => {
+      const result = component.getCommuteUpdatedTextBody();
+
+      expect(result).toEqual(
+        `<div>
+              <p>Your Commute Details have been successfully added to your Profile
+              Settings.</p>
+              <p>You can now easily deduct commute from your Mileage expenses.<p>  
+            </div>`
+      );
+    });
+
+    it('showCommuteUpdatedPopover(): should show commute updated popover', fakeAsync(() => {
+      const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
+      popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
+      spyOn(component, 'getCommuteUpdatedTextBody').and.returnValue('body message');
+
+      component.showCommuteUpdatedPopover();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Commute Updated',
+          message: 'body message',
+          primaryCta: {
+            text: 'Proceed',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      expect(sizeLimitExceededPopoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    describe('openCommuteDetailsModal():', () => {
+      beforeEach(() => {
+        authService.getEou.and.resolveTo(apiEouRes);
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        spyOn(component, 'showCommuteUpdatedPopover');
+      });
+
+      it('should set commuteDetails and change commute deduction form value to no deduction if user saves commute details from mileage page', fakeAsync(() => {
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'save' } });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        component.openCommuteDetailsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FySelectCommuteDetailsComponent,
+          mode: 'ios',
+        });
+        expect(commuteDetailsModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(commuteDetailsModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
+        expect(component.commuteDetails).toEqual(commuteDetailsResponseData.data[0].commute_details);
+        expect(component.commuteDeductionOptions).toEqual(commuteDeductionOptionsData1);
+        expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
+        expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
+      }));
+
+      it('should set commuteDetails to null if data returns undefined', fakeAsync(() => {
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'save' } });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        const mockCommuteDetails = cloneDeep(commuteDetailsResponseData);
+        mockCommuteDetails.data = undefined;
+        employeesService.getCommuteDetails.and.returnValue(of(mockCommuteDetails));
+
+        component.openCommuteDetailsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FySelectCommuteDetailsComponent,
+          mode: 'ios',
+        });
+
+        expect(component.commuteDetails).toBeNull();
+      }));
     });
   });
 }

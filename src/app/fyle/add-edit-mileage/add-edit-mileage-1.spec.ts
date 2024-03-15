@@ -1067,7 +1067,7 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData2] },
           })
           .subscribe((res) => {
-            expect(res).toEqual('0.01');
+            expect(res).toEqual(0.01);
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData2]);
             done();
           });
@@ -1090,7 +1090,7 @@ export function TestCases1(getTestBed) {
             value: { mileageLocations: [locationData1, locationData3] },
           })
           .subscribe((res) => {
-            expect(res).toEqual('12.43');
+            expect(res).toEqual(12.43);
             expect(mileageService.getDistance).toHaveBeenCalledOnceWith([locationData1, locationData3]);
             done();
           });
@@ -1107,7 +1107,7 @@ export function TestCases1(getTestBed) {
             value: null,
           })
           .subscribe((res) => {
-            expect(res).toEqual('0.00');
+            expect(res).toEqual(0.0);
             expect(mileageService.getDistance).toHaveBeenCalledTimes(1);
             expect(component.getFormValues).toHaveBeenCalledTimes(1);
             done();
