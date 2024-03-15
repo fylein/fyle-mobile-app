@@ -180,17 +180,19 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  isZeroAmountPerDiem(): boolean {
+  isZeroAmountPerDiemOrMileage(): boolean {
     return (
-      this.expense?.category?.name?.toLowerCase() === 'per diem' &&
+      (this.expense?.category?.name?.toLowerCase() === 'per diem' ||
+        this.expense?.category?.name?.toLowerCase() === 'mileage') &&
       (this.expense.amount === 0 || this.expense.claim_amount === 0)
     );
   }
 
   checkIfScanIsCompleted(): boolean {
-    const isPerDiem = this.isZeroAmountPerDiem();
+    const isZeroAmountPerDiemOrMileage = this.isZeroAmountPerDiemOrMileage();
+
     const hasUserManuallyEnteredData =
-      isPerDiem ||
+      isZeroAmountPerDiemOrMileage ||
       ((this.expense.amount || this.expense.claim_amount) &&
         isNumber(this.expense.amount || this.expense.claim_amount));
     const isRequiredExtractedDataPresent = this.expense.extracted_data?.amount;
