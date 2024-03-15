@@ -423,7 +423,6 @@ export class MyProfilePage {
       componentProps: {
         existingCommuteDetails: this.commuteDetails,
       },
-      mode: 'ios',
     });
 
     await commuteDetailsModal.present();
