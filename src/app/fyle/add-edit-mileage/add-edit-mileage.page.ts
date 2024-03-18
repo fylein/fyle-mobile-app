@@ -1693,7 +1693,13 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType: string) => {
-      this.updateDistanceOnDeductionChange(commuteDeductionType);
+      if (this.commuteDetails?.id) {
+        this.updateDistanceOnDeductionChange(commuteDeductionType);
+      } else {
+        if (!(commuteDeductionType === 'NO_DEDUCTION')) {
+          this.openCommuteDetailsModal();
+        }
+      }
     });
 
     this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('roundTrip')).subscribe(() => {
@@ -2998,6 +3004,9 @@ export class AddEditMileagePage implements OnInit {
           this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
           this.showCommuteUpdatedPopover();
         });
+    } else {
+      // If user closes the modal without saving the commute details, reset the commute deduction field to null
+      this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
   }
 }
