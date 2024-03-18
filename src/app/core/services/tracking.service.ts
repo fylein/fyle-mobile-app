@@ -37,6 +37,8 @@ import { TeamReportsFilters } from '../models/team-reports-filters.model';
 import { forkJoin, from } from 'rxjs';
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
+import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -649,5 +651,41 @@ export class TrackingService {
 
   spenderSelectedPendingTxnFromMyExpenses(): void {
     this.eventTrack('Spenders select expenses with Pending transactions');
+  }
+
+  commuteDeductionAddLocationClickFromProfile(): void {
+    this.eventTrack('Commute Deduction - Add Location Click From Profile');
+  }
+
+  commuteDeductionEditLocationClickFromProfile(): void {
+    this.eventTrack('Commute Deduction - Edit Location Click From Profile');
+  }
+
+  commuteDeductionDetailsEdited(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Edited', properties);
+  }
+
+  commuteDeductionAddLocationOptionClicked(): void {
+    this.eventTrack('Commute Deduction - Add Location Option Click');
+  }
+
+  commuteDeductionTaskClicked(): void {
+    this.eventTrack('Commute Deduction - Task Click');
+  }
+
+  commuteDeductionDetailsAddedFromProfile(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added From Profile', properties);
+  }
+
+  commuteDeductionDetailsAddedFromSpenderTask(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added from Spender Task', properties);
+  }
+
+  commuteDeductionDetailsAddedFromMileageForm(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added from Mileage Form', properties);
+  }
+
+  commuteDeductionDetailsError(properties: HttpErrorResponse): void {
+    this.eventTrack('Commute Deduction - Details Error', properties);
   }
 }

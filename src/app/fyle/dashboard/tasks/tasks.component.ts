@@ -30,6 +30,7 @@ import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-qu
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-tasks',
@@ -679,6 +680,8 @@ export class TasksComponent implements OnInit {
   }
 
   async onCommuteDetailsTaskClick(): Promise<void> {
+    this.trackingService.commuteDeductionTaskClicked();
+
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
       mode: 'ios',
@@ -686,10 +689,14 @@ export class TasksComponent implements OnInit {
 
     await commuteDetailsModal.present();
 
-    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
 
     // Show toast message and refresh the page once commute details are saved
     if (data.action === 'save') {
+      this.trackingService.commuteDeductionDetailsAddedFromSpenderTask(data.commuteDetails);
       this.showToastMessage('Commute details saved successfully', 'success');
       this.doRefresh();
     }
