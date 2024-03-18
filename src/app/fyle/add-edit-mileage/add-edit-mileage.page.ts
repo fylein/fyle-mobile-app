@@ -1696,7 +1696,9 @@ export class AddEditMileagePage implements OnInit {
       if (this.commuteDetails?.id) {
         this.updateDistanceOnDeductionChange(commuteDeductionType);
       } else {
-        this.openCommuteDetailsModal();
+        if (!(commuteDeductionType === 'NO_DEDUCTION')) {
+          this.openCommuteDetailsModal();
+        }
       }
     });
 
