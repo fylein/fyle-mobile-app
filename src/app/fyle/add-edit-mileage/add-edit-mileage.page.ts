@@ -109,6 +109,7 @@ import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-se
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
 import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -2981,6 +2982,8 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async openCommuteDetailsModal(): Promise<Subscription> {
+    this.trackingService.commuteDeductionAddLocationOptionClicked();
+
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
       mode: 'ios',
@@ -2988,9 +2991,14 @@ export class AddEditMileagePage implements OnInit {
 
     await commuteDetailsModal.present();
 
-    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
 
     if (data.action === 'save') {
+      this.trackingService.commuteDeductionDetailsAddedFromMileageForm(data.commuteDetails);
+
       return from(this.authService.getEou())
         .pipe(
           concatMap((eou) =>

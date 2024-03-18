@@ -954,6 +954,7 @@ export function TestCases5(getTestBed) {
           component: FySelectCommuteDetailsComponent,
           mode: 'ios',
         });
+        expect(trackingService.commuteDeductionAddLocationOptionClicked).toHaveBeenCalledTimes(1);
         expect(commuteDetailsModalSpy.present).toHaveBeenCalledTimes(1);
         expect(commuteDetailsModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
         expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -962,6 +963,9 @@ export function TestCases5(getTestBed) {
         expect(component.commuteDeductionOptions).toEqual(commuteDeductionOptionsData1);
         expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
         expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
+        expect(trackingService.commuteDeductionDetailsAddedFromMileageForm).toHaveBeenCalledOnceWith(
+          commuteDetailsResponseData.data[0]
+        );
       }));
 
       it('should set commuteDetails to null if data returns undefined', fakeAsync(() => {

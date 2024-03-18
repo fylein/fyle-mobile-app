@@ -110,15 +110,16 @@ export class FySelectCommuteDetailsComponent implements OnInit {
           }),
           catchError((err: HttpErrorResponse) => {
             this.saveCommuteDetailsLoading = false;
-
+            console.log(err);
+            this.trackingService.commuteDeductionDetailsError(err);
             const message = 'We were unable to save your commute details. Please enter correct home and work location.';
             this.showToastMessage(message, ToastType.FAILURE, 'msb-failure');
             return throwError(err);
           })
         )
-        .subscribe(() => {
+        .subscribe((commuteDetailsResponse) => {
           this.saveCommuteDetailsLoading = false;
-          this.modalController.dismiss({ action: 'save' });
+          this.modalController.dismiss({ action: 'save', commuteDetails: commuteDetailsResponse.data });
         });
     } else {
       this.commuteDetails.markAllAsTouched();

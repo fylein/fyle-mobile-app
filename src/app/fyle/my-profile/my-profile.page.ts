@@ -38,6 +38,7 @@ import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-se
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -418,6 +419,14 @@ export class MyProfilePage {
   }
 
   async openCommuteDetailsModal(): Promise<void> {
+    const isEditCommuteDetails = this.commuteDetails ? true : false;
+
+    if (isEditCommuteDetails) {
+      this.trackingService.commuteDeductionEditLocationClickFromProfile();
+    } else {
+      this.trackingService.commuteDeductionAddLocationClickFromProfile();
+    }
+
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
       componentProps: {
@@ -428,10 +437,18 @@ export class MyProfilePage {
 
     await commuteDetailsModal.present();
 
-    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
 
     // If the user edited or saved the commute details, refresh the page and show the toast message
     if (data.action === 'save') {
+      if (isEditCommuteDetails) {
+        this.trackingService.commuteDeductionDetailsEdited(data.commuteDetails);
+      } else {
+        this.trackingService.commuteDeductionDetailsAddedFromProfile(data.commuteDetails);
+      }
       this.reset();
       this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
     }
