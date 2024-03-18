@@ -941,5 +941,74 @@ export function TestCases5(getTestBed) {
         expect(component.commuteDetails).toBeNull();
       }));
     });
+
+    describe('updateDistanceOnRouteChange():', () => {
+      it('should not modify distance if distance is zero', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 0, roundTrip: false });
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should not modify distance if commuteDeduction is not defined', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(null);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if previous round trip is equal to current round trip value', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 23, roundTrip: false };
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if route form value and previousRouteValue are null', () => {
+        component.previousRouteValue = null;
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is marked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(660);
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(15);
+      });
+
+      it('should set distance as zero if after calculation distance is negative if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 150, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRouteChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+    });
   });
 }
