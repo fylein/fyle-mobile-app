@@ -419,9 +419,9 @@ export class MyProfilePage {
   }
 
   async openCommuteDetailsModal(): Promise<void> {
-    const isEditCommuteDetails = this.commuteDetails ? true : false;
+    const isEditingCommuteDetails = this.commuteDetails?.id ? true : false;
 
-    if (isEditCommuteDetails) {
+    if (isEditingCommuteDetails) {
       this.trackingService.commuteDeductionEditLocationClickFromProfile();
     } else {
       this.trackingService.commuteDeductionAddLocationClickFromProfile();
@@ -444,7 +444,7 @@ export class MyProfilePage {
 
     // If the user edited or saved the commute details, refresh the page and show the toast message
     if (data.action === 'save') {
-      if (isEditCommuteDetails) {
+      if (isEditingCommuteDetails) {
         this.trackingService.commuteDeductionDetailsEdited(data.commuteDetails);
       } else {
         this.trackingService.commuteDeductionDetailsAddedFromProfile(data.commuteDetails);

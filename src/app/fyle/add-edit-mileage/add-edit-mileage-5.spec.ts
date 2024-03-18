@@ -944,7 +944,9 @@ export function TestCases5(getTestBed) {
 
       it('should set commuteDetails and change commute deduction form value to no deduction if user saves commute details from mileage page', fakeAsync(() => {
         const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
-        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'save' } });
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+          data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+        });
         modalController.create.and.resolveTo(commuteDetailsModalSpy);
 
         component.openCommuteDetailsModal();
