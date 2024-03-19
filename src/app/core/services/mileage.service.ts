@@ -50,8 +50,16 @@ export class MileageService {
 
   getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
     return [
-      { label: 'One Way Distance', value: CommuteDeduction.ONE_WAY, distance: distance || null },
-      { label: 'Round Trip Distance', value: CommuteDeduction.ROUND_TRIP, distance: distance ? distance * 2 : null },
+      {
+        label: 'One Way Distance',
+        value: CommuteDeduction.ONE_WAY,
+        distance: distance === null || distance === undefined ? null : distance,
+      },
+      {
+        label: 'Round Trip Distance',
+        value: CommuteDeduction.ROUND_TRIP,
+        distance: distance === null || distance === undefined ? null : distance * 2,
+      },
       { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
     ];
   }
