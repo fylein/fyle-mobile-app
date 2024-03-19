@@ -739,7 +739,46 @@ export function TestCases5(getTestBed) {
         expect(component.fg.get('commuteDeduction').value).toEqual(CommuteDeduction.ONE_WAY);
       }));
 
-      it('should call updateDistanceOnDeductionChange method if commuteDeduction form control value changes', fakeAsync(() => {
+      it('should call updateDistanceOnDeductionChange method if commuteDeduction form control value changes and commuteDetails is defined', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        activatedRoute.snapshot.params.id = 'tx3qwe4ty';
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        const mockEtxn = cloneDeep(unflattenedTxnData);
+        mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
+        spyOn(component, 'getEditExpense').and.returnValue(of(mockEtxn));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        spyOn(component, 'updateDistanceOnDeductionChange');
+        spyOn(component, 'openCommuteDetailsModal');
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        component.commuteDetails.id = 12345;
+        component.fg.get('commuteDeduction').setValue(CommuteDeduction.ROUND_TRIP);
+
+        expect(component.updateDistanceOnDeductionChange).toHaveBeenCalledTimes(1);
+        expect(component.openCommuteDetailsModal).not.toHaveBeenCalled();
+      }));
+
+      it('should call openCommuteDetailsModal method if commuteDeduction form control value changes and commuteDetails is not defined', fakeAsync(() => {
         component.mode = 'edit';
         activatedRoute.snapshot.params.navigate_back = true;
         activatedRoute.snapshot.params.activeIndex = 0;
@@ -761,6 +800,7 @@ export function TestCases5(getTestBed) {
         employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
         mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
         spyOn(component, 'updateDistanceOnDeductionChange');
+        spyOn(component, 'openCommuteDetailsModal');
         fixture.detectChanges();
 
         component.ionViewWillEnter();
@@ -769,8 +809,11 @@ export function TestCases5(getTestBed) {
 
         setupMatchers();
 
+        component.commuteDetails = null;
         component.fg.get('commuteDeduction').setValue(CommuteDeduction.ROUND_TRIP);
-        expect(component.updateDistanceOnDeductionChange).toHaveBeenCalledTimes(1);
+
+        expect(component.updateDistanceOnDeductionChange).not.toHaveBeenCalled();
+        expect(component.openCommuteDetailsModal).toHaveBeenCalledTimes(1);
       }));
     });
 
@@ -901,7 +944,9 @@ export function TestCases5(getTestBed) {
 
       it('should set commuteDetails and change commute deduction form value to no deduction if user saves commute details from mileage page', fakeAsync(() => {
         const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
-        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'save' } });
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+          data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+        });
         modalController.create.and.resolveTo(commuteDetailsModalSpy);
 
         component.openCommuteDetailsModal();
@@ -911,6 +956,7 @@ export function TestCases5(getTestBed) {
           component: FySelectCommuteDetailsComponent,
           mode: 'ios',
         });
+        expect(trackingService.commuteDeductionAddLocationOptionClicked).toHaveBeenCalledTimes(1);
         expect(commuteDetailsModalSpy.present).toHaveBeenCalledTimes(1);
         expect(commuteDetailsModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
         expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -919,6 +965,9 @@ export function TestCases5(getTestBed) {
         expect(component.commuteDeductionOptions).toEqual(commuteDeductionOptionsData1);
         expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
         expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
+        expect(trackingService.commuteDeductionDetailsAddedFromMileageForm).toHaveBeenCalledOnceWith(
+          commuteDetailsResponseData.data[0]
+        );
       }));
 
       it('should set commuteDetails to null if data returns undefined', fakeAsync(() => {

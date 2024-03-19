@@ -100,7 +100,7 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
   }
 
   customDistanceValidator(control: AbstractControl): { invalidDistance: boolean } {
-    const passedInDistance = control.value && +control.value;
+    const passedInDistance = parseFloat(control.value);
     if (passedInDistance !== null) {
       return passedInDistance >= 0
         ? null

@@ -173,6 +173,8 @@ fdescribe('AddEditMileagePage', () => {
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
       'clickDeleteExpense',
+      'commuteDeductionAddLocationOptionClicked',
+      'commuteDeductionDetailsAddedFromMileageForm',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [

@@ -109,6 +109,7 @@ import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-se
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { CommuteDeductionOptions } from 'src/app/core/models/commute-deduction-options.model';
 import { MileageFormValue } from 'src/app/core/models/mileage-form-value.model';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-add-edit-mileage',
@@ -1693,7 +1694,13 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.fg.controls.commuteDeduction.valueChanges.subscribe((commuteDeductionType: string) => {
-      this.updateDistanceOnDeductionChange(commuteDeductionType);
+      if (this.commuteDetails?.id) {
+        this.updateDistanceOnDeductionChange(commuteDeductionType);
+      } else {
+        if (!(commuteDeductionType === 'NO_DEDUCTION')) {
+          this.openCommuteDetailsModal();
+        }
+      }
     });
 
     this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('roundTrip')).subscribe(() => {
@@ -2975,6 +2982,8 @@ export class AddEditMileagePage implements OnInit {
   }
 
   async openCommuteDetailsModal(): Promise<Subscription> {
+    this.trackingService.commuteDeductionAddLocationOptionClicked();
+
     const commuteDetailsModal = await this.modalController.create({
       component: FySelectCommuteDetailsComponent,
       mode: 'ios',
@@ -2982,9 +2991,14 @@ export class AddEditMileagePage implements OnInit {
 
     await commuteDetailsModal.present();
 
-    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{ action: string }>;
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
 
     if (data.action === 'save') {
+      this.trackingService.commuteDeductionDetailsAddedFromMileageForm(data.commuteDetails);
+
       return from(this.authService.getEou())
         .pipe(
           concatMap((eou) =>
@@ -2998,6 +3012,9 @@ export class AddEditMileagePage implements OnInit {
           this.fg.patchValue({ commuteDeduction: 'NO_DEDUCTION' });
           this.showCommuteUpdatedPopover();
         });
+    } else {
+      // If user closes the modal without saving the commute details, reset the commute deduction field to null
+      this.fg.patchValue({ commuteDeduction: null }, { emitEvent: false });
     }
   }
 }

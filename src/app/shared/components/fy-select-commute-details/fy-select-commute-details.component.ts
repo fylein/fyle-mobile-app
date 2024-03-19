@@ -1,12 +1,18 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ModalController } from '@ionic/angular';
-import { forkJoin, map, switchMap } from 'rxjs';
+import { catchError, forkJoin, map, switchMap, throwError } from 'rxjs';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Location } from 'src/app/core/models/location.model';
 import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
 import { LocationService } from 'src/app/core/services/location.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { ToastMessageComponent } from '../toast-message/toast-message.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-fy-select-commute-details',
@@ -18,12 +24,17 @@ export class FySelectCommuteDetailsComponent implements OnInit {
 
   commuteDetails: FormGroup;
 
+  saveCommuteDetailsLoading = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private modalController: ModalController,
     private locationService: LocationService,
     private employeesService: EmployeesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private matSnackBar: MatSnackBar,
+    private snackbarProperties: SnackbarPropertiesService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit(): void {
@@ -60,8 +71,20 @@ export class FySelectCommuteDetailsComponent implements OnInit {
     return formattedLocation;
   }
 
+  showToastMessage(toastMessage: string, toastType: ToastType, panelClass: string): void {
+    const message = toastMessage;
+
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(toastType, { message }),
+      panelClass: [panelClass],
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
   save(): void {
     if (this.commuteDetails.valid) {
+      this.saveCommuteDetailsLoading = true;
+
       const commuteDetailsFormValue = this.commuteDetails.value as { homeLocation: Location; workLocation: Location };
 
       const getMileageUnit$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage?.unit));
@@ -84,10 +107,18 @@ export class FySelectCommuteDetailsComponent implements OnInit {
             };
 
             return this.employeesService.postCommuteDetails(commuteDetails);
+          }),
+          catchError((err: HttpErrorResponse) => {
+            this.saveCommuteDetailsLoading = false;
+            this.trackingService.commuteDeductionDetailsError(err);
+            const message = 'We were unable to save your commute details. Please enter correct home and work location.';
+            this.showToastMessage(message, ToastType.FAILURE, 'msb-failure');
+            return throwError(err);
           })
         )
-        .subscribe(() => {
-          this.modalController.dismiss({ action: 'save' });
+        .subscribe((commuteDetailsResponse) => {
+          this.saveCommuteDetailsLoading = false;
+          this.modalController.dismiss({ action: 'save', commuteDetails: commuteDetailsResponse.data });
         });
     } else {
       this.commuteDetails.markAllAsTouched();
