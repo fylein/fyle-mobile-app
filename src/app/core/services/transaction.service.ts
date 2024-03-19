@@ -834,6 +834,8 @@ export class TransactionService {
         mileage_is_round_trip: expense.mileage_is_round_trip,
         mileage_calculated_distance: expense.mileage_calculated_distance,
         mileage_calculated_amount: expense.mileage_calculated_amount,
+        commute_deduction: expense.commute_deduction,
+        commute_deduction_id: expense.commute_details_id,
         manual_flag: expense.is_manually_flagged,
         policy_flag: expense.is_policy_flagged,
         extracted_data: expense.extracted_data

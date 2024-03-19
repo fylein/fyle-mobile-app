@@ -61,6 +61,7 @@ import { TestCases2 } from '../add-edit-mileage/add-edit-mileage-2.spec';
 import { TestCases3 } from '../add-edit-mileage/add-edit-mileage-3.spec';
 import { TestCases4 } from './add-edit-mileage-4.spec';
 import { TestCases5 } from './add-edit-mileage-5.spec';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -172,6 +173,8 @@ describe('AddEditMileagePage', () => {
       'showMoreClicked',
       'newExpenseCreatedFromPersonalCard',
       'clickDeleteExpense',
+      'commuteDeductionAddLocationOptionClicked',
+      'commuteDeductionDetailsAddedFromMileageForm',
     ]);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get']);
     const recentlyUsedItemsServiceSpy = jasmine.createSpyObj('RecentlyUsedItemsService', [
@@ -209,7 +212,12 @@ describe('AddEditMileagePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getVariation']);
     const platformSpy = jasmine.createSpyObj('Platform', ['is']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
-    const mileageServiceSpy = jasmine.createSpyObj('MileageService', ['getDistance', 'getOrgUserMileageSettings']);
+    const mileageServiceSpy = jasmine.createSpyObj('MileageService', [
+      'getDistance',
+      'getOrgUserMileageSettings',
+      'isCommuteDeductionEnabled',
+      'getCommuteDeductionOptions',
+    ]);
     const mileageRateServiceSpy = jasmine.createSpyObj('MileageRatesService', [
       'filterEnabledMileageRates',
       'getReadableRate',
@@ -223,6 +231,8 @@ describe('AddEditMileagePage', () => {
     ]);
 
     const platformHandlerService = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
+
+    const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -435,6 +445,10 @@ describe('AddEditMileagePage', () => {
         {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
+        },
+        {
+          provide: EmployeesService,
+          useValue: employeesServiceSpy,
         },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],

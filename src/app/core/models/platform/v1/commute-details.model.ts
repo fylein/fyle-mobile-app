@@ -4,6 +4,6 @@ export interface CommuteDetails {
   id?: number;
   distance: number;
   distance_unit: string;
-  home_location: Location;
-  work_location: Location;
+  home_location: Omit<Location, 'display'>;
+  work_location: Omit<Location, 'display'>;
 }

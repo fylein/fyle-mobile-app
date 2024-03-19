@@ -78,6 +78,7 @@ describe('FyLocationComponent', () => {
         allowCustom: component.allowCustom,
         recentLocations: component.recentLocations,
         cacheName: component.cacheName,
+        disableEnteringManualLocation: false,
       },
     });
     tick(1000);

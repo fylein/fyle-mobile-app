@@ -31,7 +31,7 @@
         </button>
       </div>
     </mat-form-field>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons *ngIf="!disableEnteringManualLocation" mode="md" slot="end">
       <ion-button
         color="fy-primary"
         class="text-capitalize selection-modal--cta-button"
