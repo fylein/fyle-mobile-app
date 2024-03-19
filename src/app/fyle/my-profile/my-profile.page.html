@@ -37,12 +37,12 @@
       </ng-container>
 
       <!-- TODO - Re-enable again at the time of release -->
-      <ng-container *ngIf="false && isMileageEnabled && isCommuteDeductionEnabled">
+      <ng-container *ngIf="isMileageEnabled && isCommuteDeductionEnabled">
         <div class="my-profile__section-header">Commute Details</div>
         <div
-          *ngIf="!isCommuteDetailsPresent"
+          *ngIf="!commuteDetails?.home_location"
           class="my-profile__card"
-          [routerLink]="[ '/', 'enterprise', 'add_commute_details' ]"
+          (click)="openCommuteDetailsModal()"
           matRipple
         >
           <div class="my-profile__card__title">Add Location</div>
@@ -52,7 +52,7 @@
             slot="icon-only"
           ></ion-icon>
         </div>
-        <div *ngIf="commuteDetails" class="my-profile__card">
+        <div *ngIf="commuteDetails?.home_location" class="my-profile__card">
           <div class="my-profile__card__content-container">
             <div class="my-profile__card__location-detail-card">
               <div class="my-profile__card__location-icon-container">
@@ -80,7 +80,7 @@
                 </div>
               </div>
             </div>
-            <div class="my-profile__card__edit-commute-button">
+            <div (click)="openCommuteDetailsModal()" class="my-profile__card__edit-commute-button">
               <ion-icon
                 class="my-profile__card__edit-commute-button__icon"
                 src="../../../assets/svg/edit.svg"

@@ -896,14 +896,14 @@ describe('ExpensesCardComponent', () => {
     expect(emitSpy).toHaveBeenCalledOnceWith(component.expense);
   });
 
-  describe('isPerDiemWithZeroAmount():', () => {
+  describe('isZeroAmountPerDiemOrMileage():', () => {
     it('should check if scan is complete and return true if it is per diem expense with amount 0', () => {
       component.expense = {
         ...cloneDeep(expenseData),
         amount: 0,
       };
       component.expense.category.name = 'Per Diem';
-      const result = component.isZeroAmountPerDiem();
+      const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
@@ -914,14 +914,24 @@ describe('ExpensesCardComponent', () => {
         claim_amount: 0,
       };
       component.expense.category.name = 'Per Diem';
-      const result = component.isZeroAmountPerDiem();
+      const result = component.isZeroAmountPerDiemOrMileage();
+      expect(result).toBeTrue();
+    });
+
+    it('should check if scan is complete and return true if it is mileage expense with amount 0', () => {
+      component.expense = {
+        ...cloneDeep(expenseData),
+        amount: 0,
+      };
+      component.expense.category.name = 'Mileage';
+      const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeTrue();
     });
 
     it('should return false if org category is null', () => {
       component.expense = cloneDeep(expenseData);
       component.expense.category.name = null;
-      const result = component.isZeroAmountPerDiem();
+      const result = component.isZeroAmountPerDiemOrMileage();
       expect(result).toBeFalse();
     });
   });
