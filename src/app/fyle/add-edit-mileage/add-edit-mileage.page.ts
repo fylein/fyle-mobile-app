@@ -1305,7 +1305,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  updateDistanceOnRouteChange(): void {
+  updateDistanceOnRoundTripChange(): void {
     const distance = this.getFormValues().route?.distance;
     const commuteDeduction = this.getFormValues().commuteDeduction;
     const currentRoundTrip = (this.fg.controls.route.value as { roundTrip: boolean })?.roundTrip;
@@ -1735,7 +1735,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('roundTrip')).subscribe(() => {
-      this.updateDistanceOnRouteChange();
+      this.updateDistanceOnRoundTripChange();
     });
 
     from(this.loaderService.showLoader('Please wait...', 10000))
