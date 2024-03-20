@@ -1429,7 +1429,7 @@ export class AddEditMileagePage implements OnInit {
        * and commute deduction type is NO_DEDUCTION
        */
 
-      if (this.expenseId && mileageLocations?.length > 1 && distance === 0) {
+      if (mileageLocations?.length > 1 && distance === 0) {
         this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
           this.previousCommuteDeductionType = commuteDeductionType;
           const distanceInKm = distance / 1000;
