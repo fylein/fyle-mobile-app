@@ -130,9 +130,9 @@
   <div
     class="route-selector--internal-block"
     *ngIf="mileageLocations.controls.length < 3"
-    [ngClass]="{ 'route-selector--input-disabled': isRoundTripEnabled }"
+    [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }"
   >
-    <mat-checkbox [disabled]="isRoundTripEnabled" formControlName="roundTrip">
+    <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
       <span class="route-selector--checkbox"> Round Trip </span>
     </mat-checkbox>
   </div>

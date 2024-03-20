@@ -1305,10 +1305,11 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  updateDistanceOnRouteChange(): void {
+  updateDistanceOnRoundTripChange(): void {
     const distance = this.getFormValues().route?.distance;
     const commuteDeduction = this.getFormValues().commuteDeduction;
     const currentRoundTrip = (this.fg.controls.route.value as { roundTrip: boolean })?.roundTrip;
+    const mileageLocations = this.getFormValues().route?.mileageLocations;
 
     if (
       distance !== null &&
@@ -1326,11 +1327,33 @@ export class AddEditMileagePage implements OnInit {
        * rather it should first double the distance and then deduct commute from it
        */
       if (currentRoundTrip) {
-        const modifiedDistance = parseFloat((distance * 2 + commuteDeductedDistance).toFixed(2));
-        this.fg.controls.route.patchValue(
-          { distance: modifiedDistance, roundTrip: currentRoundTrip },
-          { emitEvent: false }
-        );
+        // Case when distance is zero and mileage locations are present, on changing roundTrip, it should calculate distance as per location
+        if (distance === 0 && mileageLocations?.length > 1) {
+          this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
+            const distanceInKm = distance / 1000;
+            const finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+            let modifiedDistance = parseFloat((finalDistance * 2 - commuteDeductedDistance).toFixed(2));
+            if (modifiedDistance < 0) {
+              modifiedDistance = 0;
+            }
+            this.fg.controls.route.patchValue(
+              { distance: modifiedDistance, roundTrip: currentRoundTrip },
+              { emitEvent: false }
+            );
+
+            this.previousRouteValue = this.getFormValues().route;
+          });
+        } else if (distance !== 0) {
+          const modifiedDistance = parseFloat((distance * 2 + commuteDeductedDistance).toFixed(2));
+          this.fg.controls.route.patchValue(
+            { distance: modifiedDistance, roundTrip: currentRoundTrip },
+            { emitEvent: false }
+          );
+
+          // Only change the previous roundTrip and not mileageLocations
+          const previousRouteValueCopy = cloneDeep(this.previousRouteValue);
+          this.previousRouteValue = { ...previousRouteValueCopy, roundTrip: currentRoundTrip };
+        }
       } else {
         let modifiedDistance = parseFloat(((distance - commuteDeductedDistance) / 2).toFixed(2));
         if (modifiedDistance < 0) {
@@ -1340,9 +1363,11 @@ export class AddEditMileagePage implements OnInit {
           { distance: modifiedDistance, roundTrip: currentRoundTrip },
           { emitEvent: false }
         );
-      }
 
-      this.previousRouteValue = this.getFormValues().route;
+        // Only change the previous roundTrip and not mileageLocations
+        const previousRouteValueCopy = cloneDeep(this.previousRouteValue);
+        this.previousRouteValue = { ...previousRouteValueCopy, roundTrip: currentRoundTrip };
+      }
     }
   }
 
@@ -1404,15 +1429,15 @@ export class AddEditMileagePage implements OnInit {
        * and commute deduction type is NO_DEDUCTION
        */
 
-      if (this.expenseId && mileageLocations?.length > 1 && distance === 0) {
+      if (mileageLocations?.length > 1 && distance === 0) {
         this.mileageService.getDistance(mileageLocations).subscribe((distance) => {
           this.previousCommuteDeductionType = commuteDeductionType;
           const distanceInKm = distance / 1000;
-          const finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
-          const commuteDeduction = this.commuteDeductionOptions.find(
-            (option) => option.value === this.existingCommuteDeduction
-          );
-          this.initialDistance = parseFloat((finalDistance + commuteDeduction.distance).toFixed(2));
+          let finalDistance = this.distanceUnit?.toLowerCase() === 'miles' ? distanceInKm * 0.6213 : distanceInKm;
+          if (this.getFormValues().route?.roundTrip) {
+            finalDistance = finalDistance * 2;
+          }
+          this.initialDistance = finalDistance;
           this.calculateNetDistanceForDeduction(commuteDeductionType, selectedCommuteDeduction);
         });
       } else {
@@ -1421,9 +1446,9 @@ export class AddEditMileagePage implements OnInit {
     }
   }
 
-  updateDistanceOnLocationChange(): void {
-    const distance = this.getFormValues().route?.distance;
+  updateDistanceOnLocationChange(distance: number): void {
     const commuteDeductionType = this.getFormValues().commuteDeduction;
+    const currentRoundTrip = this.getFormValues().route?.roundTrip;
 
     if (
       distance !== null &&
@@ -1455,6 +1480,12 @@ export class AddEditMileagePage implements OnInit {
           { emitEvent: false }
         );
       }
+    } else if (
+      distance !== null &&
+      distance >= 0 &&
+      !isEqual(this.previousRouteValue?.mileageLocations, this.getFormValues().route?.mileageLocations)
+    ) {
+      this.fg.controls.route.patchValue({ distance, roundTrip: currentRoundTrip }, { emitEvent: false });
     }
   }
 
@@ -1704,7 +1735,7 @@ export class AddEditMileagePage implements OnInit {
     });
 
     this.fg.controls.route.valueChanges.pipe(distinctUntilKeyChanged('roundTrip')).subscribe(() => {
-      this.updateDistanceOnRouteChange();
+      this.updateDistanceOnRoundTripChange();
     });
 
     from(this.loaderService.showLoader('Please wait...', 10000))
