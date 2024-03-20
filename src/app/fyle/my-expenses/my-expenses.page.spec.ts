@@ -174,7 +174,6 @@ describe('MyExpensesV2Page', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'getMyExpensesCount',
       'getMyExpenses',
-      'getPaginatedETxncCount',
       'clearCache',
       'generateCardNumberParams',
       'generateDateParams',
@@ -189,7 +188,6 @@ describe('MyExpensesV2Page', () => {
       'excludeCCCExpenses',
       'isCriticalPolicyViolatedExpense',
       'isExpenseInDraft',
-      'getETxnUnflattened',
       'getAllExpenses',
       'getDeleteDialogBody',
       'getExpenseDeletionMessage',
