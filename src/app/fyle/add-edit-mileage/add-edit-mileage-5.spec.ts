@@ -84,6 +84,7 @@ import { commuteDeductionOptionsData1 } from 'src/app/core/mock-data/commute-ded
 import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditMileage-5', () => {
@@ -1010,6 +1011,119 @@ export function TestCases5(getTestBed) {
         expect(component.showCommuteUpdatedPopover).not.toHaveBeenCalled();
         expect(component.fg.get('commuteDeduction').value).toBeNull();
       }));
+    });
+
+    describe('updateDistanceOnRoundTripChange():', () => {
+      it('should not modify distance if distance is zero', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 0, roundTrip: false });
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should not modify distance if commuteDeduction is not defined', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(null);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if previous round trip is equal to current round trip value', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 23, roundTrip: false };
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if route form value and previousRouteValue are null', () => {
+        component.previousRouteValue = null;
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is marked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(660);
+      });
+
+      it('should not change distance from zero if round trip is marked and locations are not present', () => {
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 0, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(15);
+      });
+
+      it('should set distance as zero if after calculation distance is negative if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 150, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should correctly calculate distance if initially distance is zero, locations are present and roundTrip is checked as true', () => {
+        const mockLocations = cloneDeep([locationData1, locationData2]);
+        component.fg.controls.route.setValue({ mileageLocations: mockLocations, distance: 0, roundTrip: true });
+        component.distanceUnit = 'Miles';
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        mileageService.getDistance.and.returnValue(of(200000));
+
+        component.updateDistanceOnRoundTripChange();
+
+        /*
+         * 200 KM -> 124.26 Miles,
+         * 124.26 * 2 = 248.52 Miles
+         * 248.52 - 200 = 48.52 Miles
+         */
+        expect(component.fg.controls.route.value.distance).toEqual(48.52);
+      });
+
+      it('should set distance as zero if locations are present and roundTrip is checked as true but it is less than commute deduction', () => {
+        const mockLocations = cloneDeep([locationData1, locationData2]);
+        component.fg.controls.route.setValue({ mileageLocations: mockLocations, distance: 0, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        mileageService.getDistance.and.returnValue(of(90000));
+
+        component.updateDistanceOnRoundTripChange();
+
+        /*
+         * 90 * 2 = 180 KM
+         * 180 - 200 = -20 KM
+         */
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
     });
   });
 }
