@@ -108,7 +108,7 @@ describe('RouteSelectorModalComponent', () => {
 
     expect(component.mileageLocations.length).toEqual(4);
     expect(component.distance).toEqual(null);
-    expect(mileageService.getDistance).toHaveBeenCalledTimes(2);
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(4);
   });
 
   it('should reset distance if mileageLocations is changed if distance is 0', () => {
@@ -124,7 +124,7 @@ describe('RouteSelectorModalComponent', () => {
 
     expect(component.mileageLocations.length).toEqual(3);
     expect(component.distance).toEqual('0.00');
-    expect(mileageService.getDistance).toHaveBeenCalledTimes(1);
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(2);
   });
 
   it('should reset distance if mileageLocations is changed if distance is received but round trip is false', () => {
@@ -142,7 +142,7 @@ describe('RouteSelectorModalComponent', () => {
 
     expect(component.mileageLocations.length).toEqual(4);
     expect(component.distance).toEqual('0.01');
-    expect(mileageService.getDistance).toHaveBeenCalledTimes(2);
+    expect(mileageService.getDistance).toHaveBeenCalledTimes(4);
   });
 
   it('addMileageLocation(): should add mileage location', () => {

@@ -83,8 +83,8 @@ export class RouteSelectorComponent implements OnInit, ControlValueAccessor, OnD
     return this.form.controls.mileageLocations as FormArray;
   }
 
-  get isRoundTripEnabled(): boolean {
-    return this.isAmountDisabled || !this.form.controls.distance?.value;
+  get isRoundTripDisabled(): boolean {
+    return this.isAmountDisabled;
   }
 
   onTouched = () => {};
