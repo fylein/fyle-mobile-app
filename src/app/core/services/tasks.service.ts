@@ -451,12 +451,9 @@ export class TasksService {
     });
   }
 
-  getSentBackAdvancesStats(): Observable<Datum[]> {
-    return this.advancesRequestService.getMyAdvanceRequestStats({
-      aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_state: 'in.(DRAFT)',
-      areq_is_sent_back: 'is.true',
-      scalar: true,
+  getSentBackAdvancesStats(): Observable<{ count: number; total_amount: number }> {
+    return this.advancesRequestService.getAdvanceRequestStats({
+      state: 'eq.SENT_BACK',
     });
   }
 
@@ -465,8 +462,20 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ advancesStats, homeCurrency }: { advancesStats: Datum[]; homeCurrency: string }) =>
-        this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
+      map(
+        ({
+          advancesStats,
+          homeCurrency,
+        }: {
+          advancesStats: { count: number; total_amount: number };
+          homeCurrency: string;
+        }) => {
+          const aggregate = {
+            totalAmount: advancesStats.total_amount,
+            totalCount: advancesStats.count,
+          };
+          return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
+        }
       )
     );
   }
