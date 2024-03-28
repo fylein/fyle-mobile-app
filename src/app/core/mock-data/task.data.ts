@@ -152,3 +152,16 @@ export const verifyMobileNumberTask = {
     },
   ],
 };
+
+export const commuteDeductionTask = {
+  hideAmount: true,
+  header: 'Add Commute Details',
+  subheader: 'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
+  icon: TaskIcon.LOCATION,
+  ctas: [
+    {
+      content: 'Add',
+      event: TASKEVENT.commuteDetails,
+    },
+  ],
+};

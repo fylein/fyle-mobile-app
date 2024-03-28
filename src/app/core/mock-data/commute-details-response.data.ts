@@ -32,3 +32,27 @@ export const commuteDetailsResponseData: PlatformApiResponse<CommuteDetailsRespo
     },
   ],
 };
+
+export const commuteDetailsResponseData2: PlatformApiResponse<CommuteDetailsResponse> = {
+  count: 1,
+  offset: 0,
+  data: [],
+};
+
+export const commuteDetailsResponseData3: PlatformApiResponse<CommuteDetailsResponse> = {
+  count: 1,
+  offset: 0,
+  data: [
+    {
+      user_id: 'uswr93Wqcfjv',
+      full_name: 'John Doe',
+      email: 'ajain@fyle.in',
+      commute_details: {
+        distance: null,
+        distance_unit: null,
+        home_location: null,
+        work_location: null,
+      },
+    },
+  ],
+};
