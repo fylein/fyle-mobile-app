@@ -35,6 +35,7 @@ import {
   verifyMobileNumberTask,
   draftExpenseTaskSample2,
   unreportedExpenseTaskSample2,
+  commuteDeductionTask,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
@@ -42,8 +43,17 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseDuplicateSets } from '../mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats, incompleteStats } from '../mock-data/platform/v1/expenses-stats.data';
 import { EmployeesService } from './platform/v1/spender/employees.service';
-import { orgSettingsRes } from '../mock-data/org-settings.data';
-import { commuteDetailsResponseData } from '../mock-data/commute-details-response.data';
+import {
+  orgSettingsRes,
+  orgSettingsWithCommuteDeductionsDisabled,
+  orgSettingsWithCommuteDeductionsEnabled,
+  orgSettingsWoMileage,
+} from '../mock-data/org-settings.data';
+import {
+  commuteDetailsResponseData,
+  commuteDetailsResponseData2,
+  commuteDetailsResponseData3,
+} from '../mock-data/commute-details-response.data';
 import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 
 describe('TasksService', () => {
@@ -1062,6 +1072,78 @@ describe('TasksService', () => {
         expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
         expect(mapMobileNumberVerificationTaskSpy).toHaveBeenCalledOnceWith('Verify');
+        done();
+      });
+    });
+  });
+
+  describe('getCommuteDetailsTasks():', () => {
+    it('should return commute details task if commute details response data is not defined', (done) => {
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData2));
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
+
+      tasksService.getCommuteDetailsTasks().subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(extendedOrgUserResponse);
+        expect(res).toEqual([commuteDeductionTask]);
+        done();
+      });
+    });
+
+    it('should return commute details task if home location is not present', (done) => {
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
+
+      tasksService.getCommuteDetailsTasks().subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(extendedOrgUserResponse);
+        expect(res).toEqual([commuteDeductionTask]);
+        done();
+      });
+    });
+
+    it('should not return commute details task if mileage is disabled for org', (done) => {
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWoMileage));
+
+      tasksService.getCommuteDetailsTasks().subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(extendedOrgUserResponse);
+        expect(res).toEqual([]);
+        done();
+      });
+    });
+
+    it('should not return commute details task if commute deduction settings is disabled for org', (done) => {
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
+      tasksService.getCommuteDetailsTasks().subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(extendedOrgUserResponse);
+        expect(res).toEqual([]);
+        done();
+      });
+    });
+
+    it('should not return commute details task if home location is present in commute details', (done) => {
+      employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+
+      tasksService.getCommuteDetailsTasks().subscribe((res) => {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(extendedOrgUserResponse);
+        expect(res).toEqual([]);
         done();
       });
     });
