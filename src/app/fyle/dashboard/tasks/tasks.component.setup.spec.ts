@@ -57,6 +57,8 @@ describe('TasksComponent', () => {
       'duplicateTaskClicked',
       'showToastMessage',
       'autoSubmissionInfoCardClicked',
+      'commuteDeductionTaskClicked',
+      'commuteDeductionDetailsAddedFromSpenderTask',
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
