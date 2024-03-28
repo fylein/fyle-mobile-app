@@ -25,6 +25,7 @@ import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -264,6 +265,77 @@ export function TestCases3(getTestBed) {
       expect(trackingService.autoSubmissionInfoCardClicked).toHaveBeenCalledOnceWith({
         isSeparateCard: true,
       });
+    });
+
+    describe('showToastMessage(): ', () => {
+      it('should show success snackbar with message', () => {
+        const message = 'Profile saved successfully';
+        const successToastProperties = {
+          data: {
+            icon: 'check-square-fill',
+            showCloseButton: true,
+            message,
+          },
+          duration: 3000,
+        };
+
+        snackbarProperties.setSnackbarProperties.and.returnValue(successToastProperties);
+        component.showToastMessage(message, 'success');
+
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...successToastProperties,
+          panelClass: 'msb-success',
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: message,
+        });
+      });
+
+      it('should show error snackbar with message', () => {
+        const message = 'Something went wrong';
+        const failureToastProperties = {
+          data: {
+            icon: 'warning-fill',
+            showCloseButton: true,
+            message,
+          },
+          duration: 3000,
+        };
+
+        snackbarProperties.setSnackbarProperties.and.returnValue(failureToastProperties);
+        component.showToastMessage(message, 'failure');
+
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...failureToastProperties,
+          panelClass: 'msb-failure',
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: message,
+        });
+      });
+    });
+
+    describe('onCommuteDetailsTaskClick():', () => {
+      it('should show toast message and refresh the tasks if commute details are saved', fakeAsync(() => {
+        spyOn(component, 'showToastMessage');
+        spyOn(component, 'doRefresh');
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+          data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+        });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        component.onCommuteDetailsTaskClick();
+        tick(100);
+
+        expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
+        expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
+          commuteDetailsResponseData.data[0]
+        );
+        expect(component.doRefresh).toHaveBeenCalledTimes(1);
+      }));
     });
   });
 }
