@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController } from '@ionic/angular';
 
 import { FySelectCommuteDetailsComponent } from './fy-select-commute-details.component';
@@ -14,6 +14,13 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { ToastMessageComponent } from '../toast-message/toast-message.component';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
+import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import { of, throwError } from 'rxjs';
+import { cloneDeep } from 'lodash';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
+import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
+import { Location } from 'src/app/core/models/location.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('FySelectCommuteDetailsComponent', () => {
   let component: FySelectCommuteDetailsComponent;
@@ -28,7 +35,7 @@ describe('FySelectCommuteDetailsComponent', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(waitForAsync(() => {
-    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const formBuilderSpy = jasmine.createSpyObj('FormBuilder', ['group']);
     const locationServiceSpy = jasmine.createSpyObj('LocationService', ['getDistance']);
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['postCommuteDetails']);
@@ -158,5 +165,96 @@ describe('FySelectCommuteDetailsComponent', () => {
     });
     expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
     expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({ ToastContent: message });
+  });
+
+  describe('save():', () => {
+    let homeLocation: Location;
+    let workLocation: Location;
+    let homeLocationWithoutDisplay: Location;
+    let workLocationWithoutDisplay: Location;
+
+    beforeEach(() => {
+      homeLocation = cloneDeep(locationData1);
+      workLocation = cloneDeep(locationData2);
+      homeLocationWithoutDisplay = cloneDeep(locationData1);
+      workLocationWithoutDisplay = cloneDeep(locationData2);
+
+      delete homeLocationWithoutDisplay.display;
+      delete workLocationWithoutDisplay.display;
+
+      component.commuteDetails = formBuilder.group({
+        homeLocation: [homeLocation, Validators.required],
+        workLocation: [workLocation, Validators.required],
+      });
+      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      locationService.getDistance.and.returnValue(of(21000));
+      spyOn(component, 'getCalculatedDistance').and.returnValue(21);
+      employeesService.postCommuteDetails.and.returnValue(of({ data: commuteDetailsResponseData.data[0] }));
+    });
+
+    it('should mark all fields as touched if form is invalid', () => {
+      component.commuteDetails = formBuilder.group({
+        homeLocation: [null, Validators.required],
+        workLocation: [null, Validators.required],
+      });
+
+      component.save();
+
+      expect(component.commuteDetails.controls.homeLocation.touched).toBeTrue();
+      expect(component.commuteDetails.controls.workLocation.touched).toBeTrue();
+    });
+
+    it('should save commute details if form is valid', fakeAsync(() => {
+      component.save();
+      tick(100);
+
+      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(locationService.getDistance).toHaveBeenCalledOnceWith(homeLocation, workLocation);
+      expect(component.getCalculatedDistance).toHaveBeenCalledOnceWith(21000, 'MILES');
+      expect(employeesService.postCommuteDetails).toHaveBeenCalledOnceWith({
+        distance: 21,
+        distance_unit: 'MILES',
+        home_location: homeLocationWithoutDisplay,
+        work_location: workLocationWithoutDisplay,
+      });
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
+        action: 'save',
+        commuteDetails: commuteDetailsResponseData.data[0],
+      });
+    }));
+
+    it('should show error toast message and track event if postCommuteDetails API throws error', fakeAsync(() => {
+      const errorResponse = new HttpErrorResponse({ error: 'API ERROR', status: 400 });
+      employeesService.postCommuteDetails.and.throwError(errorResponse);
+      spyOn(component, 'showToastMessage');
+
+      try {
+        component.save();
+        tick(100);
+      } catch (err) {
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(locationService.getDistance).toHaveBeenCalledOnceWith(homeLocation, workLocation);
+        expect(component.getCalculatedDistance).toHaveBeenCalledOnceWith(21000, 'MILES');
+        expect(employeesService.postCommuteDetails).toHaveBeenCalledOnceWith({
+          distance: 21,
+          distance_unit: 'MILES',
+          home_location: homeLocationWithoutDisplay,
+          work_location: workLocationWithoutDisplay,
+        });
+        expect(modalController.dismiss).not.toHaveBeenCalled();
+        expect(trackingService.commuteDeductionDetailsError).toHaveBeenCalledOnceWith(errorResponse);
+        expect(component.showToastMessage).toHaveBeenCalledOnceWith(
+          'We were unable to save your commute details. Please enter correct home and work location.',
+          ToastType.FAILURE,
+          'msb-failure'
+        );
+      }
+    }));
+  });
+
+  it('close(): should dismiss modal with action as cancel', () => {
+    component.close();
+
+    expect(modalController.dismiss).toHaveBeenCalledOnceWith({ action: 'cancel' });
   });
 });
