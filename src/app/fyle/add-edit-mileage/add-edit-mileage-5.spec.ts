@@ -1259,5 +1259,124 @@ export function TestCases5(getTestBed) {
         );
       });
     });
+
+    describe('updateDistanceOnLocationChange():', () => {
+      it('should not update distance if route form value is null', () => {
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should patch distance to form if previous mileage locations and current locations are not same', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 230,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction and patch value to the form if previous mileage locations and current locations are not same', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 130,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction and patch value to the form if previous mileage locations and current locations are not same and commute deduction is greater than distance', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(90);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 0,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction but should not set previousRouteValue if route mileageLocations is null', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: null,
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 130,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction but should not set previousRouteValue if route mileageLocations is null and commuteDeduction is greater than distance', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: null,
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(90);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 0,
+          roundTrip: true,
+        });
+      });
+    });
   });
 }
