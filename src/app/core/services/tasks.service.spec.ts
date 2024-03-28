@@ -147,7 +147,7 @@ describe('TasksService', () => {
 
   it('should be able to fetch tasks related to sent back advances', (done) => {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    advanceRequestService.getMyAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
+    advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
     humanizeCurrencyPipe.transform
       .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency, true)
       .and.returnValue('123.37M');
@@ -679,7 +679,7 @@ describe('TasksService', () => {
 
   function setupData() {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    advanceRequestService.getMyAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
+    advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
     setupUnsibmittedReportsResponse();
     getUnreportedExpenses();
     reportService.getReportStatsData

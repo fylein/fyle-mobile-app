@@ -40,7 +40,6 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { fileObjectData3, fileObjectData4 } from '../mock-data/file-object.data';
 import { fileData1, fileData2 } from '../mock-data/file.data';
-import { apiAdvanceReqRes } from '../mock-data/stats-dimension-response.data';
 import { AdvancesStates } from '../models/advances-states.model';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
@@ -53,8 +52,9 @@ import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
+import { SpenderService } from './platform/v1/spender/spender.service';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
@@ -64,6 +64,7 @@ describe('AdvanceRequestService', () => {
   let fileService: jasmine.SpyObj<FileService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   let timezoneService: jasmine.SpyObj<TimezoneService>;
+  let spenderService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
@@ -73,6 +74,7 @@ describe('AdvanceRequestService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -106,6 +108,10 @@ describe('AdvanceRequestService', () => {
           provide: TimezoneService,
           useValue: timezoneServiceSpy,
         },
+        {
+          provide: SpenderService,
+          useValue: spenderServiceSpy,
+        },
       ],
     });
     advanceRequestService = TestBed.inject(AdvanceRequestService);
@@ -117,6 +123,7 @@ describe('AdvanceRequestService', () => {
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     timezoneService = TestBed.inject(TimezoneService) as jasmine.SpyObj<TimezoneService>;
+    spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
   });
 
   it('should be created', () => {
@@ -237,43 +244,22 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getMyAdvanceRequestStats(): should get advance request stats by params provided', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    //@ts-ignore
-    spyOn(advanceRequestService, 'getAdvanceRequestStats').and.returnValue(of(apiAdvanceReqRes));
-    const params = {
-      aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_state: 'in.(DRAFT)',
-      areq_is_sent_back: 'is.true',
-      scalar: true,
-    };
-
-    advanceRequestService.getMyAdvanceRequestStats(params).subscribe((res) => {
-      expect(res).toEqual(apiAdvanceReqRes.data);
-      //@ts-ignore
-      expect(advanceRequestService.getAdvanceRequestStats).toHaveBeenCalledOnceWith(apiEouRes, params);
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('getAdvanceRequestStats(): should get advance request stats', (done) => {
-    apiv2Service.get.and.returnValue(of(apiAdvanceReqRes));
+    const statsResponse = {
+      count: 2,
+      total_amount: 12322,
+    };
+    spenderService.post.and.returnValue(of({ data: statsResponse }));
 
     const params = {
-      aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_state: 'in.(DRAFT)',
-      areq_is_sent_back: 'is.true',
-      scalar: true,
+      state: 'eq.SENT_BACK',
     };
-
     //@ts-ignore
-    advanceRequestService.getAdvanceRequestStats(apiEouRes, params).subscribe((res) => {
-      expect(res).toEqual(apiAdvanceReqRes);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests/stats', {
-        params: {
-          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
-          ...params,
+    advanceRequestService.getAdvanceRequestStats(params).subscribe((res) => {
+      expect(res).toEqual(statsResponse);
+      expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/stats', {
+        data: {
+          query_params: `state=${params.state}`,
         },
       });
       done();
