@@ -1125,5 +1125,139 @@ export function TestCases5(getTestBed) {
         expect(component.fg.controls.route.value.distance).toEqual(0);
       });
     });
+
+    describe('calculateNetDistanceForDeduction()', () => {
+      it('should deduct commute distance from original distance and patch the value in form', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 300;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(200);
+        expect(component.previousCommuteDeductionType).toEqual('ONE_WAY');
+      });
+
+      it('should set distance to zero if commute deduction is more than the original distance', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [locationData1, locationData2], distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 90;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+        expect(component.previousCommuteDeductionType).toEqual('ONE_WAY');
+      });
+
+      it('should not set previousCommuteDeductionType if locations are not present', () => {
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 90;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+        expect(component.previousCommuteDeductionType).toBeUndefined();
+      });
+    });
+
+    describe('updateDistanceOnDeductionChange():', () => {
+      it('should not update distance if route form value is null', () => {
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should set initial distance and call calculateNetDistanceForDeduction if previousCommuteDeductionType is present', () => {
+        component.previousCommuteDeductionType = CommuteDeduction.ROUND_TRIP;
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 230 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(430);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance from expense and call calculateNetDistanceForDeduction if expense is in edit mode', () => {
+        component.existingCommuteDeduction = CommuteDeduction.ROUND_TRIP;
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        activatedRoute.snapshot.params.id = 'txe3dfgre43d';
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 250 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(450);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance present in form and call calculateNetDistanceForDeduction if user is selecting commute deduction for first time', () => {
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 250 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(250);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance between the locations and call calculateNetDistanceForDeduction if mileage locations are present and distance is set as zero', () => {
+        mileageService.getDistance.and.returnValue(of(200000));
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: [locationData1, locationData2], distance: 0 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(200);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance between the locations and call calculateNetDistanceForDeduction if mileage locations are present and distance is set as zero with distance unit as miles', () => {
+        mileageService.getDistance.and.returnValue(of(21000));
+        component.distanceUnit = 'Miles';
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 0,
+          roundTrip: true,
+        });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(26.0946);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+    });
   });
 }
