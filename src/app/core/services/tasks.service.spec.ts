@@ -1137,7 +1137,7 @@ describe('TasksService', () => {
     it('should not return commute details task if home location is present in commute details', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
       authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsDisabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
