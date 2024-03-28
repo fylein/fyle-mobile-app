@@ -317,25 +317,23 @@ export function TestCases3(getTestBed) {
       });
     });
 
-    describe('onCommuteDetailsTaskClick():', () => {
-      it('should show toast message and refresh the tasks if commute details are saved', fakeAsync(() => {
-        spyOn(component, 'showToastMessage');
-        spyOn(component, 'doRefresh');
-        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
-        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
-          data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
-        });
-        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+    it('onCommuteDetailsTaskClick(): should show toast message and refresh the tasks if commute details are saved', fakeAsync(() => {
+      spyOn(component, 'showToastMessage');
+      spyOn(component, 'doRefresh');
+      const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+      commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+        data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+      });
+      modalController.create.and.resolveTo(commuteDetailsModalSpy);
 
-        component.onCommuteDetailsTaskClick();
-        tick(100);
+      component.onCommuteDetailsTaskClick();
+      tick(100);
 
-        expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
-        expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
-          commuteDetailsResponseData.data[0]
-        );
-        expect(component.doRefresh).toHaveBeenCalledTimes(1);
-      }));
-    });
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
+      expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
+        commuteDetailsResponseData.data[0]
+      );
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
   });
 }
