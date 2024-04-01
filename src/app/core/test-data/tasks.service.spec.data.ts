@@ -481,6 +481,6 @@ export const incompleteExpensesResponse = [
 ];
 
 export const sentBackAdvancesResponse = {
-  count: 10,
-  total_amount: 1000,
+  count: 5,
+  total_amount: 123370000,
 };
