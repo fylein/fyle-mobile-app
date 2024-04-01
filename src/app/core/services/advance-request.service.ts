@@ -29,6 +29,8 @@ import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
+import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -66,33 +68,68 @@ export class AdvanceRequestService {
     private spenderService: SpenderService
   ) {}
 
+  convertToPublicAdvanceRequest(
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform>
+  ): ExtendedAdvanceRequestPublic[] {
+    return advanceReqPlatformResponse.data.map((advReq) => {
+      return {
+        areq_advance_request_number: advReq['advance->seq_num'],
+        areq_advance_id: advReq.advance_id,
+        areq_amount: advReq.amount,
+        areq_approved_at: advReq.last_approved_at,
+        areq_created_at: advReq.created_at,
+        areq_currency: advReq.currency,
+        areq_id: advReq.id,
+        areq_notes: advReq.notes,
+        areq_org_user_id: advReq.employee_id,
+        areq_project_id: advReq.project_id,
+        areq_purpose: advReq.purpose,
+        areq_source: advReq.source,
+        areq_state: advReq.state === 'SENT_BACK' ? 'INQUIRY' : advReq.state,
+        areq_updated_at: advReq.updated_at,
+        ou_department: advReq['employee->department->display_name'],
+        ou_department_id: advReq['employee->department->id'],
+        ou_id: advReq.employee_id,
+        ou_org_id: advReq.org_id,
+        ou_sub_department: advReq['employee->department->id'],
+        us_email: advReq['user->email'],
+        us_full_name: advReq['user->full_name'],
+        areq_is_pulled_back: advReq.state === 'PULLED_BACK',
+        ou_employee_id: advReq.employee_id,
+      };
+    });
+  }
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
   getMyadvanceRequests(
     config: Config = {
       offset: 0,
-      limit: 10,
+      limit: 200,
       queryParams: {},
     }
-  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            areq_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
+  ): Observable<ApiV2Response<ExtendedAdvanceRequestPublic>> {
+    const params = {
+      offset: config.offset,
+      limit: config.limit,
+      advance_id: config.queryParams.advance_id,
+    };
+    if (config.queryParams.order) {
+      params['order'] = config.queryParams.order;
+    }
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+        params,
+      })
+      .pipe(
+        map((res) => {
+          return {
+            count: res.count,
+            offset: res.offset,
+            data: this.convertToPublicAdvanceRequest(res),
+          };
         })
-      ),
-      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
-    );
+      );
   }
 
   @Cacheable({

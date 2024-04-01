@@ -24,6 +24,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
+import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 
 @Component({
   selector: 'app-my-advances',
@@ -31,7 +32,7 @@ import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements AfterViewChecked {
-  myAdvanceRequests$: Observable<ExtendedAdvanceRequest[]>;
+  myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
 
@@ -125,20 +126,20 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     this.myAdvanceRequests$ = this.advanceRequestService
       .getMyAdvanceRequestsCount({
-        areq_advance_id: 'is.null',
+        advance_id: 'eq.null',
       })
       .pipe(
         concatMap((count) => {
-          count = count > 10 ? count / 10 : 1;
+          count = count > 200 ? count / 200 : 1;
           return range(0, count);
         }),
         concatMap((count) =>
           this.advanceRequestService.getMyadvanceRequests({
-            offset: 10 * count,
-            limit: 10,
+            offset: 200 * count,
+            limit: 200,
             queryParams: {
-              areq_advance_id: 'is.null',
-              order: 'areq_created_at.desc,areq_id.desc',
+              advance_id: 'eq.null',
+              order: 'created_at.desc,id.desc',
             },
           })
         ),
@@ -239,7 +240,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvances;
   }
 
-  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
+  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequestPublic[]): ExtendedAdvanceRequestPublic[] {
     myAdvanceRequests = myAdvanceRequests.map((data) => ({
       ...data,
       type: 'request',
