@@ -297,23 +297,6 @@ export class TransactionService {
   }
 
   // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getPaginatedETxncCount(): Observable<{ count: number }> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.apiService.get<{ count: number }>('/etxns/count').pipe(
-            tap((res) => {
-              this.storageService.set('etxncCount', res);
-            })
-          );
-        } else {
-          return from(this.storageService.get<{ count: number }>('etxncCount'));
-        }
-      })
-    );
-  }
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
@@ -372,23 +355,6 @@ export class TransactionService {
           data: platformPolicyExpense,
         };
         return this.spenderPlatformV1ApiService.post<ExpensePolicy>('/expenses/check_policies', payload);
-      })
-    );
-  }
-
-  // TODO: Remove/Update method once we remove older my-expenses-page completely
-  getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
-    return this.apiService.get('/etxns/' + txnId).pipe(
-      map((data) => {
-        const etxn: UnflattenedTransaction = this.dataTransformService.unflatten(data);
-        this.dateService.fixDates(etxn.tx);
-        // Adding a field categoryDisplayName in transaction object to save funciton calls
-        let categoryDisplayName = etxn.tx.org_category;
-        if (etxn.tx.sub_category && etxn.tx.sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
-          categoryDisplayName += ' / ' + etxn.tx.sub_category;
-        }
-        etxn.tx.categoryDisplayName = categoryDisplayName;
-        return etxn;
       })
     );
   }
