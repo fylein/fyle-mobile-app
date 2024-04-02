@@ -1394,3 +1394,19 @@ export const orgSettingsPendingRestrictions: OrgSettings = {
   corporate_credit_card_settings: { enabled: true },
   pending_cct_expense_restriction: { enabled: true },
 };
+
+export const orgSettingsWithCommuteDeductionsEnabled: OrgSettings = {
+  ...orgSettingsRes,
+  commute_deduction_settings: {
+    enabled: true,
+    allowed: true,
+  },
+};
+
+export const orgSettingsWithCommuteDeductionsDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  commute_deduction_settings: {
+    enabled: false,
+    allowed: false,
+  },
+};
