@@ -423,7 +423,7 @@ export class AdvanceRequestService {
     return internalRepresentation;
   }
 
-  createadvanceRequestWithFilesAndSubmit(
+  createAdvReqWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
@@ -447,7 +447,7 @@ export class AdvanceRequestService {
     );
   }
 
-  saveDraftadvancePlatformWithFiles(
+  saveDraftAdvReqWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
