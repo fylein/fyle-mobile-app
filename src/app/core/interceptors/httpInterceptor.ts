@@ -113,6 +113,10 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
+  getUrlwithoutQueryParam(urlString: string): string {
+    return urlString.split('?')[0];
+  }
+
   intercept(request: HttpRequest<string>, next: HttpHandler): Observable<HttpEvent<string>> {
     return forkJoin({
       token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
@@ -128,7 +132,13 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         const osVersion = deviceInfo.osVersion;
         const operatingSystem = deviceInfo.operatingSystem;
         const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
-        request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+        request = request.clone({
+          setHeaders: {
+            'X-App-Version': mobileModifiedappVersion,
+            'X-Page-Url': this.getUrlwithoutQueryParam(window.location.href),
+            'X-Source-Identifier': 'mobile_app',
+          },
+        });
 
         return next.handle(request).pipe(
           catchError((error) => {

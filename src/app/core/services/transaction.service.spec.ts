@@ -1116,69 +1116,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('getPaginatedETxncCount():', () => {
-    it('should return paginated etxn count when online', (done) => {
-      const response = { count: 1891 };
-      networkService.isOnline.and.returnValue(of(true));
-      storageService.set.and.returnValue(Promise.resolve(null));
-      apiService.get.and.returnValue(of(response));
-
-      transactionService.getPaginatedETxncCount().subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(storageService.set).toHaveBeenCalledOnceWith('etxncCount', response);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/count');
-        done();
-      });
-    });
-
-    it('should return paginated etxn count when offline', (done) => {
-      const response = { count: 1891 };
-      networkService.isOnline.and.returnValue(of(false));
-      storageService.get.and.returnValue(Promise.resolve(response));
-
-      transactionService.getPaginatedETxncCount().subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(storageService.get).toHaveBeenCalledOnceWith('etxncCount');
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-  });
-
-  // Needs clean up : once we remove older my-expenses-page completely
-  describe('getETxnUnflattened():', () => {
-    it('it should get etxn from transaction ID without sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData3));
-      dataTransformService.unflatten.and.returnValue(unflattenedTxnData);
-      dateService.fixDates.and.returnValue(unflattenedTxnData);
-
-      const transactionID = 'tx3qHxFNgRcZ';
-      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
-        expect(res).toEqual(unflattenedTxnData);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
-        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
-        done();
-      });
-    });
-
-    it('it should get etxn from transaction ID with sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData3));
-      dataTransformService.unflatten.and.returnValue(unflattenedTxnDataWithSubCategory);
-      dateService.fixDates.and.returnValue(unflattenedTxnDataWithSubCategory);
-
-      const transactionID = 'tx3qHxFNgRcZ';
-
-      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
-        expect(res).toEqual(unflattenedTxnDataWithSubCategory);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnDataWithSubCategory.tx);
-        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
-        done();
-      });
-    });
-  });
-
   it('review(): should return transaction response on review', (done) => {
     apiService.post.and.returnValue(of(null));
     const transactionId = 'tx3qHxFNgRcZ';
