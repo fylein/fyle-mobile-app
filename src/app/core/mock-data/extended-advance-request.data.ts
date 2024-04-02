@@ -28,12 +28,12 @@ export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_created_at: new Date('2022-05-27T08:33:32.879009'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{id:110,name:Test text,value:null,type:null},{id:111,name:Test Number,value:123,type:null},{id:112,name:Test Select,value:null,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:null,type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:false,type:null}]',
+        '[{"id":110,"name":"Test text","value":null,"type":null},{"id":111,"name":"Test Number","value":123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null}]',
       areq_id: 'areqdQ9jnokUva',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[TRAVEL_ADMIN,FINANCE,ADMIN,APPROVER,FYLER,VERIFIER,PAYMENT_PROCESSOR,TRAVEL_AGENT,AUDITOR,HOP,HOD],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
+        '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["TRAVEL_ADMIN","FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","TRAVEL_AGENT","AUDITOR","HOP","HOD"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
       areq_notes: null,
       areq_org_user_id: 'ouX8dwsbLCLv',
       areq_policy_amount: null,
@@ -92,12 +92,12 @@ export const extendedAdvReqDraft: ExtendedAdvanceRequest = {
   areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
   areq_currency: 'USD',
   areq_custom_field_values:
-    '[{"id":110,"name":"Test text","value":null,"type":null},{"id":111,"name":"Test Number","value":123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null}]',
+    '[{"id":111,"name":"Test Number","value":43,"type":null},{"id":112,"name":"Test Select","value":"ch09","type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":["ch89","ch763"],"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":true,"type":null},{"id":150,"name":"checking","value":true,"type":null},{"id":151,"name":"123","value":"34","type":null},{"id":152,"name":"Okay?","value":true,"type":null}]',
   areq_id: 'areqoVuT5I8OOy',
   areq_is_pulled_back: false,
   areq_is_sent_back: null,
   areq_last_updated_by:
-    '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["TRAVEL_ADMIN","FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","TRAVEL_AGENT","AUDITOR","HOP","HOD"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+    '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
   areq_notes: 'fd',
   areq_org_user_id: 'ouX8dwsbLCLv',
   areq_policy_amount: null,
