@@ -559,7 +559,7 @@ describe('AdvanceRequestService', () => {
 
   describe('getSpenderAdvanceRequestsCount():', () => {
     it('should get advance request count', (done) => {
-      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(publicAdvanceRequestRes));
       const queryParams = {
         advance_id: 'eq.null',
       };
@@ -576,7 +576,7 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get advance request count without query parmas', (done) => {
-      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(publicAdvanceRequestRes));
 
       advanceRequestService.getSpenderAdvanceRequestsCount().subscribe((res) => {
         expect(res).toEqual(teamAdvanceCountRes.count);
