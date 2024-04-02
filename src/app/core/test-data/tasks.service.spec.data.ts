@@ -480,19 +480,7 @@ export const incompleteExpensesResponse = [
   },
 ];
 
-export const sentBackAdvancesResponse = [
-  {
-    aggregates: [
-      {
-        function_name: 'count(areq_id)',
-        function_value: 5,
-      },
-      {
-        function_name: 'sum(areq_amount)',
-        function_value: 123371160,
-      },
-    ],
-    dimensions: [],
-    name: 'scalar_stat',
-  },
-];
+export const sentBackAdvancesResponse = {
+  count: 5,
+  total_amount: 123370000,
+};
