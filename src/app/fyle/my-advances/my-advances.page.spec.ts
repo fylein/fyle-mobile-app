@@ -62,8 +62,8 @@ describe('MyAdvancesPage', () => {
 
   beforeEach(waitForAsync(() => {
     let advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getSpenderAdvanceRequestsCountCount',
       'getSpenderAdvanceRequestsCount',
+      'getSpenderAdvanceRequests',
       'destroyAdvanceRequestsCacheBuster',
     ]);
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
