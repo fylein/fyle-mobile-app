@@ -316,7 +316,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
+        advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
       });
 
       it('should get all advances and navigate to add edit advance request page if task count is 1', fakeAsync(() => {
@@ -325,7 +325,7 @@ export function TestCases2(getTestBed) {
         component.onSentBackAdvanceTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your advance request...');
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           queryParams: {
             areq_state: 'in.(DRAFT)',
             areq_is_sent_back: 'is.true',
@@ -346,7 +346,7 @@ export function TestCases2(getTestBed) {
         component.onSentBackAdvanceTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(advanceRequestService.getMyadvanceRequests).not.toHaveBeenCalled();
+        expect(advanceRequestService.getSpenderAdvanceRequests).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances'], {
           queryParams: { filters: JSON.stringify({ state: ['SENT_BACK'] }) },

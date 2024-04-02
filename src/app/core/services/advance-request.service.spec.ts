@@ -32,6 +32,7 @@ import {
   extendedAdvReqSubmitted,
   extendedAdvReqWithDates,
   extendedAdvReqWithoutDates,
+  publicAdvanceRequestRes,
   singleErqRes,
   singleErqUnflattened,
   singleExtendedAdvReqRes,
@@ -53,6 +54,7 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -74,7 +76,7 @@ describe('AdvanceRequestService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -555,16 +557,16 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  describe('getMyAdvanceRequestsCount():', () => {
+  describe('getSpenderAdvanceRequestsCount():', () => {
     it('should get advance request count', (done) => {
-      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
       const queryParams = {
-        areq_advance_id: 'is.null',
+        advance_id: 'eq.null',
       };
 
-      advanceRequestService.getMyAdvanceRequestsCount(queryParams).subscribe((res) => {
+      advanceRequestService.getSpenderAdvanceRequestsCount(queryParams).subscribe((res) => {
         expect(res).toEqual(teamAdvanceCountRes.count);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: { ...queryParams },
@@ -574,11 +576,11 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get advance request count without query parmas', (done) => {
-      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(teamAdvanceCountRes));
 
-      advanceRequestService.getMyAdvanceRequestsCount().subscribe((res) => {
+      advanceRequestService.getSpenderAdvanceRequestsCount().subscribe((res) => {
         expect(res).toEqual(teamAdvanceCountRes.count);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: {},
@@ -588,30 +590,29 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getMyadvanceRequests(): should get all advance request', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+  it('getSpenderAdvanceRequests(): should get all advance request', (done) => {
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
 
     const param = {
       offset: 0,
-      limit: 10,
+      limit: 200,
       queryParams: {
-        areq_advance_id: 'is.null',
-        order: 'areq_created_at.desc,areq_id.desc',
+        advance_id: 'eq.null',
+        order: 'created_at.desc,id.desc',
       },
     };
 
-    advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
-      expect(res).toEqual(allAdvanceRequestsRes);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+    advanceRequestService.getSpenderAdvanceRequests(param).subscribe((res) => {
+      console.log(res);
+      console.log(publicAdvanceRequestRes);
+      expect(res).toEqual(publicAdvanceRequestRes);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
           offset: param.offset,
           limit: param.limit,
-          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
           ...param.queryParams,
         },
       });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
       done();
     });
   });

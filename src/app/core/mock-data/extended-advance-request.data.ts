@@ -1,4 +1,5 @@
 import { ApiV2Response } from '../models/api-v2.model';
+import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
 export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
@@ -27,12 +28,12 @@ export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_created_at: new Date('2022-05-27T08:33:32.879009'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":110,"name":"Test text","value":null,"type":null},{"id":111,"name":"Test Number","value":123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null}]',
+        '[{id:110,name:Test text,value:null,type:null},{id:111,name:Test Number,value:123,type:null},{id:112,name:Test Select,value:null,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:null,type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:false,type:null}]',
       areq_id: 'areqdQ9jnokUva',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["TRAVEL_ADMIN","FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","TRAVEL_AGENT","AUDITOR","HOP","HOD"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+        '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[TRAVEL_ADMIN,FINANCE,ADMIN,APPROVER,FYLER,VERIFIER,PAYMENT_PROCESSOR,TRAVEL_AGENT,AUDITOR,HOP,HOD],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
       areq_notes: null,
       areq_org_user_id: 'ouX8dwsbLCLv',
       areq_policy_amount: null,
@@ -91,12 +92,12 @@ export const extendedAdvReqDraft: ExtendedAdvanceRequest = {
   areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
   areq_currency: 'USD',
   areq_custom_field_values:
-    '[{"id":111,"name":"Test Number","value":43,"type":null},{"id":112,"name":"Test Select","value":"ch09","type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":["ch89","ch763"],"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":true,"type":null},{"id":150,"name":"checking","value":true,"type":null},{"id":151,"name":"123","value":"34","type":null},{"id":152,"name":"Okay?","value":true,"type":null}]',
+    '[{id:111,name:Test Number,value:43,type:null},{id:112,name:Test Select,value:ch09,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:[ch89,ch763],type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:true,type:null},{id:150,name:checking,value:true,type:null},{id:151,name:123,value:34,type:null},{id:152,name:Okay?,value:true,type:null}]',
   areq_id: 'areqoVuT5I8OOy',
   areq_is_pulled_back: false,
   areq_is_sent_back: null,
   areq_last_updated_by:
-    '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+    '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[FINANCE,ADMIN,APPROVER,FYLER,VERIFIER,PAYMENT_PROCESSOR,AUDITOR,HOP,HOD,OWNER],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
   areq_notes: 'fd',
   areq_org_user_id: 'ouX8dwsbLCLv',
   areq_policy_amount: null,
@@ -200,12 +201,12 @@ export const withoutDatesAdv = {
   areq_approvers_ids: null,
   areq_currency: 'USD',
   areq_custom_field_values:
-    '[{"id":111,"name":"Test Number","value":43,"type":null},{"id":112,"name":"Test Select","value":"ch09","type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":["ch89","ch763"],"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":true,"type":null},{"id":150,"name":"checking","value":true,"type":null},{"id":151,"name":"123","value":"34","type":null},{"id":152,"name":"Okay?","value":true,"type":null}]',
+    '[{id:111,name:Test Number,value:43,type:null},{id:112,name:Test Select,value:ch09,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:[ch89,ch763],type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:true,type:null},{id:150,name:checking,value:true,type:null},{id:151,name:123,value:34,type:null},{id:152,name:Okay?,value:true,type:null}]',
   areq_id: 'areqoVuT5I8OOy',
   areq_is_pulled_back: false,
   areq_is_sent_back: null,
   areq_last_updated_by:
-    '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["FINANCE","ADMIN","APPROVER","FYLER","VERIFIER","PAYMENT_PROCESSOR","AUDITOR","HOP","HOD","OWNER"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+    '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[FINANCE,ADMIN,APPROVER,FYLER,VERIFIER,PAYMENT_PROCESSOR,AUDITOR,HOP,HOD,OWNER],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
   areq_notes: 'fd',
   areq_org_user_id: 'ouX8dwsbLCLv',
   areq_policy_amount: null,
@@ -380,12 +381,12 @@ export const teamAdvanceCountRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_created_at: new Date('2023-02-24T07:33:43.876Z'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":151,"name":"123","value":null,"type":"TEXT"},{"id":134,"name":"Project Name","value":null,"type":"TEXT"},{"id":112,"name":"Test Select","value":"","type":"SELECT"},{"id":111,"name":"Test Number","value":123,"type":"NUMBER"},{"id":114,"name":"test multi","value":"","type":"MULTI_SELECT"},{"id":115,"name":"test date","value":null,"type":"DATE"},{"id":150,"name":"checking","value":false,"type":"BOOLEAN"},{"id":152,"name":"Okay?","value":false,"type":"BOOLEAN"},{"id":113,"name":"test bool","value":false,"type":"BOOLEAN"},{"id":136,"name":"231","value":false,"type":"BOOLEAN"}]',
+        '[{id:151,name:123,value:null,type:TEXT},{id:134,name:Project Name,value:null,type:TEXT},{id:112,name:Test Select,value:,type:SELECT},{id:111,name:Test Number,value:123,type:NUMBER},{id:114,name:test multi,value:,type:MULTI_SELECT},{id:115,name:test date,value:null,type:DATE},{id:150,name:checking,value:false,type:BOOLEAN},{id:152,name:Okay?,value:false,type:BOOLEAN},{id:113,name:test bool,value:false,type:BOOLEAN},{id:136,name:231,value:false,type:BOOLEAN}]',
       areq_id: 'areqL8NTcQ1G8J',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{"user_id":"usMjLibmye7s","org_user_id":"ourw7Hi4mmpO","org_id":"orNVthTo2Zyo","roles":["FYLER","FINANCE","ADMIN","APPROVER","VERIFIER","PAYMENT_PROCESSOR","HOP"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ourw7Hi4mmpO"}',
+        '{user_id:usMjLibmye7s,org_user_id:ourw7Hi4mmpO,org_id:orNVthTo2Zyo,roles:[FYLER,FINANCE,ADMIN,APPROVER,VERIFIER,PAYMENT_PROCESSOR,HOP],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ourw7Hi4mmpO}',
       areq_notes: null,
       areq_org_user_id: 'ourw7Hi4mmpO',
       areq_policy_amount: null,
@@ -448,12 +449,12 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_created_at: new Date('2023-02-28T14:37:01.207795'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":111,"name":"Test Number","value":123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null},{"id":150,"name":"checking","value":false,"type":null},{"id":151,"name":"123","value":null,"type":null},{"id":152,"name":"Okay?","value":false,"type":null}]',
+        '[{id:111,name:Test Number,value:123,type:null},{id:112,name:Test Select,value:null,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:null,type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:false,type:null},{id:150,name:checking,value:false,type:null},{id:151,name:123,value:null,type:null},{id:152,name:Okay?,value:false,type:null}]',
       areq_id: 'areq4YujEm52Ub',
       areq_is_pulled_back: false,
       areq_is_sent_back: false,
       areq_last_updated_by:
-        '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["ADMIN","APPROVER","FYLER","HOP","HOD","OWNER"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+        '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[ADMIN,APPROVER,FYLER,HOP,HOD,OWNER],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
       areq_notes: null,
       areq_org_user_id: 'ouX8dwsbLCLv',
       areq_policy_amount: null,
@@ -508,12 +509,12 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
       areq_created_at: new Date('2023-02-25T12:28:18.700028'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":111,"name":"Test Number","value":1123,"type":null},{"id":112,"name":"Test Select","value":null,"type":null},{"id":113,"name":"test bool","value":false,"type":null},{"id":114,"name":"test multi","value":null,"type":null},{"id":115,"name":"test date","value":null,"type":null},{"id":134,"name":"Project Name","value":null,"type":null},{"id":136,"name":"231","value":false,"type":null},{"id":150,"name":"checking","value":false,"type":null},{"id":151,"name":"123","value":null,"type":null},{"id":152,"name":"Okay?","value":false,"type":null}]',
+        '[{id:111,name:Test Number,value:1123,type:null},{id:112,name:Test Select,value:null,type:null},{id:113,name:test bool,value:false,type:null},{id:114,name:test multi,value:null,type:null},{id:115,name:test date,value:null,type:null},{id:134,name:Project Name,value:null,type:null},{id:136,name:231,value:false,type:null},{id:150,name:checking,value:false,type:null},{id:151,name:123,value:null,type:null},{id:152,name:Okay?,value:false,type:null}]',
       areq_id: 'areqo6m2UmDSfq',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{"user_id":"usvKA4X8Ugcr","org_user_id":"ouX8dwsbLCLv","org_id":"orNVthTo2Zyo","roles":["ADMIN","APPROVER","FYLER","HOP","HOD","OWNER"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ouX8dwsbLCLv"}',
+        '{user_id:usvKA4X8Ugcr,org_user_id:ouX8dwsbLCLv,org_id:orNVthTo2Zyo,roles:[ADMIN,APPROVER,FYLER,HOP,HOD,OWNER],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ouX8dwsbLCLv}',
       areq_notes: null,
       areq_org_user_id: 'ouX8dwsbLCLv',
       areq_policy_amount: null,
@@ -561,6 +562,40 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   url: '/v2/advance_requests',
 };
 
+export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  count: 1,
+  data: [
+    {
+      areq_advance_request_number: 'A/2020/10/T/95',
+      areq_advance_id: 'advjrgwlk2Q',
+      areq_amount: 47.99,
+      areq_approved_at: new Date('2020-06-14T13:14:55.201Z'),
+      areq_created_at: new Date('2020-06-01T13:14:54.804Z'),
+      areq_currency: 'USD',
+      areq_id: 'areqiwr3Wwirr',
+      areq_notes: 'onsite client meeting',
+      areq_org_user_id: 'outGt9ju6qP',
+      areq_project_id: '1234',
+      areq_purpose: 'onsite client meeting',
+      areq_source: 'WEBAPP',
+      areq_state: 'PAID',
+      areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
+      ou_department: 'Tech',
+      ou_department_id: 'deptCjFrZcE0rH',
+      ou_id: 'outGt9ju6qP',
+      ou_org_id: 'orwruogwnngg',
+      ou_sub_department: 'deptCjFrZcE0rH',
+      us_email: 'john.doe@example.com',
+      us_full_name: 'John Doe',
+      areq_is_pulled_back: false,
+      ou_employee_id: 'outGt9ju6qP',
+      areq_custom_field_values: '[{name:cf1,value:string1,type:TEXT}]',
+      areq_is_sent_back: false,
+    },
+  ],
+  offset: 0,
+};
+
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   count: 43,
   data: [
@@ -586,12 +621,12 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
       areq_created_at: new Date('2023-02-24T13:03:43.876378'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":151,"name":"123","value":null,"type":"TEXT"},{"id":134,"name":"Project Name","value":null,"type":"TEXT"},{"id":112,"name":"Test Select","value":"","type":"SELECT"},{"id":111,"name":"Test Number","value":123,"type":"NUMBER"},{"id":114,"name":"test multi","value":"","type":"MULTI_SELECT"},{"id":115,"name":"test date","value":null,"type":"DATE"},{"id":150,"name":"checking","value":false,"type":"BOOLEAN"},{"id":152,"name":"Okay?","value":false,"type":"BOOLEAN"},{"id":113,"name":"test bool","value":false,"type":"BOOLEAN"},{"id":136,"name":"231","value":false,"type":"BOOLEAN"}]',
+        '[{id:151,name:123,value:null,type:TEXT},{id:134,name:Project Name,value:null,type:TEXT},{id:112,name:Test Select,value:,type:SELECT},{id:111,name:Test Number,value:123,type:NUMBER},{id:114,name:test multi,value:,type:MULTI_SELECT},{id:115,name:test date,value:null,type:DATE},{id:150,name:checking,value:false,type:BOOLEAN},{id:152,name:Okay?,value:false,type:BOOLEAN},{id:113,name:test bool,value:false,type:BOOLEAN},{id:136,name:231,value:false,type:BOOLEAN}]',
       areq_id: 'areqL8NTcQ1G8J',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{"user_id":"usMjLibmye7s","org_user_id":"ourw7Hi4mmpO","org_id":"orNVthTo2Zyo","roles":["FYLER","FINANCE","ADMIN","APPROVER","VERIFIER","PAYMENT_PROCESSOR","HOP"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ourw7Hi4mmpO"}',
+        '{user_id:usMjLibmye7s,org_user_id:ourw7Hi4mmpO,org_id:orNVthTo2Zyo,roles:[FYLER,FINANCE,ADMIN,APPROVER,VERIFIER,PAYMENT_PROCESSOR,HOP],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ourw7Hi4mmpO}',
       areq_notes: null,
       areq_org_user_id: 'ourw7Hi4mmpO',
       areq_policy_amount: null,
@@ -651,12 +686,12 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
       areq_created_at: new Date('2023-02-24T12:48:00.608458'),
       areq_currency: 'USD',
       areq_custom_field_values:
-        '[{"id":151,"name":"123","value":null,"type":"TEXT"},{"id":134,"name":"Project Name","value":null,"type":"TEXT"},{"id":112,"name":"Test Select","value":"","type":"SELECT"},{"id":111,"name":"Test Number","value":121,"type":"NUMBER"},{"id":114,"name":"test multi","value":"","type":"MULTI_SELECT"},{"id":115,"name":"test date","value":null,"type":"DATE"},{"id":150,"name":"checking","value":false,"type":"BOOLEAN"},{"id":152,"name":"Okay?","value":false,"type":"BOOLEAN"},{"id":113,"name":"test bool","value":false,"type":"BOOLEAN"},{"id":136,"name":"231","value":false,"type":"BOOLEAN"}]',
+        '[{id:151,name:123,value:null,type:TEXT},{id:134,name:Project Name,value:null,type:TEXT},{id:112,name:Test Select,value:,type:SELECT},{id:111,name:Test Number,value:121,type:NUMBER},{id:114,name:test multi,value:,type:MULTI_SELECT},{id:115,name:test date,value:null,type:DATE},{id:150,name:checking,value:false,type:BOOLEAN},{id:152,name:Okay?,value:false,type:BOOLEAN},{id:113,name:test bool,value:false,type:BOOLEAN},{id:136,name:231,value:false,type:BOOLEAN}]',
       areq_id: 'areqVU0Xr5suPC',
       areq_is_pulled_back: false,
       areq_is_sent_back: null,
       areq_last_updated_by:
-        '{"user_id":"usMjLibmye7s","org_user_id":"ourw7Hi4mmpO","org_id":"orNVthTo2Zyo","roles":["FYLER","FINANCE","ADMIN","APPROVER","VERIFIER","PAYMENT_PROCESSOR","HOP"],"scopes":[],"allowed_CIDRs":[],"cluster_domain":"\\"https://staging.fyle.tech\\"","proxy_org_user_id":null,"tpa_id":null,"tpa_name":null,"name":"ourw7Hi4mmpO"}',
+        '{user_id:usMjLibmye7s,org_user_id:ourw7Hi4mmpO,org_id:orNVthTo2Zyo,roles:[FYLER,FINANCE,ADMIN,APPROVER,VERIFIER,PAYMENT_PROCESSOR,HOP],scopes:[],allowed_CIDRs:[],cluster_domain:\\https://staging.fyle.tech\\,proxy_org_user_id:null,tpa_id:null,tpa_name:null,name:ourw7Hi4mmpO}',
       areq_notes: null,
       areq_org_user_id: 'ourw7Hi4mmpO',
       areq_policy_amount: null,

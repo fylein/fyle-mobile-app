@@ -62,8 +62,8 @@ describe('MyAdvancesPage', () => {
 
   beforeEach(waitForAsync(() => {
     let advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getMyAdvanceRequestsCount',
-      'getMyadvanceRequests',
+      'getSpenderAdvanceRequestsCountCount',
+      'getSpenderAdvanceRequestsCount',
       'destroyAdvanceRequestsCacheBuster',
     ]);
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -204,8 +204,8 @@ describe('MyAdvancesPage', () => {
       tasksService.getAdvancesTaskCount.and.returnValue(of(4));
       tasksService.getTotalTaskCount.and.returnValue(of(5));
       filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
-      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(1));
-      advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
+      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(1));
+      advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
       advanceService.getMyadvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -231,10 +231,10 @@ describe('MyAdvancesPage', () => {
     it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 10,
           queryParams: {
@@ -247,26 +247,26 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
-      advanceRequestService.getMyadvanceRequests.and.returnValues(
+      advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
         of(myAdvanceRequestsData2),
         of(allTeamAdvanceRequestsRes)
       );
-      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
+      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(11));
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           areq_advance_id: 'is.null',
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledTimes(2);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledTimes(2);
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
           offset: 0,
-          limit: 10,
+          limit: 200,
           queryParams: {
-            areq_advance_id: 'is.null',
-            order: 'areq_created_at.desc,areq_id.desc',
+            advance_id: 'eq.null',
+            order: 'created_at.desc,id.desc',
           },
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
+        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledWith({
           offset: 10,
           limit: 10,
           queryParams: {
