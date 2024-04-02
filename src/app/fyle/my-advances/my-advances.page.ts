@@ -125,7 +125,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.isLoading = true;
 
     this.myAdvanceRequests$ = this.advanceRequestService
-      .getMyAdvanceRequestsCount({
+      .getSpenderAdvanceRequestsCount({
         advance_id: 'eq.null',
       })
       .pipe(
@@ -134,7 +134,7 @@ export class MyAdvancesPage implements AfterViewChecked {
           return range(0, count);
         }),
         concatMap((count) =>
-          this.advanceRequestService.getMyadvanceRequests({
+          this.advanceRequestService.getSpenderAdvanceRequests({
             offset: 200 * count,
             limit: 200,
             queryParams: {

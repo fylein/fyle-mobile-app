@@ -1,3 +1,6 @@
+import { AdvanceRequestState } from './advance-request-state.model';
+import { CustomField } from './custom_field.model';
+
 export interface ExtendedAdvanceRequestPublic {
   areq_advance_id: string;
   areq_advance_request_number: string;
@@ -24,4 +27,6 @@ export interface ExtendedAdvanceRequestPublic {
   ou_sub_department: string;
   us_email: string;
   us_full_name: string;
+  areq_custom_field_values: string;
+  areq_is_sent_back: boolean;
 }

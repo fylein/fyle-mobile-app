@@ -497,7 +497,7 @@ export class TasksComponent implements OnInit {
 
       from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
-          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {

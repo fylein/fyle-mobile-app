@@ -21,6 +21,7 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -28,7 +29,7 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
   styleUrls: ['./my-view-advance-request.page.scss'],
 })
 export class MyViewAdvanceRequestPage implements OnInit {
-  advanceRequest$: Observable<ExtendedAdvanceRequest>;
+  advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
 
   actions$: Observable<any>;
 
@@ -114,7 +115,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getAdvanceRequest(id)),
+      switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -161,7 +162,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
 
         res.customFields.map((customField) => {
           customFieldValues.filter((customFieldValue) => {
-            if (customField.id === customFieldValue.id) {
+            if (customField.name === customFieldValue.name) {
               customField.value = customFieldValue.value;
             }
           });

@@ -48,6 +48,13 @@ type Config = Partial<{
   filter: Filters;
 }>;
 
+type PlatformConfig = Partial<{
+  offset: number;
+  limit: number;
+  queryParams: Record<string, string | string[]>;
+  filter: Filters;
+}>;
+
 type advanceRequestStat = {
   state: string;
 };
@@ -68,42 +75,48 @@ export class AdvanceRequestService {
     private spenderService: SpenderService
   ) {}
 
+  mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
+    return {
+      areq_advance_request_number: advanceRequestPlatform.advance.seq_num,
+      areq_advance_id: advanceRequestPlatform.advance_id,
+      areq_amount: advanceRequestPlatform.amount,
+      areq_approved_at: advanceRequestPlatform.last_approved_at,
+      areq_created_at: advanceRequestPlatform.created_at,
+      areq_currency: advanceRequestPlatform.currency,
+      areq_id: advanceRequestPlatform.id,
+      areq_notes: advanceRequestPlatform.notes,
+      areq_org_user_id: advanceRequestPlatform.employee_id,
+      areq_project_id: advanceRequestPlatform.project_id,
+      areq_purpose: advanceRequestPlatform.purpose,
+      areq_source: advanceRequestPlatform.source,
+      areq_state: advanceRequestPlatform.state === 'SENT_BACK' ? 'INQUIRY' : advanceRequestPlatform.state,
+      areq_updated_at: advanceRequestPlatform.updated_at,
+      ou_department: advanceRequestPlatform.employee.department.display_name,
+      ou_department_id: advanceRequestPlatform.employee.department.id,
+      ou_id: advanceRequestPlatform.employee_id,
+      ou_org_id: advanceRequestPlatform.org_id,
+      ou_sub_department: advanceRequestPlatform.employee.department.id,
+      us_email: advanceRequestPlatform.user.email,
+      us_full_name: advanceRequestPlatform.user.full_name,
+      areq_is_pulled_back: advanceRequestPlatform.state === 'PULLED_BACK',
+      ou_employee_id: advanceRequestPlatform.employee_id,
+      areq_custom_field_values: JSON.stringify(advanceRequestPlatform.custom_fields),
+      areq_is_sent_back: advanceRequestPlatform.state === 'SENT_BACK',
+    };
+  }
+
   convertToPublicAdvanceRequest(
     advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform>
   ): ExtendedAdvanceRequestPublic[] {
-    return advanceReqPlatformResponse.data.map((advReq) => {
-      return {
-        areq_advance_request_number: advReq['advance->seq_num'],
-        areq_advance_id: advReq.advance_id,
-        areq_amount: advReq.amount,
-        areq_approved_at: advReq.last_approved_at,
-        areq_created_at: advReq.created_at,
-        areq_currency: advReq.currency,
-        areq_id: advReq.id,
-        areq_notes: advReq.notes,
-        areq_org_user_id: advReq.employee_id,
-        areq_project_id: advReq.project_id,
-        areq_purpose: advReq.purpose,
-        areq_source: advReq.source,
-        areq_state: advReq.state === 'SENT_BACK' ? 'INQUIRY' : advReq.state,
-        areq_updated_at: advReq.updated_at,
-        ou_department: advReq['employee->department->display_name'],
-        ou_department_id: advReq['employee->department->id'],
-        ou_id: advReq.employee_id,
-        ou_org_id: advReq.org_id,
-        ou_sub_department: advReq['employee->department->id'],
-        us_email: advReq['user->email'],
-        us_full_name: advReq['user->full_name'],
-        areq_is_pulled_back: advReq.state === 'PULLED_BACK',
-        ou_employee_id: advReq.employee_id,
-      };
-    });
+    return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
+      this.mapAdvanceRequest(advanceRequestPlatform)
+    );
   }
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
-  getMyadvanceRequests(
-    config: Config = {
+  getSpenderAdvanceRequests(
+    config: PlatformConfig = {
       offset: 0,
       limit: 200,
       queryParams: {},
@@ -112,7 +125,7 @@ export class AdvanceRequestService {
     const params = {
       offset: config.offset,
       limit: config.limit,
-      advance_id: config.queryParams.advance_id,
+      advance_id: 'eq.null',
     };
     if (config.queryParams.order) {
       params['order'] = config.queryParams.order;
@@ -135,6 +148,35 @@ export class AdvanceRequestService {
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
+  getMyadvanceRequests(
+    config: Config = {
+      offset: 0,
+      limit: 10,
+      queryParams: {},
+    }
+  ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
+    return from(this.authService.getEou()).pipe(
+      switchMap((eou) =>
+        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
+          params: {
+            offset: config.offset,
+            limit: config.limit,
+            areq_org_user_id: 'eq.' + eou.ou.id,
+            ...config.queryParams,
+          },
+        })
+      ),
+      map((res) => res as ApiV2Response<ExtendedAdvanceRequest>),
+      map((res) => ({
+        ...res,
+        data: res.data.map(this.fixDates),
+      }))
+    );
+  }
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.apiv2Service
       .get<ExtendedAdvanceRequest, { params: { areq_id: string } }>('/advance_requests', {
@@ -143,6 +185,21 @@ export class AdvanceRequestService {
         },
       })
       .pipe(map((res) => this.fixDates(res.data[0])));
+  }
+
+  @Cacheable({
+    cacheBusterObserver: advanceRequestsCacheBuster$,
+  })
+  getAdvanceRequestPlatform(id: string): Observable<ExtendedAdvanceRequestPublic> {
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+        params: { id },
+      })
+      .pipe(
+        map((res) => {
+          return this.mapAdvanceRequest(this.fixDatesForPlatformFields(res.data[0]));
+        })
+      );
   }
 
   @CacheBuster({
@@ -291,8 +348,8 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {
-    return this.getMyadvanceRequests({
+  getSpenderAdvanceRequestsCount(queryParams = {}): Observable<number> {
+    return this.getSpenderAdvanceRequests({
       offset: 0,
       limit: 1,
       queryParams,
@@ -318,7 +375,10 @@ export class AdvanceRequestService {
     return customFields;
   }
 
-  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest): { state: string; name: string } {
+  getInternalStateAndDisplayName(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
+    state: string;
+    name: string;
+  } {
     let internalRepresentation: { state: string; name: string } = {
       state: null,
       name: null,
@@ -355,7 +415,7 @@ export class AdvanceRequestService {
     return internalRepresentation;
   }
 
-  createAdvReqWithFilesAndSubmit(
+  createadvanceRequestPlatformWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
@@ -379,7 +439,7 @@ export class AdvanceRequestService {
     );
   }
 
-  saveDraftAdvReqWithFiles(
+  saveDraftadvanceRequestPlatformWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
@@ -456,7 +516,71 @@ export class AdvanceRequestService {
     return data;
   }
 
-  private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest): {
+  private fixDatesForPlatformFields(data: AdvanceRequestPlatform): AdvanceRequestPlatform {
+    if (data?.created_at) {
+      data.created_at = new Date(data.created_at);
+    }
+
+    if (data.updated_at) {
+      data.updated_at = new Date(data.updated_at);
+    }
+
+    if (data.last_approved_at) {
+      data.last_approved_at = new Date(data.last_approved_at);
+    }
+
+    return data;
+  }
+
+  createAdvReqWithFilesAndSubmit(
+    advanceRequest: Partial<AdvanceRequests>,
+    fileObservables?: Observable<File[]>
+  ): Observable<AdvanceRequestFile> {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.submit(advanceRequest),
+    }).pipe(
+      switchMap((res) => {
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs).pipe(map(() => res));
+        } else {
+          return of(null).pipe(map(() => res));
+        }
+      })
+    );
+  }
+
+  saveDraftAdvReqWithFiles(
+    advanceRequest: Partial<AdvanceRequests>,
+    fileObservables?: Observable<File[]>
+  ): Observable<AdvanceRequestFile> {
+    return forkJoin({
+      files: fileObservables,
+      advanceReq: this.saveDraft(advanceRequest),
+    }).pipe(
+      switchMap((res) => {
+        if (res.files && res.files.length > 0) {
+          const fileObjs: File[] = res.files;
+          const advanceReq = res.advanceReq;
+          const newFileObjs = fileObjs.map((obj: File) => {
+            obj.advance_request_id = advanceReq.id;
+            return this.fileService.post(obj);
+          });
+          return forkJoin(newFileObjs).pipe(map(() => res));
+        } else {
+          return of(null).pipe(map(() => res));
+        }
+      })
+    );
+  }
+
+  private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
     state: string;
     name: string;
   } {
