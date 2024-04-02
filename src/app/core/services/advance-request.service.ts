@@ -348,6 +348,14 @@ export class AdvanceRequestService {
     );
   }
 
+  getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {
+    return this.getMyadvanceRequests({
+      offset: 0,
+      limit: 1,
+      queryParams,
+    }).pipe(map((advanceRequest) => advanceRequest.count));
+  }
+  
   getSpenderAdvanceRequestsCount(queryParams = {}): Observable<number> {
     return this.getSpenderAdvanceRequests({
       offset: 0,
