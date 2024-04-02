@@ -29,6 +29,7 @@ import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -387,9 +388,9 @@ export class AdvanceRequestService {
     return order;
   }
 
-  getAdvanceRequestStats(params: advanceRequestStat): Observable<{ count: number; total_amount: number }> {
+  getAdvanceRequestStats(params: advanceRequestStat): Observable<StatsResponse> {
     return this.spenderService
-      .post<{ data: { count: number; total_amount: number } }>('/advance_requests/stats', {
+      .post<{ data: StatsResponse }>('/advance_requests/stats', {
         data: {
           query_params: `state=${params.state}`,
         },
