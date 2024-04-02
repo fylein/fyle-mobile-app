@@ -423,7 +423,7 @@ export class AdvanceRequestService {
     return internalRepresentation;
   }
 
-  createadvanceRequestPlatformWithFilesAndSubmit(
+  createadvanceRequestWithFilesAndSubmit(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
@@ -447,7 +447,7 @@ export class AdvanceRequestService {
     );
   }
 
-  saveDraftadvanceRequestPlatformWithFiles(
+  saveDraftadvancePlatformWithFiles(
     advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
@@ -538,54 +538,6 @@ export class AdvanceRequestService {
     }
 
     return data;
-  }
-
-  createAdvReqWithFilesAndSubmit(
-    advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>
-  ): Observable<AdvanceRequestFile> {
-    return forkJoin({
-      files: fileObservables,
-      advanceReq: this.submit(advanceRequest),
-    }).pipe(
-      switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
-          const advanceReq = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReq.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(map(() => res));
-        } else {
-          return of(null).pipe(map(() => res));
-        }
-      })
-    );
-  }
-
-  saveDraftAdvReqWithFiles(
-    advanceRequest: Partial<AdvanceRequests>,
-    fileObservables?: Observable<File[]>
-  ): Observable<AdvanceRequestFile> {
-    return forkJoin({
-      files: fileObservables,
-      advanceReq: this.saveDraft(advanceRequest),
-    }).pipe(
-      switchMap((res) => {
-        if (res.files && res.files.length > 0) {
-          const fileObjs: File[] = res.files;
-          const advanceReq = res.advanceReq;
-          const newFileObjs = fileObjs.map((obj: File) => {
-            obj.advance_request_id = advanceReq.id;
-            return this.fileService.post(obj);
-          });
-          return forkJoin(newFileObjs).pipe(map(() => res));
-        } else {
-          return of(null).pipe(map(() => res));
-        }
-      })
-    );
   }
 
   private getStateIfDraft(advanceRequest: ExtendedAdvanceRequest | ExtendedAdvanceRequestPublic): {
