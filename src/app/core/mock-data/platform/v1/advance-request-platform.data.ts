@@ -39,7 +39,7 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
       amount: 47.99,
       policy_amount: 1500,
       advance_id: 'advjrgwlk2Q',
-      seq_num: 'AR/2020/10/T/95',
+      seq_num: 'A/2020/10/T/95',
       code: 'C1234',
       notes: 'onsite client meeting',
       purpose: 'onsite client meeting',
@@ -78,9 +78,9 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
       last_approved_at: new Date('2020-06-14T13:14:55.201598+00:00'),
       custom_fields: [
         {
-          name: 'cf1',
-          value: 'string1',
-          type: CustomFieldTypes.TEXT,
+          name: 'checking',
+          value: 'true',
+          type: CustomFieldTypes.BOOLEAN,
         },
       ],
     },

@@ -565,7 +565,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getSpenderAdvanceRequestsCount(queryParams).subscribe((res) => {
-        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(res).toEqual(publicAdvanceRequestRes.count);
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
@@ -579,7 +579,7 @@ describe('AdvanceRequestService', () => {
       spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(publicAdvanceRequestRes));
 
       advanceRequestService.getSpenderAdvanceRequestsCount().subscribe((res) => {
-        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(res).toEqual(publicAdvanceRequestRes.count);
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
@@ -603,8 +603,6 @@ describe('AdvanceRequestService', () => {
     };
 
     advanceRequestService.getSpenderAdvanceRequests(param).subscribe((res) => {
-      console.log(res);
-      console.log(publicAdvanceRequestRes);
       expect(res).toEqual(publicAdvanceRequestRes);
       expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
