@@ -30,7 +30,7 @@ import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data
 import { expenseList } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
 import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
-import { singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
+import { publicAdvanceRequestRes, singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   expensesList,
   mileageCategoryPlatformExpenseData,
@@ -316,7 +316,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
+        advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(publicAdvanceRequestRes));
       });
 
       it('should get all advances and navigate to add edit advance request page if task count is 1', fakeAsync(() => {
@@ -327,8 +327,7 @@ export function TestCases2(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your advance request...');
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           queryParams: {
-            areq_state: 'in.(DRAFT)',
-            areq_is_sent_back: 'is.true',
+            state: 'eq.SENT_BACK',
           },
           offset: 0,
           limit: 1,
@@ -338,7 +337,7 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_advance_request',
-          { id: singleExtendedAdvReqRes.data[0].areq_id },
+          { id: publicAdvanceRequestRes.data[0].areq_id },
         ]);
       }));
 
