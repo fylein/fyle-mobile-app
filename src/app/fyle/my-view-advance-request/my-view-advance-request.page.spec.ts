@@ -263,14 +263,14 @@ describe('MyViewAdvanceRequestPage', () => {
     it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
       advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
-      advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
 
       component.ionViewWillEnter();
 
       tick(100);
 
       component.advanceRequestCustomFields$.subscribe(() => {
-        expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledTimes(
+        console.log('test:', publicAdvanceRequestRes.data[0].areq_custom_field_values);
+        expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
           JSON.parse(publicAdvanceRequestRes.data[0].areq_custom_field_values)
         );
         expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
