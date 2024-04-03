@@ -6,6 +6,9 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
+import { AdvancesPlatform } from '../models/platform/advances-platform.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { SpenderService } from './platform/v1/spender/spender.service';
 
 const advancesCacheBuster$ = new Subject<void>();
 
@@ -15,42 +18,71 @@ type Config = Partial<{ offset: number; limit: number; assignee_ou_id?: string; 
   providedIn: 'root',
 })
 export class AdvanceService {
-  constructor(private apiv2Service: ApiV2Service, private authService: AuthService) {}
+  constructor(
+    private apiv2Service: ApiV2Service,
+    private authService: AuthService,
+    private spenderService: SpenderService
+  ) {}
+  mapAdvance(advancesPlatform: AdvancesPlatform): ExtendedAdvance {
+    return {
+      adv_advance_number: advancesPlatform.seq_num,
+      adv_amount: advancesPlatform.amount,
+      adv_card_number: advancesPlatform.card_number,
+      adv_created_at: advancesPlatform.created_at,
+      adv_currency: advancesPlatform.currency,
+      adv_exported: advancesPlatform.is_exported,
+      adv_id: advancesPlatform.id,
+      adv_issued_at: advancesPlatform.issued_at,
+      adv_mode: advancesPlatform.payment_mode,
+      adv_orig_amount: advancesPlatform.foreign_amount,
+      adv_orig_currency: advancesPlatform.foreign_currency,
+      adv_purpose: advancesPlatform.purpose,
+      adv_refcode: advancesPlatform.code,
+      adv_settlement_id: advancesPlatform.settlement_id,
+      adv_source: advancesPlatform.source,
+      areq_id: advancesPlatform.advance_request_id,
+      assignee_department_id: advancesPlatform.employee.department.id,
+      assignee_ou_id: advancesPlatform.employee.id,
+      assignee_ou_org_id: advancesPlatform.employee.org_id,
+      assignee_us_email: advancesPlatform.employee.user.email,
+      assignee_us_full_name: advancesPlatform.employee.user.full_name,
+      project_code: advancesPlatform.project.code,
+      project_id: advancesPlatform.project.id,
+      project_name: advancesPlatform.project.display_name,
+      type: 'advance',
+    };
+  }
 
+  convertToPublicAdvance(advancesPlatformResponse: PlatformApiResponse<AdvancesPlatform>): ExtendedAdvance[] {
+    return advancesPlatformResponse.data.map((advancesPlatform) => this.mapAdvance(advancesPlatform));
+  }
   @Cacheable({
     cacheBusterObserver: advancesCacheBuster$,
   })
-  getMyadvances(
-    config: Config = {
+  getSpenderAdvances(
+    config: PlatformConfig = {
       offset: 0,
-      limit: 10,
-      queryParams: {},
+      limit: 200,
     }
   ): Observable<ApiV2Response<ExtendedAdvance>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get<
-          ExtendedAdvance,
-          {
-            params: Config;
-          }
-        >('/advances', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            assignee_ou_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
+    const params = {
+      offset: config.offset,
+      limit: config.limit,
+    };
+    return this.spenderService
+      .get<PlatformApiResponse<AdvancesPlatform>>('/advances', {
+        params,
+      })
+      .pipe(
+        map((res) => {
+          return {
+            count: res.count,
+            offset: res.offset,
+            data: this.convertToPublicAdvance(res),
+          };
         })
-      ),
-      map((res) => res as ApiV2Response<ExtendedAdvance>),
-      map((res) => ({
-        ...res,
-        data: res.data.map(this.fixDates),
-      }))
-    );
+      );
   }
-
   @CacheBuster({
     cacheBusterNotifier: advancesCacheBuster$,
   })
@@ -69,7 +101,7 @@ export class AdvanceService {
   }
 
   getMyAdvancesCount(queryParams = {}) {
-    return this.getMyadvances({
+    return this.getSpenderAdvances({
       offset: 0,
       limit: 1,
       queryParams,
@@ -85,9 +117,11 @@ export class AdvanceService {
       data.adv_issued_at = new Date(data.adv_issued_at);
     }
 
-    if (data && data.areq_approved_at) {
-      data.areq_approved_at = new Date(data.areq_approved_at);
-    }
     return data;
   }
 }
+type PlatformConfig = Partial<{
+  offset: number;
+  limit: number;
+  queryParams: Record<string, string | string[]>;
+}>;

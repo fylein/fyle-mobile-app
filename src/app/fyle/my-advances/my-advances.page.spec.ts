@@ -209,7 +209,7 @@ describe('MyAdvancesPage', () => {
       advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(1));
       advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(publicAdvanceRequestRes));
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
-      advanceService.getMyadvances.and.returnValue(of(singleExtendedAdvancesData));
+      advanceService.getSpenderAdvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       utilityService.sortAllAdvances.and.returnValue([extendedAdvReqDraft, extendedAdvReqInquiry]);
     });
@@ -281,7 +281,7 @@ describe('MyAdvancesPage', () => {
       component.ionViewWillEnter();
       component.myAdvances$.subscribe((res) => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
-        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 10,
           queryParams: {
@@ -293,20 +293,23 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should set myAdvances$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
-      advanceService.getMyadvances.and.returnValues(of(singleExtendedAdvancesData2), of(singleExtendedAdvancesData));
+      advanceService.getSpenderAdvances.and.returnValues(
+        of(singleExtendedAdvancesData2),
+        of(singleExtendedAdvancesData)
+      );
       advanceService.getMyAdvancesCount.and.returnValue(of(11));
       component.ionViewWillEnter();
       component.myAdvances$.subscribe((res) => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
-        expect(advanceService.getMyadvances).toHaveBeenCalledTimes(2);
-        expect(advanceService.getMyadvances).toHaveBeenCalledWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledTimes(2);
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
           offset: 0,
           limit: 10,
           queryParams: {
             order: 'adv_created_at.desc,adv_id.desc',
           },
         });
-        expect(advanceService.getMyadvances).toHaveBeenCalledWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
           offset: 10,
           limit: 10,
           queryParams: {

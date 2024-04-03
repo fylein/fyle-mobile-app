@@ -75,19 +75,16 @@ describe('AdvanceService', () => {
       const config = {
         offset: 0,
         limit: 10,
-        queryParams: { status: 'ACTIVE' },
       };
 
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
-      advanceService.getMyadvances(config).subscribe((res) => {
+      advanceService.getSpenderAdvances(config).subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
         expect(apiv2Service.get).toHaveBeenCalledWith('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            assignee_ou_id: 'eq.' + apiEouRes.ou.id,
-            ...config.queryParams,
           },
         });
         expect(authService.getEou).toHaveBeenCalledTimes(1);
@@ -104,7 +101,7 @@ describe('AdvanceService', () => {
 
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
       apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
-      advanceService.getMyadvances().subscribe((res) => {
+      advanceService.getSpenderAdvances().subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
         expect(apiv2Service.get).toHaveBeenCalledWith('/advances', {
           params: {
@@ -121,13 +118,13 @@ describe('AdvanceService', () => {
 
   describe('getMyAdvancesCount():', () => {
     it(' should get advances count', (done) => {
-      spyOn(advanceService, 'getMyadvances').and.returnValue(of(singleExtendedAdvancesData));
+      spyOn(advanceService, 'getSpenderAdvances').and.returnValue(of(singleExtendedAdvancesData));
       const queryParams = {
         status: 'ACTIVE',
       };
       advanceService.getMyAdvancesCount(queryParams).subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData.count);
-        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: { ...queryParams },
@@ -137,10 +134,10 @@ describe('AdvanceService', () => {
     });
 
     it(' should get advances count without queryparams', (done) => {
-      spyOn(advanceService, 'getMyadvances').and.returnValue(of(singleExtendedAdvancesData));
+      spyOn(advanceService, 'getSpenderAdvances').and.returnValue(of(singleExtendedAdvancesData));
       advanceService.getMyAdvancesCount().subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData.count);
-        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: {},
