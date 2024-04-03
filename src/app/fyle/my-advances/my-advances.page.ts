@@ -46,7 +46,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   refreshAdvances$: Subject<void> = new Subject();
 
-  advances$: Observable<(ExtendedAdvanceRequest | ExtendedAdvance)[]>;
+  advances$: Observable<(ExtendedAdvanceRequestPublic | ExtendedAdvance)[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -130,13 +130,13 @@ export class MyAdvancesPage implements AfterViewChecked {
       })
       .pipe(
         concatMap((count) => {
-          count = count > 200 ? count / 200 : 1;
+          count = count > 100 ? count / 100 : 1;
           return range(0, count);
         }),
         concatMap((count) =>
           this.advanceRequestService.getSpenderAdvanceRequests({
-            offset: 200 * count,
-            limit: 200,
+            offset: 100 * count,
+            limit: 100,
             queryParams: {
               advance_id: 'eq.null',
               order: 'created_at.desc,id.desc',

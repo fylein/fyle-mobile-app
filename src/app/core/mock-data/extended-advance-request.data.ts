@@ -596,6 +596,11 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
   offset: 0,
 };
 
+export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  ...publicAdvanceRequestRes,
+  count: 150,
+};
+
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   count: 43,
   data: [

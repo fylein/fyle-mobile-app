@@ -260,22 +260,23 @@ describe('MyViewAdvanceRequestPage', () => {
       });
     }));
 
-    xit('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', (done) => {
+    it('should call advanceRequestService.modifyAdvanceRequestCustomFields and getAndUpdateProjectName once', fakeAsync(() => {
       const mockAdvRequestCustomFields = cloneDeep(advanceRequestCustomFieldData2);
       advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
       advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
 
       component.ionViewWillEnter();
 
+      tick(100);
+
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledTimes(
           JSON.parse(publicAdvanceRequestRes.data[0].areq_custom_field_values)
         );
         expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
-        done();
       });
       expect(component.getAndUpdateProjectName).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 
   it('pullBack(): should pull back advance request and navigate to my_advances page', fakeAsync(() => {
