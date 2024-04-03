@@ -233,7 +233,6 @@ describe('MyAdvancesPage', () => {
     it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        console.log(res);
         expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
           advance_id: 'eq.null',
         });
@@ -268,7 +267,7 @@ describe('MyAdvancesPage', () => {
         });
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
           offset: 100,
-          limit: 200,
+          limit: 100,
           queryParams: {
             advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
