@@ -19,6 +19,7 @@ import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -451,12 +452,9 @@ export class TasksService {
     });
   }
 
-  getSentBackAdvancesStats(): Observable<Datum[]> {
-    return this.advancesRequestService.getMyAdvanceRequestStats({
-      aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_state: 'in.(DRAFT)',
-      areq_is_sent_back: 'is.true',
-      scalar: true,
+  getSentBackAdvancesStats(): Observable<StatsResponse> {
+    return this.advancesRequestService.getAdvanceRequestStats({
+      state: 'eq.SENT_BACK',
     });
   }
 
@@ -465,9 +463,13 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ advancesStats, homeCurrency }: { advancesStats: Datum[]; homeCurrency: string }) =>
-        this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
-      )
+      map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) => {
+        const aggregate = {
+          totalAmount: advancesStats.total_amount,
+          totalCount: advancesStats.count,
+        };
+        return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
+      })
     );
   }
 

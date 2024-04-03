@@ -80,7 +80,7 @@ describe('TasksService', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getMyAdvanceRequestStats']);
+    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getAdvanceRequestStats']);
     const corporateCreditCardExpenseServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getCorporateCards',
     ]);
@@ -157,12 +157,12 @@ describe('TasksService', () => {
 
   it('should be able to fetch tasks related to sent back advances', (done) => {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    advanceRequestService.getMyAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
+    advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
     humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency, true)
       .and.returnValue('123.37M');
     humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency)
+      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency)
       .and.returnValue('₹123.37M');
 
     tasksService.getSentBackAdvanceTasks().subscribe((sentBackAdvancesData) => {
@@ -689,7 +689,7 @@ describe('TasksService', () => {
 
   function setupData() {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    advanceRequestService.getMyAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
+    advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
     setupUnsibmittedReportsResponse();
     getUnreportedExpenses();
     reportService.getReportStatsData
@@ -818,16 +818,16 @@ describe('TasksService', () => {
 
   it('should generate proper content in all cases for sent back advances', () => {
     humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency, true)
       .and.returnValue('123.37M');
     humanizeCurrencyPipe.transform
-      .withArgs(sentBackAdvancesResponse[0].aggregates[1].function_value, homeCurrency)
+      .withArgs(sentBackAdvancesResponse.total_amount, homeCurrency)
       .and.returnValue('₹123.37M');
 
     const sentBackAdvanceTask = tasksService.mapSentBackAdvancesToTasks(
       {
         totalCount: 1,
-        totalAmount: sentBackAdvancesResponse[0].aggregates[1].function_value,
+        totalAmount: sentBackAdvancesResponse.total_amount,
       },
       homeCurrency
     );
