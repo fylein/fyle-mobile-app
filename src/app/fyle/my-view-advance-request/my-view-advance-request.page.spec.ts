@@ -269,7 +269,6 @@ describe('MyViewAdvanceRequestPage', () => {
       tick(100);
 
       component.advanceRequestCustomFields$.subscribe(() => {
-        console.log('test:', publicAdvanceRequestRes.data[0].areq_custom_field_values);
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
           JSON.parse(publicAdvanceRequestRes.data[0].areq_custom_field_values)
         );
