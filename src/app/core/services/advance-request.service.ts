@@ -112,6 +112,7 @@ export class AdvanceRequestService {
       this.mapAdvanceRequest(advanceRequestPlatform)
     );
   }
+
   @Cacheable({
     cacheBusterObserver: advanceRequestsCacheBuster$,
   })
@@ -355,7 +356,7 @@ export class AdvanceRequestService {
       queryParams,
     }).pipe(map((advanceRequest) => advanceRequest.count));
   }
-  
+
   getSpenderAdvanceRequestsCount(queryParams = {}): Observable<number> {
     return this.getSpenderAdvanceRequests({
       offset: 0,
