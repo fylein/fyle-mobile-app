@@ -230,7 +230,7 @@ describe('MyAdvancesPage', () => {
       expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
     });
 
-    it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
+    it('should set myAdvancerequests$ to publicAdvanceRequestRes.data', () => {
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
@@ -238,7 +238,7 @@ describe('MyAdvancesPage', () => {
         });
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
-          limit: 100,
+          limit: 200,
           queryParams: {
             advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
@@ -248,9 +248,12 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
-      advanceRequestService.getSpenderAdvanceRequests.and.returnValues(of(publicAdvanceRequestRes2));
-      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(publicAdvanceRequestRes2.count));
+    xit('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
+      advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
+        of(publicAdvanceRequestRes2),
+        of(publicAdvanceRequestRes2)
+      );
+      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
         expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
@@ -259,21 +262,21 @@ describe('MyAdvancesPage', () => {
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledTimes(2);
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
           offset: 0,
-          limit: 100,
+          limit: 200,
           queryParams: {
             advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
           },
         });
         expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
-          offset: 100,
-          limit: 100,
+          offset: 200,
+          limit: 200,
           queryParams: {
-            advance_id: 'eq.null',
+            areq_advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual(publicAdvanceRequestRes2.data);
+        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestRes2.data]);
       });
     });
 

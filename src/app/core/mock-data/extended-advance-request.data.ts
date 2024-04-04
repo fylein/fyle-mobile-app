@@ -598,7 +598,7 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
 
 export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
   ...publicAdvanceRequestRes,
-  count: 150,
+  count: 250,
 };
 
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
