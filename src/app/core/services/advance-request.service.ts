@@ -31,6 +31,7 @@ import { SpenderService } from './platform/v1/spender/spender.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
+import { AdvanceRequestState } from '../models/advance-request-state.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -89,7 +90,8 @@ export class AdvanceRequestService {
       areq_project_id: advanceRequestPlatform.project_id,
       areq_purpose: advanceRequestPlatform.purpose,
       areq_source: advanceRequestPlatform.source,
-      areq_state: advanceRequestPlatform.state === 'SENT_BACK' ? 'INQUIRY' : advanceRequestPlatform.state,
+      areq_state:
+        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK ? 'INQUIRY' : advanceRequestPlatform.state,
       areq_updated_at: advanceRequestPlatform.updated_at,
       ou_department: advanceRequestPlatform.employee.department.display_name,
       ou_department_id: advanceRequestPlatform.employee.department.id,
@@ -98,7 +100,7 @@ export class AdvanceRequestService {
       ou_sub_department: advanceRequestPlatform.employee.department.id,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
-      areq_is_pulled_back: advanceRequestPlatform.state === 'PULLED_BACK',
+      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: JSON.stringify(advanceRequestPlatform.custom_fields),
       areq_is_sent_back: advanceRequestPlatform.state === 'SENT_BACK',
