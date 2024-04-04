@@ -155,7 +155,7 @@ export class UtilityService {
 
   private getSortingValue(advance: ExtendedAdvanceRequest, sortParam: SortingParam): dayjs.Dayjs | string {
     if (sortParam === SortingParam.creationDate) {
-      return advance.areq_created_at ? dayjs(advance.areq_created_at) : dayjs(advance.adv_created_at);
+      return dayjs(advance.areq_created_at);
     } else if (sortParam === SortingParam.approvalDate) {
       return advance.areq_approved_at ? dayjs(advance.areq_approved_at) : dayjs(this.EPOCH).toString();
     } else if (sortParam === SortingParam.project) {
