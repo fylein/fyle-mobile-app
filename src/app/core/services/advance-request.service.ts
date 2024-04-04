@@ -103,7 +103,7 @@ export class AdvanceRequestService {
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: JSON.stringify(advanceRequestPlatform.custom_fields),
-      areq_is_sent_back: advanceRequestPlatform.state === 'SENT_BACK',
+      areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
     };
   }
 
