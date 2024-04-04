@@ -91,13 +91,15 @@ export class AdvanceService {
   }
 
   getAdvance(id: string): Observable<ExtendedAdvance> {
-    return this.apiv2Service
-      .get<ExtendedAdvance, { params: { adv_id: string } }>('/advances', {
-        params: {
-          adv_id: `eq.${id}`,
-        },
+    return this.spenderService
+      .get<PlatformApiResponse<AdvancesPlatform>>('/advances', {
+        params: { id: `eq.${id}` },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvance));
+      .pipe(
+        map((res) => {
+          return this.fixDates(this.mapAdvance(res.data[0]));
+        })
+      );
   }
 
   getMyAdvancesCount(queryParams = {}) {
