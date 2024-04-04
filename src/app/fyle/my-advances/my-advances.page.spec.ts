@@ -248,7 +248,7 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    xit('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
+    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
         of(publicAdvanceRequestRes2),
         of(publicAdvanceRequestRes2)
