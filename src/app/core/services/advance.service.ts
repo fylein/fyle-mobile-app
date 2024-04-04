@@ -18,11 +18,7 @@ type Config = Partial<{ offset: number; limit: number; assignee_ou_id?: string; 
   providedIn: 'root',
 })
 export class AdvanceService {
-  constructor(
-    private apiv2Service: ApiV2Service,
-    private authService: AuthService,
-    private spenderService: SpenderService
-  ) {}
+  constructor(private spenderService: SpenderService) {}
   mapAdvance(advancesPlatform: AdvancesPlatform): ExtendedAdvance {
     return {
       adv_advance_number: advancesPlatform.seq_num,
@@ -64,6 +60,7 @@ export class AdvanceService {
     config: PlatformConfig = {
       offset: 0,
       limit: 200,
+      queryParams: {},
     }
   ): Observable<ApiV2Response<ExtendedAdvance>> {
     const params = {
