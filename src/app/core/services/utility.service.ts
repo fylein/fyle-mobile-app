@@ -9,6 +9,7 @@ import { Transaction } from '../models/v1/transaction.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { OperatorFunction } from 'rxjs';
+import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 
 @Injectable({
   providedIn: 'root',
@@ -124,8 +125,8 @@ export class UtilityService {
   sortAllAdvances(
     sortDir: SortingDirection,
     sortParam: SortingParam,
-    advancesArray: ExtendedAdvanceRequest[]
-  ): ExtendedAdvanceRequest[] {
+    advancesArray: ExtendedAdvanceRequestPublic[]
+  ): ExtendedAdvanceRequestPublic[] {
     //used for sorting an array that has both advances and advance requests mixed together
     const sortedAdvancesArray = cloneDeep(advancesArray);
 
@@ -153,9 +154,9 @@ export class UtilityService {
     return result;
   }
 
-  private getSortingValue(advance: ExtendedAdvanceRequest, sortParam: SortingParam): dayjs.Dayjs | string {
+  private getSortingValue(advance: ExtendedAdvanceRequestPublic, sortParam: SortingParam): dayjs.Dayjs | string {
     if (sortParam === SortingParam.creationDate) {
-      return advance.areq_created_at ? dayjs(advance.areq_created_at) : dayjs(advance.adv_created_at);
+      return dayjs(advance.areq_created_at);
     } else if (sortParam === SortingParam.approvalDate) {
       return advance.areq_approved_at ? dayjs(advance.areq_approved_at) : dayjs(this.EPOCH).toString();
     } else if (sortParam === SortingParam.project) {
