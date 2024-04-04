@@ -1,11 +1,11 @@
 import { CustomFields } from './custom-fields.model';
 import { Project } from './v1/project.model';
-import { User } from '../user.model';
 import { PlatformEmployee } from './platform-employee.model';
 import { Department } from './v1/department.model';
 import { PlatformApproval } from './platform-approval.model';
 import { PlatformAdvance } from './v1/platform-advance.model';
 import { UserDetails } from '../v1/user-details.model';
+import { User } from './v1/user.model';
 
 export interface AdvancesPlatform {
   id: string;
@@ -36,4 +36,5 @@ export interface AdvancesPlatform {
   custom_fields: CustomFields[];
   employee_id: string;
   employee: PlatformEmployee;
+  creator_user: User;
 }
