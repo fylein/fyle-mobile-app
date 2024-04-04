@@ -21,7 +21,6 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
 import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
@@ -46,7 +45,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   refreshAdvances$: Subject<void> = new Subject();
 
-  advances$: Observable<(ExtendedAdvanceRequest | ExtendedAdvance)[]>;
+  advances$: Observable<(ExtendedAdvanceRequestPublic | ExtendedAdvance)[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -163,7 +162,7 @@ export class MyAdvancesPage implements AfterViewChecked {
       reduce((acc, curr) => acc.concat(curr))
     );
 
-    const sortResults = map((res: (ExtendedAdvanceRequest | ExtendedAdvance)[]) =>
+    const sortResults = map((res: (ExtendedAdvanceRequestPublic | ExtendedAdvance)[]) =>
       res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
     );
     this.advances$ = this.refreshAdvances$.pipe(
@@ -185,7 +184,7 @@ export class MyAdvancesPage implements AfterViewChecked {
           sortResults
         )
       ),
-      switchMap((advArray: ExtendedAdvanceRequest[]) =>
+      switchMap((advArray: ExtendedAdvanceRequestPublic[]) =>
         //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
         this.filterParams$.pipe(
           map((filters) => {

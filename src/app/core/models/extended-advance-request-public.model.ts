@@ -29,4 +29,6 @@ export interface ExtendedAdvanceRequestPublic {
   us_full_name: string;
   areq_custom_field_values: string;
   areq_is_sent_back: boolean;
+  created_at?: Date;
+  project_name?: string;
 }
