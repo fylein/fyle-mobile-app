@@ -248,7 +248,7 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    xit('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
+    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
         of(publicAdvanceRequestRes2),
         of(publicAdvanceRequestRes2)
@@ -272,7 +272,7 @@ describe('MyAdvancesPage', () => {
           offset: 200,
           limit: 200,
           queryParams: {
-            areq_advance_id: 'eq.null',
+            advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
           },
         });

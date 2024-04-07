@@ -615,6 +615,67 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('getMyadvanceRequests(): should get all advance request', (done) => {
+    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+
+    const param = {
+      offset: 0,
+      limit: 10,
+      queryParams: {
+        areq_advance_id: 'is.null',
+        order: 'areq_created_at.desc,areq_id.desc',
+      },
+    };
+
+    advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
+      expect(res).toEqual(allAdvanceRequestsRes);
+      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          offset: param.offset,
+          limit: param.limit,
+          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+          ...param.queryParams,
+        },
+      });
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  describe('getMyAdvanceRequestsCount():', () => {
+    it('should get advance request count', (done) => {
+      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+      const queryParams = {
+        areq_advance_id: 'is.null',
+      };
+
+      advanceRequestService.getMyAdvanceRequestsCount(queryParams).subscribe((res) => {
+        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: { ...queryParams },
+        });
+        done();
+      });
+    });
+
+    it('should get advance request count without query parmas', (done) => {
+      spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
+
+      advanceRequestService.getMyAdvanceRequestsCount().subscribe((res) => {
+        expect(res).toEqual(teamAdvanceCountRes.count);
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: {},
+        });
+        done();
+      });
+    });
+  });
+
   describe('getTeamAdvanceRequests():', () => {
     it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
