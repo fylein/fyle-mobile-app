@@ -272,7 +272,7 @@ describe('MyAdvancesPage', () => {
           offset: 200,
           limit: 200,
           queryParams: {
-            areq_advance_id: 'eq.null',
+            advance_id: 'eq.null',
             order: 'created_at.desc,id.desc',
           },
         });
