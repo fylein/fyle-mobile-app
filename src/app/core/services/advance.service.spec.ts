@@ -1,6 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { AdvanceService } from './advance.service';
 import {
   singleExtendedAdvancesData,
@@ -10,19 +8,20 @@ import {
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { advancePlatform } from '../mock-data/advance-platform.data';
 
 describe('AdvanceService', () => {
   let advanceService: AdvanceService;
   let spenderService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['getEou']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         AdvanceService,
         {
           provide: SpenderService,
-          values: spenderServiceSpy,
+          useValue: spenderServiceSpy,
         },
       ],
     });
@@ -36,7 +35,7 @@ describe('AdvanceService', () => {
 
   it('getAdvance(): should get an advance from ID', (done) => {
     const id = 'advETmi3eePvQ';
-    spenderService.get.and.returnValue(of(singleExtendedAdvancesData));
+    spenderService.get.and.returnValue(of(advancePlatform));
     // @ts-ignore
     spyOn(advanceService, 'fixDates').and.returnValue(singleExtendedAdvancesData.data[0]);
 
@@ -44,7 +43,7 @@ describe('AdvanceService', () => {
       expect(res).toEqual(singleExtendedAdvancesData.data[0]);
       expect(spenderService.get).toHaveBeenCalledOnceWith('/advances', {
         params: {
-          adv_id: `eq.${id}`,
+          id: `eq.${id}`,
         },
       });
       // @ts-ignore
@@ -64,14 +63,14 @@ describe('AdvanceService', () => {
     expect(advanceService.fixDates(extendedAdvWithoutDates)).toEqual(extendedAdvWithDates);
   });
 
-  describe('getMyadvances():', () => {
+  describe('getSpenderAdvances():', () => {
     it('should return advances', (done) => {
       const config = {
         offset: 0,
-        limit: 10,
+        limit: 200,
       };
 
-      spenderService.get.and.returnValue(of(singleExtendedAdvancesData));
+      spenderService.get.and.returnValue(of(advancePlatform));
       advanceService.getSpenderAdvances(config).subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
         expect(spenderService.get).toHaveBeenCalledWith('/advances', {
@@ -87,17 +86,16 @@ describe('AdvanceService', () => {
     it('should return advances without queryparams', (done) => {
       const config = {
         offset: 0,
-        limit: 10,
+        limit: 200,
         queryParams: {},
       };
-      spenderService.get.and.returnValue(of(singleExtendedAdvancesData));
+      spenderService.get.and.returnValue(of(advancePlatform));
       advanceService.getSpenderAdvances().subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
         expect(spenderService.get).toHaveBeenCalledWith('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            assignee_ou_id: 'eq.' + apiEouRes.ou.id,
           },
         });
       });

@@ -71,7 +71,7 @@ describe('MyAdvancesPage', () => {
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     let advanceServiceSpy = jasmine.createSpyObj('AdvanceService', [
       'getMyAdvancesCount',
-      'getMyadvances',
+      'getSpenderAdvances',
       'destroyAdvancesCacheBuster',
     ]);
     let networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -286,9 +286,9 @@ describe('MyAdvancesPage', () => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
         expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
-          limit: 10,
+          limit: 200,
           queryParams: {
-            order: 'adv_created_at.desc,adv_id.desc',
+            order: 'created_at.desc,id.desc',
           },
         });
         expect(res).toEqual(singleExtendedAdvancesData.data);
@@ -300,23 +300,23 @@ describe('MyAdvancesPage', () => {
         of(singleExtendedAdvancesData2),
         of(singleExtendedAdvancesData)
       );
-      advanceService.getMyAdvancesCount.and.returnValue(of(11));
+      advanceService.getMyAdvancesCount.and.returnValue(of(201));
       component.ionViewWillEnter();
       component.myAdvances$.subscribe((res) => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
         expect(advanceService.getSpenderAdvances).toHaveBeenCalledTimes(2);
         expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
           offset: 0,
-          limit: 10,
+          limit: 200,
           queryParams: {
-            order: 'adv_created_at.desc,adv_id.desc',
+            order: 'created_at.desc,id.desc',
           },
         });
         expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
-          offset: 10,
-          limit: 10,
+          offset: 200,
+          limit: 200,
           queryParams: {
-            order: 'adv_created_at.desc,adv_id.desc',
+            order: 'created_at.desc,id.desc',
           },
         });
         expect(res).toEqual([...singleExtendedAdvancesData2.data, ...singleExtendedAdvancesData.data]);
