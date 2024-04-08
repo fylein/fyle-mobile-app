@@ -200,7 +200,7 @@ describe('MyAdvancesPage', () => {
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'updateMyAdvanceRequests').and.returnValue(singleExtendedAdvReqRes.data);
+      spyOn(component, 'updateMyAdvanceRequests').and.returnValue(publicAdvanceRequestRes.data);
       spyOn(component, 'updateMyAdvances').and.returnValue(singleExtendedAdvancesData.data);
       spyOn(component, 'getAndUpdateProjectName');
       tasksService.getAdvancesTaskCount.and.returnValue(of(4));
@@ -426,7 +426,7 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'my_view_advance_request',
-        { id: 'advETmi3eePvQ' },
+        { id: 'advRhdN9D326Y' },
       ]);
     });
 
@@ -439,13 +439,13 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'my_view_advance_request',
-        { id: 'areqmq8cmnd5v4' },
+        { id: 'areqrttywiidF8' },
       ]);
     });
 
     it('should navigate to my_view_advance', () => {
       component.onAdvanceClick({ advanceRequest: singleExtendedAdvancesData3, internalState: { state: 'INQUIRY' } });
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_advance', { id: 'advETmi3eePvQ' }]);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_advance', { id: 'advRhdN9D326Y' }]);
     });
 
     it('should navigate to add_edit_advance_request if advance request is request type and it is in inquiry state', () => {
@@ -456,7 +456,7 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'add_edit_advance_request',
-        { id: 'advETmi3eePvQ' },
+        { id: 'advRhdN9D326Y' },
       ]);
     });
   });

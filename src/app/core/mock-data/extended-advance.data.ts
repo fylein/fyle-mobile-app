@@ -91,12 +91,12 @@ export const singleExtendedAdvancesData2: ApiV2Response<ExtendedAdvance> = {
 export const singleExtendedAdvancesData3: ExtendedAdvance = {
   ...singleExtendedAdvancesData.data[0],
   type: 'advance',
-  amount: 300,
+  amount: 5044,
   orig_amount: null,
-  created_at: new Date('2019-10-31T04:36:01.927Z'),
+  created_at: new Date('2024-03-11T08:32:40.861Z'),
   currency: 'INR',
   orig_currency: null,
-  purpose: 'New advance-2',
+  purpose: 'testing',
 };
 
 export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = {
