@@ -32,4 +32,9 @@ export interface ExtendedAdvanceRequestPublic {
   areq_is_sent_back: boolean;
   created_at?: Date;
   project_name?: string;
+  type?: string;
+  currency?: string;
+  amount?: number;
+  purpose?: string;
+  state?: string;
 }

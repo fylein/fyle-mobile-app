@@ -578,7 +578,7 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
       areq_project_id: '1234',
       areq_purpose: 'onsite client meeting',
       areq_source: 'WEBAPP',
-      areq_state: 'PAID',
+      areq_state: 'DRAFT',
       areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
       ou_department: 'Tech',
       ou_department_id: 'deptCjFrZcE0rH',
@@ -587,7 +587,7 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
       ou_sub_department: 'deptCjFrZcE0rH',
       us_email: 'john.doe@example.com',
       us_full_name: 'John Doe',
-      areq_is_pulled_back: false,
+      areq_is_pulled_back: true,
       ou_employee_id: 'outGt9ju6qP',
       areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
       areq_is_sent_back: false,
@@ -599,6 +599,27 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
 export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
   ...publicAdvanceRequestRes,
   count: 250,
+};
+export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = {
+  ...publicAdvanceRequestRes.data[0],
+  type: 'request',
+  currency: 'USD',
+  amount: 47.99,
+  created_at: new Date('2020-06-01T13:14:54.804Z'),
+  purpose: 'onsite client meeting',
+  state: 'DRAFT',
+  areq_is_pulled_back: true,
+};
+
+export const publicAdvanceRequestRes4: ExtendedAdvanceRequestPublic = {
+  ...publicAdvanceRequestRes.data[0],
+  type: 'request',
+  currency: 'USD',
+  amount: 47.99,
+  created_at: new Date('2020-06-01T13:14:54.804Z'),
+  purpose: 'onsite client meeting',
+  state: 'DRAFT',
+  areq_is_sent_back: true,
 };
 
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {

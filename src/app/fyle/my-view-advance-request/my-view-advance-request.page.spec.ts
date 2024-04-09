@@ -270,7 +270,7 @@ describe('MyViewAdvanceRequestPage', () => {
 
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-          JSON.parse(publicAdvanceRequestRes.data[0].areq_custom_field_values)
+          publicAdvanceRequestRes.data[0].areq_custom_field_values
         );
         expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
       });

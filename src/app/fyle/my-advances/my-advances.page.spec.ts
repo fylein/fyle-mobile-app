@@ -18,16 +18,10 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { allFilterPills } from 'src/app/core/mock-data/filter-pills.data';
 import {
-  allTeamAdvanceRequestsRes,
-  extendedAdvReqDraft,
-  extendedAdvReqInquiry,
-  myAdvanceRequestData5,
-  myAdvanceRequestsData2,
-  myAdvanceRequestsData3,
-  myAdvanceRequestsData4,
   publicAdvanceRequestRes,
   publicAdvanceRequestRes2,
-  singleExtendedAdvReqRes,
+  publicAdvanceRequestRes3,
+  publicAdvanceRequestRes4,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -211,7 +205,7 @@ describe('MyAdvancesPage', () => {
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
       advanceService.getSpenderAdvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      utilityService.sortAllAdvances.and.returnValue([extendedAdvReqDraft, extendedAdvReqInquiry]);
+      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
     });
 
     it('should call setupNetworkWatcher() once, set advancesTaskCount to 4, navigateBack to true and totalTaskCount to 5', () => {
@@ -336,7 +330,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
       });
     });
 
@@ -355,7 +349,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
       });
     });
 
@@ -363,8 +357,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([myAdvanceRequestsData3, myAdvanceRequestsData4]);
-      utilityService.sortAllAdvances.and.returnValue([myAdvanceRequestsData4, myAdvanceRequestsData3]);
+        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
+      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -376,9 +370,9 @@ describe('MyAdvancesPage', () => {
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
-          [myAdvanceRequestsData4, myAdvanceRequestsData3]
+          [publicAdvanceRequestRes4, publicAdvanceRequestRes4]
         );
-        expect(res).toEqual([myAdvanceRequestsData4, myAdvanceRequestsData3]);
+        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
       });
     });
   });
@@ -390,9 +384,10 @@ describe('MyAdvancesPage', () => {
   });
 
   it('updateMyAdvanceRequests(): should set type, amount, orig_amount, created_at, currency, orig_currency and purpose in my advances request', () => {
-    const mockMyAdvanceRequestsData = cloneDeep(singleExtendedAdvReqRes.data);
+    const mockMyAdvanceRequestsData = cloneDeep(publicAdvanceRequestRes.data);
     const expectedMyAdvanceRequest = component.updateMyAdvanceRequests(mockMyAdvanceRequestsData);
-    expect(expectedMyAdvanceRequest).toEqual([myAdvanceRequestData5]);
+    console.log(expectedMyAdvanceRequest);
+    expect(expectedMyAdvanceRequest).toEqual([publicAdvanceRequestRes3]);
   });
 
   describe('doRefresh():', () => {
