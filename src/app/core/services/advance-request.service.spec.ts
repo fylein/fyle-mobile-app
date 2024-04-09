@@ -12,7 +12,7 @@ import {
   pullBackAdvancedRequests,
   rejectedAdvReqRes,
 } from '../mock-data/advance-requests.data';
-import { advanceReqApprovals } from '../mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from '../mock-data/approval.data';
 import {
   customField2,
   customFields,
@@ -398,6 +398,20 @@ describe('AdvanceRequestService', () => {
       expect(res).toEqual(advanceReqApprovals);
       //@ts-ignore
       expect(advanceRequestService.getApproversByAdvanceRequestId).toHaveBeenCalledOnceWith(advID);
+      done();
+    });
+  });
+
+  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovalsPublic);
+      //@ts-ignore
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
       done();
     });
   });

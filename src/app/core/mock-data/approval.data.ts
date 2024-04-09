@@ -20,8 +20,8 @@ export const advanceReqApprovals: Approval[] = [
 
 export const advanceReqApprovalsPublic: ApprovalPublic[] = [
   {
-    state: 'APPROVAL_DONE',
-    approver_email: 'ajain@fyle.in',
-    approver_name: 'Abhishek Jain',
+    state: 'APPROVAL_PENDING',
+    approver_email: 'john.doe@example.com',
+    approver_name: 'John Doe',
   },
 ];
