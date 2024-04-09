@@ -463,7 +463,7 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getEReq(): should get advance request', (done) => {
-    apiService.get.and.returnValue(of(singleErqRes));
+    spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(publicAdvanceRequestRes.data[0]));
     dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
     spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
 
@@ -471,6 +471,7 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getEReq(advID).subscribe((res) => {
       expect(res).toEqual(singleErqUnflattened);
+      console.log('exp', singleErqRes);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
       done();

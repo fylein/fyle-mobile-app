@@ -332,6 +332,7 @@ export class AdvanceRequestService {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        console.log('actual', res);
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;

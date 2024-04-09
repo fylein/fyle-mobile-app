@@ -242,9 +242,11 @@ describe('MyViewAdvanceRequestPage', () => {
       tick(100);
 
       component.activeApprovals$.subscribe((res) => {
-        expect(res).toEqual(advanceReqApprovals);
+        expect(res).toEqual(advanceReqApprovalsPublic);
       });
-      expect(advanceRequestService.getActiveApproversByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform).toHaveBeenCalledOnceWith(
+        'areqR1cyLgXdND'
+      );
     }));
 
     it('should set attachedFiles$ to attached files', fakeAsync(() => {

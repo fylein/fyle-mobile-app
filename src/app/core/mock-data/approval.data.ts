@@ -17,6 +17,7 @@ export const advanceReqApprovals: Approval[] = [
     comment: null,
   },
 ];
+
 export const advanceReqApprovalsPublic: ApprovalPublic[] = [
   {
     state: 'APPROVAL_DONE',
