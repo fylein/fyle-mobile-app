@@ -32,6 +32,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { AdvanceRequestState } from '../models/advance-request-state.model';
+import { ApprovalPublic } from '../models/approval-public.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -343,6 +344,19 @@ export class AdvanceRequestService {
   }
 
   getActiveApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
+    return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
+      map((approvers) => {
+        const filteredApprovers = approvers.filter((approver) => {
+          if (approver.state !== 'APPROVAL_DISABLED') {
+            return approver;
+          }
+        });
+        return filteredApprovers;
+      })
+    );
+  }
+
+  getActiveApproversByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ApprovalPublic[]> {
     return this.spenderService
       .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
         params: { id: `eq.${advanceRequestId}` },

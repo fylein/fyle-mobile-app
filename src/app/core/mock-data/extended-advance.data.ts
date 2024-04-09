@@ -1,7 +1,6 @@
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PlatformAdvance } from '../models/platform/v1/platform-advance.model';
 import { AdvancesPlatform } from '../models/platform/advances-platform.model';
 import { CustomFieldTypes } from '../enums/platform/v1/custom-fields-type.enum';
 

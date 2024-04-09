@@ -25,7 +25,7 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
@@ -53,7 +53,7 @@ describe('MyViewAdvanceRequestPage', () => {
       'getAdvanceRequestPlatform',
       'getActions',
       'getInternalStateAndDisplayName',
-      'getActiveApproversByAdvanceRequestId',
+      'getActiveApproversByAdvanceRequestIdPlatform',
       'modifyAdvanceRequestCustomFields',
       'pullBackAdvanceRequest',
       'delete',
@@ -181,7 +181,7 @@ describe('MyViewAdvanceRequestPage', () => {
         name: 'Draft',
       });
       advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
-      advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
+      advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform.and.returnValue(of(advanceReqApprovalsPublic));
       const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
       spyOn(component, 'getReceiptDetails').and.returnValue({
         type: 'pdf',
