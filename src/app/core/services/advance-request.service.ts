@@ -91,7 +91,11 @@ export class AdvanceRequestService {
       areq_purpose: advanceRequestPlatform.purpose,
       areq_source: advanceRequestPlatform.source,
       areq_state:
-        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK ? 'INQUIRY' : advanceRequestPlatform.state,
+        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK
+          ? 'INQUIRY'
+          : advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK
+          ? 'DRAFT'
+          : advanceRequestPlatform.state,
       areq_updated_at: advanceRequestPlatform.updated_at,
       ou_department: advanceRequestPlatform.employee.department.display_name,
       ou_department_id: advanceRequestPlatform.employee.department.id,
@@ -102,7 +106,7 @@ export class AdvanceRequestService {
       us_full_name: advanceRequestPlatform.user.full_name,
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
-      areq_custom_field_values: JSON.stringify(advanceRequestPlatform.custom_fields),
+      areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
     };
   }
@@ -324,7 +328,7 @@ export class AdvanceRequestService {
   }
 
   getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
-    return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
+    return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
@@ -339,16 +343,26 @@ export class AdvanceRequestService {
   }
 
   getActiveApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {
-    return from(this.getApproversByAdvanceRequestId(advanceRequestId)).pipe(
-      map((approvers) => {
-        const filteredApprovers = approvers.filter((approver) => {
-          if (approver.state !== 'APPROVAL_DISABLED') {
-            return approver;
-          }
-        });
-        return filteredApprovers;
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
       })
-    );
+      .pipe(
+        map((res) => {
+          const approvals = res.data[0].approvals;
+          const filteredApprovers = [];
+          approvals.filter((approver) => {
+            if (approver.state !== 'APPROVAL_DISABLED') {
+              filteredApprovers.push({
+                approver_name: approver.approver_user.full_name,
+                approver_email: approver.approver_user.email,
+                state: approver.state,
+              });
+            }
+          });
+          return filteredApprovers;
+        })
+      );
   }
 
   getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {

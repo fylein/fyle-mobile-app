@@ -1,5 +1,6 @@
 import { AdvanceRequestState } from './advance-request-state.model';
 import { CustomField } from './custom_field.model';
+import { PlatformApproval } from './platform/platform-approval.model';
 
 export interface ExtendedAdvanceRequestPublic {
   areq_advance_id: string;
@@ -27,7 +28,7 @@ export interface ExtendedAdvanceRequestPublic {
   ou_sub_department: string;
   us_email: string;
   us_full_name: string;
-  areq_custom_field_values: string;
+  areq_custom_field_values: CustomField[];
   areq_is_sent_back: boolean;
   created_at?: Date;
   project_name?: string;
