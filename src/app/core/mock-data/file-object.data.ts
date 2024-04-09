@@ -65,10 +65,22 @@ export const fileObjectData3: FileObject = {
   email_meta_data: null,
   fyle_sub_url: '/api/files/finwabtsAZRy/download',
 };
-export const thumbnailUrlMockData: FileObject[] = [
+
+export const fileObjectData5: FileObject = {
+  name: '000.png',
+  receipt_coordinates: {
+    x: 100,
+    y: 200,
+    width: 300,
+    height: 400,
+  },
+  id: 'fiHPZUiichAS',
+  purpose: '',
+};
+
+export const fileUrlMockData: FileObject[] = [
   {
     id: 'fiwJ0nQTBpYH',
-    purpose: 'THUMBNAILx200x200',
     url: 'mock-url-1',
   },
 ];
@@ -205,5 +217,153 @@ export const fileObject5: FileObject[] = [
     receipt_coordinates: null,
     email_meta_data: null,
     fyle_sub_url: '/api/files/fixUymqiLnvc/download',
+  },
+];
+
+export const fileObject6: FileObject[] = [
+  {
+    id: 'fiI9e9ZytdXM',
+    org_user_id: 'ou5tyO64Eg0L',
+    created_at: new Date('2023-06-16T05:37:09.369Z'),
+    name: '000.jpeg',
+    s3url: '2023-06-16/orYtMVz2qisQ/receipts/fiI9e9ZytdXM.000.jpeg',
+    transaction_id: 'txPazncEIY9Q',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fiI9e9ZytdXM/download',
+  },
+];
+
+export const fileObject7: FileObject[] = [
+  {
+    id: 'ficaDEJBVhjm',
+    org_user_id: 'ou5tyO64Eg0L',
+    created_at: new Date('2023-06-16T05:37:34.161Z'),
+    name: '000.jpeg',
+    s3url: '2023-06-16/orYtMVz2qisQ/receipts/ficaDEJBVhjm.000.jpeg',
+    transaction_id: 'txcY30CE86SZ',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/ficaDEJBVhjm/download',
+  },
+  {
+    id: 'firDjjutGXfT',
+    org_user_id: 'ou5tyO64Eg0L',
+    created_at: new Date('2023-06-16T05:37:34.170Z'),
+    name: '000.jpeg',
+    s3url: '2023-06-16/orYtMVz2qisQ/receipts/firDjjutGXfT.000.jpeg',
+    transaction_id: 'txCBiN0OW3zE',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/firDjjutGXfT/download',
+  },
+];
+
+export const fileObject8: FileObject[] = [
+  {
+    id: 'fizBwnXhyZTp',
+    org_user_id: 'ou5tyO64Eg0L',
+    created_at: new Date('2023-06-16T14:00:57.421Z'),
+    name: '000.jpeg',
+    s3url: '2023-06-16/orYtMVz2qisQ/receipts/fizBwnXhyZTp.000.jpeg',
+    transaction_id: null,
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fizBwnXhyZTp/download',
+  },
+];
+
+export const expectedFileData1 = [
+  {
+    id: 'fiV1gXpyCcbU',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-03-06T07:51:05.614Z'),
+    name: '000.jpeg',
+    s3url: '2023-03-06/orNVthTo2Zyo/receipts/fiV1gXpyCcbU.000.jpeg',
+    transaction_id: 'tx1vdITUXIzf',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
+    url: 'url',
+    type: 'jpeg',
+    thumbnail: 'thumbnail',
+  },
+];
+
+export const advanceRequestFileUrlData: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+  },
+  {
+    ...fileObject7[0],
+    type: 'jpeg',
+    id: null,
+  },
+];
+
+export const expectedFileData2: FileObject[] = [
+  {
+    type: 'pdf',
+    url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
+    thumbnail: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
+  },
+];
+
+export const advanceRequestFileUrlData2: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+    id: null,
+  },
+  {
+    ...fileObject7[0],
+    type: 'image',
+    id: null,
+  },
+];
+
+export const fileObject9: FileObject[] = [
+  {
+    id: 'fiV1gXpyCcbU',
+    org_user_id: 'ouX8dwsbLCLv',
+    created_at: new Date('2023-03-06T07:51:05.614Z'),
+    name: '000.jpeg',
+    s3url: '2023-03-06/orNVthTo2Zyo/receipts/fiV1gXpyCcbU.000.jpeg',
+    transaction_id: 'tx1vdITUXIzf',
+    invoice_id: null,
+    advance_request_id: null,
+    purpose: 'ORIGINAL',
+    password: null,
+    receipt_coordinates: null,
+    email_meta_data: null,
+    fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
+  },
+];
+
+export const fileObject10: FileObject[] = [
+  {
+    ...fileObjectAdv1,
+    url: 'mockdownloadurl.png',
+    type: 'pdf',
+    thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
   },
 ];

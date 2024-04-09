@@ -5,9 +5,9 @@ export interface OrgUser {
   created_at?: Date;
   org_id: string;
   user_id?: string;
-  employee_id?: any;
+  employee_id?: number | string;
   location: string;
-  level?: number;
+  level?: number | string;
   level_id?: string;
   band?: string;
   business_unit?: string;
@@ -40,4 +40,5 @@ export interface OrgUser {
   default_cost_center_code?: string;
   rank?: number;
   cost_center_ids?: number[];
+  mobile_verification_attempts_left?: number;
 }

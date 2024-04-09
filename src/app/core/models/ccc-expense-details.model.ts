@@ -1,7 +1,7 @@
-import { CardAggregateStat } from './card-aggregate-stat.model';
+import { CardAggregateStats } from './card-aggregate-stats.model';
 
 export interface CCCDetails {
-  cardDetails: CardAggregateStat[];
+  cardDetails: CardAggregateStats[];
   totalAmount: number;
   totalTxns: number;
 }

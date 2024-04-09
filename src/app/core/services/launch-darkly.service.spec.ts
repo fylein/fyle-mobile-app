@@ -75,4 +75,15 @@ describe('LaunchDarklyService', () => {
       done();
     });
   });
+
+  it('checkIfNegativeExpensePluginIsEnabled(): should check if negative expense plugin is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'numeric-keypad';
+
+    launchDarklyService.checkIfNegativeExpensePluginIsEnabled().subscribe((res) => {
+      expect(res).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      done();
+    });
+  });
 });

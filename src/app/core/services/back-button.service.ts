@@ -4,6 +4,7 @@ import { PopoverController } from '@ionic/angular';
 import { from, noop } from 'rxjs';
 import { switchMap, tap, map } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { OverlayResponse } from '../models/overlay-response.modal';
 
 @Injectable({
   providedIn: 'root',
@@ -33,7 +34,7 @@ export class BackButtonService {
       .pipe(
         tap((exitAppPopover) => exitAppPopover.present()),
         switchMap((exitAppPopover) => exitAppPopover.onWillDismiss()),
-        map((popoverDetails) => {
+        map((popoverDetails: OverlayResponse<{ action?: string }>) => {
           if (popoverDetails?.data?.action === 'close') {
             return App.exitApp();
           }

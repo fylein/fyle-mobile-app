@@ -4,11 +4,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { switchMap, tap } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { TrackingService } from '../../core/services/tracking.service';
-
-enum VerifyPageState {
-  verifying,
-  error,
-}
+import { VerifyPageState } from './verify.enum';
 
 @Component({
   selector: 'app-verify',

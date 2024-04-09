@@ -9,6 +9,11 @@ import * as Sentry from '@sentry/angular';
 import 'hammerjs';
 
 import { Integrations as TracingIntegrations } from '@sentry/tracing';
+import { GlobalCacheConfig } from 'ts-cacheable';
+
+// Global cache config
+GlobalCacheConfig.maxAge = 10 * 60 * 1000;
+GlobalCacheConfig.maxCacheCount = 100;
 
 Sentry.init({
   dsn: environment.SENTRY_DSN,

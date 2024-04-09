@@ -9,7 +9,6 @@ import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
 import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
-import { GlobalCacheConfig } from 'ts-cacheable';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
@@ -26,6 +25,7 @@ import { ExtendedDeviceInfo } from './core/models/extended-device-info.model';
 import { BackButtonActionPriority } from './core/models/back-button-action-priority.enum';
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
+import { GmapsService } from './core/services/gmaps.service';
 
 @Component({
   selector: 'app-root',
@@ -70,7 +70,8 @@ export class AppComponent implements OnInit {
     private trackingService: TrackingService,
     private loginInfoService: LoginInfoService,
     private navController: NavController,
-    private backButtonService: BackButtonService
+    private backButtonService: BackButtonService,
+    private gmapsService: GmapsService
   ) {
     this.initializeApp();
     this.registerBackButtonAction();
@@ -135,10 +136,6 @@ export class AppComponent implements OnInit {
           });
           this.router.navigate(['/', 'auth', 'app_version', { message: appSupportDetails.message }]);
         });
-
-      // Global cache config
-      GlobalCacheConfig.maxAge = 10 * 60 * 1000;
-      GlobalCacheConfig.maxCacheCount = 100;
     });
   }
 
@@ -194,7 +191,7 @@ export class AppComponent implements OnInit {
 
     this.userEventService.onLogout(() => {
       this.trackingService.onSignOut();
-      this.freshChatService.destory();
+      this.freshChatService.destroy();
       this.isSwitchedToDelegator = false;
       this.router.navigate(['/', 'auth', 'sign_in']);
     });
@@ -220,6 +217,8 @@ export class AppComponent implements OnInit {
         }
       }
     });
+
+    this.gmapsService.loadLibrary();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {

@@ -297,7 +297,7 @@ export const singleErqRes: ExtendedAdvanceRequest = {
 export const singleErqUnflattened = {
   areq: {
     id: 'areqGzKF1Tne23',
-    created_at: '2023-02-23T13:16:15.260Z',
+    created_at: new Date('2023-02-23T13:16:15.260Z'),
     approved_at: null,
     purpose: 'some',
     notes: null,
@@ -311,7 +311,7 @@ export const singleErqUnflattened = {
     policy_state: 'SUCCESS',
     project_id: null,
     custom_field_values: null,
-    updated_at: '2023-02-23T14:16:52.396Z',
+    updated_at: new Date('2023-02-23T14:16:52.396Z'),
     source: 'MOBILE',
     advance_request_number: 'AR/2023/02/R/4',
     updated_by: null,
@@ -701,4 +701,32 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
   limit: 10,
   offset: 0,
   url: '/v2/advance_requests',
+};
+
+export const myAdvanceRequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
+  ...allTeamAdvanceRequestsRes,
+  count: 11,
+};
+
+export const myAdvanceRequestsData3: ExtendedAdvanceRequest = {
+  ...singleExtendedAdvReqRes.data[0],
+  areq_state: 'DRAFT',
+  areq_is_sent_back: true,
+};
+
+export const myAdvanceRequestsData4: ExtendedAdvanceRequest = {
+  ...singleExtendedAdvReqRes.data[0],
+  areq_state: 'DRAFT',
+  areq_is_sent_back: false,
+  areq_is_pulled_back: false,
+};
+
+export const myAdvanceRequestData5: ExtendedAdvanceRequest = {
+  ...singleExtendedAdvReqRes.data[0],
+  type: 'request',
+  currency: 'USD',
+  amount: 123,
+  created_at: new Date('2022-05-27T08:33:32.879009'),
+  purpose: '213',
+  state: 'APPROVAL_PENDING',
 };

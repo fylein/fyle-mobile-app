@@ -21,6 +21,11 @@
       width: auto !important;
       color: $black-light;
     }
+
+    &__icon {
+      height: 28px;
+      width: 28px;
+    }
   }
 
   &--header-button {
@@ -688,6 +693,12 @@
     &__credit {
       color: $green;
       font-weight: 500;
+    }
+
+    &__transaction-status {
+      border-top: 1px solid $grey;
+      padding-top: 12px;
+      margin-top: 12px;
     }
   }
 

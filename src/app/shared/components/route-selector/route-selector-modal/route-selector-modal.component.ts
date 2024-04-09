@@ -41,6 +41,8 @@ export class RouteSelectorModalComponent implements OnInit {
     roundTrip: [],
   });
 
+  calculatedLocationDistance: number;
+
   constructor(
     private fb: FormBuilder,
     private modalController: ModalController,
@@ -72,6 +74,24 @@ export class RouteSelectorModalComponent implements OnInit {
 
   ngOnInit() {
     this.distance = this.value.distance;
+
+    if (this.value?.mileageLocations?.length > 1) {
+      this.mileageService.getDistance(this.value?.mileageLocations).subscribe((distance) => {
+        if (distance === null) {
+          this.calculatedLocationDistance = null;
+        } else {
+          const distanceInKm = distance / 1000;
+          const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
+          //value comes as an Input in this component, if roundTrip is already set double the value during initialization
+          if (this.value?.roundTrip) {
+            this.calculatedLocationDistance = parseFloat((finalDistance * 2).toFixed(2));
+          } else {
+            this.calculatedLocationDistance = parseFloat(finalDistance.toFixed(2));
+          }
+        }
+      });
+    }
+
     if (this.value?.mileageLocations?.length > 0) {
       this.value.mileageLocations.forEach((location) => {
         this.mileageLocations.push(
@@ -91,8 +111,14 @@ export class RouteSelectorModalComponent implements OnInit {
       if (this.distance) {
         if (roundTrip) {
           this.distance = (+this.distance * 2).toFixed(2);
+          this.calculatedLocationDistance = this.calculatedLocationDistance
+            ? parseFloat((this.calculatedLocationDistance * 2).toFixed(2))
+            : null;
         } else {
           this.distance = (+this.distance / 2).toFixed(2);
+          this.calculatedLocationDistance = this.calculatedLocationDistance
+            ? parseFloat((this.calculatedLocationDistance / 2).toFixed(2))
+            : null;
         }
       }
     });
@@ -102,17 +128,20 @@ export class RouteSelectorModalComponent implements OnInit {
       .subscribe((distance) => {
         if (distance === null) {
           this.distance = null;
+          this.calculatedLocationDistance = null;
         } else {
           const distanceInKm = distance / 1000;
           const finalDistance = this.unit === 'MILES' ? distanceInKm * 0.6213 : distanceInKm;
           if (finalDistance === 0) {
             this.distance = '0';
+            this.calculatedLocationDistance = 0;
           } else {
             if (this.form.controls.roundTrip.value) {
               this.distance = (finalDistance * 2).toFixed(2);
             } else {
               this.distance = finalDistance.toFixed(2);
             }
+            this.calculatedLocationDistance = parseFloat(this.distance);
           }
         }
       });

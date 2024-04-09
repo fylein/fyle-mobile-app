@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, switchMap, tap } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 import { forkJoin, from, Observable, of, Subject } from 'rxjs';
 
 import { ApiService } from './api.service';
@@ -7,7 +7,6 @@ import { ApiV2Service } from './api-v2.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
-import { AdvanceRequestPolicyService } from './advance-request-policy.service';
 import { DataTransformService } from './data-transform.service';
 import { DateService } from './date.service';
 import { FileService } from './file.service';
@@ -27,6 +26,10 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
+import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -39,15 +42,13 @@ type Filters = Partial<{
 type Config = Partial<{
   offset: number;
   limit: number;
-  queryParams: any;
+  queryParams: Record<string, string | string[]>;
+  areq_org_user_id?: string;
   filter: Filters;
 }>;
 
 type advanceRequestStat = {
-  aggregates: string;
-  areq_state: string;
-  areq_is_sent_back: string;
-  scalar: boolean;
+  state: string;
 };
 
 @Injectable({
@@ -60,10 +61,10 @@ export class AdvanceRequestService {
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
-    private advanceRequestPolicyService: AdvanceRequestPolicyService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private fileService: FileService
+    private fileService: FileService,
+    private spenderService: SpenderService
   ) {}
 
   @Cacheable({
@@ -78,7 +79,7 @@ export class AdvanceRequestService {
   ): Observable<ApiV2Response<ExtendedAdvanceRequest>> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.apiv2Service.get('/advance_requests', {
+        this.apiv2Service.get<ExtendedAdvanceRequest, { params: Config }>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -100,12 +101,12 @@ export class AdvanceRequestService {
   })
   getAdvanceRequest(id: string): Observable<ExtendedAdvanceRequest> {
     return this.apiv2Service
-      .get('/advance_requests', {
+      .get<ExtendedAdvanceRequest, { params: { areq_id: string } }>('/advance_requests', {
         params: {
           areq_id: `eq.${id}`,
         },
       })
-      .pipe(map((res) => this.fixDates(res.data[0]) as ExtendedAdvanceRequest));
+      .pipe(map((res) => this.fixDates(res.data[0])));
   }
 
   @CacheBuster({
@@ -118,7 +119,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  pullBackadvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
+  pullBackAdvanceRequest(advanceRequestId: string, addStatusPayload: StatusPayload): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/' + advanceRequestId + '/pull_back', addStatusPayload);
   }
 
@@ -138,7 +139,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  submit(advanceRequest: AdvanceRequests): Observable<AdvanceRequests> {
+  submit(advanceRequest: Partial<AdvanceRequests>): Observable<AdvanceRequests> {
     return this.apiService.post('/advance_requests/submit', advanceRequest);
   }
 
@@ -173,7 +174,7 @@ export class AdvanceRequestService {
   @CacheBuster({
     cacheBusterNotifier: advanceRequestsCacheBuster$,
   })
-  destroyAdvanceRequestsCacheBuster() {
+  destroyAdvanceRequestsCacheBuster(): Observable<null> {
     return of(null);
   }
 
@@ -207,7 +208,7 @@ export class AdvanceRequestService {
         }
 
         const order = this.getSortOrder(config.filter.sortParam, config.filter.sortDir);
-        return this.apiv2Service.get('/advance_requests', {
+        return this.apiv2Service.get<ExtendedAdvanceRequest, {}>('/advance_requests', {
           params: {
             offset: config.offset,
             limit: config.limit,
@@ -226,26 +227,13 @@ export class AdvanceRequestService {
     );
   }
 
-  getEReq(advanceRequestId: string) {
+  getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
-        const eAdvanceRequest = this.dataTransformService.unflatten(res);
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
         this.dateService.fixDates(eAdvanceRequest.areq);
         return eAdvanceRequest;
-      })
-    );
-  }
-
-  testPolicy(advanceRequest: AdvanceRequests): Observable<any> {
-    return this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (advanceRequest.created_at) {
-          advanceRequest.created_at = this.timezoneService.convertToUtc(
-            advanceRequest.created_at,
-            orgUserSettings.locale.offset
-          );
-        }
-        return this.advanceRequestPolicyService.servicePost('/policy_check/test', advanceRequest, { timeout: 5000 });
       })
     );
   }
@@ -287,7 +275,7 @@ export class AdvanceRequestService {
   modifyAdvanceRequestCustomFields(customFields: CustomField[]): CustomField[] {
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
-        customField.value = new Date(customField.value);
+        customField.value = new Date(customField.value as string);
       }
       return customField;
     });
@@ -332,7 +320,7 @@ export class AdvanceRequestService {
   }
 
   createAdvReqWithFilesAndSubmit(
-    advanceRequest: AdvanceRequests,
+    advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
@@ -356,7 +344,7 @@ export class AdvanceRequestService {
   }
 
   saveDraftAdvReqWithFiles(
-    advanceRequest: AdvanceRequests,
+    advanceRequest: Partial<AdvanceRequests>,
     fileObservables?: Observable<File[]>
   ): Observable<AdvanceRequestFile> {
     return forkJoin({
@@ -376,13 +364,6 @@ export class AdvanceRequestService {
           return of(null).pipe(map(() => res));
         }
       })
-    );
-  }
-
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<any> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
-      map((res) => res.data)
     );
   }
 
@@ -407,16 +388,14 @@ export class AdvanceRequestService {
     return order;
   }
 
-  private getAdvanceRequestStats(
-    eou: ExtendedOrgUser,
-    params: advanceRequestStat
-  ): Observable<Partial<ApiV2Response<StatsDimensionResponse>>> {
-    return this.apiv2Service.get('/advance_requests/stats', {
-      params: {
-        areq_org_user_id: 'eq.' + eou.ou.id,
-        ...params,
-      },
-    });
+  getAdvanceRequestStats(params: advanceRequestStat): Observable<StatsResponse> {
+    return this.spenderService
+      .post<{ data: StatsResponse }>('/advance_requests/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      })
+      .pipe(map((res) => res.data));
   }
 
   private getApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {

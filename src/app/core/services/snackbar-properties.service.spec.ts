@@ -19,17 +19,17 @@ describe('SnackbarPropertiesService', () => {
     //act
     const properties = service.setSnackbarProperties('success', { message: 'Success message' });
     //assert
-    expect(properties.data.icon).toEqual('tick-square-filled');
+    expect(properties.data.icon).toEqual('check-square-fill');
   });
 
   it('should return the correct icon for a failure toast message', () => {
     const properties = service.setSnackbarProperties('failure', { message: 'Failure message' });
-    expect(properties.data.icon).toEqual('danger');
+    expect(properties.data.icon).toEqual('warning-fill');
   });
 
   it('should return correct icon for a information toast message', () => {
     const properties = service.setSnackbarProperties('information', { message: 'Information message' });
-    expect(properties.data.icon).toEqual('');
+    expect(properties.data.icon).toBeUndefined();
   });
 
   it('should return the correct duration', () => {
@@ -40,10 +40,10 @@ describe('SnackbarPropertiesService', () => {
   it('should return redirection text in data', () => {
     const properties = service.setSnackbarProperties('success', {
       message: 'Success message',
-      redirectiontext: 'redirection',
+      redirectionText: 'redirection',
     });
     expect(properties.data.message).toEqual('Success message');
-    expect(properties.data.redirectiontext).toEqual('redirection');
+    expect(properties.data.redirectionText).toEqual('redirection');
   });
 
   it('should return showCloseButton as true', () => {

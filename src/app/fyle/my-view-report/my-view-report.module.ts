@@ -1,21 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { IonicModule } from '@ionic/angular';
-import { MyViewReportPageRoutingModule } from './my-view-report-routing.module';
-import { MyViewReportPage } from './my-view-report.page';
 import { SharedModule } from 'src/app/shared/shared.module';
 import { MatIconModule } from '@angular/material/icon';
-import { MyViewReportEtxnCardComponent } from './my-view-report-etxn-card/my-view-report-etxn-card.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatRippleModule } from '@angular/material/core';
-import { ShareReportComponent } from './share-report/share-report.component';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
-import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MyViewReportPage } from './my-view-report.page';
+import { MyViewReportPageRoutingModule } from './my-view-report-routing.module';
+import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
+import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { ShareReportComponent } from './share-report/share-report.component';
 
 @NgModule({
   imports: [
@@ -32,12 +31,6 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
     MatSnackBarModule,
     MatCheckboxModule,
   ],
-  declarations: [
-    MyViewReportPage,
-    MyViewReportEtxnCardComponent,
-    ShareReportComponent,
-    EditReportNamePopoverComponent,
-    AddExpensesToReportComponent,
-  ],
+  declarations: [MyViewReportPage, ShareReportComponent, EditReportNamePopoverComponent, AddExpensesToReportComponent],
 })
 export class MyViewReportPageModule {}

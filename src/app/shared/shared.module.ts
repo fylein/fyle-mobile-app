@@ -27,11 +27,9 @@ import { FyLocationModalComponent } from './components/fy-location/fy-location-m
 import { FyMultiselectModalComponent } from './components/fy-multiselect/fy-multiselect-modal/fy-multiselect-modal.component';
 import { FyUserlistModalComponent } from './components/fy-userlist/fy-userlist-modal/fy-userlist-modal.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { FyAlertComponent } from './components/fy-alert/fy-alert.component';
 import { AdvanceState } from './pipes/advance-state.pipe';
 import { InitialsPipe } from './pipes/initials.pipe';
 import { ApproverDialogComponent } from './components/fy-approver/add-approvers-popover/approver-dialog/approver-dialog.component';
-import { FyCategoryIconComponent } from './components/fy-category-icon/fy-category-icon.component';
 import { FyMenuIconComponent } from './components/fy-menu-icon/fy-menu-icon.component';
 import { FyViewAttachmentComponent } from './components/fy-view-attachment/fy-view-attachment.component';
 import { FyHighlightTextComponent } from './components/fy-highlight-text/fy-highlight-text.component';
@@ -52,7 +50,6 @@ import { FyPolicyViolationComponent } from './components/fy-policy-violation/fy-
 import { FormButtonValidationDirective } from './directive/form-button-validation.directive';
 import { FormatDateDirective } from './directive/format-date.directive';
 
-import { FyPreviewAttachmentsComponent } from './components/fy-preview-attachments/fy-preview-attachments.component';
 import { PinchZoomModule } from 'ngx13-pinch-zoom';
 import { PdfViewerModule } from 'ng2-pdf-viewer';
 import { FyZeroStateComponent } from './components/fy-zero-state/fy-zero-state.component';
@@ -74,7 +71,9 @@ import { FyConnectionComponent } from './components/fy-connection/fy-connection.
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
 import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
+import { CreateNewReportComponent as CreateNewReportComponentV2 } from './components/create-new-report-v2/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
+import { ExpensesCardComponent as ExpensesCardComponentV2 } from './components/expenses-card-v2/expenses-card.component';
 import { ToastMessageComponent } from './components/toast-message/toast-message.component';
 import { FyHeaderComponent } from './components/fy-header/fy-header.component';
 import { FyDeleteDialogComponent } from './components/fy-delete-dialog/fy-delete-dialog.component';
@@ -88,7 +87,6 @@ import { RouteSelectorModalComponent } from './components/route-selector/route-s
 import { RouteVisualizerComponent } from './components/route-visualizer/route-visualizer.component';
 import { ReceiptPreviewThumbnailComponent } from './components/receipt-preview-thumbnail/receipt-preview-thumbnail.component';
 import { FyViewReportInfoComponent } from './components/fy-view-report-info/fy-view-report-info.component';
-import { GoogleMapsModule } from '@angular/google-maps';
 import { BankAccountCardsComponent } from './components/bank-account-cards/bank-account-cards.component';
 import { BankAccountCardComponent } from './components/bank-account-cards/bank-account-card/bank-account-card.component';
 import { DeleteButtonComponent } from './components/bank-account-cards/bank-account-card/delete-button/delete-button-component';
@@ -138,6 +136,16 @@ import { DependentFieldModalComponent } from './components/dependent-fields/depe
 import { FySelectDisabledComponent } from './components/fy-select-disabled/fy-select-disabled.component';
 import { ReportsCardComponent } from './components/reports-card/reports-card.component';
 import { ViewDependentFieldsComponent } from './components/view-dependent-fields/view-dependent-fields.component';
+import { PopupWithBulletsComponent } from './components/popup-with-bullets/popup-with-bullets.component';
+import { AddCardComponent } from './components/add-card/add-card.component';
+import { CardNumberComponent } from './components/card-number/card-number.component';
+import { ArrayToCommaListPipe } from './pipes/array-to-comma-list.pipe';
+import { CorporateCardComponent } from './components/corporate-card/corporate-card.component';
+import { VirtualCardComponent } from './components/virtual-card/virtual-card.component';
+import { AutofocusDirective } from './directive/autofocus.directive';
+import { TransactionStatusInfoPopoverComponent } from './components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
+import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
 
 @NgModule({
   declarations: [
@@ -159,20 +167,15 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FyLocationModalComponent,
     FyMultiselectModalComponent,
     FyUserlistModalComponent,
-    FyAlertComponent,
     DelegatedAccMessageComponent,
     CommentsHistoryComponent,
     ViewCommentComponent,
     AuditHistoryComponent,
     StatusesDiffComponent,
-    FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApproverComponent,
     ApproverDialogComponent,
-    FyPreviewAttachmentsComponent,
-    FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
@@ -193,7 +196,9 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
     CreateNewReportComponent,
+    CreateNewReportComponentV2,
     ExpensesCardComponent,
+    ExpensesCardComponentV2,
     ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
@@ -254,6 +259,16 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FySelectDisabledComponent,
     ReportsCardComponent,
     ViewDependentFieldsComponent,
+    PopupWithBulletsComponent,
+    AddCardComponent,
+    CardNumberComponent,
+    ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
+    TransactionStatusComponent,
+    TransactionStatusInfoPopoverComponent,
+    VirtualCardComponent,
+    FySelectCommuteDetailsComponent,
   ],
   imports: [
     CommonModule,
@@ -273,7 +288,6 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     MatRadioModule,
     MatDatepickerModule,
     MatChipsModule,
-    GoogleMapsModule,
     MatChipsModule,
     SwiperModule,
     MatSnackBarModule,
@@ -292,7 +306,6 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FyLocationComponent,
     FyMultiselectComponent,
     FyUserlistComponent,
-    FyAlertComponent,
     AdvanceState,
     SnakeCaseToSpaceCase,
     InitialsPipe,
@@ -303,13 +316,9 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     StatusesDiffComponent,
     FormButtonValidationDirective,
     MatProgressSpinnerModule,
-    FyPreviewAttachmentsComponent,
     FyZeroStateComponent,
-    FyPreviewAttachmentsComponent,
     FyPopupComponent,
     FyApproverComponent,
-    FyPreviewAttachmentsComponent,
-    FyCategoryIconComponent,
     FyMenuIconComponent,
     FyPolicyViolationInfoComponent,
     FyAddToReportComponent,
@@ -328,7 +337,9 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
     CreateNewReportComponent,
+    CreateNewReportComponentV2,
     ExpensesCardComponent,
+    ExpensesCardComponentV2,
     ToastMessageComponent,
     FyHeaderComponent,
     FyDeleteDialogComponent,
@@ -376,6 +387,16 @@ import { ViewDependentFieldsComponent } from './components/view-dependent-fields
     FySelectDisabledComponent,
     ReportsCardComponent,
     ViewDependentFieldsComponent,
+    PopupWithBulletsComponent,
+    AddCardComponent,
+    CardNumberComponent,
+    ArrayToCommaListPipe,
+    CorporateCardComponent,
+    AutofocusDirective,
+    TransactionStatusComponent,
+    TransactionStatusInfoPopoverComponent,
+    VirtualCardComponent,
+    FySelectCommuteDetailsComponent,
   ],
   providers: [DecimalPipe, DatePipe, HumanizeCurrencyPipe, ImagePicker, FyCurrencyPipe, ReportState],
 })

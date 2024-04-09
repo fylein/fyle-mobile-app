@@ -1,104 +1,106 @@
+import { getCurrencySymbol } from '@angular/common';
 import { Component, ElementRef, EventEmitter, OnInit, ViewChild } from '@angular/core';
+import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Params, Router } from '@angular/router';
+import { ActionSheetController, ModalController, NavController, PopoverController } from '@ionic/angular';
+import { cloneDeep, isEqual } from 'lodash';
 import {
   BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
   concat,
-  EMPTY,
   forkJoin,
   from,
   fromEvent,
   iif,
   noop,
-  Observable,
   of,
-  Subject,
-  Subscription,
 } from 'rxjs';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { ActionSheetController, ModalController, PopoverController, Platform, NavController } from '@ionic/angular';
-import { ActivatedRoute, Params, Router } from '@angular/router';
 import {
-  catchError,
   debounceTime,
   distinctUntilChanged,
+  filter,
   finalize,
   map,
   shareReplay,
   switchMap,
   take,
   takeUntil,
-  tap,
-  filter,
 } from 'rxjs/operators';
-import { TransactionService } from 'src/app/core/services/transaction.service';
+import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { Expense } from 'src/app/core/models/expense.model';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import { PopupService } from 'src/app/core/services/popup.service';
-import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { TrackingService } from '../../core/services/tracking.service';
-import { StorageService } from '../../core/services/storage.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { ReportService } from 'src/app/core/services/report.service';
-import { cloneDeep, isEqual } from 'lodash';
-import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
-import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
+import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { TokenService } from 'src/app/core/services/token.service';
+import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
+import { UniqueCards } from 'src/app/core/models/unique-cards.model';
+import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { environment } from 'src/environments/environment';
-import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
-import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
-import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
-import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
-import { getCurrencySymbol } from '@angular/common';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { TasksService } from 'src/app/core/services/tasks.service';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
-import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
-import { BankAccountsAssigned } from 'src/app/core/models/v2/bank-accounts-assigned.model';
-import { MyExpensesService } from './my-expenses.service';
-import { Filters } from './my-expenses-filters.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
-import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
+import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
+import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { PopupService } from 'src/app/core/services/popup.service';
+import { ReportService } from 'src/app/core/services/report.service';
+import { TasksService } from 'src/app/core/services/tasks.service';
+import { TokenService } from 'src/app/core/services/token.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { MaskNumber } from 'src/app/shared/pipes/mask-number.pipe';
+import { environment } from 'src/environments/environment';
+import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
+import { StorageService } from '../../core/services/storage.service';
+import { TrackingService } from '../../core/services/tracking.service';
+import { FyDeleteDialogComponent } from '../../shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { FilterPill } from '../../shared/components/fy-filter-pills/filter-pill.interface';
+import { FilterOptionType } from '../../shared/components/fy-filters/filter-option-type.enum';
+import { FilterOptions } from '../../shared/components/fy-filters/filter-options.interface';
+import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filters.component';
+import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
+import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { MyExpensesService } from './my-expenses.service';
+
 @Component({
   selector: 'app-my-expenses',
   templateUrl: './my-expenses.page.html',
   styleUrls: ['./my-expenses.page.scss'],
-  providers: [MyExpensesService],
 })
 export class MyExpensesPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   isConnected$: Observable<boolean>;
 
-  myExpenses$: Observable<Expense[]>;
+  myExpenses$: Observable<PlatformExpense[]>;
 
   count$: Observable<number>;
 
   isInfiniteScrollRequired$: Observable<boolean>;
 
-  loadData$: BehaviorSubject<
-    Partial<{
-      pageNumber: number;
-      queryParams: any;
-      sortParam: string;
-      sortDir: string;
-      searchString: string;
-    }>
-  >;
+  loadExpenses$: BehaviorSubject<Partial<GetExpenseQueryParam>>;
 
   currentPageNumber = 1;
 
-  acc = [];
+  acc: PlatformExpense[] = [];
 
-  filters: Filters;
+  filters: Partial<ExpenseFilters>;
 
   allExpensesStats$: Observable<{ count: number; amount: number }>;
 
@@ -114,11 +116,17 @@ export class MyExpensesPage implements OnInit {
 
   isPerDiemEnabled$: Observable<boolean>;
 
-  pendingTransactions = [];
+  orgSettings$: Observable<OrgSettings>;
+
+  specialCategories$: Observable<PlatformCategory[]>;
+
+  pendingTransactions: Partial<Expense>[] = [];
 
   selectionMode = false;
 
-  selectedElements: Expense[];
+  selectedElements: PlatformExpense[];
+
+  selectedOutboxExpenses: Partial<Expense>[] = [];
 
   syncing = false;
 
@@ -138,7 +146,7 @@ export class MyExpensesPage implements OnInit {
 
   headerState: HeaderState = HeaderState.base;
 
-  actionSheetButtons = [];
+  actionSheetButtons: { text: string; icon: string; cssClass: string; handler: () => void }[] = [];
 
   selectAll = false;
 
@@ -146,7 +154,7 @@ export class MyExpensesPage implements OnInit {
 
   reviewMode = false;
 
-  ROUTER_API_ENDPOINT: any;
+  ROUTER_API_ENDPOINT: string;
 
   isReportableExpensesSelected = false;
 
@@ -170,7 +178,9 @@ export class MyExpensesPage implements OnInit {
 
   maskNumber = new MaskNumber();
 
-  expensesToBeDeleted: Expense[];
+  expensesToBeDeleted: PlatformExpense[];
+
+  outboxExpensesToBeDeleted: Partial<Expense>[] = [];
 
   cccExpenses: number;
 
@@ -179,6 +189,10 @@ export class MyExpensesPage implements OnInit {
   hardwareBackButton: Subscription;
 
   isNewReportsFlowEnabled = false;
+
+  isDisabled = false;
+
+  restrictPendingTransactionsEnabled = false;
 
   constructor(
     private networkService: NetworkService,
@@ -206,17 +220,20 @@ export class MyExpensesPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private platform: Platform,
-    private navController: NavController
+    private platformHandlerService: PlatformHandlerService,
+    private categoriesService: CategoriesService,
+    private navController: NavController,
+    private expenseService: ExpensesService,
+    private sharedExpenseService: SharedExpenseService
   ) {}
 
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -226,28 +243,28 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
   }
 
-  formatTransactions(transactions) {
+  formatTransactions(transactions: Partial<Transaction>[]): Partial<Expense>[] {
     return transactions.map((transaction) => {
-      const formattedTxn = {};
-      Object.keys(transaction).forEach((key) => {
+      const formattedTxn = <Partial<Expense>>{};
+      Object.keys(transaction).forEach((key: keyof Partial<Transaction>) => {
         formattedTxn['tx_' + key] = transaction[key];
       });
       return formattedTxn;
     });
   }
 
-  switchSelectionMode(expense?) {
+  switchSelectionMode(expense?: PlatformExpense): void {
     this.selectionMode = !this.selectionMode;
     if (!this.selectionMode) {
-      if (this.loadData$.getValue().searchString) {
+      if (this.loadExpenses$.getValue().searchString) {
         this.headerState = HeaderState.simpleSearch;
       } else {
         this.headerState = HeaderState.base;
@@ -269,7 +286,32 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async sendFirstExpenseCreatedEvent() {
+  switchOutboxSelectionMode(expense?: Expense): void {
+    this.selectionMode = !this.selectionMode;
+    if (!this.selectionMode) {
+      if (this.loadExpenses$.getValue().searchString) {
+        this.headerState = HeaderState.simpleSearch;
+      } else {
+        this.headerState = HeaderState.base;
+      }
+
+      this.selectedOutboxExpenses = [];
+      this.setOutboxExpenseStatsOnSelect();
+    } else {
+      this.headerState = HeaderState.multiselect;
+      // setting Expense amount & count stats to zero on select init
+      this.allExpensesStats$ = of({
+        count: 0,
+        amount: 0,
+      });
+    }
+
+    if (expense) {
+      this.selectOutboxExpense(expense);
+    }
+  }
+
+  async sendFirstExpenseCreatedEvent(): Promise<void> {
     // checking if the expense is first expense
     const isFirstExpenseCreated = await this.storageService.get('isFirstExpenseCreated');
 
@@ -284,128 +326,88 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  setAllExpensesCountAndAmount() {
-    this.allExpensesStats$ = this.loadData$.pipe(
+  setAllExpensesCountAndAmount(): void {
+    this.allExpensesStats$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = JSON.parse(JSON.stringify(params.queryParams)) || {};
+        const queryParams = cloneDeep(params.queryParams) || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        queryParams.report_id = (queryParams.report_id || 'is.null') as string;
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        if (queryParams.corporate_credit_card_account_number) {
-          const cardParamsCopy = JSON.parse(JSON.stringify(queryParams.corporate_credit_card_account_number));
-          queryParams.or = '(corporate_credit_card_account_number.' + cardParamsCopy + ')';
-          delete queryParams.corporate_credit_card_account_number;
+        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = queryParams['matched_corporate_card_transactions->0->corporate_card_number'] as string;
+
+          queryParams.or = (queryParams.or || []) as string[];
+          queryParams.or.push('(matched_corporate_card_transactions->0->corporate_card_number.' + cardParamsCopy + ')');
+          delete queryParams['matched_corporate_card_transactions->0->corporate_card_number'];
         }
 
-        return this.transactionService
-          .getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            ...queryParams,
-          })
-          .pipe(
-            catchError((err) => EMPTY),
-            map((stats) => {
-              const count = stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-              const amount = stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
-              return {
-                count: count.function_value,
-                amount: amount.function_value || 0,
-              };
-            })
-          );
+        return this.expenseService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            count: stats.data.count,
+            amount: stats.data.total_amount,
+          }))
+        );
       })
     );
   }
 
-  setupActionSheet(orgSettings) {
+  actionSheetButtonsHandler(action: string, route: string) {
+    return (): void => {
+      this.trackingService.myExpensesActionSheetAction({
+        Action: action,
+      });
+      this.router.navigate([
+        '/',
+        'enterprise',
+        route,
+        {
+          navigate_back: true,
+        },
+      ]);
+    };
+  }
+
+  setupActionSheet(orgSettings: OrgSettings, allowedExpenseTypes: Record<string, boolean>): void {
     const that = this;
-    const mileageEnabled = orgSettings.mileage.enabled;
-    const isPerDiemEnabled = orgSettings.per_diem.enabled;
+    const mileageEnabled = orgSettings.mileage.enabled && allowedExpenseTypes.mileage;
+    const isPerDiemEnabled = orgSettings.per_diem.enabled && allowedExpenseTypes.perDiem;
     that.actionSheetButtons = [
       {
         text: 'Capture Receipt',
-        icon: 'assets/svg/fy-camera.svg',
+        icon: 'assets/svg/camera.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'capture receipts',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'camera_overlay',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('capture receipts', 'camera_overlay'),
       },
       {
         text: 'Add Manually',
-        icon: 'assets/svg/fy-expense.svg',
+        icon: 'assets/svg/list.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Expense',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_expense',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Expense', 'add_edit_expense'),
       },
     ];
 
     if (mileageEnabled) {
-      this.actionSheetButtons.push({
+      that.actionSheetButtons.push({
         text: 'Add Mileage',
-        icon: 'assets/svg/fy-mileage.svg',
+        icon: 'assets/svg/mileage.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Mileage',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_mileage',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage'),
       });
     }
 
     if (isPerDiemEnabled) {
       that.actionSheetButtons.push({
         text: 'Add Per Diem',
-        icon: 'assets/svg/fy-calendar.svg',
+        icon: 'assets/svg/calendar.svg',
         cssClass: 'capture-receipt',
-        handler: () => {
-          this.trackingService.myExpensesActionSheetAction({
-            Action: 'Add Per Diem',
-          });
-          that.router.navigate([
-            '/',
-            'enterprise',
-            'add_edit_per_diem',
-            {
-              navigate_back: true,
-            },
-          ]);
-        },
+        handler: this.actionSheetButtonsHandler('Add Per Diem', 'add_edit_per_diem'),
       });
     }
   }
 
-  getCardDetail(statsResponses) {
-    const cardNames = [];
+  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
+    const cardNames: { cardNumber: string; cardName: string }[] = [];
     statsResponses.forEach((response) => {
       const cardDetail = {
         cardNumber: response.key[1].column_value,
@@ -413,51 +415,73 @@ export class MyExpensesPage implements OnInit {
       };
       cardNames.push(cardDetail);
     });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames));
+    const uniqueCards = JSON.parse(JSON.stringify(cardNames)) as UniqueCards[];
 
     return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.hardwareBackButton.unsubscribe();
     this.onPageExit$.next(null);
   }
 
-  ionViewWillEnter() {
+  backButtonAction(): void {
+    if (this.headerState === HeaderState.multiselect) {
+      this.switchSelectionMode();
+    } else if (this.headerState === HeaderState.simpleSearch) {
+      this.onSimpleSearchCancel();
+    } else {
+      this.navController.back();
+    }
+  }
+
+  ionViewWillEnter(): void {
     this.isNewReportsFlowEnabled = false;
-    this.hardwareBackButton = this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.MEDIUM, () => {
-      if (this.headerState === HeaderState.multiselect) {
-        this.switchSelectionMode();
-      } else if (this.headerState === HeaderState.simpleSearch) {
-        this.onSimpleSearchCancel();
-      } else {
-        this.navController.back();
-      }
-    });
+    this.hardwareBackButton = this.platformHandlerService.registerBackButtonAction(
+      BackButtonActionPriority.MEDIUM,
+      this.backButtonAction
+    );
 
     this.tasksService.getExpensesTaskCount().subscribe((expensesTaskCount) => {
       this.expensesTaskCount = expensesTaskCount;
     });
 
-    this.isInstaFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(
-        map(
-          (orgUserSettings) =>
-            orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings?.insta_fyle_settings?.enabled
-        )
-      );
+    const getOrgUserSettingsService$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
 
-    this.isBulkFyleEnabled$ = this.orgUserSettingsService
-      .get()
-      .pipe(map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled));
+    this.isInstaFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map(
+        (orgUserSettings) =>
+          orgUserSettings?.insta_fyle_settings?.allowed && orgUserSettings.insta_fyle_settings.enabled
+      )
+    );
 
-    this.isMileageEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.mileage.enabled));
-    this.isPerDiemEnabled$ = this.orgSettingsService.get().pipe(map((orgSettings) => orgSettings.per_diem.enabled));
+    this.isBulkFyleEnabled$ = getOrgUserSettingsService$.pipe(
+      map((orgUserSettings) => orgUserSettings?.bulk_fyle_settings?.enabled)
+    );
 
-    this.orgSettingsService.get().subscribe((orgSettings) => {
+    this.orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
+    this.specialCategories$ = this.categoriesService.getMileageOrPerDiemCategories().pipe(shareReplay(1));
+
+    this.isMileageEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.mileage?.enabled));
+    this.isPerDiemEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
+
+    this.orgSettings$.subscribe((orgSettings) => {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
-      this.setupActionSheet(orgSettings);
+      this.restrictPendingTransactionsEnabled =
+        (orgSettings?.corporate_credit_card_settings?.enabled &&
+          orgSettings?.pending_cct_expense_restriction?.enabled) ||
+        false;
+    });
+
+    forkJoin({
+      orgSettings: this.orgSettings$,
+      specialCategories: this.specialCategories$,
+    }).subscribe(({ orgSettings, specialCategories }) => {
+      const allowedExpenseTypes = {
+        mileage: specialCategories.some((category) => category.system_category === 'Mileage'),
+        perDiem: specialCategories.some((category) => category.system_category === 'Per Diem'),
+      };
+      this.setupActionSheet(orgSettings, allowedExpenseTypes);
     });
 
     forkJoin({
@@ -490,7 +514,8 @@ export class MyExpensesPage implements OnInit {
     this.simpleSearchText = '';
 
     this.currentPageNumber = 1;
-    this.loadData$ = new BehaviorSubject({
+
+    this.loadExpenses$ = new BehaviorSubject({
       pageNumber: 1,
     });
 
@@ -505,119 +530,118 @@ export class MyExpensesPage implements OnInit {
       }
     });
 
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    const getHomeCurrency$ = this.currencyService.getHomeCurrency().pipe(shareReplay(1));
 
-    this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
+    this.homeCurrency$ = getHomeCurrency$;
+
+    getHomeCurrency$.subscribe((homeCurrency) => {
       this.homeCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400)
       )
       .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
+        const currentParams = this.loadExpenses$.getValue();
         currentParams.searchString = searchString;
         this.currentPageNumber = 1;
         currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
+
+        this.loadExpenses$.next(currentParams);
       });
 
-    const paginatedPipe = this.loadData$.pipe(
+    const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        queryParams.report_id = queryParams.report_id || 'is.null';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
+
+        if (params.searchString) {
+          queryParams.q = params.searchString;
+          queryParams.q = queryParams.q + ':*';
+        } else if (params.searchString === '') {
+          delete queryParams.q;
+        }
+        const orderByParams =
+          params.sortParam && params.sortDir
+            ? `${params.sortParam}.${params.sortDir}`
+            : 'spent_at.desc,created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
-        return this.transactionService.getMyExpensesCount(queryParams).pipe(
+
+        return this.expenseService.getExpensesCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
-              return this.transactionService.getMyExpenses({
+              return this.expenseService.getExpenses({
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
-                queryParams,
+                ...queryParams,
                 order: orderByParams,
               });
             } else {
-              return of({
-                data: [],
-              });
+              return of([]);
             }
+          }),
+          map((res) => {
+            this.isLoadingDataInInfiniteScroll = false;
+            if (this.currentPageNumber === 1) {
+              this.acc = [];
+            }
+            this.acc = this.acc.concat(res as PlatformExpense[]);
+            return this.acc;
           })
         );
-      }),
-      map((res) => {
-        this.isLoadingDataInInfiniteScroll = false;
-        if (this.currentPageNumber === 1) {
-          this.acc = [];
-        }
-        this.acc = this.acc.concat(res.data);
-        return this.acc;
-      }),
-      tap(() => {
-        this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
       })
     );
 
     this.myExpenses$ = paginatedPipe.pipe(shareReplay(1));
 
-    this.count$ = this.loadData$.pipe(
+    this.count$ = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.transactionService.getMyExpensesCount(queryParams);
+        queryParams.report_id = queryParams.report_id || 'is.null';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
+        return this.expenseService.getExpensesCount(queryParams);
       }),
       shareReplay(1)
     );
 
-    this.isNewUser$ = this.transactionService.getPaginatedETxncCount().pipe(map((res) => res.count === 0));
+    this.isNewUser$ = this.expenseService.getExpensesCount({ offset: 0, limit: 200 }).pipe(map((res) => res === 0));
 
     const paginatedScroll$ = this.myExpenses$.pipe(
       switchMap((etxns) => this.count$.pipe(map((count) => count > etxns.length)))
     );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.isInfiniteScrollRequired$ = this.loadExpenses$.pipe(switchMap(() => paginatedScroll$));
 
     this.setAllExpensesCountAndAmount();
 
-    this.allExpenseCountHeader$ = this.loadData$.pipe(
+    this.allExpenseCountHeader$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_state: 'in.(COMPLETE,DRAFT)',
-          tx_report_id: 'is.null',
+        this.expenseService.getExpenseStats({
+          state: 'in.(COMPLETE,DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
-    this.draftExpensesCount$ = this.loadData$.pipe(
+    this.draftExpensesCount$ = this.loadExpenses$.pipe(
       switchMap(() =>
-        this.transactionService.getTransactionStats('count(tx_id),sum(tx_amount)', {
-          scalar: true,
-          tx_report_id: 'is.null',
-          tx_state: 'in.(DRAFT)',
+        this.expenseService.getExpenseStats({
+          state: 'in.(DRAFT)',
+          report_id: 'is.null',
         })
       ),
-      map((stats) => {
-        const count = stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-        return count && count.function_value;
-      })
+      map((stats) => stats.data.count)
     );
 
-    this.loadData$.subscribe((params) => {
+    this.loadExpenses$.subscribe(() => {
       const queryParams: Params = { filters: JSON.stringify(this.filters) };
       this.router.navigate([], {
         relativeTo: this.activatedRoute,
@@ -630,28 +654,34 @@ export class MyExpensesPage implements OnInit {
     this.count$.subscribe(noop);
     this.isInfiniteScrollRequired$.subscribe(noop);
     if (this.activatedRoute.snapshot.queryParams.filters) {
-      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.filters = Object.assign(
+        {},
+        this.filters,
+        JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Partial<ExpenseFilters>
+      );
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       let filters = {};
-      if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'needsreceipt') {
-        filters = { tx_receipt_required: 'eq.true', state: 'NEEDS_RECEIPT' };
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'policyviolated') {
+      if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'needsreceipt') {
+        filters = { is_receipt_mandotary: 'eq.true', state: 'NEEDS_RECEIPT' };
+      } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'policyviolated') {
         filters = {
-          tx_policy_flag: 'eq.true',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+          is_policy_flagged: 'eq.true',
+          or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
           state: 'POLICY_VIOLATED',
         };
-      } else if (this.activatedRoute.snapshot.params.state.toLowerCase() === 'cannotreport') {
-        filters = { tx_policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
+      } else if ((this.activatedRoute.snapshot.params.state as string).toLowerCase() === 'cannotreport') {
+        filters = { policy_amount: 'lt.0.0001', state: 'CANNOT_REPORT' };
       }
       this.filters = Object.assign({}, this.filters, filters);
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
     } else {
       this.clearFilters();
@@ -676,27 +706,29 @@ export class MyExpensesPage implements OnInit {
       )
     );
     this.doRefresh();
+
+    this.checkDeleteDisabled();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
   }
 
-  loadData(event) {
+  loadData(event: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
 
-    const params = this.loadData$.getValue();
+    const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
 
     setTimeout(() => {
       event?.target?.complete();
     }, 1000);
   }
 
-  syncOutboxExpenses() {
+  syncOutboxExpenses(): void {
     this.pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
     if (this.pendingTransactions.length > 0) {
       this.syncing = true;
@@ -715,25 +747,25 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: { complete?: () => void } }): void {
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
       this.setExpenseStatsOnSelect();
     }
-    const params = this.loadData$.getValue();
+    const params = this.loadExpenses$.getValue();
     params.pageNumber = this.currentPageNumber;
     this.transactionService.clearCache().subscribe(() => {
-      this.loadData$.next(params);
+      this.loadExpenses$.next(params);
       if (event) {
         setTimeout(() => {
-          event?.target?.complete();
+          event.target?.complete();
         }, 1000);
       }
     });
   }
 
-  generateFilterPills(filter: Filters) {
+  generateFilterPills(filter: Partial<ExpenseFilters>): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state?.length > 0) {
@@ -767,26 +799,26 @@ export class MyExpensesPage implements OnInit {
     return filterPills;
   }
 
-  addNewFiltersToParams() {
-    let currentParams = this.loadData$.getValue();
+  addNewFiltersToParams(): Partial<GetExpenseQueryParam> {
+    let currentParams = this.loadExpenses$.getValue();
     currentParams.pageNumber = 1;
-    let newQueryParams: any = {
+    let newQueryParams: Record<string, string | string[] | boolean> = {
       or: [],
     };
 
-    newQueryParams = this.transactionService.generateCardNumberParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateCardNumberParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateDateParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateDateParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateReceiptAttachedParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateReceiptAttachedParams(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateStateFilters(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateStateFilters(newQueryParams, this.filters);
 
-    newQueryParams = this.transactionService.generateTypeFilters(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateTypeFilters(newQueryParams, this.filters);
 
-    currentParams = this.transactionService.setSortParams(currentParams, this.filters);
+    currentParams = this.sharedExpenseService.setSortParams(currentParams, this.filters);
 
-    newQueryParams = this.transactionService.generateSplitExpenseParams(newQueryParams, this.filters);
+    newQueryParams = this.sharedExpenseService.generateSplitExpenseParams(newQueryParams, this.filters);
 
     currentParams.queryParams = newQueryParams;
 
@@ -807,7 +839,7 @@ export class MyExpensesPage implements OnInit {
     return currentParams;
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterMain = this.myExpensesService.getFilters();
     if (this.cardNumbers?.length > 0) {
       filterMain.push({
@@ -817,11 +849,13 @@ export class MyExpensesPage implements OnInit {
       } as FilterOptions<string>);
     }
 
+    const selectedFilters = this.myExpensesService.generateSelectedFilters(this.filters);
+
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
         filterOptions: filterMain,
-        selectedFilterValues: this.myExpensesService.generateSelectedFilters(this.filters),
+        selectedFilterValues: selectedFilters,
         activeFilterInitialName,
       },
       cssClass: 'dialog-popover',
@@ -829,12 +863,17 @@ export class MyExpensesPage implements OnInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string | string[]>[] };
+
     if (data) {
-      this.filters = this.myExpensesService.convertFilters(data);
+      const filters1 = this.myExpensesService.convertSelectedOptionsToExpenseFilters(data);
+      this.filters = filters1;
+
       this.currentPageNumber = 1;
       const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
+
+      this.loadExpenses$.next(params);
+
       this.filterPills = this.generateFilterPills(this.filters);
       this.trackingService.myExpensesFilterApplied({
         ...this.filters,
@@ -842,85 +881,99 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  async setState(state: string) {
+  async setState(): Promise<void> {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     setTimeout(() => {
       this.isLoading = false;
     }, 500);
   }
 
-  async onDeleteExpenseClick(etxn: Expense, index?: number) {
-    const popupResults = await this.popupService.showPopup({
-      header: 'Delete Expense',
-      message: 'Are you sure you want to delete this expense?',
-      primaryCta: {
-        text: 'Delete',
-      },
-    });
-
-    if (popupResults === 'primary') {
-      from(this.loaderService.showLoader('Deleting Expense', 2500))
-        .pipe(
-          switchMap(() =>
-            iif(
-              () => !etxn.tx_id,
-              of(this.transactionOutboxService.deleteOfflineExpense(index)),
-              this.transactionService.delete(etxn.tx_id)
-            )
-          ),
-          tap(() => this.trackingService.deleteExpense()),
-          finalize(async () => {
-            await this.loaderService.hideLoader();
-            this.doRefresh();
-          })
-        )
-        .subscribe(noop);
-    }
-  }
-
-  setExpenseStatsOnSelect() {
+  setExpenseStatsOnSelect(): void {
     this.allExpensesStats$ = of({
       count: this.selectedElements.length,
-      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
+      amount: this.selectedElements.reduce((acc, txnObj) => acc + txnObj.amount, 0),
     });
   }
 
-  selectExpense(expense: Expense) {
+  setOutboxExpenseStatsOnSelect(): void {
+    this.allExpensesStats$ = of({
+      count: this.selectedOutboxExpenses.length,
+      amount: this.selectedOutboxExpenses.reduce((acc, txnObj) => acc + txnObj.tx_amount, 0),
+    });
+  }
+
+  selectOutboxExpense(expense: Expense): void {
     let isSelectedElementsIncludesExpense = false;
     if (expense.tx_id) {
-      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
+      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((txn) => expense.tx_id === txn.tx_id);
+    } else {
+      isSelectedElementsIncludesExpense = this.selectedOutboxExpenses.some((txn) => isEqual(txn, expense));
+    }
+
+    if (isSelectedElementsIncludesExpense) {
+      if (expense.tx_id) {
+        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((txn) => txn.tx_id !== expense.tx_id);
+      } else {
+        this.selectedOutboxExpenses = this.selectedOutboxExpenses.filter((txn) => !isEqual(txn, expense));
+      }
+    } else {
+      this.selectedOutboxExpenses.push(expense);
+    }
+    this.isReportableExpensesSelected =
+      this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
+
+    if (this.selectedOutboxExpenses.length > 0) {
+      this.outboxExpensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedOutboxExpenses);
+
+      this.cccExpenses = this.selectedOutboxExpenses.length - this.outboxExpensesToBeDeleted.length;
+    }
+
+    // setting Expenses count and amount stats on select
+    if (this.allExpensesCount === this.selectedOutboxExpenses.length) {
+      this.selectAll = true;
+    } else {
+      this.selectAll = false;
+    }
+    this.setOutboxExpenseStatsOnSelect();
+    this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedOutboxExpenses);
+  }
+
+  selectExpense(expense: PlatformExpense): void {
+    let isSelectedElementsIncludesExpense = false;
+    if (expense.id) {
+      isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.id === txn.id);
     } else {
       isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => isEqual(txn, expense));
     }
 
     if (isSelectedElementsIncludesExpense) {
-      if (expense.tx_id) {
-        this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
+      if (expense.id) {
+        this.selectedElements = this.selectedElements.filter((txn) => txn.id !== expense.id);
       } else {
         this.selectedElements = this.selectedElements.filter((txn) => !isEqual(txn, expense));
       }
     } else {
       this.selectedElements.push(expense);
     }
-    this.isReportableExpensesSelected = this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+    this.isReportableExpensesSelected =
+      this.sharedExpenseService.getReportableExpenses(this.selectedElements, this.restrictPendingTransactionsEnabled)
+        .length > 0;
 
-    if (this.selectedElements?.length > 0) {
-      this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
+    if (this.selectedElements.length > 0) {
+      this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
 
-      this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
-
-      this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
+      this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
     }
 
     // setting Expenses count and amount stats on select
@@ -930,32 +983,30 @@ export class MyExpensesPage implements OnInit {
       this.selectAll = false;
     }
     this.setExpenseStatsOnSelect();
-    this.isMergeAllowed = this.transactionService.isMergeAllowed(this.selectedElements);
+    this.isMergeAllowed = this.sharedExpenseService.isMergeAllowed(this.selectedElements);
   }
 
-  goToTransaction({ etxn: expense, etxnIndex }) {
-    let category;
+  goToTransaction(event: { expense: PlatformExpense; expenseIndex: number }): void {
+    let category: string;
 
-    if (expense.tx_org_category) {
-      category = expense.tx_org_category.toLowerCase();
+    if (event.expense?.category?.name) {
+      category = event.expense.category.name.toLowerCase();
     }
 
     if (category === 'mileage') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_mileage', { id: event.expense.id, persist_filters: true }]);
     } else if (category === 'per diem') {
-      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_per_diem', { id: event.expense.id, persist_filters: true }]);
     } else {
-      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: expense.tx_id, persist_filters: true }]);
+      this.router.navigate(['/', 'enterprise', 'add_edit_expense', { id: event.expense.id, persist_filters: true }]);
     }
   }
 
-  onAddTransactionToNewReport(expense) {
-    this.trackingService.clickAddToReport();
-    const transactionIds = JSON.stringify([expense.tx_id]);
-    this.router.navigate(['/', 'enterprise', 'my_create_report', { txn_ids: transactionIds }]);
-  }
-
-  async openCriticalPolicyViolationPopOver(config: { title: string; message: string; reportType: string }) {
+  async openCriticalPolicyViolationPopOver(config: {
+    title: string;
+    message: string;
+    reportType: string;
+  }): Promise<void> {
     const criticalPolicyViolationPopOver = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -975,7 +1026,7 @@ export class MyExpensesPage implements OnInit {
 
     await criticalPolicyViolationPopOver.present();
 
-    const { data } = await criticalPolicyViolationPopOver.onWillDismiss();
+    const { data } = (await criticalPolicyViolationPopOver.onWillDismiss()) as { data: { action: string } };
 
     if (data && data.action) {
       if (data.action === 'continue') {
@@ -988,7 +1039,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showNonReportableExpenseSelectedToast(message) {
+  showNonReportableExpenseSelectedToast(message: string): void {
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
@@ -996,62 +1047,116 @@ export class MyExpensesPage implements OnInit {
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport') {
-    this.trackingService.addToReport({ count: this.selectedElements.length });
+  isSelectionContainsException(
+    policyViolationsCount: number,
+    draftCount: number,
+    pendingTransactionsCount: number
+  ): boolean {
+    return (
+      policyViolationsCount > 0 ||
+      draftCount > 0 ||
+      (this.restrictPendingTransactionsEnabled && pendingTransactionsCount > 0)
+    );
+  }
+
+  unreportableExpenseExceptionHandler(
+    draftCount: number,
+    policyViolationsCount: number,
+    pendingTransactionsCount: number
+  ): void {
+    // This Map contains different messages based on different conditions , the first character in map key is draft, second is policy violation, third is pending transactions
+    // draft, policy, pending
+    const toastMessage = new Map([
+      ['111', "You can't add draft expenses and expenses with critical policy violation & pending transactions."],
+      ['110', "You can't add draft expenses & expenses with critical policy violations to a report."],
+      ['101', "You can't add draft expenses & expenses with pending transactions to a report."],
+      ['011', "You can't add expenses with critical policy violation & pending transactions to a report."],
+      ['100', "You can't add draft expenses to a report."],
+      ['010', "You can't add expenses with critical policy violations to a report."],
+      ['001', "You can't add expenses with pending transactions to a report."],
+    ]);
+    const messageConfig = `${draftCount > 0 ? 1 : 0}${policyViolationsCount > 0 ? 1 : 0}${
+      pendingTransactionsCount > 0 ? 1 : 0
+    }`;
+
+    if (toastMessage.has(messageConfig)) {
+      this.showNonReportableExpenseSelectedToast(toastMessage.get(messageConfig));
+    }
+    if (pendingTransactionsCount > 0) {
+      this.trackingService.spenderSelectedPendingTxnFromMyExpenses();
+    }
+  }
+
+  reportableExpenseDialogHandler(
+    draftCount: number,
+    policyViolationsCount: number,
+    pendingTransactionsCount: number,
+    reportType: 'oldReport' | 'newReport'
+  ): void {
+    const title = "Can't add these expenses...";
+    let message = '';
+
+    if (draftCount > 0) {
+      message += `${draftCount} ${draftCount > 1 ? 'expenses are' : 'expense is'} in draft state.`;
+    }
+    if (pendingTransactionsCount > 0) {
+      message += `${message.length ? '<br><br>' : ''}${pendingTransactionsCount} ${
+        pendingTransactionsCount > 1 ? 'expenses' : 'expense'
+      } with pending transactions.`;
+    }
+    if (policyViolationsCount > 0) {
+      message += `${message.length ? '<br><br>' : ''}${policyViolationsCount} ${
+        policyViolationsCount > 1 ? 'expenses' : 'expense'
+      } with Critical Policy Violations.`;
+    }
+
+    this.openCriticalPolicyViolationPopOver({ title, message, reportType });
+  }
+
+  async openCreateReportWithSelectedIds(reportType: 'oldReport' | 'newReport'): Promise<void> {
     let selectedElements = cloneDeep(this.selectedElements);
     // Removing offline expenses from the list
-    selectedElements = selectedElements.filter((expense) => expense.tx_id);
+    selectedElements = selectedElements.filter((expense) => expense.id);
     if (!selectedElements.length) {
       this.showNonReportableExpenseSelectedToast('Please select one or more expenses to be reported');
       return;
     }
     const expensesWithCriticalPolicyViolations = selectedElements.filter((expense) =>
-      this.transactionService.getIsCriticalPolicyViolated(expense)
+      this.sharedExpenseService.isCriticalPolicyViolatedExpense(expense)
     );
-    const expensesInDraftState = selectedElements.filter((expense) => this.transactionService.getIsDraft(expense));
+    const expensesInDraftState = selectedElements.filter((expense) =>
+      this.sharedExpenseService.isExpenseInDraft(expense)
+    );
+    let expensesWithPendingTransactions = [];
+    //only handle pending txns if it is enabled from settings
+    if (this.restrictPendingTransactionsEnabled) {
+      expensesWithPendingTransactions = selectedElements.filter((expense) =>
+        this.sharedExpenseService.doesExpenseHavePendingCardTransaction(expense)
+      );
+    }
 
     const noOfExpensesWithCriticalPolicyViolations = expensesWithCriticalPolicyViolations.length;
     const noOfExpensesInDraftState = expensesInDraftState.length;
+    const noOfExpensesWithPendingTransactions = expensesWithPendingTransactions.length;
 
-    if (noOfExpensesWithCriticalPolicyViolations === selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('You cannot add critical policy violated expenses to a report');
-    } else if (noOfExpensesInDraftState === selectedElements.length) {
-      this.showNonReportableExpenseSelectedToast('You cannot add draft expenses to a report');
-    } else if (!this.isReportableExpensesSelected) {
-      this.showNonReportableExpenseSelectedToast(
-        'You cannot add draft expenses and critical policy violated expenses to a report'
+    if (!this.isReportableExpensesSelected) {
+      this.unreportableExpenseExceptionHandler(
+        noOfExpensesInDraftState,
+        noOfExpensesWithCriticalPolicyViolations,
+        noOfExpensesWithPendingTransactions
       );
     } else {
       this.trackingService.addToReport();
-      const totalAmountofCriticalPolicyViolationExpenses = expensesWithCriticalPolicyViolations.reduce(
-        (prev, current) => {
-          const amount = current.tx_amount || current.tx_user_amount;
-          return prev + amount;
-        },
-        0
-      );
+      const totalUnreportableCount =
+        noOfExpensesInDraftState + noOfExpensesWithCriticalPolicyViolations + noOfExpensesWithPendingTransactions;
 
-      let title = '';
-      let message = '';
-
-      if (noOfExpensesWithCriticalPolicyViolations > 0 || noOfExpensesInDraftState > 0) {
-        this.homeCurrency$.subscribe((homeCurrency) => {
-          if (noOfExpensesWithCriticalPolicyViolations > 0 && noOfExpensesInDraftState > 0) {
-            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy and \
-              ${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted. \
-              Also ${noOfExpensesInDraftState} other expenses are in draft states.`;
-          } else if (noOfExpensesWithCriticalPolicyViolations > 0) {
-            title = `${noOfExpensesWithCriticalPolicyViolations} Critical Policy Expenses blocking the way`;
-            message = `Critical policy blocking these ${noOfExpensesWithCriticalPolicyViolations} expenses worth \
-              ${this.homeCurrencySymbol}${totalAmountofCriticalPolicyViolationExpenses} from being submitted.`;
-          } else if (noOfExpensesInDraftState > 0) {
-            title = `${noOfExpensesInDraftState} Draft Expenses blocking the way`;
-            message = `${noOfExpensesInDraftState} expenses are in draft states.`;
-          }
-          this.openCriticalPolicyViolationPopOver({ title, message, reportType });
-        });
+      if (totalUnreportableCount > 0) {
+        this.reportableExpenseDialogHandler(
+          noOfExpensesInDraftState,
+          noOfExpensesWithCriticalPolicyViolations,
+          noOfExpensesWithPendingTransactions,
+          reportType
+        );
       } else {
         if (reportType === 'oldReport') {
           this.showOldReportsMatBottomSheet();
@@ -1062,8 +1167,11 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  async showNewReportModal() {
-    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
+  async showNewReportModal(): Promise<void> {
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
+      this.selectedElements,
+      this.restrictPendingTransactionsEnabled
+    );
     const addExpenseToNewReportModal = await this.modalController.create({
       component: CreateNewReportComponent,
       componentProps: {
@@ -1074,31 +1182,36 @@ export class MyExpensesPage implements OnInit {
     });
     await addExpenseToNewReportModal.present();
 
-    const { data } = await addExpenseToNewReportModal.onDidDismiss();
+    const { data } = (await addExpenseToNewReportModal.onDidDismiss()) as {
+      data: { report: ExtendedReport; message: string };
+    };
 
     if (data && data.report) {
       this.showAddToReportSuccessToast({ report: data.report, message: data.message });
     }
   }
 
-  openCreateReport() {
+  openCreateReport(): void {
     this.trackingService.clickCreateReport();
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
-  openReviewExpenses() {
-    const allDataPipe$ = this.loadData$.pipe(
+  openReviewExpenses(): void {
+    const allDataPipe$ = this.loadExpenses$.pipe(
       take(1),
       switchMap((params) => {
         const queryParams = params.queryParams || {};
 
-        queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
+        queryParams.report_id = queryParams.report_id || 'is.null';
 
-        queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
+        queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+        const orderByParams =
+          params.sortParam && params.sortDir
+            ? `${params.sortParam}.${params.sortDir}`
+            : 'spent_at.desc,created_at.desc,id.desc';
 
-        return this.transactionService
+        return this.expenseService
           .getAllExpenses({
             queryParams,
             order: orderByParams,
@@ -1115,21 +1228,21 @@ export class MyExpensesPage implements OnInit {
             )
           );
       }),
-      map((etxns) => etxns.map((etxn) => etxn.tx_id))
+      map((etxns) => etxns.map((etxn) => etxn.id))
     );
     from(this.loaderService.showLoader())
       .pipe(
         switchMap(() => {
-          const txnIds = this.selectedElements.map((expense) => expense.tx_id);
+          const txnIds = this.selectedElements.map((expense) => expense.id);
           return iif(() => this.selectedElements.length === 0, allDataPipe$, of(txnIds));
         }),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expenseService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: expense,
               allIds,
             }))
           );
@@ -1137,30 +1250,30 @@ export class MyExpensesPage implements OnInit {
         finalize(() => from(this.loaderService.hideLoader()))
       )
       .subscribe(({ inital, allIds }) => {
-        let category;
+        let category: string;
 
-        if (inital.tx.org_category) {
-          category = inital.tx.org_category.toLowerCase();
+        if (inital.category.name) {
+          category = inital.category.name.toLowerCase();
         }
 
-        if (category === 'mileage') {
+        if (category.includes('mileage')) {
           this.router.navigate([
             '/',
             'enterprise',
             'add_edit_mileage',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
           ]);
-        } else if (category === 'per diem') {
+        } else if (category.includes('per diem')) {
           this.router.navigate([
             '/',
             'enterprise',
             'add_edit_per_diem',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
@@ -1171,7 +1284,7 @@ export class MyExpensesPage implements OnInit {
             'enterprise',
             'add_edit_expense',
             {
-              id: inital.tx.id,
+              id: inital.id,
               txnIds: JSON.stringify(allIds),
               activeIndex: 0,
             },
@@ -1180,14 +1293,14 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  filterExpensesBySearchString(expense: any, searchString: string) {
+  filterExpensesBySearchString(expense: PlatformExpense, searchString: string): boolean {
     return Object.values(expense)
-      .map((value) => value && value.toString().toLowerCase())
+      .map((value: keyof PlatformExpense) => value && value.toString().toLowerCase())
       .filter((value) => !!value)
       .some((value) => value.toLowerCase().includes(searchString.toLowerCase()));
   }
 
-  async onAddTransactionToReport(event) {
+  async onAddTransactionToReport(event: { tx_id: string }): Promise<void> {
     const addExpenseToReportModal = await this.modalController.create({
       component: AddTxnToReportDialogComponent,
       componentProps: {
@@ -1198,13 +1311,13 @@ export class MyExpensesPage implements OnInit {
     });
     await addExpenseToReportModal.present();
 
-    const { data } = await addExpenseToReportModal.onDidDismiss();
+    const { data } = (await addExpenseToReportModal.onDidDismiss()) as { data: { reload: boolean } };
     if (data && data.reload) {
       this.doRefresh();
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report }) {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport | ReportV1 }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -1221,12 +1334,9 @@ export class MyExpensesPage implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
+      // Mixed data type as CREATE report and GET report API returns different responses
+      const reportId = (config.report as ExtendedReport).rp_id || (config.report as ReportV1).id;
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
   }
 
@@ -1237,9 +1347,12 @@ export class MyExpensesPage implements OnInit {
     );
   }
 
-  showOldReportsMatBottomSheet() {
-    const reportAbleExpenses = this.transactionService.getReportableExpenses(this.selectedElements);
-    const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.tx_id);
+  showOldReportsMatBottomSheet(): void {
+    const reportAbleExpenses = this.sharedExpenseService.getReportableExpenses(
+      this.selectedElements,
+      this.restrictPendingTransactionsEnabled
+    );
+    const selectedExpensesId = reportAbleExpenses.map((expenses) => expenses.id);
 
     this.openReports$
       .pipe(
@@ -1248,7 +1361,7 @@ export class MyExpensesPage implements OnInit {
             data: { openReports, isNewReportsFlowEnabled: this.isNewReportsFlowEnabled },
             panelClass: ['mat-bottom-sheet-1'],
           });
-          return addTxnToReportDialog.afterDismissed();
+          return addTxnToReportDialog.afterDismissed() as Observable<{ report: ExtendedReport }>;
         }),
         switchMap((data) => {
           if (data && data.report) {
@@ -1271,7 +1384,7 @@ export class MyExpensesPage implements OnInit {
       });
   }
 
-  async openActionSheet() {
+  async openActionSheet(): Promise<void> {
     const that = this;
     const actionSheet = await this.actionSheetController.create({
       header: 'ADD EXPENSE',
@@ -1282,12 +1395,36 @@ export class MyExpensesPage implements OnInit {
     await actionSheet.present();
   }
 
-  async deleteSelectedExpenses() {
-    let offlineExpenses: Expense[];
+  deleteSelectedExpenses(offlineExpenses: Partial<Expense>[]): Observable<Transaction[]> {
+    if (offlineExpenses?.length > 0) {
+      this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
+      return of(null);
+    } else {
+      this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.id);
+      if (this.selectedElements.length > 0) {
+        return this.transactionService.deleteBulk(this.selectedElements.map((selectedExpense) => selectedExpense.id));
+      } else {
+        return of(null);
+      }
+    }
+  }
 
-    const expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+  async openDeleteExpensesPopover(): Promise<void> {
+    const offlineExpenses = this.outboxExpensesToBeDeleted.filter((expense) => !expense.tx_id);
 
-    const cccExpensesMessage = this.transactionService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+    let expenseDeletionMessage: string;
+    let cccExpensesMessage: string;
+    let totalDeleteLength = 0;
+
+    if (offlineExpenses.length > 0) {
+      expenseDeletionMessage = this.transactionService.getExpenseDeletionMessage(offlineExpenses);
+      cccExpensesMessage = this.transactionService.getCCCExpenseMessage(offlineExpenses, this.cccExpenses);
+      totalDeleteLength = this.outboxExpensesToBeDeleted.length;
+    } else {
+      expenseDeletionMessage = this.sharedExpenseService.getExpenseDeletionMessage(this.expensesToBeDeleted);
+      cccExpensesMessage = this.sharedExpenseService.getCCCExpenseMessage(this.expensesToBeDeleted, this.cccExpenses);
+      totalDeleteLength = this.expensesToBeDeleted?.length;
+    }
 
     const deletePopover = await this.popoverController.create({
       component: FyDeleteDialogComponent,
@@ -1295,41 +1432,35 @@ export class MyExpensesPage implements OnInit {
       backdropDismiss: false,
       componentProps: {
         header: 'Delete Expense',
-        body: this.transactionService.getDeleteDialogBody(
-          this.expensesToBeDeleted,
+        body: this.sharedExpenseService.getDeleteDialogBody(
+          totalDeleteLength,
           this.cccExpenses,
           expenseDeletionMessage,
           cccExpensesMessage
         ),
-        ctaText: this.expensesToBeDeleted?.length > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
-        disableDelete: this.expensesToBeDeleted?.length > 0 ? false : true,
-        deleteMethod: () => {
-          offlineExpenses = this.expensesToBeDeleted.filter((expense) => !expense.tx_id);
-
-          this.transactionOutboxService.deleteBulkOfflineExpenses(this.pendingTransactions, offlineExpenses);
-
-          this.selectedElements = this.expensesToBeDeleted.filter((expense) => expense.tx_id);
-          if (this.selectedElements?.length > 0) {
-            return this.transactionService.deleteBulk(
-              this.selectedElements.map((selectedExpense) => selectedExpense.tx_id)
-            );
-          } else {
-            return of(null);
-          }
-        },
+        ctaText: totalDeleteLength > 0 && this.cccExpenses > 0 ? 'Exclude and Delete' : 'Delete',
+        disableDelete: totalDeleteLength === 0 ? true : false,
+        deleteMethod: () => this.deleteSelectedExpenses(offlineExpenses),
       },
     });
 
     await deletePopover.present();
 
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data) {
       this.trackingService.myExpensesBulkDeleteExpenses({
-        count: this.selectedElements?.length,
+        count: this.selectedElements.length,
       });
+
       if (data.status === 'success') {
-        const totalNoOfSelectedExpenses = offlineExpenses?.length + this.selectedElements?.length;
+        let totalNoOfSelectedExpenses = 0;
+        if (offlineExpenses?.length > 0) {
+          totalNoOfSelectedExpenses = offlineExpenses.length + this.selectedElements.length;
+        } else {
+          totalNoOfSelectedExpenses = this.selectedElements.length;
+        }
+
         const message =
           totalNoOfSelectedExpenses === 1
             ? '1 expense has been deleted'
@@ -1356,62 +1487,66 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onSelectAll(checked: boolean) {
+  onSelectAll(checked: boolean): void {
     if (checked) {
       this.selectedElements = [];
       if (this.pendingTransactions.length > 0) {
-        this.selectedElements = this.pendingTransactions;
-        this.allExpensesCount = this.selectedElements.length;
+        this.selectedOutboxExpenses = this.pendingTransactions;
+        this.allExpensesCount = this.pendingTransactions.length;
         this.isReportableExpensesSelected =
-          this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
-        this.setExpenseStatsOnSelect();
+          this.transactionService.getReportableExpenses(this.selectedOutboxExpenses).length > 0;
+        this.outboxExpensesToBeDeleted = this.selectedOutboxExpenses;
+        this.setOutboxExpenseStatsOnSelect();
+      } else {
+        this.loadExpenses$
+          .pipe(
+            take(1),
+            map((params) => {
+              const queryParams = params.queryParams || {};
+
+              queryParams.report_id = queryParams.report_id || 'is.null';
+              queryParams.state = 'in.(COMPLETE,DRAFT)';
+              if (params.searchString) {
+                queryParams.q = params?.searchString + ':*';
+              }
+
+              return queryParams;
+            }),
+            switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
+          )
+          .subscribe((allExpenses) => {
+            this.selectedElements = this.selectedElements.concat(allExpenses);
+            if (this.selectedElements.length > 0) {
+              this.expensesToBeDeleted = this.sharedExpenseService.excludeCCCExpenses(this.selectedElements);
+
+              this.cccExpenses = this.selectedElements.length - this.expensesToBeDeleted.length;
+            }
+            this.allExpensesCount = this.selectedElements.length;
+            this.isReportableExpensesSelected =
+              this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
+            this.setExpenseStatsOnSelect();
+          });
       }
-
-      this.loadData$
-        .pipe(
-          take(1),
-          map((params) => {
-            let queryParams = params.queryParams || {};
-
-            queryParams.tx_report_id = queryParams.tx_report_id || 'is.null';
-            queryParams.tx_state = 'in.(COMPLETE,DRAFT)';
-            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-            return queryParams;
-          }),
-          switchMap((queryParams) => this.transactionService.getAllExpenses({ queryParams }))
-        )
-        .subscribe((allExpenses) => {
-          this.selectedElements = this.selectedElements.concat(allExpenses);
-          if (this.selectedElements?.length > 0) {
-            this.expensesToBeDeleted = this.transactionService.getDeletableTxns(this.selectedElements);
-
-            this.expensesToBeDeleted = this.transactionService.excludeCCCExpenses(this.selectedElements);
-
-            this.cccExpenses = this.selectedElements?.length - this.expensesToBeDeleted?.length;
-          }
-          this.allExpensesCount = this.selectedElements.length;
-          this.isReportableExpensesSelected =
-            this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
-          this.setExpenseStatsOnSelect();
-        });
     } else {
       this.selectedElements = [];
+      this.selectedOutboxExpenses = [];
+      this.outboxExpensesToBeDeleted = [];
       this.isReportableExpensesSelected =
-        this.transactionService.getReportableExpenses(this.selectedElements).length > 0;
+        this.sharedExpenseService.getReportableExpenses(this.selectedElements).length > 0;
       this.setExpenseStatsOnSelect();
     }
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterType: string) {
+  async onFilterClick(filterType: string): Promise<void> {
     if (filterType === 'state') {
       await this.openFilters('Type');
     } else if (filterType === 'receiptsAttached') {
@@ -1427,7 +1562,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     if (filterType === 'sort') {
       delete this.filters.sortDir;
       delete this.filters.sortParam;
@@ -1436,11 +1571,11 @@ export class MyExpensesPage implements OnInit {
     }
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
+    this.loadExpenses$.next(params);
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -1451,7 +1586,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'expenses' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -1462,7 +1597,7 @@ export class MyExpensesPage implements OnInit {
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -1473,27 +1608,43 @@ export class MyExpensesPage implements OnInit {
     ]);
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
   }
 
-  mergeExpenses() {
+  mergeExpenses(): void {
+    const expenseIDs = this.selectedElements.map((expense) => expense.id);
     this.router.navigate([
       '/',
       'enterprise',
       'merge_expense',
       {
-        selectedElements: JSON.stringify(this.selectedElements),
+        expenseIDs: JSON.stringify(expenseIDs),
         from: 'MY_EXPENSES',
       },
     ]);
   }
 
-  showCamera(isCameraPreviewStarted: boolean) {
+  showCamera(isCameraPreviewStarted: boolean): void {
     this.isCameraPreviewStarted = isCameraPreviewStarted;
+  }
+
+  checkDeleteDisabled(): Observable<void> {
+    return this.isConnected$.pipe(
+      map((isConnected) => {
+        if (isConnected) {
+          this.isDisabled =
+            this.selectedElements?.length === 0 ||
+            !this.expensesToBeDeleted ||
+            (this.expensesToBeDeleted?.length === 0 && this.cccExpenses > 0);
+        } else if (!isConnected) {
+          this.isDisabled = this.selectedOutboxExpenses.length === 0 || !this.outboxExpensesToBeDeleted;
+        }
+      })
+    );
   }
 }

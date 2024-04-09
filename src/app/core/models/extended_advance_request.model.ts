@@ -1,5 +1,4 @@
 import { Approval } from './approval.model';
-import { CustomField } from './custom_field.model';
 
 export interface ExtendedAdvanceRequest {
   _search_document?: string;
@@ -60,4 +59,11 @@ export interface ExtendedAdvanceRequest {
   us_email: string;
   new_state?: string;
   us_full_name: string;
+  adv_created_at?: Date;
+  type?: string;
+  currency?: string;
+  amount?: number;
+  created_at?: Date;
+  purpose?: string;
+  state?: string;
 }

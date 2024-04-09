@@ -8,3 +8,8 @@ export interface CostCenter {
   org_id: string;
   description: string;
 }
+
+export interface CostCenters {
+  label: string;
+  value: CostCenter;
+}

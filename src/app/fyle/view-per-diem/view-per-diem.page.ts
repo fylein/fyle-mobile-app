@@ -1,6 +1,5 @@
-import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, noop, of, forkJoin } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -20,38 +19,48 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { PerDiemRates } from 'src/app/core/models/v1/per-diem-rates.model';
+import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
+import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 
 @Component({
   selector: 'app-view-per-diem',
   templateUrl: './view-per-diem.page.html',
   styleUrls: ['./view-per-diem.page.scss'],
 })
-export class ViewPerDiemPage implements OnInit {
+export class ViewPerDiemPage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  extendedPerDiem$: Observable<Expense>;
+  perDiemExpense$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   perDiemCustomFields$: Observable<CustomField[]>;
 
-  perDiemRate$: Observable<any>;
+  perDiemRate$: Observable<PerDiemRates>;
 
   isCriticalPolicyViolated$: Observable<boolean>;
 
   isAmountCapped$: Observable<boolean>;
 
-  policyViloations$: Observable<any>;
+  policyViolations$: Observable<IndividualExpensePolicyState[]>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
+
+  expenseId: string;
 
   reportId: string;
 
@@ -65,15 +74,15 @@ export class ViewPerDiemPage implements OnInit {
 
   isExpenseFlagged: boolean;
 
-  numEtxnsInReport: number;
+  reportExpenseCount: number;
 
-  activeEtxnIndex: number;
+  activeExpenseIndex: number;
 
   paymentMode: string;
 
   paymentModeIcon: string;
 
-  etxnCurrencySymbol: string;
+  expenseCurrencySymbol: string;
 
   view: ExpenseView;
 
@@ -83,11 +92,11 @@ export class ViewPerDiemPage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+  expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -105,18 +114,20 @@ export class ViewPerDiemPage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private spenderExpensesService: SpenderExpensesService,
+    private approverExpensesService: ApproverExpensesService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  isNumber(val) {
+  isNumber(val): boolean {
     return typeof val === 'number';
   }
 
-  goBack() {
+  goBack(): void {
     if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
@@ -124,7 +135,7 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  getPolicyDetails(expenseId: string) {
+  getPolicyDetails(expenseId: string): void {
     if (expenseId) {
       if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
@@ -142,19 +153,18 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async openCommentsModal(): Promise<void> {
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
-        objectId: etxn.tx_id,
+        objectId: this.expenseId,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment({ view: this.view });
@@ -163,74 +173,81 @@ export class ViewPerDiemPage implements OnInit {
     }
   }
 
-  ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+  ionViewWillEnter(): void {
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
 
-    this.extendedPerDiem$ = this.updateFlag$.pipe(
+    this.perDiemExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getExpenseById(this.expenseId)
+              : this.spenderExpensesService.getExpenseById(this.expenseId)
+          )
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+    this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      perDiemExpense: this.perDiemExpense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.project_id?.length > 0
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.project_id?.length > 0
       ),
-      switchMap(({ extendedPerDiem, txnFields }) =>
+      switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedPerDiem.tx_custom_properties,
-          txnFields.project_id[0]?.id
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
+          expenseFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
-      extendedPerDiem: this.extendedPerDiem$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      perDiemExpense: this.perDiemExpense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
       filter(
-        ({ extendedPerDiem, txnFields }) => extendedPerDiem.tx_custom_properties && txnFields.cost_center_id?.length > 0
+        ({ perDiemExpense, expenseFields }) => perDiemExpense.custom_fields && expenseFields.cost_center_id?.length > 0
       ),
-      switchMap(({ extendedPerDiem, txnFields }) =>
+      switchMap(({ perDiemExpense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedPerDiem.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
+          perDiemExpense.custom_fields as Partial<CustomInput>[],
+          expenseFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
     );
 
-    this.extendedPerDiem$.subscribe((extendedPerDiem) => {
-      this.reportId = extendedPerDiem.tx_report_id;
+    this.perDiemExpense$.subscribe((perDiemExpense) => {
+      this.reportId = perDiemExpense.report_id;
 
-      if (extendedPerDiem.source_account_type === AccountType.ADVANCE) {
+      if (perDiemExpense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
-        this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedPerDiem.tx_skip_reimbursement) {
+        this.paymentModeIcon = 'cash-slash';
+      } else if (!perDiemExpense.is_reimbursable) {
         this.paymentMode = 'Paid by Company';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else {
         this.paymentMode = 'Paid by Employee';
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       }
 
-      this.etxnCurrencySymbol = getCurrencySymbol(extendedPerDiem.tx_currency, 'wide');
+      this.expenseCurrencySymbol = getCurrencySymbol(perDiemExpense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.extendedPerDiem$.pipe(take(1))])
+    forkJoin([this.expenseFields$, this.perDiemExpense$.pipe(take(1))])
       .pipe(
-        map(([expenseFieldsMap, extendedPerDiem]) => {
+        map(([expenseFieldsMap, perDiemExpense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
           this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (extendedPerDiem.tx_project_name || isProjectMandatory);
+            this.orgSettings?.projects?.enabled && (!!perDiemExpense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -243,85 +260,89 @@ export class ViewPerDiemPage implements OnInit {
         this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
-    this.perDiemCustomFields$ = this.extendedPerDiem$.pipe(
-      switchMap((res) =>
-        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+    this.perDiemCustomFields$ = this.perDiemExpense$.pipe(
+      switchMap((expense) =>
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
-      map((res) =>
-        res.map((customProperties) => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
+      map((customProperties) =>
+        customProperties.map((customProperty) => {
+          customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
+          return customProperty;
         })
       )
     );
 
-    this.perDiemRate$ = this.extendedPerDiem$.pipe(
-      switchMap((res) => {
-        const perDiemRateId = parseInt(res.tx_per_diem_rate_id, 10);
+    this.perDiemRate$ = this.perDiemExpense$.pipe(
+      switchMap((perDiemExpense) => {
+        const perDiemRateId = perDiemExpense.per_diem_rate_id;
         return this.perDiemService.getRate(perDiemRateId);
       })
     );
 
-    this.view = this.activatedRoute.snapshot.params.view;
-
-    this.canFlagOrUnflag$ = this.extendedPerDiem$.pipe(
+    this.canFlagOrUnflag$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
-      map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
+      map((expense) =>
+        [
+          ExpenseState.COMPLETE,
+          ExpenseState.APPROVER_PENDING,
+          ExpenseState.APPROVED,
+          ExpenseState.PAYMENT_PENDING,
+        ].includes(expense.state)
       )
     );
 
-    this.canDelete$ = this.extendedPerDiem$.pipe(
+    this.canDelete$ = this.perDiemExpense$.pipe(
       filter(() => this.view === ExpenseView.team),
-      switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
+      switchMap((expense) =>
+        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
-      map(({ report, etxn }) => {
-        if (report.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
-      })
+      map(({ report, expense }) =>
+        report.rp_num_transactions === 1
+          ? false
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
+      )
     );
 
-    if (id) {
-      this.policyViloations$ =
+    if (this.expenseId) {
+      this.policyViolations$ =
         this.view === ExpenseView.team
-          ? this.policyService.getApproverExpensePolicyViolations(id)
-          : this.policyService.getSpenderExpensePolicyViolations(id);
+          ? this.policyService.getApproverExpensePolicyViolations(this.expenseId)
+          : this.policyService.getSpenderExpensePolicyViolations(this.expenseId);
     } else {
-      this.policyViloations$ = of(null);
+      this.policyViolations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', id);
+    this.comments$ = this.statusService.find('transactions', this.expenseId);
 
-    this.isCriticalPolicyViolated$ = this.extendedPerDiem$.pipe(
-      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+    this.isCriticalPolicyViolated$ = this.perDiemExpense$.pipe(
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(id);
+    this.getPolicyDetails(this.expenseId);
 
-    this.isAmountCapped$ = this.extendedPerDiem$.pipe(
-      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+    this.isAmountCapped$ = this.perDiemExpense$.pipe(
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
 
-    this.extendedPerDiem$.subscribe((etxn) => {
-      this.isExpenseFlagged = etxn.tx_manual_flag;
+    this.perDiemExpense$.subscribe((expense) => {
+      this.isExpenseFlagged = !!expense.is_manually_flagged;
     });
 
     this.updateFlag$.next(null);
 
-    const etxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
-    this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    const expenseIds =
+      this.activatedRoute.snapshot.params.txnIds &&
+      (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
+    this.reportExpenseCount = expenseIds.length;
+    this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(): ExpenseDeletePopoverParams {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -331,23 +352,24 @@ export class ViewPerDiemPage implements OnInit {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
       },
-    });
+    };
+  }
+
+  async removeExpenseFromReport(): Promise<void> {
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps());
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
   }
 
-  async flagUnflagExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
-    const etxn = await this.transactionService.getEtxn(id).toPromise();
-
+  async flagUnflagExpense(): Promise<void> {
     const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
@@ -359,7 +381,7 @@ export class ViewPerDiemPage implements OnInit {
     });
 
     await flagUnflagModal.present();
-    const { data } = await flagUnflagModal.onWillDismiss();
+    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
@@ -368,12 +390,12 @@ export class ViewPerDiemPage implements OnInit {
             const comment = {
               comment: data.comment,
             };
-            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+            return this.statusService.post('transactions', this.expenseId, comment, true);
           }),
           concatMap(() =>
-            etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+            this.isExpenseFlagged
+              ? this.transactionService.manualUnflag(this.expenseId)
+              : this.transactionService.manualFlag(this.expenseId)
           ),
           finalize(() => {
             this.updateFlag$.next(null);
@@ -382,14 +404,12 @@ export class ViewPerDiemPage implements OnInit {
         )
         .subscribe(noop);
     }
-    this.isExpenseFlagged = etxn.tx_manual_flag;
+
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties: CustomField): string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
-
-  ngOnInit() {}
 }

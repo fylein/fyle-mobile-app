@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
-import { map } from 'rxjs/operators';
 import { cloneDeep } from 'lodash';
-import { CurrencyService } from './currency.service';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { UtilityService } from './utility.service';
 
 @Injectable({
@@ -2931,12 +2930,13 @@ export class TimezoneService {
     },
   ];
 
-  constructor(private currencService: CurrencyService, private utilityService: UtilityService) {}
+  constructor(private utilityService: UtilityService) {}
 
-  convertAllDatesToProperLocale(object, offset) {
+  //TODO: Add proper types after utility service has been fixed
+  convertAllDatesToProperLocale(object: TxnCustomProperties[], offset: string): TxnCustomProperties[] | Date {
     const that = this;
-    const copiedObject = cloneDeep(object);
-    return that.utilityService.traverse(copiedObject, function (prop) {
+    const copiedObject: TxnCustomProperties[] = cloneDeep(object);
+    return <Date>that.utilityService.traverse(copiedObject, function (prop: Date) {
       if (prop instanceof Date) {
         prop.setHours(12);
         prop.setMinutes(0);
@@ -2957,8 +2957,8 @@ export class TimezoneService {
     const offsetDirection = Math.sign(hourOffset);
     hourOffset = Math.abs(hourOffset);
 
-    let hours;
-    let mins;
+    let hours: number;
+    let mins: number;
 
     if (toUtc) {
       hours = date.getHours() - offsetDirection * hourOffset;
@@ -2980,7 +2980,7 @@ export class TimezoneService {
     return correctedDate;
   }
 
-  convertToUtc(date, offset) {
+  convertToUtc(date: Date, offset: string): Date {
     return this.convertToTimezone(date, offset, true);
   }
 }

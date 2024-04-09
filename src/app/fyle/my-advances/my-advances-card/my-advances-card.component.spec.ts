@@ -9,7 +9,7 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { MyAdvancesCardComponent } from './my-advances-card.component';
 import * as dayjs from 'dayjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
-import { advancedRequests } from 'src/app/core/mock-data/advance-requests.data';
+import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 
 describe('MyAdvancesCardComponent', () => {
   let component: MyAdvancesCardComponent;
@@ -44,7 +44,7 @@ describe('MyAdvancesCardComponent', () => {
 
   it('change show date if previous date is provided', () => {
     component.prevDate = new Date('2023-01-16T06:22:47.058Z');
-    component.advanceRequest = advancedRequests;
+    component.advanceRequest = advanceRequests;
     fixture.detectChanges();
 
     component.ngOnInit();
@@ -53,7 +53,7 @@ describe('MyAdvancesCardComponent', () => {
   });
 
   it('should check if advance request information is displayed', () => {
-    component.advanceRequest = advancedRequests;
+    component.advanceRequest = advanceRequests;
     fixture.detectChanges();
     expect(getTextContent(getElementBySelector(fixture, '.advance-card--date'))).toEqual('Feb 23, 2023');
     expect(getTextContent(getElementBySelector(fixture, '.advance-card--purpose'))).toEqual('some');

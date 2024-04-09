@@ -2,6 +2,43 @@ import { Injectable } from '@angular/core';
 import { AuthService } from './auth.service';
 import { DeviceService } from '../../core/services/device.service';
 import { environment } from 'src/environments/environment';
+import {
+  ExpenseProperties,
+  IdentifyProperties,
+  SplittingExpenseProperties,
+  TrackingMethods,
+  PolicyCorrectionProperties,
+  AddAttachmentProperties,
+  CommentHistoryActionProperties,
+  CreateReportProperties,
+  SwitchOrgProperties,
+  CorporateCardExpenseProperties,
+  ExpenseClickProperties,
+  FooterButtonClickProperties,
+  TaskPageOpenProperties,
+  TaskProperties,
+  TaskFilterClearAllProperties,
+  FilterPillClickedProperties,
+  ViewReportInfoProperties,
+  OnSettingToggleProperties,
+  AppLaunchTimeProperties,
+  CaptureSingleReceiptTimeProperties,
+  SwitchOrgLaunchTimeProperties,
+  ReportNameChangeProperties,
+  CardEnrolledProperties,
+  CardEnrollmentErrorsProperties,
+  CardUnenrolledProperties,
+  EnrollingNonRTFCardProperties,
+} from '../models/tracking-properties.model';
+import { ExpenseView } from '../models/expense-view.enum';
+import { TaskFilters } from '../models/task-filters.model';
+import { OrgCategory } from '../models/v1/org-category.model';
+import { TeamReportsFilters } from '../models/team-reports-filters.model';
+import { forkJoin, from } from 'rxjs';
+import { ExpenseFilters } from '../models/expense-filters.model';
+import { ReportFilters } from '../models/report-filters.model';
+import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root',
@@ -11,11 +48,11 @@ export class TrackingService {
 
   constructor(private authService: AuthService, private deviceService: DeviceService) {}
 
-  get tracking() {
-    return (window as any).analytics;
+  get tracking(): TrackingMethods {
+    return (window as typeof window & { analytics: TrackingMethods }).analytics;
   }
 
-  async updateIdentity() {
+  async updateIdentity(): Promise<void> {
     const eou = await this.authService.getEou();
     const email = eou && eou.us && eou.us.email;
     if (email && email !== this.identityEmail) {
@@ -28,34 +65,40 @@ export class TrackingService {
     }
   }
 
-  async getUserProperties() {
-    const properties = {};
-    const eou = await this.authService.getEou();
-    if (eou && eou.us && eou && eou.ou) {
-      properties['User Name'] = eou.us.full_name;
-      properties['User Org Name'] = eou.ou.org_name;
-      properties['User Org ID'] = eou.ou.org_id;
-    }
+  async getUserProperties(): Promise<IdentifyProperties> {
+    const properties: IdentifyProperties = {};
+    try {
+      const eou = await this.authService.getEou();
+      if (eou && eou.us && eou && eou.ou) {
+        properties['User Name'] = eou.us.full_name;
+        properties['User Org Name'] = eou.ou.org_name;
+        properties['User Org ID'] = eou.ou.org_id;
+      }
+    } catch (error) {}
     return properties;
   }
 
-  async updateIdentityIfNotPresent() {
+  async updateIdentityIfNotPresent(): Promise<void> {
     if (!this.identityEmail) {
       await this.updateIdentity();
     }
   }
 
   // new function name
-  updateSegmentProfile(data) {
+  updateSegmentProfile(data: IdentifyProperties): void {
     if (this.tracking) {
       this.tracking.identify(data);
     }
   }
 
-  eventTrack(action, properties = {}) {
-    this.deviceService.getDeviceInfo().subscribe((deviceInfo) => {
+  eventTrack<T>(action: string, properties = {} as T): void {
+    forkJoin({
+      deviceInfo: this.deviceService.getDeviceInfo(),
+      userProps: from(this.getUserProperties()),
+    }).subscribe(({ deviceInfo, userProps }) => {
       properties = {
         ...properties,
+        ...userProps,
         Asset: 'Mobile',
         DeviceType: deviceInfo.platform,
         deviceInfo: {
@@ -76,7 +119,7 @@ export class TrackingService {
   }
 
   // external APIs
-  onSignin(email, properties = {}) {
+  onSignin(email: string, properties: { label?: string } = {}): void {
     if (this.tracking) {
       this.tracking.identify(email, {
         $email: email,
@@ -90,483 +133,563 @@ export class TrackingService {
 
   /*** Events related to expense ***/
   // create expense event
-  async createExpense(properties) {
+  async createExpense(properties: ExpenseProperties): Promise<void> {
     // Temporary hack for already logged in users - we need to know their identity
     await this.updateIdentity();
     this.eventTrack('Create Expense', properties);
   }
 
-  splittingExpense(properties) {
+  splittingExpense(properties: SplittingExpenseProperties): void {
     this.eventTrack('Splitting Expense', properties);
   }
 
+  splitExpenseSuccess(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Success', properties);
+  }
+
+  splitExpenseFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Failed', properties);
+  }
+
+  splitExpensePolicyCheckFailed(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy check failed', properties);
+  }
+
+  splitExpensePolicyAndMissingFieldsPopupShown(properties: SplittingExpenseProperties): void {
+    this.eventTrack('Split Expense Policy and Missing Fields Popup Shown', properties);
+  }
+
   // view expense event
-  viewExpense(properties) {
+  viewExpense(properties: { Type: string }): void {
     this.eventTrack('View Expense', properties);
   }
 
   // delete expense event
-  deleteExpense(properties = {}) {
+  deleteExpense(properties: { Type?: string } = {}): void {
     this.eventTrack('Delete Expense', properties);
   }
 
   // edit expense event
-  editExpense(properties) {
+  editExpense(properties: ExpenseProperties): void {
     this.eventTrack('Edit Expense', properties);
   }
 
   // policy correction event
-  policyCorrection(properties) {
+  policyCorrection(properties: PolicyCorrectionProperties): void {
     this.eventTrack('Policy Correction on Expense', properties);
   }
 
   // add attachment event
-  addAttachment(properties) {
+  addAttachment(properties: Partial<AddAttachmentProperties>): void {
     this.eventTrack('Add Attachment', properties);
   }
 
   // add view attachment event
-  viewAttachment(properties = {}) {
+  viewAttachment(properties = {}): void {
     this.eventTrack('View Attachment', properties);
   }
 
   // add comment event
-  addComment(properties = {}) {
+  addComment(properties: { view?: string } = {}): void {
     this.eventTrack('Add Comment', properties);
   }
 
   // view comment event
-  viewComment(properties = {}) {
+  viewComment(properties: { view?: string } = {}): void {
     this.eventTrack('View Comment', properties);
   }
 
   //Actions inside comments and history
-  commentsHistoryActions(properties) {
+  commentsHistoryActions(properties: CommentHistoryActionProperties): void {
     this.eventTrack('Comments and History segment Actions', properties);
   }
 
   // click Add To Report event
-  clickAddToReport(properties = {}) {
+  clickAddToReport(properties = {}): void {
     this.eventTrack('Click Add To Report', properties);
   }
 
   // click on save and add new expense button
-  clickSaveAddNew(properties = {}) {
+  clickSaveAddNew(properties = {}): void {
     this.eventTrack('Click Save Add New Expense', properties);
   }
 
   // click on Delete Expense
-  clickDeleteExpense(properties) {
+  clickDeleteExpense(properties: { Type: string }): void {
     this.eventTrack('Click Delete Expense', properties);
   }
 
   // click on Add to report button
-  addToReport(properties = {}) {
+  addToReport(properties: { count?: number } = {}): void {
     this.eventTrack('Add Expenses to report', properties);
   }
 
   // click on Create Report
-  clickCreateReport(properties = {}) {
+  clickCreateReport(properties = {}): void {
     this.eventTrack('Click Create Report', properties);
   }
 
   /*** Events related to reports ***/
   // click share report
-  clickShareReport(properties = {}) {
+  clickShareReport(properties = {}): void {
     this.eventTrack('Click Share Report', properties);
   }
 
   // delete report event
-  deleteReport(properties = {}) {
+  deleteReport(properties = {}): void {
     this.eventTrack('Delete Report', properties);
   }
 
   // create report event
-  createReport(properties) {
+  createReport(properties: CreateReportProperties): void {
     this.eventTrack('Create Report', properties);
   }
 
-  createDraftReport(properties) {
-    this.eventTrack('Create Draft Report', properties);
+  // Report name change event
+  reportNameChange(properties: ReportNameChangeProperties): void {
+    this.eventTrack('Report Name Change', properties);
   }
 
   /*** Events related to help page ***/
   // view help card event
-  viewHelpCard(properties = {}) {
+  viewHelpCard(properties = {}): void {
     this.eventTrack('View Help Card', properties);
   }
 
   // engage with help card event
-  engageWithHelpCard(properties = {}) {
+  engageWithHelpCard(properties = {}): void {
     this.eventTrack('Engage with Help Card', properties);
   }
 
   /*** Events related to system ***/
   // signout event
-  onSignOut(properties = {}) {
+  onSignOut(properties = {}): void {
     this.eventTrack('Sign Out', properties);
   }
 
   /*** Events related to lifecycle ***/
   // email verified event
-  emailVerified(properties = {}) {
+  emailVerified(properties = {}): void {
     this.eventTrack('Email Verified', properties);
   }
 
   // activated event
-  activated(properties = {}) {
+  activated(properties = {}): void {
     this.eventTrack('Activated', properties);
   }
 
   // when first expense is created
-  createFirstExpense(properties = {}) {
+  createFirstExpense(properties = {}): void {
     this.eventTrack('Create First Expense', properties);
   }
 
   // when first report is created
-  createFirstReport(properties) {
+  createFirstReport(properties: CreateReportProperties): void {
     this.eventTrack('Create First Report', properties);
   }
 
   // When user submits password and company details form and hits continue.
-  setupHalf(properties = {}) {
+  setupHalf(properties = {}): void {
     this.eventTrack('Setup Half', properties);
   }
 
   // When user completes account setup journey
-  setupComplete(properties = {}) {
+  setupComplete(properties = {}): void {
     this.eventTrack('Setup Complete', properties);
   }
 
   // When toast message is displayed
-  showToastMessage(properties) {
+  showToastMessage(properties: { ToastContent: string }): void {
     this.eventTrack('Toast message displayed', properties);
   }
 
   /*** Old events ***/
   // reset password event
-  resetPassword(properties = {}) {
+  resetPassword(properties = {}): void {
     this.eventTrack('Reset Password', properties);
   }
 
   // sync error event
-  syncError(properties) {
+  syncError(properties: { label: Error }): void {
     this.eventTrack('Sync Error', properties);
   }
 
   // adding expenses in existing report event
-  addToExistingReport(properties = {}) {
+  addToExistingReport(properties = {}): void {
     this.eventTrack('Add Expenses to Report', properties);
   }
 
   // adding expenses in existing report while add/edit expense event
-  addToExistingReportAddEditExpense(properties = {}) {
+  addToExistingReportAddEditExpense(properties = {}): void {
     this.eventTrack('Add Expenses to existing report while add/edit expense', properties);
   }
 
-  removeFromExistingReportEditExpense(properties = {}) {
+  removeFromExistingReportEditExpense(properties = {}): void {
     this.eventTrack('Remove Expenses from existing report through edit expense', properties);
   }
 
-  onSwitchOrg(properties) {
+  onSwitchOrg(properties: SwitchOrgProperties): void {
     this.eventTrack('Switch Org', properties);
   }
 
   // Corporate Cards section related Events
-  unlinkCorporateCardExpense(properties) {
+  unlinkCorporateCardExpense(properties: CorporateCardExpenseProperties): void {
     this.eventTrack('unlink corporate card expense', properties);
   }
 
-  // Track switching to and fro from Beta View
-  onSwitch(properties) {
-    this.eventTrack('Switch between Beta and Original', properties);
-  }
-
-  switchedToInstafyleBulkMode(properties = {}) {
+  switchedToInstafyleBulkMode(properties = {}): void {
     this.eventTrack('switched to bulk instafyle', properties);
   }
 
-  switchedToInstafyleSingleMode(properties = {}) {
+  switchedToInstafyleSingleMode(properties = {}): void {
     this.eventTrack('switched to single instafyle', properties);
   }
 
-  instafyleGalleryUploadOpened(properties = {}) {
+  instafyleGalleryUploadOpened(properties = {}): void {
     this.eventTrack('instafyle gallery upload opened', properties);
   }
 
-  flashModeSet(properties) {
+  flashModeSet(properties: { FlashMode: 'on' | 'off' }): void {
     this.eventTrack('instafyle flash mode set', properties);
   }
 
   // New Dashboard Actions
-  dashboardActionSheetOpened(properties = {}) {
+  dashboardActionSheetOpened(properties = {}): void {
     this.eventTrack('dashboard action sheet opened', properties);
   }
 
-  dashboardActionSheetButtonClicked(properties) {
+  dashboardActionSheetButtonClicked(properties: { Action: string }): void {
     this.eventTrack('dashboard action sheet button clicked', properties);
   }
 
-  dashboardOnUnreportedExpensesClick(properties = {}) {
+  dashboardOnUnreportedExpensesClick(properties = {}): void {
     this.eventTrack('dashboard unreported expenses clicked', properties);
   }
 
-  dashboardOnIncompleteExpensesClick(properties = {}) {
+  dashboardOnIncompleteExpensesClick(properties = {}): void {
     this.eventTrack('dashboard incomplete expenses clicked', properties);
   }
 
-  dashboardOnIncompleteCardExpensesClick(properties = {}) {
+  dashboardOnIncompleteCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
   }
 
-  dashboardOnTotalCardExpensesClick(properties = {}) {
+  dashboardOnTotalCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard total corporate card expenses clicked', properties);
   }
 
-  dashboardOnReportPillClick(properties) {
+  dashboardOnReportPillClick(properties: { State: string }): void {
     this.eventTrack('dashboard report pill clicked', properties);
   }
 
-  dashboardOnCorporateCardClick(properties) {
-    this.eventTrack('dashboard corporate card clicked', properties);
-  }
-
   //View expenses
-  viewExpenseClicked(properties) {
+  viewExpenseClicked(properties: ExpenseClickProperties): void {
     this.eventTrack('View expense clicked', properties);
   }
 
-  expenseNavClicked(properties) {
+  expenseNavClicked(properties: { to: string }): void {
     this.eventTrack('Expense navigation clicked', properties);
   }
 
-  expenseFlagUnflagClicked(properties) {
+  expenseFlagUnflagClicked(properties: { action: string }): void {
     this.eventTrack('Expense flagged or unflagged', properties);
   }
 
-  expenseRemovedByApprover(properties = {}) {
+  expenseRemovedByApprover(properties = {}): void {
     this.eventTrack('Expense removed from report by approver', properties);
   }
 
   // Footer
-  footerButtonClicked(properties) {
+  footerButtonClicked(properties: FooterButtonClickProperties): void {
     this.eventTrack('footer button clicked', properties);
   }
 
-  myExpensesBulkDeleteExpenses(properties = {}) {
+  myExpensesBulkDeleteExpenses(properties: { count?: number } = {}): void {
     this.eventTrack('bulk delete of expenses from my expenses page', properties);
   }
 
-  myExpensesActionSheetAction(properties) {
+  myExpensesActionSheetAction(properties: { Action: string }): void {
     this.eventTrack('my expenses action sheet action clicked', properties);
   }
 
-  myExpensesFilterApplied(properties) {
+  myExpensesFilterApplied(properties: Partial<ExpenseFilters>): void {
     this.eventTrack('my expenses filters applied', properties);
   }
 
-  myReportsFilterApplied(properties) {
+  myReportsFilterApplied(properties: ReportFilters): void {
     this.eventTrack('my reports filters applied', properties);
   }
 
-  TeamReportsFilterApplied(properties) {
+  TeamReportsFilterApplied(properties: Partial<TeamReportsFilters>): void {
     this.eventTrack('team reports filters applied', properties);
   }
 
-  showMoreClicked(properties) {
+  showMoreClicked(properties: { source: string }): void {
     this.eventTrack('show more clicked', properties);
   }
 
-  hideMoreClicked(properties) {
+  hideMoreClicked(properties: { source: string }): void {
     this.eventTrack('hide more clicked', properties);
   }
 
-  footerSaveAndPrevClicked(properties = {}) {
+  footerSaveAndPrevClicked(properties = {}): void {
     this.eventTrack('save and previous clicked inside footer', properties);
   }
 
-  footerSaveAndNextClicked(properties = {}) {
+  footerSaveAndNextClicked(properties = {}): void {
     this.eventTrack('save and next clicked inside footer', properties);
   }
 
   // Tasks
-  async tasksFiltersApplied(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksFiltersApplied(properties = {} as TaskFilters): void {
     this.eventTrack('filters applied in tasks', properties);
   }
 
-  async tasksPageOpened(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksPageOpened(properties = {} as TaskPageOpenProperties): void {
     this.eventTrack('tasks page opened', properties);
   }
 
-  async tasksShown(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksShown(properties = {} as TaskProperties): void {
     this.eventTrack('tasks shown', properties);
   }
 
-  async tasksClicked(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksClicked(properties = {} as TaskProperties): void {
     this.eventTrack('tasks clicked', properties);
   }
 
-  async tasksFilterClearAllClicked(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksFilterClearAllClicked(properties = {} as TaskFilterClearAllProperties): void {
     this.eventTrack('tasks clear all filters clicked', properties);
   }
 
-  async tasksFilterPillClicked(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  tasksFilterPillClicked(properties = {} as FilterPillClickedProperties): void {
     this.eventTrack('tasks clicked on filter pill', properties);
   }
 
   // Add to Report inside expenses
-  openAddToReportModal(properties = {}) {
+  openAddToReportModal(properties = {}): void {
     this.eventTrack('Open Add to Report Modal', properties);
   }
 
-  addToReportFromExpense(properties = {}) {
+  addToReportFromExpense(properties = {}): void {
     this.eventTrack('Add to Report from expense', properties);
   }
 
-  openCreateDraftReportPopover(properties = {}) {
+  openCreateDraftReportPopover(properties = {}): void {
     this.eventTrack('Open Create Draft Report Popover', properties);
   }
 
-  createDraftReportFromExpense(properties = {}) {
+  createDraftReportFromExpense(properties = {}): void {
     this.eventTrack('Create draft report from expense', properties);
   }
 
   //Reports
   //Open view report info modal
-  clickViewReportInfo(properties) {
+  clickViewReportInfo(properties: { view: ExpenseView }): void {
     this.eventTrack('Open View Report Info', properties);
   }
 
   //Actions inside view report info modal
-  viewReportInfo(properties) {
+  viewReportInfo(properties: ViewReportInfoProperties): void {
     this.eventTrack('View Report Info', properties);
   }
 
   // Team Advances
-  async sendBackAdvance(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  sendBackAdvance(properties = {} as { Asset: string }): void {
     this.eventTrack('Send Back Advance', properties);
   }
 
-  async rejectAdvance(properties = {}) {
-    Object.assign(properties, await this.getUserProperties());
+  rejectAdvance(properties = {} as { Asset: string }): void {
     this.eventTrack('Reject Advance', properties);
   }
 
   //Toggle settings
-  onSettingsToggle(properties) {
+  onSettingsToggle(properties: OnSettingToggleProperties): void {
     this.eventTrack('Toggle Setting', properties);
   }
 
   //Personal Cards
-  personalCardsViewed(properties = {}) {
+  personalCardsViewed(properties = {}): void {
     this.eventTrack('Personal cards page opened', properties);
   }
 
-  newCardLinkedOnPersonalCards(properties = {}) {
+  newCardLinkedOnPersonalCards(properties = {}): void {
     this.eventTrack('New card linked on personal cards', properties);
   }
 
-  cardDeletedOnPersonalCards(properties = {}) {
+  cardDeletedOnPersonalCards(properties = {}): void {
     this.eventTrack('Card deleted on personal cards', properties);
   }
 
-  newExpenseCreatedFromPersonalCard(properties = {}) {
+  newExpenseCreatedFromPersonalCard(properties = {}): void {
     this.eventTrack('New expense created from personal card transaction', properties);
   }
 
-  oldExpensematchedFromPersonalCard(properties = {}) {
+  oldExpensematchedFromPersonalCard(properties = {}): void {
     this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
-  unmatchedExpensesFromPersonalCard(properties = {}) {
+  unmatchedExpensesFromPersonalCard(properties = {}): void {
     this.eventTrack('Expense matched created from personal card transaction', properties);
   }
 
-  transactionsHiddenOnPersonalCards(properties = {}) {
+  transactionsHiddenOnPersonalCards(properties = {}): void {
     this.eventTrack('Transactions hidden on personal cards', properties);
   }
 
-  transactionsFetchedOnPersonalCards(properties = {}) {
+  transactionsFetchedOnPersonalCards(properties = {}): void {
     this.eventTrack('Transactions fetched on perosnal cards', properties);
   }
 
-  cropReceipt(properties = {}) {
+  cropReceipt(properties = {}): void {
     this.eventTrack('Receipt Cropped', properties);
   }
 
-  saveReceiptWithInvalidForm(properties = {}) {
+  saveReceiptWithInvalidForm(properties = {}): void {
     this.eventTrack('Save receipt with invalid form', properties);
   }
 
   // Merge related trackings
-  expensesMerged(properties = {}) {
+  expensesMerged(properties = {}): void {
     this.eventTrack('Expenses merged successfully', properties);
   }
 
-  duplicateTaskClicked(properties = {}) {
+  duplicateTaskClicked(properties = {}): void {
     this.eventTrack('potential duplicate task clicked from dashboard', properties);
   }
 
-  dismissedDuplicateSet(properties = {}) {
+  dismissedDuplicateSet(properties = {}): void {
     this.eventTrack('duplicate set dismissed', properties);
   }
 
-  dismissedIndividualExpenses(properties = {}) {
+  dismissedIndividualExpenses(properties = {}): void {
     this.eventTrack('individual expense dismissed as not duplicate', properties);
   }
 
-  visitedMergeExpensesPageFromTask(properties = {}) {
+  visitedMergeExpensesPageFromTask(properties = {}): void {
     this.eventTrack('visited merged expense page from tasks', properties);
   }
 
   // Track app launch time
-  appLaunchTime(properties = {}) {
+  appLaunchTime(properties = {} as AppLaunchTimeProperties): void {
     this.eventTrack('app launch time', properties);
   }
 
   // Track time taken to capture single receipt for the first time
-  captureSingleReceiptTime(properties = {}) {
+  captureSingleReceiptTime(properties = {} as CaptureSingleReceiptTimeProperties): void {
     this.eventTrack('capture single receipt time', properties);
   }
 
-  autoSubmissionInfoCardClicked(properties = {}) {
+  autoSubmissionInfoCardClicked(properties = {} as { isSeparateCard: boolean }): void {
     this.eventTrack('Auto Submission Info Card Clicked', properties);
   }
 
   // Track switch org launch time
-  switchOrgLaunchTime(properties = {}) {
+  switchOrgLaunchTime(properties = {} as SwitchOrgLaunchTimeProperties): void {
     this.eventTrack('switch org launch time', properties);
   }
 
   // Track dashboard launch time
-  dashboardLaunchTime(properties = {}) {
+  dashboardLaunchTime(properties = {} as { 'Dashboard launch time': string }): void {
     this.eventTrack('dashboard launch time', properties);
   }
 
-  footerHomeTabClicked(properties = {}) {
+  footerHomeTabClicked(properties = {} as { page: string }): void {
     this.eventTrack('Home Tab clicked On Footer', properties);
   }
 
-  menuButtonClicked(properties = {}) {
+  menuButtonClicked(properties = {}): void {
     this.eventTrack('Menu Button Clicked', properties);
   }
 
-  menuItemClicked(properties = {}) {
+  menuItemClicked(properties = {} as { option: string }): void {
     this.eventTrack('Menu Item Clicked', properties);
   }
 
-  setCategoryFromVendor(properties = {}) {
+  setCategoryFromVendor(properties = {} as OrgCategory): void {
     this.eventTrack('Category Updated By Vendor', properties);
   }
 
-  receiptLimitReached(properties = {}) {
+  receiptLimitReached(properties = {}): void {
     this.eventTrack('Popover shown since receipt limit exceeded', properties);
+  }
+
+  updateMobileNumber(properties = {}): void {
+    this.eventTrack('Update Mobile Number', properties);
+  }
+
+  verifyMobileNumber(): void {
+    this.eventTrack('Verify Mobile Number');
+  }
+
+  mobileNumberVerified(): void {
+    this.eventTrack('Mobile Number Verified');
+  }
+
+  smsDeepLinkOpened(properties = {}): void {
+    this.eventTrack('SMS Deep Link Opened', properties);
+  }
+
+  cardUnenrolled(properties: CardUnenrolledProperties): void {
+    this.eventTrack('Card Unenrolled', properties);
+  }
+
+  cardEnrolled(properties: CardEnrolledProperties): void {
+    this.eventTrack('Card Enrolled', properties);
+  }
+
+  cardEnrollmentErrors(properties: CardEnrollmentErrorsProperties): void {
+    this.eventTrack('Card Enrollment Errors', properties);
+  }
+
+  enrollingNonRTFCard(properties: EnrollingNonRTFCardProperties): void {
+    this.eventTrack('Enrolling Non RTF Card', properties);
+  }
+
+  showSuggestedDuplicates(): void {
+    this.eventTrack('Show Suggested Duplicates');
+  }
+
+  spenderSelectedPendingTxnFromMyExpenses(): void {
+    this.eventTrack('Spenders select expenses with Pending transactions');
+  }
+
+  spenderTriedSplittingExpenseWithPendingTxn(): void {
+    this.eventTrack('Spenders Split expenses with Pending transactions');
+  }
+
+  commuteDeductionAddLocationClickFromProfile(): void {
+    this.eventTrack('Commute Deduction - Add Location Click From Profile');
+  }
+
+  commuteDeductionEditLocationClickFromProfile(): void {
+    this.eventTrack('Commute Deduction - Edit Location Click From Profile');
+  }
+
+  commuteDeductionDetailsEdited(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Edited', properties);
+  }
+
+  commuteDeductionAddLocationOptionClicked(): void {
+    this.eventTrack('Commute Deduction - Add Location Option Click');
+  }
+
+  commuteDeductionTaskClicked(): void {
+    this.eventTrack('Commute Deduction - Task Click');
+  }
+
+  commuteDeductionDetailsAddedFromProfile(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added From Profile', properties);
+  }
+
+  commuteDeductionDetailsAddedFromSpenderTask(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added from Spender Task', properties);
+  }
+
+  commuteDeductionDetailsAddedFromMileageForm(properties: CommuteDetailsResponse): void {
+    this.eventTrack('Commute Deduction - Details Added from Mileage Form', properties);
+  }
+
+  commuteDeductionDetailsError(properties: HttpErrorResponse): void {
+    this.eventTrack('Commute Deduction - Details Error', properties);
   }
 }

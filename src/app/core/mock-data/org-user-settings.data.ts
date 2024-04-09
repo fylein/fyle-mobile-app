@@ -87,7 +87,6 @@ export const orgUserSettingsData: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -265,7 +264,6 @@ export const orgUserSettingsData2: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -425,7 +423,6 @@ export const orgUserSettingsData3: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -585,7 +582,6 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     whatsapp: {
       allowed: false,
       enabled: false,
-      unsubscribed_events: null,
     },
     notify_user: true,
     notify_delegatee: true,
@@ -656,5 +652,61 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     allowed: true,
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
+  },
+};
+
+export const orgUserSettingsWithCurrency: OrgUserSettings = {
+  ...orgUserSettingsData,
+  currency_settings: {
+    enabled: true,
+    preferred_currency: 'USD',
+  },
+};
+
+export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
+  ...orgUserSettingsData,
+  preferences: {
+    ...orgUserSettingsData.preferences,
+    default_project_id: null,
+  },
+};
+
+export const orgUserSettingsWoInstaFyle: OrgUserSettings = {
+  ...orgUserSettingsData,
+  insta_fyle_settings: {
+    ...orgUserSettingsData.insta_fyle_settings,
+    allowed: true,
+  },
+};
+
+export const orgUserSettingsWoProjects: OrgUserSettings = {
+  ...orgUserSettingsData,
+  project_ids: null,
+};
+
+export const notificationDelegateeSettings1: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: false,
+  },
+};
+
+export const notificationDelegateeSettings2: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: false,
+    notify_user: true,
+  },
+};
+
+export const notificationDelegateeSettings3: OrgUserSettings = {
+  ...orgUserSettingsData,
+  notification_settings: {
+    ...orgUserSettingsData.notification_settings,
+    notify_delegatee: true,
+    notify_user: true,
   },
 };

@@ -4,7 +4,7 @@ import { Pipe, PipeTransform } from '@angular/core';
   name: 'toLowerCase',
 })
 export class ToLowerCase implements PipeTransform {
-  transform(input) {
+  transform(input: string): string {
     if (input) {
       return input.toLowerCase();
     }

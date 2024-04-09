@@ -7,18 +7,18 @@
   <ng-container base>
     <ion-buttons mode="md" slot="end">
       <ion-button class="my-reports--header-btn" (click)="searchClick()">
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-search.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/search.svg"></ion-icon>
       </ion-button>
       <ion-button class="my-reports--header-btn" (click)="openFilters()">
         <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
         </ng-container>
         <ng-template #noFilterAppliedIcon>
-          <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+          <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
         </ng-template>
       </ion-button>
       <ion-button class="my-reports--header-btn" [routerLink]="['/', 'enterprise', 'my_create_report']">
-        <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon>
+        <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ng-container>
@@ -27,7 +27,7 @@
     <div class="expense-report-search my-reports--simple-search-container">
       <mat-form-field appearance="outline" class="mat-form-field-no-padding my-reports--simple-search">
         <div class="my-reports--simple-search-block">
-          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="fy-search"></mat-icon>
+          <mat-icon class="my-reports--simple-search-icon" matPrefix svgIcon="search"></mat-icon>
           <input
             #simpleSearchInput
             [(ngModel)]="simpleSearchText"
@@ -45,7 +45,7 @@
             mat-icon-button
             matSuffix
           >
-            <mat-icon svgIcon="fy-clear"></mat-icon>
+            <mat-icon svgIcon="clear"></mat-icon>
           </button>
         </div>
       </mat-form-field>
@@ -81,7 +81,7 @@
         [useNewStyling]="true"
         image="../../../assets/images/zero-states/expenses.png"
         header="You've got no report!"
-        message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/fy-plus.svg"></ion-icon> on top'
+        message='Create one by clicking <ion-icon slot="icon-only" src="../../../assets/svg/plus-square.svg"></ion-icon> on top'
       ></app-fy-zero-state>
       <app-fy-zero-state
         *ngIf="(filters?.state || filters?.date || simpleSearchText)"
@@ -102,7 +102,7 @@
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
             (deleteReport)="onDeleteReportClick($event)"
-            (viewComments)="onViewCommentsClick($event)"
+            (viewComments)="onViewCommentsClick()"
           ></app-reports-card>
         </div>
       </ng-container>

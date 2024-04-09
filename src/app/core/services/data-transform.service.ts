@@ -6,7 +6,7 @@ import { Injectable } from '@angular/core';
 export class DataTransformService {
   constructor() {}
 
-  unflatten(data): any {
+  unflatten<T, K>(data: K): T {
     const res = {};
     Object.keys(data).forEach((key) => {
       const idx = key.indexOf('_');
@@ -16,11 +16,13 @@ export class DataTransformService {
         if (!res[member]) {
           res[member] = {};
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
         res[member][strippedKey] = data[key];
       } else {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         res[key] = data[key];
       }
     });
-    return res;
+    return res as T;
   }
 }

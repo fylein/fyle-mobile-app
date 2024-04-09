@@ -9,19 +9,133 @@
 
 <ion-content class="my-profile__content-container">
   <ng-container *ngIf="eou$ | async as eou">
-    <app-employee-details-card [eou]="eou"></app-employee-details-card>
+    <app-employee-details-card
+      [eou]="eou"
+      (updateMobileNumber)="updateMobileNumber($event)"
+      (verifyMobileNumber)="onVerifyCtaClicked($event)"
+    ></app-employee-details-card>
   </ng-container>
   <div class="my-profile__content-container__content">
     <ng-container *ngIf="isConnected$ | async">
+      <ng-container *ngIf="infoCardsData?.length">
+        <div class="my-profile__info-card-container">
+          <div matRipple *ngFor="let infoCardData of infoCardsData;let isLast=last">
+            <div
+              class="my-profile__info-card-container__card"
+              [ngClass]="{'my-profile__info-card-container__card--last': isLast}"
+            >
+              <app-info-card
+                [title]="infoCardData.title"
+                [content]="infoCardData.content"
+                [contentToCopy]="infoCardData.contentToCopy"
+                [toastMessageContent]="infoCardData.toastMessageContent"
+                (copiedText)="showToastMessage($event, 'success')"
+              ></app-info-card>
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- TODO - Re-enable again at the time of release -->
+      <ng-container *ngIf="isMileageEnabled && isCommuteDeductionEnabled">
+        <div class="my-profile__section-header">Commute Details</div>
+        <div
+          *ngIf="!commuteDetails?.home_location"
+          class="my-profile__card"
+          (click)="openCommuteDetailsModal()"
+          matRipple
+        >
+          <div class="my-profile__card__title">Add Location</div>
+          <ion-icon
+            class="my-profile__navigate-icon"
+            src="../../../assets/svg/arrow-right.svg"
+            slot="icon-only"
+          ></ion-icon>
+        </div>
+        <div *ngIf="commuteDetails?.home_location" class="my-profile__card">
+          <div class="my-profile__card__content-container">
+            <div class="my-profile__card__location-detail-card">
+              <div class="my-profile__card__location-icon-container">
+                <ion-icon
+                  class="my-profile__icon"
+                  src="../../../assets/svg/house-outline.svg"
+                  slot="icon-only"
+                ></ion-icon>
+              </div>
+              <div>
+                <div class="my-profile__card__location-detail-card__header">Home</div>
+                <div class="my-profile__card__location-detail-card__content">
+                  {{ commuteDetails.home_location.formatted_address }}
+                </div>
+              </div>
+            </div>
+            <div class="my-profile__card__location-detail-card">
+              <div class="my-profile__card__location-icon-container">
+                <ion-icon class="my-profile__icon" src="../../../assets/svg/building.svg" slot="icon-only"></ion-icon>
+              </div>
+              <div>
+                <div class="my-profile__card__location-detail-card__header">Work</div>
+                <div class="my-profile__card__location-detail-card__content">
+                  {{ commuteDetails.work_location.formatted_address }}
+                </div>
+              </div>
+            </div>
+            <div (click)="openCommuteDetailsModal()" class="my-profile__card__edit-commute-button">
+              <ion-icon
+                class="my-profile__card__edit-commute-button__icon"
+                src="../../../assets/svg/edit.svg"
+                slot="icon-only"
+              ></ion-icon>
+              <span class="my-profile__card__edit-commute-button__text">Edit Location</span>
+            </div>
+            <div class="my-profile__card__emphasized-content">Commute Distance:</div>
+            <div class="my-profile__card__commute-distance-row">
+              <ion-icon
+                class="my-profile__icon"
+                src="../../../assets/svg/arrow-tail-up.svg"
+                slot="icon-only"
+              ></ion-icon>
+              <span>One way distance - </span>
+              <span class="my-profile__card__emphasized-content"
+                >{{commuteDetails.distance.toFixed(2) + ' ' + mileageDistanceUnit}}</span
+              >
+            </div>
+            <div class="my-profile__card__commute-distance-row">
+              <ion-icon
+                class="my-profile__icon"
+                src="../../../assets/svg/arrow-tail-up-down.svg"
+                slot="icon-only"
+              ></ion-icon>
+              <span>Round trip distance - </span>
+              <span class="my-profile__card__emphasized-content"
+                >{{ (commuteDetails.distance * 2).toFixed(2) + ' ' + mileageDistanceUnit}}</span
+              >
+            </div>
+          </div>
+        </div>
+      </ng-container>
+
       <div class="my-profile__section-header">Notifications</div>
       <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'notifications' ]" matRipple>
         <div class="my-profile__card__title">Manage Notifications</div>
         <ion-icon
           class="my-profile__navigate-icon"
-          src="../../../assets/svg/navigate-right.svg"
+          src="../../../assets/svg/arrow-right.svg"
           slot="icon-only"
         ></ion-icon>
       </div>
+
+      <ng-container *ngIf="isCCCEnabled && (isVisaRTFEnabled || isMastercardRTFEnabled)">
+        <div class="my-profile__section-header">Corporate Cards</div>
+        <div class="my-profile__card" [routerLink]="[ '/', 'enterprise', 'manage_corporate_cards' ]" matRipple>
+          <div class="my-profile__card__title">Manage Corporate Cards</div>
+          <ion-icon
+            class="my-profile__navigate-icon"
+            src="../../../assets/svg/arrow-right.svg"
+            slot="icon-only"
+          ></ion-icon>
+        </div>
+      </ng-container>
 
       <div class="my-profile__section-header">Preferences</div>
       <div class="my-profile__preference-container">

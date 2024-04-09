@@ -6,7 +6,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { Expense } from '../../../../core/models/expense.model';
-import { TransactionService } from '../../../../core/services/transaction.service';
 import { Router } from '@angular/router';
 import { TrackingService } from '../../../../core/services/tracking.service';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -36,12 +35,6 @@ export class ViewCommentComponent implements OnInit {
 
   isCommentAdded: boolean;
 
-  reversalComment: string;
-
-  matchedExpense: Expense;
-
-  expenseNumber: string;
-
   isCommentsView = true;
 
   systemComments: ExtendedStatus[];
@@ -61,7 +54,6 @@ export class ViewCommentComponent implements OnInit {
     private authService: AuthService,
     private modalController: ModalController,
     private popoverController: PopoverController,
-    private transactionService: TransactionService,
     private router: Router,
     private trackingService: TrackingService,
     private elementRef: ElementRef,
@@ -186,10 +178,6 @@ export class ViewCommentComponent implements OnInit {
     );
 
     this.estatuses$.subscribe((estatuses) => {
-      const reversalStatus = estatuses.filter(
-        (status) => status.st_comment.indexOf('created') > -1 && status.st_comment.indexOf('reversal') > -1
-      );
-
       this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
 
       this.type =
@@ -210,33 +198,10 @@ export class ViewCommentComponent implements OnInit {
           this.userComments[i].show_dt = true;
         }
       }
-
-      if (reversalStatus && reversalStatus.length > 0 && reversalStatus[0]) {
-        const comment = reversalStatus[0].st_comment;
-        this.reversalComment = comment.substring(0, comment.lastIndexOf(' '));
-        this.expenseNumber = comment.slice(comment.lastIndexOf(' ') + 1);
-        this.transactionService.getTransactionByExpenseNumber(this.expenseNumber).subscribe((txn) => {
-          this.matchedExpense = txn;
-        });
-      }
     });
 
     this.totalCommentsCount$ = this.estatuses$.pipe(
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
-  }
-
-  async openViewExpense() {
-    await this.modalController.dismiss();
-    if (this.matchedExpense) {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'view_expense',
-        {
-          id: this.matchedExpense.tx_id,
-        },
-      ]);
-    }
   }
 }

@@ -1,17 +1,16 @@
 import { Component, EventEmitter, OnInit } from '@angular/core';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
+import { ActivatedRoute, Router } from '@angular/router';
+import { ModalController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
-import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
-import { DashboardTask } from 'src/app/core/models/task.model';
+import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
-import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -24,6 +23,14 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
+import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-tasks',
@@ -45,7 +52,7 @@ export class TasksComponent implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  filterPills = [];
+  filterPills: FilterPill[] = [];
 
   taskCount = 0;
 
@@ -57,6 +64,7 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
+    private expensesService: ExpensesService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
     private trackingService: TrackingService,
@@ -64,13 +72,13 @@ export class TasksComponent implements OnInit {
     private matBottomSheet: MatBottomSheet,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private authService: AuthService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
   }
 
@@ -83,7 +91,7 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  init() {
+  init(): void {
     this.autoSubmissionReportDate$ = this.reportService
       .getReportAutoSubmissionDetails()
       .pipe(map((autoSubmissionReportDetails) => autoSubmissionReportDetails?.data?.next_at));
@@ -108,7 +116,7 @@ export class TasksComponent implements OnInit {
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
     }).subscribe(({ tasks, autoSubmissionReportDate }) => {
       const isIncompleteExpensesTaskShown = tasks.some((task) => task.header.includes('Incomplete expense'));
-      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+      const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters as string;
 
       /*
        * Show the auto-submission info card at the top of tasks page only if an auto-submission is scheduled
@@ -120,7 +128,7 @@ export class TasksComponent implements OnInit {
         autoSubmissionReportDate && !isIncompleteExpensesTaskShown && paramFilters !== 'team_reports';
     });
 
-    const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters;
+    const paramFilters = this.activatedRoute.snapshot.queryParams.tasksFilters as string;
     if (paramFilters === 'expenses') {
       this.loadData$.next({
         draftExpenses: true,
@@ -184,7 +192,7 @@ export class TasksComponent implements OnInit {
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -192,23 +200,23 @@ export class TasksComponent implements OnInit {
     );
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: { target?: RefresherEventDetail }): void {
     forkJoin([this.transactionService.clearCache(), this.reportService.clearCache()]).subscribe(() => {
       this.loadData$.next(this.loadData$.getValue());
       if (event) {
         setTimeout(() => {
-          event?.target?.complete();
+          event.target?.complete();
         }, 1500);
       }
     });
   }
 
-  applyFilters(filters?) {
+  applyFilters(filters?: TaskFilters): void {
     const that = this;
     that.loadData$.next(filters || that.loadData$.getValue());
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -268,7 +276,7 @@ export class TasksComponent implements OnInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = await filterPopover.onWillDismiss<SelectedFilters<string[]>[]>();
     if (data) {
       const filters = this.taskService.convertFilters(data);
       this.applyFilters(filters);
@@ -279,7 +287,7 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onFilterClose(filterPillType: string) {
+  onFilterClose(filterPillType: string): void {
     if (filterPillType === 'Expenses') {
       this.applyFilters({
         ...this.loadData$.getValue(),
@@ -311,7 +319,7 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  onFilterClick(filterPillType: string) {
+  onFilterClick(filterPillType: string): void {
     this.openFilters(filterPillType);
     this.trackingService.tasksFilterPillClicked({
       Asset: 'Mobile',
@@ -319,12 +327,15 @@ export class TasksComponent implements OnInit {
     });
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.applyFilters({
-      draftExpenses: false,
-      draftReports: false,
       sentBackReports: false,
+      draftReports: false,
+      draftExpenses: false,
       unreportedExpenses: false,
+      potentialDuplicates: false,
+      teamReports: false,
+      sentBackAdvances: false,
     });
 
     this.filterPills = this.taskService.generateFilterPills(this.loadData$.getValue());
@@ -342,7 +353,7 @@ export class TasksComponent implements OnInit {
     });
     switch (taskCta.event) {
       case TASKEVENT.expensesAddToReport:
-        this.onExpensesToReportTaskClick(taskCta, task);
+        this.onExpensesToReportTaskClick();
         break;
       case TASKEVENT.openDraftReports:
         this.onOpenDraftReportsTaskClick(taskCta, task);
@@ -351,42 +362,59 @@ export class TasksComponent implements OnInit {
         this.onSentBackReportTaskClick(taskCta, task);
         break;
       case TASKEVENT.reviewExpenses:
-        this.onReviewExpensesTaskClick(taskCta, task);
+        this.onReviewExpensesTaskClick();
         break;
       case TASKEVENT.openTeamReport:
         this.onTeamReportsTaskClick(taskCta, task);
         break;
       case TASKEVENT.openPotentialDuplicates:
-        this.onPotentialDuplicatesTaskClick(taskCta, task);
+        this.onPotentialDuplicatesTaskClick();
         break;
       case TASKEVENT.openSentBackAdvance:
         this.onSentBackAdvanceTaskClick(taskCta, task);
+        break;
+      case TASKEVENT.mobileNumberVerification:
+        this.onMobileNumberVerificationTaskClick(taskCta);
+        break;
+      case TASKEVENT.commuteDetails:
+        this.onCommuteDetailsTaskClick();
         break;
       default:
         break;
     }
   }
 
-  onReviewExpensesTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onMobileNumberVerificationTaskClick(taskCta: TaskCta): void {
+    this.router.navigate([
+      '/',
+      'enterprise',
+      'my_profile',
+      {
+        openPopover: taskCta.content === 'Add' ? 'add_mobile_number' : 'verify_mobile_number',
+      },
+    ]);
+  }
+
+  onReviewExpensesTaskClick(): void {
     const queryParams = {
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
+      state: 'in.(DRAFT)',
+      report_id: 'is.null',
     };
     from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
       .pipe(
         switchMap(() =>
-          this.transactionService.getAllExpenses({
+          this.expensesService.getAllExpenses({
             queryParams,
           })
         ),
-        map((etxns) => etxns.map((etxn) => etxn.tx_id)),
+        map((expenses) => expenses.map((expense) => expense.id)),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expensesService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: this.transactionService.transformExpense(expense),
               allIds,
             }))
           );
@@ -437,7 +465,7 @@ export class TasksComponent implements OnInit {
       });
   }
 
-  onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
         rp_state: 'in.(APPROVER_INQUIRY)',
@@ -460,7 +488,7 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
         areq_state: 'in.(DRAFT)',
@@ -484,7 +512,7 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
         rp_approval_state: ['in.(APPROVAL_PENDING)'],
@@ -508,7 +536,7 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
         rp_state: 'in.(DRAFT)',
@@ -531,7 +559,7 @@ export class TasksComponent implements OnInit {
     }
   }
 
-  onPotentialDuplicatesTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onPotentialDuplicatesTaskClick(): void {
     this.trackingService.duplicateTaskClicked();
     this.router.navigate(['/', 'enterprise', 'potential-duplicates']);
   }
@@ -543,7 +571,7 @@ export class TasksComponent implements OnInit {
     );
   }
 
-  showAddToReportSuccessToast(config: { message: string; report }) {
+  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -557,26 +585,36 @@ export class TasksComponent implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate([
-        '/',
-        'enterprise',
-        'my_view_report',
-        { id: config.report.rp_id || config.report.id, navigateBack: true },
-      ]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
     });
   }
 
-  showOldReportsMatBottomSheet() {
-    const readyToReportEtxns$ = from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.transactionService.getAllETxnc({
-          tx_org_user_id: 'eq.' + eou.ou.id,
-          tx_state: 'in.(COMPLETE)',
-          or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
-          tx_report_id: 'is.null',
-        })
+  showOldReportsMatBottomSheet(): void {
+    const params: ExpensesQueryParams = {
+      queryParams: {
+        state: 'in.(COMPLETE)',
+        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+        report_id: 'is.null',
+        and: '()',
+      },
+    };
+
+    const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
       ),
-      map((expenses) => expenses.map((expenses) => expenses.tx_id))
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
+          params.queryParams = {
+            ...params.queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
+        }
+        return this.expensesService
+          .getAllExpenses(params)
+          .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+      })
     );
 
     this.reportService
@@ -599,9 +637,9 @@ export class TasksComponent implements OnInit {
           });
           return addTxnToReportDialog.afterDismissed();
         }),
-        switchMap((data) => {
+        switchMap((data: { report: ExtendedReport }) => {
           if (data && data.report) {
-            return readyToReportEtxns$.pipe(
+            return readyToReportExpenses$.pipe(
               switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
             );
           } else {
@@ -622,13 +660,45 @@ export class TasksComponent implements OnInit {
       });
   }
 
-  onExpensesToReportTaskClick(taskCta: TaskCta, task: DashboardTask) {
+  onExpensesToReportTaskClick(): void {
     this.showOldReportsMatBottomSheet();
   }
 
-  autoSubmissionInfoCardClicked(isSeparateCard: boolean) {
+  autoSubmissionInfoCardClicked(isSeparateCard: boolean): void {
     this.trackingService.autoSubmissionInfoCardClicked({
       isSeparateCard,
     });
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure'): void {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async onCommuteDetailsTaskClick(): Promise<void> {
+    this.trackingService.commuteDeductionTaskClicked();
+
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      mode: 'ios',
+    });
+
+    await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
+
+    // Show toast message and refresh the page once commute details are saved
+    if (data.action === 'save') {
+      this.trackingService.commuteDeductionDetailsAddedFromSpenderTask(data.commuteDetails);
+      this.showToastMessage('Commute details saved successfully', 'success');
+      this.doRefresh();
+    }
   }
 }

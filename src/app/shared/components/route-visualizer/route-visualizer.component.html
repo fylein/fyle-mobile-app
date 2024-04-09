@@ -1,22 +1,19 @@
-<google-map
-  (click)="mapClicked($event)"
-  class="route-visualizer--map"
-  [options]="mapOptions"
-  *ngIf="origin && destination"
->
-  <map-marker *ngFor="let markerPosition of markerPositions" [position]="markerPosition" [options]="markerOptions">
-  </map-marker>
-  <map-directions-renderer *ngIf="directionsResults$ | async as directionsResults" [directions]="directionsResults">
-  </map-directions-renderer>
-</google-map>
+<ng-container *ngIf="directionsMapUrl$ | async as directionsMapUrl">
+  <img
+    (click)="mapClicked($event)"
+    (error)="handleMapLoadError($event)"
+    [src]="directionsMapUrl"
+    [style.width]="mapWidth + 'px'"
+    [style.height]="mapHeight + 'px'"
+  />
+</ng-container>
 
-<ng-container *ngIf="!(origin && destination) && showEmptyMap">
-  <ng-container *ngIf="currentLocation">
-    <google-map
-      (mapClick)="mapClicked($event)"
-      class="route-visualizer--map"
-      [center]="currentLocation"
-      [options]="mapOptions"
-    ></google-map>
-  </ng-container>
+<ng-container *ngIf="showCurrentLocation && currentLocation">
+  <img
+    (click)="mapClicked($event)"
+    (error)="handleMapLoadError($event)"
+    [src]="currentLocationMapUrl"
+    [style.width]="mapWidth + 'px'"
+    [style.height]="mapHeight + 'px'"
+  />
 </ng-container>

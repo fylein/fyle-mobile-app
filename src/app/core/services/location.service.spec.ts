@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
 import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
-import { locationData1, locationData2, predictedLocation1 } from '../mock-data/location.data';
+import { locationData1, locationData2, locationData4, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
 
 describe('LocationService', () => {
@@ -10,11 +10,11 @@ describe('LocationService', () => {
   let httpMock: HttpTestingController;
   const rootUrl = 'https://staging.fyle.tech';
 
-  const requestObj = {
+  const requestObj: Record<string, string> = {
     someKey: 'someValue',
   };
 
-  const apiResponse = {
+  const apiResponse: Record<string, string> = {
     message: 'SUCCESS',
   };
 
@@ -97,17 +97,32 @@ describe('LocationService', () => {
     });
   });
 
-  it('getGeocode(): should return location details with display name if displayName is provided', () => {
-    const placeId = 'pLcId123';
-    const displayName = 'Tollygunge, Kolkata, West Bengal, India';
-    const locationDetails = locationData1;
-    locationService.getGeocode(placeId, displayName).subscribe((result) => {
-      expect(result).toEqual({ ...locationDetails, display: displayName });
+  describe('getGeocode():', () => {
+    it('should return location details with display name if displayName is provided', () => {
+      const placeId = 'pLcId123';
+      const displayName = 'Tollygunge, Kolkata, West Bengal, India';
+      const locationDetails = locationData1;
+      locationService.getGeocode(placeId, displayName).subscribe((result) => {
+        expect(result).toEqual(locationDetails);
+      });
+      const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
+      expect(req.request.body).toBeNull();
+      expect(req.request.method).toEqual('GET');
+      req.flush(locationDetails);
     });
-    const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
-    expect(req.request.body).toBeNull();
-    expect(req.request.method).toEqual('GET');
-    req.flush(locationDetails);
+
+    it('should not add the displayName to locationDetails when displayName is not provided', () => {
+      const placeId = '12345';
+      const displayName = '';
+      const locationDetails = locationData4;
+      locationService.getGeocode(placeId, displayName).subscribe((result) => {
+        expect(result).toEqual(locationDetails);
+      });
+      const req = httpMock.expectOne(`${rootUrl}/location/geocode/${placeId}`);
+      expect(req.request.body).toBeNull();
+      expect(req.request.method).toEqual('GET');
+      req.flush(locationDetails);
+    });
   });
 
   it('getDistance(): should get the distance between locations', () => {

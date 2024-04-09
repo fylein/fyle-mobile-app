@@ -1,31 +1,30 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
-import { from, noop, Observable } from 'rxjs';
-import { concat } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
-import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
-import { TransactionService } from 'src/app/core/services/transaction.service';
-import { concatMap, finalize, shareReplay, startWith, switchMap } from 'rxjs/operators';
-import { isNumber, reduce } from 'lodash';
-import { FileService } from 'src/app/core/services/file.service';
-import { PopoverController, ModalController, Platform } from '@ionic/angular';
-import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { File } from 'src/app/core/models/file.model';
-import { map, tap } from 'rxjs/operators';
-import { isEqual } from 'lodash';
-import { NetworkService } from 'src/app/core/services/network.service';
-import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
-import * as dayjs from 'dayjs';
-import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
-import { TrackingService } from '../../../core/services/tracking.service';
-import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { ModalController, Platform, PopoverController } from '@ionic/angular';
+import * as dayjs from 'dayjs';
+import { isEqual, isNumber } from 'lodash';
+import { Observable, concat, from, noop } from 'rxjs';
+import { finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { MAX_FILE_SIZE } from 'src/app/core/constants';
 import { AccountType } from 'src/app/core/enums/account-type.enum';
+import { Expense } from 'src/app/core/models/expense.model';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
+import { CameraOptionsPopupComponent } from 'src/app/fyle/add-edit-expense/camera-options-popup/camera-options-popup.component';
+import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { SnackbarPropertiesService } from '../../../core/services/snackbar-properties.service';
+import { TrackingService } from '../../../core/services/tracking.service';
+import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -42,9 +41,9 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() expense: Expense;
 
-  @Input() previousExpenseTxnDate;
+  @Input() previousExpenseTxnDate: string | Date;
 
-  @Input() previousExpenseCreatedAt;
+  @Input() previousExpenseCreatedAt: string | Date;
 
   @Input() isSelectionModeEnabled: boolean;
 
@@ -68,13 +67,16 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() showDt = true;
 
-  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter();
+  @Output() goToTransaction: EventEmitter<{ etxn: Expense; etxnIndex: number }> = new EventEmitter<{
+    etxn: Expense;
+    etxnIndex: number;
+  }>();
 
-  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter();
+  @Output() cardClickedForSelection: EventEmitter<Expense> = new EventEmitter<Expense>();
 
-  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter();
+  @Output() setMultiselectMode: EventEmitter<Expense> = new EventEmitter<Expense>();
 
-  @Output() dismissed: EventEmitter<Expense> = new EventEmitter();
+  @Output() dismissed: EventEmitter<Expense> = new EventEmitter<Expense>();
 
   @Output() showCamera = new EventEmitter<boolean>();
 
@@ -100,7 +102,7 @@ export class ExpensesCardComponent implements OnInit {
 
   attachmentUploadInProgress = false;
 
-  receiptThumbnail: string = null;
+  isReceiptPresent: boolean;
 
   isConnected$: Observable<boolean>;
 
@@ -134,10 +136,11 @@ export class ExpensesCardComponent implements OnInit {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private expensesService: ExpensesService
   ) {}
 
-  get isSelected() {
+  get isSelected(): boolean {
     if (this.selectedElements) {
       if (this.expense.tx_id) {
         return this.selectedElements.some((txn) => this.expense.tx_id === txn.tx_id);
@@ -145,64 +148,45 @@ export class ExpensesCardComponent implements OnInit {
         return this.selectedElements.some((txn) => isEqual(this.expense, txn));
       }
     }
+    return false;
   }
 
-  onGoToTransaction() {
+  onGoToTransaction(): void {
     if (!this.isSelectionModeEnabled) {
       this.goToTransaction.emit({ etxn: this.expense, etxnIndex: this.etxnIndex });
     }
   }
 
-  getReceipt() {
-    if (this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'mileage') {
-      this.receiptIcon = 'assets/svg/fy-mileage.svg';
-    } else if (this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'per diem') {
-      this.receiptIcon = 'assets/svg/fy-calendar.svg';
+  getReceipt(): void {
+    if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage') {
+      this.receiptIcon = 'assets/svg/mileage.svg';
+    } else if (this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem') {
+      this.receiptIcon = 'assets/svg/calendar.svg';
     } else {
       if (!this.expense.tx_file_ids) {
-        this.receiptIcon = 'assets/svg/add-receipt.svg';
+        this.receiptIcon = 'assets/svg/list-plus.svg';
         if (this.isFromPotentialDuplicates || this.isFromViewReports) {
-          this.receiptIcon = 'assets/svg/fy-expense.svg';
+          this.receiptIcon = 'assets/svg/list.svg';
         }
       } else {
-        this.fileService
-          .getFilesWithThumbnail(this.expense.tx_id)
-          .pipe(
-            map((ThumbFiles: File[]) => {
-              if (ThumbFiles.length > 0) {
-                this.fileService
-                  .downloadThumbnailUrl(ThumbFiles[0].id)
-                  .pipe(
-                    map((downloadUrl: FileObject[]) => {
-                      this.receiptThumbnail = downloadUrl[0].url;
-                    })
-                  )
-                  .subscribe(noop);
-              } else {
-                this.fileService
-                  .downloadUrl(this.expense.tx_file_ids[0])
-                  .pipe(
-                    map((downloadUrl: string) => {
-                      if (this.fileService.getReceiptDetails(downloadUrl) === 'pdf') {
-                        this.receiptIcon = 'assets/svg/pdf.svg';
-                      } else {
-                        this.receiptIcon = 'assets/svg/fy-expense.svg';
-                      }
-                    })
-                  )
-                  .subscribe(noop);
-              }
-            })
-          )
-          .subscribe(noop);
+        this.isReceiptPresent = true;
       }
     }
   }
 
+  isZeroAmountPerDiem(): boolean {
+    return (
+      this.expense.tx_org_category?.toLowerCase() === 'per diem' &&
+      (this.expense.tx_amount === 0 || this.expense.tx_user_amount === 0)
+    );
+  }
+
   checkIfScanIsCompleted(): boolean {
+    const isPerDiem = this.isZeroAmountPerDiem();
     const hasUserManuallyEnteredData =
-      (this.expense.tx_amount || this.expense.tx_user_amount) &&
-      isNumber(this.expense.tx_amount || this.expense.tx_user_amount);
+      isPerDiem ||
+      ((this.expense.tx_amount || this.expense.tx_user_amount) &&
+        isNumber(this.expense.tx_amount || this.expense.tx_user_amount));
     const isRequiredExtractedDataPresent = this.expense.tx_extracted_data && this.expense.tx_extracted_data.amount;
 
     // this is to prevent the scan failed from being shown from an indefinite amount of time.
@@ -219,7 +203,7 @@ export class ExpensesCardComponent implements OnInit {
    *
    * @param callback Callback method to be fired when item has finished scanning
    */
-  pollDataExtractionStatus(callback: Function) {
+  pollDataExtractionStatus(callback: Function): void {
     const that = this;
     setTimeout(() => {
       const isPresentInQueue = that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
@@ -231,7 +215,7 @@ export class ExpensesCardComponent implements OnInit {
     }, 1000);
   }
 
-  handleScanStatus() {
+  handleScanStatus(): void {
     const that = this;
     that.isScanInProgress = false;
     that.isScanCompleted = false;
@@ -248,9 +232,10 @@ export class ExpensesCardComponent implements OnInit {
             !that.isScanCompleted && that.transactionOutboxService.isDataExtractionPending(that.expense.tx_id);
           if (that.isScanInProgress) {
             that.pollDataExtractionStatus(function () {
-              that.transactionService.getETxnUnflattened(that.expense.tx_id).subscribe((etxn) => {
+              that.expensesService.getExpenseById(that.expense.tx_id).subscribe((expense) => {
+                const etxn = that.transactionService.transformExpense(expense);
                 const extractedData = etxn.tx.extracted_data;
-                if (extractedData.amount && extractedData.currency) {
+                if (!!extractedData) {
                   that.isScanCompleted = true;
                   that.isScanInProgress = false;
                   that.expense.tx_extracted_data = extractedData;
@@ -269,12 +254,12 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  canShowPaymentModeIcon() {
+  canShowPaymentModeIcon(): void {
     this.showPaymentModeIcon =
       this.expense.source_account_type === AccountType.PERSONAL && !this.expense.tx_skip_reimbursement;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
@@ -282,8 +267,8 @@ export class ExpensesCardComponent implements OnInit {
       map((isConnected) => isConnected && this.transactionOutboxService.isSyncInProgress() && this.isOutboxExpense)
     );
 
-    this.isMileageExpense = this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'mileage';
-    this.isPerDiem = this.expense.tx_fyle_category && this.expense.tx_fyle_category?.toLowerCase() === 'per diem';
+    this.isMileageExpense = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'mileage';
+    this.isPerDiem = this.expense.tx_org_category && this.expense.tx_org_category?.toLowerCase() === 'per diem';
 
     this.category = this.expense.tx_org_category?.toLowerCase();
     this.expense.isDraft = this.transactionService.getIsDraft(this.expense);
@@ -312,7 +297,9 @@ export class ExpensesCardComponent implements OnInit {
       this.showDt = !!this.isFirstOfflineExpense;
     } else if (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) {
       const currentDate = this.expense && new Date(this.expense.tx_txn_dt || this.expense.tx_created_at).toDateString();
-      const previousDate = new Date(this.previousExpenseTxnDate || this.previousExpenseCreatedAt).toDateString();
+      const previousDate = new Date(
+        (this.previousExpenseTxnDate || this.previousExpenseCreatedAt) as string
+      ).toDateString();
       this.showDt = currentDate !== previousDate;
     }
 
@@ -327,35 +314,35 @@ export class ExpensesCardComponent implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  setOtherData() {
+  setOtherData(): void {
     if (this.expense.source_account_type === AccountType.CCC) {
       if (this.expense.tx_corporate_credit_card_expense_group_id) {
-        this.paymentModeIcon = 'fy-matched';
+        this.paymentModeIcon = 'card';
       } else {
-        this.paymentModeIcon = 'fy-unmatched';
+        this.paymentModeIcon = 'card';
       }
     } else {
       if (!this.expense.tx_skip_reimbursement) {
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       } else {
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       }
     }
   }
 
-  onSetMultiselectMode() {
+  onSetMultiselectMode(): void {
     if (!this.isSelectionModeEnabled) {
       this.setMultiselectMode.emit(this.expense);
     }
   }
 
-  onTapTransaction() {
+  onTapTransaction(): void {
     if (this.isSelectionModeEnabled) {
       this.cardClickedForSelection.emit(this.expense);
     }
   }
 
-  canAddAttachment() {
+  canAddAttachment(): boolean {
     return (
       !this.isFromViewReports &&
       !(this.isMileageExpense || this.isPerDiem || this.expense.tx_file_ids || this.isFromPotentialDuplicates) &&
@@ -363,10 +350,10 @@ export class ExpensesCardComponent implements OnInit {
     );
   }
 
-  async onFileUpload(nativeElement: HTMLInputElement) {
+  async onFileUpload(nativeElement: HTMLInputElement): Promise<void> {
     const file = nativeElement.files[0];
-    let receiptDetails;
-    if (file) {
+    let receiptDetails: ReceiptDetail;
+    if (file?.size < MAX_FILE_SIZE) {
       const dataUrl = await this.fileService.readFile(file);
       this.trackingService.addAttachment({ type: file.type });
       receiptDetails = {
@@ -375,18 +362,18 @@ export class ExpensesCardComponent implements OnInit {
         actionSource: 'gallery_upload',
       };
       this.attachReceipt(receiptDetails);
+    } else {
+      this.showSizeLimitExceededPopover();
     }
   }
 
-  async addAttachments(event) {
+  async addAttachments(event: Event): Promise<void> {
     if (this.canAddAttachment()) {
       event.stopPropagation();
 
-      let receiptDetails;
-
       if (this.isIos) {
         const nativeElement = this.fileUpload.nativeElement as HTMLInputElement;
-        nativeElement.onchange = async () => {
+        nativeElement.onchange = async (): Promise<void> => {
           await this.onFileUpload(nativeElement);
         };
         nativeElement.click();
@@ -398,7 +385,14 @@ export class ExpensesCardComponent implements OnInit {
 
         await popup.present();
 
-        let { data: receiptDetails } = await popup.onWillDismiss();
+        let { data: receiptDetails } = (await popup.onWillDismiss()) as {
+          data: {
+            option?: string;
+            type?: string;
+            actionSource?: string;
+            dataUrl?: string;
+          };
+        };
 
         if (receiptDetails && receiptDetails.option === 'camera') {
           const captureReceiptModal = await this.modalController.create({
@@ -414,7 +408,11 @@ export class ExpensesCardComponent implements OnInit {
           await captureReceiptModal.present();
           this.showCamera.emit(true);
 
-          const { data } = await captureReceiptModal.onWillDismiss();
+          const { data } = (await captureReceiptModal.onWillDismiss()) as {
+            data: {
+              dataUrl: string;
+            };
+          };
           this.showCamera.emit(false);
 
           if (data && data.dataUrl) {
@@ -426,7 +424,7 @@ export class ExpensesCardComponent implements OnInit {
           }
         }
         if (receiptDetails && receiptDetails.dataUrl) {
-          this.attachReceipt(receiptDetails);
+          this.attachReceipt(receiptDetails as ReceiptDetail);
           const message = 'Receipt added to Expense successfully';
           this.matSnackBar.openFromComponent(ToastMessageComponent, {
             ...this.snackbarProperties.setSnackbarProperties('success', { message }),
@@ -438,23 +436,13 @@ export class ExpensesCardComponent implements OnInit {
     }
   }
 
-  setThumbnail(fileObjId: string, attachmentType: string) {
-    this.fileService.downloadUrl(fileObjId).subscribe((downloadUrl) => {
-      if (attachmentType === 'pdf') {
-        this.receiptIcon = 'assets/svg/pdf.svg';
-      } else {
-        this.receiptThumbnail = downloadUrl;
-      }
-    });
-  }
-
-  matchReceiptWithEtxn(fileObj: FileObject) {
+  matchReceiptWithEtxn(fileObj: FileObject): void {
     this.expense.tx_file_ids = [];
     this.expense.tx_file_ids.push(fileObj.id);
     fileObj.transaction_id = this.expense.tx_id;
   }
 
-  attachReceipt(receiptDetails: ReceiptDetail) {
+  attachReceipt(receiptDetails: ReceiptDetail): void {
     this.attachmentUploadInProgress = true;
     const attachmentType = this.fileService.getAttachmentType(receiptDetails.type);
 
@@ -469,21 +457,37 @@ export class ExpensesCardComponent implements OnInit {
           this.attachmentUploadInProgress = false;
         })
       )
-      .subscribe((fileObj) => {
-        this.setThumbnail(fileObj.id, attachmentType);
+      .subscribe(() => {
+        this.isReceiptPresent = true;
       });
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       startWith(true)
     );
   }
 
-  dismiss(event) {
+  dismiss(event: Event): void {
     event.stopPropagation();
     event.preventDefault();
     this.dismissed.emit(this.expense);
+  }
+
+  async showSizeLimitExceededPopover(): Promise<void> {
+    const sizeLimitExceededPopover = await this.popoverController.create({
+      component: PopupAlertComponent,
+      componentProps: {
+        title: 'Size limit exceeded',
+        message: 'The uploaded file is greater than 5MB in size. Please reduce the file size and try again.',
+        primaryCta: {
+          text: 'OK',
+        },
+      },
+      cssClass: 'pop-up-in-center',
+    });
+
+    await sizeLimitExceededPopover.present();
   }
 }

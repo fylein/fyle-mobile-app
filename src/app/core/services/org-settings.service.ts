@@ -25,7 +25,9 @@ export class OrgSettingsService {
     cacheBusterObserver: orgSettingsCacheBuster$,
   })
   get(): Observable<OrgSettings> {
-    return this.apiService.get('/org/settings').pipe(map((incoming) => this.processIncoming(incoming)));
+    return this.apiService
+      .get('/org/settings')
+      .pipe(map((incoming: OrgSettingsResponse) => this.processIncoming(incoming)));
   }
 
   @CacheBuster({
@@ -34,6 +36,12 @@ export class OrgSettingsService {
   post(settings: OrgSettings): Observable<OrgSettingsResponse> {
     const data = this.processOutgoing(settings);
     return this.apiService.post('/org/settings', data);
+  }
+
+  isBetaPageEnabledForPath(currentPath: string): Observable<boolean> {
+    const pathSettingsFlagMap = {};
+    const featureFlag = pathSettingsFlagMap[currentPath] as string;
+    return this.get().pipe(map((orgSettings: OrgSettings) => orgSettings[featureFlag] as boolean));
   }
 
   getIncomingAccountingObject(incomingAccountExport: AccountingExportSettings): IncomingAccountObject {
@@ -124,6 +132,10 @@ export class OrgSettingsService {
         enable_individual_mileage_rates:
           incoming.mileage_details && incoming.mileage_details.enable_individual_mileage_rates,
       },
+      commute_deduction_settings: {
+        allowed: incoming.commute_deduction_settings && incoming.commute_deduction_settings.allowed,
+        enabled: incoming.commute_deduction_settings && incoming.commute_deduction_settings.enabled,
+      },
       advances: {
         allowed: incoming.advances_settings && incoming.advances_settings.allowed,
         enabled: incoming.advances_settings && incoming.advances_settings.enabled,
@@ -157,10 +169,6 @@ export class OrgSettingsService {
           incoming.policy_settings &&
           incoming.policy_settings.allowed &&
           incoming.policy_settings.is_trip_request_policy_enabled,
-        advance_request_policy_enabled:
-          incoming.policy_settings &&
-          incoming.policy_settings.allowed &&
-          incoming.policy_settings.is_advance_request_policy_enabled,
         duplicate_detection_enabled:
           incoming.duplicate_detection_settings &&
           incoming.duplicate_detection_settings.allowed &&
@@ -397,10 +405,20 @@ export class OrgSettingsService {
         allowed: incoming?.simplified_report_closure_settings?.allowed,
         enabled: incoming?.simplified_report_closure_settings?.enabled,
       },
+      mobile_app_my_expenses_beta_enabled: incoming?.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: {
+        allowed: incoming?.amex_feed_enrollment_settings?.allowed,
+        enabled: incoming?.amex_feed_enrollment_settings?.enabled,
+        virtual_card_settings_enabled: incoming?.amex_feed_enrollment_settings?.virtual_card_settings_enabled,
+      },
+      pending_cct_expense_restriction: {
+        allowed: incoming.pending_cct_expense_restriction?.allowed,
+        enabled: incoming.pending_cct_expense_restriction?.enabled,
+      },
     };
 
     Object.keys(orgSettings).forEach((settingsType) => {
-      const settings = orgSettings[settingsType];
+      const settings = orgSettings[settingsType] as Record<string, Record<string, boolean> | boolean>;
       const isSettingsAnObject = typeof settings === 'object';
       if (settings && isSettingsAnObject && settings.hasOwnProperty('allowed') && settings.hasOwnProperty('enabled')) {
         settings.enabled = settings.allowed && settings.enabled;
@@ -442,6 +460,10 @@ export class OrgSettingsService {
         allowed: outgoing.mileage.allowed,
         enabled: outgoing.mileage.enabled,
         mileage_location_enabled: outgoing.mileage.location_mandatory,
+      },
+      commute_deduction_settings: {
+        allowed: outgoing.commute_deduction_settings && outgoing.commute_deduction_settings.allowed,
+        enabled: outgoing.commute_deduction_settings && outgoing.commute_deduction_settings.enabled,
       },
       multi_org_settings: {
         allowed: outgoing.org_creation.allowed,
@@ -489,7 +511,6 @@ export class OrgSettingsService {
         enable_individual_mileage_rates: outgoing.mileage.enable_individual_mileage_rates,
       },
       policy_settings: {
-        is_advance_request_policy_enabled: outgoing.policies.advance_request_policy_enabled,
         allowed: outgoing.policies.allowed,
         is_duplicate_detection_enabled: outgoing.policies.duplicate_detection_enabled,
         is_enabled: outgoing.policies.enabled,
@@ -543,7 +564,9 @@ export class OrgSettingsService {
       company_expenses_beta_settings: outgoing.company_expenses_beta_settings,
       visa_enrollment_settings: outgoing.visa_enrollment_settings,
       mastercard_enrollment_settings: outgoing.mastercard_enrollment_settings,
-      simplified_report_closure_settings: outgoing?.simplified_report_closure_settings,
+      simplified_report_closure_settings: outgoing.simplified_report_closure_settings,
+      mobile_app_my_expenses_beta_enabled: outgoing.mobile_app_my_expenses_beta_enabled,
+      amex_feed_enrollment_settings: outgoing.amex_feed_enrollment_settings,
     };
   }
 }

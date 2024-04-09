@@ -1,5 +1,6 @@
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
-import { OrgSettings } from '../models/org-settings.model';
+import { EmailEvents, OrgSettings, TaxSettings } from '../models/org-settings.model';
+import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
 export const orgSettingsRes: OrgSettings = {
   org_id: 'orrjqbDbeP9p',
@@ -58,7 +59,6 @@ export const orgSettingsRes: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -401,6 +401,11 @@ export const orgSettingsRes: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
@@ -461,7 +466,6 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -805,6 +809,11 @@ export const orgSettingsParams2: OrgSettings = {
     allowed: true,
     enabled: true,
   },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
 };
 
 export const orgSettingsParamWoCCC: OrgSettings = {
@@ -864,7 +873,6 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: true,
   },
@@ -1185,5 +1193,220 @@ export const orgSettingsParamWoCCC: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
+  },
+};
+
+export const orgSettingsCCCDisabled: OrgSettings = {
+  ...orgSettingsData,
+  corporate_credit_card_settings: {
+    ...orgSettingsData.corporate_credit_card_settings,
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsCCCEnabled: OrgSettings = {
+  ...orgSettingsData,
+  corporate_credit_card_settings: {
+    ...orgSettingsData.corporate_credit_card_settings,
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
+  ...orgSettingsRes,
+  simplified_report_closure_settings: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const taxSettingsData: TaxSettings = {
+  allowed: true,
+  enabled: true,
+  name: null,
+  groups: [
+    {
+      label: 'GST',
+      value: {
+        name: 'GST',
+        percentage: 0.23,
+      },
+    },
+    {
+      label: 'GST-free capital @0%',
+      value: {
+        name: 'GST-free capital @0%',
+        percentage: 0,
+      },
+    },
+    {
+      label: 'GST-free non-capital @0%',
+      value: {
+        name: 'GST-free non-capital @0%',
+        percentage: 0,
+      },
+    },
+  ],
+};
+
+export const taxSettingsData2: TaxSettings = {
+  ...taxSettingsData,
+  enabled: false,
+};
+
+export const orgSettingsWoTax: OrgSettings = {
+  ...orgSettingsData,
+  tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
+  advances: null,
+  simplified_report_closure_settings: {
+    enabled: true,
+  },
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: true,
+  },
+  advance_requests: {
+    enabled: true,
+  },
+};
+
+export const orgSettingsWoTaxAndRtf: OrgSettings = {
+  ...orgSettingsWoTax,
+  visa_enrollment_settings: {
+    allowed: true,
+    enabled: false,
+  },
+  mastercard_enrollment_settings: {
+    allowed: true,
+    enabled: false,
+  },
+};
+
+export const orgSettingsCCCDisabled2: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: null,
+};
+
+export const orgSettingsCCCDisabled3: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: {
+    allowed: true,
+    enabled: null,
+  },
+};
+
+export const orgSettingsRTFDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  mastercard_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+  visa_enrollment_settings: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsWithProjectAndAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
+  ...orgSettingsParams2,
+  org_expense_form_autofills: {
+    allowed: true,
+    enabled: true,
+  },
+};
+
+export const orgSettingsProjectDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  projects: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const orgSettingsWoAdvance: OrgSettings = {
+  ...orgSettingsRes,
+  advances: null,
+};
+
+export const orgSettingsCCDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  cost_centers: {
+    enabled: false,
+  },
+};
+
+export const orgSettingsOrgAutofill: OrgSettings = {
+  ...orgSettingsRes,
+  org_expense_form_autofills: {
+    enabled: true,
+    allowed: true,
+  },
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoProjects: OrgSettings = {
+  ...orgSettingsRes,
+  advanced_projects: null,
+  projects: null,
+};
+
+export const orgSettingsWoMileage: OrgSettings = {
+  ...orgSettingsParams2,
+  mileage: null,
+};
+
+export const orgSettingsWithUnsubscribeEvent: OrgSettings = {
+  ...orgSettingsRes,
+  admin_email_settings: {
+    ...orgSettingsRes.admin_email_settings,
+    unsubscribed_events: [EmailEvents.DELEGATOR_SUBSCRIPTION, EmailEvents.EADVANCES_CREATED],
+  },
+};
+
+export const orgSettingsWithV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: true,
+};
+
+export const orgSettingsWoV2ExpensesPage: OrgSettings = {
+  ...orgSettingsRes,
+  mobile_app_my_expenses_beta_enabled: false,
+};
+
+export const orgSettingsPendingRestrictions: OrgSettings = {
+  ...orgSettingsRes,
+  corporate_credit_card_settings: { enabled: true },
+  pending_cct_expense_restriction: { enabled: true },
+};
+
+export const orgSettingsWithCommuteDeductionsEnabled: OrgSettings = {
+  ...orgSettingsRes,
+  commute_deduction_settings: {
+    enabled: true,
+    allowed: true,
+  },
+};
+
+export const orgSettingsWithCommuteDeductionsDisabled: OrgSettings = {
+  ...orgSettingsRes,
+  commute_deduction_settings: {
+    enabled: false,
+    allowed: false,
   },
 };

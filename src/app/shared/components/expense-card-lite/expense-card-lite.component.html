@@ -1,21 +1,17 @@
 <div class="expenses-card--body">
   <div class="d-flex">
-    <ng-container *ngIf="!receiptThumbnail">
+    <ng-container *ngIf="!isReceiptPresent">
       <div class="expenses-card--receipt-container">
         <ion-icon
           class="expenses-card--receipt-icon expenses-card--receipt-icon__pdf"
-          [src]="'assets/svg/no-attachment.svg'"
+          [src]="'assets/svg/attachment-none.svg'"
         ></ion-icon>
       </div>
     </ng-container>
 
-    <div
-      class="expenses-card--receipt-thumbnail-container expenses-card--with-image"
-      [ngStyle]="{
-        'background-image': 'url(' + receiptThumbnail + ')'
-      }"
-      *ngIf="receiptThumbnail"
-    ></div>
+    <div *ngIf="isReceiptPresent" class="expenses-card--receipt-image-container expenses-card--with-image">
+      <img class="expenses-card--receipt-image" [src]="'../../../../assets/images/pdf-receipt-placeholder.png'" />
+    </div>
     <div class="d-flex expenses-card--deatils-block">
       <div class="expenses-card--category-vendor-project-container">
         <div class="d-flex expenses-card--category-icon-container">
@@ -29,7 +25,7 @@
         </div>
 
         <div>
-          {{ expense.txn_dt | date: 'MMM dd, YYYY' }}
+          {{ expense.txn_dt | date : 'MMM dd, YYYY' }}
         </div>
       </div>
 
@@ -40,7 +36,7 @@
             <span class="expenses-card--amount"> {{ expense.amount }}</span>
 
             <span>
-              <ion-icon [src]="'assets/svg/arrow.svg'" class="expenses-card--icon" slot="icon-only"> </ion-icon>
+              <ion-icon [src]="'assets/svg/arrow-right.svg'" class="expenses-card--icon" slot="icon-only"> </ion-icon>
             </span>
           </div>
         </div>

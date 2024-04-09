@@ -20,8 +20,8 @@ describe('FyNavFooterComponent', () => {
     component = fixture.componentInstance;
     mockActiveEtxnIndex = 0;
     mockNumEtxnsInReport = 2;
-    component.activeEtxnIndex = mockActiveEtxnIndex;
-    component.numEtxnsInReport = mockNumEtxnsInReport;
+    component.activeExpenseIndex = mockActiveEtxnIndex;
+    component.reportExpenseCount = mockNumEtxnsInReport;
     fixture.detectChanges();
   }));
 
@@ -48,21 +48,21 @@ describe('FyNavFooterComponent', () => {
     });
 
     it('should disable next button when activeEtxnIndex is numEtxnsInReport - 1', () => {
-      component.activeEtxnIndex = mockNumEtxnsInReport - 1;
+      component.activeExpenseIndex = mockNumEtxnsInReport - 1;
       fixture.detectChanges();
       const nextButton = getAllElementsBySelector(fixture, '.btn-secondary')[1] as HTMLButtonElement;
       expect(nextButton.disabled).toBeTruthy();
     });
 
     it('should enable previous button when activeEtxnIndex is greater than 0', () => {
-      component.activeEtxnIndex = 1;
+      component.activeExpenseIndex = 1;
       fixture.detectChanges();
       const prevButton = getElementBySelector(fixture, '.nav-footer__footer__btn') as HTMLButtonElement;
       expect(prevButton.disabled).toBeFalsy();
     });
 
     it('should enable next button when activeEtxnIndex is less than numEtxnsInReport - 1', () => {
-      component.activeEtxnIndex = 0;
+      component.activeExpenseIndex = 0;
       fixture.detectChanges();
       const nextButton = getAllElementsBySelector(fixture, '.btn-secondary')[1] as HTMLButtonElement;
       expect(nextButton.disabled).toBeFalsy();

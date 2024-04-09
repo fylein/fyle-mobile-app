@@ -3,7 +3,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
-import { DashboardTask } from 'src/app/core/models/task.model';
+import { DashboardTask } from 'src/app/core/models/dashboard-task.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 
 @Component({

@@ -11,8 +11,9 @@ import {
 } from '../mock-data/org-user-settings.data';
 import { currentEouUnflatted } from '../test-data/org-user.service.spec.data';
 import { emailEvents } from '../mock-data/email-events.data';
-import { notificationEventsData } from '../mock-data/notification-events.data';
+import { notificationEventsData, notificationEventsData3 } from '../mock-data/notification-events.data';
 import { costCentersData2, costCentersData3 } from '../mock-data/cost-centers.data';
+import { cloneDeep } from 'lodash';
 
 describe('OrgUserSettingsService', () => {
   let orgUserSettingsService: OrgUserSettingsService;
@@ -95,7 +96,7 @@ describe('OrgUserSettingsService', () => {
 
   it('getNotificationEvents(): should get notification events', (done) => {
     orgUserSettingsService.getNotificationEvents().subscribe((res) => {
-      expect(res).toEqual(notificationEventsData);
+      expect(res).toEqual(cloneDeep(notificationEventsData3));
       done();
     });
   });

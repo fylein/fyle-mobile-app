@@ -16,10 +16,8 @@ import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
 import { UndoMerge } from '../models/undo-merge.model';
-import { AccountType } from '../enums/account-type.enum';
 import { cloneDeep } from 'lodash';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { Filters } from 'src/app/fyle/my-expenses/my-expenses-filters.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { PaymentModesService } from './payment-modes.service';
 import { OrgSettingsService } from './org-settings.service';
@@ -36,6 +34,13 @@ import { CurrencySummary } from '../models/currency-summary.model';
 import { FilterQueryParams } from '../models/filter-query-params.model';
 import { SortFiltersParams } from '../models/sort-filters-params.model';
 import { PaymentModeSummary } from '../models/payment-mode-summary.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
+import { PlatformMissingMandatoryFields } from '../models/platform/platform-missing-mandatory-fields.model';
+import { PlatformMissingMandatoryFieldsResponse } from '../models/platform/platform-missing-mandatory-fields-response.model';
+import { AccountType } from '../enums/account-type.enum';
+import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
+import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
+import { ExpenseFilters } from '../models/expense-filters.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -44,7 +49,7 @@ enum FilterState {
   DRAFT = 'DRAFT',
 }
 
-export const transactionsCacheBuster$ = new Subject<void>();
+export const expensesCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
@@ -74,7 +79,7 @@ export class TransactionService {
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService
   ) {
-    transactionsCacheBuster$.subscribe(() => {
+    expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
     });
   }
@@ -85,65 +90,32 @@ export class TransactionService {
     Ref: https://www.npmjs.com/package/ts-cacheable#:~:text=need%20to%20set-,isInstant%3A%20true,-on%20CacheBuster%20configuration
   */
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
     isInstant: true,
   })
-  clearCache() {
+  clearCache(): Observable<null> {
     return of(null);
   }
 
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
-  getEtxn(txnId: string): Observable<Expense> {
-    // TODO api v2
-    return this.apiService.get('/etxns/' + txnId).pipe(
-      map((transaction) => {
-        let categoryDisplayName = transaction.tx_org_category;
-        if (
-          transaction.tx_sub_category &&
-          transaction.tx_sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()
-        ) {
-          categoryDisplayName += ' / ' + transaction.tx_sub_category;
-        }
-        transaction.tx_categoryDisplayName = categoryDisplayName;
-
-        return this.dateService.fixDates(transaction);
-      })
-    );
-  }
-
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualFlag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_flag');
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   manualUnflag(txnId: string): Observable<Expense> {
     return this.apiService.post('/transactions/' + txnId + '/manual_unflag');
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
-  getAllETxnc(params: EtxnParams): Observable<Expense[]> {
-    return this.getETxnCount(params).pipe(
-      switchMap((res) => {
-        const count = res.count > this.paginationSize ? res.count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => this.getETxnc({ offset: this.paginationSize * page, limit: this.paginationSize, params })),
-      reduce((acc, curr) => acc.concat(curr), [] as Expense[])
-    );
-  }
 
-  @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
-  })
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpenses(
     config: Partial<{ offset: number; limit: number; order: string; queryParams: EtxnParams }> = {
       offset: 0,
@@ -175,14 +147,16 @@ export class TransactionService {
       ),
       map((res) => ({
         ...res,
-        data: res.data.map((datum) => this.dateService.fixDatesV2(datum)),
+        data: res.data.map((datum: Expense) => this.dateService.fixDatesV2(datum)),
       }))
     );
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
+
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getAllExpenses(config: Partial<{ order: string; queryParams: EtxnParams }>): Observable<Expense[]> {
     return this.getMyExpensesCount(config.queryParams).pipe(
       switchMap((count) => {
@@ -203,33 +177,17 @@ export class TransactionService {
   }
 
   @Cacheable({
-    cacheBusterObserver: transactionsCacheBuster$,
+    cacheBusterObserver: expensesCacheBuster$,
   })
-  // TODO: Remove `any` type once the stats response implementation is fixed
-  getTransactionStats(aggregates: string, queryParams: EtxnParams): Observable<any> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiV2Service.get('/expenses/stats', {
-          params: {
-            aggregates,
-            tx_org_user_id: 'eq.' + eou.ou.id,
-            ...queryParams,
-          },
-        })
-      ),
-      map((res) => res.data)
-    );
-  }
-
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   delete(txnId: string): Observable<Expense> {
-    return this.apiService.delete('/transactions/' + txnId);
+    return this.apiService.delete<Expense>('/transactions/' + txnId);
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
   deleteBulk(txnIds: string[]): Observable<Transaction[]> {
     const chunkSize = 10;
@@ -237,7 +195,7 @@ export class TransactionService {
     return range(0, count).pipe(
       concatMap((page) => {
         const filteredtxnIds = txnIds.slice(chunkSize * page, chunkSize * page + chunkSize);
-        return this.apiService.post('/transactions/delete/bulk', {
+        return this.apiService.post<Transaction>('/transactions/delete/bulk', {
           txn_ids: filteredtxnIds,
         });
       }),
@@ -246,9 +204,9 @@ export class TransactionService {
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
-  upsert(transaction: Transaction): Observable<Transaction> {
+  upsert(transaction: Partial<Transaction>): Observable<Partial<Transaction>> {
     /** Only these fields will be of type text & custom fields */
     const fieldsToCheck = ['purpose', 'vendor', 'train_travel_class', 'bus_travel_class'];
 
@@ -271,9 +229,8 @@ export class TransactionService {
       switchMap(({ orgUserSettings, txnAccount }) => {
         const offset = orgUserSettings.locale.offset;
 
-        transaction.custom_properties = this.timezoneService.convertAllDatesToProperLocale(
-          transaction.custom_properties,
-          offset
+        transaction.custom_properties = <TxnCustomProperties[]>(
+          this.timezoneService.convertAllDatesToProperLocale(transaction.custom_properties, offset)
         );
         // setting txn_dt time to T10:00:00:000 in local time zone
         if (transaction.txn_dt) {
@@ -307,15 +264,18 @@ export class TransactionService {
 
         const transactionCopy = this.utilityService.discardRedundantCharacters(transaction, fieldsToCheck);
 
-        return this.apiService.post('/transactions', transactionCopy);
+        return this.apiService.post<Transaction>('/transactions', transactionCopy);
       })
     );
   }
 
   @CacheBuster({
-    cacheBusterNotifier: transactionsCacheBuster$,
+    cacheBusterNotifier: expensesCacheBuster$,
   })
-  createTxnWithFiles(txn: Transaction, fileUploads$: Observable<FileObject[]>) {
+  createTxnWithFiles(
+    txn: Partial<Transaction>,
+    fileUploads$: Observable<FileObject[]>
+  ): Observable<Partial<Transaction>> {
     return fileUploads$.pipe(
       switchMap((fileObjs: FileObject[]) =>
         this.upsert(txn).pipe(
@@ -327,7 +287,7 @@ export class TransactionService {
               })
             ).pipe(
               concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc, curr) => acc.concat([curr]), []),
+              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
               map(() => transaction)
             )
           )
@@ -336,30 +296,7 @@ export class TransactionService {
     );
   }
 
-  getPaginatedETxncCount(): Observable<{ count: number }> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline) => {
-        if (isOnline) {
-          return this.apiService.get('/etxns/count').pipe(
-            tap((res) => {
-              this.storageService.set('etxncCount', res);
-            })
-          );
-        } else {
-          return from(this.storageService.get('etxncCount'));
-        }
-      })
-    );
-  }
-
-  getETxnc(params: { offset: number; limit: number; params: EtxnParams }): Observable<Expense[]> {
-    return this.apiV2Service
-      .get('/expenses', {
-        ...params,
-      })
-      .pipe(map((etxns) => etxns.data));
-  }
-
+  // TODO: Remove/Update method once we remove older my-expenses-page completely
   getMyExpensesCount(queryParams: EtxnParams): Observable<number> {
     return this.getMyExpenses({
       offset: 0,
@@ -368,14 +305,14 @@ export class TransactionService {
     }).pipe(map((res) => res.count));
   }
 
-  getExpenseV2(id: string): Observable<Expense> {
-    return this.apiV2Service
-      .get('/expenses', {
-        params: {
-          tx_id: `eq.${id}`,
-        },
-      })
-      .pipe(map((res) => this.fixDates(res.data[0]) as Expense));
+  checkMandatoryFields(platformPolicyExpense: PlatformPolicyExpense): Observable<PlatformMissingMandatoryFields> {
+    const payload = {
+      data: platformPolicyExpense,
+    };
+
+    return this.spenderPlatformV1ApiService
+      .post<PlatformMissingMandatoryFieldsResponse>('/expenses/check_mandatory_fields', payload)
+      .pipe(map((res) => res.data));
   }
 
   checkPolicy(platformPolicyExpense: PlatformPolicyExpense): Observable<ExpensePolicy> {
@@ -422,30 +359,13 @@ export class TransactionService {
     );
   }
 
-  getETxnUnflattened(txnId: string): Observable<UnflattenedTransaction> {
-    return this.apiService.get('/etxns/' + txnId).pipe(
-      map((data) => {
-        const etxn = this.dataTransformService.unflatten(data);
-        this.dateService.fixDates(etxn.tx);
-
-        // Adding a field categoryDisplayName in transaction object to save funciton calls
-        let categoryDisplayName = etxn.tx.org_category;
-        if (etxn.tx.sub_category && etxn.tx.sub_category.toLowerCase() !== categoryDisplayName.toLowerCase()) {
-          categoryDisplayName += ' / ' + etxn.tx.sub_category;
-        }
-        etxn.tx.categoryDisplayName = categoryDisplayName;
-        return etxn;
-      })
-    );
-  }
-
-  matchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
-    const data = {
-      transaction_id: txnId,
-      corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+  matchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
+    const payload = {
+      id,
+      expense_ids: [expenseId],
     };
 
-    return this.apiService.post('/transactions/match', data);
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/match', { data: payload });
   }
 
   review(txnId: string): Observable<null> {
@@ -453,7 +373,7 @@ export class TransactionService {
   }
 
   getDefaultVehicleType(): Observable<string> {
-    return from(this.storageService.get('vehicle_preference'));
+    return from(this.storageService.get<string>('vehicle_preference'));
   }
 
   uploadBase64File(txnId: string, name: string, base64Content: string): Observable<FileObject> {
@@ -464,29 +384,13 @@ export class TransactionService {
     return this.apiService.post('/transactions/' + txnId + '/upload_b64', data);
   }
 
-  getSplitExpenses(txnSplitGroupId: string): Observable<Expense[]> {
-    const data = {
-      tx_split_group_id: 'eq.' + txnSplitGroupId,
+  unmatchCCCExpense(id: string, expenseId: string): Observable<CorporateCardTransactionRes> {
+    const payload = {
+      id,
+      expense_ids: [expenseId],
     };
 
-    return this.getAllETxnc(data);
-  }
-
-  unmatchCCCExpense(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
-    const data = {
-      transaction_id: txnId,
-      corporate_credit_card_expense_id: corporateCreditCardExpenseId,
-    };
-
-    return this.apiService.post('/transactions/unmatch', data);
-  }
-
-  getTransactionByExpenseNumber(expenseNumber: string): Observable<Expense> {
-    return this.apiService.get('/transactions', {
-      params: {
-        expense_number: expenseNumber,
-      },
-    });
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/unmatch', { data: payload });
   }
 
   getVendorDetails(expense: Expense): string {
@@ -494,10 +398,10 @@ export class TransactionService {
     let vendorDisplayName = expense.tx_vendor;
 
     if (fyleCategory === 'mileage') {
-      vendorDisplayName = expense.tx_distance || 0;
+      vendorDisplayName = (expense.tx_distance || 0).toString();
       vendorDisplayName += ' ' + expense.tx_distance_unit;
     } else if (fyleCategory === 'per diem') {
-      vendorDisplayName = expense.tx_num_days;
+      vendorDisplayName = expense.tx_num_days.toString();
       if (expense.tx_num_days > 1) {
         vendorDisplayName += ' Days';
       } else {
@@ -508,93 +412,31 @@ export class TransactionService {
     return vendorDisplayName;
   }
 
-  getReportableExpenses(expenses: Expense[]): Expense[] {
-    return expenses.filter(
+  getReportableExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
+    return expenses?.filter(
       (expense) => !this.getIsCriticalPolicyViolated(expense) && !this.getIsDraft(expense) && expense.tx_id
     );
   }
 
-  getIsCriticalPolicyViolated(expense: Expense): boolean {
+  getIsCriticalPolicyViolated(expense: Partial<Expense>): boolean {
     return typeof expense.tx_policy_amount === 'number' && expense.tx_policy_amount < 0.0001;
   }
 
-  getIsDraft(expense: Expense): boolean {
+  getIsDraft(expense: Partial<Expense>): boolean {
     return expense.tx_state && expense.tx_state === 'DRAFT';
   }
 
-  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
-    const paymentModes = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
-
-    return etxns
-      .map((etxn) => ({
-        ...etxn,
-        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
-      }))
-      .reduce((paymentMap, etxnData) => {
-        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
-          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
-          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
-          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
-          paymentMap[etxnData.paymentMode.key].count++;
-        } else {
-          paymentMap[etxnData.paymentMode.key] = {
-            name: etxnData.paymentMode.name,
-            key: etxnData.paymentMode.key,
-            amount: etxnData.tx_amount,
-            count: 1,
-          };
-        }
-        return paymentMap;
-      }, {});
-  }
-
-  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
-    const currencyMap = {};
-    etxns.forEach((etxn) => {
-      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
-      } else {
-        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
-      }
-    });
-
-    return Object.keys(currencyMap)
-      .map((currency) => currencyMap[currency])
-      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
-  }
-
-  excludeCCCExpenses(expenses: Expense[]): Expense[] {
+  excludeCCCExpenses(expenses: Partial<Expense>[]): Partial<Expense>[] {
     return expenses.filter((expense) => expense && !expense.tx_corporate_credit_card_expense_group_id);
   }
 
-  getDeletableTxns(expenses: Expense[]): Expense[] {
-    return expenses.filter((expense) => expense && expense.tx_user_can_delete);
-  }
-
-  getExpenseDeletionMessage(expensesToBeDeleted: Expense[]): string {
+  getExpenseDeletionMessage(expensesToBeDeleted: Partial<Expense>[]): string {
     return `You are about to permanently delete ${
       expensesToBeDeleted.length === 1 ? '1 selected expense.' : expensesToBeDeleted.length + ' selected expenses.'
     }`;
   }
 
-  getCCCExpenseMessage(expensesToBeDeleted: Expense[], cccExpenses: number): string {
+  getCCCExpenseMessage(expensesToBeDeleted: Partial<Expense>[], cccExpenses: number): string {
     return `There ${cccExpenses > 1 ? 'are' : 'is'} ${cccExpenses} corporate card ${
       cccExpenses > 1 ? 'expenses' : 'expense'
     } from the selection which can\'t be deleted. ${
@@ -603,7 +445,7 @@ export class TransactionService {
   }
 
   getDeleteDialogBody(
-    expensesToBeDeleted: Expense[],
+    expensesToBeDeleted: Partial<Expense>[],
     cccExpenses: number,
     expenseDeletionMessage: string,
     cccExpensesMessage: string
@@ -653,7 +495,7 @@ export class TransactionService {
     return this.apiService.post('/transactions/unlink_card_expense', data);
   }
 
-  isMergeAllowed(expenses: Expense[]): boolean {
+  isMergeAllowed(expenses: Partial<Expense>[]): boolean {
     if (expenses.length === 2) {
       const areSomeMileageOrPerDiemExpenses = expenses.some(
         (expense) => expense.tx_fyle_category === 'Mileage' || expense.tx_fyle_category === 'Per Diem'
@@ -668,7 +510,7 @@ export class TransactionService {
     }
   }
 
-  generateStateFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateStateFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const stateOrFilter = this.generateStateOrFilter(filters, newQueryParamsCopy);
 
@@ -681,7 +523,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateCardNumberParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.cardNumbers?.length > 0) {
       let cardNumberString = '';
@@ -695,7 +537,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateReceiptAttachedParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateReceiptAttachedParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.receiptsAttached) {
       if (filters.receiptsAttached === 'YES') {
@@ -709,7 +554,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateSplitExpenseParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.splitExpense) {
       if (filters.splitExpense === 'YES') {
@@ -724,7 +569,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateDateParams(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     let newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date) {
       filters.customDateStart = filters.customDateStart && new Date(filters.customDateStart);
@@ -750,7 +595,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  generateTypeFilters(newQueryParams: FilterQueryParams, filters: Partial<ExpenseFilters>): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     const typeOrFilter = this.generateTypeOrFilter(filters);
 
@@ -763,7 +608,10 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  setSortParams(currentParams: Partial<SortFiltersParams>, filters: Filters): Partial<SortFiltersParams> {
+  setSortParams(
+    currentParams: Partial<SortFiltersParams>,
+    filters: Partial<ExpenseFilters>
+  ): Partial<SortFiltersParams> {
     const currentParamsCopy = cloneDeep(currentParams);
     if (filters.sortParam && filters.sortDir) {
       currentParamsCopy.sortParam = filters.sortParam;
@@ -774,6 +622,64 @@ export class TransactionService {
     }
 
     return currentParamsCopy;
+  }
+
+  getPaymentModeWiseSummary(etxns: Expense[]): PaymentModeSummary {
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    return etxns
+      .map((etxn) => ({
+        ...etxn,
+        paymentMode: this.getPaymentModeForEtxn(etxn, paymentModes),
+      }))
+      .reduce((paymentMap: PaymentModeSummary, etxnData) => {
+        if (paymentMap.hasOwnProperty(etxnData.paymentMode.key)) {
+          paymentMap[etxnData.paymentMode.key].name = etxnData.paymentMode.name;
+          paymentMap[etxnData.paymentMode.key].key = etxnData.paymentMode.key;
+          paymentMap[etxnData.paymentMode.key].amount += etxnData.tx_amount;
+          paymentMap[etxnData.paymentMode.key].count++;
+        } else {
+          paymentMap[etxnData.paymentMode.key] = {
+            name: etxnData.paymentMode.name,
+            key: etxnData.paymentMode.key,
+            amount: etxnData.tx_amount,
+            count: 1,
+          };
+        }
+        return paymentMap;
+      }, {});
+  }
+
+  getCurrenyWiseSummary(etxns: Expense[]): CurrencySummary[] {
+    const currencyMap: Record<string, CurrencySummary> = {};
+    etxns.forEach((etxn) => {
+      if (!(etxn.tx_orig_currency && etxn.tx_orig_amount)) {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_currency, etxn.tx_amount);
+      } else {
+        this.addEtxnToCurrencyMap(currencyMap, etxn.tx_orig_currency, etxn.tx_amount, etxn.tx_orig_amount);
+      }
+    });
+
+    return Object.keys(currencyMap)
+      .map((currency) => currencyMap[currency])
+      .sort((a, b) => (a.amount < b.amount ? 1 : -1));
   }
 
   isEtxnInPaymentMode(txnSkipReimbursement: boolean, txnSourceAccountType: string, paymentMode: string): boolean {
@@ -796,6 +702,238 @@ export class TransactionService {
     return etxnInPaymentMode;
   }
 
+  getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
+    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
+    const txnSourceAccountType = etxn.source_account_type;
+    return paymentModes.find((paymentMode) =>
+      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
+    );
+  }
+
+  addEtxnToCurrencyMap(
+    currencyMap: Record<string, CurrencySummary>,
+    txCurrency: string,
+    txAmount: number,
+    txOrigAmount: number = null
+  ): void {
+    if (currencyMap.hasOwnProperty(txCurrency)) {
+      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
+      currencyMap[txCurrency].amount += txAmount;
+      currencyMap[txCurrency].count++;
+    } else {
+      currencyMap[txCurrency] = {
+        name: txCurrency,
+        currency: txCurrency,
+        amount: txAmount,
+        origAmount: txOrigAmount ? txOrigAmount : txAmount,
+        count: 1,
+      };
+    }
+  }
+
+  sourceAccountTypePublicMapping(type: string): string {
+    return type === 'PERSONAL_CASH_ACCOUNT' ? 'PERSONAL_ACCOUNT' : type;
+  }
+
+  // Todo : Remove transformExpense method once upsert in migrated to platform
+  transformExpense(expense: PlatformExpense): Partial<UnflattenedTransaction> {
+    const updatedExpense = {
+      tx: {
+        id: expense.id,
+        created_at: expense.created_at,
+        txn_dt: expense.spent_at,
+        categoryDisplayName: expense.category?.display_name,
+        num_files: expense.files?.length,
+        org_category: expense.category?.name,
+        fyle_category: expense.category?.system_category,
+        state: expense.state,
+        admin_amount: expense.admin_amount,
+        policy_amount: expense.policy_amount,
+        skip_reimbursement: !expense.is_reimbursable,
+        amount: expense.amount,
+        currency: expense.currency,
+        user_amount: expense.claim_amount,
+        orig_amount: expense.foreign_amount,
+        orig_currency: expense.foreign_currency,
+        from_dt: expense.started_at,
+        to_dt: expense.ended_at,
+        vendor: expense.merchant,
+        distance: expense.distance,
+        distance_unit: expense.distance_unit,
+        locations: expense.locations,
+        verification_state: expense.is_verified ? 'VERIFIED' : null,
+        org_user_id: expense.employee_id,
+        expense_number: expense.seq_num,
+        taxi_travel_class: expense.travel_classes && expense.travel_classes[0],
+        bus_travel_class: expense.travel_classes && expense.travel_classes[0],
+        train_travel_class: expense.travel_classes && expense.travel_classes[0],
+        flight_journey_travel_class: expense.travel_classes && expense.travel_classes[0],
+        flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
+        hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
+        tax_group_id: expense.tax_group_id,
+        creator_id: expense.employee?.id,
+        request_id: expense.is_receipt_mandatory,
+        report_id: expense.report_id,
+        org_category_id: expense.category_id,
+        cost_center_id: expense.cost_center_id,
+        cost_center_name: expense.cost_center?.name,
+        cost_center_code: expense.cost_center?.code,
+        project_id: expense.project_id,
+        project_name: expense.project?.name,
+        custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
+        purpose: expense.purpose,
+        billable: expense.is_billable,
+        sub_category: expense.category?.sub_category,
+        tax_amount: expense?.tax_amount,
+        corporate_credit_card_expense_group_id:
+          expense.matched_corporate_card_transaction_ids?.length > 0
+            ? expense.matched_corporate_card_transaction_ids[0]
+            : null,
+        split_group_id: expense.split_group_id,
+        split_group_user_amount: expense.split_group_amount,
+        receipt_required: expense.is_receipt_mandatory,
+        per_diem_rate_id: expense.per_diem_rate_id,
+        num_days: expense.per_diem_num_days,
+        mileage_rate_id: expense.mileage_rate_id,
+        mileage_rate: expense.mileage_rate?.rate,
+        mileage_vehicle_type: expense.mileage_rate?.vehicle_type,
+        mileage_is_round_trip: expense.mileage_is_round_trip,
+        mileage_calculated_distance: expense.mileage_calculated_distance,
+        mileage_calculated_amount: expense.mileage_calculated_amount,
+        commute_deduction: expense.commute_deduction,
+        commute_deduction_id: expense.commute_details_id,
+        manual_flag: expense.is_manually_flagged,
+        policy_flag: expense.is_policy_flagged,
+        extracted_data: expense.extracted_data
+          ? {
+              vendor: expense.extracted_data?.vendor_name,
+              currency: expense.extracted_data?.currency,
+              amount: expense.extracted_data?.amount,
+              date: expense.extracted_data?.date,
+              category: expense.extracted_data?.category,
+              invoice_dt: expense.extracted_data?.invoice_dt,
+            }
+          : null,
+        matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
+          ? expense.matched_corporate_card_transactions.map((transaction) => ({
+              id: transaction.id,
+              group_id: transaction.id,
+              amount: transaction.amount,
+              vendor: transaction.merchant,
+              txn_dt: transaction.spent_at.toISOString(),
+              currency: transaction.currency,
+              description: transaction.description,
+              card_or_account_number: transaction.corporate_card_number,
+              corporate_credit_card_account_number: transaction.corporate_card_number,
+              orig_amount: transaction.foreign_amount,
+              orig_currency: transaction.foreign_currency,
+              status: transaction.status,
+            }))
+          : null,
+        source_account_id: expense.source_account_id,
+        org_category_code: expense.category?.code,
+        project_code: expense.project?.code,
+        physical_bill: expense.is_physical_bill_submitted,
+        physical_bill_at: expense.physical_bill_submitted_at,
+      },
+      source: {
+        account_id: expense.source_account?.id,
+        account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+      },
+      ou: {
+        id: expense.employee?.id,
+        org_id: expense.employee?.org_id,
+      },
+    };
+    this.dateService.fixDates(updatedExpense.tx);
+    return updatedExpense;
+  }
+
+  // Todo : Remove transformRawExpenses method once upsert in migrated to platform
+  transformRawExpense(expense: PlatformExpense): Partial<Expense> {
+    const updatedExpense = {
+      tx_id: expense.id,
+      tx_txn_dt: expense.spent_at,
+      tx_expense_number: expense.seq_num,
+      tx_num_files: expense.files?.length,
+      tx_org_category: expense.category?.name,
+      tx_amount: expense.amount,
+      tx_purpose: expense.purpose,
+      tx_currency: expense.currency,
+      tx_vendor: expense.merchant,
+      tx_split_group_id: expense.split_group_id,
+      tx_split_group_user_amount: expense.split_group_amount,
+      tx_skip_reimbursement: !expense.is_reimbursable,
+      tx_file_ids: expense.file_ids,
+      tx_creator_id: expense.employee?.id,
+      tx_state: expense.state,
+      tx_tax_org_id: expense.tax_group_id,
+      tg_name: expense.tax_group?.name,
+      tx_project_name: expense.project?.name,
+      tx_project_id: expense.project_id,
+      tx_cost_center_name: expense.cost_center?.name,
+      tx_cost_center_id: expense.cost_center_id,
+      tx_corporate_credit_card_expense_group_id:
+        expense.matched_corporate_card_transaction_ids?.length > 0
+          ? expense.matched_corporate_card_transaction_ids[0]
+          : null,
+      tx_custom_properties: expense.custom_fields.map((item) => item as TxnCustomProperties),
+      tx_locations: expense.locations,
+      tx_hotel_is_breakfast_provided: expense.hotel_is_breakfast_provided,
+      tx_billable: expense.is_billable,
+      tx_fyle_category: expense.category?.system_category,
+      tx_orig_currency: expense.foreign_currency,
+      tx_orig_amount: expense.foreign_amount,
+      tx_taxi_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_bus_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_flight_journey_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_flight_return_travel_class: expense.travel_classes && expense.travel_classes[1],
+      tx_train_travel_class: expense.travel_classes && expense.travel_classes[0],
+      tx_distance: expense.distance,
+      tx_distance_unit: expense.distance_unit,
+      tx_per_diem_rate_id: expense.per_diem_rate_id?.toString(),
+      tx_num_days: expense.per_diem_num_days,
+      tx_mileage_rate_id: expense.mileage_rate_id?.toString(),
+      tx_mileage_rate: expense.mileage_rate?.rate,
+      tx_mileage_vehicle_type: expense.mileage_rate?.vehicle_type,
+      tx_mileage_is_round_trip: expense.mileage_is_round_trip,
+      tx_mileage_calculated_distance: expense.mileage_calculated_distance,
+      tx_mileage_calculated_amount: expense.mileage_calculated_amount,
+      tx_manual_flag: expense.is_manually_flagged,
+      tx_policy_flag: expense.is_policy_flagged,
+      tx_extracted_data: expense.extracted_data
+        ? {
+            vendor: expense.extracted_data?.vendor_name,
+            currency: expense.extracted_data?.currency,
+            amount: expense.extracted_data?.amount,
+            date: expense.extracted_data?.date,
+          }
+        : null,
+      tx_matched_corporate_card_transactions: Array.isArray(expense.matched_corporate_card_transactions)
+        ? expense.matched_corporate_card_transactions.map((transaction) => ({
+            id: transaction.id,
+            group_id: transaction.id,
+            amount: transaction.amount,
+            vendor: transaction.merchant,
+            txn_dt: transaction.spent_at.toISOString(),
+            currency: transaction.currency,
+            description: transaction.description,
+            card_or_account_number: transaction.corporate_card_number,
+            orig_amount: transaction.foreign_amount,
+            orig_currency: transaction.foreign_currency,
+            status: transaction.status,
+          }))
+        : null,
+      tx_org_category_code: expense.category?.code,
+      tx_project_code: expense.project?.code,
+      tx_physical_bill: expense.is_physical_bill_submitted,
+      tx_physical_bill_at: expense.physical_bill_submitted_at,
+      source_account_id: expense.source_account_id,
+      source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
+    };
+    return updatedExpense;
+  }
+
   private getTxnAccount(): Observable<{ source_account_id: string; skip_reimbursement: boolean }> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
@@ -813,10 +951,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private getETxnCount(params: EtxnParams): Observable<{ count: number }> {
-    return this.apiV2Service.get('/expenses', { params }).pipe(map((res) => res as { count: number }));
   }
 
   private fixDates(data: Expense): Expense {
@@ -837,31 +971,7 @@ export class TransactionService {
     return data;
   }
 
-  private getPaymentModeForEtxn(etxn: Expense, paymentModes: PaymentMode[]): PaymentMode {
-    const txnSkipReimbursement = etxn.tx_skip_reimbursement;
-    const txnSourceAccountType = etxn.source_account_type;
-    return paymentModes.find((paymentMode) =>
-      this.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, paymentMode.key)
-    );
-  }
-
-  private addEtxnToCurrencyMap(currencyMap: {}, txCurrency: string, txAmount: number, txOrigAmount: number = null) {
-    if (currencyMap.hasOwnProperty(txCurrency)) {
-      currencyMap[txCurrency].origAmount += txOrigAmount ? txOrigAmount : txAmount;
-      currencyMap[txCurrency].amount += txAmount;
-      currencyMap[txCurrency].count++;
-    } else {
-      currencyMap[txCurrency] = {
-        name: txCurrency,
-        currency: txCurrency,
-        amount: txAmount,
-        origAmount: txOrigAmount ? txOrigAmount : txAmount,
-        count: 1,
-      };
-    }
-  }
-
-  private generateStateOrFilter(filters: Filters, newQueryParamsCopy: FilterQueryParams): string[] {
+  private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {
     const stateOrFilter: string[] = [];
     if (filters.state) {
       newQueryParamsCopy.tx_report_id = 'is.null';
@@ -885,7 +995,10 @@ export class TransactionService {
     return stateOrFilter;
   }
 
-  private generateCustomDateParams(newQueryParams: FilterQueryParams, filters: Filters): FilterQueryParams {
+  private generateCustomDateParams(
+    newQueryParams: FilterQueryParams,
+    filters: Partial<ExpenseFilters>
+  ): FilterQueryParams {
     const newQueryParamsCopy = cloneDeep(newQueryParams);
     if (filters.date === DateFilters.custom) {
       const startDate = filters.customDateStart?.toISOString();
@@ -902,7 +1015,7 @@ export class TransactionService {
     return newQueryParamsCopy;
   }
 
-  private generateTypeOrFilter(filters: Filters): string[] {
+  private generateTypeOrFilter(filters: Partial<ExpenseFilters>): string[] {
     const typeOrFilter: string[] = [];
     if (filters.type) {
       if (filters.type.includes('Mileage')) {

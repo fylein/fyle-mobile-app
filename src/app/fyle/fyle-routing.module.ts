@@ -130,6 +130,11 @@ const routes: Routes = [
     path: 'merge_expense',
     loadChildren: () => import('./merge-expense/merge-expense.module').then((m) => m.MergeExpensePageModule),
   },
+  {
+    path: 'manage_corporate_cards',
+    loadChildren: () =>
+      import('./manage-corporate-cards/manage-corporate-cards.module').then((m) => m.ManageCorporateCardsPageModule),
+  },
 ];
 
 export const fyleRoutes = routes;

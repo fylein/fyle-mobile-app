@@ -1,3 +1,4 @@
+import { Position } from '@capacitor/geolocation';
 import { Location } from '../models/location.model';
 import { PredictedLocation } from '../models/predicted-location.model';
 export const locationData1: Location = {
@@ -28,6 +29,16 @@ export const locationData3: Location = {
   latitude: 22.5474164,
   longitude: 88.3598025,
   display: 'Park Street, Mullick Bazar, Beniapukur, Kolkata, West Bengal, India',
+};
+
+export const locationData4: Location = {
+  city: 'Thane',
+  state: 'Maharashtra',
+  country: 'India',
+  formatted_address: 'Thane, Maharashtra, India',
+  latitude: 19.2183307,
+  longitude: 72.9780897,
+  display: 'Thane, Maharashtra, India',
 };
 
 export const predictedLocation1: PredictedLocation[] = [
@@ -148,3 +159,29 @@ export const predictedLocation1: PredictedLocation[] = [
     types: ['locality', 'political', 'geocode'],
   },
 ];
+
+export const coordinatesData1: Position = {
+  timestamp: Date.now(),
+  coords: {
+    latitude: 10.12,
+    longitude: 89.67,
+    accuracy: 13.147000312805176,
+    altitudeAccuracy: 0,
+    altitude: -26.39999,
+    speed: 0.099,
+    heading: 0,
+  },
+};
+
+export const coordinatesData2: Position = {
+  timestamp: Date.now(),
+  coords: {
+    latitude: 19.0748,
+    longitude: 72.8856,
+    accuracy: 13.147000312805176,
+    altitudeAccuracy: 0,
+    altitude: -26.39999,
+    speed: 0.099,
+    heading: 0,
+  },
+};

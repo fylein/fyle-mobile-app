@@ -2,7 +2,7 @@
   <ion-toolbar class="selection-modal--form-field-container fy-modal-toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button mode="md" (click)="close()">
-        <ion-icon [src]="'../../../../../assets/svg/fy-chevron-left.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <mat-form-field
@@ -17,8 +17,7 @@
           matInput
           placeholder="Search"
         />
-        <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="fy-spinner-circle" matSuffix>
-        </mat-icon>
+        <mat-icon *ngIf="loader" class="selection-modal--autocomplete-loader" svgIcon="loader" matSuffix> </mat-icon>
         <button
           (click)="clearValue()"
           *ngIf="value"
@@ -28,11 +27,11 @@
           mat-icon-button
           matSuffix
         >
-          <mat-icon class="selection-modal--simple-search-icon" svgIcon="fy-clear"></mat-icon>
+          <mat-icon class="selection-modal--simple-search-icon" svgIcon="clear"></mat-icon>
         </button>
       </div>
     </mat-form-field>
-    <ion-buttons mode="md" slot="end">
+    <ion-buttons *ngIf="!disableEnteringManualLocation" mode="md" slot="end">
       <ion-button
         color="fy-primary"
         class="text-capitalize selection-modal--cta-button"
@@ -76,7 +75,7 @@
     *ngFor="let filteredListItem of recentItemsFilteredList$ | async as list"
     (click)="onRecentItemSelect(filteredListItem.display)"
   >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-recently-used"> </mat-icon>
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="clock"> </mat-icon>
     <div>
       <div class="selection-modal--location-main-text">
         {{ filteredListItem.display }}
@@ -92,7 +91,7 @@
     *ngFor="let filteredListItem of filteredList$ | async as list"
     (click)="onElementSelect(filteredListItem)"
   >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location"> </mat-icon>
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
     <div>
       <div class="selection-modal--location-main-text" *ngIf="filteredListItem.structured_formatting?.main_text">
         {{ filteredListItem.structured_formatting?.main_text || filteredListItem.description }}
@@ -108,7 +107,7 @@
     class="selection-modal--list-element selection-modal--list-element__current-location"
     (click)="getCurrentLocation()"
   >
-    <mat-icon class="selection-modal--list-element-icon" svgIcon="fy-location"> </mat-icon>
+    <mat-icon class="selection-modal--list-element-icon" svgIcon="location"> </mat-icon>
     <div class="selection-modal--location-main-text">Use Current Location</div>
   </div>
 </ion-content>

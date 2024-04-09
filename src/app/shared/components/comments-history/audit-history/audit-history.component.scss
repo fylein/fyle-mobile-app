@@ -30,7 +30,6 @@
     width: 10px;
     margin: 0 20px 0 -6px;
     background-color: transparent;
-    color: $pure-white;
   }
 
   &--delete {
@@ -38,6 +37,14 @@
     width: 18px;
     margin: 0 20px 0 -10px;
     color: $red;
+  }
+
+  &--merge {
+    color: $brand-primary;
+  }
+
+  &--success {
+    color: $green !important;
   }
 
   &--timestamp {
@@ -67,5 +74,17 @@
 
   &--diff {
     margin-left: 12px;
+  }
+
+  &--card-filled {
+    color: $green;
+  }
+
+  &--flagged {
+    color: $red;
+  }
+
+  &--unflagged {
+    color: $grey-light;
   }
 }

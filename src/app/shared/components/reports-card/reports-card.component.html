@@ -14,7 +14,7 @@
       <div class="reports-card--purpose">
         <span>{{ erpt.rp_purpose | ellipsis : 40 }}</span>
         <span *ngIf="erpt.rp_manual_flag || erpt.rp_policy_flag">
-          <mat-icon class="reports-card--icon-policy-violation" svgIcon="error-filled"></mat-icon>
+          <mat-icon class="reports-card--icon-policy-violation" svgIcon="warning-fill"></mat-icon>
         </span>
       </div>
       <div class="reports-card--amount-block ion-text-nowrap">

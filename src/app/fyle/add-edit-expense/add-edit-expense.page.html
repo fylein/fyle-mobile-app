@@ -2,12 +2,12 @@
   <ion-toolbar class="add-edit-expense--toolbar" [ngClass]="{'add-edit-expense--toolbar__review': reviewList?.length}">
     <ion-buttons *ngIf="navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../../assets/svg/arrow-tail-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons *ngIf="!navigateBack" mode="md" slot="start">
       <ion-button (click)="showClosePopup()">
-        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/fy-close.svg'" slot="icon-only"></ion-icon>
+        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/cross.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
 
@@ -37,22 +37,25 @@
         class="add-edit-expense--header-btn-container__btn"
         (click)="openCommentsModal()"
       >
-        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ng-container *ngIf="(reviewList?.length || mode === 'edit') && !isCccExpense && etxn$|async as etxn">
         <ng-container *ngIf="canRemoveFromReport || (!isRedirectedFromReport && !etxn.tx.report_id)">
           <ion-button class="add-edit-expense--header-btn-container__btn" (click)="deleteExpense(etxn.tx.report_id)">
-            <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+            <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
           </ion-button>
         </ng-container>
       </ng-container>
       <ng-container *ngIf="etxn$|async as etxn">
         <ng-container *ngIf="isConnected$|async as isConnected">
-          <ng-container *ngIf="!(etxn?.tx?.report_id) && !(reviewList?.length > 1)">
+          <ng-container *ngIf="!(reviewList?.length > 1)">
             <ng-container *ngIf="actionSheetOptions$|async as actionSheetOptions">
               <ng-container *ngIf="actionSheetOptions.length > 0">
                 <ion-button class="add-edit-expense--header-btn-container__btn" (click)="showMoreActions()">
-                  <ion-icon [src]="'../../../assets/svg/dot-menu.svg'"></ion-icon>
+                  <ion-icon
+                    class="add-edit-expense--header-btn-container__icon"
+                    [src]="'../../../assets/svg/vertical-dots-menu.svg'"
+                  ></ion-icon>
                 </ion-button>
               </ng-container>
             </ng-container>
@@ -67,8 +70,15 @@
   <ng-container *ngIf="fg">
     <form #formContainer [formGroup]="fg" class="add-edit-expense--form">
       <div>
+        <div *ngIf="showReceiptMandatoryError" class="add-edit-expense--alert-offline receipt-mandatory-error">
+          <app-fy-alert-info message="Please upload the receipt." type="error"></app-fy-alert-info>
+        </div>
+
         <div *ngIf="isIncompleteExpense" class="add-edit-expense--alert-offline">
-          <app-fy-alert-info message="Please save the expense after reviewing it." type="warning"></app-fy-alert-info>
+          <app-fy-alert-info
+            message="Mandatory field values are missing. Please update the details and save the Expense."
+            type="warning"
+          ></app-fy-alert-info>
         </div>
 
         <div *ngIf="duplicateExpenses?.length > 0" class="add-edit-expense--alert-offline">
@@ -106,7 +116,7 @@
 
           <ng-container *ngIf="isAmountCapped$|async">
             <div class="capped-info" *ngIf="!(isCriticalPolicyViolated$|async)">
-              <mat-icon class="capped-icon" svgIcon="fy-info"></mat-icon>
+              <mat-icon class="capped-icon" svgIcon="info-circle-fill"></mat-icon>
               <div class="capped-message">
                 Claimed amount {{etxn.tx.user_amount | currency: etxn.tx.currency: '' }} was capped to {{etxn.tx.amount
                 | currency: etxn.tx.currency: '' }} due to policy
@@ -122,12 +132,12 @@
               class="add-edit-expense--split-info-container add-edit-expense--split-info-container__with-border"
               *ngIf="(!(etxn?.tx?.report_id) && !(reviewList?.length > 1)) && (isCorporateCreditCardEnabled && canRemoveCardExpense)"
             >
-              <mat-icon class="add-edit-expense--split-info-icon" svgIcon="fy-info"></mat-icon>
+              <mat-icon class="add-edit-expense--split-info-icon" svgIcon="info-circle-fill"></mat-icon>
               <div class="add-edit-expense--split-info-message">
                 If the expense is merged with incorrect card details, click on Options (<span
                   ><ion-icon
                     class="add-edit-expense--icon-dots"
-                    [src]="'../../../assets/svg/dot-menu.svg'"
+                    [src]="'../../../assets/svg/vertical-dots-menu.svg'"
                   ></ion-icon></span
                 >) to remove the card details.
               </div>
@@ -174,6 +184,20 @@
                 </ion-col>
               </ion-row>
             </ng-container>
+
+            <ng-container *ngIf="isRTFEnabled$ | async">
+              <ng-container *ngIf="platformExpense$ | async as expense">
+                <div
+                  *ngIf="selectedCCCTransaction?.status as transactionStatus"
+                  class="add-edit-expense--card-container__transaction-status"
+                >
+                  <app-transaction-status
+                    [transactionStatus]="transactionStatus"
+                    (statusClick)="openTransactionStatusInfoModal($event)"
+                  ></app-transaction-status>
+                </div>
+              </ng-container>
+            </ng-container>
           </ion-grid>
         </ng-container>
 
@@ -191,7 +215,7 @@
                 class="add-edit-expense--receipt-image"
               >
                 <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
-                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/images/add-to-list.png" />
+                <img class="add-edit-expense--receipt-image-icon" src="../../../assets/svg/list-plus.svg" />
               </div>
 
               <div
@@ -199,7 +223,7 @@
                 *ngIf="attachedReceiptsCount > 0 && !attachmentUploadInProgress"
                 class="add-edit-expense--receipt-image"
               >
-                <mat-icon class="add-edit-expense--receipt-background" svgIcon="fy-attachment"></mat-icon>
+                <mat-icon class="add-edit-expense--receipt-background" svgIcon="list"></mat-icon>
                 <div class="add-edit-expense--receipt-text add-edit-expense--receipt-text__count">
                   {{attachedReceiptsCount}}
                 </div>
@@ -439,7 +463,7 @@
           </ng-container>
 
           <ng-container *ngIf="txnFields$|async as txnFields">
-            <ng-container *ngIf="!((isProjectsEnabled$|async) && !(isConnected$|async))">
+            <ng-container *ngIf="isConnected$|async">
               <ng-container *ngIf="filteredCategories$|async as categories">
                 <ng-container *ngIf="categories.length">
                   <div
@@ -497,14 +521,20 @@
                   >
                     Please select a valid tax group.
                   </div>
-                  <div class="add-edit-expense--text add-edit-expense--internal-block">
-                    <div class="add-edit-expense--text-label">
+                  <div
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                    class="add-edit-expense--internal-block add-edit-expense--text"
+                  >
+                    <div
+                      [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))}"
+                      class="add-edit-expense--text-label"
+                    >
                       {{(taxSettings.name || 'Tax Amount') | ellipsis: 30 }}
                     </div>
                     <app-fy-number formControlName="tax_amount" [placeholder]="'Enter Tax Amount'"></app-fy-number>
                   </div>
                   <div
-                    *ngIf="fg.controls.tax_amount.touched && !fg.controls.tax_amount.valid"
+                    *ngIf="(fg.controls.tax_amount.touched && (!fg.controls.tax_amount.valid || fg.controls.tax_amount.hasError('invalid')))"
                     class="add-edit-expense--error"
                   >
                     Please enter a valid tax amount.
@@ -791,11 +821,11 @@
 
                 <ng-container *ngIf="txnFields.distance?.is_mandatory && fg.value?.category?.fyle_category === 'Taxi'">
                   <div
-                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                    [ngClass]="{'add-edit-expense--internal-block__invalid add-edit-expense--text__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
                     class="add-edit-expense--internal-block add-edit-expense--text"
                   >
                     <div
-                      [ngClass]="{'add-edit-expense--text-label__invalid': fg.controls.distance.touched && !fg.controls.distance.valid}"
+                      [ngClass]="{'add-edit-expense--text-label__invalid': (fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))}"
                       class="add-edit-expense--text-label"
                     >
                       {{txnFields.distance?.field_name}}
@@ -803,11 +833,12 @@
                     </div>
                     <app-fy-number
                       formControlName="distance"
+                      [isDistance]="true"
                       [placeholder]="txnFields.distance?.placeholder || 'Enter ' + txnFields.distance?.field_name"
                     ></app-fy-number>
                   </div>
                   <div
-                    *ngIf="fg.controls.distance.touched && !fg.controls.distance.valid"
+                    *ngIf="(fg.controls.distance.touched && (!fg.controls.distance.valid || fg.controls.distance.hasError('invalid')))"
                     class="add-edit-expense--distance-error"
                   >
                     Please enter {{ txnFields.distance?.field_name }}.
@@ -1096,15 +1127,17 @@
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
             <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
               <ng-container *ngIf="reports$|async as reports">
-                <div class="add-edit-expense--internal-block">
-                  <app-fy-add-to-report
-                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                    [autoSubmissionReportName]="autoSubmissionReportName$|async"
-                    [options]="reports"
-                    [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-                    formControlName="report"
-                  ></app-fy-add-to-report>
-                </div>
+                <ng-container *ngIf="pendingTransactionAllowedToReportAndSplit">
+                  <div class="add-edit-expense--internal-block">
+                    <app-fy-add-to-report
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                      [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                      [options]="reports"
+                      [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+                      formControlName="report"
+                    ></app-fy-add-to-report>
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -1126,13 +1159,6 @@
         </ng-template>
       </div>
 
-      <app-fy-alert-info
-        *ngIf="isNotReimbursable$|async"
-        [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
-        [type]="'information'"
-      >
-      </app-fy-alert-info>
-
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="txnFields$|async as txnFields">
           <ng-container *ngIf="isProjectsEnabled$|async as isProjectsEnabled">
@@ -1146,6 +1172,15 @@
                 </app-fy-alert-info>
               </ng-container>
             </ng-container>
+          </ng-container>
+
+          <ng-container *ngIf="filteredCategories$|async as categories">
+            <app-fy-alert-info
+              *ngIf="txnFields?.org_category_id?.is_mandatory && !categories.length"
+              [message]="'There are no Categories assigned to you, so this expense will be saved as a draft. Please contact admin for further help.'"
+              [type]="'warning'"
+            >
+            </app-fy-alert-info>
           </ng-container>
         </ng-container>
       </ng-container>

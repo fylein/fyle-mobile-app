@@ -112,7 +112,7 @@
             <mat-icon
               class="route-selector--icon"
               [ngClass]="{ 'route-selector--input-disabled': form.controls.mileageLocations.disabled }"
-              svgIcon="chevron-right"
+              svgIcon="arrow-right"
             >
             </mat-icon>
           </div>
@@ -127,15 +127,21 @@
     </ng-template>
   </div>
 
-  <div class="route-selector--internal-block" *ngIf="mileageLocations.controls.length < 3">
-    <mat-checkbox [disabled]="isAmountDisabled || !form.controls.distance" formControlName="roundTrip">
+  <div
+    class="route-selector--internal-block"
+    *ngIf="mileageLocations.controls.length < 3"
+    [ngClass]="{ 'route-selector--input-disabled': isRoundTripDisabled }"
+  >
+    <mat-checkbox [disabled]="isRoundTripDisabled" formControlName="roundTrip">
       <span class="route-selector--checkbox"> Round Trip </span>
     </mat-checkbox>
   </div>
 
+  <ng-content></ng-content>
+
   <ng-container *ngIf="txnFields?.distance">
     <div
-      class="route-selector--text route-selector--internal-block"
+      class="route-selector--text route-selector--internal-distance-block"
       [ngClass]="{ 'route-selector--text__invalid': form.controls.distance.touched && !form.controls.distance.valid }"
     >
       <div class="route-selector--text-label">
@@ -149,14 +155,22 @@
         </ng-template>
         <div class="route-selector--mandatory" *ngIf="isDistanceMandatory">*</div>
       </div>
-      <app-fy-number [disabled]="isAmountDisabled" [min]="0" formControlName="distance" placeholder="Enter Distance">
+      <app-fy-number
+        [disabled]="isAmountDisabled"
+        [min]="0"
+        [isDistance]="true"
+        formControlName="distance"
+        placeholder="Enter Distance"
+      >
       </app-fy-number>
     </div>
     <div
-      *ngIf="form.controls.distance.touched && !form.controls.distance.valid"
+      *ngIf="
+        form.controls.distance.touched && (!form.controls.distance.valid || form.controls.distance.hasError('invalid'))
+      "
       class="route-selector--error route-selector--text-error"
     >
-      Please enter the distance
+      Please enter valid distance
     </div>
   </ng-container>
 </div>

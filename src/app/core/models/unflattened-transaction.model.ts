@@ -1,3 +1,4 @@
+import { FileObject } from './file-obj.model';
 import { OrgUser } from './org-user.model';
 import { UnflattenedReport } from './report-unflattened.model';
 import { User } from './user.model';
@@ -22,4 +23,5 @@ export interface UnflattenedTransaction {
   is: {
     test_call: boolean;
   };
+  dataUrls?: Partial<FileObject[]> | { url: string; type: string }[];
 }

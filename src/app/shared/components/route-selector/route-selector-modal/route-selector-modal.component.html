@@ -16,7 +16,7 @@
 <ion-content>
   <div class="route-selector-modal--body" [formGroup]="form">
     <div class="route-selector-modal--distance-details">
-      Total Distance: {{ distance || '-' }} {{ unit | titlecase }}
+      Total Distance: {{ calculatedLocationDistance || '-' }} {{ unit | titlecase }}
     </div>
 
     <div class="timeline--timeline route-selector-modal--timeline">
@@ -62,15 +62,11 @@
                   i >= 1 && (i !== mileageLocations.controls.length - 1 || mileageLocations.controls.length === 10)
                 "
               >
-                <mat-icon
-                  (click)="removeMileageLocation(i)"
-                  class="route-selector-modal--remove-stop"
-                  svgIcon="fy-delete"
-                >
+                <mat-icon (click)="removeMileageLocation(i)" class="route-selector-modal--remove-stop" svgIcon="bin">
                 </mat-icon>
               </span>
               <span *ngIf="i === mileageLocations.controls.length - 1 && mileageLocations.controls.length !== 10">
-                <mat-icon svgIcon="fy-plus" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
+                <mat-icon svgIcon="plus-square" (click)="addMileageLocation()" class="route-selector-modal--add-stop">
                 </mat-icon>
               </span>
             </div>
@@ -95,7 +91,7 @@
     </app-fy-alert-info>
 
     <div class="route-selector-modal--internal-block" *ngIf="mileageLocations.controls.length < 3">
-      <mat-checkbox [disabled]="isAmountDisabled" formControlName="roundTrip">
+      <mat-checkbox formControlName="roundTrip">
         <span class="route-selector-modal--checkbox"> Round Trip </span>
       </mat-checkbox>
     </div>

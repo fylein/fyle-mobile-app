@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { MatRippleModule } from '@angular/material/core';
 import { IonicModule, PopoverController } from '@ionic/angular';
-import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { FormsModule } from '@angular/forms';
 import { ShareReportComponent } from './share-report.component';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';

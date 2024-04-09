@@ -207,6 +207,7 @@ $background-color: #fff;
   &--split-evenly {
     display: flex;
     align-items: center;
+    color: $brand-primary;
   }
 
   &--add-more-icon,

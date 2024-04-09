@@ -1,4 +1,4 @@
-import { CurrencyName } from '../models/currency.model';
+import { Currency, CurrencyName } from '../models/currency.model';
 
 export const apiAllCurrencies: CurrencyName = {
   AED: 'United Arab Emirates Dirham',
@@ -172,3 +172,62 @@ export const apiAllCurrencies: CurrencyName = {
   ZMW: 'Zambian Kwacha',
   ZWL: 'Zimbabwean Dollar',
 };
+
+export const apiAllCurrencies2: CurrencyName = {
+  AED: 'United Arab Emirates Dirham',
+  AFN: 'Afghan Afghani',
+  ALL: 'Albanian Lek',
+  AMD: 'Armenian Dram',
+  ANG: 'Netherlands Antillean Guilder',
+  AOA: 'Angolan Kwanza',
+  ARS: 'Argentine Peso',
+  AUD: 'Australian Dollar',
+  AWG: 'Aruban Florin',
+  AZN: 'Azerbaijani Manat',
+  BAM: 'Bosnia-Herzegovina Convertible Mark',
+  BBD: 'Barbadian Dollar',
+  BDT: 'Bangladeshi Taka',
+  BGN: 'Bulgarian Lev',
+  BHD: 'Bahraini Dinar',
+  BIF: 'Burundian Franc',
+  BMD: 'Bermudan Dollar',
+  BND: 'Brunei Dollar',
+  BOB: 'Bolivian Boliviano',
+  BRL: 'Brazilian Real',
+  BSD: 'Bahamian Dollar',
+  BTC: 'Bitcoin',
+  BTN: 'Bhutanese Ngultrum',
+  BWP: 'Botswanan Pula',
+  BYN: null,
+};
+
+export const selectedCurrencies: Currency[] = [
+  {
+    shortCode: 'USD',
+    longName: 'US Dollar',
+  },
+  {
+    shortCode: 'EUR',
+    longName: 'Euro',
+  },
+  {
+    shortCode: 'JPY',
+    longName: 'JPY',
+  },
+];
+
+export const selectedCurrencyNames: CurrencyName = {
+  INR: 'Indian Rupee',
+  USD: 'US Dollar',
+};
+
+export const selectedCurrencies2: Currency[] = [
+  {
+    shortCode: 'INR',
+    longName: 'Indian Rupee',
+  },
+  {
+    shortCode: 'USD',
+    longName: 'US Dollar',
+  },
+];

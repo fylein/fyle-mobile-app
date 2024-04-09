@@ -1,0 +1,29 @@
+@import '../../../../theme/colors.scss';
+
+.card-number {
+  display: flex;
+  align-items: center;
+
+  &__masked-digits {
+    margin-top: 4px;
+    display: flex;
+    gap: 4px;
+
+    &__dot {
+      border-radius: 50%;
+      padding: 2px;
+      background-color: $blue-black;
+    }
+
+    &__fourth-dot {
+      margin-right: 10px;
+    }
+  }
+
+  &__unmasked-digits {
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    color: $blue-black;
+  }
+}

@@ -1,4 +1,4 @@
-import { CustomField } from '../models/custom_field.model';
+import { AdvanceRequestCustomFieldValues } from './advance-request-custom-field-values.model';
 
 export interface AdvanceRequests {
   id: string;
@@ -14,8 +14,8 @@ export interface AdvanceRequests {
   policy_amount: number;
   policy_flag: boolean;
   policy_state: string;
-  project_id: string;
-  custom_field_values: CustomField[];
+  project_id: string | number;
+  custom_field_values: AdvanceRequestCustomFieldValues[];
   updated_at: Date;
   source: string;
   advance_request_number: string;

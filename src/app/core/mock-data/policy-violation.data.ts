@@ -157,3 +157,22 @@ export const policyViolationData4: PolicyViolationTxn = {
   txSEM4DtjyKR: splitPolicyExp4,
   txNyI8ot5CuJ: splitPolicyExp5,
 };
+
+export const policyViolationData5: PolicyViolation = {
+  amount: 122,
+  currency: 'INR',
+  name: 'Food',
+  type: undefined,
+  data: {
+    individual_desired_states: [],
+    final_desired_state: {
+      add_approver_user_ids: [],
+      amount: null,
+      flag: false,
+      is_receipt_mandatory: false,
+      remove_employee_approver1: false,
+      run_status: 'SUCCESS',
+      run_summary: [],
+    },
+  },
+};

@@ -1,4 +1,4 @@
-import { Component, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
+import { Component, ElementRef, forwardRef, Injector, Input, OnChanges, OnInit, TemplateRef } from '@angular/core';
 import { NG_VALUE_ACCESSOR, NgControl, ControlValueAccessor } from '@angular/forms';
 import { noop } from 'rxjs';
 import { map, concatMap, tap } from 'rxjs/operators';
@@ -10,6 +10,7 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-fy-add-to-report',
@@ -32,7 +33,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   @Input() mandatory = false;
 
-  @Input() selectionElement: TemplateRef<any>;
+  @Input() selectionElement: TemplateRef<ElementRef>;
 
   @Input() showNullOption = true;
 
@@ -52,11 +53,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
   private ngControl: NgControl;
 
-  private innerValue;
+  private innerValue: UnflattenedReport;
 
   private onTouchedCallback: () => void = noop;
 
-  private onChangeCallback: (_: any) => void = noop;
+  private onChangeCallback: (_: UnflattenedReport) => void = noop;
 
   constructor(
     private modalController: ModalController,
@@ -67,7 +68,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private trackingService: TrackingService
   ) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.ngControl.touched) {
       return this.ngControl.valid;
     } else {
@@ -75,11 +76,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  get value(): any {
+  get value(): UnflattenedReport {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: UnflattenedReport) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       this.setDisplayValue();
@@ -87,11 +88,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.ngControl = this.injector.get(NgControl);
   }
 
-  ngOnChanges() {
+  ngOnChanges(): void {
     //If Report auto submission is scheduled, 'None' option won't be shown in reports list
     if (this.autoSubmissionReportName) {
       this.showNullOption = false;
@@ -99,7 +100,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: FyAddToReportModalComponent,
       componentProps: {
@@ -120,7 +121,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
+    const { data } = await selectionModal.onWillDismiss<{ createDraftReport: boolean; value: UnflattenedReport }>();
 
     if (data && !data.createDraftReport) {
       this.value = data.value;
@@ -143,7 +144,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
       });
 
       await draftReportPopover.present();
-      const { data } = await draftReportPopover.onWillDismiss();
+      const { data } = await draftReportPopover.onWillDismiss<{ newValue: string }>();
 
       if (data && data.newValue) {
         const report = {
@@ -154,7 +155,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
         this.reportService
           .createDraft(report)
           .pipe(
-            concatMap((newReport) =>
+            concatMap((newReport: ReportV1) =>
               this.reportService.getFilteredPendingReports({ state: 'edit' }).pipe(
                 map((reports) => reports.map((report) => ({ label: report.rp.purpose, value: report }))),
                 tap((options) => {
@@ -172,18 +173,18 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     this.trackingService.openAddToReportModal();
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value: UnflattenedReport): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       this.setDisplayValue();
     }
   }
 
-  setDisplayValue() {
+  setDisplayValue(): void {
     if (this.options) {
       const selectedOption = this.options.find((option) => isEqual(option.value, this.innerValue));
       if (selectedOption) {
@@ -196,11 +197,11 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (_: UnflattenedReport) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }

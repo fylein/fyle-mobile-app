@@ -12,7 +12,7 @@ import { ExpenseType } from '../enums/expense-type.enum';
 import { Observable } from 'rxjs';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { OrgSettings } from '../models/org-settings.model';
-import { DateService } from './date.service';
+import { FlattenedAccount } from '../models/flattened-account.model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,18 +21,17 @@ export class AccountsService {
   constructor(
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private fyCurrencyPipe: FyCurrencyPipe,
-    private dateService: DateService
+    private fyCurrencyPipe: FyCurrencyPipe
   ) {}
 
   @Cacheable()
   getEMyAccounts(): Observable<ExtendedAccount[]> {
-    return this.apiService.get('/eaccounts/').pipe(
-      map((accountsRaw: ExtendedAccount[]) => {
+    return this.apiService.get<FlattenedAccount[]>('/eaccounts/').pipe(
+      map((accountsRaw: FlattenedAccount[]) => {
         const accounts: ExtendedAccount[] = [];
 
         accountsRaw.forEach((accountRaw) => {
-          const account = this.dataTransformService.unflatten(accountRaw);
+          const account = this.dataTransformService.unflatten<ExtendedAccount, FlattenedAccount>(accountRaw);
           accounts.push(account);
         });
 
@@ -80,7 +79,7 @@ export class AccountsService {
     return paymentMode.acc.type;
   }
 
-  getEtxnSelectedPaymentMode(etxn: UnflattenedTransaction, paymentModes: AccountOption[]): ExtendedAccount {
+  getEtxnSelectedPaymentMode(etxn: Partial<UnflattenedTransaction>, paymentModes: AccountOption[]): ExtendedAccount {
     if (etxn.tx.source_account_id) {
       return paymentModes
         .map((res) => res.value)
@@ -95,7 +94,7 @@ export class AccountsService {
     paymentMode: string,
     isMultipleAdvanceEnabled: boolean
   ): ExtendedAccount {
-    const accountDisplayNameMapping = {
+    const accountDisplayNameMapping: Record<string, string> = {
       PERSONAL_ACCOUNT: 'Personal Card/Cash',
       COMPANY_ACCOUNT: 'Paid by Company',
       PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT: 'Corporate Card',
@@ -184,7 +183,7 @@ export class AccountsService {
   }
 
   // `Paid by Company` and `Paid by Employee` have same account id so explicitly checking for them.
-  checkIfEtxnHasSamePaymentMode(etxn: UnflattenedTransaction, paymentMode: ExtendedAccount): boolean {
+  checkIfEtxnHasSamePaymentMode(etxn: Partial<UnflattenedTransaction>, paymentMode: ExtendedAccount): boolean {
     if (etxn.source.account_type === AccountType.PERSONAL) {
       return (
         paymentMode.acc.id === etxn.tx.source_account_id &&

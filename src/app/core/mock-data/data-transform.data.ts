@@ -1,3 +1,5 @@
+import { FlattenedAccount } from '../models/flattened-account.model';
+
 export const dataErtpTransformed = {
   '': {
     search_document:
@@ -130,7 +132,7 @@ export const apiErptReporDataParam = {
   },
 };
 
-export const flattenedData = {
+export const flattenedData: FlattenedAccount = {
   acc_id: 'acct0vTdfNQrT',
   acc_created_at: '2019-09-19T10:19:37.764Z',
   acc_updated_at: '2023-03-10T11:29:40.049Z',
@@ -148,7 +150,7 @@ export const flattenedData = {
   org_id: 'oRg123',
   org_domain: 'staging.in',
   advance_purpose: 'Testing',
-  advance_number1: '1234',
+  advance_number: 1234,
   orig_currency: 'INR',
   currency: 'INR',
   orig_amount: 2500,
@@ -183,7 +185,9 @@ export const unflattenedData = {
   },
   advance: {
     purpose: 'Testing',
-    number1: '1234',
+
+    // eslint-disable-next-line id-blacklist
+    number: 1234,
     id: 'aDvId123',
   },
   orig: {

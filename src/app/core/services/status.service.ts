@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { ExtendedStatus } from '../models/extended_status.model';
 import { StatusCategory } from '../models/status-category.model';
 import { Observable } from 'rxjs';
+import { TransactionStatus } from '../models/transaction-status.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,14 +17,19 @@ export class StatusService {
       map((estatuses: ExtendedStatus[]) =>
         estatuses?.map((estatus) => {
           estatus.st_created_at = new Date(estatus.st_created_at);
-          return estatus as ExtendedStatus;
+          return estatus;
         })
       )
     );
   }
 
-  post(objectType: string, objectId: string, status, notify: boolean = false) {
-    return this.apiService.post('/' + objectType + '/' + objectId + '/statuses', {
+  post(
+    objectType: string,
+    objectId: string,
+    status: { comment: string | ExtendedStatus },
+    notify: boolean = false
+  ): Observable<TransactionStatus> {
+    return this.apiService.post<TransactionStatus>('/' + objectType + '/' + objectId + '/statuses', {
       status,
       notify,
     });
@@ -39,38 +45,38 @@ export class StatusService {
       case lowerCaseComment.indexOf('automatically merged') > -1:
         statusCategory = {
           category: 'Expense automatically merged',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case /(merged (\d+) expenses)/.test(lowerCaseComment):
         const regexMatch = lowerCaseComment.match(/merged (\d+) expenses/);
         statusCategory = {
           category: regexMatch[1] + ' expenses merged to this expense',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case lowerCaseComment.indexOf('merged') > -1:
         statusCategory = {
           category: 'Expense merged',
-          icon: 'fy-merge',
+          icon: 'merge',
         };
         break;
       case lowerCaseComment.indexOf('created') > -1 && lowerCaseComment.indexOf('reversal') > -1:
         statusCategory = {
           category: type + ' Reversed',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('expense rule') > -1:
         statusCategory = {
           category: 'Expense Rule Applied',
-          icon: 'expense-rule',
+          icon: 'file-lightning-indicator',
         };
         break;
       case lowerCaseComment.indexOf('created') > -1:
         statusCategory = {
           category: type + ' Created',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('updated') > -1:
@@ -82,13 +88,13 @@ export class StatusService {
       case lowerCaseComment.indexOf('policy violation will trigger the following action') > -1:
         statusCategory = {
           category: 'Policy Violation',
-          icon: 'danger',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('added to the report') > -1:
         statusCategory = {
           category: 'Expense added',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
       case lowerCaseComment.indexOf('added') > -1:
@@ -106,13 +112,19 @@ export class StatusService {
       case lowerCaseComment.indexOf('deleted') > -1:
         statusCategory = {
           category: 'Receipt Removed',
-          icon: 'no-attachment',
+          icon: 'attachment-none',
         };
         break;
       case lowerCaseComment.indexOf('removed from the report') > -1:
         statusCategory = {
           category: 'Expense removed',
-          icon: 'fy-delete',
+          icon: 'bin',
+        };
+        break;
+      case lowerCaseComment.indexOf('name was changed from') > -1:
+        statusCategory = {
+          category: 'Report Name Changed',
+          icon: 'edit',
         };
         break;
       case lowerCaseComment.indexOf('report') > -1:
@@ -124,79 +136,85 @@ export class StatusService {
       case lowerCaseComment.indexOf('unflagged') > -1:
         statusCategory = {
           category: 'Unflagged',
-          icon: 'flag',
+          icon: 'flag-outline',
         };
         break;
       case lowerCaseComment.indexOf('flagged') > -1:
         statusCategory = {
           category: 'Flagged',
-          icon: 'flag',
+          icon: 'flag-fill',
         };
         break;
       case lowerCaseComment.indexOf('additional approvers are not present') > -1:
         statusCategory = {
           category: 'Failed to run policies',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('verified') > -1:
         statusCategory = {
           category: 'Verified',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
-      case lowerCaseComment.indexOf('un-approved') > -1:
+      case lowerCaseComment.indexOf('approver_inquiry') > -1:
         statusCategory = {
           category: type + ' Sent Back',
           icon: 'send-back',
         };
         break;
+      case lowerCaseComment.indexOf('approver_pending') > -1:
+        statusCategory = {
+          category: 'Approver Pending',
+          icon: 'radio-circle-outline',
+        };
+        break;
       case lowerCaseComment.indexOf('approved') > -1:
         statusCategory = {
           category: type + ' Approved',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('payment_processing') > -1:
         statusCategory = {
           category: 'Processing Payment',
-          icon: 'fy-recently-used',
+          icon: 'clock',
         };
         break;
       case lowerCaseComment.indexOf('to paid') > -1:
         statusCategory = {
           category: 'Paid',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('expense issues') > -1:
         statusCategory = {
           category: 'Expense Issues',
-          icon: 'error-filled',
+          icon: 'warning-fill',
         };
         break;
       case lowerCaseComment.indexOf('policies ran successfully') > -1:
         statusCategory = {
           category: 'Policies Ran Successfully',
-          icon: 'success-tick',
+          icon: 'check-square-fill',
         };
         break;
       case lowerCaseComment.indexOf('auto-matched by') > -1:
         statusCategory = {
           category: 'Card Transaction Matched',
-          icon: 'card-filled',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('unmatched by') > -1:
         statusCategory = {
           category: 'Expense Unmatched',
-          icon: 'fy-corporate-card',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('matched by') > -1:
         statusCategory = {
           category: 'Expense Matched',
-          icon: 'card-filled',
+          icon: 'card',
         };
         break;
       case lowerCaseComment.indexOf('expense is a possible duplicate') > -1:
@@ -214,7 +232,7 @@ export class StatusService {
       default:
         statusCategory = {
           category: 'Others',
-          icon: 'circle',
+          icon: 'radio-circle-outline',
         };
         break;
     }

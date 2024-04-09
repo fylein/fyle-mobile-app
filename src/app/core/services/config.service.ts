@@ -14,7 +14,7 @@ export class ConfigService {
   ) {}
 
   async loadConfigurationData() {
-    const clusterDomain = await this.tokenService.getClusterDomain();
+    const clusterDomain: string = await this.tokenService.getClusterDomain();
 
     if (clusterDomain) {
       // if clusterdomain is present use that

@@ -14,6 +14,10 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
 import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
+import { HttpErrorResponse } from '@angular/common/http';
+import { EmailExistsResponse } from 'src/app/core/models/email-exists-response.model';
+import { SamlResponse } from 'src/app/core/models/saml-response.model';
+
 @Component({
   selector: 'app-sign-in',
   templateUrl: './sign-in.page.html',
@@ -32,7 +36,7 @@ export class SignInPage implements OnInit {
 
   hide = true;
 
-  checkEmailExists$: Observable<any>;
+  checkEmailExists$: Observable<EmailExistsResponse>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -50,11 +54,11 @@ export class SignInPage implements OnInit {
     private inAppBrowserService: InAppBrowserService
   ) {}
 
-  async checkSAMLResponseAndSignInUser(data) {
+  async checkSAMLResponseAndSignInUser(data: SamlResponse): Promise<void> {
     if (data && data.error) {
       const err = {
         status: parseInt(data.response_status_code, 10),
-      };
+      } as HttpErrorResponse;
 
       this.handleError(err);
     } else {
@@ -69,7 +73,7 @@ export class SignInPage implements OnInit {
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
             await this.trackLoginInfo();
-            this.trackingService.onSignin(this.fg.value.email, {
+            this.trackingService.onSignin(this.fg.controls.email.value as string, {
               label: 'Email',
             });
           })
@@ -82,24 +86,24 @@ export class SignInPage implements OnInit {
     }
   }
 
-  handleSamlSignIn(res) {
+  handleSamlSignIn(res: EmailExistsResponse): void {
     const url = res.idp_url + '&RelayState=MOBILE';
     const browser = this.inAppBrowserService.create(url, '_blank', 'location=yes');
     browser
       .on('loadstop')
       .pipe(take(1))
-      .subscribe((event) => {
+      .subscribe(() => {
         const getResponse = setInterval(() => {
           browser
             .executeScript({
               code: 'try{document.getElementById("fyle-login-response").innerHTML;}catch(err){}',
             })
-            .then(async (responseData) => {
+            .then(async (responseData: string[]) => {
               const response = responseData && responseData[0];
-              let data = '';
+              let data: SamlResponse;
 
               try {
-                data = JSON.parse(response);
+                data = JSON.parse(response) as SamlResponse;
               } catch (err) {}
 
               if (data) {
@@ -112,16 +116,16 @@ export class SignInPage implements OnInit {
       });
   }
 
-  async checkIfEmailExists() {
+  async checkIfEmailExists(): Promise<void> {
     if (this.fg.controls.email.valid) {
       this.emailLoading = true;
 
-      const checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value).pipe(
+      const checkEmailExists$ = this.routerAuthService.checkEmailExists(this.fg.controls.email.value as string).pipe(
         shareReplay(1),
         finalize(async () => {
           this.emailLoading = false;
         })
-      );
+      ) as Observable<EmailExistsResponse>;
 
       const saml$ = checkEmailExists$.pipe(filter((res) => (res.saml ? true : false)));
 
@@ -129,23 +133,26 @@ export class SignInPage implements OnInit {
 
       basicSignIn$.subscribe({
         next: () => (this.emailSet = true),
-        error: (err) => this.handleError(err),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
 
       saml$.subscribe({
         next: (res) => this.handleSamlSignIn(res),
-        error: (err) => this.handleError(err),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
     } else {
       this.fg.controls.email.markAsTouched();
     }
   }
 
-  async handleError(error) {
+  async handleError(error: HttpErrorResponse): Promise<void> {
     let header = 'Incorrect Email or Password';
 
     if (error?.status === 400) {
-      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value }]);
+      this.router.navigate(['/', 'auth', 'pending_verification', { email: this.fg.controls.email.value as string }]);
+      return;
+    } else if (error?.status === 422) {
+      this.router.navigate(['/', 'auth', 'disabled']);
       return;
     } else if (error?.status === 500) {
       header = 'Sorry... Something went wrong!';
@@ -167,7 +174,7 @@ export class SignInPage implements OnInit {
     await errorPopover.present();
   }
 
-  signInUser() {
+  signInUser(): void {
     if (this.fg.controls.password.valid) {
       this.emailLoading = false;
       this.passwordLoading = true;
@@ -176,11 +183,11 @@ export class SignInPage implements OnInit {
       };
       performance.mark('login start time', markOptions);
       this.routerAuthService
-        .basicSignin(this.fg.value.email, this.fg.value.password)
+        .basicSignin(this.fg.controls.email.value as string, this.fg.controls.password.value as string)
         .pipe(
           switchMap(() => this.authService.refreshEou()),
           tap(async () => {
-            this.trackingService.onSignin(this.fg.value.email, {
+            this.trackingService.onSignin(this.fg.controls.email.value as string, {
               label: 'Email',
             });
             await this.trackLoginInfo();
@@ -193,14 +200,14 @@ export class SignInPage implements OnInit {
             this.fg.reset();
             this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
           },
-          error: (err) => this.handleError(err),
+          error: (err: HttpErrorResponse) => this.handleError(err),
         });
     } else {
       this.fg.controls.password.markAsTouched();
     }
   }
 
-  googleSignIn() {
+  googleSignIn(): void {
     this.googleSignInLoading = true;
     const markOptions: PerformanceMarkOptions = {
       detail: 'Google Login',
@@ -208,7 +215,7 @@ export class SignInPage implements OnInit {
     performance.mark('login start time', markOptions);
     from(this.googleAuthService.login())
       .pipe(
-        switchMap((googleAuthResponse) => {
+        switchMap((googleAuthResponse: { accessToken: string }) => {
           if (googleAuthResponse.accessToken) {
             return of(googleAuthResponse);
           } else {
@@ -221,9 +228,9 @@ export class SignInPage implements OnInit {
         }),
         switchMap((googleAuthResponse) =>
           this.routerAuthService.googleSignin(googleAuthResponse.accessToken).pipe(
-            switchMap((res) => this.authService.refreshEou()),
+            switchMap(() => this.authService.refreshEou()),
             tap(async () => {
-              this.trackingService.onSignin(this.fg.value.email, {
+              this.trackingService.onSignin(this.fg.controls.email.value as string, {
                 label: 'Email',
               });
               await this.trackLoginInfo();
@@ -241,22 +248,22 @@ export class SignInPage implements OnInit {
           this.fg.reset();
           this.router.navigate(['/', 'auth', 'switch_org', { choose: true }]);
         },
-        error: (err) => this.handleError(err),
+        error: (err: HttpErrorResponse) => this.handleError(err),
       });
   }
 
-  async trackLoginInfo() {
+  async trackLoginInfo(): Promise<void> {
     const deviceInfo = await this.deviceService.getDeviceInfo().toPromise();
     this.trackingService.eventTrack('Added Login Info', { label: deviceInfo.appVersion });
     await this.loginInfoService.addLoginInfo(deviceInfo.appVersion, new Date());
   }
 
-  ionViewWillEnter() {
-    this.emailSet = !!this.fg.value.email;
+  ionViewWillEnter(): void {
+    this.emailSet = !!this.fg.controls.email.value;
   }
 
-  ngOnInit() {
-    const presentEmail = this.activatedRoute.snapshot.params.email;
+  ngOnInit(): void {
+    const presentEmail = this.activatedRoute.snapshot.params.email as string;
     this.fg = this.formBuilder.group({
       email: [presentEmail || '', Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
       password: ['', Validators.required],

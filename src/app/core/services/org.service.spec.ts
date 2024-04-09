@@ -7,15 +7,18 @@ import { orgData1 } from '../mock-data/org.data';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
+import { TrackingService } from './tracking.service';
 
 describe('OrgService', () => {
   let orgService: OrgService;
   let apiService: jasmine.SpyObj<ApiService>;
   let authService: jasmine.SpyObj<AuthService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(() => {
     apiService = jasmine.createSpyObj('ApiService', ['get', 'post']);
     authService = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
+    trackingService = jasmine.createSpyObj('TrackingService', ['activated']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -27,6 +30,10 @@ describe('OrgService', () => {
         {
           provide: AuthService,
           useValue: authService,
+        },
+        {
+          provide: TrackingService,
+          useValue: trackingService,
         },
       ],
     });

@@ -1,9 +1,11 @@
+import { Destination } from './destination.model';
+
 export interface ParsedResponse {
-  category?: any;
-  currency?: any;
-  amount?: any;
-  date?: any;
-  location?: any;
-  invoice_dt?: any;
-  vendor_name?: any;
+  category?: string;
+  currency?: string;
+  amount?: number;
+  date?: Date;
+  location?: Destination;
+  invoice_dt?: Date;
+  vendor_name?: string;
 }

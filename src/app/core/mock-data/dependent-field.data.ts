@@ -1,6 +1,6 @@
-import { CustomInput } from '../models/custom-input.model';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
-export const projectDependentFields: CustomInput[] = [
+export const projectDependentFields: TxnCustomProperties[] = [
   {
     id: 218227,
     prefix: '',
@@ -58,7 +58,7 @@ export const projectDependentFields: CustomInput[] = [
   },
 ];
 
-export const costCenterDependentFields: CustomInput[] = [
+export const costCenterDependentFields: TxnCustomProperties[] = [
   {
     id: 221308,
     prefix: '',

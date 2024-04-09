@@ -32,6 +32,7 @@ export const apiEouRes: ExtendedOrgUser = {
     mobile: '123456',
     mobile_verified: false,
     mobile_verified_at: null,
+    mobile_verification_attempts_left: 3,
     is_primary: true,
     owner: false,
     joining_dt: new Date('2017-07-25T00:00:00.000+0000'),
@@ -397,4 +398,20 @@ export const eouFlattended: EouApiResponse = {
   dwolla_customer_id: 'dwcJzfwZCgwkdfG',
   dwolla_bank_account_added: true,
   ou_cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
+};
+
+export const eouWithNoAttempts: ExtendedOrgUser = {
+  ...apiEouRes,
+  ou: {
+    ...apiEouRes.ou,
+    mobile_verification_attempts_left: 0,
+  },
+};
+
+export const eouWithPendingDetails: ExtendedOrgUser = {
+  ...apiEouRes,
+  ou: {
+    ...apiEouRes.ou,
+    status: 'PENDING_DETAILS',
+  },
 };

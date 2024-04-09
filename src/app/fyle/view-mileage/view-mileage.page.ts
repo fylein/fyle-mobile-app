@@ -1,6 +1,5 @@
-import { Component, EventEmitter, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { Observable, from, Subject, concat, noop, of, forkJoin } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -20,24 +19,36 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
-import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
-import { CustomProperty } from 'src/app/core/models/custom-properties.model';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
+import { FileService } from 'src/app/core/services/file.service';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
+import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { ExpenseDeletePopoverParams } from 'src/app/core/models/expense-delete-popover-params.model';
+import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
+import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { AccountType } from 'src/app/core/models/platform/v1/account.model';
+import { ExpenseState } from 'src/app/core/models/expense-state.enum';
+import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
+import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 
 @Component({
   selector: 'app-view-mileage',
   templateUrl: './view-mileage.page.html',
   styleUrls: ['./view-mileage.page.scss'],
 })
-export class ViewMileagePage implements OnInit {
+export class ViewMileagePage {
   @ViewChild('comments') commentsContainer: ElementRef;
 
-  extendedMileage$: Observable<Expense>;
+  mileageExpense$: Observable<Expense>;
 
-  orgSettings: any;
+  orgSettings: OrgSettings;
 
   mileageCustomFields$: Observable<CustomField[]>;
 
@@ -45,7 +56,7 @@ export class ViewMileagePage implements OnInit {
 
   isAmountCapped$: Observable<boolean>;
 
-  policyViloations$: Observable<any>;
+  policyViloations$: Observable<IndividualExpensePolicyState[]>;
 
   canFlagOrUnflag$: Observable<boolean>;
 
@@ -53,29 +64,29 @@ export class ViewMileagePage implements OnInit {
 
   updateFlag$ = new Subject();
 
+  expenseId: string;
+
   reportId: string;
 
-  policyDetails;
+  policyDetails: IndividualExpensePolicyState[] | [];
 
   isConnected$: Observable<boolean>;
 
-  onPageExit = new Subject();
+  onPageExit$ = new Subject();
 
   comments$: Observable<ExtendedStatus[]>;
 
   isDeviceWidthSmall = window.innerWidth < 330;
 
-  isExpenseFlagged: boolean;
+  reportExpenseCount: number;
 
-  numEtxnsInReport: number;
-
-  activeEtxnIndex: number;
+  activeExpenseIndex: number;
 
   paymentMode: string;
 
   paymentModeIcon: string;
 
-  etxnCurrencySymbol: string;
+  expenseCurrencySymbol: string;
 
   vehicleType: string;
 
@@ -87,11 +98,17 @@ export class ViewMileagePage implements OnInit {
 
   isNewReportsFlowEnabled = false;
 
-  txnFields$: Observable<{ [key: string]: ExpenseField[] }>;
+  expenseFields$: Observable<{ [key: string]: ExpenseField[] }>;
 
-  projectDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  projectDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  costCenterDependentCustomProperties$: Observable<CustomProperty<string>[]>;
+  costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
+
+  mapAttachment$: Observable<FileObject>;
+
+  mileageRate$: Observable<PlatformMileageRates>;
+
+  commuteDeduction: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -109,22 +126,26 @@ export class ViewMileagePage implements OnInit {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private dependentFieldsService: DependentFieldsService
+    private dependentFieldsService: DependentFieldsService,
+    private fileService: FileService,
+    private approverExpensesService: ApproverExpensesService,
+    private spenderExpensesService: SpenderExpensesService,
+    private mileageRatesService: MileageRatesService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  ionViewWillLeave() {
-    this.onPageExit.next(null);
+  ionViewWillLeave(): void {
+    this.onPageExit$.next(null);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
-      takeUntil(this.onPageExit),
+      takeUntil(this.onPageExit$),
       shareReplay(1)
     );
 
@@ -135,11 +156,11 @@ export class ViewMileagePage implements OnInit {
     });
   }
 
-  isNumber(val) {
+  isNumber(val: string | number): boolean {
     return typeof val === 'number';
   }
 
-  getPolicyDetails(expenseId: string) {
+  getPolicyDetails(expenseId: string): void {
     if (expenseId) {
       if (this.view === ExpenseView.team) {
         from(this.policyService.getApproverExpensePolicyViolations(expenseId))
@@ -157,7 +178,7 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  goBack() {
+  goBack(): void {
     if (this.view === ExpenseView.team) {
       this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     } else {
@@ -165,19 +186,18 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async openCommentsModal() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
+  async openCommentsModal(): Promise<void> {
     const modal = await this.modalController.create({
       component: ViewCommentComponent,
       componentProps: {
         objectType: 'transactions',
-        objectId: etxn.tx_id,
+        objectId: this.expenseId,
       },
       ...this.modalProperties.getModalDefaultProperties(),
     });
 
     await modal.present();
-    const { data } = await modal.onDidDismiss();
+    const { data } = (await modal.onDidDismiss()) as { data: { updated: boolean } };
 
     if (data && data.updated) {
       this.trackingService.addComment({ view: this.view });
@@ -186,10 +206,8 @@ export class ViewMileagePage implements OnInit {
     }
   }
 
-  async removeExpenseFromReport() {
-    const etxn = await this.transactionService.getEtxn(this.activatedRoute.snapshot.params.id).toPromise();
-
-    const deletePopover = await this.popoverController.create({
+  getDeleteDialogProps(): ExpenseDeletePopoverParams {
+    return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
       backdropDismiss: false,
@@ -199,24 +217,25 @@ export class ViewMileagePage implements OnInit {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: () => this.reportService.removeTransaction(etxn.tx_report_id, etxn.tx_id),
+        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
       },
-    });
+    };
+  }
+
+  async removeExpenseFromReport(): Promise<void> {
+    const deletePopover = await this.popoverController.create(this.getDeleteDialogProps());
 
     await deletePopover.present();
-    const { data } = await deletePopover.onDidDismiss();
+    const { data } = (await deletePopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.trackingService.expenseRemovedByApprover();
-      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: etxn.tx_report_id, navigate_back: true }]);
+      this.router.navigate(['/', 'enterprise', 'view_team_report', { id: this.reportId, navigate_back: true }]);
     }
   }
 
-  async flagUnflagExpense() {
-    const id = this.activatedRoute.snapshot.params.id;
-    const etxn = await this.transactionService.getEtxn(id).toPromise();
-
-    const title = this.isExpenseFlagged ? 'Unflag' : 'Flag';
+  async flagUnflagExpense(isExpenseFlagged: boolean): Promise<void> {
+    const title = isExpenseFlagged ? 'Unflag' : 'Flag';
     const flagUnflagModal = await this.popoverController.create({
       component: FyPopoverComponent,
       componentProps: {
@@ -227,7 +246,7 @@ export class ViewMileagePage implements OnInit {
     });
 
     await flagUnflagModal.present();
-    const { data } = await flagUnflagModal.onWillDismiss();
+    const { data } = (await flagUnflagModal.onWillDismiss()) as { data: { comment: string } };
 
     if (data && data.comment) {
       from(this.loaderService.showLoader('Please wait'))
@@ -236,12 +255,12 @@ export class ViewMileagePage implements OnInit {
             const comment = {
               comment: data.comment,
             };
-            return this.statusService.post('transactions', etxn.tx_id, comment, true);
+            return this.statusService.post('transactions', this.expenseId, comment, true);
           }),
           concatMap(() =>
-            etxn.tx_manual_flag
-              ? this.transactionService.manualUnflag(etxn.tx_id)
-              : this.transactionService.manualFlag(etxn.tx_id)
+            isExpenseFlagged
+              ? this.transactionService.manualUnflag(this.expenseId)
+              : this.transactionService.manualFlag(this.expenseId)
           ),
           finalize(() => {
             this.updateFlag$.next(null);
@@ -250,88 +269,123 @@ export class ViewMileagePage implements OnInit {
         )
         .subscribe(noop);
     }
-    this.isExpenseFlagged = etxn.tx_manual_flag;
     this.trackingService.expenseFlagUnflagClicked({ action: title });
   }
 
-  ionViewWillEnter() {
-    this.setupNetworkWatcher();
-    const id = this.activatedRoute.snapshot.params.id;
+  setCommuteDeductionDetails(commuteDeduction: string): void {
+    switch (commuteDeduction) {
+      case 'ONE_WAY':
+        this.commuteDeduction = 'One Way';
+        break;
+      case 'ROUND_TRIP':
+        this.commuteDeduction = 'Round Trip';
+        break;
+      default:
+        this.commuteDeduction = 'No Deduction';
+        break;
+    }
+  }
 
-    this.extendedMileage$ = this.updateFlag$.pipe(
+  ionViewWillEnter(): void {
+    this.setupNetworkWatcher();
+
+    this.expenseId = this.activatedRoute.snapshot.params.id as string;
+    this.view = this.activatedRoute.snapshot.params.view as ExpenseView;
+
+    this.mileageExpense$ = this.updateFlag$.pipe(
       switchMap(() =>
-        from(this.loaderService.showLoader()).pipe(switchMap(() => this.transactionService.getExpenseV2(id)))
+        from(this.loaderService.showLoader()).pipe(
+          switchMap(() =>
+            this.view === ExpenseView.team
+              ? this.approverExpensesService.getExpenseById(this.expenseId)
+              : this.spenderExpensesService.getExpenseById(this.expenseId)
+          )
+        )
       ),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
 
-    this.txnFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
+    this.mapAttachment$ = this.mileageExpense$.pipe(
+      take(1),
+      switchMap((expense) => from(expense.files)),
+      concatMap((fileObj) =>
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
+            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
+            const fileObjWithDetails: FileObject = {
+              url: downloadUrl,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return fileObjWithDetails;
+          })
+        )
+      )
+    );
+
+    this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
 
     this.projectDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expense: this.mileageExpense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.project_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.project_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
-          txnFields.project_id[0]?.id
+          expense.custom_fields as Partial<CustomInput>[],
+          expenseFields.project_id[0]?.id
         )
       )
     );
 
     this.costCenterDependentCustomProperties$ = forkJoin({
-      extendedMileage: this.extendedMileage$.pipe(take(1)),
-      txnFields: this.txnFields$.pipe(take(1)),
+      expense: this.mileageExpense$.pipe(take(1)),
+      expenseFields: this.expenseFields$.pipe(take(1)),
     }).pipe(
-      filter(
-        ({ extendedMileage, txnFields }) => extendedMileage.tx_custom_properties && txnFields.cost_center_id?.length > 0
-      ),
-      switchMap(({ extendedMileage, txnFields }) =>
+      filter(({ expense, expenseFields }) => expense.custom_fields && expenseFields.cost_center_id?.length > 0),
+      switchMap(({ expense, expenseFields }) =>
         this.dependentFieldsService.getDependentFieldValuesForBaseField(
-          extendedMileage.tx_custom_properties,
-          txnFields.cost_center_id[0]?.id
+          expense.custom_fields as Partial<CustomInput[]>,
+          expenseFields.cost_center_id[0]?.id
         )
       ),
       shareReplay(1)
     );
 
-    this.extendedMileage$.subscribe((extendedMileage) => {
-      this.reportId = extendedMileage.tx_report_id;
+    this.mileageExpense$.subscribe((expense) => {
+      this.reportId = expense.report_id;
 
-      if (extendedMileage.source_account_type === AccountType.ADVANCE) {
+      if (expense.source_account.type === AccountType.PERSONAL_ADVANCE_ACCOUNT) {
         this.paymentMode = 'Paid from Advance';
-        this.paymentModeIcon = 'fy-non-reimbursable';
-      } else if (extendedMileage.tx_skip_reimbursement) {
+        this.paymentModeIcon = 'cash-slash';
+      } else if (!expense.is_reimbursable) {
         this.paymentMode = 'Paid by Company';
-        this.paymentModeIcon = 'fy-non-reimbursable';
+        this.paymentModeIcon = 'cash-slash';
       } else {
         this.paymentMode = 'Paid by Employee';
-        this.paymentModeIcon = 'fy-reimbursable';
+        this.paymentModeIcon = 'cash';
       }
 
-      if (
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('four') > -1 ||
-        extendedMileage.tx_mileage_vehicle_type?.indexOf('car') > -1
-      ) {
-        this.vehicleType = 'car';
-      } else {
-        this.vehicleType = 'bike';
+      if (expense.mileage_rate) {
+        const vehicleType = expense.mileage_rate.vehicle_type.toLowerCase();
+        this.vehicleType = vehicleType.includes('four') || vehicleType.includes('car') ? 'car' : 'scooter';
       }
 
-      this.etxnCurrencySymbol = getCurrencySymbol(extendedMileage.tx_currency, 'wide');
+      if (expense.commute_deduction) {
+        this.setCommuteDeductionDetails(expense.commute_deduction);
+      }
+
+      this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');
     });
 
-    forkJoin([this.txnFields$, this.extendedMileage$.pipe(take(1))])
+    forkJoin([this.expenseFields$, this.mileageExpense$.pipe(take(1))])
       .pipe(
-        map(([expenseFieldsMap, extendedMileage]) => {
+        map(([expenseFieldsMap, expense]) => {
           this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
           const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
-          this.isProjectShown =
-            this.orgSettings?.projects?.enabled && (extendedMileage.tx_project_name || isProjectMandatory);
+          this.isProjectShown = this.orgSettings?.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )
       .subscribe(noop);
@@ -344,78 +398,106 @@ export class ViewMileagePage implements OnInit {
         this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       });
 
-    this.mileageCustomFields$ = this.extendedMileage$.pipe(
-      switchMap((res) =>
-        this.customInputsService.fillCustomProperties(res.tx_org_category_id, res.tx_custom_properties, true)
+    this.mileageCustomFields$ = this.mileageExpense$.pipe(
+      switchMap((expense) =>
+        this.customInputsService.fillCustomProperties(
+          expense.category_id,
+          expense.custom_fields as Partial<CustomInput>[],
+          true
+        )
       ),
-      map((res) =>
-        res.map((customProperties) => {
-          customProperties.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
-          return customProperties;
+      map((customProperties) =>
+        customProperties.map((customProperty) => {
+          customProperty.displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperty);
+          return customProperty;
         })
       )
     );
 
-    this.view = this.activatedRoute.snapshot.params.view;
-
-    this.canFlagOrUnflag$ = this.extendedMileage$.pipe(
-      filter(() => this.view === ExpenseView.team),
-      map(
-        (etxn) =>
-          ['COMPLETE', 'POLICY_APPROVED', 'APPROVER_PENDING', 'APPROVED', 'PAYMENT_PENDING'].indexOf(etxn.tx_state) > -1
-      )
-    );
-
-    this.canDelete$ = this.extendedMileage$.pipe(
-      filter(() => this.view === ExpenseView.team),
-      switchMap((etxn) =>
-        this.reportService.getTeamReport(etxn.tx_report_id).pipe(map((report) => ({ report, etxn })))
-      ),
-      map(({ report, etxn }) => {
-        if (report.rp_num_transactions === 1) {
-          return false;
-        }
-        return ['PAYMENT_PENDING', 'PAYMENT_PROCESSING', 'PAID'].indexOf(etxn.tx_state) < 0;
+    this.mileageRate$ = this.mileageExpense$.pipe(
+      switchMap((expense) => {
+        const id = expense.mileage_rate_id;
+        return this.view === ExpenseView.team
+          ? this.mileageRatesService.getApproverMileageRateById(id)
+          : this.mileageRatesService.getSpenderMileageRateById(id);
       })
     );
 
-    if (id) {
+    this.canFlagOrUnflag$ = this.mileageExpense$.pipe(
+      take(1),
+      filter(() => this.view === ExpenseView.team),
+      map((expense) =>
+        [ExpenseState.COMPLETE, ExpenseState.APPROVER_PENDING, ExpenseState.APPROVED, ExpenseState.PAID].includes(
+          expense.state
+        )
+      )
+    );
+
+    this.canDelete$ = this.mileageExpense$.pipe(
+      take(1),
+      filter(() => this.view === ExpenseView.team),
+      switchMap((expense) =>
+        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+      ),
+      map(({ report, expense }) =>
+        report.rp_num_transactions === 1
+          ? false
+          : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
+      )
+    );
+
+    if (this.expenseId) {
       this.policyViloations$ =
         this.view === ExpenseView.team
-          ? this.policyService.getApproverExpensePolicyViolations(id)
-          : this.policyService.getSpenderExpensePolicyViolations(id);
+          ? this.policyService.getApproverExpensePolicyViolations(this.expenseId)
+          : this.policyService.getSpenderExpensePolicyViolations(this.expenseId);
     } else {
       this.policyViloations$ = of(null);
     }
 
-    this.comments$ = this.statusService.find('transactions', id);
+    this.comments$ = this.statusService.find('transactions', this.expenseId);
 
-    this.isCriticalPolicyViolated$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_policy_amount) && res.tx_policy_amount < 0.0001)
+    this.isCriticalPolicyViolated$ = this.mileageExpense$.pipe(
+      map((expense) => this.isNumber(expense.policy_amount) && expense.policy_amount < 0.0001)
     );
 
-    this.getPolicyDetails(id);
+    this.getPolicyDetails(this.expenseId);
 
-    this.isAmountCapped$ = this.extendedMileage$.pipe(
-      map((res) => this.isNumber(res.tx_admin_amount) || this.isNumber(res.tx_policy_amount))
+    this.isAmountCapped$ = this.mileageExpense$.pipe(
+      map((expense) => this.isNumber(expense.admin_amount) || this.isNumber(expense.policy_amount))
     );
-
-    this.extendedMileage$.subscribe((etxn) => {
-      this.isExpenseFlagged = etxn.tx_manual_flag;
-    });
 
     this.updateFlag$.next(null);
 
-    const etxnIds =
-      this.activatedRoute.snapshot.params.txnIds && JSON.parse(this.activatedRoute.snapshot.params.txnIds);
-    this.numEtxnsInReport = etxnIds.length;
-    this.activeEtxnIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex, 10);
+    const expenseIds =
+      this.activatedRoute.snapshot.params.txnIds &&
+      (JSON.parse(this.activatedRoute.snapshot.params.txnIds as string) as string[]);
+    this.reportExpenseCount = expenseIds.length;
+    this.activeExpenseIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
   }
 
-  getDisplayValue(customProperties) {
+  getDisplayValue(customProperties: CustomField): boolean | string {
     const displayValue = this.customInputsService.getCustomPropertyDisplayValue(customProperties);
     return displayValue === '-' ? 'Not Added' : displayValue;
   }
 
-  ngOnInit() {}
+  viewAttachment(): void {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.mapAttachment$),
+        finalize(() => from(this.loaderService.hideLoader()))
+      )
+      .subscribe(async (mapAttachment) => {
+        const attachmentsModal = await this.modalController.create({
+          component: FyViewAttachmentComponent,
+          componentProps: {
+            attachments: [mapAttachment],
+            canEdit: false,
+            isMileageExpense: true,
+          },
+        });
+
+        await attachmentsModal.present();
+      });
+  }
 }

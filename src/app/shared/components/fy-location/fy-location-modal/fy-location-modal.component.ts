@@ -33,6 +33,8 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
   @Input() cacheName;
 
+  @Input() disableEnteringManualLocation = false;
+
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
   loader = false;
@@ -130,7 +132,7 @@ export class FyLocationModalComponent implements OnInit, AfterViewInit {
 
     that.filteredList$ = fromEvent(that.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
-      debounceTime(300),
+      debounceTime(500),
       distinctUntilChanged(),
       switchMap((searchText) => {
         if (searchText && searchText.length > 0) {

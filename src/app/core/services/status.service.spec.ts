@@ -72,7 +72,7 @@ describe('StatusService', () => {
   it('should post a new comment on object type', (done) => {
     const testComment = {
       id: 'stjIdPp8BX8O',
-      created_at: '2022-11-17T06:07:38.590Z',
+      created_at: new Date('2022-11-17T06:07:38.590Z'),
       org_user_id: 'ouX8dwsbLCLv',
       comment: 'a comment',
       diff: null,

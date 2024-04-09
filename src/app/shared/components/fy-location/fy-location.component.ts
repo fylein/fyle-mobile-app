@@ -38,6 +38,8 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
 
   @Input() validInParent: boolean;
 
+  @Input() disableEnteringManualLocation? = false;
+
   displayValue;
 
   innerValue;
@@ -85,6 +87,7 @@ export class FyLocationComponent implements ControlValueAccessor, OnInit {
           allowCustom: this.allowCustom,
           recentLocations: this.recentLocations,
           cacheName: this.cacheName,
+          disableEnteringManualLocation: this.disableEnteringManualLocation,
         },
       });
 

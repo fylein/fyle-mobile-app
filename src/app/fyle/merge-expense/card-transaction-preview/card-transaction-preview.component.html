@@ -1,7 +1,7 @@
 <div *ngIf="transactionDetails" class="card-transaction">
   <div class="card-transaction--header">Card Transaction</div>
   <div class="card-transaction--matching-card">
-    <mat-icon svgIcon="fy-corporate-card" class="card-transaction--icon-corporate-card"></mat-icon>
+    <mat-icon svgIcon="card" class="card-transaction--icon-corporate-card"></mat-icon>
     <div class="card-transaction--matching-content card-transaction--ccc-expense">
       <span class="text-capitalize"
         >{{ transactionDetails.vendor || transactionDetails.description | ellipsis : 20 }},

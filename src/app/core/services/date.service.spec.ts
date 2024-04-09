@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { DateService } from './date.service';
 import * as dayjs from 'dayjs';
+import { DateParams } from '../models/date-parameters.model';
 
 describe('DateService', () => {
   let dateService: DateService;
@@ -153,7 +154,7 @@ describe('DateService', () => {
       reimbursed_at: new Date('2023-02-23T02:16:15.260Z'),
     };
 
-    expect(dateService.fixDatesV2(data)).toEqual(updatedData);
+    expect(dateService.fixDatesV2<Partial<DateParams>>(data)).toEqual(updatedData);
   });
 
   describe('fixDates():', () => {
@@ -168,7 +169,7 @@ describe('DateService', () => {
         txn_dt: new Date(new Date(data.txn_dt).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2022-11-30T06:30:00.000Z'));
     });
 
@@ -185,7 +186,7 @@ describe('DateService', () => {
         tx_txn_dt: new Date(new Date(data.tx_txn_dt).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-13T01:00:00.000Z'));
     });
 
@@ -202,7 +203,7 @@ describe('DateService', () => {
         created_at: new Date(new Date(data.created_at).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
     });
 
@@ -219,7 +220,7 @@ describe('DateService', () => {
         joining_dt: new Date(new Date(data.joining_dt).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2017-07-25T00:00:00.000Z'));
     });
 
@@ -250,7 +251,7 @@ describe('DateService', () => {
         physical_bill_at: new Date('2023-02-23T22:58:18.412Z'),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
     });
 
     it('should convert from_dt', () => {
@@ -264,7 +265,7 @@ describe('DateService', () => {
         from_dt: new Date(new Date(data.from_dt).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2022-11-30T06:30:00.000Z'));
     });
 
@@ -279,7 +280,7 @@ describe('DateService', () => {
         to_dt: new Date(new Date(data.to_dt).getTime() + userTimezoneOffset),
       };
 
-      expect(dateService.fixDates(data)).toEqual(updatedData);
+      expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-13T01:00:00.000Z'));
     });
   });

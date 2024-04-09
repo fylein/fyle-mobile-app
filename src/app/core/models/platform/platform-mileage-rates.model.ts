@@ -11,3 +11,8 @@ export interface PlatformMileageRates {
   rate: number;
   slab_rates?: { rate: number; limit: number }[];
 }
+
+export enum MileageUnitEnum {
+  KM = 'KM',
+  MILES = 'MILES',
+}

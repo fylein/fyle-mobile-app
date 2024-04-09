@@ -5,7 +5,7 @@
     </ion-title>
     <ion-buttons slot="start">
       <ion-button (click)="closePopover()">
-        <mat-icon class="fy-icon-close" svgIcon="fy-close"></mat-icon>
+        <mat-icon class="fy-icon-close" svgIcon="cross"></mat-icon>
       </ion-button>
     </ion-buttons>
     <ion-buttons slot="end">
@@ -25,5 +25,10 @@
     <span> Report Name </span>
     <span class="edit-report-name--input-container__mandatory"> * </span>
   </div>
-  <input matInput [(ngModel)]="reportName" class="edit-report-name--input-container__input smartlook-show" />
+  <input
+    matInput
+    [(ngModel)]="reportName"
+    [maxLength]="250"
+    class="edit-report-name--input-container__input smartlook-show"
+  />
 </div>

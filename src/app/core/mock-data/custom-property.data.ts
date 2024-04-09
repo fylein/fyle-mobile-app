@@ -1,6 +1,6 @@
 import { CustomProperty } from '../models/custom-properties.model';
 
-export const customPropertiesData: CustomProperty<any>[] = [
+export const customPropertiesData: CustomProperty<string | string[]>[] = [
   {
     name: 'userlist',
     value: [],
@@ -32,5 +32,32 @@ export const customPropertiesData: CustomProperty<any>[] = [
   {
     name: 'select all 2',
     value: '2023-02-05T09:48:18.482566+00:00',
+  },
+];
+
+export const dependentCustomProperties: CustomProperty<string>[] = [
+  {
+    name: 'CUSTOM FIELD',
+    value: '',
+  },
+  {
+    name: 'Cost Code',
+    value: 'Cost Code 1',
+  },
+  {
+    name: 'Cost Area',
+    value: null,
+  },
+  {
+    name: 'Taj Mahaj Construction',
+    value: null,
+  },
+];
+
+export const dependentCustomProperties2: CustomProperty<string | Date>[] = [
+  ...dependentCustomProperties,
+  {
+    name: 'date property',
+    value: new Date(),
   },
 ];

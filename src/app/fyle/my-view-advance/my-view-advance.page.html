@@ -2,7 +2,7 @@
   <ion-toolbar class="view-advance--toolbar">
     <ion-buttons mode="md" slot="start">
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
-        <img [src]="'../../../../assets/svg/left-arrow-nav.svg'" />
+        <img [src]="'../../../../assets/svg/arrow-left.svg'" />
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title">View Advance</ion-title>
@@ -22,7 +22,7 @@
       <div class="view-advance--content-container">
         <div class="view-advance--element">
           <app-fy-statistic
-            [icon]="'../../../../assets/svg/advances.svg'"
+            [icon]="'../../../../assets/svg/wallet.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Advance Number'"
             [value]="advance.adv_advance_number || '-'"
@@ -31,7 +31,7 @@
 
         <div class="view-advance--element">
           <app-fy-statistic
-            [icon]="'../../../../assets/svg/profile.svg'"
+            [icon]="'../../../../assets/svg/user-one.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Issued By'"
             [value]="advance.creator_us_full_name || '-'"

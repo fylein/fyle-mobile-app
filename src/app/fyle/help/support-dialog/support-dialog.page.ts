@@ -3,6 +3,7 @@ import { ModalController } from '@ionic/angular';
 import { NavParams } from '@ionic/angular';
 import { Browser } from '@capacitor/browser';
 import { TrackingService } from '../../../core/services/tracking.service';
+import { BrowserHandlerService } from 'src/app/core/services/browser-handler.service';
 
 @Component({
   selector: 'app-support-dialog',
@@ -19,28 +20,29 @@ export class SupportDialogPage implements OnInit {
   constructor(
     private modalController: ModalController,
     private navParams: NavParams,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private browserHandlerService: BrowserHandlerService
   ) {}
 
-  openHelpLink() {
+  async openHelpLink() {
     this.trackingService.engageWithHelpCard();
-    Browser.open({ toolbarColor: '#280a31', url: 'https://help.fylehq.com' });
+    await this.browserHandlerService.openLinkWithToolbarColor('#280a31', 'https://help.fylehq.com');
   }
 
-  openChromeExtLink() {
+  async openChromeExtLink() {
     this.trackingService.engageWithHelpCard();
-    Browser.open({
-      toolbarColor: '#280a31',
-      url: 'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk',
-    });
+    await this.browserHandlerService.openLinkWithToolbarColor(
+      '#280a31',
+      'https://chrome.google.com/webstore/detail/fyle-expense-tracking-rep/abggpefphmldapcoknbcaadbpdjjmjgk'
+    );
   }
 
-  openOutlookExtLink() {
+  async openOutlookExtLink() {
     this.trackingService.engageWithHelpCard();
-    Browser.open({
-      toolbarColor: '#280a31',
-      url: 'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview',
-    });
+    await this.browserHandlerService.openLinkWithToolbarColor(
+      '#280a31',
+      'https://appsource.microsoft.com/en-us/product/office/WA104380673?tab=Overview'
+    );
   }
 
   closeDialog() {

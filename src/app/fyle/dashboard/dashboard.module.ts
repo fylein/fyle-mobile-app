@@ -17,6 +17,8 @@ import { TasksCardComponent } from './tasks/tasks-card/tasks-card.component';
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SwiperModule } from 'swiper/angular';
+import { CardStatsComponent } from './card-stats/card-stats.component';
+import { NgxMaskModule } from 'ngx-mask';
 
 @NgModule({
   imports: [
@@ -32,8 +34,18 @@ import { SwiperModule } from 'swiper/angular';
     MatBottomSheetModule,
     MatSnackBarModule,
     SwiperModule,
+    NgxMaskModule.forRoot({
+      validation: false,
+    }),
   ],
-  declarations: [DashboardPage, StatsComponent, StatBadgeComponent, TasksComponent, TasksCardComponent],
+  declarations: [
+    DashboardPage,
+    StatsComponent,
+    StatBadgeComponent,
+    TasksComponent,
+    TasksCardComponent,
+    CardStatsComponent,
+  ],
   providers: [DashboardService],
 })
 export class DashboardPageModule {}

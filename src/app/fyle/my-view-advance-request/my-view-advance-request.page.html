@@ -6,7 +6,7 @@
       [ngClass]="{'view-advance-request--header-btn-container__sm': isDeviceWidthSmall}"
     >
       <ion-button [routerLink]="['/','enterprise','my_advances']" routerLinkActive="router-link-active">
-        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/left-arrow-nav.svg'" slot="icon-only"></ion-icon>
+        <ion-icon class="fy-icon-close" [src]="'../../../../assets/svg/arrow-left.svg'" slot="icon-only"></ion-icon>
       </ion-button>
     </ion-buttons>
     <ion-title mode="md" class="page-title" [ngClass]="{'view-advance-request--title-sm': isDeviceWidthSmall}"
@@ -19,11 +19,11 @@
     >
       <ng-container *ngIf="actions$|async as actions">
         <ion-button *ngIf="actions?.can_edit" class="view-advance-request--header-btn-container__btn" (click)="edit()">
-          <ion-icon [src]="'../../../assets/svg/fy-edit-2.svg'" slot="icon-only"></ion-icon>
+          <ion-icon [src]="'../../../assets/svg/edit.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
       <ion-button class="view-advance-request--header-btn-container__btn" (click)="openCommentsModal()">
-        <ion-icon [src]="'../../../assets/svg/fy-chat-2.svg'" slot="icon-only"></ion-icon>
+        <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
       <ng-container *ngIf="actions$|async as actions">
         <ion-button
@@ -31,7 +31,7 @@
           class="view-advance-request--header-btn-container__btn"
           (click)="delete()"
         >
-          <ion-icon [src]="'../../../assets/svg/fy-delete.svg'" slot="icon-only"></ion-icon>
+          <ion-icon [src]="'../../../assets/svg/bin.svg'" slot="icon-only"></ion-icon>
         </ion-button>
       </ng-container>
     </ion-buttons>
@@ -61,7 +61,7 @@
         <div *ngIf="attachedFiles?.length === 0" class="view-advance-request--content-container">
           <div class="view-advance-request--element">
             <app-fy-statistic
-              [icon]="'../../../../assets/svg/no-attachment.svg'"
+              [icon]="'../../../../assets/svg/attachment-none.svg'"
               [type]="StatisticTypes.STRING"
               [label]="'Receipt'"
               [value]="'Not Attached'"
@@ -73,7 +73,7 @@
       <div>
         <div class="view-advance-request--element">
           <app-fy-statistic
-            [icon]="'../../../../assets/svg/advances.svg'"
+            [icon]="'../../../../assets/svg/wallet.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Request ID'"
             [value]="advanceRequest.areq_advance_request_number|| '-'"

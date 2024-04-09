@@ -20,6 +20,7 @@ export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
 
 export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = [
   {
+    aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
@@ -44,6 +45,7 @@ export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
 
 export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = [
   {
+    aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
@@ -78,23 +80,3 @@ export const expectedReportRawStats: StatsDimensionResponse[] = [
     name: 'scalar_stat',
   },
 ];
-
-export const apiAdvanceReqRes: Partial<ApiV2Response<StatsDimensionResponse>> = {
-  data: [
-    {
-      aggregates: [
-        {
-          function_name: 'count(areq_id)',
-          function_value: 0,
-        },
-        {
-          function_name: 'sum(areq_amount)',
-          function_value: null,
-        },
-      ],
-      dimensions: [],
-      name: 'scalar_stat',
-    },
-  ],
-  url: '/v2/advance_requests/stats',
-};

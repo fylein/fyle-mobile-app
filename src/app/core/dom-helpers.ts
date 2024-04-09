@@ -1,4 +1,6 @@
+import { ElementRef } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 
 /**
  * Gets the textContent value in a component fixture using the Element object.
@@ -59,3 +61,15 @@ export const click = (element: HTMLElement): void => element.click();
  */
 export const getElementByTagName = <T>(fixture: ComponentFixture<T>, tagName: string): Element =>
   fixture.nativeElement.querySelector(tagName);
+
+/**
+ * Finds an element reference in a component fixture using its query selector.
+ *
+ * @template T
+ * @param fixture - The component fixture to search in.
+ * @param selector - The query selector of the elements to find.
+ * @returns The found element reference represented as an ElementRef object.
+ *
+ */
+export const getElementRef = <T>(fixture: ComponentFixture<T>, selector: string): ElementRef =>
+  fixture.debugElement.query(By.css(selector));

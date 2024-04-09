@@ -12,10 +12,10 @@ export const mergeExpensesPayload: MergeExpensesPayload = {
     tax_amount: 5.43,
     tax_group_id: 'tgwotEwriRB5',
     org_category_id: 16564,
-    fyle_category: 16564,
+    fyle_category: '16564',
     vendor: 'Australian Taxation Office',
     purpose: 'test_term',
-    txn_dt: '2023-03-06T11:30:00.000Z',
+    txn_dt: new Date('2023-03-06T11:30:00.000Z'),
     receipt_ids: [],
     custom_properties: [
       {

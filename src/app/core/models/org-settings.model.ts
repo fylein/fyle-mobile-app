@@ -211,7 +211,6 @@ export interface PolicySettings {
   is_enabled?: boolean;
   is_self_serve_enabled?: boolean;
   is_trip_request_policy_enabled?: boolean;
-  is_advance_request_policy_enabled?: boolean;
   is_duplicate_detection_enabled?: boolean;
   policy_approval_workflow?: boolean;
 }
@@ -237,6 +236,10 @@ export interface DataExtractionSettings extends CommonOrgSettings {
   web_app_pdf?: boolean;
 }
 
+export interface AmexFeedEnrollmentSettings extends CommonOrgSettings {
+  virtual_card_settings_enabled: boolean;
+}
+
 export interface SplitExpenseSettings {
   enabled?: boolean;
 }
@@ -248,7 +251,7 @@ export interface ExpenseSettings {
 
 export interface TaxSettings extends CommonOrgSettings {
   name?: string;
-  groups?: TaxGroup[];
+  groups?: TaxGroup[] | { label: string; value: TaxGroup }[];
 }
 
 export interface TransactionFieldsSettings extends CommonOrgSettings {
@@ -288,7 +291,7 @@ export interface AccountingSettings {
   export_type?: string;
   entries_generator_info?: LineEntriesGeneratorInfo;
   entries_exporter_info?: LineEntriesExporterInfo;
-  custom_fields?: Map<string, Record<string, any>>;
+  custom_fields?: Map<string, Record<string, string | boolean | Date>>;
   separate_org_user_advance_ledger?: boolean;
   collapse_expenses?: boolean;
 }
@@ -356,6 +359,7 @@ export interface OrgSettingsResponse {
   enable_org_creation?: boolean;
   enable_auto_report?: boolean;
 
+  commute_deduction_settings?: CommonOrgSettings;
   mileage_details?: MileageDetails;
   policy_settings?: PolicySettings;
   corporate_credit_card_settings?: CCCSettings;
@@ -443,13 +447,15 @@ export interface OrgSettingsResponse {
   trip_request_settings?: CommonOrgSettings;
   xe_provider_settings?: XeProviderSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
+  pending_cct_expense_restriction?: CommonOrgSettings;
 }
 
 export interface UiPolicySettings {
   allowed?: boolean;
   enabled?: boolean;
   self_serve_enabled?: boolean;
-  advance_request_policy_enabled?: boolean;
   duplicate_detection_enabled?: boolean;
   trip_request_policy_enabled?: boolean;
   policyApprovalWorkflow?: boolean;
@@ -482,6 +488,7 @@ export interface XeProviderSettings extends CommonOrgSettings {
 export interface OrgSettings {
   org_id?: string;
   mileage?: MileageDetails;
+  commute_deduction_settings?: CommonOrgSettings;
   advances?: CommonOrgSettings;
   projects?: CommonOrgSettings;
   advanced_projects?: AdvancedProjectSettings;
@@ -553,4 +560,7 @@ export interface OrgSettings {
   mastercard_enrollment_settings?: CommonOrgSettings;
   company_expenses_beta_settings?: CommonOrgSettings;
   simplified_report_closure_settings?: CommonOrgSettings;
+  mobile_app_my_expenses_beta_enabled?: boolean;
+  amex_feed_enrollment_settings?: AmexFeedEnrollmentSettings;
+  pending_cct_expense_restriction?: CommonOrgSettings;
 }

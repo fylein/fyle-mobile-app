@@ -1,20 +1,19 @@
-import { Aggregate, Value, Key } from '../models/v2/stats-response.model';
+import { Datum, StatsResponse } from '../models/v2/stats-response.model';
+// type StatsResponse = {
+//   data: {
+//     dimensions: string[];
+//     name: string;
+//     value?: Value[];
+//     aggregates?: Aggregate[];
+//     key?: Key[];
+//   }[];
+//   url: string;
+//   scalar?: boolean;
+//   dimension_1_1?: string;
+//   aggregates?: string;
+// };
 
-type StatsResponse = {
-  data: {
-    dimensions: string[];
-    name: string;
-    value?: Value[];
-    aggregates?: Aggregate[];
-    key?: Key[];
-  }[];
-  url: string;
-  scalar?: boolean;
-  dimension_1_1?: string;
-  aggregates?: string;
-};
-
-export const apiReportStatsRes: StatsResponse = {
+export const apiReportStatsRes = new StatsResponse({
   data: [
     {
       dimensions: ['rp_state'],
@@ -150,9 +149,9 @@ export const apiReportStatsRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const apiReportStatsEmptyRes: StatsResponse = {
+export const apiReportStatsEmptyRes = new StatsResponse({
   data: [
     {
       dimensions: ['rp_state'],
@@ -198,9 +197,9 @@ export const apiReportStatsEmptyRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const apiAssignedCardDetailsRes: StatsResponse = {
+export const apiAssignedCardDetailsRes = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -276,9 +275,9 @@ export const apiAssignedCardDetailsRes: StatsResponse = {
     },
   ],
   url: '/v2/expenses_and_ccce/stats',
-};
+});
 
-export const apiReportStatsRawRes: StatsResponse = {
+export const apiReportStatsRawRes = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -296,9 +295,9 @@ export const apiReportStatsRawRes: StatsResponse = {
     },
   ],
   url: '/v2/reports/stats',
-};
+});
 
-export const txnStats: StatsResponse = {
+export const txnStats = new StatsResponse({
   data: [
     {
       aggregates: [
@@ -316,4 +315,102 @@ export const txnStats: StatsResponse = {
     },
   ],
   url: '/v2/expenses/stats',
-};
+});
+
+export const transactionDatum1: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 4,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 3494,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 964,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 568437,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 5,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 371.87,
+      },
+    ],
+  },
+];
+
+export const transactionDatum2: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 964,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 568437,
+      },
+    ],
+  },
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 5,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: 371.87,
+      },
+    ],
+  },
+];
+
+export const transactionDatum3: Datum[] = [
+  {
+    name: '',
+    dimensions: [],
+    aggregates: [
+      {
+        function_name: 'count(tx_id)',
+        function_value: 4,
+      },
+      {
+        function_name: 'sum(tx_amount)',
+        function_value: null,
+      },
+    ],
+  },
+];

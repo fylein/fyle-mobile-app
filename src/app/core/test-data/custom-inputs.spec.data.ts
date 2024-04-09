@@ -1838,7 +1838,7 @@ export const responseAfterAppliedFilter: ExpenseField[] = [
   },
 ];
 
-export const customProperties: CustomProperty<any>[] = [
+export const customProperties: CustomProperty<string | boolean | string[] | Date>[] = [
   {
     name: 'USer List CF',
     value: [],
@@ -1944,6 +1944,82 @@ export const filledDependentFields = [
 ];
 
 export const customInputData: ExpenseField[] = [
+  {
+    org_category_ids: [248066, 248067, 248068, 248069, 110351],
+    code: null,
+    column_name: 'timestamp_column1',
+    created_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    default_value: null,
+    id: 218266,
+    is_custom: true,
+    is_enabled: true,
+    is_mandatory: true,
+    options: [],
+    org_id: 'orOTDe765hQp',
+    placeholder: 'Enter Date',
+    seq: 1,
+    type: 'DATE',
+    updated_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    parent_field_id: null,
+  },
+  {
+    org_category_ids: [248066, 248067, 248068, 248069, 110351],
+    code: null,
+    column_name: 'timestamp_column1',
+    created_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    default_value: null,
+    id: 218266,
+    is_custom: true,
+    is_enabled: true,
+    options: [],
+    org_id: 'orOTDe765hQp',
+    placeholder: 'Enter Date',
+    seq: 1,
+    type: 'DATE',
+    updated_at: new Date('2023-02-06T07:08:25.258371+00:00'),
+    parent_field_id: null,
+  },
+  {
+    id: 211326,
+    code: null,
+    column_name: 'timestamp_column7',
+    created_at: new Date('2022-09-28T17:33:32.098530+00:00'),
+    default_value: null,
+    field_name: 'select all 2',
+    is_custom: true,
+    is_enabled: true,
+    is_mandatory: false,
+    options: [],
+    org_category_ids: [16557, 16558, 16559, 16560],
+    org_id: 'orNVthTo2Zyo',
+    placeholder: 'helo date',
+    seq: 1,
+    type: 'DATE',
+    updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
+    parent_field_id: null,
+  },
+  {
+    org_category_ids: [248066, 248067, 248068, 248069, 110351],
+    code: null,
+    column_name: 'boolean_column1',
+    created_at: new Date('2023-02-06T07:08:06.528927+00:00'),
+    default_value: null,
+    field_name: 'Boolean value',
+    id: 218265,
+    is_custom: true,
+    is_enabled: true,
+    is_mandatory: false,
+    options: [],
+    org_id: 'orOTDe765hQp',
+    placeholder: 'Boolean value',
+    seq: 1,
+    type: 'BOOLEAN',
+    updated_at: new Date('2023-02-06T07:08:06.528927+00:00'),
+    parent_field_id: null,
+  },
+];
+
+export const customInput2 = [
   {
     org_category_ids: [248066, 248067, 248068, 248069, 110351],
     code: null,

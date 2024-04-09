@@ -176,6 +176,11 @@ $sent-back-color: #da1e28;
     border-bottom: 1px solid #e0e0e0;
     padding-bottom: 8px;
     margin-bottom: 8px;
+
+    &__icon {
+      padding-left: 6px;
+      color: $brand-primary-light;
+    }
   }
 
   &--card-body {
@@ -242,10 +247,10 @@ $sent-back-color: #da1e28;
     color: $pure-white;
 
     &__purpose {
-      font-size: 14px;
+      font-size: 16px;
       line-height: 18px;
       font-weight: 500;
-      max-width: 80%;
+      max-width: 85%;
     }
 
     &__amount {
@@ -391,7 +396,7 @@ $sent-back-color: #da1e28;
 
   &--send-icon {
     margin-left: 10px;
-    padding: 2px 0;
+    color: $brand-primary;
   }
 
   &--add-comment-container {

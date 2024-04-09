@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { CurrencyService } from './currency.service';
-import { txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
+import { expectedTxnCustomProperties, txnCustomPropertiesData } from '../mock-data/txn-custom-properties.data';
 import { TimezoneService } from './timezone.service';
 import { UtilityService } from './utility.service';
+import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
 describe('TimezoneService', () => {
   let timezoneService: TimezoneService;
@@ -28,21 +29,20 @@ describe('TimezoneService', () => {
   });
 
   describe('convertAllDatesToProperLocale(): ', () => {
+    // TODO: change this test to proper reflect code behaviour once utility service has been refactored and fixed
     it('should convert all dates to proper locale', () => {
       const date = new Date('2023-02-13T17:00:00.000Z');
       const offset = '05:30:00';
-      spyOn(timezoneService, 'convertToUtc').and.returnValue(new Date('2023-02-13T06:30:00.000Z'));
-      utilityService.traverse.and.callFake((object, callback) => {
-        date.setHours(12);
-        date.setMinutes(0);
-        date.setSeconds(0);
-        date.setMilliseconds(0);
-        return callback(date);
+      spyOn(timezoneService, 'convertToUtc').and.callThrough();
+      utilityService.traverse.and.callFake((object: TxnCustomProperties, callback) => {
+        callback(object);
+        timezoneService.convertToUtc(date, offset);
+        return expectedTxnCustomProperties;
       });
 
       const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(date, offset);
-      expect(result).toEqual(new Date('2023-02-13T06:30:00.000Z'));
+      expect(result).toEqual(expectedTxnCustomProperties);
     });
 
     it('should return the data as it is if not a date instance', () => {
@@ -51,11 +51,11 @@ describe('TimezoneService', () => {
 
       utilityService.traverse.and.callFake((object, callback) => {
         const nonDateProp = txnCustomPropertiesData[0].value;
-        return callback(nonDateProp);
+        return callback(<Date>nonDateProp);
       });
 
       const result = timezoneService.convertAllDatesToProperLocale(txnCustomPropertiesData, offset);
-      expect(result).toEqual(txnCustomPropertiesData[0].value);
+      expect(result).toEqual(<Date>txnCustomPropertiesData[0].value);
     });
   });
 

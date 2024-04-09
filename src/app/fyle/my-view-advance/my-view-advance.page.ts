@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
 import { finalize, shareReplay, switchMap } from 'rxjs/operators';
@@ -7,14 +7,15 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 
 @Component({
   selector: 'app-my-view-advance',
   templateUrl: './my-view-advance.page.html',
   styleUrls: ['./my-view-advance.page.scss'],
 })
-export class MyViewAdvancePage implements OnInit {
-  advance$: Observable<any>;
+export class MyViewAdvancePage {
+  advance$: Observable<ExtendedAdvance>;
 
   projectFieldName = 'Project';
 
@@ -27,12 +28,12 @@ export class MyViewAdvancePage implements OnInit {
     private expenseFieldsService: ExpenseFieldsService
   ) {}
 
-  get StatisticTypes() {
+  get StatisticTypes(): typeof StatisticTypes {
     return StatisticTypes;
   }
 
   // TODO replace forEach with find
-  getAndUpdateProjectName() {
+  getAndUpdateProjectName(): void {
     this.expenseFieldsService.getAllEnabled().subscribe((expenseFields) => {
       expenseFields.forEach((expenseField) => {
         if (expenseField.column_name === 'project_id') {
@@ -42,8 +43,8 @@ export class MyViewAdvancePage implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
-    const id = this.activatedRoute.snapshot.params.id;
+  ionViewWillEnter(): void {
+    const id = this.activatedRoute.snapshot.params.id as string;
 
     this.advance$ = from(this.loaderService.showLoader()).pipe(
       switchMap(() => this.advanceService.getAdvance(id)),
@@ -57,6 +58,4 @@ export class MyViewAdvancePage implements OnInit {
 
     this.getAndUpdateProjectName();
   }
-
-  ngOnInit() {}
 }

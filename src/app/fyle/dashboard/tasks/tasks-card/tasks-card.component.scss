@@ -7,13 +7,13 @@
     &__warning {
       font-size: 28px;
       position: relative;
-      fill: $grey-light;
+      color: $grey-light;
       top: -2px;
       left: -5px;
     }
 
     &__expense {
-      stroke: $grey-light;
+      color: $grey-light;
       font-size: 32px;
       position: relative;
       top: -6px;
@@ -28,6 +28,15 @@
       height: 32px;
       width: 32px;
     }
+
+    &__mobile {
+      color: $grey-light;
+      position: relative;
+      bottom: 4px;
+      right: 6px;
+      height: 28px;
+      width: 28px;
+    }
   }
 
   &--row {
@@ -38,7 +47,7 @@
     padding-top: 17px;
 
     &-icon {
-      fill: $black;
+      color: $black;
     }
   }
 

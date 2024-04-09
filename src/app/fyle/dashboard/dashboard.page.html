@@ -1,3 +1,7 @@
+<div class="dashboard--background-container">
+  <div class="dashboard--background"></div>
+</div>
+
 <ion-header class="tasks--header" mode="md" translucent="true" *ngIf="currentStateIndex===1">
   <ion-toolbar class="dashboard--toolbar">
     <ion-buttons slot="start">
@@ -8,10 +12,10 @@
       <ion-button>
         <ion-button class="tasks--header-btn" (click)="openFilters()">
           <ng-container *ngIf="filterPills?.length; else noFilterAppliedIcon">
-            <ion-icon slot="icon-only" src="../../../assets/svg/fy-applied-filter.svg"></ion-icon>
+            <ion-icon slot="icon-only" src="../../../assets/svg/filter-applied.svg"></ion-icon>
           </ng-container>
           <ng-template #noFilterAppliedIcon>
-            <ion-icon slot="icon-only" src="../../../assets/svg/fy-unapplied-filter.svg"></ion-icon>
+            <ion-icon slot="icon-only" src="../../../assets/svg/filter.svg"></ion-icon>
           </ng-template>
         </ion-button>
       </ion-button>
@@ -26,9 +30,16 @@
     </ion-buttons>
     <ion-title class="stats--title" mode="md"> Home </ion-title>
     <ion-buttons slot="end" *ngIf="isConnected$ | async">
-      <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
-        <mat-icon svgIcon="fy-plus"></mat-icon>
-      </div>
+      <ng-container *ngIf="(orgSettings$ | async) && (specialCategories$ | async); else actionLoader">
+        <div class="stats--action-shortcut" (click)="openAddExpenseActionSheet()">
+          <mat-icon svgIcon="plus-square"></mat-icon>
+        </div>
+      </ng-container>
+      <ng-template #actionLoader>
+        <div class="stats--action-shortcut--skeleton-icon">
+          <ion-skeleton-text class="m-0" animated></ion-skeleton-text>
+        </div>
+      </ng-template>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -36,10 +47,11 @@
 <ion-content class="dashboard--body">
   <mat-tab-group animationDuration="0ms" class="dashboard--tabs" [selectedIndex]="currentStateIndex">
     <mat-tab label="stats">
-      <app-stats #stats></app-stats>
+      <app-stats></app-stats>
+      <app-card-stats></app-card-stats>
     </mat-tab>
     <mat-tab label="tasks">
-      <app-tasks #tasks></app-tasks>
+      <app-tasks></app-tasks>
     </mat-tab>
   </mat-tab-group>
 </ion-content>

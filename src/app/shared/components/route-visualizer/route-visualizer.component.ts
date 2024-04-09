@@ -1,98 +1,104 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core';
-import { cloneDeep } from 'lodash';
-import { Observable, of } from 'rxjs';
+import { Observable, map } from 'rxjs';
+
 import { GmapsService } from 'src/app/core/services/gmaps.service';
 import { LocationService } from 'src/app/core/services/location.service';
-import { MileageLocation } from './mileage-locations';
+import { MileageLocation } from './mileage-locations.interface';
+import { MileageRoute } from './mileage-route.interface';
+import { StaticMapPropertiesService } from 'src/app/core/services/static-map-properties.service';
+
 @Component({
   selector: 'app-route-visualizer',
   templateUrl: './route-visualizer.component.html',
   styleUrls: ['./route-visualizer.component.scss'],
 })
-export class RouteVisualizerComponent implements OnInit, OnChanges {
+export class RouteVisualizerComponent implements OnChanges, OnInit {
   @Input() mileageLocations: MileageLocation[];
 
   @Output() mapClick = new EventEmitter<void>();
 
+  showCurrentLocation = false;
+
+  mapWidth: number;
+
+  mapHeight: number;
+
+  directionsPolyline$: Observable<string>;
+
+  directionsMapUrl$: Observable<string>;
+
   currentLocation: google.maps.LatLngLiteral;
 
-  mapOptions: google.maps.MapOptions = {
-    disableDefaultUI: true,
-  };
+  currentLocationMapUrl: string;
 
-  markerOptions: google.maps.MarkerOptions = {
-    draggable: false,
-    clickable: false,
-  };
-
-  markerPositions: google.maps.LatLngLiteral[] = [];
-
-  origin: google.maps.LatLngLiteral;
-
-  destination: google.maps.LatLngLiteral;
-
-  waypoints: { location: google.maps.LatLngLiteral }[];
-
-  showEmptyMap = false;
-
-  directionsResults$: Observable<google.maps.DirectionsResult>;
-
-  constructor(private locationService: LocationService, private gmapsService: GmapsService) {}
-
-  ngOnInit() {
-    this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
-      if (geoLocationPosition) {
-        this.currentLocation = {
-          lat: geoLocationPosition.coords?.latitude,
-          lng: geoLocationPosition.coords?.longitude,
-        };
-      }
-    });
-  }
+  constructor(
+    private locationService: LocationService,
+    private gmapsService: GmapsService,
+    private staticMapPropertiesService: StaticMapPropertiesService
+  ) {}
 
   ngOnChanges() {
-    this.showEmptyMap = false;
-    const transformedLocations = this.mileageLocations.map((mileageLocation) => ({
-      lat: mileageLocation?.latitude,
-      lng: mileageLocation?.longitude,
-    }));
+    this.showCurrentLocation = false;
 
-    this.directionsResults$ = of(null);
+    const validLocations = this.mileageLocations.filter(
+      (location) => location && location.latitude && location.longitude
+    );
 
-    if (transformedLocations.some((location) => !location.lat || !location.lng) || transformedLocations.length === 0) {
-      this.origin = null;
-      this.destination = null;
-      this.waypoints = null;
-
-      if (
-        transformedLocations.every((location) => !location.lat || !location.lng) ||
-        transformedLocations.length === 0
-      ) {
-        this.showEmptyMap = true;
-      }
+    if (validLocations.length === this.mileageLocations.length && this.mileageLocations.length >= 2) {
+      const mileageRoute = this.locationService.getMileageRoute(this.mileageLocations);
+      this.renderMap(mileageRoute);
     } else {
-      if (transformedLocations?.length >= 2) {
-        this.origin = transformedLocations[0];
-        this.destination = transformedLocations[transformedLocations.length - 1];
-        if (transformedLocations?.length > 2) {
-          const copyOfMileageLocations = cloneDeep(transformedLocations);
-          copyOfMileageLocations.shift();
-          copyOfMileageLocations.pop();
-          this.waypoints = copyOfMileageLocations.map((loc) => ({ location: { ...loc } }));
-        } else {
-          this.waypoints = [];
-        }
-        const directionWaypoints = this.waypoints.map((waypoint) => ({
-          location: {
-            ...waypoint,
-          },
-        }));
-        this.directionsResults$ = this.gmapsService.getDirections(this.origin, this.destination, directionWaypoints);
+      this.directionsPolyline$ = null;
+      this.directionsMapUrl$ = null;
+
+      if (validLocations.length === 0) {
+        this.showCurrentLocation = true;
       }
     }
   }
 
+  ngOnInit() {
+    const mapProperties = this.staticMapPropertiesService.getProperties();
+
+    this.mapWidth = mapProperties.width;
+    this.mapHeight = mapProperties.height;
+
+    this.locationService.getCurrentLocation().subscribe((geoLocationPosition) => {
+      if (geoLocationPosition) {
+        this.currentLocation = {
+          lat: geoLocationPosition.coords.latitude,
+          lng: geoLocationPosition.coords.longitude,
+        };
+
+        this.currentLocationMapUrl = this.gmapsService.generateLocationMapUrl(this.currentLocation);
+      }
+    });
+  }
+
   mapClicked(event) {
     this.mapClick.emit();
+  }
+
+  handleMapLoadError(event) {
+    this.showCurrentLocation = false;
+
+    this.directionsPolyline$ = null;
+    this.directionsMapUrl$ = null;
+  }
+
+  private renderMap(mileageRoute: MileageRoute) {
+    this.directionsPolyline$ = this.locationService.getDirections(
+      mileageRoute.origin,
+      mileageRoute.destination,
+      mileageRoute.waypoints
+    );
+
+    this.directionsMapUrl$ = this.directionsPolyline$.pipe(
+      map((directionsPolyline) => ({
+        ...mileageRoute,
+        directionsPolyline,
+      })),
+      map((mileageRoute) => this.gmapsService.generateDirectionsMapUrl(mileageRoute))
+    );
   }
 }

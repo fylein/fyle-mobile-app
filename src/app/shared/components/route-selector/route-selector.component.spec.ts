@@ -45,7 +45,6 @@ describe('RouteSelectorComponent', () => {
     fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     component.mileageConfig = orgSettingsRes.mileage;
-    component.skipRoundTripUpdate = false;
     component.formInitialized = true;
     component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
@@ -70,8 +69,15 @@ describe('RouteSelectorComponent', () => {
       expect(result).toBeNull();
     });
 
-    it('should return invalid distance if value not present', () => {
+    it('should return valid distance if value is zero', () => {
       component.form.controls.distance.setValue(0);
+      fixture.detectChanges();
+      const result = component.customDistanceValidator(component.form.controls.distance);
+      expect(result).toBeNull();
+    });
+
+    it('should return invalid distance if value is less then zero', () => {
+      component.form.controls.distance.setValue(-10);
       fixture.detectChanges();
       const result = component.customDistanceValidator(component.form.controls.distance);
       expect(result).toEqual({ invalidDistance: true });
@@ -85,7 +91,7 @@ describe('RouteSelectorComponent', () => {
       roundTrip: true,
     });
     expect(component.mileageLocations.length).toEqual(mileageLocationData1.length);
-    expect(component.form.controls.distance.value).toEqual('20.00');
+    expect(component.form.controls.distance.value).toEqual(20.0);
     expect(component.form.controls.roundTrip.value).toEqual(true);
   });
 
@@ -133,39 +139,67 @@ describe('RouteSelectorComponent', () => {
     });
   });
 
-  it('openModal(): should open the modal', async () => {
-    modalController.create.and.returnValue(
-      new Promise((resolve) => {
-        const selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+  describe('openModal():', () => {
+    let selectionModalSpy: jasmine.SpyObj<HTMLIonModalElement>;
+    beforeEach(() => {
+      selectionModalSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      selectionModalSpy.onWillDismiss.and.returnValue(
+        new Promise((resInt) => {
+          resInt({
+            data: {
+              mileageLocations: mileageLocationData1,
+              distance: 20,
+            },
+          });
+        })
+      );
+      modalController.create.and.resolveTo(selectionModalSpy);
+    });
 
-        selectionModalSpy.onWillDismiss.and.returnValue(
-          new Promise((resInt) => {
-            resInt({
-              data: {
-                mileageLocations: mileageLocationData1,
-                distance: 20,
-              },
-            });
-          })
-        );
-        resolve(selectionModalSpy);
-      })
-    );
+    it('should open the modal', async () => {
+      fixture.detectChanges();
 
-    fixture.detectChanges();
+      component.openModal();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: RouteSelectorModalComponent,
+        componentProps: {
+          unit: component.unit,
+          mileageConfig: component.mileageConfig,
+          isDistanceMandatory: component.isDistanceMandatory,
+          isAmountDisabled: component.isAmountDisabled,
+          txnFields: component.txnFields,
+          value: component.form.value,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+        },
+      });
+    });
 
-    component.openModal();
-    expect(modalController.create).toHaveBeenCalledOnceWith({
-      component: RouteSelectorModalComponent,
-      componentProps: {
-        unit: component.unit,
-        mileageConfig: component.mileageConfig,
-        isDistanceMandatory: component.isDistanceMandatory,
-        isAmountDisabled: component.isAmountDisabled,
-        txnFields: component.txnFields,
-        value: component.form.value,
-        recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
-      },
+    it('should open modal and should not update mileageLocations if "data.mileageLocations" is null', async () => {
+      selectionModalSpy.onWillDismiss.and.returnValue(
+        new Promise((resInt) => {
+          resInt({
+            data: {
+              mileageLocations: null,
+              distance: 20,
+            },
+          });
+        })
+      );
+      modalController.create.and.resolveTo(selectionModalSpy);
+
+      component.openModal();
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: RouteSelectorModalComponent,
+        componentProps: {
+          unit: component.unit,
+          mileageConfig: component.mileageConfig,
+          isDistanceMandatory: component.isDistanceMandatory,
+          isAmountDisabled: component.isAmountDisabled,
+          txnFields: component.txnFields,
+          value: component.form.value,
+          recentlyUsedMileageLocations: component.recentlyUsedMileageLocations,
+        },
+      });
     });
   });
 
@@ -224,13 +258,33 @@ describe('RouteSelectorComponent', () => {
     });
   });
 
-  it('onTxnFieldsChange():', () => {
-    spyOn(component, 'ngOnChanges');
-    component.txnFields = expenseFieldsMapResponse3;
-    component.onTxnFieldsChange();
+  describe('onTxnFieldsChange():', () => {
+    beforeEach(() => {
+      spyOn(component, 'ngOnChanges');
+      component.txnFields = expenseFieldsMapResponse3;
+    });
 
-    expect(component.form.controls.distance.hasValidator(Validators.required)).toBeFalse();
-    expect(component.form.controls.mileageLocations.hasValidator(Validators.required)).toBeFalse();
+    it('should update form validators', () => {
+      component.onTxnFieldsChange();
+      expect(component.form.controls.distance.hasValidator(Validators.required)).toBeFalse();
+      expect(component.form.controls.mileageLocations.hasValidator(Validators.required)).toBeFalse();
+    });
+
+    it('should update distance field validator if it distance is mandatory', () => {
+      spyOn(component.form, 'updateValueAndValidity');
+      spyOn(component.form.controls.distance, 'updateValueAndValidity');
+      component.isConnected = true;
+      component.txnFields.distance.is_mandatory = true;
+      component.onTxnFieldsChange();
+      expect(component.form.controls.distance.validator).toBeDefined();
+    });
+
+    it('should update distance field validator as null if it is mandatory but isConnected is false', () => {
+      component.txnFields.distance.is_mandatory = true;
+      component.onTxnFieldsChange();
+      expect(component.form.controls.mileageLocations.hasValidator(Validators.required)).toBeFalse();
+      expect(component.form.controls.distance.validator).toBeNull();
+    });
   });
 
   it('should show mandatory symbol if location is required', () => {

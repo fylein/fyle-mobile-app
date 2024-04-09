@@ -5,7 +5,6 @@ import { IonicModule } from '@ionic/angular';
 import { AddEditMileagePageRoutingModule } from './add-edit-mileage-routing.module';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { SharedModule } from 'src/app/shared/shared.module';
-import { FySelectVehicleComponent } from './fy-select-vehicle/fy-select-vehicle.component';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
@@ -31,6 +30,6 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
     MatButtonModule,
     MatSnackBarModule,
   ],
-  declarations: [AddEditMileagePage, FySelectVehicleComponent],
+  declarations: [AddEditMileagePage],
 })
 export class AddEditMileagePageModule {}

@@ -9,7 +9,6 @@ import { UserService } from 'src/app/core/services/user.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { SecureStorageService } from 'src/app/core/services/secure-storage.service';
 import { StorageService } from 'src/app/core/services/storage.service';
-import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
@@ -28,6 +27,10 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { ResendEmailVerification } from 'src/app/core/models/resend-email-verification.model';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
+import { TransactionService } from 'src/app/core/services/transaction.service';
+import { DeepLinkService } from 'src/app/core/services/deep-link.service';
+import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -68,7 +71,6 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private secureStorageService: SecureStorageService,
     private storageService: StorageService,
     private router: Router,
-    private networkService: NetworkService,
     private orgService: OrgService,
     private userEventService: UserEventService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
@@ -80,7 +82,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private appVersionService: AppVersionService,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private routerAuthService: RouterAuthService
+    private routerAuthService: RouterAuthService,
+    private transactionService: TransactionService,
+    private deepLinkService: DeepLinkService,
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit() {
@@ -106,8 +111,12 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     const choose = that.activatedRoute.snapshot.params.choose && JSON.parse(that.activatedRoute.snapshot.params.choose);
     const isFromInviteLink: boolean =
       that.activatedRoute.snapshot.params.invite_link && JSON.parse(that.activatedRoute.snapshot.params.invite_link);
+    const orgId = that.activatedRoute.snapshot.params.orgId;
+    const txnId = this.activatedRoute.snapshot.params.txnId;
 
-    if (!choose) {
+    if (orgId && txnId) {
+      return this.redirectToExpensePage(orgId, txnId);
+    } else if (!choose) {
       from(that.loaderService.showLoader())
         .pipe(switchMap(() => from(that.proceed(isFromInviteLink))))
         .subscribe(noop);
@@ -171,6 +180,32 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       panelClass: ['msb-info'],
     });
     this.trackingService.showToastMessage({ ToastContent: toastMessageData.message });
+  }
+
+  redirectToExpensePage(orgId: string, txnId: string) {
+    from(this.loaderService.showLoader())
+      .pipe(
+        switchMap(() => this.orgService.switchOrg(orgId)),
+        switchMap(() => {
+          globalCacheBusterNotifier.next();
+          this.userEventService.clearTaskCache();
+          this.recentLocalStorageItemsService.clearRecentLocalStorageCache();
+          return from(this.authService.getEou());
+        }),
+        switchMap((eou) => {
+          this.setSentryUser(eou);
+          return this.expensesService.getExpenseById(txnId);
+        }),
+        map((expense) => this.transactionService.transformExpense(expense)),
+        finalize(() => this.loaderService.hideLoader())
+      )
+      .subscribe({
+        next: (etxn) => {
+          const route = this.deepLinkService.getExpenseRoute(etxn);
+          this.router.navigate([...route, { id: txnId }]);
+        },
+        error: () => this.router.navigate(['/', 'auth', 'switch_org']),
+      });
   }
 
   logoutIfSingleOrg(orgs: Org[]) {
@@ -318,6 +353,10 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       )
       .subscribe();
 
+    this.checkUserAppVersion();
+  }
+
+  checkUserAppVersion() {
     this.deviceService
       .getDeviceInfo()
       .pipe(
@@ -442,7 +481,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     this.searchRef.nativeElement.classList.remove('switch-org__content-container__search-block--show');
   }
 
-  private trackSwitchOrgLaunchTime() {
+  trackSwitchOrgLaunchTime() {
     try {
       if (performance.getEntriesByName('switch org launch time').length === 0) {
         // Time taken to land on switch org page after sign-in

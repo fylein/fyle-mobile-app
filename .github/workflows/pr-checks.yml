@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run strong checks
-        uses: fylein/fyle-pr-action@master
+        uses: fylein/fyle-pr-action@v1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           config-file: .github/workflows/pr-checks-config.yml

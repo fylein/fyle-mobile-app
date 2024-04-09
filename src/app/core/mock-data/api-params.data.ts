@@ -17,3 +17,21 @@ export const getMyReportsParam2: ReportApiParams = {
   },
   order: undefined,
 };
+
+export const getTeamReportsParams1: ReportApiParams = {
+  offset: 0,
+  limit: 10,
+  queryParams: {
+    rp_state: 'in.(APPROVER_PENDING)',
+  },
+  order: null,
+};
+
+export const getTeamReportsParams2: ReportApiParams = {
+  offset: 0,
+  limit: 10,
+  queryParams: {
+    rp_state: 'in.(APPROVER_PENDING)',
+  },
+  order: 'approvalDate.asc',
+};

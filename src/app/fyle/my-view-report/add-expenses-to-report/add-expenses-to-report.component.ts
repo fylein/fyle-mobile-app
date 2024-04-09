@@ -1,10 +1,9 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { Observable } from 'rxjs';
-import { Expense } from 'src/app/core/models/expense.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { getCurrencySymbol } from '@angular/common';
 import { Router } from '@angular/router';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 
 @Component({
   selector: 'app-add-expenses-to-report',
@@ -12,7 +11,7 @@ import { Router } from '@angular/router';
   styleUrls: ['./add-expenses-to-report.component.scss'],
 })
 export class AddExpensesToReportComponent implements OnInit {
-  @Input() unReportedEtxns: Expense[];
+  @Input() unreportedExpenses: Expense[];
 
   @Input() reportId: string;
 
@@ -20,9 +19,9 @@ export class AddExpensesToReportComponent implements OnInit {
 
   selectedTotalAmount = 0;
 
-  selectedTotalTxns = 0;
+  selectedTotalExpenses = 0;
 
-  selectedTxnIds: string[];
+  selectedExpenseIds: string[];
 
   selectedElements: Expense[];
 
@@ -42,56 +41,53 @@ export class AddExpensesToReportComponent implements OnInit {
 
   addExpensestoReport() {
     this.modalController.dismiss({
-      selectedTxnIds: this.selectedTxnIds,
-      selectedTotalAmount: this.selectedTotalAmount,
-      selectedTotalTxns: this.selectedTotalTxns,
+      selectedExpenseIds: this.selectedExpenseIds,
     });
   }
 
-  updateSelectedTxns() {
-    this.selectedTxnIds = this.selectedElements.map((etxn) => etxn.tx_id);
-    this.selectedTotalAmount = this.selectedElements.reduce((acc, obj) => {
-      if (!obj.tx_skip_reimbursement) {
-        return acc + obj.tx_amount;
+  updateSelectedExpenses() {
+    this.selectedExpenseIds = this.selectedElements.map((expense) => expense.id);
+    this.selectedTotalAmount = this.selectedElements.reduce((acc, expense) => {
+      if (expense.is_reimbursable) {
+        return acc + expense.amount;
       } else {
         return acc;
       }
     }, 0);
-    this.selectedTotalTxns = this.selectedTxnIds.length;
+    this.selectedTotalExpenses = this.selectedExpenseIds.length;
   }
 
-  toggleTransaction(etxn) {
-    const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => etxn.tx_id === txn.tx_id);
+  toggleExpense(expense) {
+    const isSelectedElementsIncludesExpense = this.selectedElements.some((element) => element.id === expense.id);
     if (isSelectedElementsIncludesExpense) {
-      this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== etxn.tx_id);
+      this.selectedElements = this.selectedElements.filter((element) => element.id !== expense.id);
     } else {
-      this.selectedElements.push(etxn);
+      this.selectedElements.push(expense);
     }
-    this.updateSelectedTxns();
-    this.isSelectedAll = this.selectedElements.length === this.unReportedEtxns.length;
+    this.updateSelectedExpenses();
+    this.isSelectedAll = this.selectedElements.length === this.unreportedExpenses.length;
   }
 
   toggleSelectAll(value: boolean) {
     if (value) {
-      this.selectedElements = this.unReportedEtxns;
-      this.updateSelectedTxns();
+      this.selectedElements = this.unreportedExpenses;
+      this.updateSelectedExpenses();
     } else {
       this.selectedElements = [];
       this.selectedTotalAmount = 0;
-      this.selectedTotalTxns = 0;
+      this.selectedTotalExpenses = 0;
     }
   }
 
   ionViewWillEnter() {
     this.isSelectedAll = true;
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    const selectedTxns = [];
-    this.unReportedEtxns.forEach((etxn, i) => {
-      this.unReportedEtxns[i].isSelected = true;
-      selectedTxns.push(this.unReportedEtxns[i]);
+    const selectedExpenses = [];
+    this.unreportedExpenses.forEach((expense, i) => {
+      selectedExpenses.push(this.unreportedExpenses[i]);
     });
-    this.selectedElements = selectedTxns;
-    this.updateSelectedTxns();
+    this.selectedElements = selectedExpenses;
+    this.updateSelectedExpenses();
   }
 
   addNewExpense() {

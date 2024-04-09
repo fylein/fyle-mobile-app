@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-
 import { MyViewReportPage } from './my-view-report.page';
 
 const routes: Routes = [

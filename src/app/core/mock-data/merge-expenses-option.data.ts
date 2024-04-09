@@ -1,46 +1,46 @@
 import { AccountType } from '../enums/account-type.enum';
 import { MergeExpensesOption } from '../models/merge-expenses-option.model';
 
-export const billableOptions1: MergeExpensesOption = {
+export const billableOptions1: MergeExpensesOption<boolean> = {
   label: 'Yes',
   value: true,
 };
 
-export const billableOptions2: MergeExpensesOption = {
+export const billableOptions2: MergeExpensesOption<boolean> = {
   label: 'No',
   value: false,
 };
 
-export const paymentModeOptions1: MergeExpensesOption = {
+export const paymentModeOptions1: MergeExpensesOption<string> = {
   label: 'Personal Card/Cash',
   value: AccountType.PERSONAL,
 };
 
-export const paymentModeOptions2: MergeExpensesOption = {
+export const paymentModeOptions2: MergeExpensesOption<string> = {
   label: 'Advance',
   value: AccountType.ADVANCE,
 };
 
-export const paymentModeOptions3: MergeExpensesOption = {
+export const paymentModeOptions3: MergeExpensesOption<string> = {
   label: 'Corporate Card',
   value: AccountType.CCC,
 };
 
-export const sameOptions: MergeExpensesOption[] = [billableOptions1, billableOptions1];
+export const sameOptions: MergeExpensesOption<boolean>[] = [billableOptions1, billableOptions1];
 
-export const mergeExpensesOptionsData: MergeExpensesOption[] = [
+export const mergeExpensesOptionsData: MergeExpensesOption<string>[] = [
   {
     label: 'Receipt From Expense 1 ',
     value: 'tx3nHShG60zq',
   },
 ];
 
-export const projectOptionsData: MergeExpensesOption = {
+export const projectOptionsData: MergeExpensesOption<number> = {
   label: 'Staging Project',
   value: 3943,
 };
 
-export const categoryOptionsData: MergeExpensesOption[] = [
+export const categoryOptionsData: MergeExpensesOption<number>[] = [
   {
     label: 'Food / Travelling - Inland',
     value: 201952,
@@ -51,7 +51,7 @@ export const categoryOptionsData: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData1: MergeExpensesOption[] = [
+export const mergeExpensesOptionData1: MergeExpensesOption<string>[] = [
   {
     label: 'Mar 13 ₹1.00 Nilesh As Vendor - Staging Project',
     value: 'txKJAJ1flx7n',
@@ -62,7 +62,7 @@ export const mergeExpensesOptionData1: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData2: MergeExpensesOption[] = [
+export const mergeExpensesOptionData2: MergeExpensesOption<string>[] = [
   {
     label: '  Nilesh As Vendor - Staging Project',
     value: 'txKJAJ1flx7n',
@@ -73,7 +73,7 @@ export const mergeExpensesOptionData2: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData3: MergeExpensesOption[] = [
+export const mergeExpensesOptionData3: MergeExpensesOption<string>[] = [
   {
     label: 'Staging Project',
     value: '3943',
@@ -84,18 +84,18 @@ export const mergeExpensesOptionData3: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData4: MergeExpensesOption[] = [
+export const mergeExpensesOptionData4: MergeExpensesOption<number>[] = [
   {
     label: 'Food',
-    value: '201952',
+    value: 201952,
   },
   {
     label: 'Hotel',
-    value: '16582',
+    value: 16582,
   },
 ];
 
-export const mergeExpensesOptionData5: MergeExpensesOption[] = [
+export const mergeExpensesOptionData5: MergeExpensesOption<string>[] = [
   {
     label: 'GST',
     value: 'tgXEJA6YUoZ1',
@@ -106,7 +106,7 @@ export const mergeExpensesOptionData5: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData6: MergeExpensesOption[] = [
+export const mergeExpensesOptionData6: MergeExpensesOption<string>[] = [
   {
     label: 'ECONOMY',
     value: 'ECONOMY',
@@ -117,7 +117,7 @@ export const mergeExpensesOptionData6: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData7: MergeExpensesOption[] = [
+export const mergeExpensesOptionData7: MergeExpensesOption<string>[] = [
   {
     label: 'SLEEPER',
     value: 'SLEEPER',
@@ -128,7 +128,7 @@ export const mergeExpensesOptionData7: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData8: MergeExpensesOption[] = [
+export const mergeExpensesOptionData8: MergeExpensesOption<string>[] = [
   {
     label: 'AC',
     value: 'AC',
@@ -139,7 +139,7 @@ export const mergeExpensesOptionData8: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData9: MergeExpensesOption[] = [
+export const mergeExpensesOptionData9: MergeExpensesOption<number>[] = [
   {
     label: '25',
     value: 25,
@@ -150,7 +150,7 @@ export const mergeExpensesOptionData9: MergeExpensesOption[] = [
   },
 ];
 
-export const mergeExpensesOptionData10: MergeExpensesOption[] = [
+export const mergeExpensesOptionData10: MergeExpensesOption<string>[] = [
   {
     label: 'KM',
     value: 'KM',

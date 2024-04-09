@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, of } from 'rxjs';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
@@ -9,6 +9,11 @@ import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { Transaction } from '../models/v1/transaction.model';
+import { cloneDeep } from 'lodash';
+import { CategoriesService } from './categories.service';
+import { FileObject } from '../models/file-obj.model';
+import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
 @Injectable({
   providedIn: 'root',
@@ -16,10 +21,12 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 export class PolicyService {
   constructor(
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private approverPlatformApiService: ApproverPlatformApiService
+    private approverPlatformApiService: ApproverPlatformApiService,
+    private categoriesService: CategoriesService
   ) {}
 
-  transformTo(transaction: PublicPolicyExpense): PlatformPolicyExpense {
+  transformTo(transaction: PublicPolicyExpense | Partial<Transaction>): PlatformPolicyExpense {
+    const txnLocations = transaction.locations as string[];
     const platformPolicyExpense: PlatformPolicyExpense = {
       id: transaction.id,
       spent_at: transaction.txn_dt,
@@ -38,7 +45,7 @@ export class PolicyService {
       is_reimbursable: transaction.skip_reimbursement === null ? null : !transaction.skip_reimbursement,
       distance: transaction.distance,
       distance_unit: transaction.distance_unit,
-      locations: transaction.locations?.filter((location) => !!location),
+      locations: txnLocations?.filter((location) => !!location),
       custom_fields: transaction.custom_properties,
       started_at: transaction.from_dt,
       ended_at: transaction.to_dt,
@@ -72,7 +79,7 @@ export class PolicyService {
   }
 
   getCriticalPolicyRules(expensePolicy: ExpensePolicy): string[] {
-    const criticalPopupRules = [];
+    const criticalPopupRules: string[] = [];
 
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {
@@ -90,7 +97,7 @@ export class PolicyService {
   }
 
   getPolicyRules(expensePolicy: ExpensePolicy): string[] {
-    const popupRules = [];
+    const popupRules: string[] = [];
 
     if (expensePolicy.data.final_desired_state.run_status === 'SUCCESS') {
       expensePolicy.data.individual_desired_states.forEach((desiredState) => {
@@ -153,5 +160,50 @@ export class PolicyService {
 
   isExpenseCapped(policyActionDescription: string): boolean {
     return policyActionDescription.toLowerCase().includes('expense will be capped to');
+  }
+
+  prepareEtxnForPolicyCheck(
+    etxn: { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] },
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+  ): Observable<PublicPolicyExpense> {
+    const transactionCopy = cloneDeep(etxn.tx);
+    /* Adding number of attachements and sending in test call as tx_num_files
+     * If editing an expense with receipts, check for already uploaded receipts
+     */
+    if (etxn.tx) {
+      transactionCopy.num_files = etxn.tx.num_files;
+
+      // Check for receipts uploaded from mobile
+      if (etxn.dataUrls && etxn.dataUrls.length > 0) {
+        transactionCopy.num_files = etxn.tx.num_files + etxn.dataUrls.length;
+      }
+    }
+
+    transactionCopy.is_matching_ccc_expense = !!selectedCCCTransaction;
+    let transaction$ = of(transactionCopy);
+    if (!transactionCopy.org_category_id) {
+      // Set unspecified org category if expense doesn't have a category
+      const categoryName = 'Unspecified';
+      transaction$ = this.categoriesService.getCategoryByName(categoryName).pipe(
+        map((category) => ({
+          ...transactionCopy,
+          org_category_id: category.id,
+        }))
+      );
+    }
+
+    return transaction$;
+  }
+
+  getPlatformPolicyExpense(
+    etxn: {
+      tx: PublicPolicyExpense;
+      dataUrls: Partial<FileObject>[];
+    },
+    selectedCCCTransaction: Partial<MatchedCCCTransaction>
+  ): Observable<PlatformPolicyExpense> {
+    return this.prepareEtxnForPolicyCheck(etxn, selectedCCCTransaction).pipe(
+      map((publicPolicyExpense) => this.transformTo(publicPolicyExpense))
+    );
   }
 }

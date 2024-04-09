@@ -58,3 +58,68 @@ export const expectedAssignedCCCStats: CCCDetails = {
     },
   ],
 };
+
+export const mastercardCCCStats: CCCDetails = {
+  totalTxns: 12,
+  totalAmount: 1874.4,
+  cardDetails: [
+    {
+      aggregates: [
+        {
+          function_name: 'count(tx_id)',
+          function_value: 6,
+        },
+        {
+          function_name: 'sum(tx_amount)',
+          function_value: 937.2,
+        },
+      ],
+      key: [
+        {
+          column_name: 'corporate_credit_card_bank_name',
+          column_value: 'MASTERCARD_BANK',
+        },
+        {
+          column_name: 'corporate_credit_card_account_number',
+          column_value: '5555',
+        },
+        {
+          column_name: 'tx_state',
+          column_value: 'DRAFT',
+        },
+      ],
+    },
+    {
+      aggregates: [
+        {
+          function_name: 'count(tx_id)',
+          function_value: 6,
+        },
+        {
+          function_name: 'sum(tx_amount)',
+          function_value: 937.2,
+        },
+      ],
+      key: [
+        {
+          column_name: 'corporate_credit_card_bank_name',
+          column_value: 'MASTERCARD_BANK',
+        },
+        {
+          column_name: 'corporate_credit_card_account_number',
+          column_value: '5555',
+        },
+        {
+          column_name: 'tx_state',
+          column_value: 'COMPLETE',
+        },
+      ],
+    },
+  ],
+};
+
+export const emptyCCCStats: CCCDetails = {
+  totalTxns: 0,
+  totalAmount: 0,
+  cardDetails: [],
+};

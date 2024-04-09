@@ -1,30 +1,22 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
-import { forkJoin, from, fromEvent, throwError } from 'rxjs';
-import { OrgUserService } from 'src/app/core/services/org-user.service';
+import { Component, ElementRef, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { forkJoin, from, fromEvent } from 'rxjs';
+import { concatMap, distinctUntilChanged, finalize, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import {
-  concatMap,
-  finalize,
-  catchError,
-  map,
-  startWith,
-  distinctUntilChanged,
-  switchMap,
-  tap,
-  shareReplay,
-} from 'rxjs/operators';
-import { globalCacheBusterNotifier } from 'ts-cacheable';
-import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { OrgService } from 'src/app/core/services/org.service';
+import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
+import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { User } from 'src/app/core/models/user.model';
 
 @Component({
   selector: 'app-delegated-accounts',
   templateUrl: './delegated-accounts.page.html',
   styleUrls: ['./delegated-accounts.page.scss'],
 })
-export class DelegatedAccountsPage implements OnInit {
-  @ViewChild('searchDelegatees') searchDelegatees: ElementRef;
+export class DelegatedAccountsPage {
+  @ViewChild('searchDelegatees') searchDelegatees: ElementRef<HTMLInputElement>;
 
   delegatedAccList;
 
@@ -41,7 +33,7 @@ export class DelegatedAccountsPage implements OnInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService
   ) {}
 
-  switchToDelegatee(eou) {
+  switchToDelegatee(eou: ExtendedOrgUser): void {
     from(this.loaderService.showLoader('Switching Account'))
       .pipe(
         concatMap(() => {
@@ -58,11 +50,9 @@ export class DelegatedAccountsPage implements OnInit {
       });
   }
 
-  ngOnInit() {}
-
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.searchInput = '';
-    const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn;
+    const switchToOwn = this.activatedRoute.snapshot.params.switchToOwn as string;
 
     if (switchToOwn) {
       from(this.loaderService.showLoader('Switching Account'))
@@ -87,18 +77,18 @@ export class DelegatedAccountsPage implements OnInit {
         this.currentOrg = res.currentOrg;
       });
 
-      fromEvent(this.searchDelegatees.nativeElement, 'keyup')
+      fromEvent<{ srcElement: { value: string } }>(this.searchDelegatees.nativeElement, 'keyup')
         .pipe(
-          map((event: any) => event.srcElement.value),
+          map((event) => event.srcElement.value),
           startWith(''),
           distinctUntilChanged(),
           switchMap((searchText) =>
             delegatedAccList$.pipe(
               map(({ delegatedAcc }) => this.orgUserService.excludeByStatus(delegatedAcc, 'DISABLED')),
-              map((delegatees) =>
-                delegatees?.filter((delegatee) =>
+              map((delegatees: ExtendedOrgUser[]) =>
+                delegatees?.filter((delegatee: ExtendedOrgUser) =>
                   Object.values(delegatee.us).some(
-                    (delegateeProp) =>
+                    (delegateeProp: User) =>
                       delegateeProp &&
                       delegateeProp.toString() &&
                       delegateeProp.toString().toLowerCase().includes(searchText.toLowerCase())

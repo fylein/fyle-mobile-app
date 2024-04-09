@@ -1,5 +1,7 @@
 /* eslint-disable id-blacklist */
 import { AccountType } from '../enums/account-type.enum';
+import { ExpenseType } from '../enums/expense-type.enum';
+import { unflattenedTxn } from '../mock-data/unflattened-expense.data';
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgSettings } from '../models/org-settings.model';
@@ -200,7 +202,7 @@ export const unflattenedTransactionPersonal: UnflattenedTransaction = {
     billable: false,
     orig_amount: null,
     orig_currency: null,
-    project_id: '3943',
+    project_id: 3943,
     project_name: 'Staging Project',
     project_code: null,
     skip_reimbursement: false,
@@ -449,7 +451,7 @@ export const unflattenedTransactionCCC: UnflattenedTransaction = {
     billable: false,
     orig_amount: null,
     orig_currency: null,
-    project_id: '3943',
+    project_id: 3943,
     project_name: 'Staging Project',
     project_code: null,
     skip_reimbursement: false,
@@ -787,7 +789,7 @@ export const unflattenedTxnWithoutSourceAccountIdData = {
     billable: false,
     orig_amount: null,
     orig_currency: null,
-    project_id: '3943',
+    project_id: 3943,
     project_name: 'Staging Project',
     project_code: null,
     skip_reimbursement: false,
@@ -1800,7 +1802,6 @@ export const orgSettingsData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: false,
   },
@@ -2132,6 +2133,11 @@ export const orgSettingsData: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
@@ -2192,7 +2198,6 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     allowed: true,
     enabled: true,
     self_serve_enabled: true,
-    advance_request_policy_enabled: true,
     duplicate_detection_enabled: true,
     policyApprovalWorkflow: false,
   },
@@ -2524,6 +2529,11 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
   company_expenses_beta_settings: {
     allowed: true,
     enabled: true,
+  },
+  amex_feed_enrollment_settings: {
+    allowed: true,
+    enabled: true,
+    virtual_card_settings_enabled: true,
   },
 };
 
@@ -2933,4 +2943,26 @@ export const orgSettingsDataWithoutAdvPro = {
     enabled: true,
     enable_individual_projects: true,
   },
+};
+
+export const orgSettingsWithoutAutofill: OrgSettings = {
+  ...orgSettingsData,
+  org_expense_form_autofills: {
+    allowed: false,
+    enabled: false,
+  },
+};
+
+export const paymentModesConfig = {
+  etxn: unflattenedTxn,
+  orgSettings: {
+    ...orgSettingsData,
+    corporate_credit_card_settings: {
+      ...orgSettingsData.corporate_credit_card_settings,
+      allowed: false,
+      enabled: false,
+    },
+  },
+  expenseType: ExpenseType.MILEAGE,
+  isPaymentModeConfigurationsEnabled: true,
 };

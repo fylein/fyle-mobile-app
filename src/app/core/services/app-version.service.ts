@@ -1,13 +1,15 @@
 import { Injectable } from '@angular/core';
 import { filter, map, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
-import { forkJoin, noop, of, from } from 'rxjs';
+import { forkJoin, noop, of, from, Observable } from 'rxjs';
 import { RouterApiService } from './router-api.service';
 import { AppVersion } from '../models/app_version.model';
 import { environment } from 'src/environments/environment';
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 import { LoginInfoService } from './login-info.service';
 import { AuthService } from './auth.service';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+import { AppSupportedDetails } from '../models/app-supported-details.model';
 
 @Injectable({
   providedIn: 'root',
@@ -23,7 +25,7 @@ export class AppVersionService {
   // not fixing since copied from somewhere
   // not human readable at the moment
   // eslint-disable-next-line complexity
-  isVersionLower(version1: string, version2: string) {
+  isVersionLower(version1: string, version2: string): boolean {
     // https://gist.github.com/alexey-bass/1115557#file-compare-js
     // someone should shoot this person for writing this
     // TODO: Cleanup
@@ -46,7 +48,7 @@ export class AppVersionService {
     return false;
   }
 
-  load(deviceInfo: ExtendedDeviceInfo) {
+  load(deviceInfo: ExtendedDeviceInfo): void {
     const platformOS = deviceInfo.operatingSystem;
     const platformVersion = deviceInfo.osVersion;
     const liveUpdateVersion = environment.LIVE_UPDATE_APP_VERSION;
@@ -70,31 +72,42 @@ export class AppVersionService {
       .subscribe(noop); // because this needs to happen in the background
   }
 
-  getUserAppVersionDetails(deviceInfo: ExtendedDeviceInfo) {
+  getUserAppVersionDetails(deviceInfo: ExtendedDeviceInfo): Observable<{
+    appSupportDetails: AppSupportedDetails;
+    lastLoggedInVersion: string;
+    eou: ExtendedOrgUser;
+    deviceInfo: ExtendedDeviceInfo;
+  }> {
     return forkJoin({
       appSupportDetails: this.isSupported(deviceInfo),
       lastLoggedInVersion: this.loginInfoService.getLastLoggedInVersion(),
       eou: from(this.authService.getEou()),
     }).pipe(
-      filter((res) => !res.appSupportDetails.supported && environment.production),
-      map((res) => ({ ...res, deviceInfo }))
+      filter(
+        (appVersionDetails: {
+          appSupportDetails: AppSupportedDetails;
+          lastLoggedInVersion: string;
+          eou: ExtendedOrgUser;
+        }) => !appVersionDetails.appSupportDetails.supported && environment.production
+      ),
+      map((appVersionDetails) => ({ ...appVersionDetails, deviceInfo }))
     );
   }
 
-  isSupported(deviceInfo: ExtendedDeviceInfo) {
+  isSupported(deviceInfo: ExtendedDeviceInfo): Observable<AppSupportedDetails> {
     const data = {
       app_version: deviceInfo.appVersion,
       device_os: deviceInfo.platform,
     };
-    return this.routerApiService.post('/mobileapp/check', data);
+    return this.routerApiService.post<AppSupportedDetails>('/mobileapp/check', data);
   }
 
-  get(os: string) {
+  get(os: string): Observable<AppVersion> {
     const operatingSystem = os.toUpperCase();
-    return this.apiService.get(`/version/app/${operatingSystem}`).pipe(map((res) => res as AppVersion));
+    return this.apiService.get<AppVersion>(`/version/app/${operatingSystem}`);
   }
 
-  post(data) {
-    return this.apiService.post('/version/app', data);
+  post(data: Partial<AppVersion>): Observable<AppVersion> {
+    return this.apiService.post<AppVersion>('/version/app', data);
   }
 }

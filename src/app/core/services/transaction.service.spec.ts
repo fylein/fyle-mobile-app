@@ -5,10 +5,7 @@ import {
   etxncData,
   expenseData2,
   expenseData1,
-  expenseDataWithDateString,
   etxnData,
-  expenseList,
-  etxncListData,
   mileageExpenseWithDistance,
   mileageExpenseWithoutDistance,
   perDiemExpenseSingleNumDays,
@@ -18,6 +15,7 @@ import {
   expenseData3,
   expenseList3,
   expenseList4,
+  expenseDataWithDateString,
 } from '../mock-data/expense.data';
 import { UndoMergeData } from '../mock-data/undo-merge.data';
 import { AccountsService } from './accounts.service';
@@ -37,7 +35,7 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import { transactionsCacheBuster$ } from './transaction.service';
+import { expensesCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
@@ -54,8 +52,12 @@ import { currencySummaryData } from '../mock-data/currency-summary.data';
 import { platformPolicyExpenseData1 } from '../mock-data/platform-policy-expense.data';
 import { expensePolicyData } from '../mock-data/expense-policy.data';
 import { txnAccountData } from '../mock-data/txn-account.data';
-import { txnCustomPropertiesData, txnCustomPropertiesData2 } from '../mock-data/txn-custom-properties.data';
+import { txnCustomPropertiesData2, txnCustomPropertiesData6 } from '../mock-data/txn-custom-properties.data';
 import { FilterQueryParams } from '../models/filter-query-params.model';
+import {
+  matchCCCExpenseResponseData,
+  unmatchCCCExpenseResponseData,
+} from '../mock-data/corporate-card-transaction-response.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -81,7 +83,7 @@ describe('TransactionService', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get', 'post', 'delete']);
-    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
     const dataTransformServiceSpy = jasmine.createSpyObj('DataTransformService', ['unflatten']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', [
       'fixDates',
@@ -204,7 +206,7 @@ describe('TransactionService', () => {
   });
 
   it('clearCache(): should clear cache', (done) => {
-    const notifierSpy = spyOn(transactionsCacheBuster$, 'next').and.callThrough();
+    const notifierSpy = spyOn(expensesCacheBuster$, 'next').and.callThrough();
     transactionService.clearCache().subscribe((res) => {
       expect(notifierSpy).toHaveBeenCalledTimes(1);
       expect(res).toBeNull();
@@ -245,63 +247,12 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getETxnc(): should get list of extended transactions', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const params = {
-      offset: 0,
-      limit: 1,
-      params: {
-        tx_org_user_id: 'eq.ouX8dwsbLCLv',
-        tx_report_id: 'eq.rpFvmTgyeBjN',
-        order: 'tx_txn_dt.desc,tx_id.desc',
-      },
-    };
-
-    transactionService.getETxnc(params).subscribe((res) => {
-      expect(res).toEqual(etxncData.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', params);
-      done();
-    });
-  });
-
-  it('getExpenseV2(): should get expense from ID', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-
-    const transactionID = 'tx5fBcPBAxLv';
-
-    transactionService.getExpenseV2(transactionID).subscribe((res) => {
-      expect(res).toEqual(etxncData.data[0]);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', {
-        params: {
-          tx_id: `eq.${transactionID}`,
-        },
-      });
-      done();
-    });
-  });
-
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
     storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));
     transactionService.getDefaultVehicleType().subscribe((res) => {
       expect(res).toEqual(defaultVehicleType);
       expect(storageService.get).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
-  it('getTransactionByExpenseNumber(): should get transaction by expense number', (done) => {
-    const expenseNumber = 'E/2022/11/T/62';
-    apiService.get.and.returnValue(of(expenseData1));
-
-    transactionService.getTransactionByExpenseNumber(expenseNumber).subscribe((res) => {
-      expect(res).toEqual(expenseData1);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/transactions', {
-        params: {
-          expense_number: expenseNumber,
-        },
-      });
       done();
     });
   });
@@ -465,22 +416,6 @@ describe('TransactionService', () => {
     expect(transactionService.fixDates(expenseDataWithDateString)).toEqual(expenseData1);
   });
 
-  it('getETxnCount(): should return etxn count', (done) => {
-    apiV2Service.get.and.returnValue(of(etxncData));
-    const params = {
-      tx_org_user_id: 'eq.ouX8dwsbLCLv',
-      tx_report_id: 'eq.rpFvmTgyeBjN',
-      order: 'tx_txn_dt.desc,tx_id.desc',
-    };
-
-    // @ts-ignore
-    transactionService.getETxnCount(params).subscribe((res) => {
-      expect(res.count).toEqual(1);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses', { params });
-      done();
-    });
-  });
-
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
     spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
     const paymentModeList = [
@@ -509,6 +444,203 @@ describe('TransactionService', () => {
       expenseData1.source_account_type,
       etxnPaymentMode.key
     );
+  });
+
+  describe('isEtxnInPaymentMode():', () => {
+    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'reimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
+      const txnSkipReimbursement = true;
+      const txnPaymentMode = 'nonReimbursable';
+      const txnSourceAccountType = AccountType.PERSONAL;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'advance';
+      const txnSourceAccountType = AccountType.ADVANCE;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+
+    it('should return isEtxnInPaymentMode with advance payment mode', () => {
+      const txnSkipReimbursement = false;
+      const txnPaymentMode = 'ccc';
+      const txnSourceAccountType = AccountType.CCC;
+      expect(
+        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
+      ).toBeTrue();
+    });
+  });
+
+  describe('addEtxnToCurrencyMap():', () => {
+    it('should add a new currency to the map when the currencyMap does not exist', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add a new currency to the map with the orig currency', () => {
+      const currencyMap = {};
+      const txCurrency = 'USD';
+      const txAmount = 10;
+      const txOrigAmount = 200;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 200,
+          count: 1,
+        },
+      });
+    });
+
+    it('should add the transaction amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 30,
+          count: 2,
+        },
+      });
+    });
+
+    it('should add the transaction amount and original amount to an existing currency in the map', () => {
+      const currencyMap = {
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 10,
+          origAmount: 10,
+          count: 1,
+        },
+      };
+      const txCurrency = 'USD';
+      const txAmount = 20;
+      const txOrigAmount = 30;
+      // @ts-ignore
+      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
+
+      expect(currencyMap).toEqual({
+        USD: {
+          name: 'USD',
+          currency: 'USD',
+          amount: 30,
+          origAmount: 40,
+          count: 2,
+        },
+      });
+    });
+  });
+
+  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
+
+    const currencyMap = {
+      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
+      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
+      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
+    };
+
+    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
+    // @ts-ignore
+    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
+  });
+
+  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
+    // @ts-ignore
+    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
+      name: 'Reimbursable',
+      key: 'reimbursable',
+    });
+
+    const paymentModes = [
+      {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+      },
+      {
+        name: 'Non-Reimbursable',
+        key: 'nonReimbursable',
+      },
+      {
+        name: 'Advance',
+        key: 'advance',
+      },
+      {
+        name: 'CCC',
+        key: 'ccc',
+      },
+    ];
+
+    const summary = {
+      reimbursable: {
+        name: 'Reimbursable',
+        key: 'reimbursable',
+        amount: 49475.76,
+        count: 3,
+      },
+    };
+
+    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
+    // @ts-ignore
+    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
   });
 
   describe('setSortParams():', () => {
@@ -725,60 +857,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('getEtxn():', () => {
-    it('it should get etxn from transaction ID without sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData1));
-      dateService.fixDates.and.returnValue(expenseData1);
-
-      const transactionID = 'tx5fBcPBAxLv';
-      transactionService.getEtxn(transactionID).subscribe((res) => {
-        expect(res).toEqual(expenseData1);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
-        done();
-      });
-    });
-
-    it('it should get etxn from transaction ID with sub category', (done) => {
-      apiService.get.and.returnValue(of(etxnData));
-      dateService.fixDates.and.returnValue(etxnData);
-
-      const transactionID = 'txCBp2jIK6G3';
-
-      transactionService.getEtxn(transactionID).subscribe((res) => {
-        expect(res).toEqual(etxnData);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(res);
-        done();
-      });
-    });
-  });
-
-  it('getTransactionStats(): should return transaction stats', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
-    apiV2Service.get.and.returnValue(of(txnStats));
-
-    const aggregates = 'count(tx_id),sum(tx_amount)';
-    const queryParams = {
-      scalar: true,
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
-    };
-
-    transactionService.getTransactionStats(aggregates, queryParams).subscribe((res) => {
-      expect(res).toEqual(txnStats.data);
-      expect(apiV2Service.get).toHaveBeenCalledOnceWith('/expenses/stats', {
-        params: {
-          aggregates,
-          tx_org_user_id: 'eq.' + eouRes2.ou.id,
-          ...queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('getMyExpenses(): should return my expenses with order', (done) => {
     authService.getEou.and.returnValue(Promise.resolve(eouRes2));
     apiV2Service.get.and.returnValue(of(expenseV2Data));
@@ -890,56 +968,21 @@ describe('TransactionService', () => {
     });
   });
 
-  it('getSplitExpenses(): should return split expenses', (done) => {
-    spyOn(transactionService, 'getAllETxnc').and.returnValue(of(expenseList));
-    const txnSplitGroupId = 'txBphgnCHHeO';
-
-    transactionService.getSplitExpenses(txnSplitGroupId).subscribe((res) => {
-      expect(res).toEqual(expenseList);
-      expect(transactionService.getAllETxnc).toHaveBeenCalledOnceWith({ tx_split_group_id: 'eq.' + txnSplitGroupId });
-      done();
-    });
-  });
-
   it('unmatchCCCExpense(): should unmatch ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(unmatchCCCExpenseResponseData));
 
-    const transactionId = 'txBldpJrBafX';
-    const corporateCreditCardExpenseId = 'ccce4xphr6tZQm';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.unmatchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/unmatch', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
-      });
-      done();
-    });
-  });
-
-  it('getAllETxnc(): should return all etxnc', (done) => {
-    // @ts-ignore
-    spyOn(transactionService, 'getETxnCount').and.returnValue(of(1));
-    spyOn(transactionService, 'getETxnc').and.returnValue(of(etxncListData.data));
-
-    const params = {
-      tx_org_user_id: 'eq.ouX8dwsbLCLv',
-      tx_report_id: 'eq.rpeqN0o4X4O4',
-      order: 'tx_txn_dt.desc,tx_id.desc',
+    const payload = {
+      id,
+      expense_ids: [expenseId],
     };
 
-    transactionService.getAllETxnc(params).subscribe((res) => {
-      expect(res).toEqual(etxncListData.data);
-      // @ts-ignore
-      expect(transactionService.getETxnCount).toHaveBeenCalledOnceWith(params);
-      expect(transactionService.getETxnc).toHaveBeenCalledOnceWith({
-        offset: 0,
-        limit: 2,
-        params: {
-          tx_org_user_id: 'eq.ouX8dwsbLCLv',
-          tx_report_id: 'eq.rpeqN0o4X4O4',
-          order: 'tx_txn_dt.desc,tx_id.desc',
-        },
+    transactionService.unmatchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(unmatchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/unmatch', {
+        data: payload,
       });
       done();
     });
@@ -978,10 +1021,6 @@ describe('TransactionService', () => {
     it('should retuen vendor details for per diem expense with multiple days', () => {
       expect(transactionService.getVendorDetails(perDiemExpenseMultipleNumDays)).toEqual('3 Days');
     });
-  });
-
-  it('getDeletableTxns(): should return deletable transactions', () => {
-    expect(transactionService.getDeletableTxns(apiExpenseRes)).toEqual(apiExpenseRes);
   });
 
   describe('getExpenseDeletionMessage():', () => {
@@ -1077,68 +1116,6 @@ describe('TransactionService', () => {
     });
   });
 
-  describe('getPaginatedETxncCount():', () => {
-    it('should return paginated etxn count when online', (done) => {
-      const response = { count: 1891 };
-      networkService.isOnline.and.returnValue(of(true));
-      storageService.set.and.returnValue(Promise.resolve(null));
-      apiService.get.and.returnValue(of(response));
-
-      transactionService.getPaginatedETxncCount().subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(storageService.set).toHaveBeenCalledOnceWith('etxncCount', response);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/count');
-        done();
-      });
-    });
-
-    it('should return paginated etxn count when offline', (done) => {
-      const response = { count: 1891 };
-      networkService.isOnline.and.returnValue(of(false));
-      storageService.get.and.returnValue(Promise.resolve(response));
-
-      transactionService.getPaginatedETxncCount().subscribe((res) => {
-        expect(res).toEqual(response);
-        expect(storageService.get).toHaveBeenCalledOnceWith('etxncCount');
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-  });
-
-  describe('getETxnUnflattened():', () => {
-    it('it should get etxn from transaction ID without sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData3));
-      dataTransformService.unflatten.and.returnValue(unflattenedTxnData);
-      dateService.fixDates.and.returnValue(unflattenedTxnData);
-
-      const transactionID = 'tx3qHxFNgRcZ';
-      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
-        expect(res).toEqual(unflattenedTxnData);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnData.tx);
-        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
-        done();
-      });
-    });
-
-    it('it should get etxn from transaction ID with sub category', (done) => {
-      apiService.get.and.returnValue(of(expenseData3));
-      dataTransformService.unflatten.and.returnValue(unflattenedTxnDataWithSubCategory);
-      dateService.fixDates.and.returnValue(unflattenedTxnDataWithSubCategory);
-
-      const transactionID = 'tx3qHxFNgRcZ';
-
-      transactionService.getETxnUnflattened(transactionID).subscribe((res) => {
-        expect(res).toEqual(unflattenedTxnDataWithSubCategory);
-        expect(apiService.get).toHaveBeenCalledOnceWith('/etxns/' + transactionID);
-        expect(dateService.fixDates).toHaveBeenCalledOnceWith(unflattenedTxnDataWithSubCategory.tx);
-        expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(expenseData3);
-        done();
-      });
-    });
-  });
-
   it('review(): should return transaction response on review', (done) => {
     apiService.post.and.returnValue(of(null));
     const transactionId = 'tx3qHxFNgRcZ';
@@ -1163,136 +1140,6 @@ describe('TransactionService', () => {
         name: fileName,
       });
       done();
-    });
-  });
-
-  describe('isEtxnInPaymentMode():', () => {
-    it('should return isEtxnInPaymentMode with reimbursable payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'reimbursable';
-      const txnSourceAccountType = AccountType.PERSONAL;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with non-reimbursable payment mode', () => {
-      const txnSkipReimbursement = true;
-      const txnPaymentMode = 'nonReimbursable';
-      const txnSourceAccountType = AccountType.PERSONAL;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with advance payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'advance';
-      const txnSourceAccountType = AccountType.ADVANCE;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
-      ).toBeTrue();
-    });
-
-    it('should return isEtxnInPaymentMode with advance payment mode', () => {
-      const txnSkipReimbursement = false;
-      const txnPaymentMode = 'ccc';
-      const txnSourceAccountType = AccountType.CCC;
-      expect(
-        transactionService.isEtxnInPaymentMode(txnSkipReimbursement, txnSourceAccountType, txnPaymentMode)
-      ).toBeTrue();
-    });
-  });
-
-  describe('addEtxnToCurrencyMap():', () => {
-    it('should add a new currency to the map when the currencyMap does not exist', () => {
-      const currencyMap = {};
-      const txCurrency = 'USD';
-      const txAmount = 10;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      });
-    });
-
-    it('should add a new currency to the map with the orig currency', () => {
-      const currencyMap = {};
-      const txCurrency = 'USD';
-      const txAmount = 10;
-      const txOrigAmount = 200;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 200,
-          count: 1,
-        },
-      });
-    });
-
-    it('should add the transaction amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const txCurrency = 'USD';
-      const txAmount = 20;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 30,
-          count: 2,
-        },
-      });
-    });
-
-    it('should add the transaction amount and original amount to an existing currency in the map', () => {
-      const currencyMap = {
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 10,
-          origAmount: 10,
-          count: 1,
-        },
-      };
-      const txCurrency = 'USD';
-      const txAmount = 20;
-      const txOrigAmount = 30;
-      // @ts-ignore
-      transactionService.addEtxnToCurrencyMap(currencyMap, txCurrency, txAmount, txOrigAmount);
-
-      expect(currencyMap).toEqual({
-        USD: {
-          name: 'USD',
-          currency: 'USD',
-          amount: 30,
-          origAmount: 40,
-          count: 2,
-        },
-      });
     });
   });
 
@@ -1340,93 +1187,41 @@ describe('TransactionService', () => {
     expect(transactionService.excludeCCCExpenses(expenseList3)).toEqual([expenseList3[1]]);
   });
 
-  it('getReportableExpenses(): should return reportable expenses', () => {
-    spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
-    spyOn(transactionService, 'getIsDraft').and.returnValue(false);
+  describe('getReportableExpenses(): ', () => {
+    it('should return reportable expenses', () => {
+      spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+      spyOn(transactionService, 'getIsDraft').and.returnValue(false);
 
-    expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
-    expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
-    expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
-  });
-
-  it('getCurrenyWiseSummary(): should return the currency wise summary', () => {
-    // @ts-ignore
-    spyOn(transactionService, 'addEtxnToCurrencyMap').and.callThrough();
-
-    const currencyMap = {
-      INR: { name: 'INR', currency: 'INR', amount: 89, origAmount: 89, count: 1 },
-      CLF: { name: 'CLF', currency: 'CLF', amount: 33611, origAmount: 12, count: 1 },
-      EUR: { name: 'EUR', currency: 'EUR', amount: 15775.76, origAmount: 178, count: 1 },
-    };
-
-    expect(transactionService.getCurrenyWiseSummary(expenseList4)).toEqual(currencySummaryData);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'INR', 89);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'CLF', 33611, 12);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledWith(currencyMap, 'EUR', 15775.76, 178);
-    // @ts-ignore
-    expect(transactionService.addEtxnToCurrencyMap).toHaveBeenCalledTimes(3);
-  });
-
-  it('getPaymentModeWiseSummary(): should return the payment mode wise summary', () => {
-    // @ts-ignore
-    spyOn(transactionService, 'getPaymentModeForEtxn').and.returnValue({
-      name: 'Reimbursable',
-      key: 'reimbursable',
+      expect(transactionService.getReportableExpenses(apiExpenseRes)).toEqual([apiExpenseRes[0]]);
+      expect(transactionService.getIsCriticalPolicyViolated).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
+      expect(transactionService.getIsDraft).toHaveBeenCalledOnceWith(apiExpenseRes[0]);
     });
 
-    const paymentModes = [
-      {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-      },
-      {
-        name: 'Non-Reimbursable',
-        key: 'nonReimbursable',
-      },
-      {
-        name: 'Advance',
-        key: 'advance',
-      },
-      {
-        name: 'CCC',
-        key: 'ccc',
-      },
-    ];
+    it('should return undefined if expenses are 0', () => {
+      spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
+      spyOn(transactionService, 'getIsDraft').and.returnValue(false);
 
-    const summary = {
-      reimbursable: {
-        name: 'Reimbursable',
-        key: 'reimbursable',
-        amount: 49475.76,
-        count: 3,
-      },
-    };
-
-    expect(transactionService.getPaymentModeWiseSummary(expenseList4)).toEqual(summary);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[0], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[1], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledWith(expenseList4[2], paymentModes);
-    // @ts-ignore
-    expect(transactionService.getPaymentModeForEtxn).toHaveBeenCalledTimes(3);
+      expect(transactionService.getReportableExpenses(null)).toEqual(undefined);
+      expect(transactionService.getIsCriticalPolicyViolated).not.toHaveBeenCalled();
+      expect(transactionService.getIsDraft).not.toHaveBeenCalled();
+    });
   });
 
   it('matchCCCExpense(): should match ccc expense', (done) => {
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(matchCCCExpenseResponseData));
 
-    const transactionId = 'txBRcjOg1spF';
-    const corporateCreditCardExpenseId = 'cccetzVpWd2Pgz';
+    const id = 'btxnSte7sVQCM8';
+    const expenseId = 'txmF3wgfj0Bs';
 
-    transactionService.matchCCCExpense(transactionId, corporateCreditCardExpenseId).subscribe((res) => {
-      expect(res).toBeNull();
-      expect(apiService.post).toHaveBeenCalledOnceWith('/transactions/match', {
-        transaction_id: transactionId,
-        corporate_credit_card_expense_id: corporateCreditCardExpenseId,
+    const payload = {
+      id,
+      expense_ids: [expenseId],
+    };
+
+    transactionService.matchCCCExpense(id, expenseId).subscribe((res) => {
+      expect(res).toEqual(matchCCCExpenseResponseData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/corporate_card_transactions/match', {
+        data: payload,
       });
       done();
     });
@@ -1471,7 +1266,7 @@ describe('TransactionService', () => {
       expect(res).toEqual(txnData4);
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData, offset);
+      expect(timezoneService.convertAllDatesToProperLocale).toHaveBeenCalledOnceWith(txnCustomPropertiesData6, offset);
       expect(timezoneService.convertToUtc).toHaveBeenCalledTimes(3);
       // @ts-ignore
       expect(transactionService.getTxnAccount).toHaveBeenCalledTimes(1);

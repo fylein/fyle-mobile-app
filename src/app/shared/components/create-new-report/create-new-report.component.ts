@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { ModalController } from '@ionic/angular';
-import { noop, Observable, of } from 'rxjs';
+import { Observable, of, Subscription } from 'rxjs';
 import { finalize, map, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
 import { ExpenseFieldsMap } from 'src/app/core/models/v1/expense-fields-map.model';
@@ -10,6 +10,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ReportV1 } from 'src/app/core/models/report-v1.model';
 
 @Component({
   selector: 'app-create-new-report',
@@ -48,7 +49,7 @@ export class CreateNewReportComponent implements OnInit {
     private expenseFieldsService: ExpenseFieldsService
   ) {}
 
-  getReportTitle() {
+  getReportTitle(): Subscription {
     const txnIds = this.selectedElements.map((etxn) => etxn.tx_id);
     this.selectedTotalAmount = this.selectedElements.reduce(
       (acc, obj) => acc + (obj.tx_skip_reimbursement ? 0 : obj.tx_amount),
@@ -62,7 +63,7 @@ export class CreateNewReportComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.selectedTotalAmount = 0;
     this.submitReportLoader = false;
     this.saveDraftReportLoader = false;
@@ -74,11 +75,11 @@ export class CreateNewReportComponent implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.getReportTitle();
   }
 
-  selectExpense(expense: Expense) {
+  selectExpense(expense: Expense): void {
     const isSelectedElementsIncludesExpense = this.selectedElements.some((txn) => expense.tx_id === txn.tx_id);
     if (isSelectedElementsIncludesExpense) {
       this.selectedElements = this.selectedElements.filter((txn) => txn.tx_id !== expense.tx_id);
@@ -89,7 +90,7 @@ export class CreateNewReportComponent implements OnInit {
     this.isSelectedAll = this.selectedElements.length === this.selectedExpensesToReport.length;
   }
 
-  toggleSelectAll(value: boolean) {
+  toggleSelectAll(value: boolean): void {
     if (value) {
       this.selectedElements = this.selectedExpensesToReport;
     } else {
@@ -98,11 +99,11 @@ export class CreateNewReportComponent implements OnInit {
     this.getReportTitle();
   }
 
-  closeEvent() {
+  closeEvent(): void {
     this.modalController.dismiss();
   }
 
-  ctaClickedEvent(reportActionType) {
+  ctaClickedEvent(reportActionType): Subscription {
     this.showReportNameError = false;
     if (this.reportTitle?.trim().length <= 0) {
       this.showReportNameError = true;
@@ -126,7 +127,7 @@ export class CreateNewReportComponent implements OnInit {
               Report_Value: this.selectedTotalAmount,
             })
           ),
-          switchMap((report) => {
+          switchMap((report: ReportV1) => {
             if (txnIds.length > 0) {
               return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
             } else {

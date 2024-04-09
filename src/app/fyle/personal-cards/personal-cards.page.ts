@@ -1,32 +1,59 @@
-import { Component, EventEmitter, OnInit, AfterViewInit, NgZone, ViewChild, ElementRef } from '@angular/core';
-import { ActivatedRoute, Params, Router } from '@angular/router';
-import { BehaviorSubject, concat, from, fromEvent, noop, Observable, of, Subject } from 'rxjs';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  EventEmitter,
+  NgZone,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { InfiniteScrollCustomEvent, SegmentCustomEvent } from '@ionic/core';
+import {
+  Observable,
+  BehaviorSubject,
+  finalize,
+  noop,
+  tap,
+  from,
+  switchMap,
+  concat,
+  debounceTime,
+  distinctUntilChanged,
+  fromEvent,
+  map,
+  of,
+  shareReplay,
+} from 'rxjs';
+import { PersonalCard } from 'src/app/core/models/personal_card.model';
+import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
+import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
+
+import * as dayjs from 'dayjs';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router, ActivatedRoute, Params } from '@angular/router';
+import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
+import { ModalController, Platform } from '@ionic/angular';
+import { ApiV2Service } from 'src/app/core/services/api-v2.service';
+import { InAppBrowserService } from 'src/app/core/services/in-app-browser.service';
+import { LoaderService } from 'src/app/core/services/loader.service';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { PersonalCardsService } from 'src/app/core/services/personal-cards.service';
-import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-import { LoaderService } from 'src/app/core/services/loader.service';
-import { debounceTime, distinctUntilChanged, finalize, map, shareReplay, switchMap, take, tap } from 'rxjs/operators';
-import { PersonalCard } from 'src/app/core/models/personal_card.model';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SnackbarPropertiesService } from '../../core/services/snackbar-properties.service';
-import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
+import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
-import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
-import { ModalController, Platform } from '@ionic/angular';
+import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
-import { DateService } from 'src/app/core/services/date.service';
-import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
-import * as dayjs from 'dayjs';
-import { ApiV2Service } from 'src/app/core/services/api-v2.service';
-import { DateRangeModalComponent } from './date-range-modal/date-range-modal.component';
-import { PersonalCardTxn } from 'src/app/core/models/personal_card_txn.model';
-import { ExpensePreviewComponent } from '../personal-cards-matched-expenses/expense-preview/expense-preview.component';
-import { SpinnerDialog } from '@awesome-cordova-plugins/spinner-dialog/ngx';
-import { TrackingService } from 'src/app/core/services/tracking.service';
-import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { Expense } from 'src/app/core/models/expense.model';
+import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 
 type Filters = Partial<{
   amount: number;
@@ -49,7 +76,7 @@ type Filters = Partial<{
   styleUrls: ['./personal-cards.page.scss'],
 })
 export class PersonalCardsPage implements OnInit, AfterViewInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   headerState: HeaderState = HeaderState.base;
 
@@ -59,17 +86,19 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   linkedAccounts$: Observable<PersonalCard[]>;
 
-  loadCardData$: BehaviorSubject<any>;
+  loadCardData$: BehaviorSubject<{}> = new BehaviorSubject({});
 
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: any;
+      queryParams: Record<string, string | string[]>;
       sortParam: string;
       sortDir: string;
       searchString: string;
     }>
-  >;
+  > = new BehaviorSubject({
+    pageNumber: 1,
+  });
 
   transactions$: Observable<PersonalCardTxn[]>;
 
@@ -87,7 +116,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   isLoadingDataInfiniteScroll = false;
 
-  acc = [];
+  acc: PersonalCardTxn[] = [];
 
   currentPageNumber = 1;
 
@@ -101,9 +130,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
   selectionMode = false;
 
-  selectedElements: any[];
+  selectedElements: string[];
 
-  selectAll = false;
+  selectAll;
 
   filters: Filters;
 
@@ -130,21 +159,21 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     private networkService: NetworkService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private inAppBrowser: InAppBrowser,
+    private inAppBrowserService: InAppBrowserService,
     private loaderService: LoaderService,
     private zone: NgZone,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
     private modalController: ModalController,
-    private dateService: DateService,
     private apiV2Service: ApiV2Service,
     private platform: Platform,
     private spinnerDialog: SpinnerDialog,
     private trackingService: TrackingService,
-    private modalProperties: ModalPropertiesService
+    private modalProperties: ModalPropertiesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
     const isIos = this.platform.is('ios');
     if (isIos) {
@@ -154,7 +183,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     if (this.isCardsLoaded) {
       const currentParams = this.loadData$.getValue();
       this.loadData$.next(currentParams);
@@ -162,24 +191,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.trackingService.personalCardsViewed();
   }
 
-  ngAfterViewInit() {
-    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
-
-    this.loadCardData$ = new BehaviorSubject({});
-    this.linkedAccountsCount$ = this.loadCardData$.pipe(
-      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
-      tap((count) => {
-        if (count === 0) {
-          this.clearFilters();
-        }
-      }),
-      shareReplay(1)
-    );
+  loadLinkedAccounts(): void {
     this.linkedAccounts$ = this.loadCardData$.pipe(
       tap(() => (this.isLoading = true)),
       switchMap(() =>
         this.personalCardsService.getLinkedAccounts().pipe(
-          tap((bankAccounts) => {
+          tap(() => {
             this.isCardsLoaded = true;
           }),
           finalize(() => {
@@ -189,20 +206,53 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       ),
       shareReplay(1)
     );
+  }
 
-    this.loadData$ = new BehaviorSubject({});
-
-    const paginatedPipe = this.loadData$.pipe(
+  loadTransactionCount(): void {
+    this.transactionsCount$ = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams;
-        if (this.activatedRoute.snapshot.queryParams.filters) {
-          this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
-          this.currentPageNumber = 1;
-          queryParams = this.addNewFiltersToParams();
-        } else {
-          queryParams = params.queryParams;
+        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
+        return this.personalCardsService.getBankTransactionsCount(queryParams);
+      }),
+      shareReplay(1)
+    );
+  }
+
+  loadInfiniteScroll(): void {
+    const paginatedScroll$ = this.transactions$.pipe(
+      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
+    );
+    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
+  }
+
+  loadAccountCount(): void {
+    this.linkedAccountsCount$ = this.loadCardData$.pipe(
+      switchMap(() => this.personalCardsService.getLinkedAccountsCount()),
+      tap((count) => {
+        if (count === 0) {
+          this.clearFilters();
         }
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+      }),
+      shareReplay(1)
+    );
+  }
+
+  loadPersonalTxns(): Observable<PersonalCardTxn[]> {
+    return this.loadData$.pipe(
+      switchMap((params) => {
+        let queryParams: Record<string, string>;
+        if (this.activatedRoute.snapshot.queryParams.filters) {
+          const route_filters = JSON.parse(this.activatedRoute.snapshot.queryParams.filters as string) as Record<
+            string,
+            string | string[]
+          >;
+          this.filters = Object.assign({}, this.filters, route_filters);
+          this.currentPageNumber = 1;
+          queryParams = this.addNewFiltersToParams() as Record<string, string>;
+        } else {
+          queryParams = params.queryParams as Record<string, string>;
+        }
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams as {}, params.searchString);
         return this.personalCardsService.getBankTransactionsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
@@ -237,27 +287,33 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         return this.acc;
       })
     );
+  }
+
+  ngAfterViewInit(): void {
+    this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
+    this.loadCardData$ = new BehaviorSubject({});
+
+    this.loadAccountCount();
+
+    this.loadLinkedAccounts();
+
+    this.loadData$ = new BehaviorSubject({
+      pageNumber: 1,
+    });
+
+    const paginatedPipe = this.loadPersonalTxns();
 
     this.transactions$ = paginatedPipe.pipe(shareReplay(1));
-
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
 
-    this.transactionsCount$ = this.loadData$.pipe(
-      switchMap((params) => {
-        const queryParams = this.apiV2Service.extendQueryParamsForTextSearch(params.queryParams, params.searchString);
-        return this.personalCardsService.getBankTransactionsCount(queryParams);
-      }),
-      shareReplay(1)
-    );
-    const paginatedScroll$ = this.transactions$.pipe(
-      switchMap((txns) => this.transactionsCount$.pipe(map((count) => count > txns.length)))
-    );
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap((_) => paginatedScroll$));
+    this.loadTransactionCount();
+
+    this.loadInfiniteScroll();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         distinctUntilChanged(),
         debounceTime(400)
       )
@@ -268,9 +324,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
         currentParams.pageNumber = this.currentPageNumber;
         this.loadData$.next(currentParams);
       });
+    this.cdr.detectChanges();
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
@@ -282,7 +339,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  linkAccount() {
+  linkAccount(): void {
     from(this.loaderService.showLoader('Redirecting you to our banking partner...', 10000))
       .pipe(
         switchMap(() => this.personalCardsService.getToken()),
@@ -295,9 +352,9 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  openYoodle(url, access_token) {
+  openYoodle(url: string, access_token: string): void {
     const pageContentUrl = this.personalCardsService.htmlFormUrl(url, access_token);
-    const browser = this.inAppBrowser.create(pageContentUrl, '_blank', 'location=no');
+    const browser = this.inAppBrowserService.create(pageContentUrl, '_blank', 'location=no');
     this.spinnerDialog.show();
     /* added this for failsafe */
     setTimeout(() => {
@@ -316,7 +373,10 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       if (event.url.substring(0, 22) === 'https://www.fylehq.com') {
         browser.close();
         this.zone.run(() => {
-          const decodedData = JSON.parse(decodeURIComponent(event.url.slice(43)));
+          const uri = decodeURIComponent(event.url.slice(43));
+          const decodedData = JSON.parse(uri) as {
+            requestId: string;
+          }[];
           if (decodedData && decodedData[0]) {
             this.postAccounts([decodedData[0].requestId]);
           }
@@ -325,7 +385,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  postAccounts(requestIds) {
+  postAccounts(requestIds: string[]): void {
     from(this.loaderService.showLoader('Linking your card with Fyle...', 30000))
       .pipe(
         switchMap(() => this.personalCardsService.postBankAccounts(requestIds)),
@@ -345,12 +405,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       });
   }
 
-  onDeleted() {
+  onDeleted(): void {
     this.loadCardData$.next({});
     this.trackingService.cardDeletedOnPersonalCards();
   }
 
-  onCardChanged(event) {
+  onCardChanged(event: string): void {
     this.selectedAccount = event;
     this.acc = [];
     const params = this.loadData$.getValue();
@@ -365,7 +425,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  loadData(event) {
+  loadData(event: InfiniteScrollCustomEvent): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     this.isLoadingDataInfiniteScroll = true;
 
@@ -378,7 +438,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 1000);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -389,14 +449,14 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'none' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate([
       '/',
       'enterprise',
@@ -407,11 +467,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     ]);
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: SegmentCustomEvent): void {
     if (this.selectionMode) {
       this.switchSelectionMode();
     }
-    this.selectedTrasactionType = event.detail.value;
+    this.selectedTrasactionType = event.detail.value as string;
     this.acc = [];
     const params = this.loadData$.getValue();
     const queryParams = params.queryParams || {};
@@ -424,7 +484,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  fetchNewTransactions() {
+  fetchNewTransactions(): void {
     this.isfetching = true;
     this.isTrasactionsLoading = true;
     if (this.selectionMode) {
@@ -445,12 +505,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       .subscribe(noop);
   }
 
-  hideSelectedTransactions() {
+  hideSelectedTransactions(): void {
     this.isHiding = true;
     this.personalCardsService
       .hideTransactions(this.selectedElements)
       .pipe(
-        tap((data: any) => {
+        tap((data: Expense[]) => {
           const message =
             data.length === 1
               ? '1 Transaction successfully hidden!'
@@ -475,17 +535,17 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
       .subscribe(noop);
   }
 
-  switchSelectionMode(txnId?) {
+  switchSelectionMode(txnId?: string): void {
     if (this.selectedTrasactionType === 'INITIALIZED') {
       this.selectionMode = !this.selectionMode;
       this.selectedElements = [];
       if (txnId) {
-        this.selectExpense(txnId);
+        this.toggleExpense(txnId);
       }
     }
   }
 
-  selectExpense(txnId: string) {
+  toggleExpense(txnId: string): void {
     const itemIndex = this.selectedElements.indexOf(txnId);
     if (itemIndex >= 0) {
       this.selectedElements.splice(itemIndex, 1);
@@ -494,7 +554,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  onSelectAll(event) {
+  onSelectAll(event: MatCheckboxChange): void {
     this.selectAll = event;
     this.selectedElements = [];
     if (this.selectAll) {
@@ -502,7 +562,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -582,7 +642,8 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as OverlayResponse<SelectedFilters<string>[]>;
+
     if (data) {
       this.currentPageNumber = 1;
       this.filters = this.personalCardsService.convertFilters(data);
@@ -594,7 +655,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  async setState(state: string) {
+  async setState(): Promise<void> {
     this.isLoading = true;
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -604,11 +665,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }, 500);
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
 
     currentParams.pageNumber = 1;
-    const newQueryParams: any = {
+    const newQueryParams: Record<string, string | string[]> = {
       or: [],
     };
     newQueryParams.btxn_status = `in.(${this.selectedTrasactionType})`;
@@ -622,32 +683,32 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     return currentParams;
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterLabel: string) {
+  async onFilterClick(filterLabel: string): Promise<void> {
     await this.openFilters(filterLabel);
   }
 
-  onFilterClose(filterLabel: string) {
+  onFilterClose(filterLabel: string): void {
     if (filterLabel === 'Created On') {
       delete this.filters.createdOn;
     }
@@ -659,15 +720,16 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     if (filterLabel === 'Transactions Type') {
       delete this.filters.transactionType;
     }
+
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  clearText(isFromCancel) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -677,7 +739,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -685,7 +747,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     this.filterPills = this.personalCardsService.generateFilterPills(this.filters);
   }
 
-  createExpense(txnDetails) {
+  createExpense(txnDetails: PersonalCardTxn): void {
     if (this.selectionMode || this.loadingMatchedExpenseCount) {
       return;
     }
@@ -714,11 +776,12 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     });
   }
 
-  async openExpensePreview(txnDetails) {
+  async openExpensePreview(txnDetails: PersonalCardTxn): Promise<void> {
+    const txn_details = txnDetails?.txn_details;
     const expenseDetailsModal = await this.modalController.create({
       component: ExpensePreviewComponent,
       componentProps: {
-        expenseId: txnDetails.txn_details[0].id,
+        expenseId: txn_details[0]?.id,
         card: txnDetails.ba_account_number,
         cardTxnId: txnDetails.btxn_id,
         type: 'unmatch',
@@ -728,13 +791,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await expenseDetailsModal.present();
 
-    const { data } = await expenseDetailsModal.onWillDismiss();
-
     const currentParams = this.loadData$.getValue();
     this.loadData$.next(currentParams);
   }
 
-  async openDateRangeModal() {
+  async openDateRangeModal(): Promise<void> {
     const selectionModal = await this.modalController.create({
       component: DateRangeModalComponent,
       mode: 'ios',
@@ -743,8 +804,11 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
 
     await selectionModal.present();
 
-    const { data } = await selectionModal.onWillDismiss();
-
+    const { data } = (await selectionModal.onWillDismiss()) as OverlayResponse<{
+      range: string;
+      startDate: string;
+      endDate: string;
+    }>;
     if (data) {
       this.zone.run(() => {
         this.txnDateRange = data.range;
@@ -761,7 +825,7 @@ export class PersonalCardsPage implements OnInit, AfterViewInit {
     }
   }
 
-  doRefresh(event?) {
+  doRefresh(event?: InfiniteScrollCustomEvent): void {
     const currentParams = this.loadData$.getValue();
     this.currentPageNumber = 1;
     currentParams.pageNumber = this.currentPageNumber;

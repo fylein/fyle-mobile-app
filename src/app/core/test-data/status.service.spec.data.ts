@@ -417,7 +417,23 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     st_id: 'st3xjYhJBfIu',
     st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
-    st_comment: 'un-approved',
+    st_comment: 'approver_inquiry',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'approver_pending',
     st_diff: null,
     st_state: null,
     st_transaction_id: null,
@@ -669,6 +685,23 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isSelfComment: false,
     isOthersComment: true,
   },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2023-08-17T18:00:32.414Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment:
+      'Expense report name was changed from "#5:  Aug 2023" to "#5:  Aug 2023 - Office supply" by Abhishek Jain (ajain@fyle.in)',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
 ];
 
 export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
@@ -689,7 +722,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Created',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -729,7 +762,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -749,7 +782,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense automatically merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -769,7 +802,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: '2 expenses merged to this expense',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -789,7 +822,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
   },
   {
@@ -809,7 +842,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Reversed',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -829,7 +862,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policy Violation',
-      icon: 'danger',
+      icon: 'warning-fill',
     },
   },
   {
@@ -849,7 +882,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Receipt Removed',
-      icon: 'no-attachment',
+      icon: 'attachment-none',
     },
   },
   {
@@ -869,7 +902,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense removed',
-      icon: 'fy-delete',
+      icon: 'bin',
     },
   },
   {
@@ -909,7 +942,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Flagged',
-      icon: 'flag',
+      icon: 'flag-fill',
     },
   },
   {
@@ -929,7 +962,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Unflagged',
-      icon: 'flag',
+      icon: 'flag-outline',
     },
   },
   {
@@ -949,7 +982,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Failed to run policies',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -969,14 +1002,14 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Verified',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
     st_id: 'st3xjYhJBfIu',
     st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
-    st_comment: 'un-approved',
+    st_comment: 'approver_inquiry',
     st_diff: null,
     st_state: null,
     st_transaction_id: null,
@@ -996,6 +1029,26 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     st_id: 'st3xjYhJBfIu',
     st_created_at: new Date('2022-10-31T10:26:57.846Z'),
     st_org_user_id: 'SYSTEM',
+    st_comment: 'approver_pending',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'Approver Pending',
+      icon: 'radio-circle-outline',
+    },
+  },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2022-10-31T10:26:57.846Z'),
+    st_org_user_id: 'SYSTEM',
     st_comment: 'approved',
     st_diff: null,
     st_state: null,
@@ -1009,7 +1062,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'reports Approved',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1029,7 +1082,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Processing Payment',
-      icon: 'fy-recently-used',
+      icon: 'clock',
     },
   },
   {
@@ -1049,7 +1102,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Paid',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1089,7 +1142,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Issues',
-      icon: 'error-filled',
+      icon: 'warning-fill',
     },
   },
   {
@@ -1109,7 +1162,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Policies Ran Successfully',
-      icon: 'success-tick',
+      icon: 'check-square-fill',
     },
   },
   {
@@ -1129,7 +1182,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Card Transaction Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1149,7 +1202,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Unmatched',
-      icon: 'fy-corporate-card',
+      icon: 'card',
     },
   },
   {
@@ -1169,7 +1222,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Matched',
-      icon: 'card-filled',
+      icon: 'card',
     },
   },
   {
@@ -1229,7 +1282,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1249,7 +1302,7 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1289,7 +1342,28 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
     isOthersComment: true,
     st: {
       category: 'Expense Rule Applied',
-      icon: 'expense-rule',
+      icon: 'file-lightning-indicator',
+    },
+  },
+  {
+    st_id: 'st3xjYhJBfIu',
+    st_created_at: new Date('2023-08-17T18:00:32.414Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment:
+      'Expense report name was changed from "#5:  Aug 2023" to "#5:  Aug 2023 - Office supply" by Abhishek Jain (ajain@fyle.in)',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp39MrwyOm9n',
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'Report Name Changed',
+      icon: 'edit',
     },
   },
 ];
@@ -1531,7 +1605,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense added',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1551,7 +1625,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1592,7 +1666,7 @@ export const estatusSample = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
   {
@@ -1626,7 +1700,7 @@ export const estatusSample = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
   },
@@ -1653,7 +1727,7 @@ export const eStatusWithProjectName = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1680,7 +1754,7 @@ export const eStatusWithProjectName2 = [
     show_dt: true,
     st: {
       category: 'Others',
-      icon: 'circle',
+      icon: 'radio-circle-outline',
     },
   },
 ];
@@ -1717,8 +1791,313 @@ export const eStatusWithReimbursible = [
     isOthersComment: true,
     st: {
       category: 'Expense merged',
-      icon: 'fy-merge',
+      icon: 'merge',
     },
     has_details: true,
+  },
+];
+
+export const newEstatusData1: ExtendedStatus[] = [
+  {
+    st_id: 'st7ak7UoeTDH',
+    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'food expenses are limited to rs 200 only',
+    st_diff: {
+      'Violating Transactions': [
+        'E/2022/09/T/28 (INR 200, Food, testing 5)\n',
+        'E/2022/09/T/29 (INR 0, Food, testing 5)\n',
+      ],
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+  },
+  {
+    st_id: 'st8dHUhDzXxr',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'Flagged as per policy',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'some',
+    us_email: null,
+  },
+  {
+    st_id: 'sty8xyVwn2sK',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'oudmNnyXjIgs',
+    st_comment: 'Reason for adding kavya.hl@fyle.in as an approver: fdv',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp9SScv0ZTNv',
+    st_advance_request_id: null,
+    us_full_name: 'Abhishek Jain',
+    us_email: 'ajain@fyle.in',
+  },
+  {
+    st_id: 'stIwoMKmTqeM',
+    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'created by Abhishek (ajain@fyle.in)',
+    st_diff: {
+      'non-reimbursable': false,
+      'sub-category': 'Food',
+      'breakfast provided': false,
+      'cost-center name': '11',
+      'project name': 'testing 5',
+      'text-field': '111',
+      'user entered amount': 100,
+      custom: 'null',
+      'transaction date': 'Wednesday, September 21, 2022',
+      currency: 'INR',
+      category: 'Food',
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+  },
+];
+
+export const expectedNewStatusData: ExtendedStatus[] = [
+  {
+    st_id: 'stIwoMKmTqeM',
+    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'created by Abhishek (ajain@fyle.in)',
+    st_diff: {
+      'non-reimbursable': false,
+      'sub-category': 'Food',
+      'breakfast provided': false,
+      'cost-center name': '11',
+      'project name': 'testing 5',
+      'text-field': '111',
+      'user entered amount': 100,
+      custom: 'null',
+      'transaction date': 'Wednesday, September 21, 2022',
+      currency: 'INR',
+      category: 'Food',
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+  {
+    st_id: 'st7ak7UoeTDH',
+    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'food expenses are limited to rs 200 only',
+    st_diff: {
+      'Violating Transactions': [
+        'E/2022/09/T/28 (INR 200, Food, testing 5)\n',
+        'E/2022/09/T/29 (INR 0, Food, testing 5)\n',
+      ],
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+  {
+    st_id: 'st8dHUhDzXxr',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'Flagged as per policy',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'some',
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: true,
+  },
+  {
+    st_id: 'sty8xyVwn2sK',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'oudmNnyXjIgs',
+    st_comment: 'Reason for adding kavya.hl@fyle.in as an approver: fdv',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: null,
+    st_report_id: 'rp9SScv0ZTNv',
+    st_advance_request_id: null,
+    us_full_name: 'Abhishek Jain',
+    us_email: 'ajain@fyle.in',
+    isBotComment: false,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: false,
+  },
+];
+
+export const systemComments1: ExtendedStatus[] = [
+  {
+    st_id: 'stIwoMKmTqeM',
+    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'created by Abhishek (ajain@fyle.in)',
+    st_diff: {
+      'non-reimbursable': false,
+      'sub-category': 'Food',
+      'breakfast provided': false,
+      'cost-center name': '11',
+      'project name': 'testing 5',
+      'text-field': '111',
+      'user entered amount': 100,
+      custom: 'null',
+      'transaction date': 'Wednesday, September 21, 2022',
+      currency: 'INR',
+      category: 'Food',
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+  {
+    st_id: 'st7ak7UoeTDH',
+    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'food expenses are limited to rs 200 only',
+    st_diff: {
+      'Violating Transactions': [
+        'E/2022/09/T/28 (INR 200, Food, testing 5)\n',
+        'E/2022/09/T/29 (INR 0, Food, testing 5)\n',
+      ],
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+  {
+    st_id: 'st8dHUhDzXxr',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'Flagged as per policy',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'some',
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: true,
+  },
+];
+
+export const systemCommentsWithSt: ExtendedStatus[] = [
+  {
+    st_id: 'stIwoMKmTqeM',
+    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
+    st_org_user_id: 'SYSTEM',
+    st_comment: 'created by Abhishek (ajain@fyle.in)',
+    st_diff: {
+      'non-reimbursable': false,
+      'sub-category': 'Food',
+      'breakfast provided': false,
+      'cost-center name': '11',
+      'project name': 'testing 5',
+      'text-field': '111',
+      'user entered amount': 100,
+      custom: 'null',
+      'transaction date': 'Wednesday, September 21, 2022',
+      currency: 'INR',
+      category: 'Food',
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: {
+      category: 'repots Reversed',
+      icon: 'radio-circle-outline',
+    },
+  },
+  {
+    st_id: 'st7ak7UoeTDH',
+    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'food expenses are limited to rs 200 only',
+    st_diff: {
+      'Violating Transactions': [
+        'E/2022/09/T/28 (INR 200, Food, testing 5)\n',
+        'E/2022/09/T/29 (INR 0, Food, testing 5)\n',
+      ],
+    },
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: null,
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    st: { category: 'Policy Violation', icon: 'warning-fill' },
+  },
+  {
+    st_id: 'st8dHUhDzXxr',
+    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
+    st_org_user_id: 'POLICY',
+    st_comment: 'Flagged as per policy',
+    st_diff: null,
+    st_state: null,
+    st_transaction_id: 'tx1oTNwgRdRq',
+    st_report_id: null,
+    st_advance_request_id: null,
+    us_full_name: 'some',
+    us_email: null,
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: true,
+    st: {
+      category: 'Flagged',
+      icon: 'flag-fill',
+    },
   },
 ];

@@ -17,6 +17,11 @@
     }
   }
 
+  &__icon {
+    width: 16px;
+    height: 16px;
+  }
+
   &__section-header {
     color: $black-light;
     padding-bottom: 12px;
@@ -37,6 +42,83 @@
       font-weight: 500;
       color: $black;
     }
+
+    &__emphasized-content {
+      font-weight: 500;
+      color: $black;
+    }
+
+    &__location-detail-card {
+      display: flex;
+      align-items: center;
+      padding: 12px 6px;
+      border-radius: 6px;
+      background-color: $alice-blue;
+      gap: 14px;
+
+      &__header {
+        font-size: 12px;
+        color: $black-light;
+      }
+
+      &__content {
+        font-size: 14px;
+        font-weight: 500;
+        color: $black;
+      }
+    }
+
+    &__location-icon-container {
+      display: flex;
+      align-self: flex-start;
+      align-items: center;
+      justify-content: center;
+      padding: 4px;
+      border-radius: 4px;
+      background-color: $white;
+    }
+
+    &__edit-commute-button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 8px;
+
+      &__icon {
+        height: 16px;
+        width: 16px;
+        color: $brand-primary;
+      }
+
+      &__text {
+        font-weight: 500;
+        color: $brand-primary;
+      }
+    }
+
+    &__content-container {
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+      gap: 12px;
+
+      &__content {
+        font-size: 12px;
+        color: $black-light;
+      }
+
+      &__header {
+        font-size: 14px;
+        font-weight: 500;
+        color: $black;
+      }
+    }
+
+    &__commute-distance-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
   }
 
   &__navigate-icon {
@@ -53,6 +135,21 @@
     &__card {
       &:not(:last-child) {
         border-bottom: 1px solid $grey;
+      }
+    }
+  }
+
+  &__info-card-container {
+    background-color: $pure-white;
+    border-radius: 8px;
+    margin-bottom: 24px;
+
+    &__card {
+      margin: 0 16px;
+      border-bottom: 1px solid $grey;
+
+      &--last {
+        border-bottom: none;
       }
     }
   }
