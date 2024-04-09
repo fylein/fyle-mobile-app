@@ -125,7 +125,6 @@ export function TestCases2(getTestBed) {
     it('modifyAdvanceRequestCustomFields(): should sort the values and update the customFieldValues date to YYYY-M-D format if it contains date', () => {
       const mockCustomField = cloneDeep(advanceRequestCustomFieldValuesData);
       const result = component.modifyAdvanceRequestCustomFields(mockCustomField);
-      console.log(result);
       expect(result).toEqual(advanceRequestCustomFieldValuesData2);
       expect(component.customFieldValues).toEqual(advanceRequestCustomFieldValuesData2);
     });
