@@ -165,7 +165,6 @@ describe('AdvanceRequestService', () => {
     spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
 
     advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-      console.log('res', res);
       expect(res).toEqual(publicAdvanceRequestRes.data[0]);
       expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
         params: {
