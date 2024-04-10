@@ -158,6 +158,26 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('getAdvanceRequestPlatform(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqiwr3Wwirr';
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+      console.log('res', res);
+      expect(res).toEqual(publicAdvanceRequestRes.data[0]);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
+      done();
+    });
+  });
+
   it('getActions(): should get advance request actions from ID', (done) => {
     const advReqID = 'areqoVuT5I8OOy';
     apiService.get.and.returnValue(of(apiAdvanceRequestAction));
