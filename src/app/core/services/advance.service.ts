@@ -38,16 +38,16 @@ export class AdvanceService {
       adv_settlement_id: advancesPlatform.settlement_id,
       adv_source: advancesPlatform.source,
       areq_id: advancesPlatform.advance_request_id,
-      assignee_department_id: advancesPlatform.employee?.department?.id,
-      assignee_ou_id: advancesPlatform?.employee?.id,
-      assignee_ou_org_id: advancesPlatform?.employee?.org_id,
-      assignee_us_email: advancesPlatform?.employee?.user?.email,
-      assignee_us_full_name: advancesPlatform?.employee?.user?.full_name,
+      assignee_department_id: advancesPlatform.employee.department?.id,
+      assignee_ou_id: advancesPlatform.employee.id,
+      assignee_ou_org_id: advancesPlatform.employee.org_id,
+      assignee_us_email: advancesPlatform.employee.user.email,
+      assignee_us_full_name: advancesPlatform.employee.user.full_name,
       project_code: advancesPlatform.project?.code,
       project_id: advancesPlatform.project?.id,
       project_name: advancesPlatform.project?.display_name,
       type: 'advance',
-      creator_us_full_name: advancesPlatform.creator_user?.full_name,
+      creator_us_full_name: advancesPlatform.creator_user.full_name,
     };
   }
 
