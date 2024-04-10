@@ -412,7 +412,9 @@ describe('AdvanceRequestService', () => {
   describe('fixDatesForPlatformFields():', () => {
     it('should convert string values to dates', () => {
       //@ts-ignore
-      expect(advanceRequestService.fixDates(advanceRequestPlatform.data[0])).toEqual(advanceRequestPlatform.data[0]);
+      expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
+        advanceRequestPlatform.data[0]
+      );
     });
   });
 
