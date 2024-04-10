@@ -4902,6 +4902,10 @@ export class AddEditExpensePage implements OnInit {
     return this.fileService.post(fileObjCopy);
   }
 
+  testing(): void {
+    console.log('testing');
+  }
+
   uploadFileAndPostToFileService(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
       switchMap((fileObj: FileObject) => this.postToFileService(fileObj, txnId))
