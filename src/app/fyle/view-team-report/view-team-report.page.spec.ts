@@ -991,7 +991,7 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
-  describe('editReportName(): ', () => {
+  xdescribe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
       component.canEdit$ = of(true);

@@ -22,11 +22,15 @@ import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-op
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
-import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-tasks',
@@ -70,7 +74,8 @@ export class TasksComponent implements OnInit {
     private snackbarProperties: SnackbarPropertiesService,
     private router: Router,
     private activatedRoute: ActivatedRoute,
-    private networkService: NetworkService
+    private networkService: NetworkService,
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit(): void {
@@ -371,6 +376,9 @@ export class TasksComponent implements OnInit {
       case TASKEVENT.mobileNumberVerification:
         this.onMobileNumberVerificationTaskClick(taskCta);
         break;
+      case TASKEVENT.commuteDetails:
+        this.onCommuteDetailsTaskClick();
+        break;
       default:
         break;
     }
@@ -389,24 +397,24 @@ export class TasksComponent implements OnInit {
 
   onReviewExpensesTaskClick(): void {
     const queryParams = {
-      tx_state: 'in.(DRAFT)',
-      tx_report_id: 'is.null',
+      state: 'in.(DRAFT)',
+      report_id: 'is.null',
     };
     from(this.loaderService.showLoader('please wait while we load your expenses', 3000))
       .pipe(
         switchMap(() =>
-          this.transactionService.getAllExpenses({
+          this.expensesService.getAllExpenses({
             queryParams,
           })
         ),
-        map((etxns) => etxns.map((etxn) => etxn.tx_id)),
+        map((expenses) => expenses.map((expense) => expense.id)),
         switchMap((selectedIds) => {
           const initial = selectedIds[0];
           const allIds = selectedIds;
 
-          return this.transactionService.getETxnUnflattened(initial).pipe(
-            map((etxn) => ({
-              inital: etxn,
+          return this.expensesService.getExpenseById(initial).pipe(
+            map((expense) => ({
+              inital: this.transactionService.transformExpense(expense),
               allIds,
             }))
           );
@@ -587,11 +595,27 @@ export class TasksComponent implements OnInit {
         state: 'in.(COMPLETE)',
         or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
         report_id: 'is.null',
+        and: '()',
       },
     };
-    const readyToReportExpenses$ = this.expensesService
-      .getAllExpenses(params)
-      .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+
+    const readyToReportExpenses$ = this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+      ),
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
+          params.queryParams = {
+            ...params.queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
+        }
+        return this.expensesService
+          .getAllExpenses(params)
+          .pipe(map((expenses) => expenses.map((expenses) => expenses.id)));
+      })
+    );
 
     this.reportService
       .getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } })
@@ -644,5 +668,37 @@ export class TasksComponent implements OnInit {
     this.trackingService.autoSubmissionInfoCardClicked({
       isSeparateCard,
     });
+  }
+
+  showToastMessage(message: string, type: 'success' | 'failure'): void {
+    const panelClass = type === 'success' ? 'msb-success' : 'msb-failure';
+    this.matSnackBar.openFromComponent(ToastMessageComponent, {
+      ...this.snackbarProperties.setSnackbarProperties(type, { message }),
+      panelClass,
+    });
+    this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  async onCommuteDetailsTaskClick(): Promise<void> {
+    this.trackingService.commuteDeductionTaskClicked();
+
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      mode: 'ios',
+    });
+
+    await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
+
+    // Show toast message and refresh the page once commute details are saved
+    if (data.action === 'save') {
+      this.trackingService.commuteDeductionDetailsAddedFromSpenderTask(data.commuteDetails);
+      this.showToastMessage('Commute details saved successfully', 'success');
+      this.doRefresh();
+    }
   }
 }

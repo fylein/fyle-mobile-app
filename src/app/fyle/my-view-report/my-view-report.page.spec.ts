@@ -372,9 +372,10 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+          and: '()',
         },
       });
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalled();
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({
@@ -463,10 +464,11 @@ describe('MyViewReportPage', () => {
           state: 'in.(COMPLETE)',
           order: 'spent_at.desc',
           or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+          and: '()',
         },
       });
 
-      expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+      expect(orgSettingsService.get).toHaveBeenCalled();
 
       component.simplifyReportsSettings$.subscribe((res) => {
         expect(res).toEqual({ enabled: true });

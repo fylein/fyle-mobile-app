@@ -6,6 +6,9 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { Cacheable } from 'ts-cacheable';
 import { MileageSettings, OrgUserSettings } from '../models/org_user_settings.model';
 import { Location } from '../models/location.model';
+import { OrgSettings } from '../models/org-settings.model';
+import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
+import { CommuteDeduction } from '../enums/commute-deduction.enum';
 @Injectable({
   providedIn: 'root',
 })
@@ -34,6 +37,31 @@ export class MileageService {
         reduce((dist1, dist2) => dist1 + dist2)
       );
     }
+  }
+
+  isCommuteDeductionEnabled(orgSettings: OrgSettings): boolean {
+    return (
+      orgSettings.mileage?.allowed &&
+      orgSettings.mileage.enabled &&
+      orgSettings.commute_deduction_settings?.allowed &&
+      orgSettings.commute_deduction_settings.enabled
+    );
+  }
+
+  getCommuteDeductionOptions(distance: number): CommuteDeductionOptions[] {
+    return [
+      {
+        label: 'One Way Distance',
+        value: CommuteDeduction.ONE_WAY,
+        distance: distance === null || distance === undefined ? null : distance,
+      },
+      {
+        label: 'Round Trip Distance',
+        value: CommuteDeduction.ROUND_TRIP,
+        distance: distance === null || distance === undefined ? null : distance * 2,
+      },
+      { label: 'No Deduction', value: CommuteDeduction.NO_DEDUCTION, distance: 0 },
+    ];
   }
 
   private getChunks(locations: Location[], chunks: Array<Location[]>) {

@@ -20,6 +20,7 @@ import { TestCases1 } from './merge-expense-1.page.spec';
 import { TestCases2 } from './merge-expense-2.page.spec';
 import { TestCases3 } from './merge-expense-3.page.spec';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 describe('MergeExpensePage', () => {
   const getTestBed = () => {
@@ -27,7 +28,7 @@ describe('MergeExpensePage', () => {
     const activatedRouteSpy = {
       snapshot: {
         params: {
-          expenseIDs: JSON.stringify(['txBphgnCHHeO', 'tx3nHShG60zq']),
+          expenseIDs: JSON.stringify(['txQNInZMIHgZ', 'txZA0Oj6TV9c']),
         },
       },
     };
@@ -82,7 +83,8 @@ describe('MergeExpensePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldsForBaseField',
     ]);
-    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getETxnc']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformRawExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpenseService', ['getAllExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [MergeExpensePage],
@@ -113,6 +115,10 @@ describe('MergeExpensePage', () => {
         {
           provide: TransactionService,
           useValue: transactionServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
       ],
       schemas: [NO_ERRORS_SCHEMA],

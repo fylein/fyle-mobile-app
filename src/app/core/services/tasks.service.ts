@@ -17,6 +17,9 @@ import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { OrgSettingsService } from './org-settings.service';
+import { EmployeesService } from './platform/v1/spender/employees.service';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -40,7 +43,9 @@ export class TasksService {
     private advancesRequestService: AdvanceRequestService,
     private currencyService: CurrencyService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private orgSettingsService: OrgSettingsService,
+    private employeesService: EmployeesService
   ) {
     this.refreshOnTaskClear();
   }
@@ -294,6 +299,7 @@ export class TasksService {
       draftExpenses: this.getDraftExpensesTasks(),
       teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
+      setCommuteDetails: this.getCommuteDetailsTasks(),
     }).pipe(
       map(
         ({
@@ -305,6 +311,7 @@ export class TasksService {
           draftExpenses,
           teamReports,
           sentBackAdvances,
+          setCommuteDetails,
         }) => {
           this.totalTaskCount$.next(
             mobileNumberVerification.length +
@@ -314,7 +321,8 @@ export class TasksService {
               unreportedExpenses.length +
               teamReports.length +
               potentialDuplicates.length +
-              sentBackAdvances.length
+              sentBackAdvances.length +
+              setCommuteDetails.length
           );
           this.expensesTaskCount$.next(draftExpenses.length + unreportedExpenses.length + potentialDuplicates.length);
           this.reportsTaskCount$.next(sentBackReports.length + unsubmittedReports.length);
@@ -331,6 +339,7 @@ export class TasksService {
             !filters?.sentBackAdvances
           ) {
             return mobileNumberVerification
+              .concat(setCommuteDetails)
               .concat(potentialDuplicates)
               .concat(sentBackReports)
               .concat(draftExpenses)
@@ -443,12 +452,9 @@ export class TasksService {
     });
   }
 
-  getSentBackAdvancesStats(): Observable<Datum[]> {
-    return this.advancesRequestService.getMyAdvanceRequestStats({
-      aggregates: 'count(areq_id),sum(areq_amount)',
-      areq_state: 'in.(DRAFT)',
-      areq_is_sent_back: 'is.true',
-      scalar: true,
+  getSentBackAdvancesStats(): Observable<StatsResponse> {
+    return this.advancesRequestService.getAdvanceRequestStats({
+      state: 'eq.SENT_BACK',
     });
   }
 
@@ -457,9 +463,13 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ advancesStats, homeCurrency }: { advancesStats: Datum[]; homeCurrency: string }) =>
-        this.mapSentBackAdvancesToTasks(this.mapScalarAdvanceStatsResponse(advancesStats), homeCurrency)
-      )
+      map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) => {
+        const aggregate = {
+          totalAmount: advancesStats.total_amount,
+          totalCount: advancesStats.count,
+        };
+        return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
+      })
     );
   }
 
@@ -566,18 +576,32 @@ export class TasksService {
   }
 
   getUnreportedExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
-    return this.expensesService
-      .getExpenseStats({
-        state: 'in.(COMPLETE)',
-        or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
-        report_id: 'is.null',
+    let queryParams = {
+      state: 'in.(COMPLETE)',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      report_id: 'is.null',
+      and: '()',
+    };
+    return this.orgSettingsService.get().pipe(
+      map(
+        (orgSetting) =>
+          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+      ),
+      switchMap((filterPendingTxn: boolean) => {
+        if (filterPendingTxn) {
+          queryParams = {
+            ...queryParams,
+            and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+          };
+        }
+        return this.expensesService.getExpenseStats(queryParams).pipe(
+          map((stats) => ({
+            totalCount: stats.data.count,
+            totalAmount: stats.data.total_amount,
+          }))
+        );
       })
-      .pipe(
-        map((stats) => ({
-          totalCount: stats.data.count,
-          totalAmount: stats.data.total_amount,
-        }))
-      );
+    );
   }
 
   getUnreportedExpensesTasks(isReportAutoSubmissionScheduled = false): Observable<DashboardTask[] | []> {
@@ -826,5 +850,53 @@ export class TasksService {
 
   mapScalarAdvanceStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
+  }
+
+  getCommuteDetailsTasks(): Observable<DashboardTask[]> {
+    const isCommuteDeductionEnabled$ = this.orgSettingsService
+      .get()
+      .pipe(
+        map(
+          (orgSettings) =>
+            orgSettings.mileage?.allowed &&
+            orgSettings.mileage.enabled &&
+            orgSettings.commute_deduction_settings?.allowed &&
+            orgSettings.commute_deduction_settings.enabled
+        )
+      );
+
+    const commuteDetails$ = from(this.authService.getEou()).pipe(
+      switchMap((eou) => this.employeesService.getCommuteDetails(eou))
+    );
+
+    return forkJoin({
+      isCommuteDeductionEnabled: isCommuteDeductionEnabled$,
+      commuteDetails: commuteDetails$,
+    }).pipe(
+      switchMap(({ isCommuteDeductionEnabled, commuteDetails }) => {
+        if (isCommuteDeductionEnabled && !commuteDetails.data[0]?.commute_details?.home_location) {
+          return of(this.getCommuteDetailsTask());
+        }
+        return of<DashboardTask[]>([]);
+      })
+    );
+  }
+
+  getCommuteDetailsTask(): DashboardTask[] {
+    const task = [
+      {
+        hideAmount: true,
+        header: 'Add Commute Details',
+        subheader: 'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
+        icon: TaskIcon.LOCATION,
+        ctas: [
+          {
+            content: 'Add',
+            event: TASKEVENT.commuteDetails,
+          },
+        ],
+      },
+    ];
+    return task;
   }
 }

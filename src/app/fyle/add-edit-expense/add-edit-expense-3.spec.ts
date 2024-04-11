@@ -231,7 +231,6 @@ export function TestCases3(getTestBed) {
         distance: [],
         distance_unit: [],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         hotel_is_breakfast_provided: [],
@@ -466,7 +465,6 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDistance').and.returnValue(100);
         spyOn(component, 'getDistanceUnit').and.returnValue('KM');
         spyOn(component, 'getBreakfastProvided').and.returnValue(true);
-        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
         spyOn(component, 'getAmount').and.returnValue(500);
 
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
@@ -508,7 +506,6 @@ export function TestCases3(getTestBed) {
             expect(component.getDistance).toHaveBeenCalledTimes(1);
             expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
             expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
             expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });
@@ -539,7 +536,6 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDistance').and.returnValue(100);
         spyOn(component, 'getDistanceUnit').and.returnValue('KM');
         spyOn(component, 'getBreakfastProvided').and.returnValue(true);
-        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
         spyOn(component, 'getAmount').and.returnValue(100);
 
@@ -582,7 +578,6 @@ export function TestCases3(getTestBed) {
           expect(component.getDistance).toHaveBeenCalledTimes(1);
           expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
           expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-          expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
           expect(component.getAmount).toHaveBeenCalledTimes(1);
           done();
         });
@@ -613,7 +608,6 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDistance').and.returnValue(100);
         spyOn(component, 'getDistanceUnit').and.returnValue('KM');
         spyOn(component, 'getBreakfastProvided').and.returnValue(true);
-        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
         spyOn(component, 'getAmount').and.returnValue(100);
         component.fg.controls.costCenter.setValue(costCenterApiRes1[0]);
         component.fg.controls.currencyObj.setValue({
@@ -654,7 +648,6 @@ export function TestCases3(getTestBed) {
             expect(component.getDistance).toHaveBeenCalledTimes(1);
             expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
             expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
             expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });
@@ -684,7 +677,6 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getDistance').and.returnValue(100);
         spyOn(component, 'getDistanceUnit').and.returnValue('KM');
         spyOn(component, 'getBreakfastProvided').and.returnValue(true);
-        spyOn(component, 'getDuplicateReason').and.returnValue('reason');
         spyOn(component, 'getAmount').and.returnValue(100);
         component.mode = 'edit';
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
@@ -724,7 +716,6 @@ export function TestCases3(getTestBed) {
             expect(component.getDistance).toHaveBeenCalledTimes(1);
             expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
             expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getDuplicateReason).toHaveBeenCalledTimes(1);
             expect(component.getAmount).toHaveBeenCalledTimes(1);
             done();
           });

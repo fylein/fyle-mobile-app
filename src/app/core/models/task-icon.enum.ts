@@ -3,4 +3,5 @@ export enum TaskIcon {
   WARNING = 'warning-outline',
   ADVANCE = 'wallet',
   MOBILE = 'phone',
+  LOCATION = 'location',
 }

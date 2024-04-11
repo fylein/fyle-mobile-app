@@ -3,23 +3,22 @@ import { Observable, Subject, from, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 import { CCCDetails } from '../models/ccc-expense-details.model';
-import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 import { CorporateCardExpense } from '../models/v2/corporate-card-expense.model';
 import { StatsResponse } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
-import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
-import { DataTransformService } from './data-transform.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
-import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { UniqueCards } from '../models/unique-cards.model';
+import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
+import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
+import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
 type Config = Partial<{
   offset: number;
@@ -35,11 +34,9 @@ const cacheBuster$ = new Subject<void>();
 })
 export class CorporateCreditCardExpenseService {
   constructor(
-    private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private authService: AuthService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
   @CacheBuster({
@@ -87,29 +84,30 @@ export class CorporateCreditCardExpenseService {
               limit: number;
               offset: number;
               url: string;
-            },
-        ),
+            }
+        )
       );
   }
 
-  markPersonal(corporateCreditCardExpenseGroupId: string): Observable<null> {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseGroupId + '/personal');
-  }
-
-  dismissCreditTransaction(corporateCreditCardExpenseId: string): Observable<null> {
-    return this.apiService.post('/corporate_credit_card_expenses/' + corporateCreditCardExpenseId + '/ignore');
-  }
-
-  getEccceByGroupId(groupId: string): Observable<CCCExpUnflattened[]> {
-    const data = {
-      params: {
-        group_id: groupId,
-      },
+  markPersonal(id: string): Observable<CorporateCardTransactionRes> {
+    const payload = {
+      id,
     };
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/mark_personal', { data: payload });
+  }
 
-    return this.apiService
-      .get<CCCExpFlattened[]>('/extended_corporate_credit_card_expenses', data)
-      .pipe(map((res) => (res && res.length && res.map((elem) => this.dataTransformService.unflatten(elem))) || []));
+  dismissCreditTransaction(id: string): Observable<null> {
+    const payload = {
+      id,
+    };
+    return this.spenderPlatformV1ApiService.post('/corporate_card_transactions/ignore', { data: payload });
+  }
+
+  getMatchedTransactionById(id: string): Observable<CorporateCardTransactionRes> {
+    const params = {
+      id: 'eq.' + id,
+    };
+    return this.spenderPlatformV1ApiService.get('/corporate_card_transactions', { params });
   }
 
   constructInQueryParamStringForV2(params: string[]): string {
@@ -194,8 +192,8 @@ export class CorporateCreditCardExpenseService {
             this.constructInQueryParamStringForV2(['COMPLETE', 'DRAFT']) +
             '&corporate_credit_card_account_number=not.is.null&debit=is.true&tx_org_user_id=eq.' +
             eou.ou.id,
-          {},
-        ),
+          {}
+        )
       ),
       map((statsResponse: StatsResponse) => {
         const stats = {
@@ -212,7 +210,29 @@ export class CorporateCreditCardExpenseService {
           }
         });
         return stats;
-      }),
+      })
     );
+  }
+
+  transformCCTransaction(ccTransaction: corporateCardTransaction): Partial<MatchedCCCTransaction> {
+    const updatedCCTransaction = {
+      id: ccTransaction.id,
+      amount: ccTransaction.amount,
+      card_or_account_number: ccTransaction.corporate_card?.card_number,
+      created_at: ccTransaction.created_at,
+      creator_id: ccTransaction.user_id,
+      currency: ccTransaction.currency,
+      description: ccTransaction.description,
+      group_id: ccTransaction.id,
+      orig_amount: ccTransaction.foreign_amount,
+      orig_currency: ccTransaction.foreign_currency,
+      settlement_id: ccTransaction.settlement_id,
+      txn_dt: ccTransaction.spent_at,
+      updated_at: ccTransaction.updated_at,
+      vendor: ccTransaction.merchant,
+      corporate_credit_card_account_number: ccTransaction.corporate_card?.card_number,
+      status: ccTransaction.transaction_status,
+    };
+    return updatedCCTransaction;
   }
 }
