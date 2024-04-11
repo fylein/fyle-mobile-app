@@ -18,7 +18,6 @@ import { ReportService } from 'src/app/core/services/report.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { TransactionService } from '../../core/services/transaction.service';
 import { capitalize, replace } from 'lodash';
 import { TrackingService } from '../../core/services/tracking.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -37,6 +36,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 type Filters = Partial<{
   state: string | string[];
@@ -118,14 +118,14 @@ export class MyReportsPage {
     private router: Router,
     private currencyService: CurrencyService,
     private activatedRoute: ActivatedRoute,
-    private transactionService: TransactionService,
     private popoverController: PopoverController,
     private trackingService: TrackingService,
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
     private modalController: ModalController,
     private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState
+    private reportStatePipe: ReportState,
+    private expensesService: ExpensesService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -234,24 +234,17 @@ export class MyReportsPage {
 
     this.expensesAmountStats$ = this.loadData$.pipe(
       switchMap(() =>
-        this.transactionService
-          .getTransactionStats('count(tx_id),sum(tx_amount)', {
-            scalar: true,
-            tx_report_id: 'is.null',
-            tx_state: 'in.(COMPLETE)',
-            or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
+        this.expensesService
+          .getExpenseStats({
+            state: 'in.(COMPLETE)',
+            report_id: 'is.null',
+            or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
           })
           .pipe(
-            map((stats) => {
-              const sum =
-                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'sum(tx_amount)');
-              const count =
-                stats && stats[0] && stats[0].aggregates.find((stat) => stat.function_name === 'count(tx_id)');
-              return {
-                sum: (sum && sum.function_value) || 0,
-                count: (count && count.function_value) || 0,
-              };
-            })
+            map((stats) => ({
+              count: stats.data.count,
+              sum: stats.data.total_amount,
+            }))
           )
       )
     );

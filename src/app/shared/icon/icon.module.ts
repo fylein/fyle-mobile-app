@@ -19,6 +19,8 @@ export class IconModule {
     'arrow-right.svg',
     'arrow-right.svg',
     'arrow-tail-left.svg',
+    'arrow-tail-up.svg',
+    'arrow-tail-up-down.svg',
     'attachment-none.svg',
     'attachment.svg',
     'bell-fill.svg',

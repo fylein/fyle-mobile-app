@@ -1,3 +1,4 @@
+import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { paymentModeDataPersonal } from '../test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from '../test-data/projects.spec.data';
 import { costCentersData } from './cost-centers.data';
@@ -18,6 +19,7 @@ export const formValue1 = {
   project: expectedProjectsResponse[0],
   purpose: 'travel',
   costCenter: costCentersData[0],
+  commuteDeduction: CommuteDeduction.ONE_WAY,
 };
 
 export const formValue2 = {

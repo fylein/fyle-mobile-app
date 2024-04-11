@@ -1,7 +1,7 @@
 import { Component, EventEmitter } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute } from '@angular/router';
-import { PopoverController } from '@ionic/angular';
+import { ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject, Observable, Subscription, concat, forkJoin, from, noop } from 'rxjs';
 import { finalize, shareReplay, switchMap, take } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -32,6 +32,13 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { EventData } from 'src/app/core/models/event-data.model';
 import { PreferenceSetting } from 'src/app/core/models/preference-setting.model';
 import { CopyCardDetails } from 'src/app/core/models/copy-card-details.model';
+import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
+import { CommuteDetails } from 'src/app/core/models/platform/v1/commute-details.model';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ToastType } from 'src/app/core/enums/toast-type.enum';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 
 @Component({
   selector: 'app-my-profile',
@@ -67,11 +74,19 @@ export class MyProfilePage {
 
   infoCardsData: CopyCardDetails[];
 
+  commuteDetails: CommuteDetails;
+
+  mileageDistanceUnit: string;
+
   isCCCEnabled: boolean;
 
   isVisaRTFEnabled: boolean;
 
   isMastercardRTFEnabled: boolean;
+
+  isMileageEnabled: boolean;
+
+  isCommuteDeductionEnabled: boolean;
 
   constructor(
     private authService: AuthService,
@@ -89,7 +104,11 @@ export class MyProfilePage {
     private popoverController: PopoverController,
     private matSnackBar: MatSnackBar,
     private snackbarProperties: SnackbarPropertiesService,
-    private activatedRoute: ActivatedRoute
+    private spenderService: SpenderService,
+    private activatedRoute: ActivatedRoute,
+    private modalController: ModalController,
+    private modalProperties: ModalPropertiesService,
+    private employeesService: EmployeesService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -189,8 +208,27 @@ export class MyProfilePage {
         this.orgUserSettings = res.orgUserSettings;
         this.orgSettings = res.orgSettings;
 
+        this.isMileageEnabled = this.orgSettings.mileage?.allowed && this.orgSettings.mileage.enabled;
+        this.isCommuteDeductionEnabled =
+          this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
+
+        this.mileageDistanceUnit = this.orgSettings.mileage?.unit;
+
+        if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
+          this.setCommuteDetails();
+        }
+
         this.setCCCFlags();
         this.setPreferenceSettings();
+      });
+  }
+
+  setCommuteDetails(): void {
+    from(this.authService.getEou())
+      .pipe(switchMap((eou) => this.employeesService.getCommuteDetails(eou)))
+      .subscribe((res) => {
+        this.commuteDetails = res.data[0].commute_details;
+        this.mileageDistanceUnit = this.commuteDetails.distance_unit === 'MILES' ? 'Miles' : 'KM';
       });
   }
 
@@ -378,5 +416,41 @@ export class MyProfilePage {
     this.trackingService.updateMobileNumber({
       popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
     });
+  }
+
+  async openCommuteDetailsModal(): Promise<void> {
+    const isEditingCommuteDetails = this.commuteDetails?.id ? true : false;
+
+    if (isEditingCommuteDetails) {
+      this.trackingService.commuteDeductionEditLocationClickFromProfile();
+    } else {
+      this.trackingService.commuteDeductionAddLocationClickFromProfile();
+    }
+
+    const commuteDetailsModal = await this.modalController.create({
+      component: FySelectCommuteDetailsComponent,
+      componentProps: {
+        existingCommuteDetails: this.commuteDetails,
+      },
+      mode: 'ios',
+    });
+
+    await commuteDetailsModal.present();
+
+    const { data } = (await commuteDetailsModal.onWillDismiss()) as OverlayResponse<{
+      action: string;
+      commuteDetails: CommuteDetailsResponse;
+    }>;
+
+    // If the user edited or saved the commute details, refresh the page and show the toast message
+    if (data.action === 'save') {
+      if (isEditingCommuteDetails) {
+        this.trackingService.commuteDeductionDetailsEdited(data.commuteDetails);
+      } else {
+        this.trackingService.commuteDeductionDetailsAddedFromProfile(data.commuteDetails);
+      }
+      this.reset();
+      this.showToastMessage('Commute details updated successfully', ToastType.SUCCESS);
+    }
   }
 }
