@@ -4,10 +4,3 @@ export interface ReportsQueryParams {
   limit?: number;
   order?: string;
 }
-
-export interface CreateDraftParams {
-  data: {
-    purpose: string;
-    source: string;
-  };
-}
