@@ -944,7 +944,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txvslh8aQMbu']);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
           done();
         });
       });
@@ -982,7 +982,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txD5hIQgLuR5']);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
           done();
         });

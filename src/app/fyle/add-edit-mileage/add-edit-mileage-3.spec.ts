@@ -683,7 +683,7 @@ export function TestCases3(getTestBed) {
             transformedExpenseDataWithReportId.tx.report_id,
             transformedExpenseDataWithReportId.tx.id
           );
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txD5hIQgLuR5']);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
           done();
         });
