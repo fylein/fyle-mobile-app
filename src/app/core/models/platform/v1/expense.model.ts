@@ -17,6 +17,8 @@ import { ReportState } from '../platform-report.model';
 import { Account } from './account.model';
 import { CustomFields } from '../custom-fields.model';
 import { CustomInput } from '../../custom-input.model';
+import { CommuteDetails } from './commute-details.model';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 export interface Expense {
   // `activity_details` is not added on purpose
@@ -54,6 +56,7 @@ export interface Expense {
   foreign_currency: string;
   hotel_is_breakfast_provided: boolean;
   id: string;
+  invoice_number?: string;
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
   is_manually_flagged: boolean;
@@ -73,7 +76,7 @@ export interface Expense {
   mileage_calculated_amount: number;
   mileage_calculated_distance: number;
   mileage_is_round_trip: boolean;
-  mileage_rate: Pick<PlatformMileageRates, 'id' | 'code' | 'vehicle_type'>;
+  mileage_rate: Partial<PlatformMileageRates>;
   mileage_rate_id: number;
   missing_mandatory_fields: MissingMandatoryFields;
   org_id: string;
@@ -106,9 +109,13 @@ export interface Expense {
   updated_at: Date;
   user: User;
   user_id: string;
+  verifications?: string[];
   verifier_comments: string[];
   report_last_paid_at: Date;
   report_last_approved_at: Date;
+  commute_deduction?: CommuteDeduction;
+  commute_details?: CommuteDetails;
+  commute_details_id?: number;
 }
 
 export interface Employee {
@@ -122,6 +129,8 @@ export interface Employee {
   has_accepted_invite: boolean;
   id: string;
   is_enabled: boolean;
+  joined_at?: Date;
+  mobile?: string;
   level: Pick<Level, 'id' | 'name' | 'band'>;
   location: string;
   org_id: string;

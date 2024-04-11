@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SplitExpenseService } from './split-expense.service';
 import { TransactionService } from './transaction.service';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PolicyService } from './policy.service';
 import { DataTransformService } from './data-transform.service';
 import { FileService } from './file.service';
@@ -49,7 +50,7 @@ import {
   policyVoilationData2,
   splitPolicyExp4,
 } from '../mock-data/policy-violation.data';
-import { splitExpData, splitExpData2 } from '../mock-data/expense.data';
+import { splitExpData, splitExpData2, splitExpTransformedData } from '../mock-data/expense.data';
 import { formattedTxnViolations, formattedTxnViolations2 } from '../mock-data/formatted-policy-violation.data';
 import { txnStatusData, txnStatusData1, txnStatusData2 } from '../mock-data/transaction-status.data';
 import {
@@ -64,7 +65,6 @@ import { criticalPolicyViolation1, criticalPolicyViolation2 } from '../mock-data
 import { UtilityService } from './utility.service';
 import { cloneDeep, split } from 'lodash';
 import { expenseFieldResponse } from '../mock-data/expense-field.data';
-import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { splitPayloadData1, splitPayloadData2, splitPayloadData3 } from '../mock-data/split-payload.data';
 import { splitPolicyExp1 } from '../mock-data/split-expense-policy.data';
 import { splitData2, splitsData1 } from '../mock-data/splits.data';
@@ -82,20 +82,20 @@ import {
 describe('SplitExpenseService', () => {
   let splitExpenseService: SplitExpenseService;
   let transactionService: jasmine.SpyObj<TransactionService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
-  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
       'uploadBase64File',
       'checkPolicy',
-      'getEtxn',
       'upsert',
+      'transformRawExpense',
     ]);
     const policyServiceSpy = jasmine.createSpyObj('PolicyService', [
       'transformTo',
@@ -111,6 +111,7 @@ describe('SplitExpenseService', () => {
       'splitExpenseCheckPolicies',
       'splitExpenseCheckMissingFields',
       'splitExpense',
+      'getExpenseById',
     ]);
 
     TestBed.configureTestingModule({
@@ -119,6 +120,10 @@ describe('SplitExpenseService', () => {
         {
           provide: TransactionService,
           useValue: transactionServiceSpy,
+        },
+        {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
         },
         {
           provide: PolicyService,
@@ -153,6 +158,7 @@ describe('SplitExpenseService', () => {
 
     splitExpenseService = TestBed.inject(SplitExpenseService);
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
@@ -164,56 +170,6 @@ describe('SplitExpenseService', () => {
 
   it('should be created', () => {
     expect(splitExpenseService).toBeTruthy();
-  });
-
-  describe('linkTxnWithFiles():', () => {
-    it('should link transactions with files', (done) => {
-      transactionService.uploadBase64File
-        .withArgs(fileTxns.txns[0].id, fileTxns.files[0].name, fileTxns.files[0].content)
-        .and.returnValue(of(splitExpFile2));
-      transactionService.uploadBase64File
-        .withArgs(fileTxns.txns[1].id, fileTxns.files[0].name, fileTxns.files[0].content)
-        .and.returnValue(of(splitExpFile3));
-
-      splitExpenseService.linkTxnWithFiles(fileTxns).subscribe((res) => {
-        expect(res).toEqual([splitExpFile2, splitExpFile3]);
-        expect(transactionService.uploadBase64File).toHaveBeenCalledWith(
-          fileTxns.txns[0].id,
-          fileTxns.files[0].name,
-          fileTxns.files[0].content
-        );
-        expect(transactionService.uploadBase64File).toHaveBeenCalledWith(
-          fileTxns.txns[1].id,
-          fileTxns.files[0].name,
-          fileTxns.files[0].content
-        );
-        expect(transactionService.uploadBase64File).toHaveBeenCalledTimes(2);
-        done();
-      });
-    });
-
-    it('should return null if no files are present', (done) => {
-      splitExpenseService.linkTxnWithFiles({ ...fileTxns, files: null }).subscribe((res) => {
-        expect(res).toEqual([null]);
-        done();
-      });
-    });
-  });
-
-  it('getBase64Content(): should get base 64 string of txn files', (done) => {
-    fileService.base64Download.withArgs(splitExpFileObj[0].id).and.returnValue(of({ content: 'base64encodedcontent' }));
-
-    splitExpenseService.getBase64Content(splitExpFileObj).subscribe((res) => {
-      expect(res).toEqual([
-        {
-          id: 'fijCeF0G0jTl',
-          name: '000.jpeg',
-          content: 'base64encodedcontent',
-        },
-      ]);
-      expect(fileService.base64Download).toHaveBeenCalledOnceWith(splitExpFileObj[0].id);
-      done();
-    });
   });
 
   it('postComment(): should post a comment', (done) => {
@@ -229,25 +185,6 @@ describe('SplitExpenseService', () => {
       );
       done();
     });
-  });
-
-  it('postCommentsFromUsers(): should post comments from users', (done) => {
-    const postCommentSpy = spyOn(splitExpenseService, 'postComment');
-    postCommentSpy.withArgs(violationComment2).and.returnValue(of(txnStatusData1));
-    postCommentSpy.withArgs(violationComment3).and.returnValue(of(txnStatusData2));
-
-    splitExpenseService
-      .postCommentsFromUsers(['txxkBruL0EO9', 'txNVtsqF8Siq'], {
-        txxkBruL0EO9: 'another comment',
-        txNVtsqF8Siq: '',
-      })
-      .subscribe((res) => {
-        expect(res).toEqual([txnStatusData1, txnStatusData2]);
-        expect(postCommentSpy).toHaveBeenCalledWith(violationComment2);
-        expect(postCommentSpy).toHaveBeenCalledWith(violationComment3);
-        expect(postCommentSpy).toHaveBeenCalledTimes(2);
-        done();
-      });
   });
 
   describe('formatDisplayName(): ', () => {
@@ -357,212 +294,6 @@ describe('SplitExpenseService', () => {
       );
       done();
     });
-  });
-
-  it('checkPolicyForTransaction(): should check policy for a transaction', (done) => {
-    policyService.transformTo.and.returnValue(splitExpensePolicyExp);
-    transactionService.checkPolicy.and.returnValue(of(splitExpPolicyData));
-
-    splitExpenseService.checkPolicyForTransaction(splitPolicyExp).subscribe((res) => {
-      expect(res).toEqual({
-        txqhb1IwrujH: policyViolation1,
-      });
-      expect(policyService.transformTo).toHaveBeenCalledOnceWith(splitPolicyExp);
-      expect(transactionService.checkPolicy).toHaveBeenCalledOnceWith(splitExpensePolicyExp);
-      done();
-    });
-  });
-
-  it('checkPolicyForTransactions(): should check policy for multiple transactions', (done) => {
-    spyOn(splitExpenseService, 'checkPolicyForTransaction').and.returnValue(
-      of({
-        txqhb1IwrujH: policyViolation1,
-      })
-    );
-
-    splitExpenseService.checkPolicyForTransactions([splitPolicyExp]).subscribe((res) => {
-      expect(res).toEqual({
-        txqhb1IwrujH: policyViolation1,
-      });
-      expect(splitExpenseService.checkPolicyForTransaction).toHaveBeenCalledOnceWith(splitPolicyExp);
-      done();
-    });
-  });
-
-  describe('mapViolationDataWithEtxn(): ', () => {
-    beforeEach(() => {
-      const formatDisplayNameSpy = spyOn(splitExpenseService, 'formatDisplayName');
-      formatDisplayNameSpy.and.returnValue('Food / Travelling - Inland');
-    });
-    it('should map violation data with expenses', () => {
-      expect(
-        splitExpenseService.mapViolationDataWithEtxn(policyVoilationData2, splitExpData, transformedOrgCategories)
-      ).toEqual(policyVoilationData2);
-      expect(splitExpenseService.formatDisplayName).toHaveBeenCalledWith(
-        splitExpData[0].tx_org_category_id,
-        transformedOrgCategories
-      );
-      expect(splitExpenseService.formatDisplayName).toHaveBeenCalledWith(
-        splitExpData[1].tx_org_category_id,
-        transformedOrgCategories
-      );
-      expect(splitExpenseService.formatDisplayName).toHaveBeenCalledTimes(2);
-    });
-    it('should map violation data with expenses', () => {
-      const { tx_orig_amount, tx_orig_currency, ...newSplitData } = splitExpData[0];
-
-      expect(
-        splitExpenseService.mapViolationDataWithEtxn(policyVoilationData2, [newSplitData], transformedOrgCategories)
-      ).toEqual(policyVoilationData2);
-      expect(splitExpenseService.formatDisplayName).toHaveBeenCalledOnceWith(
-        newSplitData.tx_org_category_id,
-        transformedOrgCategories
-      );
-    });
-    it('should not map violation data with expenses if tx_id is undefined', () => {
-      expect(
-        splitExpenseService.mapViolationDataWithEtxn(policyVoilationData2, [undefined], transformedOrgCategories)
-      ).toEqual(policyVoilationData2);
-      expect(splitExpenseService.formatDisplayName).not.toHaveBeenCalled();
-    });
-  });
-
-  it('formatPolicyViolations(): should format policy violations', () => {
-    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
-    policyService.getCriticalPolicyRules.and.returnValue(criticalPolicyViolation2);
-
-    expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations);
-    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
-    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
-    expect(policyService.getPolicyRules).toHaveBeenCalledTimes(2);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
-  });
-
-  it('formatPolicyViolations(): should format policy violations without critical policy violations', () => {
-    policyService.getPolicyRules.and.returnValue(criticalPolicyViolation1);
-    policyService.getCriticalPolicyRules.and.returnValue(null);
-
-    expect(splitExpenseService.formatPolicyViolations(policyViolationData3)).toEqual(formattedTxnViolations2);
-    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
-    expect(policyService.getPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
-    expect(policyService.getPolicyRules).toHaveBeenCalledTimes(2);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txc2KIogxUAy);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledWith(policyViolationData3.txgfkvuYteta);
-    expect(policyService.getCriticalPolicyRules).toHaveBeenCalledTimes(2);
-  });
-
-  describe('runPolicyCheck():', () => {
-    it('should run policy check on expenses', (done) => {
-      dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
-      dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
-
-      spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
-
-      splitExpenseService.runPolicyCheck(splitExpData2, fileObject4).subscribe((res) => {
-        expect(res).toEqual(policyViolationData4);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
-        expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
-          unflattenExp1.tx,
-          unflattenExp2.tx,
-        ]);
-        done();
-      });
-    });
-
-    it('should return empty object when no expenses are provided', (done) => {
-      splitExpenseService.runPolicyCheck([], fileObject4).subscribe((res) => {
-        expect(res).toEqual({});
-        done();
-      });
-    });
-
-    it('should run policy check on expenses when files are not present', (done) => {
-      dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(unflattenExp1);
-      dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
-
-      spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
-
-      splitExpenseService.runPolicyCheck(splitExpData2, []).subscribe((res) => {
-        expect(res).toEqual(policyViolationData4);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
-        expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
-          unflattenExp1.tx,
-          unflattenExp2.tx,
-        ]);
-        done();
-      });
-    });
-
-    it('should run policy check on expenses when files and user_amount are not defined', (done) => {
-      const mockUnflattenExp1 = cloneDeep(unflattenExp1);
-      mockUnflattenExp1.tx.user_amount = undefined;
-      dataTransformService.unflatten.withArgs(splitExpData2[0]).and.returnValue(mockUnflattenExp1);
-      dataTransformService.unflatten.withArgs(splitExpData2[1]).and.returnValue(unflattenExp2);
-
-      spyOn(splitExpenseService, 'checkPolicyForTransactions').and.returnValue(of(policyViolationData4));
-
-      splitExpenseService.runPolicyCheck(splitExpData2, undefined).subscribe((res) => {
-        expect(res).toEqual(policyViolationData4);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[0]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledWith(splitExpData2[1]);
-        expect(dataTransformService.unflatten).toHaveBeenCalledTimes(2);
-        expect(splitExpenseService.checkPolicyForTransactions).toHaveBeenCalledOnceWith([
-          mockUnflattenExp1.tx,
-          unflattenExp2.tx,
-        ]);
-        done();
-      });
-    });
-
-    it('should return empty object when expenses are undefined', (done) => {
-      splitExpenseService.runPolicyCheck(undefined, fileObject4).subscribe((res) => {
-        expect(res).toEqual({});
-        done();
-      });
-    });
-  });
-
-  it('executePolicyCheck(): should execute policy check', (done) => {
-    spyOn(splitExpenseService, 'runPolicyCheck').and.returnValue(of(policyViolationData4));
-    spyOn(splitExpenseService, 'mapViolationDataWithEtxn').and.returnValue(policyViolationData4);
-
-    splitExpenseService.executePolicyCheck(splitExpData2, fileObject4, transformedOrgCategories).subscribe((res) => {
-      expect(res).toEqual(policyViolationData4);
-      expect(splitExpenseService.runPolicyCheck).toHaveBeenCalledOnceWith(splitExpData2, fileObject4);
-      expect(splitExpenseService.mapViolationDataWithEtxn).toHaveBeenCalledOnceWith(
-        policyViolationData4,
-        splitExpData2,
-        transformedOrgCategories
-      );
-      done();
-    });
-  });
-
-  it('checkForPolicyViolations(): check for policy violations', (done) => {
-    transactionService.getEtxn.withArgs(splitExpData2[0].tx_id).and.returnValue(of(splitExpData2[0]));
-    transactionService.getEtxn.withArgs(splitExpData2[1].tx_id).and.returnValue(of(splitExpData2[1]));
-    spyOn(splitExpenseService, 'executePolicyCheck').and.returnValue(of(policyViolationData4));
-
-    splitExpenseService
-      .checkForPolicyViolations([splitExpData2[0].tx_id, splitExpData2[1].tx_id], fileObject4, transformedOrgCategories)
-      .subscribe((res) => {
-        expect(res).toEqual(policyViolationData4);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[0].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledWith(splitExpData2[1].tx_id);
-        expect(transactionService.getEtxn).toHaveBeenCalledTimes(2);
-        expect(splitExpenseService.executePolicyCheck).toHaveBeenCalledOnceWith(
-          [splitExpData2[0], splitExpData2[1]],
-          fileObject4,
-          transformedOrgCategories
-        );
-        done();
-      });
   });
 
   describe('createTxns(): ', () => {

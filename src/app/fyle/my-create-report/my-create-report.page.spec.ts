@@ -28,6 +28,8 @@ import { StorageService } from '../../core/services/storage.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -42,8 +44,10 @@ describe('MyCreateReportPage', () => {
   let storageService: jasmine.SpyObj<StorageService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
 
   beforeEach(waitForAsync(() => {
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getMyReportsCount',
@@ -75,6 +79,10 @@ describe('MyCreateReportPage', () => {
               },
             },
           },
+        },
+        {
+          provide: OrgSettingsService,
+          useValue: orgSettingsServiceSpy,
         },
         {
           provide: TransactionService,
@@ -130,6 +138,7 @@ describe('MyCreateReportPage', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
+    orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     fixture.detectChanges();
   }));
 
@@ -389,6 +398,7 @@ describe('MyCreateReportPage', () => {
     loaderService.hideLoader.and.resolveTo();
     transactionService.getAllExpenses.and.returnValue(of(cloneDeep(selectedExpenses)));
     expensesService.getAllExpenses.and.returnValue(of(readyToReportExpensesData));
+    orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     spyOn(component, 'getReportTitle').and.returnValue(null);
     spyOn(component, 'checkTxnIds');
     component.selectedExpenseIDs = [selectedExpenses[0].tx_id];
@@ -403,6 +413,7 @@ describe('MyCreateReportPage', () => {
         state: 'in.(COMPLETE)',
         order: 'spent_at.desc',
         or: ['(policy_amount.is.null,policy_amount.gt.0.0001)'],
+        and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
       },
     });
     expect(loaderService.showLoader).toHaveBeenCalledTimes(1);

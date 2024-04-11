@@ -188,7 +188,7 @@
             <ng-container *ngIf="isRTFEnabled$ | async">
               <ng-container *ngIf="platformExpense$ | async as expense">
                 <div
-                  *ngIf="expense.matched_corporate_card_transactions[0]?.status as transactionStatus"
+                  *ngIf="selectedCCCTransaction?.status as transactionStatus"
                   class="add-edit-expense--card-container__transaction-status"
                 >
                   <app-transaction-status
@@ -1127,15 +1127,17 @@
           <ng-container *ngIf="!(isCriticalPolicyViolated$|async)">
             <ng-container *ngIf="canRemoveFromReport || !etxn?.tx?.report_id">
               <ng-container *ngIf="reports$|async as reports">
-                <div class="add-edit-expense--internal-block">
-                  <app-fy-add-to-report
-                    [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
-                    [autoSubmissionReportName]="autoSubmissionReportName$|async"
-                    [options]="reports"
-                    [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
-                    formControlName="report"
-                  ></app-fy-add-to-report>
-                </div>
+                <ng-container *ngIf="pendingTransactionAllowedToReportAndSplit">
+                  <div class="add-edit-expense--internal-block">
+                    <app-fy-add-to-report
+                      [label]="etxn.tx.report_id ? 'Report' : 'Add to Report'"
+                      [autoSubmissionReportName]="autoSubmissionReportName$|async"
+                      [options]="reports"
+                      [isNewReportsFlowEnabled]="isNewReportsFlowEnabled"
+                      formControlName="report"
+                    ></app-fy-add-to-report>
+                  </div>
+                </ng-container>
               </ng-container>
             </ng-container>
           </ng-container>
@@ -1156,13 +1158,6 @@
           </div>
         </ng-template>
       </div>
-
-      <app-fy-alert-info
-        *ngIf="isNotReimbursable$|async"
-        [message]="'This expense will not be reimbursed as it has already been paid by your company.'"
-        [type]="'information'"
-      >
-      </app-fy-alert-info>
 
       <ng-container *ngIf="isConnected$">
         <ng-container *ngIf="txnFields$|async as txnFields">

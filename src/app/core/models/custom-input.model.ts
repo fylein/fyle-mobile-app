@@ -12,4 +12,5 @@ export interface CustomInput {
   parent_field_id: number;
   displayValue: string;
   areSameValues?: boolean;
+  is_enabled?: boolean;
 }

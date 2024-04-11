@@ -78,6 +78,13 @@ import { expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.d
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditMileagePage } from './add-edit-mileage.page';
 import { cloneDeep } from 'lodash';
+import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
+import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
+import { commuteDeductionOptionsData1 } from 'src/app/core/mock-data/commute-deduction-options.data';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
+import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
+import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-select-commute-details/fy-select-commute-details.component';
+import { locationData1, locationData2 } from 'src/app/core/mock-data/location.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditMileage-5', () => {
@@ -130,6 +137,7 @@ export function TestCases5(getTestBed) {
     let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
     let locationService: jasmine.SpyObj<LocationService>;
     let platformHandlerService: jasmine.SpyObj<PlatformHandlerService>;
+    let employeesService: jasmine.SpyObj<EmployeesService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -189,6 +197,7 @@ export function TestCases5(getTestBed) {
       mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
       locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
       platformHandlerService = TestBed.inject(PlatformHandlerService) as jasmine.SpyObj<PlatformHandlerService>;
+      employeesService = TestBed.inject(EmployeesService) as jasmine.SpyObj<EmployeesService>;
 
       component.fg = formBuilder.group({
         mileage_rate_name: [],
@@ -202,9 +211,9 @@ export function TestCases5(getTestBed) {
         custom_inputs: new FormArray([]),
         costCenter: [],
         report: [],
-        duplicate_detection_reason: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
+        commuteDeduction: [],
       });
 
       component.hardwareBackButtonAction = new Subscription();
@@ -632,6 +641,181 @@ export function TestCases5(getTestBed) {
         expect(component.getMileageByVehicleType).toHaveBeenCalledOnceWith([], null);
         expect(mileageRatesService.getReadableRate).toHaveBeenCalledOnceWith(null, 'INR', null);
       }));
+
+      it('should set commuteDetails if commute deduction is enabled for org', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        expect(component.commuteDetails).toEqual(commuteDetailsResponseData.data[0].commute_details);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
+        expect(component.distanceUnit).toEqual('Miles');
+        expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
+      }));
+
+      it('should set distanceUnit to kilometers if mileage unit is KM and commute details to null if employee service returns no data', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        spyOn(component, 'getEditExpense').and.returnValue(of(unflattenedTxnData));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        mockOrgSettings.mileage.unit = 'KM';
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        const mockCommuteDetailsResponse = cloneDeep(commuteDetailsResponseData);
+        mockCommuteDetailsResponse.data = undefined;
+        employeesService.getCommuteDetails.and.returnValue(of(mockCommuteDetailsResponse));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        expect(component.commuteDetails).toBeNull();
+        expect(component.distanceUnit).toEqual('km');
+      }));
+
+      it('should set existing commute deduction and patch to form if commute_deduction is present in edit mode', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        activatedRoute.snapshot.params.id = 'tx3qwe4ty';
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        const mockEtxn = cloneDeep(unflattenedTxnData);
+        mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
+        spyOn(component, 'getEditExpense').and.returnValue(of(mockEtxn));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        expect(component.existingCommuteDeduction).toEqual(CommuteDeduction.ONE_WAY);
+        expect(component.fg.get('commuteDeduction').value).toEqual(CommuteDeduction.ONE_WAY);
+      }));
+
+      it('should call updateDistanceOnDeductionChange method if commuteDeduction form control value changes and commuteDetails is defined', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        activatedRoute.snapshot.params.id = 'tx3qwe4ty';
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        const mockEtxn = cloneDeep(unflattenedTxnData);
+        mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
+        spyOn(component, 'getEditExpense').and.returnValue(of(mockEtxn));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        spyOn(component, 'updateDistanceOnDeductionChange');
+        spyOn(component, 'openCommuteDetailsModal');
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        component.commuteDetails.id = 12345;
+        component.fg.get('commuteDeduction').setValue(CommuteDeduction.ROUND_TRIP);
+
+        expect(component.updateDistanceOnDeductionChange).toHaveBeenCalledTimes(1);
+        expect(component.openCommuteDetailsModal).not.toHaveBeenCalled();
+      }));
+
+      it('should call openCommuteDetailsModal method if commuteDeduction form control value changes and commuteDetails is not defined', fakeAsync(() => {
+        component.mode = 'edit';
+        activatedRoute.snapshot.params.navigate_back = true;
+        activatedRoute.snapshot.params.activeIndex = 0;
+        activatedRoute.snapshot.params.txnIds = JSON.stringify(['tx3qwe4ty', 'tx6sd7gh', 'txD3cvb6']);
+        activatedRoute.snapshot.params.id = 'tx3qwe4ty';
+        spyOn(component, 'getRecentlyUsedValues').and.returnValue(of(null));
+        statusService.find.and.returnValue(of(getEstatusApiResponse));
+        mileageRatesService.getAllMileageRates.and.returnValue(of([]));
+        mileageService.getOrgUserMileageSettings.and.returnValue(of(null));
+        mileageRatesService.filterEnabledMileageRates.and.returnValue([]);
+        const mockEtxn = cloneDeep(unflattenedTxnData);
+        mockEtxn.tx.commute_deduction = CommuteDeduction.ONE_WAY;
+        spyOn(component, 'getEditExpense').and.returnValue(of(mockEtxn));
+        accountsService.getEtxnSelectedPaymentMode.and.returnValue(null);
+        mileageService.isCommuteDeductionEnabled.and.returnValue(true);
+        const mockOrgSettings = cloneDeep(orgSettingsRes);
+        mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
+        orgSettingsService.get.and.returnValue(of(mockOrgSettings));
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        spyOn(component, 'updateDistanceOnDeductionChange');
+        spyOn(component, 'openCommuteDetailsModal');
+        fixture.detectChanges();
+
+        component.ionViewWillEnter();
+        tick(1000);
+        fixture.detectChanges();
+
+        setupMatchers();
+
+        component.commuteDetails = null;
+        component.fg.get('commuteDeduction').setValue(CommuteDeduction.ROUND_TRIP);
+
+        expect(component.updateDistanceOnDeductionChange).not.toHaveBeenCalled();
+        expect(component.openCommuteDetailsModal).toHaveBeenCalledTimes(1);
+      }));
     });
 
     it('getMileageRatesOptions(): should get mileages rates options', (done) => {
@@ -714,6 +898,485 @@ export function TestCases5(getTestBed) {
 
       expect(component.isRedirectedFromReport).toBeTrue();
       expect(component.canRemoveFromReport).toBeTrue();
+    });
+
+    it('getCommuteUpdatedTextBody(): should return body text of commute updated popover', () => {
+      const result = component.getCommuteUpdatedTextBody();
+
+      expect(result).toEqual(
+        `<div>
+              <p>Your Commute Details have been successfully added to your Profile
+              Settings.</p>
+              <p>You can now easily deduct commute from your Mileage expenses.<p>  
+            </div>`
+      );
+    });
+
+    it('showCommuteUpdatedPopover(): should show commute updated popover', fakeAsync(() => {
+      const sizeLimitExceededPopoverSpy = jasmine.createSpyObj('sizeLimitExceededPopover', ['present']);
+      popoverController.create.and.resolveTo(sizeLimitExceededPopoverSpy);
+      spyOn(component, 'getCommuteUpdatedTextBody').and.returnValue('body message');
+
+      component.showCommuteUpdatedPopover();
+      tick(100);
+
+      expect(popoverController.create).toHaveBeenCalledOnceWith({
+        component: PopupAlertComponent,
+        componentProps: {
+          title: 'Commute Updated',
+          message: 'body message',
+          primaryCta: {
+            text: 'Proceed',
+          },
+        },
+        cssClass: 'pop-up-in-center',
+      });
+
+      expect(sizeLimitExceededPopoverSpy.present).toHaveBeenCalledTimes(1);
+    }));
+
+    describe('openCommuteDetailsModal():', () => {
+      beforeEach(() => {
+        authService.getEou.and.resolveTo(apiEouRes);
+        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
+        spyOn(component, 'showCommuteUpdatedPopover');
+      });
+
+      it('should set commuteDetails and change commute deduction form value to no deduction if user saves commute details from mileage page', fakeAsync(() => {
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+          data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+        });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        component.openCommuteDetailsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FySelectCommuteDetailsComponent,
+          mode: 'ios',
+        });
+        expect(trackingService.commuteDeductionAddLocationOptionClicked).toHaveBeenCalledTimes(1);
+        expect(commuteDetailsModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(commuteDetailsModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        expect(employeesService.getCommuteDetails).toHaveBeenCalledOnceWith(apiEouRes);
+        expect(component.commuteDetails).toEqual(commuteDetailsResponseData.data[0].commute_details);
+        expect(component.commuteDeductionOptions).toEqual(commuteDeductionOptionsData1);
+        expect(mileageService.getCommuteDeductionOptions).toHaveBeenCalledOnceWith(10);
+        expect(component.showCommuteUpdatedPopover).toHaveBeenCalledTimes(1);
+        expect(trackingService.commuteDeductionDetailsAddedFromMileageForm).toHaveBeenCalledOnceWith(
+          commuteDetailsResponseData.data[0]
+        );
+      }));
+
+      it('should set commuteDetails to null if data returns undefined', fakeAsync(() => {
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'save' } });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        const mockCommuteDetails = cloneDeep(commuteDetailsResponseData);
+        mockCommuteDetails.data = undefined;
+        employeesService.getCommuteDetails.and.returnValue(of(mockCommuteDetails));
+
+        component.openCommuteDetailsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FySelectCommuteDetailsComponent,
+          mode: 'ios',
+        });
+
+        expect(component.commuteDetails).toBeNull();
+      }));
+
+      it('should set commuteDetails and change commute deduction form value to null if user does not save commute details from mileage page', fakeAsync(() => {
+        const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+        commuteDetailsModalSpy.onWillDismiss.and.resolveTo({ data: { action: 'cancel' } });
+        modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+        component.openCommuteDetailsModal();
+        tick(100);
+
+        expect(modalController.create).toHaveBeenCalledOnceWith({
+          component: FySelectCommuteDetailsComponent,
+          mode: 'ios',
+        });
+        expect(commuteDetailsModalSpy.present).toHaveBeenCalledTimes(1);
+        expect(commuteDetailsModalSpy.onWillDismiss).toHaveBeenCalledTimes(1);
+        expect(authService.getEou).not.toHaveBeenCalled();
+        expect(employeesService.getCommuteDetails).not.toHaveBeenCalled();
+        expect(mileageService.getCommuteDeductionOptions).not.toHaveBeenCalled();
+        expect(component.showCommuteUpdatedPopover).not.toHaveBeenCalled();
+        expect(component.fg.get('commuteDeduction').value).toBeNull();
+      }));
+    });
+
+    describe('updateDistanceOnRoundTripChange():', () => {
+      it('should not modify distance if distance is zero', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 0, roundTrip: false });
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should not modify distance if commuteDeduction is not defined', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(null);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if previous round trip is equal to current round trip value', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 23, roundTrip: false };
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 23, roundTrip: false });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(23);
+      });
+
+      it('should not modify distance if route form value and previousRouteValue are null', () => {
+        component.previousRouteValue = null;
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is marked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(660);
+      });
+
+      it('should not change distance from zero if round trip is marked and locations are not present', () => {
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 0, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should calculate distance and deduct commute properly if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(15);
+      });
+
+      it('should set distance as zero if after calculation distance is negative if round trip is unmarked', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 150, roundTrip: false });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnRoundTripChange();
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+
+      it('should correctly calculate distance if initially distance is zero, locations are present and roundTrip is checked as true', () => {
+        const mockLocations = cloneDeep([locationData1, locationData2]);
+        component.fg.controls.route.setValue({ mileageLocations: mockLocations, distance: 0, roundTrip: true });
+        component.distanceUnit = 'Miles';
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        mileageService.getDistance.and.returnValue(of(200000));
+
+        component.updateDistanceOnRoundTripChange();
+
+        /*
+         * 200 KM -> 124.26 Miles,
+         * 124.26 * 2 = 248.52 Miles
+         * 248.52 - 200 = 48.52 Miles
+         */
+        expect(component.fg.controls.route.value.distance).toEqual(48.52);
+      });
+
+      it('should set distance as zero if locations are present and roundTrip is checked as true but it is less than commute deduction', () => {
+        const mockLocations = cloneDeep([locationData1, locationData2]);
+        component.fg.controls.route.setValue({ mileageLocations: mockLocations, distance: 0, roundTrip: true });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        mileageService.getDistance.and.returnValue(of(90000));
+
+        component.updateDistanceOnRoundTripChange();
+
+        /*
+         * 90 * 2 = 180 KM
+         * 180 - 200 = -20 KM
+         */
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+      });
+    });
+
+    describe('calculateNetDistanceForDeduction()', () => {
+      it('should deduct commute distance from original distance and patch the value in form', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [], distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 300;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(200);
+        expect(component.previousCommuteDeductionType).toEqual('ONE_WAY');
+      });
+
+      it('should set distance to zero if commute deduction is more than the original distance', () => {
+        component.fg.controls.route.setValue({ mileageLocations: [locationData1, locationData2], distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 90;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+        expect(component.previousCommuteDeductionType).toEqual('ONE_WAY');
+      });
+
+      it('should not set previousCommuteDeductionType if locations are not present', () => {
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 230 });
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.initialDistance = 90;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.calculateNetDistanceForDeduction('ONE_WAY', commuteDeductionOptionsData1[0]);
+
+        expect(component.fg.controls.route.value.distance).toEqual(0);
+        expect(component.previousCommuteDeductionType).toBeUndefined();
+      });
+    });
+
+    describe('updateDistanceOnDeductionChange():', () => {
+      it('should not update distance if route form value is null', () => {
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should set initial distance and call calculateNetDistanceForDeduction if previousCommuteDeductionType is present', () => {
+        component.previousCommuteDeductionType = CommuteDeduction.ROUND_TRIP;
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 230 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(430);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance from expense and call calculateNetDistanceForDeduction if expense is in edit mode', () => {
+        component.existingCommuteDeduction = CommuteDeduction.ROUND_TRIP;
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        activatedRoute.snapshot.params.id = 'txe3dfgre43d';
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 250 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(450);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance present in form and call calculateNetDistanceForDeduction if user is selecting commute deduction for first time', () => {
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: null, distance: 250 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(250);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance between the locations and call calculateNetDistanceForDeduction if mileage locations are present and distance is set as zero', () => {
+        mileageService.getDistance.and.returnValue(of(200000));
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({ mileageLocations: [locationData1, locationData2], distance: 0 });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(200);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+
+      it('should set initial distance as distance between the locations and call calculateNetDistanceForDeduction if mileage locations are present and distance is set as zero with distance unit as miles', () => {
+        mileageService.getDistance.and.returnValue(of(21000));
+        component.distanceUnit = 'Miles';
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 0,
+          roundTrip: true,
+        });
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+        spyOn(component, 'calculateNetDistanceForDeduction');
+
+        component.updateDistanceOnDeductionChange('ONE_WAY');
+
+        expect(component.initialDistance).toEqual(26.0946);
+        expect(component.calculateNetDistanceForDeduction).toHaveBeenCalledOnceWith(
+          'ONE_WAY',
+          commuteDeductionOptionsData1[0]
+        );
+      });
+    });
+
+    describe('updateDistanceOnLocationChange():', () => {
+      it('should not update distance if route form value is null', () => {
+        component.fg.controls.route.setValue(null);
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ROUND_TRIP);
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.fg.controls.route.value).toBeNull();
+      });
+
+      it('should patch distance to form if previous mileage locations and current locations are not same', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 230,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction and patch value to the form if previous mileage locations and current locations are not same', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 130,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction and patch value to the form if previous mileage locations and current locations are not same and commute deduction is greater than distance', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(90);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [locationData1, locationData2],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 0,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction but should not set previousRouteValue if route mileageLocations is null', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: null,
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(230);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 130,
+          roundTrip: true,
+        });
+      });
+
+      it('should calculate distance after commute deduction but should not set previousRouteValue if route mileageLocations is null and commuteDeduction is greater than distance', () => {
+        component.previousRouteValue = { mileageLocations: [], distance: 230, roundTrip: true };
+        component.commuteDeductionOptions = commuteDeductionOptionsData1;
+        component.fg.controls.commuteDeduction.setValue(CommuteDeduction.ONE_WAY);
+        component.fg.controls.route.setValue({
+          mileageLocations: null,
+          distance: 230,
+          roundTrip: true,
+        });
+
+        component.updateDistanceOnLocationChange(90);
+
+        expect(component.previousRouteValue).toEqual({
+          mileageLocations: [],
+          distance: 230,
+          roundTrip: true,
+        });
+        expect(component.fg.controls.route.value).toEqual({
+          distance: 0,
+          roundTrip: true,
+        });
+      });
     });
   });
 }

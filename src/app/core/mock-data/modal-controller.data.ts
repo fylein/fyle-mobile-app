@@ -6,8 +6,7 @@ import { CreateNewReportComponent as createReportV2 } from 'src/app/shared/compo
 import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
-import { AddTxnToReportDialogComponent } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
-import { AddTxnToReportDialogComponent as v2 } from 'src/app/fyle/my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent as v2 } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -70,15 +69,6 @@ export const newReportModalParams2 = {
   component: createReportV2,
   componentProps: {
     selectedExpensesToReport: apiExpenses1,
-  },
-  mode: <Mode>'ios',
-  ...fyModalProperties,
-};
-
-export const addExpenseToReportModalParams = {
-  component: AddTxnToReportDialogComponent,
-  componentProps: {
-    txId: '12345',
   },
   mode: <Mode>'ios',
   ...fyModalProperties,
