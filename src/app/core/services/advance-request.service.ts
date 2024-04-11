@@ -27,6 +27,9 @@ import { StatsDimensionResponse } from '../models/stats-dimension-response.model
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -45,10 +48,7 @@ type Config = Partial<{
 }>;
 
 type advanceRequestStat = {
-  aggregates: string;
-  areq_state: string;
-  areq_is_sent_back: string;
-  scalar: boolean;
+  state: string;
 };
 
 @Injectable({
@@ -63,7 +63,8 @@ export class AdvanceRequestService {
     private timezoneService: TimezoneService,
     private dataTransformService: DataTransformService,
     private dateService: DateService,
-    private fileService: FileService
+    private fileService: FileService,
+    private spenderService: SpenderService
   ) {}
 
   @Cacheable({
@@ -366,13 +367,6 @@ export class AdvanceRequestService {
     );
   }
 
-  getMyAdvanceRequestStats(params: advanceRequestStat): Observable<Partial<StatsDimensionResponse[]>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => this.getAdvanceRequestStats(eou, params)),
-      map((res) => res.data)
-    );
-  }
-
   private getSortOrder(sortParam: SortingParam, sortDir: SortingDirection): string {
     let order: string;
     if (sortParam === SortingParam.creationDate) {
@@ -394,16 +388,14 @@ export class AdvanceRequestService {
     return order;
   }
 
-  private getAdvanceRequestStats(
-    eou: ExtendedOrgUser,
-    params: advanceRequestStat
-  ): Observable<Partial<ApiV2Response<StatsDimensionResponse>>> {
-    return this.apiv2Service.get<StatsDimensionResponse, {}>('/advance_requests/stats', {
-      params: {
-        areq_org_user_id: 'eq.' + eou.ou.id,
-        ...params,
-      },
-    });
+  getAdvanceRequestStats(params: advanceRequestStat): Observable<StatsResponse> {
+    return this.spenderService
+      .post<{ data: StatsResponse }>('/advance_requests/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      })
+      .pipe(map((res) => res.data));
   }
 
   private getApproversByAdvanceRequestId(advanceRequestId: string): Observable<Approval[]> {

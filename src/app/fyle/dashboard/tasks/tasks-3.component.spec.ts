@@ -19,10 +19,13 @@ import { cloneDeep, noop } from 'lodash';
 import { snackbarPropertiesRes2 } from 'src/app/core/mock-data/snackbar-properties.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { AddTxnToReportDialogComponent } from '../../my-expenses-v2/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
+import { AddTxnToReportDialogComponent } from '../../my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { expenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
+import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
+import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -42,13 +45,15 @@ export function TestCases3(getTestBed) {
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
-
+    let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
       component = fixture.componentInstance;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -61,6 +66,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     }));
 
     it('onPotentialDuplicatesTaskClick(): should navigate to potential duplicate page', () => {
@@ -126,6 +132,7 @@ export function TestCases3(getTestBed) {
         reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
         expensesService.getAllExpenses.and.returnValue(of([expenseData]));
         spyOn(component, 'showAddToReportSuccessToast');
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
       });
 
       it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', fakeAsync(() => {
@@ -144,6 +151,7 @@ export function TestCases3(getTestBed) {
           data: { openReports: apiExtendedReportRes },
           panelClass: ['mat-bottom-sheet-1'],
         });
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
@@ -222,6 +230,7 @@ export function TestCases3(getTestBed) {
 
       it('should call matBottomSheet.open and should not call showAddToReportSuccessToast if data.report is null', fakeAsync(() => {
         spyOn(component, 'addTransactionsToReport');
+        orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
         matBottomSheet.open.and.returnValue({
           afterDismissed: () =>
             of({
@@ -236,7 +245,7 @@ export function TestCases3(getTestBed) {
           data: { openReports: apiExtendedReportRes },
           panelClass: ['mat-bottom-sheet-1'],
         });
-        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
+        expect(expensesService.getAllExpenses).not.toHaveBeenCalled();
         expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
           queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' },
         });
@@ -257,5 +266,74 @@ export function TestCases3(getTestBed) {
         isSeparateCard: true,
       });
     });
+
+    describe('showToastMessage(): ', () => {
+      it('should show success snackbar with message', () => {
+        const message = 'Profile saved successfully';
+        const successToastProperties = {
+          data: {
+            icon: 'check-square-fill',
+            showCloseButton: true,
+            message,
+          },
+          duration: 3000,
+        };
+
+        snackbarProperties.setSnackbarProperties.and.returnValue(successToastProperties);
+        component.showToastMessage(message, 'success');
+
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...successToastProperties,
+          panelClass: 'msb-success',
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('success', { message });
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: message,
+        });
+      });
+
+      it('should show error snackbar with message', () => {
+        const message = 'Something went wrong';
+        const failureToastProperties = {
+          data: {
+            icon: 'warning-fill',
+            showCloseButton: true,
+            message,
+          },
+          duration: 3000,
+        };
+
+        snackbarProperties.setSnackbarProperties.and.returnValue(failureToastProperties);
+        component.showToastMessage(message, 'failure');
+
+        expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
+          ...failureToastProperties,
+          panelClass: 'msb-failure',
+        });
+        expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith('failure', { message });
+        expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({
+          ToastContent: message,
+        });
+      });
+    });
+
+    it('onCommuteDetailsTaskClick(): should show toast message and refresh the tasks if commute details are saved', fakeAsync(() => {
+      spyOn(component, 'showToastMessage');
+      spyOn(component, 'doRefresh');
+      const commuteDetailsModalSpy = jasmine.createSpyObj('commuteDetailsModal', ['present', 'onWillDismiss']);
+      commuteDetailsModalSpy.onWillDismiss.and.resolveTo({
+        data: { action: 'save', commuteDetails: commuteDetailsResponseData.data[0] },
+      });
+      modalController.create.and.resolveTo(commuteDetailsModalSpy);
+
+      component.onCommuteDetailsTaskClick();
+      tick(100);
+
+      expect(component.showToastMessage).toHaveBeenCalledOnceWith('Commute details saved successfully', 'success');
+      expect(trackingService.commuteDeductionDetailsAddedFromSpenderTask).toHaveBeenCalledOnceWith(
+        commuteDetailsResponseData.data[0]
+      );
+      expect(component.doRefresh).toHaveBeenCalledTimes(1);
+    }));
   });
 }

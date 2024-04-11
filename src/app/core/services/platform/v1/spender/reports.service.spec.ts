@@ -70,7 +70,9 @@ describe('ReportsService', () => {
 
     reportsService.getAllReportsByParams(mockQueryParams).subscribe((res) => {
       expect(res).toEqual(expectedReportsPaginated);
-      expect(reportsService.getReportsCount).toHaveBeenCalledTimes(1);
+      expect(reportsService.getReportsCount).toHaveBeenCalledOnceWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+      });
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
       expect(getReportsByParams).toHaveBeenCalledTimes(2);
@@ -92,9 +94,8 @@ describe('ReportsService', () => {
 
     reportsService.getAllReportsByParams(mockQueryParams).subscribe((res) => {
       expect(res).toEqual(expectedReportsSinglePage);
-      expect(reportsService.getReportsCount).toHaveBeenCalledTimes(1);
-      expect(getReportsByParams).toHaveBeenCalledWith(expectedParams);
-      expect(getReportsByParams).toHaveBeenCalledTimes(1);
+      expect(reportsService.getReportsCount).toHaveBeenCalledOnceWith(mockQueryParams);
+      expect(getReportsByParams).toHaveBeenCalledOnceWith(expectedParams);
       done();
     });
   });
@@ -113,7 +114,7 @@ describe('ReportsService', () => {
     spenderPlatformV1ApiServiceMock.get.and.returnValue(of(allReportsPaginated1));
     reportsService.getReportsByParams(queryParams).subscribe((response) => {
       expect(response).toEqual(allReportsPaginated1);
-      expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledWith('/reports', expectedConfig);
+      expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledOnceWith('/reports', expectedConfig);
       done();
     });
   });

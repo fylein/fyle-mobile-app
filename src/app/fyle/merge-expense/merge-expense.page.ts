@@ -32,6 +32,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-merge-expense',
@@ -39,7 +40,7 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
   styleUrls: ['./merge-expense.page.scss'],
 })
 export class MergeExpensePage implements OnInit, AfterViewChecked {
-  expenses: Expense[];
+  expenses: Partial<Expense>[];
 
   fg: FormGroup;
 
@@ -148,7 +149,8 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
     private trackingService: TrackingService,
     private expenseFieldsService: ExpenseFieldsService,
     private dependantFieldsService: DependentFieldsService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private expensesService: ExpensesService
   ) {}
 
   get genericFieldsForm(): AbstractControl {
@@ -185,15 +187,18 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     this.txnIDs = JSON.parse(this.activatedRoute.snapshot.params.expenseIDs as string) as string[];
 
-    const expenses$ = this.transcationService
-      .getETxnc({
+    const expenses$ = this.expensesService
+      .getAllExpenses({
         offset: 0,
         limit: 200,
-        params: {
-          tx_id: `in.(${this.txnIDs.join(',')})`,
+        queryParams: {
+          id: `in.(${this.txnIDs.join(',')})`,
         },
       })
-      .pipe(shareReplay(1));
+      .pipe(
+        map((expenses) => expenses.map((expense) => this.transcationService.transformRawExpense(expense))),
+        shareReplay(1)
+      );
 
     this.expenseOptions$ = expenses$.pipe(
       switchMap((expenses) => this.mergeExpensesService.generateExpenseToKeepOptions(expenses))

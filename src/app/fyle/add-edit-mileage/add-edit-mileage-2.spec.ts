@@ -206,7 +206,6 @@ export function TestCases2(getTestBed) {
         custom_inputs: new FormArray([]),
         costCenter: [],
         report: [],
-        duplicate_detection_reason: [],
         project_dependent_fields: formBuilder.array([]),
         cost_center_dependent_fields: formBuilder.array([]),
       });

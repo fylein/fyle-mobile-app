@@ -47,7 +47,7 @@ import { AccountType } from 'src/app/core/enums/account-type.enum';
 import { ExpenseType } from 'src/app/core/enums/expense-type.enum';
 import { AccountOption } from 'src/app/core/models/account-option.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { CCCExpUnflattened, CCCExpense } from 'src/app/core/models/corporate-card-expense-unflattened.model';
+import { CCCExpUnflattened } from 'src/app/core/models/corporate-card-expense-unflattened.model';
 import { CostCenterOptions } from 'src/app/core/models/cost-centers-options.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { Currency } from 'src/app/core/models/currency.model';
@@ -133,6 +133,8 @@ import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.mo
 import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
+import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 
 type FormValue = {
   currencyObj: {
@@ -163,7 +165,6 @@ type FormValue = {
   distance: number;
   distance_unit: string;
   custom_inputs: CustomInput[];
-  duplicate_detection_reason: string;
   billable: boolean;
   costCenter: CostCenter;
   hotel_is_breakfast_provided: boolean;
@@ -185,7 +186,7 @@ export class AddEditExpensePage implements OnInit {
 
   @ViewChild('costCenterDependentFieldsRef') costCenterDependentFieldsRef: DependentFieldsComponent;
 
-  etxn$: Observable<UnflattenedTransaction>;
+  etxn$: Observable<Partial<UnflattenedTransaction>>;
 
   platformExpense$: Observable<PlatformExpense>;
 
@@ -235,7 +236,7 @@ export class AddEditExpensePage implements OnInit {
 
   isBalanceAvailableInAnyAdvanceAccount$: Observable<boolean>;
 
-  selectedCCCTransaction: CCCExpense;
+  selectedCCCTransaction: Partial<MatchedCCCTransaction>;
 
   canChangeMatchingCCCTransaction = true;
 
@@ -248,8 +249,6 @@ export class AddEditExpensePage implements OnInit {
   isIndividualProjectsEnabled$: Observable<boolean>;
 
   individualProjectIds$: Observable<number[]>;
-
-  isNotReimbursable$: Observable<boolean>;
 
   costCenters$: Observable<CostCenterOptions[]>;
 
@@ -285,7 +284,7 @@ export class AddEditExpensePage implements OnInit {
 
   isCCCPaymentModeSelected$: Observable<boolean>;
 
-  matchedCCCTransaction: MatchedCCCTransaction;
+  matchedCCCTransaction: Partial<MatchedCCCTransaction>;
 
   alreadyApprovedExpenses: PlatformExpense[];
 
@@ -423,6 +422,8 @@ export class AddEditExpensePage implements OnInit {
   recentCategoriesOriginal: OrgCategoryListItem[];
 
   isRTFEnabled$: Observable<boolean>;
+
+  pendingTransactionAllowedToReportAndSplit = true;
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -718,7 +719,10 @@ export class AddEditExpensePage implements OnInit {
           return this.showSplitBlockedPopover(popoverMessage);
         }
 
-        if (res.generatedEtxn.tx.tax_amount && res.generatedEtxn.tx.amount < res.generatedEtxn.tx.tax_amount) {
+        if (
+          res.generatedEtxn.tx.tax_amount &&
+          Math.abs(res.generatedEtxn.tx.amount) < Math.abs(res.generatedEtxn.tx.tax_amount)
+        ) {
           const popoverMessage =
             'Looks like the tax amount is more than the expense amount. Please correct the tax amount before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
@@ -744,30 +748,14 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  markCCCAsPersonal(txnId: string): Observable<null> {
-    return this.transactionService.delete(txnId).pipe(
-      switchMap((res) => {
-        if (res) {
-          this.trackingService.deleteExpense({ Type: 'Marked Personal' });
-          return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
-        } else {
-          return of(null);
-        }
-      })
-    );
+  markCCCAsPersonal(): Observable<CorporateCardTransactionRes> {
+    this.trackingService.deleteExpense({ Type: 'Marked Personal' });
+    return this.corporateCreditCardExpenseService.markPersonal(this.corporateCreditCardExpenseGroupId);
   }
 
-  dismissCCC(txnId: string, corporateCreditCardExpenseId: string): Observable<null> {
-    return this.transactionService.delete(txnId).pipe(
-      switchMap((res) => {
-        if (res) {
-          this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
-          return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
-        } else {
-          return of(null);
-        }
-      })
-    );
+  dismissCCC(corporateCreditCardExpenseId: string): Observable<CorporateCardTransactionRes> {
+    this.trackingService.deleteExpense({ Type: 'Dismiss as Card Payment' });
+    return this.corporateCreditCardExpenseService.dismissCreditTransaction(corporateCreditCardExpenseId);
   }
 
   getRemoveCCCExpModalParams(
@@ -819,7 +807,7 @@ export class AddEditExpensePage implements OnInit {
     };
 
     if (data?.status === 'success') {
-      let txnDetails: UnflattenedTransaction;
+      let txnDetails: Partial<UnflattenedTransaction>;
       this.etxn$.subscribe((etxn) => (txnDetails = etxn));
       const properties = {
         Type: 'unlink corporate card expense',
@@ -858,10 +846,9 @@ export class AddEditExpensePage implements OnInit {
       body: string;
       ctaText: string;
       ctaLoadingText: string;
-      deleteMethod: () => Observable<null>;
+      deleteMethod: () => Observable<CorporateCardTransactionRes>;
     };
   } {
-    const id = this.activatedRoute.snapshot.params.id as string;
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -871,15 +858,11 @@ export class AddEditExpensePage implements OnInit {
         body: componentPropsParam.body,
         ctaText: componentPropsParam.ctaText,
         ctaLoadingText: componentPropsParam.ctaLoadingText,
-        deleteMethod: (): Observable<null> => {
+        deleteMethod: (): Observable<CorporateCardTransactionRes> => {
           if (isMarkPersonal) {
-            return this.transactionService
-              .unmatchCCCExpense(id, this.corporateCreditCardExpenseGroupId)
-              .pipe(switchMap(() => this.markCCCAsPersonal(id)));
+            return this.markCCCAsPersonal();
           } else {
-            return this.transactionService
-              .unmatchCCCExpense(id, this.matchedCCCTransaction?.id)
-              .pipe(switchMap(() => this.dismissCCC(id, this.matchedCCCTransaction?.id)));
+            return this.dismissCCC(this.matchedCCCTransaction?.id);
           }
         },
       },
@@ -962,27 +945,48 @@ export class AddEditExpensePage implements OnInit {
   }
 
   splitExpCategoryHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('categories');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('categories');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpProjectHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('projects');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('projects');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
   }
 
   splitExpCostCenterHandler(): void {
-    if (this.fg.valid) {
-      this.openSplitExpenseModal('cost centers');
+    if (this.pendingTransactionAllowedToReportAndSplit) {
+      if (this.fg.valid) {
+        this.openSplitExpenseModal('cost centers');
+      } else {
+        this.showFormValidationErrors();
+      }
     } else {
-      this.showFormValidationErrors();
+      this.showTransactionPendingToast();
     }
+  }
+
+  showTransactionPendingToast(): void {
+    this.showSnackBarToast(
+      { message: "Can't split as the Transaction status is pending. Please wait until it's Posted." },
+      'failure',
+      ['msb-failure']
+    );
+    this.trackingService.spenderTriedSplittingExpenseWithPendingTxn();
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
@@ -1490,7 +1494,7 @@ export class AddEditExpensePage implements OnInit {
           reportOptions,
         }: {
           autoSubmissionReportName: string;
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
           reportOptions: { label: string; value: Report }[];
         }) => {
           if (etxn.tx.report_id) {
@@ -1921,7 +1925,6 @@ export class AddEditExpensePage implements OnInit {
               bus_travel_class: etxn.tx.bus_travel_class,
               distance: etxn.tx.distance,
               distance_unit: etxn.tx.distance_unit,
-              duplicate_detection_reason: etxn.tx.user_reason_for_duplicate_expenses,
               billable: etxn.tx.billable,
               custom_inputs: customInputValues,
 
@@ -1972,7 +1975,7 @@ export class AddEditExpensePage implements OnInit {
     isAutofillsEnabled: boolean;
     recentValue: RecentlyUsed;
     recentCategories: OrgCategoryListItem[];
-    etxn: UnflattenedTransaction;
+    etxn: Partial<UnflattenedTransaction>;
     category: OrgCategory;
   }): OrgCategory {
     const { isAutofillsEnabled, recentValue, recentCategories, etxn } = config;
@@ -2039,7 +2042,7 @@ export class AddEditExpensePage implements OnInit {
           orgSettings: OrgSettings;
           recentValues: RecentlyUsed;
           recentCategories: OrgCategoryListItem[];
-          etxn: UnflattenedTransaction;
+          etxn: Partial<UnflattenedTransaction>;
         }) => {
           const isExpenseCategoryUnspecified = etxn.tx.fyle_category?.toLowerCase() === 'unspecified';
           if (this.initialFetch && etxn.tx.org_category_id && !isExpenseCategoryUnspecified) {
@@ -2556,7 +2559,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.fg.controls.project.valueChanges.subscribe((project: { project_org_category_ids: number[] }) => {
       if (project && project.project_org_category_ids.length !== 0) {
-        this.recentCategories = this.recentCategoriesOriginal.filter((originalCategory) =>
+        this.recentCategories = this.recentCategoriesOriginal?.filter((originalCategory) =>
           project.project_org_category_ids.includes(originalCategory.value.id)
         );
       } else {
@@ -2582,10 +2585,11 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  getEditExpenseObservable(): Observable<UnflattenedTransaction> {
-    return this.transactionService.getETxnUnflattened(this.activatedRoute.snapshot.params.id as string).pipe(
-      tap((etxn) => (this.isIncompleteExpense = etxn.tx.state === 'DRAFT')),
-      switchMap((etxn) => {
+  getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
+    return this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
+      switchMap((expense) => {
+        const etxn = this.transactionService.transformExpense(expense);
+        this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
         this.source = etxn.tx.source || 'MOBILE';
         if (etxn.tx.state === 'DRAFT' && etxn.tx.extracted_data) {
           if (etxn.tx.extracted_data.amount && !etxn.tx.amount) {
@@ -2632,7 +2636,8 @@ export class AddEditExpensePage implements OnInit {
   goToPrev(): void {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex - 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex - 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex - 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex - 1);
       });
     }
@@ -2641,13 +2646,14 @@ export class AddEditExpensePage implements OnInit {
   goToNext(): void {
     this.activeIndex = parseInt(this.activatedRoute.snapshot.params.activeIndex as string, 10);
     if (this.reviewList[+this.activeIndex + 1]) {
-      this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex + 1]).subscribe((etxn) => {
+      this.expensesService.getExpenseById(this.reviewList[+this.activeIndex + 1]).subscribe((expense) => {
+        const etxn = this.transactionService.transformExpense(expense);
         this.goToTransaction(etxn, this.reviewList, +this.activeIndex + 1);
       });
     }
   }
 
-  goToTransaction(expense: UnflattenedTransaction, reviewList: string[], activeIndex: number): void {
+  goToTransaction(expense: Partial<UnflattenedTransaction>, reviewList: string[], activeIndex: number): void {
     let category: string;
 
     if (expense.tx.org_category) {
@@ -2757,49 +2763,34 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  initCCCTxn(): void {
-    const bankTxn =
-      this.activatedRoute.snapshot.params.bankTxn &&
-      (JSON.parse(this.activatedRoute.snapshot.params.bankTxn as string) as CCCExpUnflattened);
-    this.showSelectedTransaction = true;
-    this.selectedCCCTransaction = bankTxn.ccce;
-    let cccAccountNumber: string;
-    if (bankTxn.flow && bankTxn.flow === 'newCCCFlow') {
-      cccAccountNumber = this.selectedCCCTransaction.corporate_credit_card_account_number;
+  handleCCCExpenses(etxn: Partial<UnflattenedTransaction>, matchedTransaction: corporateCardTransaction): void {
+    if (matchedTransaction) {
+      this.matchedCCCTransaction = this.corporateCreditCardExpenseService.transformCCTransaction(matchedTransaction);
+    } else {
+      this.matchedCCCTransaction = etxn.tx.matched_corporate_card_transactions[0];
     }
-    this.cardEndingDigits = cccAccountNumber && cccAccountNumber.slice(-4);
-    this.selectedCCCTransaction.corporate_credit_card_account_number = cccAccountNumber;
-    this.isCreatedFromCCC = true;
-  }
+    this.selectedCCCTransaction = this.matchedCCCTransaction;
+    this.cardEndingDigits = (
+      this.selectedCCCTransaction.corporate_credit_card_account_number
+        ? this.selectedCCCTransaction.corporate_credit_card_account_number
+        : this.selectedCCCTransaction.card_or_account_number
+    ).slice(-4);
 
-  handleCCCExpenses(etxn: UnflattenedTransaction): Subscription {
-    return this.corporateCreditCardExpenseService
-      .getEccceByGroupId(etxn.tx.corporate_credit_card_expense_group_id)
-      .subscribe((matchedExpense: CCCExpUnflattened[]) => {
-        this.matchedCCCTransaction = matchedExpense[0].ccce;
-        this.selectedCCCTransaction = this.matchedCCCTransaction;
-        this.cardEndingDigits = (
-          this.selectedCCCTransaction.corporate_credit_card_account_number
-            ? this.selectedCCCTransaction.corporate_credit_card_account_number
-            : this.selectedCCCTransaction.card_or_account_number
-        ).slice(-4);
+    etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
 
-        etxn.tx.matchCCCId = this.selectedCCCTransaction.id;
+    const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
 
-        const txnDt = dayjs(this.selectedCCCTransaction.txn_dt).format('MMM D, YYYY');
+    this.selectedCCCTransaction.displayObject =
+      txnDt +
+      ' - ' +
+      (this.selectedCCCTransaction.vendor
+        ? this.selectedCCCTransaction.vendor
+        : this.selectedCCCTransaction.description) +
+      this.selectedCCCTransaction.amount;
 
-        this.selectedCCCTransaction.displayObject =
-          txnDt +
-          ' - ' +
-          (this.selectedCCCTransaction.vendor
-            ? this.selectedCCCTransaction.vendor
-            : this.selectedCCCTransaction.description) +
-          this.selectedCCCTransaction.amount;
-
-        if (this.selectedCCCTransaction) {
-          this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
-        }
-      });
+    if (this.selectedCCCTransaction) {
+      this.cardNumber = this.selectedCCCTransaction.card_or_account_number;
+    }
   }
 
   getSplitExpenses(splitExpenses: PlatformExpense[]): void {
@@ -2814,29 +2805,31 @@ export class AddEditExpensePage implements OnInit {
   }
 
   initSplitTxn(orgSettings$: Observable<OrgSettings>): void {
-    orgSettings$
+    combineLatest([orgSettings$, this.etxn$])
       .pipe(
-        switchMap((orgSettings) => this.etxn$.pipe(map((etxn) => ({ etxn, orgSettings })))),
+        map(([orgSettings, etxn]) => ({ orgSettings, etxn })),
         filter(
-          ({ orgSettings, etxn }: { orgSettings: OrgSettings; etxn: UnflattenedTransaction }) =>
+          ({ orgSettings, etxn }) =>
             this.getCCCSettings(orgSettings) || !!etxn.tx.corporate_credit_card_expense_group_id
         ),
         filter(({ etxn }) => etxn.tx.corporate_credit_card_expense_group_id && !!etxn.tx.txn_dt),
         switchMap(({ etxn }) =>
-          this.expensesService.getSplitExpenses(etxn.tx.split_group_id).pipe(
-            map((splitExpenses) => ({
-              etxn,
-              splitExpenses,
-            }))
-          )
+          forkJoin({
+            splitExpenses: this.expensesService.getSplitExpenses(etxn.tx.split_group_id),
+            matchedTransaction:
+              etxn.tx?.matched_corporate_card_transactions?.length === 0
+                ? this.corporateCreditCardExpenseService.getMatchedTransactionById(
+                    etxn.tx.corporate_credit_card_expense_group_id
+                  )
+                : of(null),
+          }).pipe(map(({ splitExpenses, matchedTransaction }) => ({ etxn, splitExpenses, matchedTransaction })))
         )
       )
-      .subscribe(({ etxn, splitExpenses }) => {
+      .subscribe(({ etxn, splitExpenses, matchedTransaction }) => {
         if (splitExpenses && splitExpenses.length > 0) {
           this.getSplitExpenses(splitExpenses);
         }
-
-        this.handleCCCExpenses(etxn);
+        this.handleCCCExpenses(etxn, matchedTransaction?.data[0]);
       });
   }
 
@@ -2844,19 +2837,19 @@ export class AddEditExpensePage implements OnInit {
     return isNumber(etxn.tx_policy_amount) && etxn.tx_policy_amount < 0.0001;
   }
 
-  getCheckSpiltExpense(etxn: UnflattenedTransaction): boolean {
+  getCheckSpiltExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return etxn?.tx?.split_group_id !== etxn?.tx?.id;
   }
 
-  getDebitCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getDebitCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount > 0;
   }
 
-  getDismissCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getDismissCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return !!etxn?.tx?.corporate_credit_card_expense_group_id && etxn.tx.amount < 0;
   }
 
-  getRemoveCCCExpense(etxn: UnflattenedTransaction): boolean {
+  getRemoveCCCExpense(etxn: Partial<UnflattenedTransaction>): boolean {
     return (
       !!etxn?.tx?.corporate_credit_card_expense_group_id &&
       ['APPROVER_PENDING', 'COMPLETE', 'DRAFT'].includes(etxn.tx.state)
@@ -2896,7 +2889,6 @@ export class AddEditExpensePage implements OnInit {
       distance: [],
       distance_unit: [],
       custom_inputs: new FormArray([]),
-      duplicate_detection_reason: [],
       billable: [],
       costCenter: [],
       hotel_is_breakfast_provided: [],
@@ -3067,7 +3059,7 @@ export class AddEditExpensePage implements OnInit {
 
     this.etxn$ = iif(() => this.activatedRoute.snapshot.params.id as boolean, editExpensePipe$, newExpensePipe$).pipe(
       shareReplay(1)
-    ) as Observable<UnflattenedTransaction>;
+    );
 
     /**
      * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
@@ -3075,6 +3067,30 @@ export class AddEditExpensePage implements OnInit {
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
       this.platformExpense$ = this.expensesService.getExpenseById(id);
+      const pendingTxnRestrictionEnabled$ = this.orgSettingsService
+        .get()
+        .pipe(
+          map(
+            (orgSetting) =>
+              orgSetting?.corporate_credit_card_settings?.enabled &&
+              orgSetting?.pending_cct_expense_restriction?.enabled
+          )
+        );
+
+      forkJoin({
+        platformExpenses: this.platformExpense$,
+        pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
+      })
+        .pipe(take(1))
+        .subscribe((config) => {
+          if (
+            config.pendingTxnRestrictionEnabled &&
+            config.platformExpenses.matched_corporate_card_transactions?.length &&
+            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+          ) {
+            this.pendingTransactionAllowedToReportAndSplit = false;
+          }
+        });
     }
 
     this.attachments$ = this.loadAttachments$.pipe(
@@ -3163,8 +3179,6 @@ export class AddEditExpensePage implements OnInit {
     this.transactionInReport$ = this.etxn$.pipe(
       map((etxn) => ['APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(etxn.tx.state) > -1)
     );
-
-    this.isNotReimbursable$ = this.etxn$.pipe(map((etxn) => !etxn.tx.user_can_delete && this.mode === 'edit'));
 
     this.isAmountCapped$ = this.etxn$.pipe(
       map((etxn) => isNumber(etxn.tx.admin_amount) || isNumber(etxn.tx.policy_amount))
@@ -3316,16 +3330,12 @@ export class AddEditExpensePage implements OnInit {
     return this.getFormValues()?.hotel_is_breakfast_provided;
   }
 
-  getDuplicateReason(): string {
-    return this.getFormValues()?.duplicate_detection_reason;
-  }
-
   getAmount(): number {
     return this.getFormValues()?.currencyObj?.amount;
   }
 
   generateEtxnFromFg(
-    etxn$: Observable<UnflattenedTransaction>,
+    etxn$: Observable<Partial<UnflattenedTransaction>>,
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
   ): Observable<Partial<UnflattenedTransaction>> {
@@ -3340,7 +3350,7 @@ export class AddEditExpensePage implements OnInit {
       attachments: attachements$,
     }).pipe(
       map((res) => {
-        const etxn: UnflattenedTransaction = res.etxn;
+        const etxn: Partial<UnflattenedTransaction> = res.etxn;
         let customProperties = res.customProperties;
         customProperties = customProperties.map((customProperty) => {
           if (customProperty.type === 'DATE') {
@@ -3419,7 +3429,6 @@ export class AddEditExpensePage implements OnInit {
             distance: this.getDistance(),
             distance_unit: this.getDistanceUnit(),
             hotel_is_breakfast_provided: this.getBreakfastProvided(),
-            user_reason_for_duplicate_expenses: this.getDuplicateReason(),
             ...costCenter,
           },
           ou: etxn.ou,
@@ -3771,7 +3780,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  trackEditExpense(etxn: UnflattenedTransaction): void {
+  trackEditExpense(etxn: Partial<UnflattenedTransaction>): void {
     this.trackingService.editExpense({
       Type: 'Receipt',
       Amount: etxn.tx.amount,
@@ -3793,9 +3802,7 @@ export class AddEditExpensePage implements OnInit {
 
   editExpense(redirectedFrom: string): Observable<Partial<Transaction>> {
     this.showSaveExpenseLoader(redirectedFrom);
-
     this.trackPolicyCorrections();
-
     const customFields$ = this.getCustomFields();
 
     return this.generateEtxnFromFg(this.etxn$, customFields$, true).pipe(
@@ -3803,6 +3810,7 @@ export class AddEditExpensePage implements OnInit {
         const policyViolations$ = this.checkPolicyViolation(
           etxn as unknown as { tx: PublicPolicyExpense; dataUrls: Partial<FileObject>[] }
         ).pipe(shareReplay(1));
+
         return policyViolations$.pipe(
           map(this.policyService.getCriticalPolicyRules),
           switchMap((policyViolations) => {
@@ -3858,12 +3866,12 @@ export class AddEditExpensePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         forkJoin({
           eou: from(this.authService.getEou()),
           txnCopy: this.etxn$,
         }).pipe(
-          switchMap(({ txnCopy }: { txnCopy: UnflattenedTransaction }) => {
+          switchMap(({ txnCopy }: { txnCopy: Partial<UnflattenedTransaction> }) => {
             if (!isEqual(etxn.tx, txnCopy)) {
               // only if the form is edited
               this.trackEditExpense(etxn);
@@ -3878,8 +3886,8 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.transactionService.getETxnUnflattened(txn.id)),
-              map((savedEtxn) => savedEtxn && savedEtxn.tx),
+              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
+              map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
@@ -3906,33 +3914,24 @@ export class AddEditExpensePage implements OnInit {
                     );
                   }
                 }
-
                 return of(null).pipe(map(() => tx));
               }),
-              switchMap((tx) => {
-                const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
-                if (!criticalPolicyViolated && etxn.tx.user_review_needed) {
-                  return this.transactionService.review(tx.id).pipe(map(() => tx));
+              switchMap((txn) => {
+                if (comment) {
+                  return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
+                    switchMap((result) => {
+                      if (result !== comment) {
+                        return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
+                      } else {
+                        return of(txn);
+                      }
+                    })
+                  );
+                } else {
+                  return of(txn);
                 }
-
-                return of(null).pipe(map(() => tx));
               })
             );
-          }),
-          switchMap((txn) => {
-            if (comment) {
-              return this.statusService.findLatestComment(txn.id, 'transactions', txn.org_user_id).pipe(
-                switchMap((result) => {
-                  if (result !== comment) {
-                    return this.statusService.post('transactions', txn.id, { comment }, true).pipe(map(() => txn));
-                  } else {
-                    return of(txn);
-                  }
-                })
-              );
-            } else {
-              return of(txn);
-            }
           })
         )
       ),
@@ -3947,9 +3946,13 @@ export class AddEditExpensePage implements OnInit {
             this.matchedCCCTransaction
           ) {
             return this.transactionService
-              .unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id)
+              .unmatchCCCExpense(this.matchedCCCTransaction.id, transaction.id)
               .pipe(
-                switchMap(() => this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id))
+                switchMap(() =>
+                  this.transactionService
+                    .matchCCCExpense(this.selectedCCCTransaction.id, transaction.id)
+                    .pipe(map(() => transaction))
+                )
               );
           }
         }
@@ -3960,12 +3963,16 @@ export class AddEditExpensePage implements OnInit {
           transaction.corporate_credit_card_expense_group_id &&
           this.matchedCCCTransaction
         ) {
-          return this.transactionService.unmatchCCCExpense(transaction.id, this.matchedCCCTransaction.id);
+          return this.transactionService
+            .unmatchCCCExpense(this.matchedCCCTransaction.id, transaction.id)
+            .pipe(map(() => transaction));
         }
 
         // Case is for matching a normal(unmatched) expense for the first time(edit)
         if (this.selectedCCCTransaction && !transaction.corporate_credit_card_expense_group_id) {
-          return this.transactionService.matchCCCExpense(transaction.id, this.selectedCCCTransaction.id);
+          return this.transactionService
+            .matchCCCExpense(this.selectedCCCTransaction.id, transaction.id)
+            .pipe(map(() => transaction));
         }
 
         return of(transaction);
@@ -4066,7 +4073,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  trackCreateExpense(etxn: UnflattenedTransaction, isInstaFyleExpense: boolean): void {
+  trackCreateExpense(etxn: Partial<UnflattenedTransaction>, isInstaFyleExpense: boolean): void {
     this.trackingService.createExpense({
       Type: 'Receipt',
       Amount: etxn.tx.amount,
@@ -4165,7 +4172,7 @@ export class AddEditExpensePage implements OnInit {
           }
         }
       ),
-      switchMap(({ etxn, comment }: { etxn: UnflattenedTransaction; comment: string }) =>
+      switchMap(({ etxn, comment }: { etxn: Partial<UnflattenedTransaction>; comment: string }) =>
         from(this.authService.getEou()).pipe(
           switchMap(() => {
             const comments: string[] = [];
@@ -4705,7 +4712,8 @@ export class AddEditExpensePage implements OnInit {
     if (data && data.status === 'success') {
       if (this.reviewList && this.reviewList.length && +this.activeIndex < this.reviewList.length - 1) {
         this.reviewList.splice(+this.activeIndex, 1);
-        this.transactionService.getETxnUnflattened(this.reviewList[+this.activeIndex]).subscribe((etxn) => {
+        this.expensesService.getExpenseById(this.reviewList[+this.activeIndex]).subscribe((expense) => {
+          const etxn = this.transactionService.transformExpense(expense);
           this.goToTransaction(etxn, this.reviewList, +this.activeIndex);
         });
       } else if (removeExpenseFromReport) {
@@ -4844,7 +4852,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }
         ),
-        switchMap(({ etxn }: { etxn: UnflattenedTransaction }) => {
+        switchMap(({ etxn }: { etxn: Partial<UnflattenedTransaction> }) => {
           const personalCardTxn =
             this.activatedRoute.snapshot.params.personalCardTxn &&
             (JSON.parse(this.activatedRoute.snapshot.params.personalCardTxn as string) as PersonalCardTxn);
@@ -4924,12 +4932,14 @@ export class AddEditExpensePage implements OnInit {
             .reduce((acc, curVal) => acc.concat(curVal), []);
 
           if (duplicateIds.length > 0) {
-            const params = {
-              tx_id: `in.(${duplicateIds.join(',')})`,
+            const queryParams = {
+              id: `in.(${duplicateIds.join(',')})`,
             };
-            return this.transactionService.getETxnc({ offset: 0, limit: 100, params }).pipe(
+            return this.expensesService.getAllExpenses({ offset: 0, limit: 100, queryParams }).pipe(
               map((expenses) => {
-                const expensesArray = expenses as [];
+                const expensesArray = expenses.map((expense) =>
+                  this.transactionService.transformRawExpense(expense)
+                ) as [];
                 return transformedDuplicateSets.map((duplicateSet) =>
                   this.addExpenseDetailsToDuplicateSets(duplicateSet, expensesArray)
                 );
@@ -4946,7 +4956,7 @@ export class AddEditExpensePage implements OnInit {
       });
   }
 
-  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Expense[]): Expense[] {
+  addExpenseDetailsToDuplicateSets(duplicateSet: DuplicateSet, expensesArray: Partial<Expense>[]): Partial<Expense>[] {
     return duplicateSet.transaction_ids.map(
       (expenseId) => expensesArray[expensesArray.findIndex((duplicateTxn: Expense) => expenseId === duplicateTxn.tx_id)]
     );
