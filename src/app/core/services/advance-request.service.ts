@@ -32,6 +32,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { AdvanceRequestState } from '../models/advance-request-state.model';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 const advanceRequestsCacheBuster$ = new Subject<void>();
 
@@ -495,9 +496,9 @@ export class AdvanceRequestService {
     return order;
   }
 
-  getAdvanceRequestStats(params: advanceRequestStat): Observable<{ count: number; total_amount: number }> {
+  getAdvanceRequestStats(params: advanceRequestStat): Observable<StatsResponse> {
     return this.spenderService
-      .post<{ data: { count: number; total_amount: number } }>('/advance_requests/stats', {
+      .post<{ data: StatsResponse }>('/advance_requests/stats', {
         data: {
           query_params: `state=${params.state}`,
         },

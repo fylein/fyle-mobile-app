@@ -653,6 +653,10 @@ export class TrackingService {
     this.eventTrack('Spenders select expenses with Pending transactions');
   }
 
+  spenderTriedSplittingExpenseWithPendingTxn(): void {
+    this.eventTrack('Spenders Split expenses with Pending transactions');
+  }
+
   commuteDeductionAddLocationClickFromProfile(): void {
     this.eventTrack('Commute Deduction - Add Location Click From Profile');
   }

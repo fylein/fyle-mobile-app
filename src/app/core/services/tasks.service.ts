@@ -19,6 +19,7 @@ import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
+import { StatsResponse } from '../models/platform/v1/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -451,7 +452,7 @@ export class TasksService {
     });
   }
 
-  getSentBackAdvancesStats(): Observable<{ count: number; total_amount: number }> {
+  getSentBackAdvancesStats(): Observable<StatsResponse> {
     return this.advancesRequestService.getAdvanceRequestStats({
       state: 'eq.SENT_BACK',
     });
@@ -462,21 +463,13 @@ export class TasksService {
       advancesStats: this.getSentBackAdvancesStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(
-        ({
-          advancesStats,
-          homeCurrency,
-        }: {
-          advancesStats: { count: number; total_amount: number };
-          homeCurrency: string;
-        }) => {
-          const aggregate = {
-            totalAmount: advancesStats.total_amount,
-            totalCount: advancesStats.count,
-          };
-          return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
-        }
-      )
+      map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) => {
+        const aggregate = {
+          totalAmount: advancesStats.total_amount,
+          totalCount: advancesStats.count,
+        };
+        return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
+      })
     );
   }
 
