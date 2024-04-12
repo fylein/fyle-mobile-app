@@ -408,13 +408,11 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  describe('fixDatesForPlatformFields():', () => {
-    it('should convert string values to dates', () => {
-      //@ts-ignore
-      expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
-        advanceRequestPlatform.data[0]
-      );
-    });
+  it('fixDatesForPlatformFields(): should convert string values to dates', () => {
+    //@ts-ignore
+    expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
+      advanceRequestPlatform.data[0]
+    );
   });
 
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
