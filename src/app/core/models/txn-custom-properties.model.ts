@@ -12,6 +12,7 @@ export interface TxnCustomProperties {
   parent_field_id?: number;
   label?: string;
   control?: AbstractControl;
+  is_enabled?: boolean;
 }
 
 export interface CustomInputsOption {

@@ -23,7 +23,6 @@ export interface PerDiemFormValue {
   from_dt: string;
   to_dt: string;
   custom_inputs: CustomInput[];
-  duplicate_detection_reason: string;
   billable: boolean;
   costCenter: CostCenter;
   project_dependent_fields: TxnCustomProperties[];

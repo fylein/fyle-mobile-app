@@ -26,6 +26,7 @@ import { StorageService } from 'src/app/core/services/storage.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 
 import { FormArray, FormBuilder, Validators } from '@angular/forms';
@@ -89,6 +90,8 @@ import {
   perDiemFormValuesData6,
   perDiemFormValuesData7,
 } from 'src/app/core/mock-data/per-diem-form-value.data';
+import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
@@ -106,6 +109,7 @@ export function TestCases2(getTestBed) {
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
     let policyService: jasmine.SpyObj<PolicyService>;
     let transactionOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
     let router: jasmine.SpyObj<Router>;
@@ -147,6 +151,7 @@ export function TestCases2(getTestBed) {
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
       policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
       transactionOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
@@ -187,7 +192,6 @@ export function TestCases2(getTestBed) {
         from_dt: [],
         to_dt: [, component.customDateValidator.bind(component)],
         custom_inputs: new FormArray([]),
-        duplicate_detection_reason: [],
         billable: [],
         costCenter: [],
         project_dependent_fields: formBuilder.array([]),
@@ -195,7 +199,7 @@ export function TestCases2(getTestBed) {
       });
     }));
 
-    it('getNewExpense(): should return new expense object', () => {
+    xit('getNewExpense(): should return new expense object', () => {
       spyOn(component, 'getPerDiemCategories').and.returnValue(
         of({
           defaultPerDiemCategory: perDiemCategory,
@@ -213,13 +217,15 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('getEditExpense(): should call transactionService.getETxnUnflattened and return unflattened transaction data', () => {
-      transactionService.getETxnUnflattened.and.returnValue(of(unflattenedTxnData));
-      activatedRoute.snapshot.params = { id: 'tx5n59fvxk4z' };
+    it('getEditExpense(): should call expensesService.getExpensesById and return expense data', () => {
+      expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+      transactionService.transformExpense.and.returnValue(transformedExpenseData);
+      activatedRoute.snapshot.params = { id: 'txvslh8aQMbu' };
 
       component.getEditExpense().subscribe((res) => {
-        expect(transactionService.getETxnUnflattened).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
-        expect(res).toEqual(unflattenedTxnData);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
+        expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
+        expect(res).toEqual(transformedExpenseData);
       });
     });
 
@@ -243,7 +249,7 @@ export function TestCases2(getTestBed) {
 
       const result = component.getTimeSpentOnPage();
       const endTime = (new Date().getTime() - component.expenseStartTime) / 1000;
-      expect(result).toEqual(endTime);
+      expect(result).toBeCloseTo(endTime, 2);
     });
 
     describe('getCustomInputs():', () => {

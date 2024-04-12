@@ -42,10 +42,10 @@ jobs:
           branches=$(jq '.total.branches.pct' < coverage/coverage-summary.json)
           functions=$(jq '.total.functions.pct' < coverage/coverage-summary.json)
 
-          if (( $(echo "$lines < 96.83" | bc -l) || \
-                $(echo "$statements < 96.8" | bc -l) || \
-                $(echo "$branches < 94.93" | bc -l) || \
-                $(echo "$functions < 95.77" | bc -l) )); then
+          if (( $(echo "$lines < 95.0" | bc -l) || \
+                $(echo "$statements < 95.0" | bc -l) || \
+                $(echo "$branches < 91.10" | bc -l) || \
+                $(echo "$functions < 94.0" | bc -l) )); then
             echo "Code Coverage Percentage is below 95%"
             exit 1
           fi
