@@ -394,7 +394,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txvslh8aQMbu']);
+            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txvslh8aQMbu');
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
