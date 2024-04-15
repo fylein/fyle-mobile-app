@@ -57,7 +57,7 @@ import { SpenderService } from './platform/v1/spender/spender.service';
 import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
 
-fdescribe('AdvanceRequestService', () => {
+describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
