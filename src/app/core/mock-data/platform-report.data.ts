@@ -1,4 +1,4 @@
-import { PlatformReport } from '../models/platform/platform-report.model';
+import { Report } from '../models/platform/v1/report.model';
 import { ReportsQueryParams } from '../models/platform/v1/reports-query-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
@@ -6,7 +6,7 @@ export const mockQueryParams: ReportsQueryParams = {
   state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
 };
 
-export const platformReportData: PlatformReport = {
+export const platformReportData: Report = {
   amount: 0,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
@@ -69,13 +69,13 @@ export const platformReportData: PlatformReport = {
   user_id: 'usvKA4X8Ugcr',
 };
 
-export const platformReportCountData: PlatformApiResponse<PlatformReport> = {
+export const platformReportCountData: PlatformApiResponse<Report> = {
   count: 4,
   data: [platformReportData],
   offset: 0,
 };
 
-export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
+export const allReportsPaginated1: PlatformApiResponse<Report> = {
   count: 4,
   data: [
     {
@@ -111,7 +111,7 @@ export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
         user_id: 'usvKA4X8Ugcr',
       },
       employee_id: 'ouX8dwsbLCLv',
-      id: 'rpMvN0P10l6F',
+      id: 'rprAfNrce73O',
       is_exported: false,
       is_manually_flagged: false,
       is_physical_bill_submitted: false,
@@ -125,7 +125,7 @@ export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       physical_bill_submitted_at: null,
-      purpose: '#3:  Jul 2023 - Office expense',
+      purpose: '#8:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
       source: 'WEBAPP',
@@ -173,7 +173,7 @@ export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
         user_id: 'usvKA4X8Ugcr',
       },
       employee_id: 'ouX8dwsbLCLv',
-      id: 'rpMvN0P10l6F',
+      id: 'rpLMyvYSXgJy',
       is_exported: false,
       is_manually_flagged: false,
       is_physical_bill_submitted: false,
@@ -187,7 +187,7 @@ export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       physical_bill_submitted_at: null,
-      purpose: '#3:  Jul 2023 - Office expense',
+      purpose: '#7:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
       source: 'WEBAPP',
@@ -206,7 +206,7 @@ export const allReportsPaginated1: PlatformApiResponse<PlatformReport> = {
   offset: 0,
 };
 
-export const allReportsPaginated2: PlatformApiResponse<PlatformReport> = {
+export const allReportsPaginated2: PlatformApiResponse<Report> = {
   count: 4,
   data: [
     {
@@ -256,7 +256,7 @@ export const allReportsPaginated2: PlatformApiResponse<PlatformReport> = {
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       physical_bill_submitted_at: null,
-      purpose: '#3:  Jul 2023 - Office expense',
+      purpose: '#6:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
       source: 'WEBAPP',
@@ -318,7 +318,7 @@ export const allReportsPaginated2: PlatformApiResponse<PlatformReport> = {
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
       physical_bill_submitted_at: null,
-      purpose: '#3:  Jul 2023 - Office expense',
+      purpose: '#4:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
       source: 'WEBAPP',
@@ -337,6 +337,8 @@ export const allReportsPaginated2: PlatformApiResponse<PlatformReport> = {
   offset: 2,
 };
 
-export const expectedReportsSinglePage: PlatformReport[] = [...allReportsPaginated1.data];
+export const expectedSingleReport: Report[] = [allReportsPaginated1.data[0]];
 
-export const expectedReportsPaginated: PlatformReport[] = [...allReportsPaginated1.data, ...allReportsPaginated2.data];
+export const expectedReportsSinglePage: Report[] = [...allReportsPaginated1.data];
+
+export const expectedReportsPaginated: Report[] = [...allReportsPaginated1.data, ...allReportsPaginated2.data];
