@@ -642,6 +642,8 @@ export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPubli
       ou_employee_id: 'outGt9ju6qP',
       areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
       areq_is_sent_back: false,
+      project_name: 'Fast and Furious',
+      project_code: 'C1234',
     },
   ],
   offset: 0,
