@@ -18,7 +18,6 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { allFilterPills } from 'src/app/core/mock-data/filter-pills.data';
 import {
-  allTeamAdvanceRequestsRes,
   extendedAdvReqDraft,
   extendedAdvReqInquiry,
   myAdvanceRequestData5,
@@ -248,7 +247,7 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
+    it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
         of(publicAdvanceRequestRes2),
         of(publicAdvanceRequestRes2)
