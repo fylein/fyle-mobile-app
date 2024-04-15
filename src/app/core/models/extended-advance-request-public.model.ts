@@ -37,4 +37,5 @@ export interface ExtendedAdvanceRequestPublic {
   amount?: number;
   purpose?: string;
   state?: string;
+  project_code?: string;
 }
