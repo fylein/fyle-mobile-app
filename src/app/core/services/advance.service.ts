@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { AdvancesPlatform } from '../models/platform/advances-platform.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import { PlatformConfig } from '../models/platform/platform-config.model';
 
 const advancesCacheBuster$ = new Subject<void>();
 
@@ -38,7 +39,7 @@ export class AdvanceService {
       adv_settlement_id: advancesPlatform.settlement_id,
       adv_source: advancesPlatform.source,
       areq_id: advancesPlatform.advance_request_id,
-      assignee_department_id: advancesPlatform.employee.department?.id,
+      assignee_department_id: advancesPlatform.employee.department && advancesPlatform.employee.department.id,
       assignee_ou_id: advancesPlatform.employee.id,
       assignee_ou_org_id: advancesPlatform.employee.org_id,
       assignee_us_email: advancesPlatform.employee.user.email,
@@ -121,8 +122,3 @@ export class AdvanceService {
     return data;
   }
 }
-type PlatformConfig = Partial<{
-  offset: number;
-  limit: number;
-  queryParams: Record<string, string | string[]>;
-}>;
