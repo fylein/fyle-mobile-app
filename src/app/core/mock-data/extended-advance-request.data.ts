@@ -722,6 +722,18 @@ export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPubli
   offset: 0,
 };
 
+export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = {
+  ...publicAdvanceRequestRes.data[0],
+  type: 'request',
+  currency: 'USD',
+  amount: 47.99,
+  created_at: new Date('2020-06-01T13:14:54.804Z'),
+  purpose: 'onsite client meeting',
+  state: 'DRAFT',
+  areq_is_sent_back: false,
+  areq_is_pulled_back: true,
+};
+
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   count: 43,
   data: [

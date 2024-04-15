@@ -23,6 +23,7 @@ import {
   publicAdvanceRequestRes3,
   publicAdvanceRequestRes4,
   publicAdvanceRequestRes5,
+  publicAdvanceRequestRes6,
   publicAdvanceRequestResSentBack,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
@@ -207,10 +208,7 @@ describe('MyAdvancesPage', () => {
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
       advanceService.getSpenderAdvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      utilityService.sortAllAdvances.and.returnValue([
-        publicAdvanceRequestRes3,
-        publicAdvanceRequestResSentBack.data[0],
-      ]);
+      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
     });
 
     it('should call setupNetworkWatcher() once, set advancesTaskCount to 4, navigateBack to true and totalTaskCount to 5', () => {
@@ -249,7 +247,7 @@ describe('MyAdvancesPage', () => {
 
     it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
-        of(publicAdvanceRequestRes2),
+        of(publicAdvanceRequestResSentBack),
         of(publicAdvanceRequestResSentBack)
       );
       advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
@@ -275,7 +273,7 @@ describe('MyAdvancesPage', () => {
             order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestResSentBack.data]);
+        expect(res).toEqual([...publicAdvanceRequestResSentBack.data, ...publicAdvanceRequestResSentBack.data]);
       });
     });
 
@@ -335,7 +333,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestResSentBack.data[0]]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
       });
     });
 
@@ -354,7 +352,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestResSentBack.data[0]]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
       });
     });
 
@@ -362,8 +360,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
-      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
+        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
+      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -372,12 +370,10 @@ describe('MyAdvancesPage', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith([]);
         expect(component.updateMyAdvances).toHaveBeenCalledOnceWith([]);
-        expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
-          SortingDirection.ascending,
-          SortingParam.project,
-          [publicAdvanceRequestRes4, publicAdvanceRequestRes4]
-        );
-        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
+        expect(utilityService.sortAllAdvances).toHaveBeenCalledWith(SortingDirection.ascending, SortingParam.project, [
+          publicAdvanceRequestRes4,
+        ]);
+        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
       });
     });
   });

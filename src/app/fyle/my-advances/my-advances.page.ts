@@ -206,6 +206,7 @@ export class MyAdvancesPage implements AfterViewChecked {
                 return sentBackAdvance || plainDraft;
               });
             }
+            console.log('new', newArr);
             newArr = this.utilityService.sortAllAdvances(filters.sortDir, filters.sortParam, newArr);
             return newArr;
           })
