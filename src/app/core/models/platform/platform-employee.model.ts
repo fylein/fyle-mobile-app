@@ -6,7 +6,7 @@ export interface PlatformEmployee {
   user_id: string;
   user: User;
   code: string;
-  department: Department;
-  department_id: string;
+  department?: Department;
+  department_id?: string;
   org_id: string;
 }

@@ -44,7 +44,7 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
       notes: 'onsite client meeting',
       purpose: 'onsite client meeting',
       source: 'WEBAPP',
-      state: 'PAID',
+      state: 'DRAFT',
       project_id: '1234',
       project: {
         id: 1234,

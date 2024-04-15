@@ -12,7 +12,7 @@ import {
   pullBackAdvancedRequests,
   rejectedAdvReqRes,
 } from '../mock-data/advance-requests.data';
-import { advanceReqApprovals } from '../mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from '../mock-data/approval.data';
 import {
   customField2,
   customFields,
@@ -55,6 +55,7 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -154,6 +155,25 @@ describe('AdvanceRequestService', () => {
       });
       // @ts-ignore
       expect(advanceRequestService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
+      done();
+    });
+  });
+
+  it('getAdvanceRequestPlatform(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqiwr3Wwirr';
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+      expect(res).toEqual(publicAdvanceRequestRes.data[0]);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
       done();
     });
   });
@@ -388,6 +408,13 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  it('fixDatesForPlatformFields(): should convert string values to dates', () => {
+    //@ts-ignore
+    expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
+      advanceRequestPlatform.data[0]
+    );
+  });
+
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
     const advID = 'areqa4CojbCAqd';
     //@ts-ignore
@@ -397,6 +424,20 @@ describe('AdvanceRequestService', () => {
       expect(res).toEqual(advanceReqApprovals);
       //@ts-ignore
       expect(advanceRequestService.getApproversByAdvanceRequestId).toHaveBeenCalledOnceWith(advID);
+      done();
+    });
+  });
+
+  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovalsPublic);
+      //@ts-ignore
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
       done();
     });
   });
@@ -462,7 +503,7 @@ describe('AdvanceRequestService', () => {
   });
 
   it('getEReq(): should get advance request', (done) => {
-    apiService.get.and.returnValue(of(singleErqRes));
+    spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(publicAdvanceRequestRes.data[0]));
     dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
     spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
 
