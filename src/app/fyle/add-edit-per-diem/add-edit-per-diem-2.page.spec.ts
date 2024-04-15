@@ -19,6 +19,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -60,7 +61,8 @@ import {
   unflattenedAccount2Data,
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
-import { draftReportPerDiemData, expectedAddedApproverERpts } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated, expectedSingleReport } from 'src/app/core/mock-data/platform-report.data';
+import { reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
 import { txnFieldsData2, txnFieldsData3 } from 'src/app/core/mock-data/expense-field-obj.data';
 import { allowedPerDiem, expectedPerDiems } from 'src/app/core/test-data/per-diem.service.spec.data';
 import { costCentersData, expectedCCdata2, expectedCCdata3 } from 'src/app/core/mock-data/cost-centers.data';
@@ -76,7 +78,6 @@ import {
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
 import { allowedPerDiemRateOptionsData1 } from 'src/app/core/mock-data/allowed-per-diem-rate-options.data';
-import { perDiemReportsData1 } from 'src/app/core/mock-data/per-diem-reports.data';
 import { perDiemRatesData1, perDiemRatesData2 } from 'src/app/core/mock-data/per-diem-rates.data';
 import { currencyObjData5, currencyObjData6 } from 'src/app/core/mock-data/currency-obj.data';
 import {
@@ -104,6 +105,7 @@ export function TestCases2(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let platformReportService: jasmine.SpyObj<ReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -145,6 +147,7 @@ export function TestCases2(getTestBed) {
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+      platformReportService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
       transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
@@ -385,7 +388,7 @@ export function TestCases2(getTestBed) {
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        reportService.getFilteredPendingReports.and.returnValue(of(expectedAddedApproverERpts));
+        platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
         customInputsService.getAll.and.returnValue(of(expenseFieldResponse));
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
         customInputsService.filterByCategory.and.returnValue(expenseFieldResponse);
@@ -700,8 +703,10 @@ export function TestCases2(getTestBed) {
         });
 
         component.reports$.subscribe((res) => {
-          expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
-          expect(res).toEqual(perDiemReportsData1);
+          expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+            state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+          });
+          expect(res).toEqual(reportOptionsData3);
         });
 
         expect(component.setupTfcDefaultValues).toHaveBeenCalledTimes(1);
@@ -899,7 +904,7 @@ export function TestCases2(getTestBed) {
 
       it('should set report if etxn.tx.report_id is defined', fakeAsync(() => {
         const mockTxnData = cloneDeep(unflattenedTxnData);
-        mockTxnData.tx.report_id = 'rp35DK02IvMP';
+        mockTxnData.tx.report_id = 'rprAfNrce73O';
         component.getEditExpense = jasmine.createSpy().and.returnValue(of(mockTxnData));
         component.ionViewWillEnter();
         tick(1000);
@@ -908,7 +913,7 @@ export function TestCases2(getTestBed) {
 
       it('should set report if etxn.tx.report_id is undefined and autoSubmission report name is empty with report state as DRAFT', fakeAsync(() => {
         reportService.getAutoSubmissionReportName.and.returnValue(of(''));
-        reportService.getFilteredPendingReports.and.returnValue(of(draftReportPerDiemData));
+        platformReportService.getAllReportsByParams.and.returnValue(of(expectedSingleReport));
         component.ionViewWillEnter();
         tick(1000);
         expect(component.fg.value).toEqual(perDiemFormValuesData5);

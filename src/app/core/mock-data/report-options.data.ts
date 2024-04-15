@@ -285,22 +285,3 @@ export const reportOptionsData4 = [
     },
   },
 ];
-
-export const reportOptionsData5 = [
-  {
-    label: '#7:  Jan 2023',
-    value: expectedUnflattenedReports[0],
-  },
-  {
-    label: '#7:  Jan 2023',
-    value: expectedUnflattenedReports[1],
-  },
-  {
-    label: '#5:  Jan 2023',
-    value: expectedUnflattenedReports[2],
-  },
-  {
-    label: 'A new report',
-    value: expectedUnflattenedReports[3],
-  },
-];

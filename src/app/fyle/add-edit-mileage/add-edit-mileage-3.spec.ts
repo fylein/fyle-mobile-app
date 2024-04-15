@@ -21,7 +21,7 @@ import {
   transformedOrgCategories,
 } from 'src/app/core/mock-data/org-category.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
-import { expectedErpt, expectedErptPlatform } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { createExpenseProperties4, editExpenseProperties1 } from 'src/app/core/mock-data/track-expense-properties.data';
 import { expenseStatusData, txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
@@ -246,7 +246,7 @@ export function TestCases3(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'trackCreateExpense');
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErpt[0],
+          report: expectedReportsPaginated[0],
         });
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
@@ -269,7 +269,7 @@ export function TestCases3(getTestBed) {
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
             [],
-            expectedErpt[0].rp.id
+            expectedReportsPaginated[0].id
           );
           done();
         });
@@ -286,7 +286,7 @@ export function TestCases3(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'trackCreateExpense');
         spyOn(component, 'getFormValues').and.returnValue({
-          report: { ...expectedErpt[0], rp: undefined },
+          report: undefined,
         });
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
@@ -430,7 +430,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'trackCreateExpense');
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErpt[0],
+          report: expectedReportsPaginated[0],
         });
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         fixture.detectChanges();
@@ -451,7 +451,7 @@ export function TestCases3(getTestBed) {
             unflattenedTxnData.tx,
             unflattenedTxnData.dataUrls as any,
             [],
-            expectedErpt[0].rp.id
+            expectedReportsPaginated[0].id
           );
           done();
         });
@@ -610,7 +610,7 @@ export function TestCases3(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(cloneDeep(platformExpenseDataWithSubCategory)));
         transactionService.transformExpense.and.returnValue(cloneDeep(transformedExpenseDataWithSubCategory));
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         fixture.detectChanges();
@@ -635,7 +635,7 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErptPlatform[0].rp.id, [
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
             transformedExpenseDataWithSubCategory.tx.id,
           ]);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
@@ -651,7 +651,7 @@ export function TestCases3(getTestBed) {
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
@@ -748,7 +748,7 @@ export function TestCases3(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(cloneDeep(platformExpenseDataWithReportId)));
         transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
 
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
@@ -792,7 +792,7 @@ export function TestCases3(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(cloneDeep(platformExpenseDataWithSubCategory)));
         transactionService.transformExpense.and.returnValue(cloneDeep(transformedExpenseDataWithSubCategory));
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
         statusService.findLatestComment.and.returnValue(of('A comment'));
@@ -854,7 +854,7 @@ export function TestCases3(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(cloneDeep(platformExpenseDataWithReportId)));
         transactionService.transformExpense.and.returnValue(transformedExpenseDataWithReportId);
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
 
         spyOn(component, 'getIsPolicyExpense').and.returnValue(true);
@@ -930,7 +930,7 @@ export function TestCases3(getTestBed) {
         component.isConnected$ = of(false);
         component.etxn$ = of(newExpFromFgPlatform);
         spyOn(component, 'getFormValues').and.returnValue({
-          report: expectedErptPlatform[0],
+          report: expectedReportsPaginated[0],
         });
 
         spyOn(component, 'getIsPolicyExpense').and.returnValue(false);
@@ -957,7 +957,7 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedErptPlatform[0].rp.id, [
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
             'txD5hIQgLuR5',
           ]);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
