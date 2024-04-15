@@ -32,6 +32,7 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 import { AdvanceRequestPlatform } from '../models/platform/advance-request-platform.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { AdvanceRequestState } from '../models/advance-request-state.model';
+import { ApprovalPublic } from '../models/approval-public.model';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { PlatformConfig } from '../models/platform/platform-config.model';
 
@@ -86,19 +87,25 @@ export class AdvanceRequestService {
       areq_purpose: advanceRequestPlatform.purpose,
       areq_source: advanceRequestPlatform.source,
       areq_state:
-        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK ? 'INQUIRY' : advanceRequestPlatform.state,
+        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK
+          ? 'INQUIRY'
+          : advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK
+          ? 'DRAFT'
+          : advanceRequestPlatform.state,
       areq_updated_at: advanceRequestPlatform.updated_at,
-      ou_department: advanceRequestPlatform.employee.department.display_name,
-      ou_department_id: advanceRequestPlatform.employee.department.id,
+      ou_department: advanceRequestPlatform.employee.department?.display_name,
+      ou_department_id: advanceRequestPlatform.employee.department?.id,
       ou_id: advanceRequestPlatform.employee_id,
       ou_org_id: advanceRequestPlatform.org_id,
-      ou_sub_department: advanceRequestPlatform.employee.department.id,
+      ou_sub_department: advanceRequestPlatform.employee.department?.id,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
-      areq_custom_field_values: JSON.stringify(advanceRequestPlatform.custom_fields),
+      areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
+      project_name: (advanceRequestPlatform.project && advanceRequestPlatform.project.name) || null,
+      project_code: (advanceRequestPlatform.project && advanceRequestPlatform.project.code),
     };
   }
 
@@ -319,7 +326,7 @@ export class AdvanceRequestService {
   }
 
   getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
-    return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
+    return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
       map((res) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
@@ -344,6 +351,29 @@ export class AdvanceRequestService {
         return filteredApprovers;
       })
     );
+  }
+
+  getActiveApproversByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ApprovalPublic[]> {
+    return this.spenderService
+      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+        params: { id: `eq.${advanceRequestId}` },
+      })
+      .pipe(
+        map((res) => {
+          const approvals = res.data[0].approvals;
+          const filteredApprovers = [];
+          approvals.filter((approver) => {
+            if (approver.state !== 'APPROVAL_DISABLED') {
+              filteredApprovers.push({
+                approver_name: approver.approver_user.full_name,
+                approver_email: approver.approver_user.email,
+                state: approver.state,
+              });
+            }
+          });
+          return filteredApprovers;
+        })
+      );
   }
 
   getMyAdvanceRequestsCount(queryParams = {}): Observable<number> {

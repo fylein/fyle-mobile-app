@@ -5,6 +5,7 @@ import { PlatformEmployee } from './platform-employee.model';
 import { Department } from './v1/department.model';
 import { PlatformApproval } from './platform-approval.model';
 import { PlatformAdvance } from './v1/platform-advance.model';
+import { CustomField } from '../custom_field.model';
 
 export interface AdvanceRequestPlatform {
   advance: PlatformAdvance;
@@ -14,7 +15,7 @@ export interface AdvanceRequestPlatform {
   created_at: Date;
   currency: string;
   approvals: PlatformApproval[];
-  custom_fields: CustomFields[];
+  custom_fields: CustomField[];
   employee: PlatformEmployee;
   employee_id: string;
   id: string;
@@ -24,8 +25,8 @@ export interface AdvanceRequestPlatform {
   notes: string;
   org_id: string;
   policy_amount: number;
-  project: Project;
-  project_id: string;
+  project?: Project;
+  project_id?: string;
   purpose: string;
   seq_num: string;
   source: string;
