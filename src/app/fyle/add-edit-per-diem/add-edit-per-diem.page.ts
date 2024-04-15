@@ -1076,9 +1076,10 @@ export class AddEditPerDiemPage implements OnInit {
       .pipe(
         // Filter out partially approved reports
         map((reports) =>
-          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
-            .map((report) => ({ label: report.purpose, value: report })
-        ),
+          reports
+            .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+            .map((report) => ({ label: report.purpose, value: report }))
+        )
       ) as Observable<
       {
         label: string;
