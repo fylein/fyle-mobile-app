@@ -387,7 +387,6 @@ describe('MyAdvancesPage', () => {
   it('updateMyAdvanceRequests(): should set type, amount, orig_amount, created_at, currency, orig_currency and purpose in my advances request', () => {
     const mockMyAdvanceRequestsData = cloneDeep(publicAdvanceRequestRes5.data);
     const expectedMyAdvanceRequest = component.updateMyAdvanceRequests(mockMyAdvanceRequestsData);
-    console.log(expectedMyAdvanceRequest);
     expect(expectedMyAdvanceRequest).toEqual([publicAdvanceRequestRes3]);
   });
 

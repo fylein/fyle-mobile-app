@@ -511,7 +511,6 @@ describe('AdvanceRequestService', () => {
 
     advanceRequestService.getEReq(advID).subscribe((res) => {
       expect(res).toEqual(singleErqUnflattened);
-      console.log('exp', singleErqRes);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
       done();
