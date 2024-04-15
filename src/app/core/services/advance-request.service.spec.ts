@@ -33,6 +33,7 @@ import {
   extendedAdvReqWithDates,
   extendedAdvReqWithoutDates,
   publicAdvanceRequestRes,
+  publicAdvanceRequestResWithoutProject,
   singleErqRes,
   singleErqUnflattened,
   singleExtendedAdvReqRes,
@@ -54,9 +55,13 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
-import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
+import {
+  advanceRequestPlatform,
+  advanceRequestPlatformWithoutProjects,
+} from '../mock-data/platform/v1/advance-request-platform.data';
+import { cloneDeep } from 'lodash';
 
-describe('AdvanceRequestService', () => {
+fdescribe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiv2Service: jasmine.SpyObj<ApiV2Service>;
@@ -158,22 +163,49 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getAdvanceRequestPlatform(): should get an advance request from ID', (done) => {
-    const advReqID = 'areqiwr3Wwirr';
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
-    // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
-
-    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-      expect(res).toEqual(publicAdvanceRequestRes.data[0]);
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          id: `eq.${advReqID}`,
-        },
-      });
+  describe('getAdvanceRequestPlatform():', () => {
+    it('should get an advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwirr';
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
       // @ts-ignore
-      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
-      done();
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatform.data[0]
+        );
+        done();
+      });
+    });
+    it('should get an advance request from ID without projects in response', (done) => {
+      const advReqID = 'areqiwr3Wwirr';
+      const advanceRequestPlatformWithoutProjectsClone = cloneDeep(advanceRequestPlatformWithoutProjects);
+      spenderService.get.and.returnValue(of(advanceRequestPlatformWithoutProjectsClone));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        advanceRequestPlatformWithoutProjectsClone.data[0]
+      );
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestResWithoutProject.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          publicAdvanceRequestResWithoutProject.data[0]
+        );
+        done();
+      });
     });
   });
 

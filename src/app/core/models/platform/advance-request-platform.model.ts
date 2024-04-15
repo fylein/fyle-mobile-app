@@ -25,8 +25,8 @@ export interface AdvanceRequestPlatform {
   notes: string;
   org_id: string;
   policy_amount: number;
-  project: Project;
-  project_id: string;
+  project?: Project;
+  project_id?: string;
   purpose: string;
   seq_num: string;
   source: string;
