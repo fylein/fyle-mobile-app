@@ -307,7 +307,6 @@ fdescribe('AdvanceRequestService', () => {
     const params = {
       state: 'eq.SENT_BACK',
     };
-    //@ts-ignore
     advanceRequestService.getAdvanceRequestStats(params).subscribe((res) => {
       expect(res).toEqual(statsResponse);
       expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/stats', {
