@@ -264,7 +264,7 @@ export const singleErqRes: ExtendedAdvanceRequestPublic = {
   areq_state: 'DRAFT',
   areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
   ou_department: 'Tech',
-  ou_department_id: 'Tech',
+  ou_department_id: 'deptCjFrZcE0rH',
   ou_id: 'outGt9ju6qP',
   ou_org_id: 'orwruogwnngg',
   ou_sub_department: 'Tech',
