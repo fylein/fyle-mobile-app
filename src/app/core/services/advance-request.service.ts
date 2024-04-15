@@ -83,7 +83,6 @@ export class AdvanceRequestService {
   }
 
   mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
-    console.log(advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK);
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
       areq_advance_id: advanceRequestPlatform.advance_id,
@@ -107,7 +106,7 @@ export class AdvanceRequestService {
         advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
-      areq_is_pulled_back: advanceRequestPlatform.state === 'PULLED_BACK',
+      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
