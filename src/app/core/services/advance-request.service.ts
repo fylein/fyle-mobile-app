@@ -109,7 +109,7 @@ export class AdvanceRequestService {
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
-      project_name: advanceRequestPlatform.project?.display_name,
+      project_name: advanceRequestPlatform.project?.name || null,
       project_code: advanceRequestPlatform.project?.code,
     };
   }
