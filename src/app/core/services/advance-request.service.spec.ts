@@ -215,9 +215,7 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
       spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
       // @ts-ignore
-      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
-        advanceRequestPlatformPulledBack.data[0]
-      );
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformPulledBack.data[0]);
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
         expect(res).toEqual(expectedData.data[0]);
