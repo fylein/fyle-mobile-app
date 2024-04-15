@@ -72,7 +72,18 @@ export class AdvanceRequestService {
     private spenderService: SpenderService
   ) {}
 
+  private getAdvanceRequestState(advanceRequestState: string): string {
+    if (advanceRequestState === 'SENT_BACK') {
+      return 'INQUIRY';
+    } else if (advanceRequestState === 'PULLED_BACK') {
+      return 'DRAFT';
+    }
+
+    return advanceRequestState;
+  }
+
   mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
+    console.log(advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK);
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
       areq_advance_id: advanceRequestPlatform.advance_id,
@@ -86,12 +97,7 @@ export class AdvanceRequestService {
       areq_project_id: advanceRequestPlatform.project_id,
       areq_purpose: advanceRequestPlatform.purpose,
       areq_source: advanceRequestPlatform.source,
-      areq_state:
-        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK
-          ? 'INQUIRY'
-          : advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK
-          ? 'DRAFT'
-          : advanceRequestPlatform.state,
+      areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
       areq_updated_at: advanceRequestPlatform.updated_at,
       ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
       ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
@@ -101,7 +107,7 @@ export class AdvanceRequestService {
         advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
-      areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
+      areq_is_pulled_back: advanceRequestPlatform.state === 'PULLED_BACK',
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
@@ -538,7 +544,7 @@ export class AdvanceRequestService {
   }
 
   private fixDates(data: ExtendedAdvanceRequest): ExtendedAdvanceRequest {
-    if (data?.areq_created_at) {
+    if (data && data.areq_created_at) {
       data.areq_created_at = new Date(data.areq_created_at);
     }
 
@@ -554,7 +560,7 @@ export class AdvanceRequestService {
   }
 
   private fixDatesForPlatformFields(data: AdvanceRequestPlatform): AdvanceRequestPlatform {
-    if (data?.created_at) {
+    if (data.created_at) {
       data.created_at = new Date(data.created_at);
     }
 
