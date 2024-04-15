@@ -55,6 +55,7 @@ import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -154,6 +155,25 @@ describe('AdvanceRequestService', () => {
       });
       // @ts-ignore
       expect(advanceRequestService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
+      done();
+    });
+  });
+
+  it('getAdvanceRequestPlatform(): should get an advance request from ID', (done) => {
+    const advReqID = 'areqiwr3Wwirr';
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    // @ts-ignore
+    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+      expect(res).toEqual(publicAdvanceRequestRes.data[0]);
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: {
+          id: `eq.${advReqID}`,
+        },
+      });
+      // @ts-ignore
+      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
       done();
     });
   });
@@ -386,6 +406,13 @@ describe('AdvanceRequestService', () => {
       //@ts-ignore
       expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
     });
+  });
+
+  it('fixDatesForPlatformFields(): should convert string values to dates', () => {
+    //@ts-ignore
+    expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
+      advanceRequestPlatform.data[0]
+    );
   });
 
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
