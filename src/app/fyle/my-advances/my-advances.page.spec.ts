@@ -23,6 +23,7 @@ import {
   publicAdvanceRequestRes3,
   publicAdvanceRequestRes4,
   publicAdvanceRequestRes5,
+  publicAdvanceRequestResSentBack,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -206,7 +207,10 @@ describe('MyAdvancesPage', () => {
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
       advanceService.getSpenderAdvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+      utilityService.sortAllAdvances.and.returnValue([
+        publicAdvanceRequestRes3,
+        publicAdvanceRequestResSentBack.data[0],
+      ]);
     });
 
     it('should call setupNetworkWatcher() once, set advancesTaskCount to 4, navigateBack to true and totalTaskCount to 5', () => {
@@ -246,7 +250,7 @@ describe('MyAdvancesPage', () => {
     it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
         of(publicAdvanceRequestRes2),
-        of(publicAdvanceRequestRes2)
+        of(publicAdvanceRequestResSentBack)
       );
       advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
       component.ionViewWillEnter();
@@ -271,7 +275,7 @@ describe('MyAdvancesPage', () => {
             order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestRes2.data]);
+        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestResSentBack.data]);
       });
     });
 
@@ -318,7 +322,7 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    it('should set advances$ equals to array containing extendedAdvReqDraft, extendedAdvReqInquiry', () => {
+    it('should set advances$ equals to array containing draft and sent back advance requests', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.ionViewWillEnter();
@@ -331,7 +335,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestResSentBack.data[0]]);
       });
     });
 
@@ -350,7 +354,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestResSentBack.data[0]]);
       });
     });
 
