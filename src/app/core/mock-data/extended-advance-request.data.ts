@@ -1,4 +1,5 @@
 import { ApiV2Response } from '../models/api-v2.model';
+import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
 export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
@@ -559,6 +560,45 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   limit: 10,
   offset: 0,
   url: '/v2/advance_requests',
+};
+
+export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  count: 1,
+  data: [
+    {
+      areq_advance_request_number: 'A/2020/10/T/95',
+      areq_advance_id: 'advjrgwlk2Q',
+      areq_amount: 47.99,
+      areq_approved_at: new Date('2020-06-14T13:14:55.201Z'),
+      areq_created_at: new Date('2020-06-01T13:14:54.804Z'),
+      areq_currency: 'USD',
+      areq_id: 'areqiwr3Wwirr',
+      areq_notes: 'onsite client meeting',
+      areq_org_user_id: 'outGt9ju6qP',
+      areq_project_id: '1234',
+      areq_purpose: 'onsite client meeting',
+      areq_source: 'WEBAPP',
+      areq_state: 'PAID',
+      areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
+      ou_department: 'Tech',
+      ou_department_id: 'deptCjFrZcE0rH',
+      ou_id: 'outGt9ju6qP',
+      ou_org_id: 'orwruogwnngg',
+      ou_sub_department: 'deptCjFrZcE0rH',
+      us_email: 'john.doe@example.com',
+      us_full_name: 'John Doe',
+      areq_is_pulled_back: false,
+      ou_employee_id: 'outGt9ju6qP',
+      areq_custom_field_values: '[{"name":"checking","value":"true","type":"BOOLEAN"}]',
+      areq_is_sent_back: false,
+    },
+  ],
+  offset: 0,
+};
+
+export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  ...publicAdvanceRequestRes,
+  count: 250,
 };
 
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {

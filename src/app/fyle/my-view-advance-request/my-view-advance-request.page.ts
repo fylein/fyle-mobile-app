@@ -5,7 +5,6 @@ import { forkJoin, from, Observable } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';

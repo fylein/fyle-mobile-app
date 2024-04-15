@@ -18,13 +18,14 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { allFilterPills } from 'src/app/core/mock-data/filter-pills.data';
 import {
-  allTeamAdvanceRequestsRes,
   extendedAdvReqDraft,
   extendedAdvReqInquiry,
   myAdvanceRequestData5,
   myAdvanceRequestsData2,
   myAdvanceRequestsData3,
   myAdvanceRequestsData4,
+  publicAdvanceRequestRes,
+  publicAdvanceRequestRes2,
   singleExtendedAdvReqRes,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
@@ -62,8 +63,8 @@ describe('MyAdvancesPage', () => {
 
   beforeEach(waitForAsync(() => {
     let advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getMyAdvanceRequestsCount',
-      'getMyadvanceRequests',
+      'getSpenderAdvanceRequestsCount',
+      'getSpenderAdvanceRequests',
       'destroyAdvanceRequestsCacheBuster',
     ]);
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
@@ -204,8 +205,8 @@ describe('MyAdvancesPage', () => {
       tasksService.getAdvancesTaskCount.and.returnValue(of(4));
       tasksService.getTotalTaskCount.and.returnValue(of(5));
       filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
-      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(1));
-      advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
+      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(1));
+      advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(publicAdvanceRequestRes));
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
       advanceService.getMyadvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
@@ -228,53 +229,53 @@ describe('MyAdvancesPage', () => {
       expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
     });
 
-    it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
+    it('should set myAdvancerequests$ to publicAdvanceRequestRes.data', () => {
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
-          areq_advance_id: 'is.null',
+        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+          advance_id: 'eq.null',
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
-          limit: 10,
+          limit: 200,
           queryParams: {
-            areq_advance_id: 'is.null',
-            order: 'areq_created_at.desc,areq_id.desc',
+            advance_id: 'eq.null',
+            order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual(singleExtendedAdvReqRes.data);
+        expect(res).toEqual(publicAdvanceRequestRes.data);
       });
     });
 
-    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
-      advanceRequestService.getMyadvanceRequests.and.returnValues(
-        of(myAdvanceRequestsData2),
-        of(allTeamAdvanceRequestsRes)
+    it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
+      advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
+        of(publicAdvanceRequestRes2),
+        of(publicAdvanceRequestRes2)
       );
-      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
+      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
-          areq_advance_id: 'is.null',
+        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+          advance_id: 'eq.null',
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledTimes(2);
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledTimes(2);
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
           offset: 0,
-          limit: 10,
+          limit: 200,
           queryParams: {
-            areq_advance_id: 'is.null',
-            order: 'areq_created_at.desc,areq_id.desc',
+            advance_id: 'eq.null',
+            order: 'created_at.desc,id.desc',
           },
         });
-        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
-          offset: 10,
-          limit: 10,
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
+          offset: 200,
+          limit: 200,
           queryParams: {
-            areq_advance_id: 'is.null',
-            order: 'areq_created_at.desc,areq_id.desc',
+            advance_id: 'eq.null',
+            order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual([...myAdvanceRequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
+        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestRes2.data]);
       });
     });
 
@@ -324,7 +325,7 @@ describe('MyAdvancesPage', () => {
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data);
+        expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
         expect(component.updateMyAdvances).toHaveBeenCalledOnceWith(singleExtendedAdvancesData.data);
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,

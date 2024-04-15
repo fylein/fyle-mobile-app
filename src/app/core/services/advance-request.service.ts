@@ -79,7 +79,7 @@ export class AdvanceRequestService {
 
   mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
     return {
-      areq_advance_request_number: advanceRequestPlatform.advance.seq_num,
+      areq_advance_request_number: advanceRequestPlatform.seq_num,
       areq_advance_id: advanceRequestPlatform.advance_id,
       areq_amount: advanceRequestPlatform.amount,
       areq_approved_at: advanceRequestPlatform.last_approved_at,
@@ -197,7 +197,7 @@ export class AdvanceRequestService {
   getAdvanceRequestPlatform(id: string): Observable<ExtendedAdvanceRequestPublic> {
     return this.spenderService
       .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
-        params: { id },
+        params: { id: `eq.${id}` },
       })
       .pipe(
         map((res) => {
