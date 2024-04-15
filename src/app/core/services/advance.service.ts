@@ -43,9 +43,9 @@ export class AdvanceService {
       assignee_ou_org_id: advancesPlatform.employee.org_id,
       assignee_us_email: advancesPlatform.employee.user.email,
       assignee_us_full_name: advancesPlatform.employee.user.full_name,
-      project_code: advancesPlatform.project?.code,
-      project_id: advancesPlatform.project?.id,
-      project_name: advancesPlatform.project?.display_name,
+      project_code: advancesPlatform.project && advancesPlatform.project.code,
+      project_id: advancesPlatform.project && advancesPlatform.project.id,
+      project_name: advancesPlatform.project && advancesPlatform.project.name,
       type: 'advance',
       creator_us_full_name: advancesPlatform.creator_user.full_name,
     };

@@ -38,4 +38,5 @@ export interface ExtendedAdvanceRequestPublic {
   purpose?: string;
   state?: string;
   project_code?: string;
+  adv_created_at?: Date;
 }

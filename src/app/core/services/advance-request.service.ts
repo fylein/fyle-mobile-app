@@ -93,11 +93,12 @@ export class AdvanceRequestService {
           ? 'DRAFT'
           : advanceRequestPlatform.state,
       areq_updated_at: advanceRequestPlatform.updated_at,
-      ou_department: advanceRequestPlatform.employee.department?.display_name,
-      ou_department_id: advanceRequestPlatform.employee.department?.id,
+      ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
+      ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
       ou_id: advanceRequestPlatform.employee_id,
       ou_org_id: advanceRequestPlatform.org_id,
-      ou_sub_department: advanceRequestPlatform.employee.department?.id,
+      ou_sub_department:
+        advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.sub_department,
       us_email: advanceRequestPlatform.user.email,
       us_full_name: advanceRequestPlatform.user.full_name,
       areq_is_pulled_back: advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK,
@@ -105,7 +106,7 @@ export class AdvanceRequestService {
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
       project_name: (advanceRequestPlatform.project && advanceRequestPlatform.project.name) || null,
-      project_code: (advanceRequestPlatform.project && advanceRequestPlatform.project.code),
+      project_code: advanceRequestPlatform.project && advanceRequestPlatform.project.code,
     };
   }
 
