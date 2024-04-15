@@ -15,7 +15,7 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
         advance_request_id: 'advjrgwlk2Q',
         seq_num: 'A/2020/10/T/95',
       },
-      id: 'areqiwr3Wwiri',
+      id: 'areqiwr3Wwirr',
       user_id: 'uswjwgnwwgo',
       user: {
         id: 'uswjwgnwwgo',
@@ -100,7 +100,7 @@ export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceReques
         advance_request_id: 'advjrgwlk2Q',
         seq_num: 'A/2020/10/T/95',
       },
-      id: 'areqiwr3Wwiri',
+      id: 'areqiwr3Wwirl',
       user_id: 'uswjwgnwwgo',
       user: {
         id: 'uswjwgnwwgo',

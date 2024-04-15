@@ -174,8 +174,6 @@ describe('AdvanceRequestService', () => {
       spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-        console.log('exp', expectedData.data[0]);
-        console.log('actual', res);
         expect(res).toEqual(expectedData.data[0]);
         expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
@@ -191,15 +189,13 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get a sent back advance request from ID', (done) => {
-      const advReqID = 'areqiwr3Wwiri';
+      const advReqID = 'areqiwr3Wwirk';
       const expectedData = cloneDeep(publicAdvanceRequestResSentBack);
       spenderService.get.and.returnValue(of(advanceRequestPlatformSentBack));
       // @ts-ignore
       spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformSentBack.data[0]);
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-        console.log('exp1', expectedData.data[0]);
-        console.log('actual', res);
         expect(res).toEqual(expectedData.data[0]);
         expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
@@ -215,19 +211,15 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get a pulled back advance request from ID', (done) => {
-      const advReqID = 'areqiwr3Wwiri';
+      const advReqID = 'areqiwr3Wwirr';
       const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
       spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
-      console.log('state for pulled back', advanceRequestPlatformPulledBack.data[0].state);
-      console.log('state for pulled back pub', publicAdvanceRequestResPulledBack.data[0].areq_state);
       // @ts-ignore
       spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
         advanceRequestPlatformPulledBack.data[0]
       );
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-        console.log('exp2', expectedData.data[0]);
-        console.log('actua2', res);
         expect(res).toEqual(expectedData.data[0]);
         expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
