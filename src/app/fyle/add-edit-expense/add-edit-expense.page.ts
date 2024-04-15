@@ -984,6 +984,7 @@ export class AddEditExpensePage implements OnInit {
       'failure',
       ['msb-failure']
     );
+    this.trackingService.spenderTriedSplittingExpenseWithPendingTxn();
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
