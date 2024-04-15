@@ -148,13 +148,13 @@ export class MyAdvancesPage implements AfterViewChecked {
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
       concatMap((count) => {
-        count = count > 10 ? count / 10 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
       concatMap((count) =>
         this.advanceService.getSpenderAdvances({
-          offset: 10 * count,
-          limit: 10,
+          offset: 200 * count,
+          limit: 200,
           queryParams: { order: 'created_at.desc,id.desc' },
         })
       ),
