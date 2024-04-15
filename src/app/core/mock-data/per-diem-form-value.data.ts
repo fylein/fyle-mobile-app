@@ -5,7 +5,7 @@ import { currencyObjData6 } from './currency-obj.data';
 import { projects } from './extended-projects.data';
 import { orgCategoryData1 } from './org-category.data';
 import { perDiemRatesData1 } from './per-diem-rates.data';
-import { draftReportPerDiemData, expectedAddedApproverERpts } from './report-unflattened.data';
+import { expectedReportsPaginated } from './platform-report.data';
 
 export const perDiemFormValuesData1: Partial<PerDiemFormValue> = {
   paymentMode: multiplePaymentModesData[0],
@@ -47,12 +47,12 @@ export const perDiemFormValuesData3: Partial<PerDiemFormValue> = {
 
 export const perDiemFormValuesData4: Partial<PerDiemFormValue> = {
   ...perDiemFormValuesData1,
-  report: expectedAddedApproverERpts[0],
+  report: expectedReportsPaginated[0],
 };
 
 export const perDiemFormValuesData5: Partial<PerDiemFormValue> = {
   ...perDiemFormValuesData1,
-  report: draftReportPerDiemData[0],
+  report: expectedReportsPaginated[0],
 };
 
 export const perDiemFormValuesData6: Partial<PerDiemFormValue> = {
