@@ -4,5 +4,5 @@ export interface CustomFields {
   name: string;
   value: string | string[] | boolean | number | Record<string, string | string[] | boolean>;
   type: CustomFieldTypes;
-  is_enabled: boolean;
+  is_enabled?: boolean;
 }
