@@ -81,7 +81,7 @@ export const advancePlatform: PlatformApiResponse<AdvancesPlatform> = {
       user_id: 'usvKA4X8Ugcr',
       advance_request: {
         id: 'areq1234',
-        last_approved_at: new Date('2024-03-11T08:32:40.861Z'),
+        last_approved_at: new Date('2024-03-14T08:32:40.861Z'),
       },
     },
   ],
