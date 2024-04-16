@@ -83,6 +83,36 @@ describe('HttpConfigInterceptor', () => {
     expect(httpInterceptor).toBeTruthy();
   });
 
+  describe('getUrlWithoutQueryParam:', () => {
+    it('should return value truncating ;', () => {
+      const result = httpInterceptor.getUrlWithoutQueryParam(
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+      );
+      expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
+    });
+
+    it('should return value truncating ?', () => {
+      const result = httpInterceptor.getUrlWithoutQueryParam(
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+      );
+      expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
+    });
+
+    it('should return value truncating ;?', () => {
+      const result = httpInterceptor.getUrlWithoutQueryParam(
+        'https://staging1.fyle.tech/enterprise/add_edit_expense;?dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+      );
+      expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
+    });
+
+    it('should return value truncating ?;', () => {
+      const result = httpInterceptor.getUrlWithoutQueryParam(
+        'https://staging1.fyle.tech/enterprise/add_edit_expense?;dataUrl=data:image%2Fjpeg%3Bbase64,%2F9j'
+      );
+      expect(result).toEqual('https://staging1.fyle.tech/enterprise/add_edit_expense');
+    });
+  });
+
   describe('secureUrl():', () => {
     it('should return true for a secure URL', () => {
       const result = httpInterceptor.secureUrl('https://staging1.fyle.tech/app/api/auth/logout');
