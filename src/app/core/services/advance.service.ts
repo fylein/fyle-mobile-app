@@ -49,6 +49,7 @@ export class AdvanceService {
       project_name: advancesPlatform.project && advancesPlatform.project.name,
       type: 'advance',
       creator_us_full_name: advancesPlatform.creator_user.full_name,
+      areq_approved_at: advancesPlatform.advance_request && advancesPlatform.advance_request.last_approved_at,
     };
   }
 

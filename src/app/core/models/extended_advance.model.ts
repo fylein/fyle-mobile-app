@@ -33,4 +33,5 @@ export interface ExtendedAdvance {
   orig_currency?: string;
   purpose?: string;
   creator_us_full_name: string;
+  areq_approved_at: Date;
 }
