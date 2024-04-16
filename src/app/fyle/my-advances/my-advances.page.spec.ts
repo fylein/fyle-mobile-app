@@ -247,8 +247,8 @@ describe('MyAdvancesPage', () => {
 
     it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
       advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
-        of(publicAdvanceRequestResSentBack),
-        of(publicAdvanceRequestResSentBack)
+        of(publicAdvanceRequestRes2),
+        of(publicAdvanceRequestRes2)
       );
       advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
       component.ionViewWillEnter();
@@ -273,7 +273,7 @@ describe('MyAdvancesPage', () => {
             order: 'created_at.desc,id.desc',
           },
         });
-        expect(res).toEqual([...publicAdvanceRequestResSentBack.data, ...publicAdvanceRequestResSentBack.data]);
+        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestRes2.data]);
       });
     });
 
