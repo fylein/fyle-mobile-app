@@ -37,4 +37,8 @@ export interface AdvancesPlatform {
   employee_id: string;
   employee: PlatformEmployee;
   creator_user: User;
+  advance_request?: {
+    id: string;
+    last_approved_at: Date;
+  };
 }

@@ -194,8 +194,7 @@ export class MyAdvancesPage implements AfterViewChecked {
               newArr = advArray.filter((adv) => {
                 const sentBackAdvance =
                   filters.state.includes(AdvancesStates.sentBack) &&
-                  adv.areq_state === 'DRAFT' &&
-                  adv.areq_is_sent_back;
+                  ((adv.areq_state === 'DRAFT' && adv.areq_is_sent_back) || adv.areq_state === 'INQUIRY');
 
                 const plainDraft =
                   filters.state.includes(AdvancesStates.draft) &&

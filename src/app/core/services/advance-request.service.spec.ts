@@ -33,6 +33,8 @@ import {
   extendedAdvReqWithDates,
   extendedAdvReqWithoutDates,
   publicAdvanceRequestRes,
+  publicAdvanceRequestResPulledBack,
+  publicAdvanceRequestResSentBack,
   singleErqRes,
   singleErqUnflattened,
   singleExtendedAdvReqRes,
@@ -54,7 +56,11 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
-import { advanceRequestPlatform } from '../mock-data/platform/v1/advance-request-platform.data';
+import {
+  advanceRequestPlatform,
+  advanceRequestPlatformPulledBack,
+  advanceRequestPlatformSentBack,
+} from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
 
 describe('AdvanceRequestService', () => {
@@ -159,22 +165,71 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getAdvanceRequestPlatform(): should get an advance request from ID', (done) => {
-    const advReqID = 'areqiwr3Wwirr';
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
-    // @ts-ignore
-    spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
-
-    advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
-      expect(res).toEqual(publicAdvanceRequestRes.data[0]);
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          id: `eq.${advReqID}`,
-        },
-      });
+  describe('getAdvanceRequestPlatform(): ', () => {
+    it('should get an advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwiri';
+      const expectedData = cloneDeep(publicAdvanceRequestRes);
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
       // @ts-ignore
-      expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(advanceRequestPlatform.data[0]);
-      done();
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatform.data[0]
+        );
+        done();
+      });
+    });
+
+    it('should get a sent back advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwirk';
+      const expectedData = cloneDeep(publicAdvanceRequestResSentBack);
+      spenderService.get.and.returnValue(of(advanceRequestPlatformSentBack));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformSentBack.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatformSentBack.data[0]
+        );
+        done();
+      });
+    });
+
+    it('should get a pulled back advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwirr';
+      const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
+      spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformPulledBack.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatformPulledBack.data[0]
+        );
+        done();
+      });
     });
   });
 
@@ -630,56 +685,92 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getSpenderAdvanceRequests(): should get all advance request', (done) => {
-    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+  describe('getSpenderAdvanceRequests():', () => {
+    it('should get all advance request', (done) => {
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
 
-    const param = {
-      offset: 0,
-      limit: 200,
-      queryParams: {
-        advance_id: 'eq.null',
-        order: 'created_at.desc,id.desc',
-      },
-    };
-
-    advanceRequestService.getSpenderAdvanceRequests(param).subscribe((res) => {
-      expect(res).toEqual(publicAdvanceRequestRes);
-      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          offset: param.offset,
-          limit: param.limit,
-          ...param.queryParams,
+      const param = {
+        offset: 0,
+        limit: 200,
+        queryParams: {
+          advance_id: 'eq.null',
+          order: 'created_at.desc,id.desc',
         },
+      };
+
+      advanceRequestService.getSpenderAdvanceRequests(param).subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: param.offset,
+            limit: param.limit,
+            ...param.queryParams,
+          },
+        });
+        done();
       });
-      done();
+    });
+    it('should get all advance request with default params', (done) => {
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
+
+      advanceRequestService.getSpenderAdvanceRequests().subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: 0,
+            limit: 200,
+            advance_id: 'eq.null',
+          },
+        });
+        done();
+      });
     });
   });
 
-  it('getMyadvanceRequests(): should get all advance request', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+  describe('getMyadvanceRequests():', () => {
+    it('should get all advance request', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
 
-    const param = {
-      offset: 0,
-      limit: 10,
-      queryParams: {
-        areq_advance_id: 'is.null',
-        order: 'areq_created_at.desc,areq_id.desc',
-      },
-    };
-
-    advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
-      expect(res).toEqual(allAdvanceRequestsRes);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          offset: param.offset,
-          limit: param.limit,
-          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
-          ...param.queryParams,
+      const param = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          areq_advance_id: 'is.null',
+          order: 'areq_created_at.desc,areq_id.desc',
         },
+      };
+
+      advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
+        expect(res).toEqual(allAdvanceRequestsRes);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: param.offset,
+            limit: param.limit,
+            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+            ...param.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
       });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
+    });
+    it('should get all advance request with default params', (done) => {
+      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+
+      advanceRequestService.getMyadvanceRequests().subscribe((res) => {
+        expect(res).toEqual(allAdvanceRequestsRes);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: 0,
+            limit: 10,
+            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
     });
   });
 

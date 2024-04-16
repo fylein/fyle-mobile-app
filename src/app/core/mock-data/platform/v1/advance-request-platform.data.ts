@@ -1,4 +1,6 @@
+import { cloneDeep } from 'lodash';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
+import { AdvanceRequestState } from 'src/app/core/models/advance-request-state.model';
 import { AdvanceRequestPlatform } from 'src/app/core/models/platform/advance-request-platform.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
@@ -83,6 +85,30 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
           type: CustomFieldTypes.BOOLEAN,
         },
       ],
+    },
+  ],
+};
+
+export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+  count: 1,
+  offset: 0,
+  data: [
+    {
+      ...cloneDeep(advanceRequestPlatform.data[0]),
+      state: 'PULLED_BACK',
+      id: 'areqiwr3Wwirl',
+    },
+  ],
+};
+
+export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+  count: 1,
+  offset: 0,
+  data: [
+    {
+      ...cloneDeep(advanceRequestPlatform.data[0]),
+      id: 'areqiwr3Wwirk',
+      state: 'SENT_BACK',
     },
   ],
 };

@@ -1,3 +1,4 @@
+import { cloneDeep } from 'lodash';
 import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
@@ -587,10 +588,39 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
   offset: 0,
 };
 
+export const publicAdvanceRequestResSentBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  count: 1,
+  data: [
+    {
+      ...cloneDeep(publicAdvanceRequestRes.data[0]),
+      areq_state: 'INQUIRY',
+      areq_is_pulled_back: false,
+      areq_is_sent_back: true,
+      areq_id: 'areqiwr3Wwirk',
+    },
+  ],
+  offset: 0,
+};
+
+export const publicAdvanceRequestResPulledBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+  count: 1,
+  data: [
+    {
+      ...cloneDeep(publicAdvanceRequestRes.data[0]),
+      areq_state: 'DRAFT',
+      areq_is_pulled_back: true,
+      areq_is_sent_back: false,
+      areq_id: 'areqiwr3Wwirl',
+    },
+  ],
+  offset: 0,
+};
+
 export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
   ...publicAdvanceRequestRes,
   count: 250,
 };
+
 export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = {
   ...publicAdvanceRequestRes.data[0],
   type: 'request',
@@ -647,6 +677,18 @@ export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPubli
     },
   ],
   offset: 0,
+};
+
+export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = {
+  ...publicAdvanceRequestRes.data[0],
+  type: 'request',
+  currency: 'USD',
+  amount: 47.99,
+  created_at: new Date('2020-06-01T13:14:54.804Z'),
+  purpose: 'onsite client meeting',
+  state: 'DRAFT',
+  areq_is_sent_back: false,
+  areq_is_pulled_back: true,
 };
 
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {

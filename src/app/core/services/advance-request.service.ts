@@ -72,6 +72,16 @@ export class AdvanceRequestService {
     private spenderService: SpenderService
   ) {}
 
+  private getAdvanceRequestState(advanceRequestState: string): string {
+    if (advanceRequestState === 'SENT_BACK') {
+      return 'INQUIRY';
+    } else if (advanceRequestState === 'PULLED_BACK') {
+      return 'DRAFT';
+    }
+
+    return advanceRequestState;
+  }
+
   mapAdvanceRequest(advanceRequestPlatform: AdvanceRequestPlatform): ExtendedAdvanceRequestPublic {
     return {
       areq_advance_request_number: advanceRequestPlatform.seq_num,
@@ -86,12 +96,7 @@ export class AdvanceRequestService {
       areq_project_id: advanceRequestPlatform.project_id,
       areq_purpose: advanceRequestPlatform.purpose,
       areq_source: advanceRequestPlatform.source,
-      areq_state:
-        advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK
-          ? 'INQUIRY'
-          : advanceRequestPlatform.state === AdvanceRequestState.PULLED_BACK
-          ? 'DRAFT'
-          : advanceRequestPlatform.state,
+      areq_state: this.getAdvanceRequestState(advanceRequestPlatform.state),
       areq_updated_at: advanceRequestPlatform.updated_at,
       ou_department: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.name,
       ou_department_id: advanceRequestPlatform.employee.department && advanceRequestPlatform.employee.department.id,
@@ -105,7 +110,7 @@ export class AdvanceRequestService {
       ou_employee_id: advanceRequestPlatform.employee_id,
       areq_custom_field_values: advanceRequestPlatform.custom_fields,
       areq_is_sent_back: advanceRequestPlatform.state === AdvanceRequestState.SENT_BACK,
-      project_name: (advanceRequestPlatform.project && advanceRequestPlatform.project.name) || null,
+      project_name: advanceRequestPlatform.project && advanceRequestPlatform.project.name,
       project_code: advanceRequestPlatform.project && advanceRequestPlatform.project.code,
     };
   }
@@ -536,7 +541,7 @@ export class AdvanceRequestService {
   }
 
   private fixDates(data: ExtendedAdvanceRequest): ExtendedAdvanceRequest {
-    if (data?.areq_created_at) {
+    if (data && data.areq_created_at) {
       data.areq_created_at = new Date(data.areq_created_at);
     }
 
@@ -552,7 +557,7 @@ export class AdvanceRequestService {
   }
 
   private fixDatesForPlatformFields(data: AdvanceRequestPlatform): AdvanceRequestPlatform {
-    if (data?.created_at) {
+    if (data.created_at) {
       data.created_at = new Date(data.created_at);
     }
 

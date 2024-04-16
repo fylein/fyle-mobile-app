@@ -23,6 +23,8 @@ import {
   publicAdvanceRequestRes3,
   publicAdvanceRequestRes4,
   publicAdvanceRequestRes5,
+  publicAdvanceRequestRes6,
+  publicAdvanceRequestResSentBack,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -318,7 +320,7 @@ describe('MyAdvancesPage', () => {
       });
     });
 
-    it('should set advances$ equals to array containing extendedAdvReqDraft, extendedAdvReqInquiry', () => {
+    it('should set advances$ equals to array containing draft and sent back advance requests', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.ionViewWillEnter();
@@ -358,8 +360,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
-      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
+        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
+      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -368,12 +370,10 @@ describe('MyAdvancesPage', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith([]);
         expect(component.updateMyAdvances).toHaveBeenCalledOnceWith([]);
-        expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
-          SortingDirection.ascending,
-          SortingParam.project,
-          [publicAdvanceRequestRes4, publicAdvanceRequestRes4]
-        );
-        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes4]);
+        expect(utilityService.sortAllAdvances).toHaveBeenCalledWith(SortingDirection.ascending, SortingParam.project, [
+          publicAdvanceRequestRes4,
+        ]);
+        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
       });
     });
   });
