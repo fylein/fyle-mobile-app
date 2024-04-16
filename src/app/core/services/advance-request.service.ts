@@ -132,10 +132,8 @@ export class AdvanceRequestService {
       offset: config.offset,
       limit: config.limit,
       advance_id: 'eq.null',
+      ...config.queryParams,
     };
-    if (config.queryParams.order) {
-      params['order'] = config.queryParams.order;
-    }
     return this.spenderService
       .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
         params,
