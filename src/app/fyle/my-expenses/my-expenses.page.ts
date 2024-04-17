@@ -740,6 +740,7 @@ export class MyExpensesPage implements OnInit {
             const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
             if (pendingTransactions.length === 0) {
               this.doRefresh();
+              this.pendingTransactions = [];
             }
           })
         )
@@ -748,6 +749,7 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?: { target?: { complete?: () => void } }): void {
+    console.log('refreshed');
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
