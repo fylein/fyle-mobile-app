@@ -1,9 +1,6 @@
 module.exports = function (config) {
   var isParallelDisabled = process && process.env && process.env.npm_lifecycle_event === 'test:no-parallel';
 
-  if (isParallelDisabled) {
-
-  }
   config.set({
     basePath: '',
     frameworks: isParallelDisabled ? ['jasmine', '@angular-devkit/build-angular'] : ['parallel', 'jasmine', '@angular-devkit/build-angular'],
