@@ -85,12 +85,22 @@
 
         <div class="view-advance--divider"></div>
 
-        <div *ngIf="advanceRequest$|async as advanceRequest" class="view-advance--element">
+        <!-- Adding true in else as this field should still be visible in case there are no advance requests -->
+        <div *ngIf="!advance.areq_id" class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Additional Notes'"
-            [value]="advanceRequest.areq_notes || '-'"
+            [value]="'-'"
+          ></app-fy-statistic>
+        </div>
+
+        <div *ngIf="advance.areq_id && advanceRequest$|async as advanceRequest" class="view-advance--element">
+          <app-fy-statistic
+            [icon]="'../../../../assets/svg/list.svg'"
+            [type]="StatisticTypes.STRING"
+            [label]="'Additional Notes'"
+            [value]="advanceRequest?.areq_notes || '-'"
           ></app-fy-statistic>
         </div>
       </div>
