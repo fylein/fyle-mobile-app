@@ -749,7 +749,6 @@ export class MyExpensesPage implements OnInit {
   }
 
   doRefresh(event?: { target?: { complete?: () => void } }): void {
-    console.log('refreshed');
     this.currentPageNumber = 1;
     this.selectedElements = [];
     if (this.selectionMode) {
