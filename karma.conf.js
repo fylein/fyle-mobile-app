@@ -4,7 +4,8 @@ module.exports = function (config) {
   config.set({
     basePath: '',
     frameworks: isParallelDisabled ? ['jasmine', '@angular-devkit/build-angular'] : ['parallel', 'jasmine', '@angular-devkit/build-angular'],
-    plugins: isParallelDisabled ? [
+    plugins: isParallelDisabled ? 
+    [
       require('karma-jasmine'),
       require('karma-chrome-launcher'),
       require('karma-jasmine-html-reporter'),
