@@ -85,12 +85,12 @@
 
         <div class="view-advance--divider"></div>
 
-        <div class="view-advance--element">
+        <div *ngIf="advanceRequest$|async as advanceRequest" class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
             [type]="StatisticTypes.STRING"
             [label]="'Additional Notes'"
-            [value]="advance.areq_notes || '-'"
+            [value]="advanceRequest.areq_notes || '-'"
           ></app-fy-statistic>
         </div>
       </div>

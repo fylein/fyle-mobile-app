@@ -34,4 +34,5 @@ export interface ExtendedAdvance {
   purpose?: string;
   creator_us_full_name: string;
   areq_approved_at: Date;
+  areq_notes?: string;
 }
