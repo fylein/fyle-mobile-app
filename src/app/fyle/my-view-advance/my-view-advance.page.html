@@ -85,7 +85,7 @@
 
         <div class="view-advance--divider"></div>
 
-        <!-- Adding true in else as this field should still be visible in case there are no advance requests -->
+        <!-- In case there is no advance request associated with the advance, there will be no notes -->
         <div *ngIf="!advance.areq_id" class="view-advance--element">
           <app-fy-statistic
             [icon]="'../../../../assets/svg/list.svg'"
