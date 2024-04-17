@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { from, Observable } from 'rxjs';
-import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
+import { finalize, shareReplay, switchMap } from 'rxjs/operators';
 import { AdvanceService } from 'src/app/core/services/advance.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
