@@ -1,6 +1,4 @@
-import { cloneDeep } from 'lodash';
 import { ApiV2Response } from '../models/api-v2.model';
-import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
 export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
@@ -249,40 +247,51 @@ export const withoutDatesAdv = {
   us_full_name: 'Abhishek Jain',
 };
 
-export const singleErqRes: ExtendedAdvanceRequestPublic = {
-  areq_advance_request_number: 'A/2020/10/T/95',
-  areq_advance_id: 'advjrgwlk2Q',
-  areq_amount: 47.99,
-  areq_approved_at: new Date('2020-06-14T13:14:55.201Z'),
-  areq_created_at: new Date('2020-06-01T13:14:54.804Z'),
+export const singleErqRes: ExtendedAdvanceRequest = {
+  areq_id: 'areqGzKF1Tne23',
+  areq_created_at: new Date('2023-02-23T13:16:15.260Z'),
+  areq_approved_at: null,
+  areq_purpose: 'some',
+  areq_notes: null,
+  areq_state: 'SUBMITTED',
   areq_currency: 'USD',
-  areq_id: 'areqiwr3Wwirr',
-  areq_notes: 'onsite client meeting',
-  areq_org_user_id: 'outGt9ju6qP',
-  areq_project_id: '1234',
-  areq_purpose: 'onsite client meeting',
-  areq_source: 'WEBAPP',
-  areq_state: 'DRAFT',
-  areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
-  ou_department: 'Tech',
-  ou_department_id: 'deptCjFrZcE0rH',
-  ou_id: 'outGt9ju6qP',
-  ou_org_id: 'orwruogwnngg',
-  ou_sub_department: 'Tech',
-  us_email: 'john.doe@example.com',
-  us_full_name: 'John Doe',
-  areq_is_pulled_back: false,
-  ou_employee_id: 'outGt9ju6qP',
-  areq_custom_field_values: [
-    {
-      name: 'checking',
-      value: 'true',
-      type: 'BOOLEAN',
-    },
-  ],
-  areq_is_sent_back: false,
-  project_name: 'Fast and Furious',
-  project_code: 'C1234',
+  areq_amount: 100,
+  areq_org_user_id: 'ouX8dwsbLCLv',
+  areq_advance_id: null,
+  areq_policy_amount: null,
+  areq_policy_flag: null,
+  areq_policy_state: 'SUCCESS',
+  areq_project_id: null,
+  areq_custom_field_values: null,
+  areq_updated_at: new Date('2023-02-23T14:16:52.396Z'),
+  areq_source: 'MOBILE',
+  areq_advance_request_number: 'AR/2023/02/R/4',
+  areq_updated_by: null,
+  areq_is_sent_back: null,
+  areq_is_pulled_back: null,
+  ou_id: 'ouX8dwsbLCLv',
+  ou_org_id: 'orNVthTo2Zyo',
+  ou_org_name: 'Staging Loaded',
+  ou_employee_id: '',
+  ou_location: 'Mumbai',
+  ou_level: '123',
+  ou_business_unit:
+    'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+  ou_department: '0000000',
+  ou_title: 'director',
+  ou_mobile: '+12025559975',
+  ou_sub_department: null,
+  ou_department_id: 'deptpmQ0SsMO0S',
+  us_full_name: 'Abhishek Jain',
+  us_email: 'ajain@fyle.in',
+  project_code: null,
+  project_name: null,
+  advance_id: null,
+  us_name: 'Abhishek Jain',
+  policy_amount: null,
+  policy_flag: null,
+  policy_state: 'SUCCESS',
+  new_state: 'APPROVAL_PENDING',
 };
 
 export const singleErqUnflattened = {
@@ -550,145 +559,6 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   limit: 10,
   offset: 0,
   url: '/v2/advance_requests',
-};
-
-export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic> = {
-  count: 1,
-  data: [
-    {
-      areq_advance_request_number: 'A/2020/10/T/95',
-      areq_advance_id: 'advjrgwlk2Q',
-      areq_amount: 47.99,
-      areq_approved_at: new Date('2020-06-14T13:14:55.201Z'),
-      areq_created_at: new Date('2020-06-01T13:14:54.804Z'),
-      areq_currency: 'USD',
-      areq_id: 'areqiwr3Wwirr',
-      areq_notes: 'onsite client meeting',
-      areq_org_user_id: 'outGt9ju6qP',
-      areq_project_id: '1234',
-      areq_purpose: 'onsite client meeting',
-      areq_source: 'WEBAPP',
-      areq_state: 'DRAFT',
-      areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
-      ou_department: 'Tech',
-      ou_department_id: 'deptCjFrZcE0rH',
-      ou_id: 'outGt9ju6qP',
-      ou_org_id: 'orwruogwnngg',
-      ou_sub_department: 'Tech',
-      us_email: 'john.doe@example.com',
-      us_full_name: 'John Doe',
-      areq_is_pulled_back: false,
-      ou_employee_id: 'outGt9ju6qP',
-      areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
-      areq_is_sent_back: false,
-      project_name: 'Fast and Furious',
-      project_code: 'C1234',
-    },
-  ],
-  offset: 0,
-};
-
-export const publicAdvanceRequestResSentBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
-  count: 1,
-  data: [
-    {
-      ...cloneDeep(publicAdvanceRequestRes.data[0]),
-      areq_state: 'INQUIRY',
-      areq_is_pulled_back: false,
-      areq_is_sent_back: true,
-      areq_id: 'areqiwr3Wwirk',
-    },
-  ],
-  offset: 0,
-};
-
-export const publicAdvanceRequestResPulledBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
-  count: 1,
-  data: [
-    {
-      ...cloneDeep(publicAdvanceRequestRes.data[0]),
-      areq_state: 'DRAFT',
-      areq_is_pulled_back: true,
-      areq_is_sent_back: false,
-      areq_id: 'areqiwr3Wwirl',
-    },
-  ],
-  offset: 0,
-};
-
-export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
-  ...publicAdvanceRequestRes,
-  count: 250,
-};
-
-export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = {
-  ...publicAdvanceRequestRes.data[0],
-  type: 'request',
-  currency: 'USD',
-  amount: 47.99,
-  created_at: new Date('2020-06-01T13:14:54.804Z'),
-  purpose: 'onsite client meeting',
-  state: 'DRAFT',
-  areq_is_pulled_back: true,
-};
-
-export const publicAdvanceRequestRes4: ExtendedAdvanceRequestPublic = {
-  ...publicAdvanceRequestRes.data[0],
-  type: 'request',
-  currency: 'USD',
-  amount: 47.99,
-  created_at: new Date('2020-06-01T13:14:54.804Z'),
-  purpose: 'onsite client meeting',
-  state: 'DRAFT',
-  areq_is_sent_back: true,
-};
-
-export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPublic> = {
-  count: 1,
-  data: [
-    {
-      areq_advance_request_number: 'A/2020/10/T/95',
-      areq_advance_id: 'advjrgwlk2Q',
-      areq_amount: 47.99,
-      areq_approved_at: new Date('2020-06-14T13:14:55.201Z'),
-      areq_created_at: new Date('2020-06-01T13:14:54.804Z'),
-      areq_currency: 'USD',
-      areq_id: 'areqiwr3Wwirr',
-      areq_notes: 'onsite client meeting',
-      areq_org_user_id: 'outGt9ju6qP',
-      areq_project_id: '1234',
-      areq_purpose: 'onsite client meeting',
-      areq_source: 'WEBAPP',
-      areq_state: 'DRAFT',
-      areq_updated_at: new Date('2020-06-11T13:14:55.201Z'),
-      ou_department: 'Tech',
-      ou_department_id: 'deptCjFrZcE0rH',
-      ou_id: 'outGt9ju6qP',
-      ou_org_id: 'orwruogwnngg',
-      ou_sub_department: 'Tech',
-      us_email: 'john.doe@example.com',
-      us_full_name: 'John Doe',
-      areq_is_pulled_back: true,
-      ou_employee_id: 'outGt9ju6qP',
-      areq_custom_field_values: [{ name: 'checking', value: 'true', type: 'BOOLEAN' }],
-      areq_is_sent_back: false,
-      project_name: 'Fast and Furious',
-      project_code: 'C1234',
-    },
-  ],
-  offset: 0,
-};
-
-export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = {
-  ...publicAdvanceRequestRes.data[0],
-  type: 'request',
-  currency: 'USD',
-  amount: 47.99,
-  created_at: new Date('2020-06-01T13:14:54.804Z'),
-  purpose: 'onsite client meeting',
-  state: 'DRAFT',
-  areq_is_sent_back: false,
-  areq_is_pulled_back: true,
 };
 
 export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {

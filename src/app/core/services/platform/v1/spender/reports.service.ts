@@ -61,13 +61,13 @@ export class ReportsService {
   }
 
   ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
-    const params = {
+    const payload = {
       data: {
         id: rptId,
         expense_ids: [txnId],
       },
       reason: comment,
     };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', params);
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
   }
 }
