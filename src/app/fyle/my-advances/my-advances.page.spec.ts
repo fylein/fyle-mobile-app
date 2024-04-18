@@ -18,13 +18,14 @@ import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
 import { allFilterPills } from 'src/app/core/mock-data/filter-pills.data';
 import {
-  publicAdvanceRequestRes,
-  publicAdvanceRequestRes2,
-  publicAdvanceRequestRes3,
-  publicAdvanceRequestRes4,
-  publicAdvanceRequestRes5,
-  publicAdvanceRequestRes6,
-  publicAdvanceRequestResSentBack,
+  allTeamAdvanceRequestsRes,
+  extendedAdvReqDraft,
+  extendedAdvReqInquiry,
+  myAdvanceRequestData5,
+  myAdvanceRequestsData2,
+  myAdvanceRequestsData3,
+  myAdvanceRequestsData4,
+  singleExtendedAdvReqRes,
 } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   singleExtendedAdvancesData,
@@ -61,14 +62,14 @@ describe('MyAdvancesPage', () => {
 
   beforeEach(waitForAsync(() => {
     let advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getSpenderAdvanceRequestsCount',
-      'getSpenderAdvanceRequests',
+      'getMyAdvanceRequestsCount',
+      'getMyadvanceRequests',
       'destroyAdvanceRequestsCacheBuster',
     ]);
     let routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     let advanceServiceSpy = jasmine.createSpyObj('AdvanceService', [
       'getMyAdvancesCount',
-      'getSpenderAdvances',
+      'getMyadvances',
       'destroyAdvancesCacheBuster',
     ]);
     let networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
@@ -197,18 +198,18 @@ describe('MyAdvancesPage', () => {
   describe('ionViewWillEnter():', () => {
     beforeEach(() => {
       spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'updateMyAdvanceRequests').and.returnValue(publicAdvanceRequestRes.data);
+      spyOn(component, 'updateMyAdvanceRequests').and.returnValue(singleExtendedAdvReqRes.data);
       spyOn(component, 'updateMyAdvances').and.returnValue(singleExtendedAdvancesData.data);
       spyOn(component, 'getAndUpdateProjectName');
       tasksService.getAdvancesTaskCount.and.returnValue(of(4));
       tasksService.getTotalTaskCount.and.returnValue(of(5));
       filtersHelperService.generateFilterPills.and.returnValue(allFilterPills);
-      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(1));
-      advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(publicAdvanceRequestRes));
+      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(1));
+      advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
       advanceService.getMyAdvancesCount.and.returnValue(of(1));
-      advanceService.getSpenderAdvances.and.returnValue(of(singleExtendedAdvancesData));
+      advanceService.getMyadvances.and.returnValue(of(singleExtendedAdvancesData));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
-      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+      utilityService.sortAllAdvances.and.returnValue([extendedAdvReqDraft, extendedAdvReqInquiry]);
     });
 
     it('should call setupNetworkWatcher() once, set advancesTaskCount to 4, navigateBack to true and totalTaskCount to 5', () => {
@@ -227,53 +228,53 @@ describe('MyAdvancesPage', () => {
       expect(filtersHelperService.generateFilterPills).toHaveBeenCalledOnceWith(component.filterParams$.value);
     });
 
-    it('should set myAdvancerequests$ to publicAdvanceRequestRes.data', () => {
+    it('should set myAdvancerequests$ to singleExtendedAdvReqRes.data', () => {
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
-          advance_id: 'eq.null',
+        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+          areq_advance_id: 'is.null',
         });
-        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
           offset: 0,
-          limit: 200,
+          limit: 10,
           queryParams: {
-            advance_id: 'eq.null',
-            order: 'created_at.desc,id.desc',
+            areq_advance_id: 'is.null',
+            order: 'areq_created_at.desc,areq_id.desc',
           },
         });
-        expect(res).toEqual(publicAdvanceRequestRes.data);
+        expect(res).toEqual(singleExtendedAdvReqRes.data);
       });
     });
 
-    it('should set myAdvancerequests$ to publicAdvanceRequestRes2.data in form of array in case if count is greater than 200', () => {
-      advanceRequestService.getSpenderAdvanceRequests.and.returnValues(
-        of(publicAdvanceRequestRes2),
-        of(publicAdvanceRequestRes2)
+    it('should set myAdvancerequests$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
+      advanceRequestService.getMyadvanceRequests.and.returnValues(
+        of(myAdvanceRequestsData2),
+        of(allTeamAdvanceRequestsRes)
       );
-      advanceRequestService.getSpenderAdvanceRequestsCount.and.returnValue(of(201));
+      advanceRequestService.getMyAdvanceRequestsCount.and.returnValue(of(11));
       component.ionViewWillEnter();
       component.myAdvanceRequests$.subscribe((res) => {
-        expect(advanceRequestService.getSpenderAdvanceRequestsCount).toHaveBeenCalledOnceWith({
-          advance_id: 'eq.null',
+        expect(advanceRequestService.getMyAdvanceRequestsCount).toHaveBeenCalledOnceWith({
+          areq_advance_id: 'is.null',
         });
-        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledTimes(2);
-        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledTimes(2);
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
           offset: 0,
-          limit: 200,
+          limit: 10,
           queryParams: {
-            advance_id: 'eq.null',
-            order: 'created_at.desc,id.desc',
+            areq_advance_id: 'is.null',
+            order: 'areq_created_at.desc,areq_id.desc',
           },
         });
-        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledWith({
-          offset: 200,
-          limit: 200,
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledWith({
+          offset: 10,
+          limit: 10,
           queryParams: {
-            advance_id: 'eq.null',
-            order: 'created_at.desc,id.desc',
+            areq_advance_id: 'is.null',
+            order: 'areq_created_at.desc,areq_id.desc',
           },
         });
-        expect(res).toEqual([...publicAdvanceRequestRes2.data, ...publicAdvanceRequestRes2.data]);
+        expect(res).toEqual([...myAdvanceRequestsData2.data, ...allTeamAdvanceRequestsRes.data]);
       });
     });
 
@@ -281,11 +282,11 @@ describe('MyAdvancesPage', () => {
       component.ionViewWillEnter();
       component.myAdvances$.subscribe((res) => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
-        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
           offset: 0,
-          limit: 200,
+          limit: 10,
           queryParams: {
-            order: 'created_at.desc,id.desc',
+            order: 'adv_created_at.desc,adv_id.desc',
           },
         });
         expect(res).toEqual(singleExtendedAdvancesData.data);
@@ -293,47 +294,44 @@ describe('MyAdvancesPage', () => {
     });
 
     it('should set myAdvances$ to allTeamAdvanceRequestsRes.data in form of array in case if count is greater than 10', () => {
-      advanceService.getSpenderAdvances.and.returnValues(
-        of(singleExtendedAdvancesData2),
-        of(singleExtendedAdvancesData)
-      );
-      advanceService.getMyAdvancesCount.and.returnValue(of(201));
+      advanceService.getMyadvances.and.returnValues(of(singleExtendedAdvancesData2), of(singleExtendedAdvancesData));
+      advanceService.getMyAdvancesCount.and.returnValue(of(11));
       component.ionViewWillEnter();
       component.myAdvances$.subscribe((res) => {
         expect(advanceService.getMyAdvancesCount).toHaveBeenCalledTimes(1);
-        expect(advanceService.getSpenderAdvances).toHaveBeenCalledTimes(2);
-        expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
+        expect(advanceService.getMyadvances).toHaveBeenCalledTimes(2);
+        expect(advanceService.getMyadvances).toHaveBeenCalledWith({
           offset: 0,
-          limit: 200,
+          limit: 10,
           queryParams: {
-            order: 'created_at.desc,id.desc',
+            order: 'adv_created_at.desc,adv_id.desc',
           },
         });
-        expect(advanceService.getSpenderAdvances).toHaveBeenCalledWith({
-          offset: 200,
-          limit: 200,
+        expect(advanceService.getMyadvances).toHaveBeenCalledWith({
+          offset: 10,
+          limit: 10,
           queryParams: {
-            order: 'created_at.desc,id.desc',
+            order: 'adv_created_at.desc,adv_id.desc',
           },
         });
         expect(res).toEqual([...singleExtendedAdvancesData2.data, ...singleExtendedAdvancesData.data]);
       });
     });
 
-    it('should set advances$ equals to array containing draft and sent back advance requests', () => {
+    it('should set advances$ equals to array containing extendedAdvReqDraft, extendedAdvReqInquiry', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(myAdvancesFiltersData2);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       component.ionViewWillEnter();
       component.advances$.subscribe((res) => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-        expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
+        expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data);
         expect(component.updateMyAdvances).toHaveBeenCalledOnceWith(singleExtendedAdvancesData.data);
         expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
           SortingDirection.ascending,
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+        expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
       });
     });
 
@@ -352,7 +350,7 @@ describe('MyAdvancesPage', () => {
           SortingParam.project,
           []
         );
-        expect(res).toEqual([publicAdvanceRequestRes3, publicAdvanceRequestRes3]);
+        expect(res).toEqual([extendedAdvReqDraft, extendedAdvReqInquiry]);
       });
     });
 
@@ -360,8 +358,8 @@ describe('MyAdvancesPage', () => {
       activatedRoute.snapshot.queryParams.filters = JSON.stringify(draftSentBackFiltersData);
       component.updateMyAdvanceRequests = jasmine
         .createSpy()
-        .and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
-      utilityService.sortAllAdvances.and.returnValue([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
+        .and.returnValue([myAdvanceRequestsData3, myAdvanceRequestsData4]);
+      utilityService.sortAllAdvances.and.returnValue([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       orgSettingsService.get.and.returnValue(
         of({ ...orgSettingsRes, advance_requests: { enabled: false }, advances: { enabled: false } })
       );
@@ -370,10 +368,12 @@ describe('MyAdvancesPage', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(component.updateMyAdvanceRequests).toHaveBeenCalledOnceWith([]);
         expect(component.updateMyAdvances).toHaveBeenCalledOnceWith([]);
-        expect(utilityService.sortAllAdvances).toHaveBeenCalledWith(SortingDirection.ascending, SortingParam.project, [
-          publicAdvanceRequestRes4,
-        ]);
-        expect(res).toEqual([publicAdvanceRequestRes4, publicAdvanceRequestRes6]);
+        expect(utilityService.sortAllAdvances).toHaveBeenCalledOnceWith(
+          SortingDirection.ascending,
+          SortingParam.project,
+          [myAdvanceRequestsData4, myAdvanceRequestsData3]
+        );
+        expect(res).toEqual([myAdvanceRequestsData4, myAdvanceRequestsData3]);
       });
     });
   });
@@ -385,9 +385,9 @@ describe('MyAdvancesPage', () => {
   });
 
   it('updateMyAdvanceRequests(): should set type, amount, orig_amount, created_at, currency, orig_currency and purpose in my advances request', () => {
-    const mockMyAdvanceRequestsData = cloneDeep(publicAdvanceRequestRes5.data);
+    const mockMyAdvanceRequestsData = cloneDeep(singleExtendedAdvReqRes.data);
     const expectedMyAdvanceRequest = component.updateMyAdvanceRequests(mockMyAdvanceRequestsData);
-    expect(expectedMyAdvanceRequest).toEqual([publicAdvanceRequestRes3]);
+    expect(expectedMyAdvanceRequest).toEqual([myAdvanceRequestData5]);
   });
 
   describe('doRefresh():', () => {
@@ -421,7 +421,7 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'my_view_advance_request',
-        { id: 'advRhdN9D326Y' },
+        { id: 'advETmi3eePvQ' },
       ]);
     });
 
@@ -434,13 +434,13 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'my_view_advance_request',
-        { id: 'areqrttywiidF8' },
+        { id: 'areqmq8cmnd5v4' },
       ]);
     });
 
     it('should navigate to my_view_advance', () => {
       component.onAdvanceClick({ advanceRequest: singleExtendedAdvancesData3, internalState: { state: 'INQUIRY' } });
-      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_advance', { id: 'advRhdN9D326Y' }]);
+      expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_view_advance', { id: 'advETmi3eePvQ' }]);
     });
 
     it('should navigate to add_edit_advance_request if advance request is request type and it is in inquiry state', () => {
@@ -451,7 +451,7 @@ describe('MyAdvancesPage', () => {
         '/',
         'enterprise',
         'add_edit_advance_request',
-        { id: 'advRhdN9D326Y' },
+        { id: 'advETmi3eePvQ' },
       ]);
     });
   });
