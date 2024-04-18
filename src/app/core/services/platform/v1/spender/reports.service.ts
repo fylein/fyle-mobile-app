@@ -59,4 +59,15 @@ export class ReportsService {
       .post<PlatformApiPayload<Report>>('/reports', data)
       .pipe(map((res) => res.data));
   }
+
+  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+    const params = {
+      data: {
+        id: rptId,
+        expense_ids: [txnId],
+      },
+      reason: comment,
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', params);
+  }
 }
