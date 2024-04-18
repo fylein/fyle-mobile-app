@@ -11,7 +11,7 @@ import {
 import { ModalController } from '@ionic/angular';
 import { isEqual } from 'lodash';
 import { getCurrencySymbol } from '@angular/common';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Option } from 'src/app/core/models/option.model';
 
@@ -25,7 +25,7 @@ export class FyAddToReportModalComponent implements OnInit, AfterViewInit {
 
   @Input() options: Option[] = [];
 
-  @Input() currentSelection: UnflattenedReport;
+  @Input() currentSelection: Report;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
