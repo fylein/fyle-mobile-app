@@ -2,42 +2,39 @@ import { AdvanceRequestCustomFieldValues } from '../models/advance-request-custo
 
 export const advanceRequestCustomFieldValuesData: AdvanceRequestCustomFieldValues[] = [
   {
+    id: 1302,
     name: 'Phase',
     value: 'Phase 1',
     type: 'SELECT',
   },
   {
+    id: 1305,
     name: 'BILLABLE',
     value: true,
     type: 'BOOLEAN',
   },
   {
+    id: 1304,
     name: 'Arrival Date',
-    value: '2023-1-2',
+    value: '2 Jan 2023',
     type: 'DATE',
-  },
-  {
-    name: 'Checking',
-    value: 'option1',
-    type: 'OPTION',
   },
 ];
 
 export const advanceRequestCustomFieldValuesData2: AdvanceRequestCustomFieldValues[] = [
   {
+    id: 1302,
     name: 'Phase',
     value: 'Phase 1',
   },
   {
-    name: 'BILLABLE',
-    value: true,
-  },
-  {
+    id: 1304,
     name: 'Arrival Date',
     value: '2023-1-2',
   },
   {
-    name: 'Checking',
-    value: 'option1',
+    id: 1305,
+    name: 'BILLABLE',
+    value: true,
   },
 ];
