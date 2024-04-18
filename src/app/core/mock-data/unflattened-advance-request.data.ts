@@ -18,11 +18,13 @@ export const unflattenedAdvanceRequestData: UnflattenedAdvanceRequest = {
     project_id: null,
     custom_field_values: [
       {
+        id: 159,
         name: 'Advance Request Place',
         value: 'd',
         type: null,
       },
       {
+        id: 160,
         name: 'Category',
         value: 'Fyle is best',
         type: null,

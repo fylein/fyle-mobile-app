@@ -1,4 +1,3 @@
-import { ApprovalPublic } from '../models/approval-public.model';
 import { Approval } from '../models/approval.model';
 
 export const advanceReqApprovals: Approval[] = [
@@ -15,13 +14,5 @@ export const advanceReqApprovals: Approval[] = [
     approver_name: 'Abhishek Jain',
     approver_org_id: 'orNVthTo2Zyo',
     comment: null,
-  },
-];
-
-export const advanceReqApprovalsPublic: ApprovalPublic[] = [
-  {
-    state: 'APPROVAL_PENDING',
-    approver_email: 'john.doe@example.com',
-    approver_name: 'John Doe',
   },
 ];

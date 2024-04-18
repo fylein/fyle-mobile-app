@@ -30,7 +30,7 @@ import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data
 import { expenseList } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
 import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
-import { publicAdvanceRequestRes, singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
+import { singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   expensesList,
   mileageCategoryPlatformExpenseData,
@@ -316,7 +316,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        advanceRequestService.getSpenderAdvanceRequests.and.returnValue(of(publicAdvanceRequestRes));
+        advanceRequestService.getMyadvanceRequests.and.returnValue(of(singleExtendedAdvReqRes));
       });
 
       it('should get all advances and navigate to add edit advance request page if task count is 1', fakeAsync(() => {
@@ -325,9 +325,10 @@ export function TestCases2(getTestBed) {
         component.onSentBackAdvanceTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your advance request...');
-        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
+        expect(advanceRequestService.getMyadvanceRequests).toHaveBeenCalledOnceWith({
           queryParams: {
-            state: 'eq.SENT_BACK',
+            areq_state: 'in.(DRAFT)',
+            areq_is_sent_back: 'is.true',
           },
           offset: 0,
           limit: 1,
@@ -337,7 +338,7 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'add_edit_advance_request',
-          { id: publicAdvanceRequestRes.data[0].areq_id },
+          { id: singleExtendedAdvReqRes.data[0].areq_id },
         ]);
       }));
 
@@ -345,7 +346,7 @@ export function TestCases2(getTestBed) {
         component.onSentBackAdvanceTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(advanceRequestService.getSpenderAdvanceRequests).not.toHaveBeenCalled();
+        expect(advanceRequestService.getMyadvanceRequests).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_advances'], {
           queryParams: { filters: JSON.stringify({ state: ['SENT_BACK'] }) },
