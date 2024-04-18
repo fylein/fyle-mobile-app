@@ -21,9 +21,9 @@ import { SortingValue } from 'src/app/core/models/sorting-value.model';
 import { cloneDeep } from 'lodash';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model';
+import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 
 @Component({
   selector: 'app-my-advances',
@@ -31,7 +31,7 @@ import { MyAdvancesFilters } from 'src/app/core/models/my-advances-filters.model
   styleUrls: ['./my-advances.page.scss'],
 })
 export class MyAdvancesPage implements AfterViewChecked {
-  myAdvanceRequests$: Observable<ExtendedAdvanceRequest[]>;
+  myAdvanceRequests$: Observable<ExtendedAdvanceRequestPublic[]>;
 
   myAdvances$: Observable<ExtendedAdvance[]>;
 
@@ -45,7 +45,7 @@ export class MyAdvancesPage implements AfterViewChecked {
 
   refreshAdvances$: Subject<void> = new Subject();
 
-  advances$: Observable<(ExtendedAdvanceRequest | ExtendedAdvance)[]>;
+  advances$: Observable<(ExtendedAdvanceRequestPublic | ExtendedAdvance)[]>;
 
   isConnected$: Observable<boolean>;
 
@@ -124,45 +124,45 @@ export class MyAdvancesPage implements AfterViewChecked {
     this.isLoading = true;
 
     this.myAdvanceRequests$ = this.advanceRequestService
-      .getMyAdvanceRequestsCount({
-        areq_advance_id: 'is.null',
+      .getSpenderAdvanceRequestsCount({
+        advance_id: 'eq.null',
       })
       .pipe(
         concatMap((count) => {
-          count = count > 10 ? count / 10 : 1;
+          count = count > 200 ? count / 200 : 1;
           return range(0, count);
         }),
-        concatMap((count) =>
-          this.advanceRequestService.getMyadvanceRequests({
-            offset: 10 * count,
-            limit: 10,
+        concatMap((count) => {
+          return this.advanceRequestService.getSpenderAdvanceRequests({
+            offset: 200 * count,
+            limit: 200,
             queryParams: {
-              areq_advance_id: 'is.null',
-              order: 'areq_created_at.desc,areq_id.desc',
+              advance_id: 'eq.null',
+              order: 'created_at.desc,id.desc',
             },
-          })
-        ),
+          });
+        }),
         map((res) => res.data),
         reduce((acc, curr) => acc.concat(curr))
       );
 
     this.myAdvances$ = this.advanceService.getMyAdvancesCount().pipe(
       concatMap((count) => {
-        count = count > 10 ? count / 10 : 1;
+        count = count > 200 ? count / 200 : 1;
         return range(0, count);
       }),
       concatMap((count) =>
-        this.advanceService.getMyadvances({
-          offset: 10 * count,
-          limit: 10,
-          queryParams: { order: 'adv_created_at.desc,adv_id.desc' },
+        this.advanceService.getSpenderAdvances({
+          offset: 200 * count,
+          limit: 200,
+          queryParams: { order: 'created_at.desc,id.desc' },
         })
       ),
       map((res) => res.data),
       reduce((acc, curr) => acc.concat(curr))
     );
 
-    const sortResults = map((res: (ExtendedAdvanceRequest | ExtendedAdvance)[]) =>
+    const sortResults = map((res: (ExtendedAdvanceRequestPublic | ExtendedAdvance)[]) =>
       res.sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
     );
     this.advances$ = this.refreshAdvances$.pipe(
@@ -184,7 +184,7 @@ export class MyAdvancesPage implements AfterViewChecked {
           sortResults
         )
       ),
-      switchMap((advArray: ExtendedAdvanceRequest[]) =>
+      switchMap((advArray: ExtendedAdvanceRequestPublic[]) =>
         //piping through filterParams so that filtering and sorting happens whenever we call next() on filterParams
         this.filterParams$.pipe(
           map((filters) => {
@@ -194,8 +194,7 @@ export class MyAdvancesPage implements AfterViewChecked {
               newArr = advArray.filter((adv) => {
                 const sentBackAdvance =
                   filters.state.includes(AdvancesStates.sentBack) &&
-                  adv.areq_state === 'DRAFT' &&
-                  adv.areq_is_sent_back;
+                  ((adv.areq_state === 'DRAFT' && adv.areq_is_sent_back) || adv.areq_state === 'INQUIRY');
 
                 const plainDraft =
                   filters.state.includes(AdvancesStates.draft) &&
@@ -239,7 +238,7 @@ export class MyAdvancesPage implements AfterViewChecked {
     return myAdvances;
   }
 
-  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequest[]): ExtendedAdvanceRequest[] {
+  updateMyAdvanceRequests(myAdvanceRequests: ExtendedAdvanceRequestPublic[]): ExtendedAdvanceRequestPublic[] {
     myAdvanceRequests = myAdvanceRequests.map((data) => ({
       ...data,
       type: 'request',

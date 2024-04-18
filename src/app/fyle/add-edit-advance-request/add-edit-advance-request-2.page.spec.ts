@@ -11,7 +11,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
@@ -68,7 +67,6 @@ export function TestCases2(getTestBed) {
     let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
@@ -95,7 +93,6 @@ export function TestCases2(getTestBed) {
       ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
