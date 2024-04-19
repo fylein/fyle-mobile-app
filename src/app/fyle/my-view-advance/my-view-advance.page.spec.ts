@@ -96,10 +96,8 @@ describe('MyViewAdvancePage', () => {
 
     it('should set advance$ correctly', fakeAsync(() => {
       component.ionViewWillEnter();
-      component.advanceRequest$.subscribe({
-        next: (data) => {
-          expect(data).toEqual(publicAdvanceRequestRes.data[0]);
-        },
+      component.advanceRequest$.subscribe((data) => {
+        expect(data).toEqual(publicAdvanceRequestRes.data[0]);
       });
       tick(100);
 
