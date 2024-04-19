@@ -3,25 +3,8 @@ module.exports = function (config) {
 
   config.set({
     basePath: '',
-    frameworks: isParallelDisabled ? ['jasmine', '@angular-devkit/build-angular'] : ['parallel', 'jasmine', '@angular-devkit/build-angular'],
-    plugins: isParallelDisabled ? 
-    [
-      require('karma-jasmine'),
-      require('karma-chrome-launcher'),
-      require('karma-jasmine-html-reporter'),
-      require('karma-coverage'), // NEWLY ADDED
-      // ORIGINALLY HERE NOW REMOVED require('karma-coverage-istanbul-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma'),
-    ] :
-    [
-      require('karma-parallel'),
-      require('karma-jasmine'),
-      require('karma-chrome-launcher'),
-      require('karma-jasmine-html-reporter'),
-      require('karma-coverage'), // NEWLY ADDED
-      // ORIGINALLY HERE NOW REMOVED require('karma-coverage-istanbul-reporter'),
-      require('@angular-devkit/build-angular/plugins/karma'),
-    ],
+    frameworks: [],
+    plugins: [],
     client: {
       clearContext: false, // leave Jasmine Spec Runner output visible in browser
     },
@@ -48,4 +31,25 @@ module.exports = function (config) {
     singleRun: false,
     restartOnFileChange: true,
   });
+
+  if (isParallelDisabled) {
+    config.frameworks.push('jasmine', '@angular-devkit/build-angular');
+    config.plugins = [
+      require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-coverage'),
+      require('@angular-devkit/build-angular/plugins/karma'),
+    ];
+  } else {
+    config.frameworks.push('parallel', 'jasmine', '@angular-devkit/build-angular');
+    config.plugins = [
+      require('karma-parallel'),
+      require('karma-jasmine'),
+      require('karma-chrome-launcher'),
+      require('karma-jasmine-html-reporter'),
+      require('karma-coverage'),
+      require('@angular-devkit/build-angular/plugins/karma'),
+    ];
+  }
 };
