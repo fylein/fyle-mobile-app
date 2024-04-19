@@ -44,7 +44,7 @@ import { perDiemExpense } from 'src/app/core/mock-data/platform/v1/expense.data'
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -55,7 +55,7 @@ describe('ViewPerDiemPage', () => {
   let perDiemService: jasmine.SpyObj<PerDiemService>;
   let policyService: jasmine.SpyObj<PolicyService>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let platformReportsService: jasmine.SpyObj<ReportsService>;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let statusService: jasmine.SpyObj<StatusService>;
@@ -100,7 +100,7 @@ describe('ViewPerDiemPage', () => {
     ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
-    const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
       imports: [IonicModule.forRoot()],
@@ -122,7 +122,7 @@ describe('ViewPerDiemPage', () => {
         { provide: DependentFieldsService, useValue: dependentFieldsServiceSpy },
         { provide: SpenderExpensesService, useValue: spenderExpensesServiceSpy },
         { provide: ApproverExpensesService, useValue: approverExpensesServiceSpy },
-        { provide: ReportsService, useValue: platformReportsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -147,7 +147,7 @@ describe('ViewPerDiemPage', () => {
     perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    platformReportsService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
@@ -674,7 +674,7 @@ describe('ViewPerDiemPage', () => {
   it('getDeleteDialogProps(): should return modal params', () => {
     const props = component.getDeleteDialogProps();
     props.componentProps.deleteMethod();
-    expect(platformReportsService.ejectExpenses).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
+    expect(approverReportsService.ejectExpenses).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
   });
 
   it('removeExpenseFromReport(): should remove the expense from report', fakeAsync(() => {

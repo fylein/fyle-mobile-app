@@ -47,6 +47,7 @@ import { ExpensesService as SpenderExpensesService } from 'src/app/core/services
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -71,6 +72,7 @@ describe('ViewMileagePage', () => {
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -112,6 +114,7 @@ describe('ViewMileagePage', () => {
       'getSpenderMileageRateById',
       'getApproverMileageRateById',
     ]);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -194,6 +197,10 @@ describe('ViewMileagePage', () => {
           provide: MileageRatesService,
         },
         {
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -229,6 +236,7 @@ describe('ViewMileagePage', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -358,7 +366,7 @@ describe('ViewMileagePage', () => {
   it('getDeleteDialogProps(): should return the props', () => {
     const props = component.getDeleteDialogProps();
     props.componentProps.deleteMethod();
-    expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
+    expect(approverReportsService.ejectExpenses).toHaveBeenCalledOnceWith(component.reportId, component.expenseId);
   });
 
   describe('removeExpenseFromReport', () => {

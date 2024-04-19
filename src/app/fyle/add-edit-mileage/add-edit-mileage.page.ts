@@ -85,7 +85,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -294,7 +294,7 @@ export class AddEditMileagePage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
-    private platformReportService: ReportsService,
+    private platformReportService: SpenderReportsService,
     private fb: FormBuilder,
     private projectService: ProjectsService,
     private mileageService: MileageService,
@@ -326,7 +326,7 @@ export class AddEditMileagePage implements OnInit {
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
     private changeDetectorRef: ChangeDetectorRef,
-    private reportsService: ReportsService
+    private reportsService: SpenderReportsService
   ) {}
 
   get showSaveAndNext(): boolean {

@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { ReportsService } from './reports.service';
+import { SpenderReportsService } from './reports.service';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { of } from 'rxjs';
 import { PAGINATION_SIZE } from 'src/app/constants';
@@ -13,19 +13,19 @@ import {
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 
-describe('ReportsService', () => {
-  let reportsService: ReportsService;
+describe('SpenderReportsService', () => {
+  let reportsService: SpenderReportsService;
   const spenderPlatformV1ApiServiceMock = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
-        ReportsService,
+        SpenderReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
         { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceMock },
       ],
     });
-    reportsService = TestBed.inject(ReportsService);
+    reportsService = TestBed.inject(SpenderReportsService);
   });
 
   it('should be created', () => {

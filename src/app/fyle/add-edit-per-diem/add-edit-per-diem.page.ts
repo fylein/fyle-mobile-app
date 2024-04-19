@@ -47,7 +47,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -258,7 +258,7 @@ export class AddEditPerDiemPage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private currencyService: CurrencyService,
     private reportService: ReportService,
-    private platformReportService: ReportsService,
+    private platformReportService: SpenderReportsService,
     private projectService: ProjectsService,
     private transactionsOutboxService: TransactionsOutboxService,
     private transactionService: TransactionService,
@@ -287,7 +287,7 @@ export class AddEditPerDiemPage implements OnInit {
     private platform: Platform,
     private storageService: StorageService,
     private expensesService: ExpensesService,
-    private reportsService: ReportsService
+    private reportsService: SpenderReportsService
   ) {}
 
   get minPerDiemDate(): string {

@@ -12,7 +12,7 @@ import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-pa
 @Injectable({
   providedIn: 'root',
 })
-export class ReportsService {
+export class SpenderReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService

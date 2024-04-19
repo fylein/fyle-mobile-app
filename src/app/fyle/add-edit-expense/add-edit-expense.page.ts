@@ -108,7 +108,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -434,7 +434,7 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectsService: ProjectsService,
     private reportService: ReportService,
-    private platformReportService: ReportsService,
+    private platformReportService: SpenderReportsService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
@@ -472,7 +472,7 @@ export class AddEditExpensePage implements OnInit {
     private launchDarklyService: LaunchDarklyService,
     private platformHandlerService: PlatformHandlerService,
     private expensesService: ExpensesService,
-    private reportsService: ReportsService
+    private reportsService: SpenderReportsService
   ) {}
 
   get isExpandedView(): boolean {
