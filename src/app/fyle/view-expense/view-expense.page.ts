@@ -35,7 +35,7 @@ import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expe
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -152,7 +152,7 @@ export class ViewExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private reportsService: ReportsService
+    private reportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
