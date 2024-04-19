@@ -1,9 +1,0 @@
-export const enum AdvanceRequestState {
-  SENT_BACK = 'SENT_BACK',
-  DRAFT = 'DRAFT',
-  APPROVAL_PENDING = 'APPROVAL_PENDING',
-  APPROVED = 'APPROVED',
-  PULLED_BACK = 'PULLED_BACK',
-  REJECTED = 'REJECTED',
-  PAID = 'PAID',
-}
