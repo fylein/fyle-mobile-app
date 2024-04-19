@@ -63,9 +63,11 @@ describe('AddEditPerDiemPage', () => {
       'getReportById',
       'getFilteredPendingReports',
       'addTransactions',
-      'removeTransaction',
     ]);
-    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getAllReportsByParams']);
+    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'getAllReportsByParams',
+      'ejectExpenses',
+    ]);
     const projectServiceSpy = jasmine.createSpyObj('ProjectService', [
       'getAllowedOrgCategoryIds',
       'getProjectCount',

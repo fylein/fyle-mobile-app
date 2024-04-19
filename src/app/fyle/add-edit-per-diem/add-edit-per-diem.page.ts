@@ -286,8 +286,7 @@ export class AddEditPerDiemPage implements OnInit {
     private orgSettingsService: OrgSettingsService,
     private platform: Platform,
     private storageService: StorageService,
-    private expensesService: ExpensesService,
-    private reportsService: SpenderReportsService
+    private expensesService: ExpensesService
   ) {}
 
   get minPerDiemDate(): string {
@@ -2062,7 +2061,7 @@ export class AddEditPerDiemPage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
@@ -2070,7 +2069,7 @@ export class AddEditPerDiemPage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2279,7 +2278,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (removePerDiemFromReport) {
-            return this.reportsService.ejectExpenses(reportId, id);
+            return this.platformReportService.ejectExpenses(reportId, id);
           }
           return this.transactionService.delete(id);
         },

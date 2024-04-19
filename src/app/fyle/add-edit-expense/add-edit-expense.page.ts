@@ -471,8 +471,7 @@ export class AddEditExpensePage implements OnInit {
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
     private platformHandlerService: PlatformHandlerService,
-    private expensesService: ExpensesService,
-    private reportsService: SpenderReportsService
+    private expensesService: ExpensesService
   ) {}
 
   get isExpandedView(): boolean {
@@ -3901,7 +3900,7 @@ export class AddEditExpensePage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
@@ -3909,7 +3908,7 @@ export class AddEditExpensePage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -4673,7 +4672,7 @@ export class AddEditExpensePage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (removeExpenseFromReport) {
-            return this.reportsService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
+            return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
           }
           return this.transactionService.delete(this.activatedRoute.snapshot.params.id as string);
         },

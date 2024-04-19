@@ -81,7 +81,7 @@ describe('ViewPerDiemPage', () => {
       'getApproverExpensePolicyViolations',
       'getSpenderExpensePolicyViolations',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport', 'removeTransaction']);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);

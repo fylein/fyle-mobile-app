@@ -325,8 +325,7 @@ export class AddEditMileagePage implements OnInit {
     private storageService: StorageService,
     private employeesService: EmployeesService,
     private expensesService: ExpensesService,
-    private changeDetectorRef: ChangeDetectorRef,
-    private reportsService: SpenderReportsService
+    private changeDetectorRef: ChangeDetectorRef
   ) {}
 
   get showSaveAndNext(): boolean {
@@ -2579,7 +2578,7 @@ export class AddEditMileagePage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
@@ -2587,7 +2586,7 @@ export class AddEditMileagePage implements OnInit {
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportsService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2877,7 +2876,7 @@ export class AddEditMileagePage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (config.removeMileageFromReport) {
-            return this.reportsService.ejectExpenses(config.reportId, config.id);
+            return this.platformReportService.ejectExpenses(config.reportId, config.id);
           }
           return this.transactionService.delete(config.id);
         },

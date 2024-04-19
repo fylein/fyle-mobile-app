@@ -77,7 +77,7 @@ describe('ViewMileagePage', () => {
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport', 'removeTransaction']);
+    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',

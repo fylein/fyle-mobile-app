@@ -98,9 +98,11 @@ describe('AddEditMileagePage', () => {
       'getAutoSubmissionReportName',
       'getFilteredPendingReports',
       'addTransactions',
-      'removeTransaction',
     ]);
-    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getAllReportsByParams']);
+    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'getAllReportsByParams',
+      'ejectExpenses',
+    ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [

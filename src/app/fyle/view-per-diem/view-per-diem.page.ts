@@ -33,7 +33,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { ExpensesService as SpenderExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-view-per-diem',
@@ -118,7 +118,7 @@ export class ViewPerDiemPage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private reportsService: SpenderReportsService
+    private reportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {

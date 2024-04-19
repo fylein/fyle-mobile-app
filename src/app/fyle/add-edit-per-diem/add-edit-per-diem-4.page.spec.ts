@@ -56,6 +56,7 @@ import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases4(getTestBed) {
   return describe('add-edit-per-diem test cases set 4', () => {
@@ -96,6 +97,7 @@ export function TestCases4(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let perDiemService: jasmine.SpyObj<PerDiemService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -137,6 +139,7 @@ export function TestCases4(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       component.fg = formBuilder.group({
         currencyObj: [
           {
@@ -306,7 +309,7 @@ export function TestCases4(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         reportService.addTransactions.and.returnValue(of(undefined));
-        reportService.removeTransaction.and.returnValue(of(undefined));
+        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         transactionService.review.and.returnValue(of(null));
         statusService.findLatestComment.and.returnValue(of('comment1'));
         statusService.post.and.returnValue(of(expenseStatusData));
@@ -350,7 +353,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(res).toEqual(transformedExpenseData.tx);
@@ -395,7 +398,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txvslh8aQMbu');
+            expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txvslh8aQMbu');
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(res).toEqual(transformedExpenseData.tx);
@@ -441,7 +444,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).not.toHaveBeenCalled();
-            expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'txvslh8aQMbu');
+            expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'txvslh8aQMbu');
             expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
             expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
             expect(res).toEqual(transformedExpenseData.tx);
@@ -486,7 +489,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
@@ -545,7 +548,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
@@ -602,7 +605,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
@@ -658,7 +661,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
@@ -713,7 +716,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).not.toHaveBeenCalled();
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(statusService.findLatestComment).toHaveBeenCalledOnceWith(
@@ -764,7 +767,7 @@ export function TestCases4(getTestBed) {
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
             expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-            expect(reportService.removeTransaction).not.toHaveBeenCalled();
+            expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
             expect(res).toEqual(transformedExpenseData.tx);
@@ -809,7 +812,7 @@ export function TestCases4(getTestBed) {
               expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
               expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
               expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
-              expect(reportService.removeTransaction).not.toHaveBeenCalled();
+              expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
               expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
               expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
               expect(res).toEqual(transformedExpenseData.tx);

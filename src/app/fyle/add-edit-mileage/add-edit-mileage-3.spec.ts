@@ -96,6 +96,7 @@ import {
   transformedExpenseDataWithReportId,
   transformedExpenseDataWithSubCategory,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditMileage-3', () => {
@@ -148,6 +149,7 @@ export function TestCases3(getTestBed) {
     let mileageService: jasmine.SpyObj<MileageService>;
     let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
     let locationService: jasmine.SpyObj<LocationService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -207,6 +209,7 @@ export function TestCases3(getTestBed) {
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
       mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
       locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
       component.fg = formBuilder.group({
         mileage_rate_name: [],
@@ -596,7 +599,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'trackEditExpense');
         authService.getEou.and.resolveTo(apiEouRes);
         reportService.addTransactions.and.returnValue(of(null));
-        reportService.removeTransaction.and.returnValue(of(null));
+        spenderReportsService.ejectExpenses.and.returnValue(of(null));
       });
 
       it('should edit an expense', (done) => {
@@ -679,7 +682,7 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(
+          expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.report_id,
             transformedExpenseDataWithReportId.tx.id
           );
@@ -724,7 +727,7 @@ export function TestCases3(getTestBed) {
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
-          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith(
+          expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith(
             transformedExpenseDataWithReportId.tx.report_id,
             transformedExpenseDataWithReportId.tx.id
           );
