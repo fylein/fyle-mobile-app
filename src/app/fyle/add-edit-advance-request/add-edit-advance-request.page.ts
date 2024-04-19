@@ -504,7 +504,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         const view = this.activatedRoute.snapshot.params.view;
-        if (view === 'individual') {
+        if (view === 'Individual') {
           return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
         } else {
           // this logic will run for team view for edit Advance requests

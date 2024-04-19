@@ -321,6 +321,7 @@ export function TestCases2(getTestBed) {
         advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
         loaderService.showLoader.and.resolveTo(undefined);
         loaderService.hideLoader.and.resolveTo(undefined);
+        advanceRequestService.getEReqFromPlatform.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         spyOn(component, 'modifyAdvanceRequestCustomFields');
@@ -391,8 +392,38 @@ export function TestCases2(getTestBed) {
         });
       }));
 
+      it('should get edit advance request observable if mode is edit and view is individual', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          view: 'Individual',
+          id: 'areqR1cyLgXdND',
+        };
+        const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
+        mockAdvanceRequest.areq.project_id = '3019';
+        advanceRequestService.getEReqFromPlatform.and.returnValue(of(mockAdvanceRequest));
+        fixture.detectChanges();
+        component.ionViewWillEnter();
+        tick(100);
+        component.extendedAdvanceRequest$.subscribe((res) => {
+          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getEReqFromPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.fg.value.currencyObj).toEqual({
+            currency: 'USD',
+            amount: 2,
+          });
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
+          expect(component.fg.value.project).toEqual(projects[0]);
+          expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
+            mockAdvanceRequest.areq.custom_field_values
+          );
+          expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.dataUrls).toEqual(fileObject4);
+          expect(res).toEqual(mockAdvanceRequest.areq);
+        });
+      }));
+
       it('should get edit advance request observable if mode is edit', fakeAsync(() => {
         activatedRoute.snapshot.params = {
+          view: 'Team',
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);

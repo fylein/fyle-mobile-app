@@ -62,7 +62,6 @@ import {
   advanceRequestPlatformSentBack,
 } from '../mock-data/platform/v1/advance-request-platform.data';
 import { cloneDeep } from 'lodash';
-import { ActivatedRoute } from '@angular/router';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -216,7 +215,9 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
       spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
       // @ts-ignore
-      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformPulledBack.data[0]);
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        advanceRequestPlatformPulledBack.data[0]
+      );
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
         expect(res).toEqual(expectedData.data[0]);
