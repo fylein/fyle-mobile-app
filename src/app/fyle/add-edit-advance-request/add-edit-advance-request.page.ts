@@ -505,7 +505,7 @@ export class AddEditAdvanceRequestPage implements OnInit {
       switchMap(() => {
         const view = this.activatedRoute.snapshot.params.view;
         if (view === 'individual') {
-          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
+          return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
         } else {
           // this logic will run for team view for edit Advance requests
           return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
