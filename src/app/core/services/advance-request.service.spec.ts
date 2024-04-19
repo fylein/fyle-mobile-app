@@ -216,6 +216,7 @@ describe('AdvanceRequestService', () => {
       spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
       // @ts-ignore
       spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        // @ts-ignore
         advanceRequestPlatformPulledBack.data[0]
       );
 
