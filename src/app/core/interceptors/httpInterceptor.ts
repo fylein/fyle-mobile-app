@@ -113,8 +113,18 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
-  getUrlwithoutQueryParam(urlString: string): string {
-    return urlString.split('?')[0];
+  getUrlWithoutQueryParam(url: string): string {
+    const queryIndex = Math.min(
+      url.indexOf('?') !== -1 ? url.indexOf('?') : url.length,
+      url.indexOf(';') !== -1 ? url.indexOf(';') : url.length
+    );
+    if (queryIndex !== url.length) {
+      url = url.substring(0, queryIndex);
+    }
+    if (url.length > 200) {
+      url = url.substring(0, 200);
+    }
+    return url;
   }
 
   intercept(request: HttpRequest<string>, next: HttpHandler): Observable<HttpEvent<string>> {
@@ -135,7 +145,7 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         request = request.clone({
           setHeaders: {
             'X-App-Version': mobileModifiedappVersion,
-            'X-Page-Url': this.getUrlwithoutQueryParam(window.location.href),
+            'X-Page-Url': this.getUrlWithoutQueryParam(window.location.href),
             'X-Source-Identifier': 'mobile_app',
           },
         });
