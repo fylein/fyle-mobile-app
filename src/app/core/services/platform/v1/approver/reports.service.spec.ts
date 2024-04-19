@@ -3,7 +3,7 @@ import { ApproverReportsService } from './reports.service';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
 
 describe('ApproverReportsService', () => {
-  let reportsService: ApproverReportsService;
+  let approverReportsService: ApproverReportsService;
   const approverPlatformApiService = jasmine.createSpyObj('ApproverPlatformApiService', ['get']);
 
   beforeEach(() => {
@@ -13,10 +13,10 @@ describe('ApproverReportsService', () => {
         { provide: ApproverPlatformApiService, useValue: approverPlatformApiService },
       ],
     });
-    reportsService = TestBed.inject(ApproverReportsService);
+    approverReportsService = TestBed.inject(ApproverReportsService);
   });
 
   it('should be created', () => {
-    expect(reportsService).toBeTruthy();
+    expect(approverReportsService).toBeTruthy();
   });
 });
