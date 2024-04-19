@@ -67,7 +67,7 @@ import { customFieldData2 } from 'src/app/core/mock-data/custom-field.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { createExpenseProperties3 } from 'src/app/core/mock-data/track-expense-properties.data';
-import { extendedReportParam } from 'src/app/core/mock-data/report-unflattened.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 
 export function TestCases3(getTestBed) {
@@ -534,7 +534,7 @@ export function TestCases3(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'getFormValues').and.returnValue({
           ...perDiemFormValuesData10,
-          report: extendedReportParam[0],
+          report: expectedReportsPaginated[0],
         });
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
         component.etxn$ = of(unflattenedTxnData);
@@ -578,7 +578,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               [],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -621,7 +621,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -667,7 +667,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -711,7 +711,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               undefined,
               ['comment'],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -751,7 +751,7 @@ export function TestCases3(getTestBed) {
                 unflattenedTxnData.tx,
                 undefined,
                 ['comment'],
-                'rp5eUkeNm9wB'
+                'rprAfNrce73O'
               );
               expect(res).toEqual(outboxQueueData1[0]);
             },
@@ -796,7 +796,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -831,7 +831,7 @@ export function TestCases3(getTestBed) {
               unflattenedTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();
@@ -876,7 +876,7 @@ export function TestCases3(getTestBed) {
               mockTxnData.tx,
               [],
               [],
-              'rp5eUkeNm9wB'
+              'rprAfNrce73O'
             );
             expect(res).toEqual(outboxQueueData1[0]);
             done();

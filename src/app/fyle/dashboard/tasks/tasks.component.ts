@@ -491,12 +491,13 @@ export class TasksComponent implements OnInit {
   onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        state: 'eq.SENT_BACK',
+        areq_state: 'in.(DRAFT)',
+        areq_is_sent_back: 'is.true',
       };
 
       from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
-          switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {

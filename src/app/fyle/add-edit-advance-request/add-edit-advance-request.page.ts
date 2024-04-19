@@ -289,13 +289,14 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   modifyAdvanceRequestCustomFields(customFields: AdvanceRequestCustomFieldValues[]): AdvanceRequestCustomFieldValues[] {
+    customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value.toString());
         customField.value =
           updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
-      return { name: customField.name, value: customField.value };
+      return { id: customField.id, name: customField.name, value: customField.value };
     });
     this.customFieldValues = customFields;
     return this.customFieldValues;
@@ -576,10 +577,11 @@ export class AddEditAdvanceRequestPage implements OnInit {
       map((customFields) => {
         const customFieldsFormArray = this.fg.controls.customFieldValues as FormArray;
         customFieldsFormArray.clear();
+        customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
         for (const customField of customFields) {
           let value;
           this.customFieldValues.filter((customFieldValue) => {
-            if (customFieldValue.name === customField.name) {
+            if (customFieldValue.id === customField.id) {
               value = customFieldValue.value;
             }
           });

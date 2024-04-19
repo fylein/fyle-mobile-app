@@ -28,8 +28,8 @@ import {
   recentlyUsedProjectRes,
   recentlyUsedRes,
 } from 'src/app/core/mock-data/recently-used.data';
-import { reportOptionsData4 } from 'src/app/core/mock-data/report-options.data';
-import { expectedErpt } from 'src/app/core/mock-data/report-unflattened.data';
+import { reportOptionsData3 } from 'src/app/core/mock-data/report-options.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { txnCustomProperties4, txnCustomPropertiesData6 } from 'src/app/core/mock-data/txn-custom-properties.data';
 import {
   newExpenseMileageData1,
@@ -65,6 +65,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -98,6 +99,7 @@ export function TestCases5(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let platformReportService: jasmine.SpyObj<ReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -153,6 +155,7 @@ export function TestCases5(getTestBed) {
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+      platformReportService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
@@ -252,7 +255,7 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getCategories').and.returnValue(of(unsortedCategories1[2]));
       spyOn(component, 'getExpenseAmount').and.returnValue(of(100));
       spyOn(component, 'getProjects').and.returnValue(of(expectedProjectsResponse[0]));
-      spyOn(component, 'getReports').and.returnValue(of(expectedErpt[0]));
+      spyOn(component, 'getReports').and.returnValue(of(expectedReportsPaginated[0]));
       spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
       spyOn(component, 'getMileageByVehicleType').and.returnValue(unfilteredMileageRatesData[0]);
     }
@@ -272,7 +275,7 @@ export function TestCases5(getTestBed) {
       mileageRatesService.getReadableRate.and.returnValue('10');
       mileageRatesService.formatMileageRateName.and.returnValue('Bicycle');
       recentlyUsedItemsService.getRecentCostCenters.and.returnValue(of(recentlyUsedCostCentersRes));
-      reportService.getFilteredPendingReports.and.returnValue(of(expectedErpt));
+      platformReportService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
       accountsService.getEtxnSelectedPaymentMode.and.returnValue(multiplePaymentModesData[0]);
       accountsService.getAccountTypeFromPaymentMode.and.returnValue(AccountType.PERSONAL);
       authService.getEou.and.resolveTo(apiEouRes);
@@ -413,10 +416,12 @@ export function TestCases5(getTestBed) {
         expect(component.getCostCenters).toHaveBeenCalledOnceWith(jasmine.any(Observable), jasmine.any(Observable));
 
         component.reports$.subscribe((res) => {
-          expect(res).toEqual(reportOptionsData4);
+          expect(res).toEqual(reportOptionsData3);
         });
 
-        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
 
         component.isAmountCapped$.subscribe((res) => {
           expect(res).toBeFalse();
@@ -512,10 +517,12 @@ export function TestCases5(getTestBed) {
         });
 
         component.reports$.subscribe((res) => {
-          expect(res).toEqual(reportOptionsData4);
+          expect(res).toEqual(reportOptionsData3);
         });
 
-        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
 
         component.isAmountCapped$.subscribe((res) => {
           expect(res).toBeTrue();
@@ -614,10 +621,12 @@ export function TestCases5(getTestBed) {
         });
 
         component.reports$.subscribe((res) => {
-          expect(res).toEqual(reportOptionsData4);
+          expect(res).toEqual(reportOptionsData3);
         });
 
-        expect(reportService.getFilteredPendingReports).toHaveBeenCalledOnceWith({ state: 'edit' });
+        expect(platformReportService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
         expect(component.setupTxnFields).toHaveBeenCalledTimes(1);
 
         component.isAmountCapped$.subscribe((res) => {
