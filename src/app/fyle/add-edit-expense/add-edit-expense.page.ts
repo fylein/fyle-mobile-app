@@ -4487,7 +4487,7 @@ export class AddEditExpensePage implements OnInit {
 
   async addAttachments(event: Event): Promise<void> {
     event.stopPropagation();
-
+    console.log('Hello:', this.mode);
     if (this.platform.is('ios')) {
       const nativeElement = this.fileUpload.nativeElement;
       // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
