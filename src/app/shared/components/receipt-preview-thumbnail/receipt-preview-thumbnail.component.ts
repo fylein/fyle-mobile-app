@@ -18,7 +18,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   @Input() canEdit: boolean;
 
-  @Input() mode: boolean;
+  @Input() mode: string;
 
   @Input() hideLabel: boolean;
 

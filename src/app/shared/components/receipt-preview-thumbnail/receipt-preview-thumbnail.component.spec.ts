@@ -3,8 +3,10 @@ import { IonicModule } from '@ionic/angular';
 import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('ReceiptPreviewThumbnailComponent', () => {
+  let trackingService: jasmine.SpyObj<TrackingService>;
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
@@ -17,6 +19,8 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
     fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+
     component.attachments = fileObjectData1;
     fixture.detectChanges();
   }));
@@ -56,9 +60,12 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('addAttachments(): should add more attachments', () => {
     spyOn(component.addMoreAttachments, 'emit');
+    spyOn(trackingService, 'eventTrack');
     const event = null;
+    component.mode = 'add';
     component.addAttachments(event);
     expect(component.addMoreAttachments.emit).toHaveBeenCalledOnceWith(event);
+    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Add More Files Clicked', { mode: 'add' });
   });
 
   it('previewAttachments(): should let user view the attachments', () => {
