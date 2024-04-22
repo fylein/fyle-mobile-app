@@ -132,7 +132,7 @@ export class ViewMileagePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService,
     private mileageRatesService: MileageRatesService,
-    private reportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -219,7 +219,7 @@ export class ViewMileagePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportsService.ejectExpenses(this.reportId, this.expenseId),
+        deleteMethod: (): Observable<void> => this.approverReportsService.ejectExpenses(this.reportId, this.expenseId),
       },
     };
   }
