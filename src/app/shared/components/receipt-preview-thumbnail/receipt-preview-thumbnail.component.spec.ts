@@ -11,8 +11,15 @@ describe('ReceiptPreviewThumbnailComponent', () => {
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
+      providers: [
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+      ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -60,7 +67,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('addAttachments(): should add more attachments', () => {
     spyOn(component.addMoreAttachments, 'emit');
-    spyOn(trackingService, 'eventTrack');
+    //spyOn(trackingService, 'eventTrack');
     const event = null;
     component.mode = 'add';
     component.addAttachments(event);
