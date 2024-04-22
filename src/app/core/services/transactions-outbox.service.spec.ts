@@ -19,7 +19,6 @@ import { of } from 'rxjs';
 import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
-import { S } from '@angular/cdk/keycodes';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
