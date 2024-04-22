@@ -136,7 +136,7 @@ describe('SpenderReportsService', () => {
       },
     };
     spenderReportsService.addExpenses(reportID, txns).subscribe(() => {
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/add_expenses`, payload);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
       done();
     });
   });
@@ -155,7 +155,7 @@ describe('SpenderReportsService', () => {
       reason: undefined,
     };
     spenderReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith(`/reports/eject_expenses`, payload);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
       done();
     });
   });
