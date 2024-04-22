@@ -7,6 +7,7 @@ import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('FyViewAttachmentComponent', () => {
   let component: FyViewAttachmentComponent;
@@ -16,6 +17,7 @@ describe('FyViewAttachmentComponent', () => {
   let popoverController: jasmine.SpyObj<PopoverController>;
   let fileService: jasmine.SpyObj<FileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
+  let trackingService: jasmine.SpyObj<TrackingService>;
 
   beforeEach(waitForAsync(() => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
@@ -23,6 +25,7 @@ describe('FyViewAttachmentComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['delete']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
+    const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['eventTrack']);
 
     TestBed.configureTestingModule({
       declarations: [FyViewAttachmentComponent],
@@ -47,6 +50,10 @@ describe('FyViewAttachmentComponent', () => {
           provide: LoaderService,
           useValue: loaderServiceSpy,
         },
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
       ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
@@ -59,6 +66,7 @@ describe('FyViewAttachmentComponent', () => {
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     const mockAttachments = [
       {
@@ -201,6 +209,9 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).toHaveBeenCalledOnceWith('2');
+    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '2' });
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '2' });
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion', fakeAsync(() => {
@@ -242,6 +253,9 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).toHaveBeenCalledOnceWith('1');
+    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '1' });
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '1' });
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(() => {
@@ -280,6 +294,9 @@ describe('FyViewAttachmentComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ attachments: component.attachments });
     expect(component.attachments.length).toBe(0);
     expect(fileService.delete).toHaveBeenCalledOnceWith('1');
+    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '1' });
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '1' });
   }));
 
   it('deleteAttachment(): should not make api calls for attachments which have not been persisted yet', fakeAsync(() => {
@@ -340,5 +357,8 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).not.toHaveBeenCalledOnceWith('2');
+    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': null });
+    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': null });
   }));
 });
