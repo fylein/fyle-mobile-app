@@ -15,7 +15,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 
 describe('SpenderReportsService', () => {
   let reportsService: SpenderReportsService;
-  const spenderPlatformV1ApiServiceMock = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+  const spenderPlatformV1ApiServiceMock = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -115,6 +115,24 @@ describe('SpenderReportsService', () => {
     reportsService.getReportsByParams(queryParams).subscribe((response) => {
       expect(response).toEqual(allReportsPaginated1);
       expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledOnceWith('/reports', expectedConfig);
+      done();
+    });
+  });
+
+  it('addExpenses(): should add a transaction to a report', (done) => {
+    spenderPlatformV1ApiServiceMock.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const txns = ['txTQVBx7W8EO'];
+
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: txns,
+      },
+    };
+    reportsService.addExpenses(reportID, txns).subscribe(() => {
+      expect(spenderPlatformV1ApiServiceMock.post).toHaveBeenCalledOnceWith(`/reports/add_expenses`, payload);
       done();
     });
   });
