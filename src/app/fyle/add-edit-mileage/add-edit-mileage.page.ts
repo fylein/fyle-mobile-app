@@ -2571,7 +2571,7 @@ export class AddEditMileagePage implements OnInit {
                 const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
+                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
@@ -2579,7 +2579,7 @@ export class AddEditMileagePage implements OnInit {
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
                     return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
+                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );

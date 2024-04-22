@@ -308,7 +308,7 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(transformedExpenseData.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
-        reportService.addTransactions.and.returnValue(of(undefined));
+        spenderReportsService.addExpenses.and.returnValue(of(undefined));
         spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         transactionService.review.and.returnValue(of(null));
         statusService.findLatestComment.and.returnValue(of('comment1'));
@@ -352,7 +352,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -397,7 +397,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txvslh8aQMbu');
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -443,7 +443,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).not.toHaveBeenCalled();
+            expect(spenderReportsService.addExpenses).not.toHaveBeenCalled();
             expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rp8eUleN29dc', 'txvslh8aQMbu');
             expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
             expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
@@ -488,7 +488,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -547,7 +547,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -604,7 +604,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -660,7 +660,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -715,7 +715,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(mockTxnData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).not.toHaveBeenCalled();
+            expect(spenderReportsService.addExpenses).not.toHaveBeenCalled();
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).not.toHaveBeenCalled();
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -766,7 +766,7 @@ export function TestCases4(getTestBed) {
             expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
             expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
             expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-            expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+            expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
             expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
             expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
             expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();
@@ -811,7 +811,7 @@ export function TestCases4(getTestBed) {
               expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
               expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseData.id);
               expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-              expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+              expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
               expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
               expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
               expect(trackingService.removeFromExistingReportEditExpense).not.toHaveBeenCalled();

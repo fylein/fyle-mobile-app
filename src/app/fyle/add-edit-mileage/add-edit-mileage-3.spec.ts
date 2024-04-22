@@ -598,7 +598,7 @@ export function TestCases3(getTestBed) {
         spyOn(component, 'getEditCalculatedDistance').and.returnValue(of(12));
         spyOn(component, 'trackEditExpense');
         authService.getEou.and.resolveTo(apiEouRes);
-        reportService.addTransactions.and.returnValue(of(null));
+        spenderReportsService.addExpenses.and.returnValue(of(null));
         spenderReportsService.ejectExpenses.and.returnValue(of(null));
       });
 
@@ -638,7 +638,7 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithSubCategory);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
             transformedExpenseDataWithSubCategory.tx.id,
           ]);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
@@ -686,7 +686,7 @@ export function TestCases3(getTestBed) {
             transformedExpenseDataWithReportId.tx.report_id,
             transformedExpenseDataWithReportId.tx.id
           );
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);
           done();
         });
@@ -960,7 +960,7 @@ export function TestCases3(getTestBed) {
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
           expect(component.getFormValues).toHaveBeenCalledTimes(1);
           expect(component.getIsPolicyExpense).toHaveBeenCalledTimes(1);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(expectedReportsPaginated[0].id, [
             'txD5hIQgLuR5',
           ]);
           expect(trackingService.addToExistingReportAddEditExpense).toHaveBeenCalledTimes(1);

@@ -6,7 +6,6 @@ import { editUnflattenedTransaction, txnData2 } from '../mock-data/transaction.d
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { ReportService } from './report.service';
 import { StatusService } from './status.service';
 import { StorageService } from './storage.service';
 import { TrackingService } from './tracking.service';
@@ -19,6 +18,8 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { S } from '@angular/cdk/keycodes';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -29,7 +30,7 @@ describe('TransactionsOutboxService', () => {
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let reportService: jasmine.SpyObj<ReportService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   const singleCaptureCountInSession = 0;
@@ -43,7 +44,7 @@ describe('TransactionsOutboxService', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpensesById']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post']);
 
@@ -57,7 +58,7 @@ describe('TransactionsOutboxService', () => {
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: StatusService, useValue: statusServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
+        { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
       ],
@@ -69,7 +70,7 @@ describe('TransactionsOutboxService', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
