@@ -35,7 +35,7 @@ describe('ApproverReportsService', () => {
       reason: undefined,
     };
     approverReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
-      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith(`/reports/eject_expenses`, payload);
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
       done();
     });
   });
