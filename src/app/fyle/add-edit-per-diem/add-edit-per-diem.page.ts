@@ -694,13 +694,16 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
     );
-    const formValue = this.getFormValues();
+
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.getFormValues();
+
       if (
         formValue.sub_category &&
         formValue.sub_category.id &&
         !categories.some((category) => formValue.sub_category && formValue.sub_category.id === category.value.id)
       ) {
+        console.log('lol');
         this.fg.controls.sub_category.reset();
       }
     });
