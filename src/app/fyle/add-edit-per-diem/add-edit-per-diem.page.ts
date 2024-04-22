@@ -703,7 +703,6 @@ export class AddEditPerDiemPage implements OnInit {
         formValue.sub_category.id &&
         !categories.some((category) => formValue.sub_category && formValue.sub_category.id === category.value.id)
       ) {
-        console.log('lol');
         this.fg.controls.sub_category.reset();
       }
     });
