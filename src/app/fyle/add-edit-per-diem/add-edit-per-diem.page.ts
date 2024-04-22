@@ -723,6 +723,9 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap(() => {
+        this.fg.updateValueAndValidity({
+          emitEvent: false,
+        });
         const category = this.getFormValues().sub_category;
         if (this.initialFetch) {
           return this.etxn$.pipe(
@@ -745,6 +748,9 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       switchMap((category) => {
+        this.fg.updateValueAndValidity({
+          emitEvent: false,
+        });
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
