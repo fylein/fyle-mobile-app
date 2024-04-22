@@ -325,9 +325,23 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         this.receiptOptions = receiptOptions;
       });
 
-    expenses$.subscribe((expenses) => (this.expenses = expenses));
+    expenses$.subscribe((expenses) => {
+      this.expenses = expenses;
+      this.setDefaultReceipts();
+    });
 
     this.combinedCustomProperties = this.generateCustomInputOptions(customProperties as Partial<CustomInput>[][]);
+  }
+
+  setDefaultReceipts(): void {
+    const expenseWithReceipt = this.expenses.find((expense) => expense.tx_file_ids.length > 0);
+    this.genericFieldsOptions$.subscribe(() => {
+      this.fg.patchValue({
+        genericFields: {
+          receipt_ids: expenseWithReceipt?.tx_id || null,
+        },
+      });
+    });
   }
 
   loadGenericFieldsOptions(): void {
@@ -392,11 +406,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
       }) => {
         this.fg.patchValue({
           genericFields: {
-            receipt_ids:
-              this.expenses[selectedIndex]?.tx_file_ids?.length > 0 &&
-              !this.touchedGenericFields?.includes('receipt_ids')
-                ? this.expenses[selectedIndex].tx_split_group_id
-                : null,
             amount: this.mergeExpensesService.getFieldValueOnChange(
               amountOptionsData,
               this.touchedGenericFields?.includes('amount'),
@@ -465,6 +474,19 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
             ),
           },
         });
+
+        // Change receipt form field only if the selected expense has receipts
+        if (this.expenses[selectedIndex]?.tx_file_ids?.length > 0) {
+          this.fg.patchValue({
+            genericFields: {
+              receipt_ids:
+                this.expenses[selectedIndex]?.tx_file_ids?.length > 0 &&
+                !this.touchedGenericFields?.includes('receipt_ids')
+                  ? this.expenses[selectedIndex].tx_id
+                  : null,
+            },
+          });
+        }
       }
     );
   }
