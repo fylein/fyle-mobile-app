@@ -37,6 +37,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -504,7 +505,8 @@ export class AddEditAdvanceRequestPage implements OnInit {
     const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
       switchMap(() => {
         const view = this.activatedRoute.snapshot.params.view;
-        if (view === 'Individual') {
+        // using ExpenseView enum here as it has the same two states as advance
+        if (view === ExpenseView.individual) {
           return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
         } else {
           // this logic will run for team view for edit Advance requests

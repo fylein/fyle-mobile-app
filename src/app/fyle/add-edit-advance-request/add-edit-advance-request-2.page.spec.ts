@@ -58,6 +58,7 @@ import {
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { EventEmitter } from '@angular/core';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
+import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
@@ -394,7 +395,7 @@ export function TestCases2(getTestBed) {
 
       it('should get edit advance request observable if mode is edit and view is individual', fakeAsync(() => {
         activatedRoute.snapshot.params = {
-          view: 'Individual',
+          view: ExpenseView.individual,
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
@@ -423,7 +424,7 @@ export function TestCases2(getTestBed) {
 
       it('should get edit advance request observable if mode is edit', fakeAsync(() => {
         activatedRoute.snapshot.params = {
-          view: 'Team',
+          view: ExpenseView.team,
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
