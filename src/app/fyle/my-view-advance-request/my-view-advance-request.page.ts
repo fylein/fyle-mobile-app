@@ -213,7 +213,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
       '/',
       'enterprise',
       'add_edit_advance_request',
-      { id: this.activatedRoute.snapshot.params.id },
+      {
+        id: this.activatedRoute.snapshot.params.id,
+      },
     ]);
   }
 

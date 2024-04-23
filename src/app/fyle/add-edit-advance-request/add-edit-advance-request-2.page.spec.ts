@@ -395,7 +395,6 @@ export function TestCases2(getTestBed) {
 
       it('should get edit advance request observable if mode is edit and view is individual', fakeAsync(() => {
         activatedRoute.snapshot.params = {
-          view: ExpenseView.individual,
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
@@ -424,7 +423,7 @@ export function TestCases2(getTestBed) {
 
       it('should get edit advance request observable if mode is edit', fakeAsync(() => {
         activatedRoute.snapshot.params = {
-          view: ExpenseView.team,
+          from: 'TEAM_ADVANCE',
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
