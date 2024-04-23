@@ -189,6 +189,11 @@ export class TrackingService {
     this.eventTrack('View Attachment', properties);
   }
 
+  // File download complete event
+  fileDownloadComplete(properties = {}): void {
+    this.eventTrack('File Download Complete', properties);
+  }
+
   // add comment event
   addComment(properties: { view?: string } = {}): void {
     this.eventTrack('Add Comment', properties);

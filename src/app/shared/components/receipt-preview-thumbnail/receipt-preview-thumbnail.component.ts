@@ -77,7 +77,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
     try {
       const fileId = this.attachments[this.activeIndex].id;
-      this.trackingService.eventTrack('File Download Complete', { 'File ID': fileId });
+      this.trackingService.fileDownloadComplete({ 'File ID': fileId });
     } catch (error) {}
   }
 }
