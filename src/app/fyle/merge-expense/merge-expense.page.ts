@@ -327,13 +327,14 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
 
     expenses$.subscribe((expenses) => {
       this.expenses = expenses;
-      this.setDefaultReceipts();
+      // Set receipts from expenses if the merge form is having one or more expenses without receipts
+      this.setupDefaultReceipts();
     });
 
     this.combinedCustomProperties = this.generateCustomInputOptions(customProperties as Partial<CustomInput>[][]);
   }
 
-  setDefaultReceipts(): void {
+  setupDefaultReceipts(): void {
     const expenseWithReceipt = this.expenses.find((expense) => expense.tx_file_ids.length > 0);
     this.genericFieldsOptions$.subscribe(() => {
       this.fg.patchValue({
