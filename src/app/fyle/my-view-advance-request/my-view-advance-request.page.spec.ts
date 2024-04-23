@@ -32,7 +32,6 @@ import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { properties } from 'src/app/core/mock-data/modal-properties.data';
 import { modalControllerParams8, modalControllerParams9 } from 'src/app/core/mock-data/modal-controller.data';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 describe('MyViewAdvanceRequestPage', () => {
   let component: MyViewAdvanceRequestPage;
@@ -308,9 +307,7 @@ describe('MyViewAdvanceRequestPage', () => {
       '/',
       'enterprise',
       'add_edit_advance_request',
-      {
-        id: 'areqR1cyLgXdND',
-      },
+      { id: 'areqR1cyLgXdND', },
     ]);
   });
 
