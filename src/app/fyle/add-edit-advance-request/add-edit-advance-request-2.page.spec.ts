@@ -58,7 +58,6 @@ import {
 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { EventEmitter } from '@angular/core';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
-import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 
 export function TestCases2(getTestBed) {
   return describe('test cases 2', () => {
