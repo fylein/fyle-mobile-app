@@ -1417,6 +1417,11 @@ export function TestCases3(getTestBed) {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData1[0]);
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+        expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
+          mode: 'edit',
+          'File ID': 'fi6PQ6z4w6ET',
+          'Txn ID': unflattenedExpData.tx.id,
+        });
       }));
     });
 

@@ -4436,7 +4436,7 @@ export class AddEditExpensePage implements OnInit {
             switchMap((fileObj: FileObject) => {
               fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
               try {
-                this.trackingService.eventTrack('File Upload Complete', {
+                this.trackingService.fileUploadComplete({
                   mode: 'edit',
                   'File ID': fileObj?.id,
                   'Txn ID': fileObj?.transaction_id,
