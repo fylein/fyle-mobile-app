@@ -848,10 +848,6 @@ export class TasksService {
     return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
-  mapScalarAdvanceStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
-    return this.getStatsFromResponse(statsResponse, 'count(areq_id)', 'sum(areq_amount)');
-  }
-
   getCommuteDetailsTasks(): Observable<DashboardTask[]> {
     const isCommuteDeductionEnabled$ = this.orgSettingsService
       .get()
