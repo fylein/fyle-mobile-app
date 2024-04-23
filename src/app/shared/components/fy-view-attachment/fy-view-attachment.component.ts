@@ -92,7 +92,7 @@ export class FyViewAttachmentComponent implements OnInit {
   async deleteAttachment() {
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     try {
-      this.trackingService.eventTrack('Delete File Clicked', { 'File ID': this.attachments[activeIndex].id });
+      this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
     } catch (error) {}
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponent,
@@ -130,7 +130,7 @@ export class FyViewAttachmentComponent implements OnInit {
           )
           .subscribe(() => {
             try {
-              this.trackingService.eventTrack('File Deleted', { 'File ID': this.attachments[activeIndex].id });
+              this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
             } catch (error) {}
             this.attachments.splice(activeIndex, 1);
             if (this.attachments.length === 0) {

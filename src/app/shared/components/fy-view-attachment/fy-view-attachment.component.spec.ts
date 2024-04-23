@@ -25,7 +25,7 @@ describe('FyViewAttachmentComponent', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['delete']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
-    const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['eventTrack']);
+    const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['deleteFileClicked', 'fileDeleted']);
 
     TestBed.configureTestingModule({
       declarations: [FyViewAttachmentComponent],
@@ -209,9 +209,8 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).toHaveBeenCalledOnceWith('2');
-    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '2' });
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '2' });
+    expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '2' });
+    expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '2' });
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion', fakeAsync(() => {
@@ -253,9 +252,8 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).toHaveBeenCalledOnceWith('1');
-    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '1' });
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '1' });
+    expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
+    expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
 
   it('deleteAttachment(): should be able to show delete first attachment popover and perform deletion and dismiss the modal', fakeAsync(() => {
@@ -294,9 +292,8 @@ describe('FyViewAttachmentComponent', () => {
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ attachments: component.attachments });
     expect(component.attachments.length).toBe(0);
     expect(fileService.delete).toHaveBeenCalledOnceWith('1');
-    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': '1' });
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': '1' });
+    expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
+    expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
 
   it('deleteAttachment(): should not make api calls for attachments which have not been persisted yet', fakeAsync(() => {
@@ -357,8 +354,7 @@ describe('FyViewAttachmentComponent', () => {
       },
     ]);
     expect(fileService.delete).not.toHaveBeenCalledOnceWith('2');
-    expect(trackingService.eventTrack).toHaveBeenCalledTimes(2);
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('Delete File Clicked', { 'File ID': null });
-    expect(trackingService.eventTrack).toHaveBeenCalledWith('File Deleted', { 'File ID': null });
+    expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': null });
+    expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': null });
   }));
 });
