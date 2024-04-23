@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
 @Component({
@@ -33,7 +34,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   numLoadedImage = 0;
 
-  constructor() {}
+  constructor(private trackingService: TrackingService) {}
 
   ngOnInit() {
     this.sliderOptions = {
@@ -73,5 +74,10 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   onLoad() {
     this.numLoadedImage++;
+
+    try {
+      const fileId = this.attachments[this.activeIndex].id;
+      this.trackingService.eventTrack('File Download Complete', { 'File ID': fileId });
+    } catch (error) {}
   }
 }

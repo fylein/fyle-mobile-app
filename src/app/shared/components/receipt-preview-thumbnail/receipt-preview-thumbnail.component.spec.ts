@@ -3,20 +3,32 @@ import { IonicModule } from '@ionic/angular';
 import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
+import { cloneDeep } from 'lodash';
 
 describe('ReceiptPreviewThumbnailComponent', () => {
+  let trackingService: jasmine.SpyObj<TrackingService>;
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
+      providers: [
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+      ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+
     component.attachments = fileObjectData1;
     fixture.detectChanges();
   }));
@@ -113,5 +125,8 @@ describe('ReceiptPreviewThumbnailComponent', () => {
     const previousNumLoadedImage = component.numLoadedImage;
     component.onLoad();
     expect(component.numLoadedImage).toBe(previousNumLoadedImage + 1);
+    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('File Download Complete', {
+      'File ID': 'fi6PQ6z4w6ET',
+    });
   });
 });
