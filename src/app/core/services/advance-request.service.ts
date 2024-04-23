@@ -329,8 +329,19 @@ export class AdvanceRequestService {
     );
   }
 
-  getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
+  getEReqFromPlatform(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
     return this.getAdvanceRequestPlatform(advanceRequestId).pipe(
+      map((res) => {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+        const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);
+        this.dateService.fixDates(eAdvanceRequest.areq);
+        return eAdvanceRequest;
+      })
+    );
+  }
+
+  getEReq(advanceRequestId: string): Observable<UnflattenedAdvanceRequest> {
+    return this.apiService.get('/eadvance_requests/' + advanceRequestId).pipe(
       map((res) => {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
         const eAdvanceRequest: UnflattenedAdvanceRequest = this.dataTransformService.unflatten(res);

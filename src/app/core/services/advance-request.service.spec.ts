@@ -215,7 +215,10 @@ describe('AdvanceRequestService', () => {
       const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
       spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
       // @ts-ignore
-      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformPulledBack.data[0]);
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        // @ts-ignore
+        advanceRequestPlatformPulledBack.data[0]
+      );
 
       advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
         expect(res).toEqual(expectedData.data[0]);
@@ -470,6 +473,21 @@ describe('AdvanceRequestService', () => {
     );
   });
 
+  it('getEReq(): should get advance request', (done) => {
+    apiService.get.and.returnValue(of(singleErqRes));
+    dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
+    spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getEReq(advID).subscribe((res) => {
+      expect(res).toEqual(singleErqUnflattened);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
+      done();
+    });
+  });
+
   it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
     const advID = 'areqa4CojbCAqd';
     //@ts-ignore
@@ -557,14 +575,14 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getEReq(): should get advance request', (done) => {
+  it('getEReqFromPlatform(): should get advance request', (done) => {
     spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(publicAdvanceRequestRes.data[0]));
     dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
     spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
 
     const advID = 'areqGzKF1Tne23';
 
-    advanceRequestService.getEReq(advID).subscribe((res) => {
+    advanceRequestService.getEReqFromPlatform(advID).subscribe((res) => {
       expect(res).toEqual(singleErqUnflattened);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
