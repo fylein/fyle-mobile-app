@@ -126,29 +126,36 @@ export function TestCases2(getTestBed) {
         expect(mergeExpensesService.getFieldValueOnChange).toHaveBeenCalledTimes(11);
       });
 
-      it('should update receipt_ids to null if expense is undefined', () => {
+      it('should update receipt_ids to undefined if expense is undefined', () => {
         component.onExpenseChanged(-1);
-        expect(component.fg.controls.genericFields.value.receipt_ids).toEqual(null);
+        expect(component.fg.controls.genericFields.value.receipt_ids).toBeUndefined();
       });
 
-      it('should update receipt_ids to null if tx_file_ids is undefined', () => {
+      it('should update receipt_ids to undefined if tx_file_ids is undefined', () => {
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.receipt_ids).toEqual(null);
+        expect(component.fg.controls.genericFields.value.receipt_ids).toBeUndefined();
       });
 
-      it('should update receipt_ids to null if tx_file_ids is empty', () => {
+      it('should update receipt_ids to undefined if tx_file_ids is empty', () => {
         component.expenses[1].tx_file_ids = [];
         component.onExpenseChanged(1);
-        expect(component.fg.controls.genericFields.value.receipt_ids).toEqual(null);
+        expect(component.fg.controls.genericFields.value.receipt_ids).toBeUndefined();
       });
 
-      it('should set receipt_ids to tx_split_group_id if tx_file_ids is not empty and touchedGenericFields is undefined', () => {
+      it('should set receipt_ids to null if touchedGenericFields includes receipt_ids', () => {
+        component.touchedGenericFields = ['receipt_ids'];
+        component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
+        component.onExpenseChanged(1);
+        expect(component.fg.controls.genericFields.value.receipt_ids).toBeNull();
+      });
+
+      it('should set receipt_ids to tx_id if tx_file_ids is not empty and touchedGenericFields is undefined', () => {
         component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
         component.onExpenseChanged(1);
         expect(component.fg.controls.genericFields.value.receipt_ids).toEqual('tx3nHShG60zq');
       });
 
-      it('should set receipt_ids to tx_split_group_id if tx_file_ids is not empty and receipt_ids field is not touched in the form', () => {
+      it('should set receipt_ids to tx_id if tx_file_ids is not empty and receipt_ids field is not touched in the form', () => {
         component.expenses[1].tx_file_ids = ['fiGLwwPtYD8X'];
         component.touchedGenericFields = ['dateOfSpend', 'paymentMode'];
         component.onExpenseChanged(1);
