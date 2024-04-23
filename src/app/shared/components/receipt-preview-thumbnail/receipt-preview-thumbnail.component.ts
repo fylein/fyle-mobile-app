@@ -56,7 +56,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   addAttachments(event) {
     this.addMoreAttachments.emit(event);
-    this.trackingService.eventTrack('Add More Files Clicked', { mode: this.mode });
+    this.trackingService.addMoreFilesClicked({ mode: this.mode });
   }
 
   previewAttachments() {

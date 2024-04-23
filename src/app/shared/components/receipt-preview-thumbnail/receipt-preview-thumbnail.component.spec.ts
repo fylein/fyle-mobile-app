@@ -11,7 +11,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['eventTrack']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked']);
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
       providers: [
@@ -67,12 +67,11 @@ describe('ReceiptPreviewThumbnailComponent', () => {
 
   it('addAttachments(): should add more attachments', () => {
     spyOn(component.addMoreAttachments, 'emit');
-    //spyOn(trackingService, 'eventTrack');
     const event = null;
     component.mode = 'add';
     component.addAttachments(event);
     expect(component.addMoreAttachments.emit).toHaveBeenCalledOnceWith(event);
-    expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Add More Files Clicked', { mode: 'add' });
+    expect(trackingService.addMoreFilesClicked).toHaveBeenCalledOnceWith({ mode: 'add' });
   });
 
   it('previewAttachments(): should let user view the attachments', () => {
