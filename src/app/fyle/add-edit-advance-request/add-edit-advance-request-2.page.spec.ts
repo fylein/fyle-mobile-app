@@ -11,7 +11,6 @@ import { NetworkService } from 'src/app/core/services/network.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
-import { StatusService } from 'src/app/core/services/status.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { AddEditAdvanceRequestPage } from './add-edit-advance-request.page';
@@ -68,7 +67,6 @@ export function TestCases2(getTestBed) {
     let advanceRequestsCustomFieldsService: jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
     let advanceRequestService: jasmine.SpyObj<AdvanceRequestService>;
     let modalController: jasmine.SpyObj<ModalController>;
-    let statusService: jasmine.SpyObj<StatusService>;
     let loaderService: jasmine.SpyObj<LoaderService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
@@ -95,7 +93,6 @@ export function TestCases2(getTestBed) {
       ) as jasmine.SpyObj<AdvanceRequestsCustomFieldsService>;
       advanceRequestService = TestBed.inject(AdvanceRequestService) as jasmine.SpyObj<AdvanceRequestService>;
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-      statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -324,6 +321,7 @@ export function TestCases2(getTestBed) {
         advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
         loaderService.showLoader.and.resolveTo(undefined);
         loaderService.hideLoader.and.resolveTo(undefined);
+        advanceRequestService.getEReqFromPlatform.and.returnValue(of(unflattenedAdvanceRequestData));
         advanceRequestService.getEReq.and.returnValue(of(unflattenedAdvanceRequestData));
         projectsService.getbyId.and.returnValue(of(projects[0]));
         spyOn(component, 'modifyAdvanceRequestCustomFields');
@@ -394,8 +392,37 @@ export function TestCases2(getTestBed) {
         });
       }));
 
+      it('should get edit advance request observable if mode is edit and view is individual', fakeAsync(() => {
+        activatedRoute.snapshot.params = {
+          id: 'areqR1cyLgXdND',
+        };
+        const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);
+        mockAdvanceRequest.areq.project_id = '3019';
+        advanceRequestService.getEReqFromPlatform.and.returnValue(of(mockAdvanceRequest));
+        fixture.detectChanges();
+        component.ionViewWillEnter();
+        tick(100);
+        component.extendedAdvanceRequest$.subscribe((res) => {
+          expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
+          expect(advanceRequestService.getEReqFromPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.fg.value.currencyObj).toEqual({
+            currency: 'USD',
+            amount: 2,
+          });
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith('3019');
+          expect(component.fg.value.project).toEqual(projects[0]);
+          expect(component.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
+            mockAdvanceRequest.areq.custom_field_values
+          );
+          expect(component.getAttachedReceipts).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+          expect(component.dataUrls).toEqual(fileObject4);
+          expect(res).toEqual(mockAdvanceRequest.areq);
+        });
+      }));
+
       it('should get edit advance request observable if mode is edit', fakeAsync(() => {
         activatedRoute.snapshot.params = {
+          from: 'TEAM_ADVANCE',
           id: 'areqR1cyLgXdND',
         };
         const mockAdvanceRequest = cloneDeep(unflattenedAdvanceRequestData);

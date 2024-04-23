@@ -8,6 +8,8 @@ import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
+import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
+import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
 
 @Component({
   selector: 'app-my-view-advance',
@@ -17,6 +19,8 @@ import { ExtendedAdvance } from 'src/app/core/models/extended_advance.model';
 export class MyViewAdvancePage {
   advance$: Observable<ExtendedAdvance>;
 
+  advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
+
   projectFieldName = 'Project';
 
   currencySymbol: string;
@@ -25,7 +29,8 @@ export class MyViewAdvancePage {
     private advanceService: AdvanceService,
     private activatedRoute: ActivatedRoute,
     private loaderService: LoaderService,
-    private expenseFieldsService: ExpenseFieldsService
+    private expenseFieldsService: ExpenseFieldsService,
+    private advanceRequestService: AdvanceRequestService
   ) {}
 
   get StatisticTypes(): typeof StatisticTypes {
@@ -50,6 +55,10 @@ export class MyViewAdvancePage {
       switchMap(() => this.advanceService.getAdvance(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
+    );
+
+    this.advanceRequest$ = this.advance$.pipe(
+      switchMap((advance) => this.advanceRequestService.getAdvanceRequestPlatform(advance.areq_id))
     );
 
     this.advance$.subscribe((advance) => {

@@ -37,6 +37,7 @@ import { AdvanceRequestsCustomFields } from 'src/app/core/models/advance-request
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestCustomFieldValues } from 'src/app/core/models/advance-request-custom-field-values.model';
 import { AdvanceRequestDeleteParams } from 'src/app/core/models/advance-request-delete-params.model';
+
 @Component({
   selector: 'app-add-edit-advance-request',
   templateUrl: './add-edit-advance-request.page.html',
@@ -289,14 +290,13 @@ export class AddEditAdvanceRequestPage implements OnInit {
   }
 
   modifyAdvanceRequestCustomFields(customFields: AdvanceRequestCustomFieldValues[]): AdvanceRequestCustomFieldValues[] {
-    customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
     customFields = customFields.map((customField) => {
       if (customField.type === 'DATE' && customField.value) {
         const updatedDate = new Date(customField.value.toString());
         customField.value =
           updatedDate.getFullYear() + '-' + (updatedDate.getMonth() + 1) + '-' + updatedDate.getDate();
       }
-      return { id: customField.id, name: customField.name, value: customField.value };
+      return { name: customField.name, value: customField.value };
     });
     this.customFieldValues = customFields;
     return this.customFieldValues;
@@ -503,7 +503,15 @@ export class AddEditAdvanceRequestPage implements OnInit {
     }
 
     const editAdvanceRequestPipe$: Observable<Partial<AdvanceRequests>> = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string)),
+      switchMap(() => {
+        const isEditFromTeamView = this.activatedRoute.snapshot.params.from === 'TEAM_ADVANCE';
+        if (isEditFromTeamView) {
+          // this logic will run for team view for edit Advance requests
+          return this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string);
+        } else {
+          return this.advanceRequestService.getEReqFromPlatform(this.activatedRoute.snapshot.params.id as string);
+        }
+      }),
       map((res) => {
         this.fg.patchValue({
           currencyObj: {
@@ -577,11 +585,10 @@ export class AddEditAdvanceRequestPage implements OnInit {
       map((customFields) => {
         const customFieldsFormArray = this.fg.controls.customFieldValues as FormArray;
         customFieldsFormArray.clear();
-        customFields.sort((a, b) => (a.id > b.id ? 1 : -1));
         for (const customField of customFields) {
           let value;
           this.customFieldValues.filter((customFieldValue) => {
-            if (customFieldValue.id === customField.id) {
+            if (customFieldValue.name === customField.name) {
               value = customFieldValue.value;
             }
           });
