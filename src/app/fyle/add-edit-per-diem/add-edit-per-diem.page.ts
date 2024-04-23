@@ -47,6 +47,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -103,6 +104,7 @@ import { ExtendedAccount } from 'src/app/core/models/extended-account.model';
 import { OutboxQueue } from 'src/app/core/models/outbox-queue.model';
 import { AllowedPerDiemRateOptions } from 'src/app/core/models/allowed-per-diem-rate-options.model';
 import { PerDiemReports } from 'src/app/core/models/per-diem-reports.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TransactionState } from 'src/app/core/models/transaction-state.enum';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -256,6 +258,7 @@ export class AddEditPerDiemPage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private currencyService: CurrencyService,
     private reportService: ReportService,
+    private platformReportService: ReportsService,
     private projectService: ProjectsService,
     private transactionsOutboxService: TransactionsOutboxService,
     private transactionService: TransactionService,
@@ -691,8 +694,10 @@ export class AddEditPerDiemPage implements OnInit {
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
     );
-    const formValue = this.getFormValues();
+
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.getFormValues();
+
       if (
         formValue.sub_category &&
         formValue.sub_category.id &&
@@ -720,6 +725,9 @@ export class AddEditPerDiemPage implements OnInit {
     return this.fg.controls.sub_category.valueChanges.pipe(
       startWith({}),
       switchMap(() => {
+        this.fg.updateValueAndValidity({
+          emitEvent: false,
+        });
         const category = this.getFormValues().sub_category;
         if (this.initialFetch) {
           return this.etxn$.pipe(
@@ -742,6 +750,9 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       switchMap((category) => {
+        this.fg.updateValueAndValidity({
+          emitEvent: false,
+        });
         const formValue = this.getFormValues();
         return customExpenseFields$.pipe(
           map((customFields) => customFields.filter((customField) => customField.type !== 'DEPENDENT_SELECT')),
@@ -1068,9 +1079,21 @@ export class AddEditPerDiemPage implements OnInit {
       )
     );
 
-    this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
-      .pipe(map((reports) => reports.map((report) => ({ label: report.rp.purpose, value: report }))));
+    this.reports$ = this.platformReportService
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
+      .pipe(
+        // Filter out partially approved reports
+        map((reports) =>
+          reports
+            .filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+            .map((report) => ({ label: report.purpose, value: report }))
+        )
+      ) as Observable<
+      {
+        label: string;
+        value: Report;
+      }[]
+    >;
 
     this.txnFields$
       .pipe(
@@ -1358,11 +1381,11 @@ export class AddEditPerDiemPage implements OnInit {
     }).pipe(
       map(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.id === etxn.tx.report_id);
         } else if (
           !autoSubmissionReportName &&
           reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
+          reportOptions[0].value.state === 'DRAFT'
         ) {
           return reportOptions[0].value;
         } else {
@@ -1863,7 +1886,7 @@ export class AddEditPerDiemPage implements OnInit {
               formValue.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValue.report.rp.id;
+              reportId = formValue.report.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
@@ -2035,7 +2058,7 @@ export class AddEditPerDiemPage implements OnInit {
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
-                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
+                const selectedReportId = formValue.report?.id;
                 const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
