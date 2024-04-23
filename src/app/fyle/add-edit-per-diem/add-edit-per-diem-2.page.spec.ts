@@ -268,6 +268,7 @@ export function TestCases2(getTestBed) {
             perDiemCategories: [perDiemCategory],
           })
         );
+        spyOn(component.fg, 'updateValueAndValidity');
         component.etxn$ = of(unflattenedTxnData);
         categoriesService.getAll.and.returnValue(of([mockCategoryData]));
         customFieldsService.standardizeCustomFields.and.returnValue(cloneDeep(expectedTxnCustomProperties));
