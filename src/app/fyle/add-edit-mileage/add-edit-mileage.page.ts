@@ -455,7 +455,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
-    const formValue = this.getFormValues();
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -478,6 +477,8 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.getFormValues();
+
       if (
         formValue.sub_category &&
         formValue.sub_category.id &&
