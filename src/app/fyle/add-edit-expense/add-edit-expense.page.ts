@@ -4435,6 +4435,13 @@ export class AddEditExpensePage implements OnInit {
           .pipe(
             switchMap((fileObj: FileObject) => {
               fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
+              try {
+                this.trackingService.eventTrack('File Upload Complete', {
+                  mode: 'edit',
+                  'File ID': fileObj?.id,
+                  'Txn ID': fileObj?.transaction_id,
+                });
+              } catch (error) {}
               return this.fileService.post(fileObj);
             }),
             switchMap(() =>
