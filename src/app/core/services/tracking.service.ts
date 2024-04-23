@@ -39,7 +39,6 @@ import { ExpenseFilters } from '../models/expense-filters.model';
 import { ReportFilters } from '../models/report-filters.model';
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { HttpErrorResponse } from '@angular/common/http';
-import { properties } from '../mock-data/modal-properties.data';
 
 @Injectable({
   providedIn: 'root',
@@ -190,10 +189,12 @@ export class TrackingService {
     this.eventTrack('View Attachment', properties);
   }
 
+  // Click on delete file icon event
   deleteFileClicked(properties = {}): void {
     this.eventTrack('Delete File Clicked', properties);
   }
 
+  // File deleted event
   fileDeleted(properties = {}): void {
     this.eventTrack('File Deleted', properties);
   }
