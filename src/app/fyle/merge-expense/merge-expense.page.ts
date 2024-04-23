@@ -480,11 +480,9 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         if (this.expenses[selectedIndex]?.tx_file_ids?.length > 0) {
           this.fg.patchValue({
             genericFields: {
-              receipt_ids:
-                this.expenses[selectedIndex]?.tx_file_ids?.length > 0 &&
-                !this.touchedGenericFields?.includes('receipt_ids')
-                  ? this.expenses[selectedIndex].tx_id
-                  : null,
+              receipt_ids: !this.touchedGenericFields?.includes('receipt_ids')
+                ? this.expenses[selectedIndex].tx_id
+                : null,
             },
           });
         }
