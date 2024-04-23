@@ -37,6 +37,7 @@ describe('AddEditAdvanceRequestPage', () => {
       'delete',
       'getActions',
       'getEReq',
+      'getEReqFromPlatform',
     ]);
     const modalControllerSpyObj = jasmine.createSpyObj('ModalController', ['create']);
     const statusServiceSpyObj = jasmine.createSpyObj('StatusService', ['findLatestComment', 'post']);
