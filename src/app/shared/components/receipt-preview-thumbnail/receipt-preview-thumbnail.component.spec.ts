@@ -11,7 +11,8 @@ describe('ReceiptPreviewThumbnailComponent', () => {
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked', 'fileDownloadComplete']);
+
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
       providers: [
@@ -126,5 +127,6 @@ describe('ReceiptPreviewThumbnailComponent', () => {
     const previousNumLoadedImage = component.numLoadedImage;
     component.onLoad();
     expect(component.numLoadedImage).toBe(previousNumLoadedImage + 1);
+    expect(trackingService.fileDownloadComplete).toHaveBeenCalledOnceWith({ 'File ID': fileObjectData1[0].id });
   });
 });

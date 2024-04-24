@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, ViewChild, Output, EventEmitter, DoCheck } from '@angular/core';
 import { timer } from 'rxjs';
 import { FileObject } from 'src/app/core/models/file-obj.model';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
-import { TrackingService } from 'src/app/core/services/tracking.service';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
@@ -77,5 +77,10 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   onLoad() {
     this.numLoadedImage++;
+
+    try {
+      const fileId = this.attachments[this.activeIndex].id;
+      this.trackingService.fileDownloadComplete({ 'File ID': fileId });
+    } catch (error) {}
   }
 }
