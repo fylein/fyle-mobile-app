@@ -193,6 +193,16 @@ export class TrackingService {
     this.eventTrack('View Attachment', properties);
   }
 
+  // Click on delete file icon event
+  deleteFileClicked(properties = {}): void {
+    this.eventTrack('Delete File Clicked', properties);
+  }
+
+  // File deleted event
+  fileDeleted(properties = {}): void {
+    this.eventTrack('File Deleted', properties);
+  }
+
   // add comment event
   addComment(properties: { view?: string } = {}): void {
     this.eventTrack('Add Comment', properties);
