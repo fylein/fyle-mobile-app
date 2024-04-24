@@ -4,6 +4,7 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',
@@ -17,6 +18,8 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
   @Input() isUploading: boolean;
 
   @Input() canEdit: boolean;
+
+  @Input() mode: string;
 
   @Input() hideLabel: boolean;
 
@@ -54,6 +57,7 @@ export class ReceiptPreviewThumbnailComponent implements OnInit, DoCheck {
 
   addAttachments(event) {
     this.addMoreAttachments.emit(event);
+    this.trackingService.addMoreFilesClicked({ mode: this.mode });
   }
 
   previewAttachments() {
