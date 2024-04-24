@@ -23,7 +23,6 @@ export const cardEnrolledProperties2: CardEnrolledProperties = {
 export const cardUnenrolledProperties: CardUnenrolledProperties = {
   'Card Network': CardNetworkType.VISA,
   'Card ID': 'bacc15bbrRGWzf',
-  'Card Number': '455555******5555',
 };
 
 export const cardEnrollmentErrorsProperties1: CardEnrollmentErrorsProperties = {
@@ -39,7 +38,6 @@ export const cardEnrollmentErrorsProperties2: CardEnrollmentErrorsProperties = {
   Source: '/enterprise/manage_corporate_cards',
   'Existing Card': '',
   'Error Message': 'Something went wrong. Please try after some time.',
-  'Card Number': '4555 **** **** 5555',
 };
 
 export const cardEnrollmentErrorsProperties3: CardEnrollmentErrorsProperties = {
@@ -47,7 +45,6 @@ export const cardEnrollmentErrorsProperties3: CardEnrollmentErrorsProperties = {
   Source: '/enterprise/manage_corporate_cards',
   'Existing Card': '',
   'Error Message': 'Invalid card number',
-  'Card Number': '4234 **** **** 1111',
 };
 
 export const cardEnrollmentErrorsProperties4: CardEnrollmentErrorsProperties = {
@@ -55,11 +52,9 @@ export const cardEnrollmentErrorsProperties4: CardEnrollmentErrorsProperties = {
   Source: '/enterprise/manage_corporate_cards',
   'Existing Card': '',
   'Error Message': 'Invalid card network',
-  'Card Number': '4111 **** **** 1111',
 };
 
 export const enrollingNonRTFCardProperties: EnrollingNonRTFCardProperties = {
   'Existing Card': '',
-  'Card Number': '3111 **** **** 1111',
   Source: '/enterprise/manage_corporate_cards',
 };
