@@ -193,10 +193,10 @@ export class TrackingService {
     this.eventTrack('View Attachment', properties);
   }
 
-
   // File download complete event
   fileDownloadComplete(properties = {}): void {
     this.eventTrack('File Download Complete', properties);
+  }
 
   // Click on delete file icon event
   deleteFileClicked(properties = {}): void {
