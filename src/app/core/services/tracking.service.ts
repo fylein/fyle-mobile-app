@@ -184,6 +184,10 @@ export class TrackingService {
     this.eventTrack('Add Attachment', properties);
   }
 
+  addMoreFilesClicked(properties = {}): void {
+    this.eventTrack('Add More Files Clicked', properties);
+  }
+
   // add view attachment event
   viewAttachment(properties = {}): void {
     this.eventTrack('View Attachment', properties);
