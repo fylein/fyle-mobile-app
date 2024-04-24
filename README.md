@@ -6,10 +6,17 @@ Please install node v14.17.2 or above via nvm.
 
 ## How to run this locally?
 
- - [Install ionic cli](https://ionicframework.com/docs/cli)
- - npm install
- - Add the environment files corresponding to the build you want in the environment folder
- - ionic serve -c `env_name`
+1. **Install Ionic CLI**: If you haven't already, follow the instructions [here](https://ionicframework.com/docs/cli) to install the Ionic CLI.
+2. **Install Dependencies**: Run `npm install`` in your terminal to install all the necessary dependencies.
+3. **Set Environment Variables**: Add the environment files corresponding to the build you want in the environment folder.
+4. **Run Locally**: Use the following command to run the application locally:
+```bash
+ionic serve -c env_name
+```
+Replace env_name with the name of the environment file you want to use. For example, if you have an environment file named staging, you would run:
+```bash
+ionic serve -c staging
+```
 
 # IMPORTANT
 ## For setting environment variables
