@@ -339,6 +339,8 @@ export function TestCases4(getTestBed) {
           },
         });
 
+        component.mode = 'edit';
+
         modalController.create.and.resolveTo(captureReceiptModalSpy);
 
         component.addAttachments(new Event('click'));
@@ -347,6 +349,9 @@ export function TestCases4(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: CameraOptionsPopupComponent,
           cssClass: 'camera-options-popover',
+          componentProps: {
+            mode: component.mode,
+          },
         });
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: CaptureReceiptComponent,

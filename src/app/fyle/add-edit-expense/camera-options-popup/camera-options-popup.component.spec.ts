@@ -111,6 +111,8 @@ describe('CameraOptionsPopupComponent', () => {
       nativeElement: dummyNativeElement,
     } as DebugElement;
 
+    component.mode = 'edit';
+
     const nativeElement = component.fileUpload.nativeElement as HTMLInputElement;
     spyOn(nativeElement, 'click').and.callThrough();
 
@@ -122,7 +124,7 @@ describe('CameraOptionsPopupComponent', () => {
 
     expect(component.onChangeCallback).toHaveBeenCalledOnceWith(nativeElement);
     expect(nativeElement.click).toHaveBeenCalledTimes(1);
-    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Add Expense', Category: 'Camera' });
+    expect(trackingService.addAttachment).toHaveBeenCalledOnceWith({ Mode: 'Edit Expense', Category: 'Camera' });
   }));
 
   describe('uploadFileCallback():', () => {
