@@ -4,7 +4,6 @@ import { FileObject } from 'src/app/core/models/file-obj.model';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Swiper } from 'swiper';
 import { SwiperComponent } from 'swiper/angular';
-import { TrackingService } from 'src/app/core/services/tracking.service';
 @Component({
   selector: 'app-receipt-preview-thumbnail',
   templateUrl: './receipt-preview-thumbnail.component.html',

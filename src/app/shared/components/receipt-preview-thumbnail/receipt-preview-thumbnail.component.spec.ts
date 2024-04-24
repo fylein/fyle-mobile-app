@@ -11,8 +11,7 @@ describe('ReceiptPreviewThumbnailComponent', () => {
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['fileDownloadComplete']);
-    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked', 'fileDownloadComplete']);
 
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
