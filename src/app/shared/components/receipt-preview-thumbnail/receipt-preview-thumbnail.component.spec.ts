@@ -125,6 +125,6 @@ describe('ReceiptPreviewThumbnailComponent', () => {
     const previousNumLoadedImage = component.numLoadedImage;
     component.onLoad();
     expect(component.numLoadedImage).toBe(previousNumLoadedImage + 1);
-    expect(trackingService.fileDownloadComplete).toHaveBeenCalledOnceWith({ 'File ID': 'fi6PQ6z4w6ET' });
+    expect(trackingService.fileDownloadComplete).toHaveBeenCalledOnceWith({ 'File ID': fileObjectData1[0].id });
   });
 });
