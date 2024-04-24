@@ -1419,7 +1419,7 @@ export function TestCases3(getTestBed) {
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
           mode: 'edit',
-          'File ID': 'fi6PQ6z4w6ET',
+          'File ID': fileObjectData1[0].id,
           'Txn ID': unflattenedExpData.tx.id,
         });
       }));
