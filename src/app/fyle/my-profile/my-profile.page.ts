@@ -39,6 +39,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 @Component({
   selector: 'app-my-profile',
@@ -87,6 +88,10 @@ export class MyProfilePage {
   isMileageEnabled: boolean;
 
   isCommuteDeductionEnabled: boolean;
+
+  isRTFEnabled: boolean;
+
+  defaultPaymentMode: string;
 
   constructor(
     private authService: AuthService,
@@ -187,6 +192,18 @@ export class MyProfilePage {
     }
   }
 
+  getDefaultPaymentMode(): string {
+    const paymentMode = this.orgSettings.payment_mode_settings?.payment_modes_order?.[0];
+    switch (paymentMode) {
+      case AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT:
+        return 'Personal Advances';
+      case AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT:
+        return 'Corporate Credit Card';
+      default:
+        return 'Personal Cash/Card';
+    }
+  }
+
   reset(): void {
     const orgUserSettings$ = this.orgUserSettingsService.get().pipe(shareReplay(1));
     this.org$ = this.orgService.getCurrentOrg();
@@ -213,6 +230,13 @@ export class MyProfilePage {
           this.orgSettings.commute_deduction_settings?.allowed && this.orgSettings.commute_deduction_settings?.enabled;
 
         this.mileageDistanceUnit = this.orgSettings.mileage?.unit;
+
+        this.isRTFEnabled =
+          this.orgSettings.visa_enrollment_settings?.enabled ||
+          this.orgSettings.mastercard_enrollment_settings?.enabled ||
+          this.orgSettings.amex_feed_enrollment_settings?.enabled;
+
+        this.defaultPaymentMode = this.getDefaultPaymentMode();
 
         if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
           this.setCommuteDetails();
@@ -340,7 +364,10 @@ export class MyProfilePage {
     await verificationSuccessfulPopover.present();
     await verificationSuccessfulPopover.onWillDismiss();
 
-    this.trackingService.mobileNumberVerified();
+    this.trackingService.mobileNumberVerified({
+      isRtfEnabled: this.isRTFEnabled,
+      defaultPaymentMode: this.defaultPaymentMode,
+    });
   }
 
   async verifyMobileNumber(eou: ExtendedOrgUser): Promise<void> {
@@ -415,6 +442,8 @@ export class MyProfilePage {
 
     this.trackingService.updateMobileNumber({
       popoverTitle: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+      isRtfEnabled: this.isRTFEnabled,
+      defaultPaymentMode: this.defaultPaymentMode,
     });
   }
 
