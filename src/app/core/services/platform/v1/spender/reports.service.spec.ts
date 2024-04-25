@@ -15,17 +15,21 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
-  const spenderPlatformV1ApiServiceMock = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
+    const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       providers: [
         SpenderReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
-        { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceMock },
+        { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceSpy },
       ],
     });
     spenderReportsService = TestBed.inject(SpenderReportsService);
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -111,10 +115,47 @@ describe('SpenderReportsService', () => {
         ...queryParams,
       },
     };
-    spenderPlatformV1ApiServiceMock.get.and.returnValue(of(allReportsPaginated1));
+    spenderPlatformV1ApiService.get.and.returnValue(of(allReportsPaginated1));
     spenderReportsService.getReportsByParams(queryParams).subscribe((response) => {
       expect(response).toEqual(allReportsPaginated1);
-      expect(spenderPlatformV1ApiServiceMock.get).toHaveBeenCalledOnceWith('/reports', expectedConfig);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/reports', expectedConfig);
+      done();
+    });
+  });
+
+  it('addExpenses(): should add an expense to a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const txns = ['txTQVBx7W8EO'];
+
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: txns,
+      },
+    };
+    spenderReportsService.addExpenses(reportID, txns).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
+      done();
+    });
+  });
+
+  it('ejectExpenses(): should remove an expense from a report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const txns = ['txTQVBx7W8EO'];
+
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: txns,
+      },
+      reason: undefined,
+    };
+    spenderReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
       done();
     });
   });

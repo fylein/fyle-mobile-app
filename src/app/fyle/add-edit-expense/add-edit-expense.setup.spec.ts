@@ -94,7 +94,11 @@ describe('AddEditExpensePage', () => {
       'getFilteredPendingReports',
       'addTransactions',
     ]);
-    const reportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getAllReportsByParams', 'ejectExpenses']);
+    const reportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'getAllReportsByParams',
+      'ejectExpenses',
+      'addExpenses',
+    ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [

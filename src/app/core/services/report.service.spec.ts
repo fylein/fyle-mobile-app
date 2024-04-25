@@ -516,20 +516,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('addTransactions(): should add a transaction to a report', (done) => {
-    apiService.post.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpvcIMRMyM3A';
-    const tnxs = ['txTQVBx7W8EO'];
-
-    reportService.addTransactions(reportID, tnxs).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('actions(): should get report actions', (done) => {
     apiService.get.and.returnValue(of(apiReportActions));
 
