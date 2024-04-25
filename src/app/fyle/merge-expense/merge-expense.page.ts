@@ -404,7 +404,6 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         constCenterOptionsData,
         purposeOptionsData,
       }) => {
-        console.log(this.expenses[selectedIndex]);
         this.fg.patchValue({
           genericFields: {
             amount: this.mergeExpensesService.getFieldValueOnChange(
