@@ -8,11 +8,11 @@ import { ApproverPlatformApiService } from '../../../approver-platform-api.servi
 export class ApproverReportsService {
   constructor(private approverPlatformApiService: ApproverPlatformApiService) {}
 
-  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+  ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
     const payload = {
       data: {
         id: rptId,
-        expense_ids: [txnId],
+        expense_ids: [expenseId],
       },
       reason: comment,
     };
