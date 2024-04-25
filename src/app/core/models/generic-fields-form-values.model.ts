@@ -10,4 +10,5 @@ export interface GenericFieldsFormValues {
   tax_amount: number;
   costCenter: number;
   purpose: string;
+  receipts_from: string;
 }

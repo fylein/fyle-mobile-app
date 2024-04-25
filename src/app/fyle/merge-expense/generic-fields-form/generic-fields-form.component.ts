@@ -87,7 +87,7 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
   ngOnInit(): void {
     this.genericFieldsFormGroup = this.formBuilder.group({
       amount: [, Validators.required],
-      receipt_ids: [],
+      receipts_from: [],
       dateOfSpend: [],
       paymentMode: [, Validators.required],
       project: [],
@@ -120,8 +120,8 @@ export class GenericFieldsFormComponent implements OnInit, ControlValueAccessor,
       this.paymentModeChanged.emit(paymentMode);
     });
 
-    this.genericFieldsFormGroup.controls.receipt_ids.valueChanges.subscribe((receiptIds: string) => {
-      this.receiptChanged.emit(receiptIds);
+    this.genericFieldsFormGroup.controls.receipts_from.valueChanges.subscribe((receiptsFrom: string) => {
+      this.receiptChanged.emit(receiptsFrom);
     });
 
     this.genericFieldsFormGroup.valueChanges.subscribe((formControlNames: FormGroup) => {
