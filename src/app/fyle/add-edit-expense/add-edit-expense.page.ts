@@ -4511,6 +4511,9 @@ export class AddEditExpensePage implements OnInit {
       const popup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
+        componentProps: {
+          mode: this.mode,
+        },
       });
 
       await popup.present();

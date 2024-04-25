@@ -55,8 +55,6 @@ export class AddCorporateCardComponent implements OnInit {
 
       if (this.isAddingNonRTFCard) {
         this.trackingService.enrollingNonRTFCard({
-          'Existing Card': this.card ? this.card.card_number : '',
-          'Card Number': `${value.slice(0, 4)} **** **** ${value.slice(12)}`,
           Source: this.router.url,
         });
       }
@@ -97,7 +95,6 @@ export class AddCorporateCardComponent implements OnInit {
   }
 
   private trackEnrollmentErrors(): void {
-    const cardNumber = this.cardForm.value as string;
     let error = '';
 
     if (this.cardForm.errors.invalidCardNumber) {
@@ -110,9 +107,7 @@ export class AddCorporateCardComponent implements OnInit {
 
     this.trackingService.cardEnrollmentErrors({
       'Card Network': this.cardType,
-      'Existing Card': this.card ? this.card.card_number : '',
       'Error Message': error,
-      'Card Number': `${cardNumber.slice(0, 4)} **** **** ${cardNumber.slice(12)}`,
       Source: this.router.url,
     });
   }
@@ -189,7 +184,6 @@ export class AddCorporateCardComponent implements OnInit {
   private handleEnrollmentSuccess(card: PlatformCorporateCard): void {
     this.trackingService.cardEnrolled({
       'Card Network': this.cardType,
-      'Existing Card': this.card ? this.card.card_number : '',
       'Card ID': card.id,
       Source: this.router.url,
     });

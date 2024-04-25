@@ -235,10 +235,11 @@ describe('ViewCommentComponent', () => {
       expect(statusService.createStatusMap).toHaveBeenCalledWith(component.systemComments, component.type);
     }));
 
-    it('should set type correctly for a given objectType', () => {
+    it('should set type correctly for a given objectType', fakeAsync(() => {
       component.objectType = 'Expenses';
       component.ngOnInit();
+      tick(500);
       expect(component.type).toEqual('Expense');
-    });
+    }));
   });
 });

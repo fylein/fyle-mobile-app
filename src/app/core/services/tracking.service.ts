@@ -184,6 +184,10 @@ export class TrackingService {
     this.eventTrack('Add Attachment', properties);
   }
 
+  addMoreFilesClicked(properties = {}): void {
+    this.eventTrack('Add More Files Clicked', properties);
+  }
+
   // add view attachment event
   viewAttachment(properties = {}): void {
     this.eventTrack('View Attachment', properties);
@@ -192,6 +196,21 @@ export class TrackingService {
   // File upload complete event
   fileUploadComplete(properties = {}): void {
     this.eventTrack('File Upload Complete', properties);
+  }
+
+  // File download complete event
+  fileDownloadComplete(properties = {}): void {
+    this.eventTrack('File Download Complete', properties);
+  }
+
+  // Click on delete file icon event
+  deleteFileClicked(properties = {}): void {
+    this.eventTrack('Delete File Clicked', properties);
+  }
+
+  // File deleted event
+  fileDeleted(properties = {}): void {
+    this.eventTrack('File Deleted', properties);
   }
 
   // add comment event
