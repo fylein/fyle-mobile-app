@@ -316,15 +316,15 @@ export function TestCases1(getTestBed) {
         component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
       });
 
-      it('should set receipt_ids as transaction ID if any of the merged expense has receipt', () => {
+      it('should set receipts_from as transaction ID if any of the merged expense has receipt', () => {
         component.expenses[1].tx_file_ids = ['fi2xk29232qwr'];
-        component.setupDefaultReceipts();
-        expect(component.fg.controls.genericFields.value.receipt_ids).toEqual('txZA0Oj6TV9c');
+        component.setupDefaultReceipts(component.expenses);
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual('txZA0Oj6TV9c');
       });
 
-      it('should set receipt_ids as null if none of the merged expense has receipt', () => {
-        component.setupDefaultReceipts();
-        expect(component.fg.controls.genericFields.value.receipt_ids).toEqual(null);
+      it('should set receipts_from as null if none of the merged expense has receipt', () => {
+        component.setupDefaultReceipts(component.expenses);
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(null);
       });
     });
 
@@ -365,6 +365,7 @@ export function TestCases1(getTestBed) {
           tax_amount: 0.01,
           costCenter: null,
           purpose: null,
+          receipts_from: undefined,
         });
         expect(mergeExpensesService.getFieldValue).toHaveBeenCalledTimes(11);
       });
