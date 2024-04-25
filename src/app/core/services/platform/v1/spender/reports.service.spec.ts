@@ -12,6 +12,7 @@ import {
   mockQueryParams,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { query } from '@angular/animations';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
@@ -138,6 +139,17 @@ describe('SpenderReportsService', () => {
     spenderReportsService.addExpenses(reportID, txns).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
       done();
+    });
+  });
+
+  it('getReport(): should get a report by id', () => {
+    const getReportsByParams = spyOn(spenderReportsService, 'getReportsByParams');
+    const queryParams = {
+      id: 'rpvcIMRMyM3A',
+    };
+    getReportsByParams.withArgs(queryParams).and.returnValue(of(allReportsPaginated1));
+    spenderReportsService.getReport('rpvcIMRMyM3A').subscribe((res) => {
+      expect(getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });
 

@@ -18,7 +18,7 @@ export class SpenderReportsService {
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
   ) {}
 
-  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
+  getAllReportsByParams(queryParams: ReportsQueryParams, order?: string): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -26,10 +26,18 @@ export class SpenderReportsService {
       }),
       concatMap((page) => {
         let params = {
-          state: queryParams.state,
+          ...queryParams,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
         };
+
+        if (order) {
+          params = {
+            ...params,
+            order,
+          };
+        }
+
         return this.getReportsByParams(params);
       }),
       reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
@@ -52,6 +60,10 @@ export class SpenderReportsService {
       },
     };
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
+  }
+
+  getReport(id: string): Observable<Report> {
+    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
   }
 
   createDraft(data: CreateDraftParams): Observable<Report> {
