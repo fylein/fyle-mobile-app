@@ -227,11 +227,6 @@ export class MyProfilePage {
 
         this.mileageDistanceUnit = this.orgSettings.mileage?.unit;
 
-        this.isRTFEnabled =
-          this.orgSettings.visa_enrollment_settings?.enabled ||
-          this.orgSettings.mastercard_enrollment_settings?.enabled ||
-          this.orgSettings.amex_feed_enrollment_settings?.enabled;
-
         this.defaultPaymentMode = this.getDefaultPaymentMode();
 
         if (this.isMileageEnabled && this.isCommuteDeductionEnabled) {
