@@ -1405,6 +1405,7 @@ export function TestCases3(getTestBed) {
         fileService.post.and.returnValue(of(fileData1[0]));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
+        spyOn(trackingService, 'fileUploadComplete');
         fixture.detectChanges();
 
         component.attachReceipts({
@@ -1417,6 +1418,11 @@ export function TestCases3(getTestBed) {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData1[0]);
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
+        expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
+          mode: 'edit',
+          'File ID': fileObjectData1[0].id,
+          'Txn ID': unflattenedExpData.tx.id,
+        });
       }));
     });
 
