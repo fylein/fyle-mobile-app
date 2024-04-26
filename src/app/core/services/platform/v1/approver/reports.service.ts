@@ -51,6 +51,20 @@ export class ApproverReportsService {
     return this.approverPlatformApiService.get<PlatformApiResponse<Report>>('/reports', config);
   }
 
+  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+    return this.approverPlatformApiService
+      .post<{ data: StatsResponse }>('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      })
+      .pipe(map((res) => res.data));
+  }
+
+  getReport(id: string): Observable<Report> {
+    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
+  }
+
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
     const payload = {
       data: {
