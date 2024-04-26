@@ -9,7 +9,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
-import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-requesst-param.model';
+import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 
 @Injectable({
   providedIn: 'root',
