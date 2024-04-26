@@ -34,6 +34,8 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -54,6 +56,7 @@ describe('MyProfilePage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let paymentModeService: jasmine.SpyObj<PaymentModesService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -77,6 +80,7 @@ describe('MyProfilePage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getPaymentModeDisplayName']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -156,6 +160,10 @@ describe('MyProfilePage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        {
+          provide: PaymentModesService,
+          useValue: paymentModeServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -180,6 +188,7 @@ describe('MyProfilePage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -370,6 +379,84 @@ describe('MyProfilePage', () => {
     }));
   });
 
+  describe('getDefaultPaymentMode():', () => {
+    beforeEach(() => {
+      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
+    });
+
+    it('should return Personal Advances if payment Mode is PERSONAL_ADVANCE_ACCOUNT', () => {
+      const advancesOrgSettings = cloneDeep(orgSettingsData);
+      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Advances');
+      advancesOrgSettings.payment_mode_settings = {
+        payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+      };
+      component.orgSettings = advancesOrgSettings;
+      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Advances');
+
+      const result = component.getDefaultPaymentMode();
+
+      expect(result).toEqual('Personal Advances');
+      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
+        AllowedPaymentModes.PERSONAL_ACCOUNT
+      );
+    });
+
+    it('should return Corporate Credit Card if payment Mode is PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
+      const cccOrgSettings = cloneDeep(orgSettingsData);
+      cccOrgSettings.payment_mode_settings = {
+        payment_modes_order: [AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT],
+      };
+      component.orgSettings = cccOrgSettings;
+      paymentModeService.getPaymentModeDisplayName.and.returnValue('Corporate Credit Card');
+
+      const result = component.getDefaultPaymentMode();
+
+      expect(result).toEqual('Corporate Credit Card');
+      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
+        AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
+      );
+    });
+
+    it('should return Personal Cash/Card if payment Mode is not PERSONAL_ADVANCE_ACCOUNT or PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
+      const personalCashOrgSettings = cloneDeep(orgSettingsData);
+      personalCashOrgSettings.payment_mode_settings = {
+        payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
+      };
+      component.orgSettings = personalCashOrgSettings;
+
+      const result = component.getDefaultPaymentMode();
+
+      expect(result).toEqual('Personal Cash/Card');
+      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
+        AllowedPaymentModes.PERSONAL_ACCOUNT
+      );
+    });
+
+    it('should return Personal Cash/Card if payment_mode_settings is not defined', () => {
+      const orgSettings = cloneDeep(orgSettingsData);
+      orgSettings.payment_mode_settings = undefined;
+      component.orgSettings = orgSettings;
+
+      const result = component.getDefaultPaymentMode();
+
+      expect(result).toEqual('Personal Cash/Card');
+      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(undefined);
+    });
+
+    it('should return Personal Cash/Card if payment_modes_order is undefined', () => {
+      const orgSettings = cloneDeep(orgSettingsData);
+      orgSettings.payment_mode_settings = {
+        payment_modes_order: undefined,
+      };
+      component.orgSettings = orgSettings;
+
+      const result = component.getDefaultPaymentMode();
+
+      expect(result).toEqual('Personal Cash/Card');
+      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(undefined);
+    });
+  });
+
   it('reset(): should reset all settings', fakeAsync(() => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
@@ -379,6 +466,7 @@ describe('MyProfilePage', () => {
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
+    spyOn(component, 'getDefaultPaymentMode').and.returnValue('Personal Cash/Card');
     fixture.detectChanges();
 
     component.reset();
@@ -395,6 +483,8 @@ describe('MyProfilePage', () => {
 
     expect(component.orgUserSettings).toEqual(orgUserSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
+    expect(component.getDefaultPaymentMode).toHaveBeenCalledTimes(1);
+    expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
 
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {
