@@ -96,6 +96,7 @@ export interface Expense {
   source: string;
   source_account: Pick<Account, 'id' | 'type'>;
   source_account_id: string;
+  advance_wallet_id?: string;
   spent_at: Date;
   split_group_amount: number;
   split_group_id: string;

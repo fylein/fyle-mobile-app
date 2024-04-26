@@ -33,6 +33,7 @@ export interface Expense {
   rp_purpose?: string;
   rp_reimbursed_at?: Date;
   source_account_id: string;
+  advance_wallet_id?: string;
   source_account_type: string;
   transaction_approvals?: string[];
   tx_admin_amount?: number;
@@ -135,6 +136,7 @@ export interface Expense {
   tx_skip_reimbursement: boolean;
   tx_source: string;
   tx_source_account_id: string;
+  tx_advance_wallet_id?: string;
   tx_split_group_id: string;
   tx_split_group_user_amount?: number;
   tx_state: string;

@@ -164,4 +164,12 @@ export class ExpensesService {
 
     return this.getAllExpenses(params);
   }
+
+  post(expense: Partial<Expense>) {
+    return this.spenderService
+      .post('/expenses', {
+        data: expense,
+      })
+      .pipe(map((response) => response));
+  }
 }

@@ -831,6 +831,7 @@ export class TransactionService {
             }))
           : null,
         source_account_id: expense.source_account_id,
+        advance_wallet_id: expense.advance_wallet_id,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
         physical_bill: expense.is_physical_bill_submitted,
@@ -928,6 +929,7 @@ export class TransactionService {
       tx_project_code: expense.project?.code,
       tx_physical_bill: expense.is_physical_bill_submitted,
       tx_physical_bill_at: expense.physical_bill_submitted_at,
+      tx_advance_wallet_id: expense.advance_wallet_id,
       source_account_id: expense.source_account_id,
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };

@@ -130,7 +130,9 @@ import { CameraOptionsPopupComponent } from './camera-options-popup/camera-optio
 import { SuggestedDuplicatesComponent } from './suggested-duplicates/suggested-duplicates.component';
 import { InstaFyleImageData } from 'src/app/core/models/insta-fyle-image-data.model';
 import { Expense as PlatformExpense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
+import { AdvanceWallet } from 'src/app/core/models/platform/v1/advance-wallet.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { AdvanceWalletsService } from 'src/app/core/services/platform/v1/spender/advance-wallets.service';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
@@ -469,7 +471,8 @@ export class AddEditExpensePage implements OnInit {
     private storageService: StorageService,
     private launchDarklyService: LaunchDarklyService,
     private platformHandlerService: PlatformHandlerService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private advanceWalletsService: AdvanceWalletsService
   ) {}
 
   get isExpandedView(): boolean {
@@ -622,21 +625,40 @@ export class AddEditExpensePage implements OnInit {
 
   checkIfInvalidPaymentMode(): Observable<boolean> {
     const formValues = this.getFormValues();
-    return this.etxn$.pipe(
-      map((etxn) => {
-        const paymentAccount = formValues.paymentMode;
+    return forkJoin({
+      etxn: this.etxn$,
+      isAdvanceClosuresEnabled: this.launchDarklyService.getVariation('advance_closures_enabled', false),
+    }).pipe(
+      map(({ etxn, isAdvanceClosuresEnabled }) => {
+        const paymentMode: any = formValues.paymentMode;
         const originalSourceAccountId = etxn && etxn.tx && etxn.tx.source_account_id;
         let isPaymentModeInvalid = false;
-        if (paymentAccount && paymentAccount.acc && paymentAccount.acc.type === AccountType.ADVANCE) {
-          if (paymentAccount.acc.id !== originalSourceAccountId) {
+        if (
+          !isAdvanceClosuresEnabled &&
+          paymentMode &&
+          paymentMode.acc &&
+          paymentMode.acc.type === AccountType.ADVANCE
+        ) {
+          if (paymentMode.acc.id !== originalSourceAccountId) {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+              paymentMode.acc.tentative_balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
           } else {
             isPaymentModeInvalid =
-              paymentAccount.acc.tentative_balance_amount + etxn.tx.amount <
+              paymentMode.acc.tentative_balance_amount + etxn.tx.amount <
               (formValues.currencyObj && formValues.currencyObj.amount);
           }
         }
+
+        if (isAdvanceClosuresEnabled && paymentMode && paymentMode.type === AccountType.ADVANCE) {
+          if (paymentMode.id !== etxn && etxn.tx && etxn.tx.advance_wallet_id) {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount < (formValues.currencyObj && formValues.currencyObj.amount);
+          } else {
+            isPaymentModeInvalid =
+              paymentMode.balance_amount + etxn.tx.amount < (formValues.currencyObj && formValues.currencyObj.amount);
+          }
+        }
+
         if (isPaymentModeInvalid) {
           this.paymentModesService.showInvalidPaymentModeToast();
         }
@@ -1143,23 +1165,43 @@ export class AddEditExpensePage implements OnInit {
       orgSettings: this.orgSettingsService.get(),
       etxn: this.etxn$,
       allowedPaymentModes: this.orgUserSettingsService.getAllowedPaymentModes(),
+      isAdvanceClosuresEnabled: this.launchDarklyService.getVariation('advance_closures_enabled', false),
+      advanceWallets: this.advanceWalletsService.getAllAdvanceWallets(),
       isPaymentModeConfigurationsEnabled: this.paymentModesService.checkIfPaymentModeConfigurationsIsEnabled(),
     }).pipe(
-      map(({ accounts, orgSettings, etxn, allowedPaymentModes, isPaymentModeConfigurationsEnabled }) => {
-        const isCCCEnabled = this.getCCCSettings(orgSettings);
-
-        if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
-          this.showCardTransaction = false;
-        }
-        const config = {
-          etxn,
+      map(
+        ({
+          accounts,
           orgSettings,
-          expenseType: ExpenseType.EXPENSE,
+          etxn,
+          allowedPaymentModes,
+          isAdvanceClosuresEnabled,
+          advanceWallets,
           isPaymentModeConfigurationsEnabled,
-        };
+        }) => {
+          const isCCCEnabled = this.getCCCSettings(orgSettings);
 
-        return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
-      }),
+          if (!isCCCEnabled && !etxn.tx.corporate_credit_card_expense_group_id) {
+            this.showCardTransaction = false;
+          }
+          const config = {
+            etxn,
+            orgSettings,
+            expenseType: ExpenseType.EXPENSE,
+            isPaymentModeConfigurationsEnabled,
+          };
+
+          if (isAdvanceClosuresEnabled) {
+            return this.accountsService.getPaymentModesWithAdvanceWallets(
+              accounts,
+              advanceWallets,
+              allowedPaymentModes,
+              config
+            );
+          }
+          return this.accountsService.getPaymentModes(accounts, allowedPaymentModes, config);
+        }
+      ),
       shareReplay(1)
     );
   }
@@ -1519,7 +1561,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedPaymentModes(): Observable<ExtendedAccount> {
+  getSelectedPaymentModes(): any {
     return forkJoin({
       etxn: this.etxn$,
       paymentModes: this.paymentModes$,
@@ -3237,6 +3279,12 @@ export class AddEditExpensePage implements OnInit {
     return formValue?.paymentMode?.acc?.id;
   }
 
+  getAdvanceWalletId(isAdvanceClosuresEnabled: boolean): string {
+    const formValue = this.getFormValues();
+    const paymentMode: any = formValue?.paymentMode;
+    return isAdvanceClosuresEnabled && paymentMode?.type === AccountType.ADVANCE && paymentMode?.id;
+  }
+
   getBillable(): boolean {
     return this.getFormValues()?.billable;
   }
@@ -3345,6 +3393,7 @@ export class AddEditExpensePage implements OnInit {
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
       attachments: attachements$,
+      isAdvanceClosuresEnabled: this.launchDarklyService.getVariation('advance_closures_enabled', false),
     }).pipe(
       map((res) => {
         const etxn: Partial<UnflattenedTransaction> = res.etxn;
@@ -3397,6 +3446,7 @@ export class AddEditExpensePage implements OnInit {
             ...etxn.tx,
             source: this.source || etxn.tx.source,
             source_account_id: this.getSourceAccID(),
+            advance_wallet_id: this.getAdvanceWalletId(res.isAdvanceClosuresEnabled),
             billable: this.getBillable(),
             skip_reimbursement: this.getSkipRemibursement(),
             txn_dt: this.getTxnDate(),
