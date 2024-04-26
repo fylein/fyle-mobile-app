@@ -153,7 +153,7 @@ describe('SpenderReportsService', () => {
     });
   });
 
-  it('getAdvanceRequestStats(): should get advance request stats', (done) => {
+  it('getReportsStats(): should get advance request stats', (done) => {
     const statsResponse = {
       count: 2,
       total_amount: 1200,
@@ -161,7 +161,7 @@ describe('SpenderReportsService', () => {
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: statsResponse }));
 
     const params = {
-      state: 'eq.SENT_BACK',
+      state: 'eq.DRAFT',
     };
 
     spenderReportsService.getReportsStats(params).subscribe((res) => {
