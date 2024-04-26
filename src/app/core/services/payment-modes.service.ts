@@ -26,6 +26,7 @@ export class PaymentModesService {
     private trackingService: TrackingService
   ) {}
 
+  //comment
   checkIfPaymentModeConfigurationsIsEnabled() {
     return this.orgUserSettingsService
       .get()
