@@ -5,6 +5,8 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-requesst-param.model';
+import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -60,5 +62,19 @@ export class ApproverReportsService {
       reason: comment,
     };
     return this.approverPlatformApiService.post<void>('/reports/eject_expenses', payload);
+  }
+
+  getReport(id: string): Observable<Report> {
+    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
+  }
+
+  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+    return this.approverPlatformApiService
+      .post<{ data: StatsResponse }>('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      })
+      .pipe(map((res) => res.data));
   }
 }
