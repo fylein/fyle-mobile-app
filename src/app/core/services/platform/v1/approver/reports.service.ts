@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 @Injectable({
   providedIn: 'root',
