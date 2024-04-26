@@ -405,6 +405,9 @@ describe('MyProfilePage', () => {
 
     expect(component.orgUserSettings).toEqual(orgUserSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
+    expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
+      orgSettingsData.payment_mode_settings.payment_modes_order[0]
+    );
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
 
