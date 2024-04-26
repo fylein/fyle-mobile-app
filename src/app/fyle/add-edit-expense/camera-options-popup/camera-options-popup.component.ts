@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { PopoverController } from '@ionic/angular';
 import { FileService } from 'src/app/core/services/file.service';
 import { TrackingService } from '../../../core/services/tracking.service';
@@ -11,6 +11,8 @@ import { MAX_FILE_SIZE } from 'src/app/core/constants';
   styleUrls: ['./camera-options-popup.component.scss'],
 })
 export class CameraOptionsPopupComponent implements OnInit {
+  @Input() mode: string;
+
   @ViewChild('fileUpload', { static: false }) fileUpload: ElementRef<HTMLInputElement>;
 
   constructor(
@@ -28,7 +30,8 @@ export class CameraOptionsPopupComponent implements OnInit {
   }
 
   async getImageFromPicture(): Promise<void> {
-    this.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
+    const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
+    this.trackingService.addAttachment({ Mode: mode, Category: 'Camera' });
     this.popoverController.dismiss({ option: 'camera' });
   }
 
@@ -56,7 +59,8 @@ export class CameraOptionsPopupComponent implements OnInit {
 
   async getImageFromImagePicker(): Promise<void> {
     const that = this;
-    that.trackingService.addAttachment({ Mode: 'Add Expense', Category: 'Camera' });
+    const mode = this.mode === 'edit' ? 'Edit Expense' : 'Add Expense';
+    this.trackingService.addAttachment({ Mode: mode, Category: 'Camera' });
 
     const nativeElement = that.fileUpload.nativeElement;
 

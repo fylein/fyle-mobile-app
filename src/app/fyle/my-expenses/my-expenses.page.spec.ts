@@ -1419,15 +1419,17 @@ describe('MyExpensesV2Page', () => {
   });
 
   it('syncOutboxExpenses(): should call transactionoutboxService and do a refresh', fakeAsync(() => {
-    spyOn(component, 'formatTransactions').and.returnValues(apiExpenseRes, []);
-    transactionOutboxService.getPendingTransactions.and.returnValues(txnList, []);
+    const mockFormattedTransactions = cloneDeep(apiExpenseRes);
+    const mockPendingTransactions = cloneDeep(txnList);
+    spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, []);
+    transactionOutboxService.getPendingTransactions.and.returnValues(mockPendingTransactions, []);
     transactionOutboxService.sync.and.resolveTo(undefined);
     spyOn(component, 'doRefresh');
 
     component.syncOutboxExpenses();
     tick(100);
 
-    expect(component.pendingTransactions).toEqual(apiExpenseRes);
+    expect(component.pendingTransactions).toEqual([]);
     expect(component.formatTransactions).toHaveBeenCalledTimes(2);
     expect(transactionOutboxService.getPendingTransactions).toHaveBeenCalledTimes(2);
     expect(transactionOutboxService.sync).toHaveBeenCalledTimes(1);

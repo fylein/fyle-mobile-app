@@ -23,9 +23,9 @@ import {
 } from 'src/app/core/mock-data/file-object.data';
 import { of } from 'rxjs';
 import { transformedResponse2 } from 'src/app/core/mock-data/expense-field.data';
-import { extendedAdvReqDraft } from 'src/app/core/mock-data/extended-advance-request.data';
+import { publicAdvanceRequestRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import { apiAdvanceRequestAction } from 'src/app/core/mock-data/advance-request-actions.data';
-import { advanceReqApprovals } from 'src/app/core/mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from 'src/app/core/mock-data/approval.data';
 import { advanceRequestCustomFieldData2 } from 'src/app/core/mock-data/advance-requests-custom-fields.data';
 import { customFields } from 'src/app/core/mock-data/custom-field.data';
 import { advanceRequests } from 'src/app/core/mock-data/advance-requests.data';
@@ -50,10 +50,10 @@ describe('MyViewAdvanceRequestPage', () => {
 
   beforeEach(waitForAsync(() => {
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', [
-      'getAdvanceRequest',
+      'getAdvanceRequestPlatform',
       'getActions',
       'getInternalStateAndDisplayName',
-      'getActiveApproversByAdvanceRequestId',
+      'getActiveApproversByAdvanceRequestIdPlatform',
       'modifyAdvanceRequestCustomFields',
       'pullBackAdvanceRequest',
       'delete',
@@ -175,13 +175,13 @@ describe('MyViewAdvanceRequestPage', () => {
     beforeEach(() => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
-      advanceRequestService.getAdvanceRequest.and.returnValue(of(extendedAdvReqDraft));
+      advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(publicAdvanceRequestRes.data[0]));
       advanceRequestService.getInternalStateAndDisplayName.and.returnValue({
         state: 'DRAFT',
         name: 'Draft',
       });
       advanceRequestService.getActions.and.returnValue(of(apiAdvanceRequestAction));
-      advanceRequestService.getActiveApproversByAdvanceRequestId.and.returnValue(of(advanceReqApprovals));
+      advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform.and.returnValue(of(advanceReqApprovalsPublic));
       const mockFileObject = cloneDeep(advanceRequestFileUrlData[0]);
       spyOn(component, 'getReceiptDetails').and.returnValue({
         type: 'pdf',
@@ -200,12 +200,14 @@ describe('MyViewAdvanceRequestPage', () => {
       tick(100);
 
       component.advanceRequest$.subscribe((res) => {
-        expect(advanceRequestService.getAdvanceRequest).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+        expect(advanceRequestService.getAdvanceRequestPlatform).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-        expect(res).toEqual(extendedAdvReqDraft);
+        expect(res).toEqual(publicAdvanceRequestRes.data[0]);
       });
-      expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(extendedAdvReqDraft);
+      expect(advanceRequestService.getInternalStateAndDisplayName).toHaveBeenCalledOnceWith(
+        publicAdvanceRequestRes.data[0]
+      );
       expect(component.internalState).toEqual({
         state: 'DRAFT',
         name: 'Draft',
@@ -214,7 +216,7 @@ describe('MyViewAdvanceRequestPage', () => {
     }));
 
     it('should set currency symbol to undefined if advance request is undefined', fakeAsync(() => {
-      advanceRequestService.getAdvanceRequest.and.returnValue(of(undefined));
+      advanceRequestService.getAdvanceRequestPlatform.and.returnValue(of(undefined));
       component.ionViewWillEnter();
       tick(100);
 
@@ -240,9 +242,11 @@ describe('MyViewAdvanceRequestPage', () => {
       tick(100);
 
       component.activeApprovals$.subscribe((res) => {
-        expect(res).toEqual(advanceReqApprovals);
+        expect(res).toEqual(advanceReqApprovalsPublic);
       });
-      expect(advanceRequestService.getActiveApproversByAdvanceRequestId).toHaveBeenCalledOnceWith('areqR1cyLgXdND');
+      expect(advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform).toHaveBeenCalledOnceWith(
+        'areqR1cyLgXdND'
+      );
     }));
 
     it('should set attachedFiles$ to attached files', fakeAsync(() => {
@@ -263,11 +267,12 @@ describe('MyViewAdvanceRequestPage', () => {
       advanceRequestsCustomFieldsService.getAll.and.returnValue(of(mockAdvRequestCustomFields));
 
       component.ionViewWillEnter();
+
       tick(100);
 
       component.advanceRequestCustomFields$.subscribe(() => {
         expect(advanceRequestService.modifyAdvanceRequestCustomFields).toHaveBeenCalledOnceWith(
-          JSON.parse(extendedAdvReqDraft.areq_custom_field_values)
+          publicAdvanceRequestRes.data[0].areq_custom_field_values
         );
         expect(advanceRequestsCustomFieldsService.getAll).toHaveBeenCalledTimes(1);
       });
@@ -302,7 +307,7 @@ describe('MyViewAdvanceRequestPage', () => {
       '/',
       'enterprise',
       'add_edit_advance_request',
-      { id: 'areqR1cyLgXdND' },
+      { id: 'areqR1cyLgXdND', },
     ]);
   });
 
@@ -323,7 +328,7 @@ describe('MyViewAdvanceRequestPage', () => {
   describe('openCommentsModal():', () => {
     let commentsModalSpy: jasmine.SpyObj<HTMLIonModalElement>;
     beforeEach(() => {
-      component.advanceRequest$ = of(extendedAdvReqDraft);
+      component.advanceRequest$ = of(publicAdvanceRequestRes.data[0]);
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       commentsModalSpy = jasmine.createSpyObj('modal', ['present', 'onDidDismiss']);
       commentsModalSpy.onDidDismiss.and.resolveTo({ data: { updated: true } });

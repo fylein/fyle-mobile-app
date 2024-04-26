@@ -47,7 +47,7 @@ describe('TasksComponent', () => {
       'addTransactions',
       'getAllExtendedReports',
     ]);
-    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getMyadvanceRequests']);
+    const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getSpenderAdvanceRequests']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'tasksShown',
