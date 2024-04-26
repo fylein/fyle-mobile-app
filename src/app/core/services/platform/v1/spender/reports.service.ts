@@ -95,7 +95,7 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  addExpenses(rptId: string, txnIds: string[]): Observable<void> {
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
     const payload = {
       data: {
         id: rptId,
