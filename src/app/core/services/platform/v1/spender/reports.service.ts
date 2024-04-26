@@ -71,11 +71,11 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
   }
 
-  addExpenses(rptId: string, txnIds: string[]): Observable<void> {
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
     const payload = {
       data: {
         id: rptId,
-        expense_ids: txnIds,
+        expense_ids: expenseIds,
       },
     };
     return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
