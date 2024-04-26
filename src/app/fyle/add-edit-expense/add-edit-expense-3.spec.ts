@@ -1400,12 +1400,13 @@ export function TestCases3(getTestBed) {
         component.mode = 'edit';
         component.etxn$ = of(unflattenedExpData);
         component.isConnected$ = of(true);
-        fileService.findByTransactionId.and.returnValue(of(fileObjectData1));
-        transactionOutboxService.fileUpload.and.resolveTo(fileObjectData1[0]);
+        const mockFileData = cloneDeep(fileObjectData1);
+        fileService.findByTransactionId.and.returnValue(of(mockFileData));
+        transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
+        activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
         fileService.post.and.returnValue(of(fileData1[0]));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
-        spyOn(trackingService, 'fileUploadComplete');
         fixture.detectChanges();
 
         component.attachReceipts({
@@ -1416,12 +1417,12 @@ export function TestCases3(getTestBed) {
 
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
-        expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData1[0]);
+        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileData[0]);
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
           mode: 'edit',
-          'File ID': fileObjectData1[0].id,
-          'Txn ID': unflattenedExpData.tx.id,
+          'File ID': mockFileData[0].id,
+          'Txn ID': mockFileData[0].transaction_id,
         });
       }));
     });
