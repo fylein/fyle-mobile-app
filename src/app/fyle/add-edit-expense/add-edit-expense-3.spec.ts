@@ -1405,7 +1405,6 @@ export function TestCases3(getTestBed) {
         fileService.post.and.returnValue(of(fileData1[0]));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
-        spyOn(trackingService, 'fileUploadComplete');
         fixture.detectChanges();
 
         component.attachReceipts({
