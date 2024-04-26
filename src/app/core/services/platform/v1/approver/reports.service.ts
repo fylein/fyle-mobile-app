@@ -77,18 +77,4 @@ export class ApproverReportsService {
     };
     return this.approverPlatformApiService.post<void>('/reports/eject_expenses', payload);
   }
-
-  getReport(id: string): Observable<Report> {
-    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
-  }
-
-  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
-    return this.approverPlatformApiService
-      .post<{ data: StatsResponse }>('/reports/stats', {
-        data: {
-          query_params: `state=${params.state}`,
-        },
-      })
-      .pipe(map((res) => res.data));
-  }
 }
