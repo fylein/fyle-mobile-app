@@ -7,7 +7,7 @@
     "main.ts",
     "*.spec.ts"
   ],
-  "plugins": ["max-params-no-constructor"],
+  "plugins": ["max-params-no-constructor", "custom-rules"],
   "overrides": [
     {
       "files": ["*.ts"],
@@ -88,6 +88,12 @@
       "extends": ["plugin:@angular-eslint/template/recommended"],
       "rules": {
         "@angular-eslint/template/no-negated-async": "off"
+      }
+    },
+    {
+      "files": ["*.data.ts"],
+      "rules": {
+        "custom-rules/prefer-deep-freeze": "error"
       }
     }
   ]

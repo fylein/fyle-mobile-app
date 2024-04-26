@@ -1,0 +1,62 @@
+module.exports = {
+    meta: {
+      type: 'suggestion',
+      docs: {
+        description: 'Enforce using deep-freeze-strict on all variables in *.data.ts files to avoid flaky tests',
+        category: 'Best Practices',
+        recommended: true,
+      },
+      fixable: 'code',
+    },
+    create: function(context) {
+      var hasImportedFreeze = false;
+  
+      return {
+        VariableDeclarator(node) {
+          const sourceCode = context.getSourceCode();
+          const filename = context.getFilename();
+  
+          if (filename.endsWith('.data.ts')) {
+            const { id, init } = node;
+  
+            if (id && init && init.type === 'ObjectExpression') {
+              const fix = (fixer) => {
+                const variableText = sourceCode.getText(init);
+                const start = init.range[0];
+                const end = init.range[1];
+  
+                const fixes = [];
+  
+                // Add import statement at the top if not imported
+                if (!hasImportedFreeze) {
+                  fixes.push(
+                    fixer.insertTextBeforeRange(
+                      [sourceCode.ast.range[0], sourceCode.ast.range[0]],
+                      "import deepFreeze from 'deep-freeze-strict';\n\n"
+                    )
+                  );
+                  hasImportedFreeze = true;
+                }
+  
+                // Wrap the object with deepFreeze method
+                fixes.push(
+                  fixer.replaceTextRange(
+                    [start, end],
+                    `deepFreeze(${variableText})`
+                  )
+                );
+  
+                return fixes;
+              };
+  
+              context.report({
+                node,
+                message: `Use deep-freeze-strict function on variable "${id.name} to avoid flaky tests"`,
+                fix,
+              });
+            }
+          }
+        },
+      };
+    },
+};
