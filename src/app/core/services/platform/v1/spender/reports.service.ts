@@ -99,7 +99,7 @@ export class SpenderReportsService {
     const payload = {
       data: {
         id: rptId,
-        expense_ids: txnIds,
+        expense_ids: expenseIds,
       },
     };
     return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
