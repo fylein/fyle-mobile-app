@@ -8,6 +8,8 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
+import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-requesst-param.model';
 
 @Injectable({
   providedIn: 'root',
@@ -81,6 +83,16 @@ export class SpenderReportsService {
       reason: comment,
     };
     return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
+  }
+
+  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+    return this.spenderPlatformV1ApiService
+      .post<{ data: StatsResponse }>('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      })
+      .pipe(map((res) => res.data));
   }
 
   addExpenses(rptId: string, txnIds: string[]): Observable<void> {
