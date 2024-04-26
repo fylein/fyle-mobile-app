@@ -1,10 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, concatMap, map, range, reduce, switchMap } from 'rxjs';
+import { Observable } from 'rxjs';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
-import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
-import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
-import { PAGINATION_SIZE } from 'src/app/constants';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Injectable({
   providedIn: 'root',
@@ -14,42 +10,6 @@ export class ApproverReportsService {
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private approverPlatformApiService: ApproverPlatformApiService
   ) {}
-
-  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
-    return this.getReportsCount(queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => {
-        let params = {
-          ...queryParams,
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-        };
-        return this.getReportsByParams(params);
-      }),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
-    );
-  }
-
-  getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
-      state: queryParams.state,
-      limit: 1,
-      offset: 0,
-    };
-    return this.getReportsByParams(params).pipe(map((res) => res.count));
-  }
-
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report>> {
-    const config = {
-      params: {
-        ...queryParams,
-      },
-    };
-    return this.approverPlatformApiService.get<PlatformApiResponse<Report>>('/reports', config);
-  }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
     const payload = {
