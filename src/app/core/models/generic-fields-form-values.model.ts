@@ -1,3 +1,4 @@
+// TODO - Use snake_case instead of camelCase
 export interface GenericFieldsFormValues {
   amount: string;
   dateOfSpend: Date;
