@@ -3,20 +3,32 @@ import { IonicModule } from '@ionic/angular';
 import { ReceiptPreviewThumbnailComponent } from './receipt-preview-thumbnail.component';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { fileObjectData1 } from 'src/app/core/mock-data/file-object.data';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 describe('ReceiptPreviewThumbnailComponent', () => {
+  let trackingService: jasmine.SpyObj<TrackingService>;
   let component: ReceiptPreviewThumbnailComponent;
   let fixture: ComponentFixture<ReceiptPreviewThumbnailComponent>;
 
   beforeEach(waitForAsync(() => {
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['addMoreFilesClicked', 'fileDownloadComplete']);
+
     TestBed.configureTestingModule({
       declarations: [ReceiptPreviewThumbnailComponent],
+      providers: [
+        {
+          provide: TrackingService,
+          useValue: trackingServiceSpy,
+        },
+      ],
       imports: [IonicModule.forRoot()],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(ReceiptPreviewThumbnailComponent);
     component = fixture.componentInstance;
+    trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
+
     component.attachments = fileObjectData1;
     fixture.detectChanges();
   }));
@@ -57,8 +69,10 @@ describe('ReceiptPreviewThumbnailComponent', () => {
   it('addAttachments(): should add more attachments', () => {
     spyOn(component.addMoreAttachments, 'emit');
     const event = null;
+    component.mode = 'add';
     component.addAttachments(event);
     expect(component.addMoreAttachments.emit).toHaveBeenCalledOnceWith(event);
+    expect(trackingService.addMoreFilesClicked).toHaveBeenCalledOnceWith({ mode: 'add' });
   });
 
   it('previewAttachments(): should let user view the attachments', () => {
@@ -113,5 +127,6 @@ describe('ReceiptPreviewThumbnailComponent', () => {
     const previousNumLoadedImage = component.numLoadedImage;
     component.onLoad();
     expect(component.numLoadedImage).toBe(previousNumLoadedImage + 1);
+    expect(trackingService.fileDownloadComplete).toHaveBeenCalledOnceWith({ 'File ID': fileObjectData1[0].id });
   });
 });
