@@ -379,84 +379,6 @@ describe('MyProfilePage', () => {
     }));
   });
 
-  describe('getDefaultPaymentMode():', () => {
-    beforeEach(() => {
-      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
-    });
-
-    it('should return Personal Advances if payment Mode is PERSONAL_ADVANCE_ACCOUNT', () => {
-      const advancesOrgSettings = cloneDeep(orgSettingsData);
-      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Advances');
-      advancesOrgSettings.payment_mode_settings = {
-        payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
-      };
-      component.orgSettings = advancesOrgSettings;
-      paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Advances');
-
-      const result = component.getDefaultPaymentMode();
-
-      expect(result).toEqual('Personal Advances');
-      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
-        AllowedPaymentModes.PERSONAL_ACCOUNT
-      );
-    });
-
-    it('should return Corporate Credit Card if payment Mode is PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
-      const cccOrgSettings = cloneDeep(orgSettingsData);
-      cccOrgSettings.payment_mode_settings = {
-        payment_modes_order: [AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT],
-      };
-      component.orgSettings = cccOrgSettings;
-      paymentModeService.getPaymentModeDisplayName.and.returnValue('Corporate Credit Card');
-
-      const result = component.getDefaultPaymentMode();
-
-      expect(result).toEqual('Corporate Credit Card');
-      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
-        AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT
-      );
-    });
-
-    it('should return Personal Cash/Card if payment Mode is not PERSONAL_ADVANCE_ACCOUNT or PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
-      const personalCashOrgSettings = cloneDeep(orgSettingsData);
-      personalCashOrgSettings.payment_mode_settings = {
-        payment_modes_order: [AllowedPaymentModes.PERSONAL_ACCOUNT],
-      };
-      component.orgSettings = personalCashOrgSettings;
-
-      const result = component.getDefaultPaymentMode();
-
-      expect(result).toEqual('Personal Cash/Card');
-      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
-        AllowedPaymentModes.PERSONAL_ACCOUNT
-      );
-    });
-
-    it('should return Personal Cash/Card if payment_mode_settings is not defined', () => {
-      const orgSettings = cloneDeep(orgSettingsData);
-      orgSettings.payment_mode_settings = undefined;
-      component.orgSettings = orgSettings;
-
-      const result = component.getDefaultPaymentMode();
-
-      expect(result).toEqual('Personal Cash/Card');
-      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(undefined);
-    });
-
-    it('should return Personal Cash/Card if payment_modes_order is undefined', () => {
-      const orgSettings = cloneDeep(orgSettingsData);
-      orgSettings.payment_mode_settings = {
-        payment_modes_order: undefined,
-      };
-      component.orgSettings = orgSettings;
-
-      const result = component.getDefaultPaymentMode();
-
-      expect(result).toEqual('Personal Cash/Card');
-      expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(undefined);
-    });
-  });
-
   it('reset(): should reset all settings', fakeAsync(() => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
@@ -466,7 +388,7 @@ describe('MyProfilePage', () => {
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
-    spyOn(component, 'getDefaultPaymentMode').and.returnValue('Personal Cash/Card');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
     fixture.detectChanges();
 
     component.reset();
@@ -483,7 +405,6 @@ describe('MyProfilePage', () => {
 
     expect(component.orgUserSettings).toEqual(orgUserSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
-    expect(component.getDefaultPaymentMode).toHaveBeenCalledTimes(1);
     expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
 
