@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ApproverReportsService } from './reports.service';
 import { ApproverPlatformApiService } from '../../../approver-platform-api.service';
 import { of } from 'rxjs';
+import { PAGINATION_SIZE } from 'src/app/constants';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -11,6 +12,7 @@ describe('ApproverReportsService', () => {
     TestBed.configureTestingModule({
       providers: [
         ApproverReportsService,
+        { provide: PAGINATION_SIZE, useValue: 2 },
         { provide: ApproverPlatformApiService, useValue: approverPlatformApiService },
       ],
     });
