@@ -3,9 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { forkJoin, from, Observable } from 'rxjs';
 import { concatMap, finalize, map, reduce, shareReplay, switchMap } from 'rxjs/operators';
-import { Approval } from 'src/app/core/models/approval.model';
 import { CustomField } from 'src/app/core/models/custom_field.model';
-import { ExtendedAdvanceRequest } from 'src/app/core/models/extended_advance_request.model';
 import { File } from 'src/app/core/models/file.model';
 import { AdvanceRequestService } from 'src/app/core/services/advance-request.service';
 import { FileService } from 'src/app/core/services/file.service';
@@ -21,6 +19,8 @@ import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popo
 import { StatisticTypes } from 'src/app/shared/components/fy-statistic/statistic-type.enum';
 import { getCurrencySymbol } from '@angular/common';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
+import { ExtendedAdvanceRequestPublic } from 'src/app/core/models/extended-advance-request-public.model';
+import { ApprovalPublic } from 'src/app/core/models/approval-public.model';
 
 @Component({
   selector: 'app-my-view-advance-request',
@@ -28,11 +28,11 @@ import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.servi
   styleUrls: ['./my-view-advance-request.page.scss'],
 })
 export class MyViewAdvanceRequestPage implements OnInit {
-  advanceRequest$: Observable<ExtendedAdvanceRequest>;
+  advanceRequest$: Observable<ExtendedAdvanceRequestPublic>;
 
   actions$: Observable<any>;
 
-  activeApprovals$: Observable<Approval[]>;
+  activeApprovals$: Observable<ApprovalPublic[]>;
 
   attachedFiles$: Observable<File[]>;
 
@@ -114,7 +114,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
   ionViewWillEnter() {
     const id = this.activatedRoute.snapshot.params.id;
     this.advanceRequest$ = from(this.loaderService.showLoader()).pipe(
-      switchMap(() => this.advanceRequestService.getAdvanceRequest(id)),
+      switchMap(() => this.advanceRequestService.getAdvanceRequestPlatform(id)),
       finalize(() => from(this.loaderService.hideLoader())),
       shareReplay(1)
     );
@@ -125,7 +125,7 @@ export class MyViewAdvanceRequestPage implements OnInit {
     });
 
     this.actions$ = this.advanceRequestService.getActions(id).pipe(shareReplay(1));
-    this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestId(id);
+    this.activeApprovals$ = this.advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(id);
     this.attachedFiles$ = this.fileService.findByAdvanceRequestId(id).pipe(
       switchMap((res) => from(res)),
       concatMap((fileObj: any) =>
@@ -155,13 +155,13 @@ export class MyViewAdvanceRequestPage implements OnInit {
           res.advanceRequest.areq_custom_field_values.length > 0
         ) {
           customFieldValues = this.advanceRequestService.modifyAdvanceRequestCustomFields(
-            JSON.parse(res.advanceRequest.areq_custom_field_values)
+            res.advanceRequest.areq_custom_field_values
           );
         }
 
         res.customFields.map((customField) => {
           customFieldValues.filter((customFieldValue) => {
-            if (customField.id === customFieldValue.id) {
+            if (customField.name === customFieldValue.name) {
               customField.value = customFieldValue.value;
             }
           });
@@ -213,7 +213,9 @@ export class MyViewAdvanceRequestPage implements OnInit {
       '/',
       'enterprise',
       'add_edit_advance_request',
-      { id: this.activatedRoute.snapshot.params.id },
+      {
+        id: this.activatedRoute.snapshot.params.id,
+      },
     ]);
   }
 

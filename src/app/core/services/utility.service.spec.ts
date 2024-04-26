@@ -2,7 +2,11 @@ import { TestBed } from '@angular/core/testing';
 import * as dayjs from 'dayjs';
 import * as lodash from 'lodash';
 import { customFieldData1, customFieldData2 } from '../mock-data/custom-field.data';
-import { allAdvanceRequestsRes, singleExtendedAdvReqRes } from '../mock-data/extended-advance-request.data';
+import {
+  allAdvanceRequestsRes,
+  publicAdvanceRequestRes,
+  singleExtendedAdvReqRes,
+} from '../mock-data/extended-advance-request.data';
 import { txnDataPayload } from '../mock-data/transaction.data';
 import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
@@ -85,35 +89,35 @@ describe('UtilityService', () => {
 
   describe('sortAllAdvances():', () => {
     it('should sort single advance', () => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(singleExtendedAdvReqRes.data);
-      expect(utilityService.sortAllAdvances(0, SortingParam.creationDate, singleExtendedAdvReqRes.data)).toEqual(
-        singleExtendedAdvReqRes.data
+      spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
+      expect(utilityService.sortAllAdvances(0, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
+        publicAdvanceRequestRes.data
       );
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
 
     it('should sort multiple advances', () => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(allAdvanceRequestsRes.data);
-      expect(utilityService.sortAllAdvances(1, SortingParam.creationDate, allAdvanceRequestsRes.data)).toEqual(
-        allAdvanceRequestsRes.data
+      spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
+      expect(utilityService.sortAllAdvances(1, SortingParam.creationDate, publicAdvanceRequestRes.data)).toEqual(
+        publicAdvanceRequestRes.data
       );
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
 
     it('should sort advances by approval date', () => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(allAdvanceRequestsRes.data);
-      expect(utilityService.sortAllAdvances(1, SortingParam.approvalDate, allAdvanceRequestsRes.data)).toEqual(
-        allAdvanceRequestsRes.data
+      spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
+      expect(utilityService.sortAllAdvances(1, SortingParam.approvalDate, publicAdvanceRequestRes.data)).toEqual(
+        publicAdvanceRequestRes.data
       );
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
 
     it('should sort advances by project', () => {
-      spyOn(lodash, 'cloneDeep').and.returnValue(allAdvanceRequestsRes.data);
+      spyOn(lodash, 'cloneDeep').and.returnValue(publicAdvanceRequestRes.data);
       expect(
-        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, allAdvanceRequestsRes.data)
-      ).toEqual(allAdvanceRequestsRes.data);
-      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(allAdvanceRequestsRes.data);
+        utilityService.sortAllAdvances(SortingDirection.ascending, SortingParam.project, publicAdvanceRequestRes.data)
+      ).toEqual(publicAdvanceRequestRes.data);
+      expect(lodash.cloneDeep).toHaveBeenCalledOnceWith(publicAdvanceRequestRes.data);
     });
   });
 

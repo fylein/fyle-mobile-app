@@ -157,26 +157,20 @@ export interface ReportNameChangeProperties {
 export interface CardEnrolledProperties {
   Source: string;
   'Card Network': CardNetworkType;
-  'Existing Card': string;
   'Card ID': string;
 }
 
 export interface CardUnenrolledProperties {
   'Card Network': CardNetworkType;
   'Card ID': string;
-  'Card Number': string;
 }
 
 export interface CardEnrollmentErrorsProperties {
   'Card Network': CardNetworkType;
   Source: string;
-  'Existing Card': string;
   'Error Message': string;
-  'Card Number': string;
 }
 
 export interface EnrollingNonRTFCardProperties {
-  'Existing Card': string;
-  'Card Number': string;
   Source: string;
 }
