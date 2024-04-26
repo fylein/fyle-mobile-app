@@ -742,6 +742,7 @@ export class MyExpensesPage implements OnInit {
             const pendingTransactions = this.formatTransactions(this.transactionOutboxService.getPendingTransactions());
             if (pendingTransactions.length === 0) {
               this.doRefresh();
+              this.pendingTransactions = [];
             }
           })
         )

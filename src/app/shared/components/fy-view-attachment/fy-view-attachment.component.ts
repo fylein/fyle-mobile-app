@@ -9,6 +9,7 @@ import { switchMap, finalize } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
+import { TrackingService } from 'src/app/core/services/tracking.service';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -37,7 +38,8 @@ export class FyViewAttachmentComponent implements OnInit {
     private sanitizer: DomSanitizer,
     private popupService: PopupService,
     private loaderService: LoaderService,
-    private fileService: FileService
+    private fileService: FileService,
+    private trackingService: TrackingService
   ) {}
 
   ngOnInit() {
@@ -89,6 +91,9 @@ export class FyViewAttachmentComponent implements OnInit {
 
   async deleteAttachment() {
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
+    try {
+      this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
+    } catch (error) {}
     const deletePopover = await this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -124,6 +129,9 @@ export class FyViewAttachmentComponent implements OnInit {
             finalize(() => from(this.loaderService.hideLoader()))
           )
           .subscribe(() => {
+            try {
+              this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
+            } catch (error) {}
             this.attachments.splice(activeIndex, 1);
             if (this.attachments.length === 0) {
               this.modalController.dismiss({ attachments: this.attachments });

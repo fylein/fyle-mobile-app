@@ -12,7 +12,6 @@ import {
   mockQueryParams,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
-import { query } from '@angular/animations';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;

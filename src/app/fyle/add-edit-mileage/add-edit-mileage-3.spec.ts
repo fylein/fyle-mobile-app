@@ -502,7 +502,8 @@ export function TestCases3(getTestBed) {
           expect(res).toEqual(orgCategoryListItemData1);
         });
 
-        expect(component.getFormValues).toHaveBeenCalledTimes(1);
+        // 2 times because we have changed the project value twice
+        expect(component.getFormValues).toHaveBeenCalledTimes(2);
       }));
 
       it('should set up filtered categories and set default billable value if project is removed', fakeAsync(() => {
@@ -523,7 +524,7 @@ export function TestCases3(getTestBed) {
           expect(res).toEqual(orgCategoryListItemData1);
         });
 
-        expect(component.getFormValues).toHaveBeenCalledTimes(1);
+        expect(component.getFormValues).toHaveBeenCalledTimes(2);
       }));
     });
 

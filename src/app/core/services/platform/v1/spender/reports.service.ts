@@ -9,7 +9,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
-import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-requesst-param.model';
+import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 
 @Injectable({
   providedIn: 'root',
@@ -95,11 +95,11 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  addExpenses(rptId: string, txnIds: string[]): Observable<void> {
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
     const payload = {
       data: {
         id: rptId,
-        expense_ids: txnIds,
+        expense_ids: expenseIds,
       },
     };
     return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
