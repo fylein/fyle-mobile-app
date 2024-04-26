@@ -39,7 +39,7 @@ import { ModalPropertiesService } from 'src/app/core/services/modal-properties.s
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
-import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -85,6 +85,8 @@ export class MyProfilePage {
 
   isMastercardRTFEnabled: boolean;
 
+  isAmexFeedEnabled: boolean;
+
   isMileageEnabled: boolean;
 
   isCommuteDeductionEnabled: boolean;
@@ -113,7 +115,8 @@ export class MyProfilePage {
     private activatedRoute: ActivatedRoute,
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
+    private paymentModeService: PaymentModesService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -194,14 +197,7 @@ export class MyProfilePage {
 
   getDefaultPaymentMode(): string {
     const paymentMode = this.orgSettings.payment_mode_settings?.payment_modes_order?.[0];
-    switch (paymentMode) {
-      case AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT:
-        return 'Personal Advances';
-      case AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT:
-        return 'Corporate Credit Card';
-      default:
-        return 'Personal Cash/Card';
-    }
+    return this.paymentModeService.getPaymentModeDisplayName(paymentMode);
   }
 
   reset(): void {
@@ -267,6 +263,11 @@ export class MyProfilePage {
     this.isMastercardRTFEnabled =
       this.orgSettings.mastercard_enrollment_settings.allowed &&
       this.orgSettings.mastercard_enrollment_settings.enabled;
+
+    this.isAmexFeedEnabled =
+      this.orgSettings.amex_feed_enrollment_settings.allowed && this.orgSettings.amex_feed_enrollment_settings.enabled;
+
+    this.isRTFEnabled = this.isVisaRTFEnabled || this.isMastercardRTFEnabled || this.isAmexFeedEnabled;
   }
 
   setPreferenceSettings(): void {
