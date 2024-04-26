@@ -1,10 +1,6 @@
-import deepFreeze from 'deep-freeze-strict';
-
-import deepFreeze from 'deep-freeze-strict';
-
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PolicyViolationTxn } from '../models/policy-violation-txn.model';
-export const policyViolation1: PolicyViolation = deepFreeze({
+export const policyViolation1: PolicyViolation = {
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -17,9 +13,9 @@ export const policyViolation1: PolicyViolation = deepFreeze({
     },
     individual_desired_states: [],
   },
-});
+};
 
-export const splitPolicyExp2: PolicyViolation = deepFreeze({
+export const splitPolicyExp2: PolicyViolation = {
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -36,9 +32,9 @@ export const splitPolicyExp2: PolicyViolation = deepFreeze({
   currency: 'USD',
   name: 'Food',
   type: 'category',
-});
+};
 
-export const splitPolicyExp3: PolicyViolation = deepFreeze({
+export const splitPolicyExp3: PolicyViolation = {
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -55,14 +51,14 @@ export const splitPolicyExp3: PolicyViolation = deepFreeze({
   currency: 'USD',
   name: 'Food / Travelling - Inland',
   type: 'category',
-});
+};
 
-export const policyVoilationData2: PolicyViolationTxn = deepFreeze({
+export const policyVoilationData2: PolicyViolationTxn = {
   txVHydZVrGYC: splitPolicyExp2,
   tx4QhcvNHpuh: splitPolicyExp3,
-});
+};
 
-export const splitPolicyExp4: PolicyViolation = deepFreeze({
+export const splitPolicyExp4: PolicyViolation = {
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -99,9 +95,9 @@ export const splitPolicyExp4: PolicyViolation = deepFreeze({
   currency: 'INR',
   name: '1 / chumma returns',
   type: 'category',
-});
+};
 
-export const splitPolicyExp5: PolicyViolation = deepFreeze({
+export const splitPolicyExp5: PolicyViolation = {
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -150,19 +146,19 @@ export const splitPolicyExp5: PolicyViolation = deepFreeze({
   currency: 'INR',
   name: '1 / sd',
   type: 'category',
-});
+};
 
-export const policyViolationData3: PolicyViolationTxn = deepFreeze({
+export const policyViolationData3: PolicyViolationTxn = {
   txc2KIogxUAy: splitPolicyExp4,
   txgfkvuYteta: splitPolicyExp5,
-});
+};
 
-export const policyViolationData4: PolicyViolationTxn = deepFreeze({
+export const policyViolationData4: PolicyViolationTxn = {
   txSEM4DtjyKR: splitPolicyExp4,
   txNyI8ot5CuJ: splitPolicyExp5,
-});
+};
 
-export const policyViolationData5: PolicyViolation = deepFreeze({
+export const policyViolationData5: PolicyViolation = {
   amount: 122,
   currency: 'INR',
   name: 'Food',
@@ -179,4 +175,4 @@ export const policyViolationData5: PolicyViolation = deepFreeze({
       run_summary: [],
     },
   },
-});
+};
