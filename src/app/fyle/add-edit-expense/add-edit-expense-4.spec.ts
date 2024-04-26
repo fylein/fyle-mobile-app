@@ -99,6 +99,7 @@ import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -112,6 +113,7 @@ export function TestCases4(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -163,6 +165,7 @@ export function TestCases4(getTestBed) {
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;
@@ -932,7 +935,7 @@ export function TestCases4(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
-        reportService.addTransactions.and.returnValue(of(undefined));
+        spenderReportsService.addExpenses.and.returnValue(of(undefined));
         fixture.detectChanges();
 
         component.editExpense('SAVE_AND_NEW_EXPENSE').subscribe(() => {
@@ -949,7 +952,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
           done();
         });
       });
@@ -964,8 +967,8 @@ export function TestCases4(getTestBed) {
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(undefined));
-        reportService.addTransactions.and.returnValue(of(undefined));
+        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
+        spenderReportsService.addExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId));
@@ -987,8 +990,8 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
-          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
+          expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
           done();
         });
       });
@@ -1003,7 +1006,7 @@ export function TestCases4(getTestBed) {
         component.etxn$ = of(transformedExpenseDataWithReportId2);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
-        reportService.removeTransaction.and.returnValue(of(undefined));
+        spenderReportsService.ejectExpenses.and.returnValue(of(undefined));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionService.upsert.and.returnValue(of(transformedExpenseDataWithReportId2.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseDataWithReportId2));
@@ -1022,7 +1025,7 @@ export function TestCases4(getTestBed) {
           expect(component.trackPolicyCorrections).toHaveBeenCalledTimes(1);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(component.trackEditExpense).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2);
-          expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rplD17WeBlha', 'txD5hIQgLuR5');
+          expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rplD17WeBlha', 'txD5hIQgLuR5');
           expect(trackingService.removeFromExistingReportEditExpense).toHaveBeenCalledTimes(1);
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId2.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');

@@ -47,7 +47,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -258,7 +258,7 @@ export class AddEditPerDiemPage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private currencyService: CurrencyService,
     private reportService: ReportService,
-    private platformReportService: ReportsService,
+    private platformReportService: SpenderReportsService,
     private projectService: ProjectsService,
     private transactionsOutboxService: TransactionsOutboxService,
     private transactionService: TransactionService,
@@ -2062,22 +2062,22 @@ export class AddEditPerDiemPage implements OnInit {
                 const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
+                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2286,7 +2286,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (removePerDiemFromReport) {
-            return this.reportService.removeTransaction(reportId, id);
+            return this.platformReportService.ejectExpenses(reportId, id);
           }
           return this.transactionService.delete(id);
         },

@@ -35,6 +35,7 @@ import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expe
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -150,7 +151,8 @@ export class ViewExpensePage {
     private categoriesService: CategoriesService,
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
-    private approverExpensesService: ApproverExpensesService
+    private approverExpensesService: ApproverExpensesService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -465,7 +467,7 @@ export class ViewExpensePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
+        deleteMethod: (): Observable<void> => this.approverReportsService.ejectExpenses(this.reportId, this.expenseId),
       },
     };
   }

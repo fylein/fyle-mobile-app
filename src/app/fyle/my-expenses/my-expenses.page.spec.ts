@@ -124,6 +124,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -159,6 +160,7 @@ describe('MyExpensesV2Page', () => {
   let inputElement: HTMLInputElement;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -255,6 +257,7 @@ describe('MyExpensesV2Page', () => {
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
       'getExpensesCount',
       'getExpenses',
@@ -386,6 +389,10 @@ describe('MyExpensesV2Page', () => {
           provide: SharedExpenseService,
           useValue: sharedExpenseServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -430,6 +437,7 @@ describe('MyExpensesV2Page', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -2438,13 +2446,13 @@ describe('MyExpensesV2Page', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
-    reportService.addTransactions.and.returnValue(of());
+    spenderReportsService.addExpenses.and.returnValue(of());
     component
       .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
       .pipe(
         tap((updatedReport) => {
           expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
           expect(updatedReport).toEqual(apiExtendedReportRes[0]);
         }),
         finalize(() => {
