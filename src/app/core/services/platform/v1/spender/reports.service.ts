@@ -56,7 +56,6 @@ export class SpenderReportsService {
   }
 
   getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report>> {
-    console.log(queryParams);
     const config = {
       params: {
         ...queryParams,
@@ -66,7 +65,6 @@ export class SpenderReportsService {
   }
 
   getReport(id: string): Observable<Report> {
-    console.log({ id: `eq.${id}` });
     return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
   }
 
