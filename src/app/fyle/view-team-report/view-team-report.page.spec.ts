@@ -991,23 +991,19 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
-  xdescribe('editReportName(): ', () => {
-    it('should edit report name', fakeAsync(() => {
+  describe('editReportName(): ', () => {
+    beforeEach(() => {
       component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
-      component.canEdit$ = of(true);
-      fixture.detectChanges();
-
       spyOn(component, 'updateReportName').and.returnValue(null);
+    });
 
+    it('should edit report name', fakeAsync(() => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
-
       popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
-      click(editReportButton);
-      flushMicrotasks();
-      tick(2000);
+      component.editReportName();
+      tick(100);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
@@ -1020,21 +1016,12 @@ describe('ViewTeamReportPageV2', () => {
     }));
 
     it('should not edit report name if data does not contain name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
-      component.canEdit$ = of(true);
-      fixture.detectChanges();
-
-      spyOn(component, 'updateReportName').and.returnValue(null);
-
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
-
       popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
 
-      const editReportButton = getElementBySelector(fixture, '.view-reports--card ion-icon') as HTMLElement;
-      click(editReportButton);
-      flushMicrotasks();
-      tick(2000);
+      component.editReportName();
+      tick(100);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
