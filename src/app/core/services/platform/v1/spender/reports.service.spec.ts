@@ -153,6 +153,28 @@ describe('SpenderReportsService', () => {
     });
   });
 
+  it('getAdvanceRequestStats(): should get advance request stats', (done) => {
+    const statsResponse = {
+      count: 2,
+      total_amount: 1200,
+    };
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: statsResponse }));
+
+    const params = {
+      state: 'eq.SENT_BACK',
+    };
+
+    spenderReportsService.getReportsStats(params).subscribe((res) => {
+      expect(res).toEqual(statsResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      });
+      done();
+    });
+  });
+
   it('ejectExpenses(): should remove an expense from a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
 
