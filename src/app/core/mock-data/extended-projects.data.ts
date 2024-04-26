@@ -1,12 +1,6 @@
 export const projects = [
   {
-    ap1_email: null,
-    ap1_full_name: null,
-    ap2_email: null,
-    ap2_full_name: null,
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '1184',
     project_created_at: new Date('2021-05-12T04:58:40.834Z'),
     project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -19,13 +13,7 @@ export const projects = [
     sub_project_name: null,
   },
   {
-    ap1_email: 'john.d@fyle.in',
-    ap1_full_name: 'John Doe',
-    ap2_email: 'james.d@fyle.in',
-    ap2_full_name: 'James Doe',
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '67',
     project_created_at: new Date('2021-03-11T00:12:31.322Z'),
     project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -43,13 +31,7 @@ export const labelledProjects = [
   {
     label: 'project1',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T04:58:40.834Z'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -65,13 +47,7 @@ export const labelledProjects = [
   {
     label: 'project2',
     value: {
-      ap1_email: 'john.d@fyle.in',
-      ap1_full_name: 'John Doe',
-      ap2_email: 'james.d@fyle.in',
-      ap2_full_name: 'James Doe',
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '67',
       project_created_at: new Date('2021-03-11T00:12:31.322Z'),
       project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -90,13 +66,7 @@ export const expectedLabelledProjects = [
   {
     label: 'project1',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T04:58:40.834Z'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -112,13 +82,7 @@ export const expectedLabelledProjects = [
   {
     label: 'project2',
     value: {
-      ap1_email: 'john.d@fyle.in',
-      ap1_full_name: 'John Doe',
-      ap2_email: 'james.d@fyle.in',
-      ap2_full_name: 'James Doe',
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '67',
       project_created_at: new Date('2021-03-11T00:12:31.322Z'),
       project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -134,13 +98,7 @@ export const expectedLabelledProjects = [
 ];
 
 export const singleProjects1 = {
-  ap1_email: 'john.d@fyle.in',
-  ap1_full_name: 'John Doe',
-  ap2_email: 'james.d@fyle.in',
-  ap2_full_name: 'James Doe',
   project_active: true,
-  project_approver1_id: null,
-  project_approver2_id: null,
   project_code: '67',
   project_created_at: new Date('2021-03-11T00:12:31.322Z'),
   project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -154,13 +112,7 @@ export const singleProjects1 = {
 };
 
 export const singleProject2 = {
-  ap1_email: null,
-  ap1_full_name: null,
-  ap2_email: null,
-  ap2_full_name: null,
   project_active: true,
-  project_approver1_id: null,
-  project_approver2_id: null,
   project_code: '1184',
   project_created_at: new Date('2021-05-12T10:28:40.834844'),
   project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -181,13 +133,7 @@ export const expectedProjects = [
   {
     label: 'Customer Mapped Project',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T04:58:40.834Z'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -203,13 +149,7 @@ export const expectedProjects = [
   {
     label: 'Abercrombie International Group',
     value: {
-      ap1_email: 'john.d@fyle.in',
-      ap1_full_name: 'John Doe',
-      ap2_email: 'james.d@fyle.in',
-      ap2_full_name: 'James Doe',
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '67',
       project_created_at: new Date('2021-03-11T00:12:31.322Z'),
       project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -233,13 +173,7 @@ export const expectedProjects2 = [
     label: undefined,
     value: [
       {
-        ap1_email: null,
-        ap1_full_name: null,
-        ap2_email: null,
-        ap2_full_name: null,
         project_active: true,
-        project_approver1_id: null,
-        project_approver2_id: null,
         project_code: null,
         project_created_at: new Date('2020-06-26T05:32:00.174Z'),
         project_description: null,
@@ -256,13 +190,7 @@ export const expectedProjects2 = [
   {
     label: 'Customer Mapped Project',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T04:58:40.834Z'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -278,13 +206,7 @@ export const expectedProjects2 = [
   {
     label: 'Abercrombie International Group',
     value: {
-      ap1_email: 'john.d@fyle.in',
-      ap1_full_name: 'John Doe',
-      ap2_email: 'james.d@fyle.in',
-      ap2_full_name: 'James Doe',
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '67',
       project_created_at: new Date('2021-03-11T00:12:31.322Z'),
       project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -307,13 +229,7 @@ export const expectedProjects3 = [
   {
     label: 'Customer Mapped Project',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T04:58:40.834Z'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -330,13 +246,7 @@ export const expectedProjects3 = [
   {
     label: 'Abercrombie International Group',
     value: {
-      ap1_email: 'john.d@fyle.in',
-      ap1_full_name: 'John Doe',
-      ap2_email: 'james.d@fyle.in',
-      ap2_full_name: 'James Doe',
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '67',
       project_created_at: new Date('2021-03-11T00:12:31.322Z'),
       project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -355,13 +265,7 @@ export const expectedProjects4 = [
   {
     label: 'project1',
     value: {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: null,
       project_created_at: new Date('2020-06-26T05:32:00.174Z'),
       project_description: null,

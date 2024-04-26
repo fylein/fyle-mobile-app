@@ -1,11 +1,5 @@
 export interface ExtendedProject {
-  ap1_email: string;
-  ap1_full_name: string;
-  ap2_email: string;
-  ap2_full_name: string;
   project_active: boolean;
-  project_approver1_id: string;
-  project_approver2_id: string;
   project_code: string;
   project_created_at: Date;
   project_description: string;

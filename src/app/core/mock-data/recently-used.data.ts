@@ -28,13 +28,7 @@ export const recentlyUsedRes: RecentlyUsed = {
 
 export const recentlyUsedProjectRes: ExtendedProject[] = [
   {
-    ap1_email: 'john.d@fyle.in',
-    ap1_full_name: 'John Doe',
-    ap2_email: 'james.d@fyle.in',
-    ap2_full_name: 'James Doe',
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '67',
     project_created_at: new Date('2021-03-11T00:12:31.322Z'),
     project_description: 'Quickbooks Online Customer / Project - Abercrombie International Group, Id - 67',
@@ -47,13 +41,7 @@ export const recentlyUsedProjectRes: ExtendedProject[] = [
     sub_project_name: null,
   },
   {
-    ap1_email: 'john.d@fyle.in',
-    ap1_full_name: 'John Doe',
-    ap2_email: 'james.d@fyle.in',
-    ap2_full_name: 'James Doe',
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '1251',
     project_created_at: new Date('2021-04-14T01:59:24.553Z'),
     project_description: 'NetSuite Customer / Project - Acera, Id - 1251',
@@ -67,13 +55,7 @@ export const recentlyUsedProjectRes: ExtendedProject[] = [
   },
 
   {
-    ap1_email: 'john.d@fyle.in',
-    ap1_full_name: 'John Doe',
-    ap2_email: 'james.d@fyle.in',
-    ap2_full_name: 'James Doe',
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '1009',
     project_created_at: new Date('2021-04-14T01:59:24.553Z'),
     project_description: 'NetSuite Customer / Project - AcuVision Eye Centre, Id - 1009',
