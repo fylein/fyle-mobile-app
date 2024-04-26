@@ -97,13 +97,7 @@ export const apiV2ResponseMultiple = {
   count: 2,
   data: [
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -116,13 +110,7 @@ export const apiV2ResponseMultiple = {
       sub_project_name: null,
     },
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1182',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
@@ -144,13 +132,7 @@ export const apiV2ResponseSingle = {
   count: 1,
   data: [
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',

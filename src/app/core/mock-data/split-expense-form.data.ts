@@ -66,13 +66,7 @@ export const splitExpenseFormData7 = new FormGroup({
     updated_at: '2024-01-18T08:11:42.313617+00:00',
   }),
   project: new FormControl({
-    ap1_email: null,
-    ap1_full_name: null,
-    ap2_email: null,
-    ap2_full_name: null,
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: null,
     project_created_at: '2023-12-18T02:01:14.842Z',
     project_description: null,
