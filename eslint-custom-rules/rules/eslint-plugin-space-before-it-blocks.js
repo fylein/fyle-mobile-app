@@ -31,7 +31,7 @@ module.exports = {
             context.report({
               node,
               loc: node.loc,
-              message: 'Expected a space before `it` block',
+              message: 'Use space before `it` block for more readability',
               fix: function(fixer) {
                 // Preserve the existing indentation when inserting the space
                 const indent = lineBeforeIt.match(/^\s*/)[0];
