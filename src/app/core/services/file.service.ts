@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
+import { from, Observable, of } from 'rxjs';
 import { map, switchMap } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
@@ -11,7 +11,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-import { platformApiResponse } from '../test-data/custom-inputs.spec.data';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
@@ -212,8 +211,8 @@ export class FileService {
       data: { id },
     };
     return this.spenderPlatformV1ApiService
-      .post('/files/generate_urls', payload)
-      .pipe(switchMap((response: PlatformApiResponse<PlatformFileGenerateUrlsResponse>) => response.data));
+      .post<PlatformApiResponse<PlatformFileGenerateUrlsResponse>>('/files/generate_urls', payload)
+      .pipe(switchMap((response) => response.data));
   }
 
   generateUrlsBulk(payload: { id: string }[]): Observable<PlatformFileGenerateUrlsResponse[]> {

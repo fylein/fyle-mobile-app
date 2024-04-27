@@ -418,7 +418,7 @@ export class ViewExpensePage {
         this.fileService.generateUrls(fileObj.id).pipe(
           map((response) => {
             const downloadUrl = response.download_url;
-            console.log('Hellow: ', downloadUrl);
+            console.log('Hellow: ', response);
             const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
             const fileObjWithDetails: FileObject = {
               url: downloadUrl,
