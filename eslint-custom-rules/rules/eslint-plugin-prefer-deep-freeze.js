@@ -16,8 +16,8 @@ module.exports = {
 
         if (filename.endsWith('.data.ts')) {
           const { id, init } = node;
-
-          if (id && init && init.type === 'ObjectExpression') {
+ 
+          if (id && init && (init.type === 'ObjectExpression' || init.type === 'ArrayExpression')) {
             const fix = (fixer) => {
               const variableText = sourceCode.getText(init);
               const start = init.range[0];
@@ -39,7 +39,7 @@ module.exports = {
                 );
               }
 
-              // Wrap the object with deepFreeze method
+              // Wrap the object or array with deepFreeze method
               fixes.push(
                 fixer.replaceTextRange(
                   [start, end],
@@ -50,11 +50,13 @@ module.exports = {
               return fixes;
             };
 
-            context.report({
-              node,
-              message: `Use deep-freeze-strict function on variable "${id.name} to avoid flaky tests"`,
-              fix,
-            });
+            if (init.type === 'ObjectExpression' || init.type === 'ArrayExpression') {
+              context.report({
+                node,
+                message: `Use deep-freeze-strict function on variable "${id.name}" to avoid flaky tests`,
+                fix,
+              });
+            }
           }
         }
       },
