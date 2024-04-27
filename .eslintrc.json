@@ -4,13 +4,13 @@
     "projects/**/*",
     "zone-flags.ts",
     "test.ts",
-    "main.ts",
-    "*.spec.ts"
+    "main.ts"
   ],
   "plugins": ["max-params-no-constructor", "custom-rules"],
   "overrides": [
     {
       "files": ["*.ts"],
+      "excludedFiles": ["*.spec.ts", "*.e2e-spec.ts", "*.po.ts"],
       "parserOptions": {
         "project": ["tsconfig.json", "e2e/tsconfig.json"],
         "createDefaultProgram": true
@@ -94,6 +94,22 @@
       "files": ["*.data.ts"],
       "rules": {
         "custom-rules/prefer-deep-freeze": "error"
+      }
+    },
+    {
+      "files": ["*.spec.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json", "e2e/tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@angular-eslint/ng-cli-compat",
+        "plugin:@angular-eslint/ng-cli-compat--formatting-add-on",
+        "plugin:@angular-eslint/template/process-inline-templates"
+      ],
+      "rules": {
+        "jsdoc/newline-after-description": "off",
+        "custom-rules/space-before-it-blocks": "error"
       }
     }
   ]
