@@ -4,7 +4,8 @@
     "projects/**/*",
     "zone-flags.ts",
     "test.ts",
-    "main.ts"
+    "main.ts",
+    "eslint-custom-rules/**/*"
   ],
   "plugins": ["max-params-no-constructor", "custom-rules"],
   "overrides": [
