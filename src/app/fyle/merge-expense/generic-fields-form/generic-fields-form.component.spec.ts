@@ -66,7 +66,7 @@ describe('GenericFieldsFormComponent', () => {
     it('should emit receiptChanged event if receipt option changes', () => {
       spyOn(component.receiptChanged, 'emit');
       component.ngOnInit();
-      component.genericFieldsFormGroup.controls.receipt_ids.setValue('txErhlkzewZF');
+      component.genericFieldsFormGroup.controls.receipts_from.setValue('txErhlkzewZF');
       expect(component.receiptChanged.emit).toHaveBeenCalledOnceWith('txErhlkzewZF');
     });
 
