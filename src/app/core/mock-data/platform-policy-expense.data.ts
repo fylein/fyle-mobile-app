@@ -217,7 +217,7 @@ export const platformPolicyExpenseData5: PlatformPolicyExpense = {
   is_reimbursable: null,
 };
 
-export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates[]> = {
   count: 1,
   data: [
     {
@@ -265,13 +265,13 @@ export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> =
   offset: 0,
 };
 
-export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = {
+export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates[]> = {
   count: 0,
   data: [],
   offset: 0,
 };
 
-export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates[]> = {
   count: 1,
   data: [
     {

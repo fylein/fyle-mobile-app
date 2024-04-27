@@ -4,7 +4,7 @@ import { AdvanceRequestState } from 'src/app/core/models/advance-request-state.m
 import { AdvanceRequestPlatform } from 'src/app/core/models/platform/advance-request-platform.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
-export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform[]> = {
   count: 1,
   offset: 0,
   data: [
@@ -89,7 +89,7 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
   ],
 };
 
-export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceRequestPlatform[]> = {
   count: 1,
   offset: 0,
   data: [
@@ -101,7 +101,7 @@ export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceReques
   ],
 };
 
-export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestPlatform[]> = {
   count: 1,
   offset: 0,
   data: [

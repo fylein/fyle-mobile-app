@@ -212,7 +212,7 @@ export class FileService {
     };
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformFileGenerateUrlsResponse>>('/files/generate_urls', payload)
-      .pipe(switchMap((response) => response.data));
+      .pipe(map((response) => response.data));
   }
 
   generateUrlsBulk(payload: { id: string }[]): Observable<PlatformFileGenerateUrlsResponse[]> {
