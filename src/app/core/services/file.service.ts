@@ -8,10 +8,10 @@ import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
 import { DateService } from './date.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
+import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
