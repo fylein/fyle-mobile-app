@@ -8,9 +8,10 @@ import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
 import { DateService } from './date.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
-import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -205,8 +206,13 @@ export class FileService {
     return this.spenderPlatformV1ApiService.post('/files/bulk', payload);
   }
 
-  generateUrls(payload: { id: string }): Observable<PlatformFileGenerateUrlsResponse> {
-    return this.spenderPlatformV1ApiService.post('/files/generate_urls', payload);
+  generateUrls(id: string): Observable<PlatformFileGenerateUrlsResponse> {
+    const payload = {
+      data: { id },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiResponse<PlatformFileGenerateUrlsResponse>>('/files/generate_urls', payload)
+      .pipe(map((response) => response.data));
   }
 
   generateUrlsBulk(payload: { id: string }[]): Observable<PlatformFileGenerateUrlsResponse[]> {
