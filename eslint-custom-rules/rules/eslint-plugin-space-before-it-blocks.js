@@ -1,3 +1,5 @@
+var suiteRegexp = /^(f|x)?describe$/;
+
 module.exports = {
   meta: {
     type: 'layout',
@@ -8,39 +10,44 @@ module.exports = {
     },
     fixable: 'code',
   },
-  create: function(context) {
+  create: function (context) {
     return {
-      CallExpression(node) {
-        const { callee } = node;
-
-        if (callee.type === 'Identifier' && callee.name === 'it') {
-          // Access the line number of the `it` block
-          const lineNumber = node.loc.start.line;
-
-          // Access the entire file content
-          const fileContent = context.getSourceCode().getText();
-
-          // Split the content by lines
-          const lines = fileContent.split('\n');
-
-          // Get the line before the `it` block
-          const lineBeforeIt = lines[lineNumber - 2];
-
-          // Check if there is a space before the `it` block
-          if (!/^\s*$/.test(lineBeforeIt)) {
-            context.report({
-              node,
-              loc: node.loc,
-              message: 'Use space before `it` block for more readability',
-              fix: function(fixer) {
-                // Preserve the existing indentation when inserting the space
-                const indent = lineBeforeIt.match(/^\s*/)[0];
-                return fixer.insertTextBefore(node, `\n${indent}`);
-              }
-            });
-          }
+      CallExpression: function (node) {
+        var declWithoutPadding = null;
+        if (suiteRegexp.test(node.callee.name)) {
+          var declarations = getDescribeDeclarationsContent(node);
+          declarations.forEach((decl, i) => {
+            var next = declarations[i + 1];
+            if (next && !(next.loc.start.line - decl.loc.end.line >= 2)) {
+              declWithoutPadding = decl;
+            }
+          })
         }
-      },
-    };
-  },
-};
+        if (declWithoutPadding) {
+          context.report({
+            message: 'Use new line between declarations for more readability',
+            node,
+            loc: node.loc,
+            fix (fixer) {
+              return fixer.insertTextAfter(declWithoutPadding, '\n');
+            },
+          })
+        }
+      }
+    }
+  }
+}
+
+function getDescribeDeclarationsContent (describe) {
+  var declartionsRegexp = /^(((before|after)(Each|All))|^(f|x)?(it|describe))$/;
+  var declarations = [];
+  if (describe.arguments && describe.arguments[1] && describe.arguments[1].body && describe.arguments[1].body.body) {
+    var content = describe.arguments[1].body.body;
+    content.forEach(node => {
+      if (node.type === 'ExpressionStatement' && node.expression.callee && declartionsRegexp.test(node.expression.callee.name)) {
+        declarations.push(node);
+      }
+    })
+  }
+  return declarations;
+}
