@@ -415,10 +415,8 @@ export class ViewExpensePage {
       take(1),
       switchMap((expense) => from(expense.files)),
       concatMap((fileObj) =>
-        this.fileService.generateUrls(fileObj.id).pipe(
-          map((response) => {
-            const downloadUrl = response.download_url;
-            console.log('Hellow: ', response);
+        this.fileService.downloadUrl(fileObj.id).pipe(
+          map((downloadUrl) => {
             const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
             const fileObjWithDetails: FileObject = {
               url: downloadUrl,

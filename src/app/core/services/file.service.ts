@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { from, Observable, of } from 'rxjs';
-import { map, switchMap } from 'rxjs/operators';
+import { from, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 import { File } from '../models/file.model';
 import { ApiService } from './api.service';
 import { FileObject } from '../models/file-obj.model';
@@ -11,7 +11,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformFile } from '../models/platform/platform-file.model';
 import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -206,13 +205,8 @@ export class FileService {
     return this.spenderPlatformV1ApiService.post('/files/bulk', payload);
   }
 
-  generateUrls(id: string): Observable<PlatformFileGenerateUrlsResponse> {
-    const payload = {
-      data: { id },
-    };
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiResponse<PlatformFileGenerateUrlsResponse>>('/files/generate_urls', payload)
-      .pipe(map((response) => response.data));
+  generateUrls(payload: { id: string }): Observable<PlatformFileGenerateUrlsResponse> {
+    return this.spenderPlatformV1ApiService.post('/files/generate_urls', payload);
   }
 
   generateUrlsBulk(payload: { id: string }[]): Observable<PlatformFileGenerateUrlsResponse[]> {
