@@ -131,21 +131,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addTransactions(rptId: string, txnIds: string[]): Observable<void> {
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/txns', {
-        ids: txnIds,
-      })
-      .pipe(
-        tap(() => {
-          this.clearTransactionCache();
-        })
-      );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   createDraft(report: ReportPurpose): Observable<ReportV1> {
     return this.apiService
       .post<ReportV1>('/reports', report)
