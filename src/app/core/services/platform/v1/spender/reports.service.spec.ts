@@ -12,6 +12,7 @@ import {
   mockQueryParams,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
@@ -157,14 +158,14 @@ describe('SpenderReportsService', () => {
       count: 2,
       total_amount: 1200,
     };
-    spenderPlatformV1ApiService.post.and.returnValue(of({ data: statsResponse }));
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
     const params = {
       state: 'eq.DRAFT',
     };
 
     spenderReportsService.getReportsStats(params).subscribe((res) => {
-      expect(res).toEqual(statsResponse);
+      expect(res).toEqual(expectedReportStats.draft);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
         data: {
           query_params: `state=${params.state}`,

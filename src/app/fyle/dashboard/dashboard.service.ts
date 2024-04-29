@@ -9,11 +9,11 @@ import { Stats } from '../../core/models/stats.model';
 import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { ReportService } from '../../core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Injectable()
 export class DashboardService {
   constructor(
-    private reportService: ReportService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expensesService: ExpensesService,
     private spenderReportsService: SpenderReportsService
@@ -46,6 +46,12 @@ export class DashboardService {
           sum: stats.data.total_amount,
         }))
       );
+  }
+
+  getSpenderReportsStats(): Observable<ReportsStatsResponsePlatform> {
+    return this.spenderReportsService.getReportsStats({
+      state: 'eq.DRAFT',
+    });
   }
 
   getReportsStats(): Observable<ReportStats> {

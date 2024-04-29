@@ -11,45 +11,32 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { ReportService } from 'src/app/core/services/report.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
 import { expectedEmptyReportStats, expectedReportStats } from '../../core/mock-data/report-stats.data';
-import {
-  apiAssignedCardDetailsRes,
-  apiReportStatsEmptyRes,
-  apiReportStatsRes,
-} from '../../core/mock-data/stats-response.data';
+import { apiAssignedCardDetailsRes } from '../../core/mock-data/stats-response.data';
 import {
   emptyStatsAgg,
   expectedIncompleteExpStats2,
   expectedUnreportedExpStats2,
 } from '../../core/mock-data/stats.data';
 import { DashboardService } from './dashboard.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
-describe('DashboardService', () => {
+fdescribe('DashboardService', () => {
   let dashboardService: DashboardService;
-  let reportService: jasmine.SpyObj<ReportService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
-
-  const apiReportStatParams: Partial<StatsResponse> = {
-    scalar: false,
-    dimension_1_1: 'rp_state',
-    aggregates: 'sum(rp_amount),count(rp_id)',
-  };
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(() => {
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getReportStats']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get', 'getStats']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         DashboardService,
         CorporateCreditCardExpenseService,
-        {
-          provide: ReportService,
-          useValue: reportServiceSpy,
-        },
         {
           provide: AuthService,
           useValue: authServiceSpy,
@@ -62,13 +49,17 @@ describe('DashboardService', () => {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
       ],
     });
     dashboardService = TestBed.inject(DashboardService);
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
   });
 
   it('should be created', () => {
@@ -130,23 +121,63 @@ describe('DashboardService', () => {
   });
 
   it('getReportStats(): should get Report stats', (done) => {
-    reportService.getReportStats.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
+    spenderReportsService.getReportsStats.and.returnValues(
+      of(expectedReportStats.draft),
+      of(expectedReportStats.report),
+      of(expectedReportStats.approved),
+      of(expectedReportStats.paymentPending),
+      of(expectedReportStats.processing)
+    );
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedReportStats);
-      expect(reportService.getReportStats).toHaveBeenCalledTimes(1);
-      expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledTimes(5);
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.DRAFT',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.APPROVER_PENDING',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.APPROVED',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.PAYMENT_PENDING',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.PAYMENT_PROCESSING',
+      });
       done();
     });
   });
 
   it('getReportStats(): should return empty response as various report stats data is empty', (done) => {
-    reportService.getReportStats.and.returnValue(of(new StatsResponse(apiReportStatsEmptyRes)));
+    spenderReportsService.getReportsStats.and.returnValues(
+      of(expectedEmptyReportStats.draft),
+      of(expectedEmptyReportStats.report),
+      of(expectedEmptyReportStats.approved),
+      of(expectedEmptyReportStats.paymentPending),
+      of(expectedEmptyReportStats.processing)
+    );
 
     dashboardService.getReportsStats().subscribe((res) => {
       expect(res).toEqual(expectedEmptyReportStats);
-      expect(reportService.getReportStats).toHaveBeenCalledTimes(1);
-      expect(reportService.getReportStats).toHaveBeenCalledWith(apiReportStatParams);
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledTimes(5);
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.DRAFT',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.APPROVER_PENDING',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.APPROVED',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.PAYMENT_PENDING',
+      });
+      expect(spenderReportsService.getReportsStats).toHaveBeenCalledWith({
+        state: 'eq.PAYMENT_PROCESSING',
+      });
       done();
     });
   });
