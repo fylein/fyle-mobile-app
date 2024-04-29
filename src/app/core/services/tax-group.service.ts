@@ -38,7 +38,7 @@ export class TaxGroupService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data)
+      .get<PlatformApiResponse<PlatformTaxGroup[]>>('/tax_groups', data)
       .pipe(map((res) => res.count));
   }
 
@@ -50,7 +50,7 @@ export class TaxGroupService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformTaxGroup>>('/tax_groups', data).pipe(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformTaxGroup[]>>('/tax_groups', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) =>
         res.map((data) => ({

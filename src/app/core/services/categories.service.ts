@@ -43,7 +43,7 @@ export class CategoriesService {
         is_enabled: 'eq.true',
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.addDisplayName(res)),
       map((responses) => responses[0])
@@ -59,7 +59,7 @@ export class CategoriesService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .get<PlatformApiResponse<PlatformCategory[]>>('/categories', data)
       .pipe(map((res) => res.count));
   }
 
@@ -71,7 +71,7 @@ export class CategoriesService {
         limit: config.limit,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>('/categories', data).pipe(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>('/categories', data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.sortCategories(res)),
       map((res) => this.addDisplayName(res))
@@ -87,7 +87,7 @@ export class CategoriesService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCategory>>('/categories', data)
+      .get<PlatformApiResponse<PlatformCategory[]>>('/categories', data)
       .pipe(map((res) => res.data));
   }
 
@@ -202,7 +202,7 @@ export class CategoriesService {
         id: 'eq.' + id,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory>>(`/categories`, data).pipe(
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<PlatformCategory[]>>(`/categories`, data).pipe(
       map((res) => this.transformFrom(res.data)),
       map((res) => this.addDisplayName(res)),
       map((responses) => responses.find((response) => response.id === id))
