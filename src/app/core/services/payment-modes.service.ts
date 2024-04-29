@@ -26,7 +26,7 @@ export class PaymentModesService {
     private trackingService: TrackingService
   ) {}
 
-  checkIfPaymentModeConfigurationsIsEnabled() {
+  checkIfPaymentModeConfigurationsIsEnabled(): Observable<boolean> {
     return this.orgUserSettingsService
       .get()
       .pipe(
@@ -92,12 +92,23 @@ export class PaymentModesService {
     return false;
   }
 
-  showInvalidPaymentModeToast() {
+  showInvalidPaymentModeToast(): void {
     const message = 'Insufficient balance in the selected account. Please choose a different payment mode.';
     this.matSnackBar.openFromComponent(ToastMessageComponent, {
       ...this.snackbarProperties.setSnackbarProperties('failure', { message }),
       panelClass: ['msb-failure-with-report-btn'],
     });
     this.trackingService.showToastMessage({ ToastContent: message });
+  }
+
+  getPaymentModeDisplayName(paymentMode: AllowedPaymentModes): string {
+    switch (paymentMode) {
+      case AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT:
+        return 'Personal Advances';
+      case AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT:
+        return 'Corporate Credit Card';
+      default:
+        return 'Personal Cash/Card';
+    }
   }
 }
