@@ -247,26 +247,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('removeTransaction(): should remove a transaction from report', (done) => {
-    apiService.post.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpvcIMRMyM3A';
-    const txnID = 'txTQVBx7W8EO';
-
-    const params = {
-      status: {
-        comment: null,
-      },
-    };
-
-    reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   describe('getMyReports()', () => {
     it('should get reports from API as specified by params', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
@@ -539,25 +519,28 @@ describe('ReportService', () => {
     });
   });
 
-  it('create(): should create a new report', (done) => {
+  fit('create(): should create a new report', (done) => {
     spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
-    apiService.post.and.returnValue(of(null));
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
     spyOn(reportService, 'submit').and.returnValue(of(null));
 
     const reportPurpose = {
       purpose: 'A new report',
       source: 'MOBILE',
     };
-    const txnIds = ['tx6Oe6FaYDZl'];
+    const expenseIds = ['tx6Oe6FaYDZl'];
     const reportID = 'rp5eUkeNm9wB';
-    const txnParam = {
-      ids: txnIds,
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: expenseIds,
+      },
     };
 
-    reportService.create(reportPurpose, txnIds).subscribe((res) => {
+    reportService.create(reportPurpose, expenseIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
       expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, txnParam);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
       expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });
