@@ -77,7 +77,7 @@ module.exports = {
                 const match = nodeText.match(/\.toBe\((null)\)|\.toEqual\((null)\)/);
                 if (match) {
                     const start = node.callee.property.range[0];
-                    const end = node.callee.property.range[1] + 5; // Adjust end position
+                    const end = node.callee.property.range[1] + 6; // Adjust end position
                     return fixer.replaceTextRange([start, end], replacementText);
                 }
             
@@ -119,7 +119,7 @@ module.exports = {
                 const match = nodeText.match(/\.toBe\((NaN)\)|\.toEqual\((NaN)\)/);
                 if (match) {
                     const start = node.callee.property.range[0];
-                    const end = node.callee.property.range[1] + 6; // Adjust end position
+                    const end = node.callee.property.range[1] + 5; // Adjust end position
                     return fixer.replaceTextRange([start, end], replacementText);
                 }
             
