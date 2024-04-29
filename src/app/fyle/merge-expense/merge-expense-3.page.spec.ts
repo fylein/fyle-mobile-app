@@ -72,7 +72,7 @@ import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
-import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
+import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response.data';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 import { mergeExpenesesCustomInputsData } from 'src/app/core/mock-data/merge-expenses-custom-inputs.data';
