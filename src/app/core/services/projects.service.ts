@@ -164,6 +164,22 @@ export class ProjectsService {
       );
   }
 
+  transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
+    const projectV1 = platformProject.map((platformProject) => ({
+      id: platformProject.id,
+      created_at: platformProject.created_at,
+      updated_at: platformProject.updated_at,
+      name: platformProject.name,
+      sub_project: platformProject.sub_project,
+      code: platformProject.code,
+      org_id: platformProject.org_id,
+      description: platformProject.description,
+      active: platformProject.is_enabled,
+      org_category_ids: platformProject.category_ids,
+    }));
+    return projectV1;
+  }
+
   transformToV2Response(platformProject: PlatformProject[]): ExtendedProject[] {
     const extendedProject = platformProject.map((platformProject) => ({
       project_active: platformProject.is_enabled,
