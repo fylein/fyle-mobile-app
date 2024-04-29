@@ -16,8 +16,8 @@ module.exports = {
 
         if (filename.endsWith('.data.ts')) {
           const { id, init } = node;
-
-          if (id && init) {
+ 
+          if (id && init && (init.type === 'ObjectExpression' || init.type === 'ArrayExpression')) {
             const fix = (fixer) => {
               const variableText = sourceCode.getText(init);
               const start = init.range[0];
