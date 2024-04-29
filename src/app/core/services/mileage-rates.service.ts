@@ -47,7 +47,7 @@ export class MileageRatesService {
     };
 
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .get<PlatformApiResponse<PlatformMileageRates[]>>('/mileage_rates', data)
       .pipe(map((response) => response.data[0]));
   }
 
@@ -62,7 +62,7 @@ export class MileageRatesService {
     };
 
     return this.approverPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .get<PlatformApiResponse<PlatformMileageRates[]>>('/mileage_rates', data)
       .pipe(map((response) => response.data[0]));
   }
 
@@ -74,7 +74,7 @@ export class MileageRatesService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .get<PlatformApiResponse<PlatformMileageRates[]>>('/mileage_rates', data)
       .pipe(map((res) => res.count));
   }
 
@@ -86,7 +86,7 @@ export class MileageRatesService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformMileageRates>>('/mileage_rates', data)
+      .get<PlatformApiResponse<PlatformMileageRates[]>>('/mileage_rates', data)
       .pipe(map((res) => this.excludeNullRates(res.data)));
   }
 

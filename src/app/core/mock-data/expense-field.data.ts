@@ -154,7 +154,7 @@ export const expenseFieldResponse: ExpenseField[] = [
   },
 ];
 
-export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField> = {
+export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField[]> = {
   count: 5,
   data: [
     {

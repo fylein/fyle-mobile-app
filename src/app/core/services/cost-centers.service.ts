@@ -42,7 +42,7 @@ export class CostCentersService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .get<PlatformApiResponse<PlatformCostCenter[]>>('/cost_centers', data)
       .pipe(map((res) => res.count));
   }
 
@@ -55,7 +55,7 @@ export class CostCentersService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCostCenter>>('/cost_centers', data)
+      .get<PlatformApiResponse<PlatformCostCenter[]>>('/cost_centers', data)
       .pipe(map((res) => this.transformFrom(res.data)));
   }
 

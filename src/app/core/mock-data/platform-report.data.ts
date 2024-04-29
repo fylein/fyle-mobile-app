@@ -69,13 +69,13 @@ export const platformReportData: Report = {
   user_id: 'usvKA4X8Ugcr',
 };
 
-export const platformReportCountData: PlatformApiResponse<Report> = {
+export const platformReportCountData: PlatformApiResponse<Report[]> = {
   count: 4,
   data: [platformReportData],
   offset: 0,
 };
 
-export const allReportsPaginated1: PlatformApiResponse<Report> = {
+export const allReportsPaginated1: PlatformApiResponse<Report[]> = {
   count: 4,
   data: [
     {
@@ -206,7 +206,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report> = {
   offset: 0,
 };
 
-export const allReportsPaginated2: PlatformApiResponse<Report> = {
+export const allReportsPaginated2: PlatformApiResponse<Report[]> = {
   count: 4,
   data: [
     {

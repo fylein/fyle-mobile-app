@@ -1,7 +1,7 @@
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = {
+export const platformMileageRates: PlatformApiResponse<PlatformMileageRates[]> = {
   count: 4,
   data: [
     {
@@ -75,7 +75,7 @@ export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = {
   offset: 0,
 };
 
-export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates> = {
+export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates[]> = {
   count: 1,
   data: [
     {
