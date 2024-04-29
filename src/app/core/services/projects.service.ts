@@ -9,15 +9,13 @@ import { ProjectV1 } from '../models/v1/extended-project.model';
 import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 import { OrgCategory } from '../models/v1/org-category.model';
+import { PlatformProject } from '../models/platform/platform-project.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(
-    private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
-  ) {}
+  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -31,7 +29,7 @@ export class ProjectsService {
       sortOrder: string;
       sortDirection: string;
       projectIds: number[];
-    }>,
+    }>
   ): Observable<ExtendedProject[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
@@ -68,8 +66,8 @@ export class ProjectsService {
             ...datum,
             project_created_at: new Date(datum.project_created_at),
             project_updated_at: new Date(datum.project_updated_at),
-          })),
-        ),
+          }))
+        )
       );
   }
 
@@ -86,7 +84,7 @@ export class ProjectsService {
           }
         });
         return filterdProjects.length;
-      }),
+      })
     );
   }
 
@@ -142,8 +140,8 @@ export class ProjectsService {
           ...datum,
           created_at: new Date(datum.created_at),
           updated_at: new Date(datum.updated_at),
-        })),
-      ),
+        }))
+      )
     );
   }
 
@@ -161,8 +159,24 @@ export class ProjectsService {
               ...datum,
               project_created_at: new Date(datum.project_created_at),
               project_updated_at: new Date(datum.project_updated_at),
-            }))[0],
-        ),
+            }))[0]
+        )
       );
+  }
+
+  transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
+    const projectV1 = platformProject.map((platformProject) => ({
+      id: platformProject.id,
+      created_at: platformProject.created_at,
+      updated_at: platformProject.updated_at,
+      name: platformProject.name,
+      sub_project: platformProject.sub_project,
+      code: platformProject.code,
+      org_id: platformProject.org_id,
+      description: platformProject.description,
+      active: platformProject.is_enabled,
+      org_category_ids: platformProject.category_ids,
+    }));
+    return projectV1;
   }
 }
