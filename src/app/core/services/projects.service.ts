@@ -194,7 +194,6 @@ export class ProjectsService {
       projectv2_name: platformProject.display_name,
       sub_project_name: platformProject.sub_project,
     }));
-
     return extendedProject;
   }
 }
