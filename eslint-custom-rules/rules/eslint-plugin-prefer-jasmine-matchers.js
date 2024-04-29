@@ -107,7 +107,6 @@ module.exports = {
             });
           } else if (node.arguments[0].name === 'NaN') {
             // Since NaN === NaN returns false, we are comparing the name of the argument to NaN
-            console.log('lol');
             context.report({
               node,
               message: "Prefer using toBeNaN() instead of toBe(NaN) or toEqual(NaN)",
