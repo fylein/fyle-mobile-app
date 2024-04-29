@@ -7,20 +7,12 @@ import { FileObject } from '../models/file-obj.model';
 import { ReceiptInfo } from '../models/receipt-info.model';
 import heic2any from 'heic2any';
 import { DateService } from './date.service';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformFile } from '../models/platform/platform-file.model';
-import { PlatformFilePostRequestPayload } from '../models/platform/platform-file-post-request-payload.model';
-import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class FileService {
-  constructor(
-    private apiService: ApiService,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
-    private dateService: DateService
-  ) {}
+  constructor(private apiService: ApiService, private dateService: DateService) {}
 
   downloadUrl(fileId: string): Observable<string> {
     return this.apiService.post<File>('/files/' + fileId + '/download_url').pipe(map((res) => res.url));
@@ -195,25 +187,5 @@ export class FileService {
       receiptInfo.thumbnail = downloadUrl;
     }
     return receiptInfo;
-  }
-
-  createFile(payload: PlatformFilePostRequestPayload): Observable<PlatformFile> {
-    return this.spenderPlatformV1ApiService.post('/files', payload);
-  }
-
-  createFilesBulk(payload: PlatformFilePostRequestPayload[]): Observable<PlatformFile[]> {
-    return this.spenderPlatformV1ApiService.post('/files/bulk', payload);
-  }
-
-  generateUrls(payload: { id: string }): Observable<PlatformFileGenerateUrlsResponse> {
-    return this.spenderPlatformV1ApiService.post('/files/generate_urls', payload);
-  }
-
-  generateUrlsBulk(payload: { id: string }[]): Observable<PlatformFileGenerateUrlsResponse[]> {
-    return this.spenderPlatformV1ApiService.post('/files/generate_urls', payload);
-  }
-
-  downloadFile(id: string) {
-    return this.spenderPlatformV1ApiService.get('/files/download?id=' + id);
   }
 }
