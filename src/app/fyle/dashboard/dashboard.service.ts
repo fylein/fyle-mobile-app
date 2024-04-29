@@ -9,8 +9,6 @@ import { Stats } from '../../core/models/stats.model';
 import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { ReportService } from '../../core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { report } from 'process';
-import { approversData1 } from 'src/app/core/mock-data/approver.data';
 
 @Injectable()
 export class DashboardService {
@@ -61,59 +59,19 @@ export class DashboardService {
       state: 'eq.APPROVED',
     });
     const paymentPendingStats = this.spenderReportsService.getReportsStats({
-      state: 'eq.DRAFT',
+      state: 'eq.PAYMENT_PENDING',
     });
-    const draftStats = this.spenderReportsService.getReportsStats({
-      state: 'eq.DRAFT',
+    const paymentProcessingStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.PAYMENT_PROCESSING',
     });
-    const reportStatsObservable$ = forkJoin([]);
-    draft;
-    report;
-    approvers;
-    paymentPending;
-    paymentProcessing;
+    const reportStatsObservable$ = forkJoin({
+      draft: draftStats,
+      report: reportedStats,
+      approved: approvedStats,
+      paymentPending: paymentPendingStats,
+      processing: paymentProcessingStats,
+    });
     return reportStatsObservable$;
-  }
-
-  getReportAggregates(reportsStatsResponse: StatsResponse): ReportStats {
-    const reportDatum = reportsStatsResponse.getDatum(0);
-    const reportAggregateValues = reportDatum.value;
-    const stateWiseAggregatesMap = reportAggregateValues
-      .map((reportAggregateValue) => {
-        const key = reportAggregateValue.key[0].column_value;
-        const countAggregate = reportAggregateValue.aggregates.find(
-          (aggregate) => aggregate.function_name === 'count(rp_id)'
-        );
-        const sumAggregate = reportAggregateValue.aggregates.find(
-          (aggregate) => aggregate.function_name === 'sum(rp_amount)'
-        );
-        return {
-          key,
-          count: countAggregate && countAggregate.function_value,
-          sum: sumAggregate && sumAggregate.function_value,
-        };
-      })
-      .reduce((acc, curr) => {
-        acc[curr.key] = {
-          count: curr.count,
-          sum: curr.sum,
-        };
-        return acc;
-      }, {} as { [key: string]: { count: number; sum: number } });
-
-    const draftReportStats = stateWiseAggregatesMap.DRAFT || { sum: 0, count: 0 };
-    const reportedReportStats = stateWiseAggregatesMap.APPROVER_PENDING || { sum: 0, count: 0 };
-    const approvedReportStats = stateWiseAggregatesMap.APPROVED || { sum: 0, count: 0 };
-    const paymentPendingReportStats = stateWiseAggregatesMap.PAYMENT_PENDING || { sum: 0, count: 0 };
-    const processingReportStats = stateWiseAggregatesMap.PAYMENT_PROCESSING || { sum: 0, count: 0 };
-
-    return {
-      draft: draftReportStats,
-      report: reportedReportStats,
-      approved: approvedReportStats,
-      paymentPending: paymentPendingReportStats,
-      processing: processingReportStats,
-    };
   }
 
   getCCCDetails(): Observable<CCCDetails> {

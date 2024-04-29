@@ -7,6 +7,7 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
+import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -53,9 +54,9 @@ export class ApproverReportsService {
     return this.approverPlatformApiService.get<PlatformApiResponse<Report>>('/reports', config);
   }
 
-  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
     return this.approverPlatformApiService
-      .post<{ data: StatsResponse }>('/reports/stats', {
+      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', {
         data: {
           query_params: `state=${params.state}`,
         },
