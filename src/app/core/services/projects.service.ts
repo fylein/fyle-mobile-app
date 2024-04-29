@@ -177,6 +177,7 @@ export class ProjectsService {
       active: platformProject.is_enabled,
       org_category_ids: platformProject.category_ids,
     }));
+
     return projectV1;
   }
 
@@ -194,6 +195,7 @@ export class ProjectsService {
       projectv2_name: platformProject.display_name,
       sub_project_name: platformProject.sub_project,
     }));
+
     return extendedProject;
   }
 }
