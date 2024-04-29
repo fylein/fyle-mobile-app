@@ -21,6 +21,7 @@ import {
   cccOnlyPaymentModeSettingsParam,
   reimbursableOnlyPaymentModeSettingsParam,
 } from '../mock-data/org-payment-mode-settings.data';
+import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 
 describe('PaymentModesService', () => {
   let paymentModesService: PaymentModesService;
@@ -194,6 +195,23 @@ describe('PaymentModesService', () => {
     it('should return false if only reimbursable payment modes exist in the payment mode settings', () => {
       expect(paymentModesService.isNonReimbursableOrg(reimbursableOnlyPaymentModeSettingsParam)).toBeFalse();
       expect(paymentModesService.isNonReimbursableOrg(cccAndReimbursablePaymentModeSettingsParam)).toBeFalse();
+    });
+  });
+
+  describe('getPaymentModeDisplayName():', () => {
+    it('should return Personal Advances if payment mode is PERSONAL_ADVANCE_ACCOUNT', () => {
+      const paymentMode = AllowedPaymentModes.PERSONAL_ADVANCE_ACCOUNT;
+      expect(paymentModesService.getPaymentModeDisplayName(paymentMode)).toEqual('Personal Advances');
+    });
+
+    it('should return Corporate Credit Card if payment mode is PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
+      const paymentMode = AllowedPaymentModes.PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT;
+      expect(paymentModesService.getPaymentModeDisplayName(paymentMode)).toEqual('Corporate Credit Card');
+    });
+
+    it('should return Personal Cash/Card if payment mode is not PERSONAL_ADVANCE_ACCOUNT or PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT', () => {
+      const paymentMode = AllowedPaymentModes.PERSONAL_ACCOUNT;
+      expect(paymentModesService.getPaymentModeDisplayName(paymentMode)).toEqual('Personal Cash/Card');
     });
   });
 });
