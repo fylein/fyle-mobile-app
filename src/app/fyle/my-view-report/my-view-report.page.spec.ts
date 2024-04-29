@@ -55,6 +55,7 @@ import { MyViewReportPage } from './my-view-report.page';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -75,6 +76,7 @@ describe('MyViewReportPage', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -116,6 +118,7 @@ describe('MyViewReportPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -202,6 +205,10 @@ describe('MyViewReportPage', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -224,6 +231,7 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     component.erpt$ = of(newReportParam);
     component.canEdit$ = of(true);
@@ -1017,13 +1025,16 @@ describe('MyViewReportPage', () => {
     component.reportId = 'rpFkJ6jUJOyg';
     component.unreportedExpenses = [expense1, expense2];
     fixture.detectChanges();
-    reportService.addTransactions.and.returnValue(of(null));
+    spenderReportsService.addExpenses.and.returnValue(of(null));
 
     spyOn(component.loadReportDetails$, 'next');
     spyOn(component.loadReportTxns$, 'next');
 
     component.addExpensesToReport(['txcSFe6efB62', 'tx3qHxFNgRcZ']);
-    expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', ['txcSFe6efB62', 'tx3qHxFNgRcZ']);
+    expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', [
+      'txcSFe6efB62',
+      'tx3qHxFNgRcZ',
+    ]);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
     expect(component.unreportedExpenses).toEqual([expenseData]);

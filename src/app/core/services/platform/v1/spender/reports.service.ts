@@ -12,7 +12,7 @@ import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-pa
 @Injectable({
   providedIn: 'root',
 })
-export class ReportsService {
+export class SpenderReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
@@ -58,5 +58,26 @@ export class ReportsService {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiPayload<Report>>('/reports', data)
       .pipe(map((res) => res.data));
+  }
+
+  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: [txnId],
+      },
+      reason: comment,
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
+  }
+
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: expenseIds,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
   }
 }
