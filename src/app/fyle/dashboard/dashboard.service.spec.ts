@@ -20,7 +20,7 @@ import {
 import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
-fdescribe('DashboardService', () => {
+describe('DashboardService', () => {
   let dashboardService: DashboardService;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let authService: jasmine.SpyObj<AuthService>;
