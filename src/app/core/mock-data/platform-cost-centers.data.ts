@@ -1,7 +1,7 @@
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter> = {
+export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter[]> = {
   count: 1,
   data: [
     {
@@ -18,7 +18,7 @@ export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter
   offset: 0,
 };
 
-export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCenter> = {
+export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCenter[]> = {
   count: 4,
   data: [
     {

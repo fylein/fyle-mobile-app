@@ -116,7 +116,7 @@ export class AdvanceRequestService {
   }
 
   convertToPublicAdvanceRequest(
-    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform>
+    advanceReqPlatformResponse: PlatformApiResponse<AdvanceRequestPlatform[]>
   ): ExtendedAdvanceRequestPublic[] {
     return advanceReqPlatformResponse.data.map((advanceRequestPlatform) =>
       this.mapAdvanceRequest(advanceRequestPlatform)
@@ -140,7 +140,7 @@ export class AdvanceRequestService {
       ...config.queryParams,
     };
     return this.spenderService
-      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params,
       })
       .pipe(
@@ -201,7 +201,7 @@ export class AdvanceRequestService {
   })
   getAdvanceRequestPlatform(id: string): Observable<ExtendedAdvanceRequestPublic> {
     return this.spenderService
-      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${id}` },
       })
       .pipe(
@@ -370,7 +370,7 @@ export class AdvanceRequestService {
 
   getActiveApproversByAdvanceRequestIdPlatform(advanceRequestId: string): Observable<ApprovalPublic[]> {
     return this.spenderService
-      .get<PlatformApiResponse<AdvanceRequestPlatform>>('/advance_requests', {
+      .get<PlatformApiResponse<AdvanceRequestPlatform[]>>('/advance_requests', {
         params: { id: `eq.${advanceRequestId}` },
       })
       .pipe(

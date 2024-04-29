@@ -22,7 +22,7 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = {
   },
 };
 
-export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue> = {
+export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue[]> = {
   count: 2,
   data: [
     {
@@ -71,7 +71,7 @@ export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesA
   },
 };
 
-export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue> = {
+export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue[]> = {
   count: 1,
   data: [
     {

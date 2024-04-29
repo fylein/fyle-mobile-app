@@ -100,7 +100,7 @@ export const singleExtendedAdvancesData3: ExtendedAdvance = {
   purpose: 'testing',
 };
 
-export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = {
+export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform[]> = {
   count: 11,
   offset: 200,
   data: [
