@@ -53,7 +53,7 @@ export class AdvanceService {
     };
   }
 
-  convertToPublicAdvance(advancesPlatformResponse: PlatformApiResponse<AdvancesPlatform>): ExtendedAdvance[] {
+  convertToPublicAdvance(advancesPlatformResponse: PlatformApiResponse<AdvancesPlatform[]>): ExtendedAdvance[] {
     return advancesPlatformResponse.data.map((advancesPlatform) => this.mapAdvance(advancesPlatform));
   }
   @Cacheable({
@@ -71,7 +71,7 @@ export class AdvanceService {
       limit: config.limit,
     };
     return this.spenderService
-      .get<PlatformApiResponse<AdvancesPlatform>>('/advances', {
+      .get<PlatformApiResponse<AdvancesPlatform[]>>('/advances', {
         params,
       })
       .pipe(
@@ -93,7 +93,7 @@ export class AdvanceService {
 
   getAdvance(id: string): Observable<ExtendedAdvance> {
     return this.spenderService
-      .get<PlatformApiResponse<AdvancesPlatform>>('/advances', {
+      .get<PlatformApiResponse<AdvancesPlatform[]>>('/advances', {
         params: { id: `eq.${id}` },
       })
       .pipe(

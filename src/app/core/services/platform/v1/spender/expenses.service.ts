@@ -83,18 +83,18 @@ export class ExpensesService {
       },
     };
 
-    return this.spenderService.get<PlatformApiResponse<Expense>>('/expenses', data).pipe(map((res) => res.data[0]));
+    return this.spenderService.get<PlatformApiResponse<Expense[]>>('/expenses', data).pipe(map((res) => res.data[0]));
   }
 
   getExpensesCount(params: ExpensesQueryParams): Observable<number> {
     return this.spenderService
-      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
       .pipe(map((response) => response.count));
   }
 
   getExpenses(params: ExpensesQueryParams): Observable<Expense[]> {
     return this.spenderService
-      .get<PlatformApiResponse<Expense>>('/expenses', { params })
+      .get<PlatformApiResponse<Expense[]>>('/expenses', { params })
       .pipe(map((expenses) => expenses.data));
   }
 
