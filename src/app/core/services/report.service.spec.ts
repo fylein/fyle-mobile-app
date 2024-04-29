@@ -519,7 +519,7 @@ describe('ReportService', () => {
     });
   });
 
-  fit('create(): should create a new report', (done) => {
+  it('create(): should create a new report', (done) => {
     spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
     spyOn(reportService, 'submit').and.returnValue(of(null));
