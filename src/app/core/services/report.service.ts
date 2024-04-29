@@ -33,7 +33,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
