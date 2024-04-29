@@ -1099,18 +1099,4 @@ describe('ReportService', () => {
       });
     });
   });
-
-  it('getReportStats(): should get report stats', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
-
-    reportService.getReportStats(apiReportStatParams).subscribe((res) => {
-      expect(res).toEqual(new StatsResponse(apiReportStatsRes));
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', {
-        params: { rp_org_user_id: `eq.ouX8dwsbLCLv`, ...apiReportStatParams },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
 });

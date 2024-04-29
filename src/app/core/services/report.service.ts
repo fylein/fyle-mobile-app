@@ -595,20 +595,6 @@ export class ReportService {
     );
   }
 
-  getReportStats(params: Partial<StatsResponse>): Observable<StatsResponse> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports/stats', {
-          params: {
-            rp_org_user_id: `eq.${eou.ou.id}`,
-            ...params,
-          },
-        })
-      ),
-      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
-    );
-  }
-
   approverUpdateReportPurpose(erpt: ExtendedReport): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {

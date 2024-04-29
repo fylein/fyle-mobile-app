@@ -120,7 +120,7 @@ fdescribe('DashboardService', () => {
     });
   });
 
-  it('getReportStats(): should get Report stats', (done) => {
+  it('getReportsStats(): should get Report stats', (done) => {
     spenderReportsService.getReportsStats.and.returnValues(
       of(expectedReportStats.draft),
       of(expectedReportStats.report),
@@ -151,7 +151,7 @@ fdescribe('DashboardService', () => {
     });
   });
 
-  it('getReportStats(): should return empty response as various report stats data is empty', (done) => {
+  it('getReportsStats(): should return empty response as various report stats data is empty', (done) => {
     spenderReportsService.getReportsStats.and.returnValues(
       of(expectedEmptyReportStats.draft),
       of(expectedEmptyReportStats.report),
