@@ -1,5 +1,5 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, noop, forkJoin } from 'rxjs';
+import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,6 +36,9 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 
 @Component({
   selector: 'app-view-expense',
@@ -152,7 +155,9 @@ export class ViewExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderFileService: SpenderFileService,
+    private approverFileService: ApproverFileService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -413,22 +418,36 @@ export class ViewExpensePage {
 
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
-      switchMap((expense) => from(expense.files)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
-            const fileObjWithDetails: FileObject = {
-              url: downloadUrl,
-              type: details.type,
-              thumbnail: details.thumbnail,
-            };
+      switchMap((expense) => {
+        if (expense.file_ids?.length > 0) {
+          let generateUrlsBulk$: Observable<PlatformFileGenerateUrlsResponse[]> = null;
+          if (this.view === ExpenseView.individual) {
+            generateUrlsBulk$ = this.spenderFileService.generateUrlsBulk(expense.file_ids);
+          } else {
+            generateUrlsBulk$ = this.approverFileService.generateUrlsBulk(expense.file_ids);
+          }
 
-            return fileObjWithDetails;
-          })
-        )
-      ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+          return generateUrlsBulk$;
+        } else {
+          return of([]);
+        }
+      }),
+      map((response) => {
+        const files = response.filter((file) => file.content_type !== 'text/html');
+        const fileObjs = files.map((obj) => {
+          const details = this.fileService.getReceiptsDetails(obj.name, obj.download_url);
+
+          const fileObj: FileObject = {
+            url: obj.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
+
+          return fileObj;
+        });
+
+        return fileObjs;
+      })
     );
 
     this.attachments$ = editExpenseAttachments;
