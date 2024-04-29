@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { CCCDetails } from 'src/app/core/models/ccc-expense-details.model';
 import { ReportStats } from 'src/app/core/models/report-stats.model';
@@ -8,13 +8,17 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { Stats } from '../../core/models/stats.model';
 import { StatsResponse } from '../../core/models/v2/stats-response.model';
 import { ReportService } from '../../core/services/report.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { report } from 'process';
+import { approversData1 } from 'src/app/core/mock-data/approver.data';
 
 @Injectable()
 export class DashboardService {
   constructor(
     private reportService: ReportService,
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   getUnreportedExpensesStats(): Observable<Stats> {
@@ -47,13 +51,28 @@ export class DashboardService {
   }
 
   getReportsStats(): Observable<ReportStats> {
-    return this.reportService
-      .getReportStats({
-        scalar: false,
-        dimension_1_1: 'rp_state',
-        aggregates: 'sum(rp_amount),count(rp_id)',
-      })
-      .pipe(map((statsResponse) => this.getReportAggregates(statsResponse)));
+    const draftStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.DRAFT',
+    });
+    const reportedStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.APPROVER_PENDING',
+    });
+    const approvedStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.APPROVED',
+    });
+    const paymentPendingStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.DRAFT',
+    });
+    const draftStats = this.spenderReportsService.getReportsStats({
+      state: 'eq.DRAFT',
+    });
+    const reportStatsObservable$ = forkJoin([]);
+    draft;
+    report;
+    approvers;
+    paymentPending;
+    paymentProcessing;
+    return reportStatsObservable$;
   }
 
   getReportAggregates(reportsStatsResponse: StatsResponse): ReportStats {

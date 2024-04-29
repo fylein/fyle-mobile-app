@@ -1,9 +1,9 @@
-import { Stats } from './stats.model';
+import { StatsResponse } from './platform/v1/stats-response.model';
 
 export interface ReportStats {
-  draft: Stats;
-  report: Stats;
-  approved: Stats;
-  paymentPending: Stats;
-  processing: Stats;
+  draft: StatsResponse;
+  report: StatsResponse;
+  approved: StatsResponse;
+  paymentPending: StatsResponse;
+  processing: StatsResponse;
 }
