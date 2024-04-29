@@ -48,12 +48,6 @@ export class DashboardService {
       );
   }
 
-  getSpenderReportsStats(): Observable<ReportsStatsResponsePlatform> {
-    return this.spenderReportsService.getReportsStats({
-      state: 'eq.DRAFT',
-    });
-  }
-
   getReportsStats(): Observable<ReportStats> {
     const draftStats = this.spenderReportsService.getReportsStats({
       state: 'eq.DRAFT',
