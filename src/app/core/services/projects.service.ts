@@ -164,7 +164,7 @@ export class ProjectsService {
       );
   }
 
-  transformFrom(platformProject: PlatformProject[]): ExtendedProject[] {
+  transformToV2Response(platformProject: PlatformProject[]): ExtendedProject[] {
     const extendedProject = platformProject.map((platformProject) => ({
       project_active: platformProject.is_enabled,
       project_code: platformProject.code,
