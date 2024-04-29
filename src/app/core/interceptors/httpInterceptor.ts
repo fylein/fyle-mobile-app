@@ -113,6 +113,20 @@ export class HttpConfigInterceptor implements HttpInterceptor {
     );
   }
 
+  getUrlWithoutQueryParam(url: string): string {
+    const queryIndex = Math.min(
+      url.indexOf('?') !== -1 ? url.indexOf('?') : url.length,
+      url.indexOf(';') !== -1 ? url.indexOf(';') : url.length
+    );
+    if (queryIndex !== url.length) {
+      url = url.substring(0, queryIndex);
+    }
+    if (url.length > 200) {
+      url = url.substring(0, 200);
+    }
+    return url;
+  }
+
   intercept(request: HttpRequest<string>, next: HttpHandler): Observable<HttpEvent<string>> {
     return forkJoin({
       token: iif(() => this.secureUrl(request.url), this.getAccessToken(), of(null)),
@@ -128,7 +142,13 @@ export class HttpConfigInterceptor implements HttpInterceptor {
         const osVersion = deviceInfo.osVersion;
         const operatingSystem = deviceInfo.operatingSystem;
         const mobileModifiedappVersion = `fyle-mobile::${appVersion}::${operatingSystem}::${osVersion}`;
-        request = request.clone({ headers: request.headers.set('X-App-Version', mobileModifiedappVersion) });
+        request = request.clone({
+          setHeaders: {
+            'X-App-Version': mobileModifiedappVersion,
+            'X-Page-Url': this.getUrlWithoutQueryParam(window.location.href),
+            'X-Source-Identifier': 'mobile_app',
+          },
+        });
 
         return next.handle(request).pipe(
           catchError((error) => {

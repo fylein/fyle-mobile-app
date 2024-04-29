@@ -54,7 +54,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -85,6 +85,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -163,7 +164,7 @@ export class AddEditMileagePage implements OnInit {
 
   costCenters$: Observable<CostCenterOptions[]>;
 
-  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
+  reports$: Observable<{ label: string; value: Report }[]>;
 
   isAmountCapped$: Observable<boolean>;
 
@@ -293,6 +294,7 @@ export class AddEditMileagePage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
+    private platformReportService: SpenderReportsService,
     private fb: FormBuilder,
     private projectService: ProjectsService,
     private mileageService: MileageService,
@@ -453,7 +455,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
-    const formValue = this.getFormValues();
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -476,6 +477,8 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.getFormValues();
+
       if (
         formValue.sub_category &&
         formValue.sub_category.id &&
@@ -1165,7 +1168,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getReports(): Observable<UnflattenedReport | null> {
+  getReports(): Observable<Report | null> {
     return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -1173,11 +1176,11 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.id === etxn.tx.report_id);
         } else if (
           !autoSubmissionReportName &&
           reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
+          reportOptions[0].value.state === 'DRAFT'
         ) {
           return reportOptions[0].value;
         } else {
@@ -1633,11 +1636,20 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
+    this.reports$ = this.platformReportService
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
-        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report })))
-      );
+        // Filter out partially approved reports
+        map((reports) =>
+          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+        ),
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
+      ) as Observable<
+      {
+        label: string;
+        value: Report;
+      }[]
+    >;
 
     this.setupTxnFields();
 
@@ -2556,26 +2568,26 @@ export class AddEditMileagePage implements OnInit {
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
-                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
+                const selectedReportId = formValue.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
+                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2808,7 +2820,7 @@ export class AddEditMileagePage implements OnInit {
               reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue.report.rp?.id;
+              reportId = reportValue.report?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(
@@ -2865,7 +2877,7 @@ export class AddEditMileagePage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (config.removeMileageFromReport) {
-            return this.reportService.removeTransaction(config.reportId, config.id);
+            return this.platformReportService.ejectExpenses(config.reportId, config.id);
           }
           return this.transactionService.delete(config.id);
         },

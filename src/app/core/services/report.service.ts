@@ -7,7 +7,7 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
-import { PlatformReport } from '../models/platform/platform-report.model';
+import { Report } from '../models/platform/v1/report.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
@@ -131,21 +131,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addTransactions(rptId: string, txnIds: string[]): Observable<void> {
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/txns', {
-        ids: txnIds,
-      })
-      .pipe(
-        tap(() => {
-          this.clearTransactionCache();
-        })
-      );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   createDraft(report: ReportPurpose): Observable<ReportV1> {
     return this.apiService
       .post<ReportV1>('/reports', report)
@@ -241,7 +226,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
+  updateReportPurpose(erpt: ExtendedReport): Observable<Report> {
     const params = {
       data: {
         id: erpt.rp_id,
@@ -624,8 +609,8 @@ export class ReportService {
     );
   }
 
-  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
-    const params: { data: Pick<PlatformReport, 'id' | 'source' | 'purpose'> } = {
+  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+    const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
         id: erpt.rp_id,
         source: erpt.rp_source,

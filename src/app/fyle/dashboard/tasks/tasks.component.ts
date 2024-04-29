@@ -31,6 +31,7 @@ import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-se
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 @Component({
   selector: 'app-tasks',
@@ -75,7 +76,8 @@ export class TasksComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   ngOnInit(): void {
@@ -491,13 +493,12 @@ export class TasksComponent implements OnInit {
   onSentBackAdvanceTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        areq_state: 'in.(DRAFT)',
-        areq_is_sent_back: 'is.true',
+        state: 'eq.SENT_BACK',
       };
 
       from(this.loaderService.showLoader('Opening your advance request...'))
         .pipe(
-          switchMap(() => this.advanceRequestService.getMyadvanceRequests({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.advanceRequestService.getSpenderAdvanceRequests({ queryParams, offset: 0, limit: 1 })),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
@@ -566,7 +567,7 @@ export class TasksComponent implements OnInit {
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(map(() => report))),
+      switchMap(() => this.spenderReportsService.addExpenses(report.rp_id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }

@@ -269,6 +269,7 @@
           (addMoreAttachments)="addAttachments($event)"
           (viewAttachments)="viewAttachments()"
           [canEdit]="true"
+          [mode]="mode"
         >
           <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
         </app-receipt-preview-thumbnail>
@@ -281,6 +282,7 @@
             (viewAttachments)="viewAttachments()"
             [isUploading]="attachmentUploadInProgress"
             [canEdit]="true"
+            [mode]="mode"
           >
             <input *ngIf="isIos" type="file" #fileUpload accept="application/pdf,image/*" class="d-none" />
           </app-receipt-preview-thumbnail>

@@ -1,3 +1,4 @@
+// TODO - Use snake_case instead of camelCase
 export interface GenericFieldsFormValues {
   amount: string;
   dateOfSpend: Date;
@@ -10,4 +11,5 @@ export interface GenericFieldsFormValues {
   tax_amount: number;
   costCenter: number;
   purpose: string;
+  receipts_from: string;
 }

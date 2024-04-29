@@ -1496,9 +1496,10 @@ describe('SplitExpensePage', () => {
       const mockTxn = cloneDeep(txnData4);
       mockTxn.txn_dt = null;
       component.transaction = mockTxn;
-      const today = new Date();
+
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
+      const today = new Date();
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(today);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
