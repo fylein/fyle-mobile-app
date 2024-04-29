@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Observable, of } from 'rxjs';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -6,7 +8,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
-export const generatedFiltersStateDateSortParams = [
+export const generatedFiltersStateDateSortParams = deepFreeze([
   {
     name: 'State',
     value: 'approved',
@@ -23,9 +25,9 @@ export const generatedFiltersStateDateSortParams = [
     name: 'Sort By',
     value: 'dateOldToNew',
   },
-];
+]);
 
-export const generatedFiltersStateDate = [
+export const generatedFiltersStateDate = deepFreeze([
   {
     name: 'State',
     value: 'draft',
@@ -38,9 +40,9 @@ export const generatedFiltersStateDate = [
       endDate: undefined,
     },
   },
-];
+]);
 
-export const expectedGenerateFilterPillsData = [
+export const expectedGenerateFilterPillsData = deepFreeze([
   {
     label: 'State',
     type: 'state',
@@ -56,9 +58,9 @@ export const expectedGenerateFilterPillsData = [
     type: 'sort',
     value: 'date - old to new',
   },
-];
+]);
 
-export const openFiltersOptions = [
+export const openFiltersOptions = deepFreeze([
   {
     name: 'State',
     optionType: FilterOptionType.multiselect,
@@ -197,9 +199,9 @@ export const openFiltersOptions = [
       },
     ],
   } as FilterOptions<string>,
-];
+]);
 
-export const filterPopoverParams = {
+export const filterPopoverParams = deepFreeze({
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: openFiltersOptions,
@@ -209,9 +211,9 @@ export const filterPopoverParams = {
     activeFilterInitialName: 'State',
   },
   cssClass: 'dialog-popover',
-};
+});
 
-export const popoverControllerParams = {
+export const popoverControllerParams = deepFreeze({
   component: PopupAlertComponent,
   componentProps: {
     title: 'Cannot Delete Report',
@@ -222,11 +224,11 @@ export const popoverControllerParams = {
     },
   },
   cssClass: 'pop-up-in-center',
-};
+});
 
 const mockDeleteMethod = (): Observable<void> => of();
 
-export const deletePopoverParamsRes = {
+export const deletePopoverParamsRes = deepFreeze({
   component: FyDeleteDialogComponent,
   cssClass: 'delete-dialog',
   backdropDismiss: false,
@@ -236,4 +238,4 @@ export const deletePopoverParamsRes = {
     infoMessage: 'Deleting the report will not delete any of the expenses.',
     deleteMethod: mockDeleteMethod,
   },
-};
+});
