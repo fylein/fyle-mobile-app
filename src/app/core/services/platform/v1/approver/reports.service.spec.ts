@@ -12,20 +12,25 @@ import {
   platformReportCountData,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
-  const approverPlatformApiService = jasmine.createSpyObj('ApproverPlatformApiService', ['post']);
+  let approverPlatformApiService: jasmine.SpyObj<ApproverPlatformApiService>;
 
   beforeEach(() => {
+    const approverPlatformApiServiceSpy = jasmine.createSpyObj('ApproverPlatformApiService', ['post', 'get']);
     TestBed.configureTestingModule({
       providers: [
         ApproverReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
-        { provide: ApproverPlatformApiService, useValue: approverPlatformApiService },
+        { provide: ApproverPlatformApiService, useValue: approverPlatformApiServiceSpy },
       ],
     });
     approverReportsService = TestBed.inject(ApproverReportsService);
+    approverPlatformApiService = TestBed.inject(
+      ApproverPlatformApiService
+    ) as jasmine.SpyObj<ApproverPlatformApiService>;
   });
 
   it('should be created', () => {
@@ -150,7 +155,7 @@ describe('ApproverReportsService', () => {
   });
 
   it('getReportsStats(): should get advance request stats', (done) => {
-    const statsResponse = {
+    const statsResponse: StatsResponse = {
       count: 2,
       total_amount: 1200,
     };

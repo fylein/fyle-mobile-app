@@ -6,7 +6,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
-import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
+import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
