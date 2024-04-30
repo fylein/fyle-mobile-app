@@ -20,6 +20,9 @@ import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
+import { ApproverReportsService } from './platform/v1/approver/reports.service';
 
 @Injectable({
   providedIn: 'root',
@@ -45,7 +48,9 @@ export class TasksService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private employeesService: EmployeesService
+    private employeesService: EmployeesService,
+    private spenderReportsService: SpenderReportsService,
+    private approverReportsService: ApproverReportsService
   ) {
     this.refreshOnTaskClear();
   }
@@ -425,11 +430,9 @@ export class TasksService {
     );
   }
 
-  getSentBackReports(): Observable<Datum[]> {
-    return this.reportService.getReportStatsData({
-      scalar: true,
-      aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(APPROVER_INQUIRY)',
+  getSentBackReports(): Observable<ReportsStatsResponsePlatform> {
+    return this.spenderReportsService.getReportsStats({
+      state: 'eq.APPROVER_INQUIRY',
     });
   }
 
@@ -438,17 +441,15 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapSentBackReportsToTasks(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+        this.mapSentBackReportsToTasks(reportsStats, homeCurrency)
       )
     );
   }
 
-  getUnsubmittedReportsStats(): Observable<Datum[]> {
-    return this.reportService.getReportStatsData({
-      scalar: true,
-      aggregates: 'count(rp_id),sum(rp_amount)',
-      rp_state: 'in.(DRAFT)',
+  getUnsubmittedReportsStats(): Observable<ReportsStatsResponsePlatform> {
+    return this.spenderReportsService.getReportsStats({
+      state: 'eq.(DRAFT)',
     });
   }
 
@@ -465,28 +466,21 @@ export class TasksService {
     }).pipe(
       map(({ advancesStats, homeCurrency }: { advancesStats: StatsResponse; homeCurrency: string }) => {
         const aggregate = {
-          totalAmount: advancesStats.total_amount,
-          totalCount: advancesStats.count,
+          total_amount: advancesStats.total_amount,
+          count: advancesStats.count,
         };
         return this.mapSentBackAdvancesToTasks(aggregate, homeCurrency);
       })
     );
   }
 
-  getTeamReportsStats(): Observable<Datum[]> {
+  getTeamReportsStats(): Observable<ReportsStatsResponsePlatform> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.reportService.getReportStatsData(
-          {
-            approved_by: 'cs.{' + eou.ou.id + '}',
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-            aggregates: 'count(rp_id),sum(rp_amount)',
-            scalar: true,
-          },
-          false
-        )
+        this.approverReportsService.getReportsStats({
+          next_approver_user_ids: `cs.[${eou.us.id}]]`,
+          state: 'eq.APPROVER_PENDING',
+        })
       )
     );
   }
@@ -496,8 +490,8 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+        this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
       )
     );
   }
@@ -569,13 +563,13 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToUnsubmittedReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
+      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+        this.mapAggregateToUnsubmittedReportTask(reportsStats, homeCurrency)
       )
     );
   }
 
-  getUnreportedExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
+  getUnreportedExpensesStats(): Observable<{ count: number; total_amount: number }> {
     let queryParams = {
       state: 'in.(COMPLETE)',
       or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
@@ -596,8 +590,8 @@ export class TasksService {
         }
         return this.expensesService.getExpenseStats(queryParams).pipe(
           map((stats) => ({
-            totalCount: stats.data.count,
-            totalAmount: stats.data.total_amount,
+            count: stats.data.count,
+            total_amount: stats.data.total_amount,
           }))
         );
       })
@@ -619,14 +613,14 @@ export class TasksService {
           transactionStats,
           homeCurrency,
         }: {
-          transactionStats: { totalCount: number; totalAmount: number };
+          transactionStats: { count: number; total_amount: number };
           homeCurrency: string;
         }) => this.mapAggregateToUnreportedExpensesTask(transactionStats, homeCurrency)
       )
     );
   }
 
-  getDraftExpensesStats(): Observable<{ totalCount: number; totalAmount: number }> {
+  getDraftExpensesStats(): Observable<{ count: number; total_amount: number }> {
     return this.expensesService
       .getExpenseStats({
         state: 'in.(DRAFT)',
@@ -634,8 +628,8 @@ export class TasksService {
       })
       .pipe(
         map((stats) => ({
-          totalCount: stats.data.count,
-          totalAmount: stats.data.total_amount,
+          count: stats.data.count,
+          total_amount: stats.data.total_amount,
         }))
       );
   }
@@ -650,7 +644,7 @@ export class TasksService {
           transactionStats,
           homeCurrency,
         }: {
-          transactionStats: { totalCount: number; totalAmount: number };
+          transactionStats: { count: number; total_amount: number };
           homeCurrency: string;
         }) => this.mapAggregateToDraftExpensesTask(transactionStats, homeCurrency)
       )
@@ -661,24 +655,21 @@ export class TasksService {
     return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
   }
 
-  mapSentBackReportsToTasks(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapSentBackReportsToTasks(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Report${aggregate.totalCount === 1 ? '' : 's'} sent back!`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.total_amount,
+          header: `Report${aggregate.count === 1 ? '' : 's'} sent back!`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} ${aggregate.totalCount === 1 ? 'was' : 'were'} sent back by your approver`,
+          )} ${aggregate.count === 1 ? 'was' : 'were'} sent back by your approver`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `View Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `View Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openSentBackReport,
             },
           ],
@@ -690,26 +681,25 @@ export class TasksService {
   }
 
   mapSentBackAdvancesToTasks(
-    aggregate: { totalCount: number; totalAmount: number },
+    aggregate: { count: number; total_amount: number },
     homeCurrency: string
   ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
-      const headerMessage = `Advance${aggregate.totalCount === 1 ? '' : 's'} sent back!`;
-      const subheaderMessage = `${aggregate.totalCount} advance${
-        aggregate.totalCount === 1 ? '' : 's'
-      }${this.getAmountString(aggregate.totalAmount, homeCurrency)} ${
-        aggregate.totalCount === 1 ? 'was' : 'were'
-      } sent back by your approver`;
+    if (aggregate.count > 0) {
+      const headerMessage = `Advance${aggregate.count === 1 ? '' : 's'} sent back!`;
+      const subheaderMessage = `${aggregate.count} advance${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+        aggregate.total_amount,
+        homeCurrency
+      )} ${aggregate.count === 1 ? 'was' : 'were'} sent back by your approver`;
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.count,
           header: headerMessage,
           subheader: subheaderMessage,
           icon: TaskIcon.ADVANCE,
           ctas: [
             {
-              content: `View Advance${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `View Advance${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openSentBackAdvance,
             },
           ],
@@ -720,24 +710,21 @@ export class TasksService {
     }
   }
 
-  mapAggregateToUnsubmittedReportTask(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapAggregateToUnsubmittedReportTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Unsubmitted report${aggregate.totalCount === 1 ? '' : 's'}`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.count,
+          header: `Unsubmitted report${aggregate.count === 1 ? '' : 's'}`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} remain${aggregate.totalCount === 1 ? 's' : ''} in draft state`,
+          )} remain${aggregate.count === 1 ? 's' : ''} in draft state`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `Submit Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Submit Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openDraftReports,
             },
           ],
@@ -749,23 +736,23 @@ export class TasksService {
   }
 
   mapAggregateToTeamReportTask(
-    aggregate: { totalCount: number; totalAmount: number },
+    aggregate: { count: number; total_amount: number },
     homeCurrency: string
   ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.count,
+          header: `Report${aggregate.count === 1 ? '' : 's'} to be approved`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} require${aggregate.totalCount === 1 ? 's' : ''} your approval`,
+          )} require${aggregate.count === 1 ? 's' : ''} your approval`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `Show Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Show Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openTeamReport,
             },
           ],
@@ -777,23 +764,23 @@ export class TasksService {
   }
 
   mapAggregateToDraftExpensesTask(
-    aggregate: { totalCount: number; totalAmount: number },
+    aggregate: { count: number; total_amount: number },
     homeCurrency: string
   ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Incomplete expense${aggregate.totalCount === 1 ? '' : 's'}`,
-          subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.count,
+          header: `Incomplete expense${aggregate.count === 1 ? '' : 's'}`,
+          subheader: `${aggregate.count} expense${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
           )} require additional information`,
           icon: TaskIcon.WARNING,
           ctas: [
             {
-              content: `Review Expense${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Review Expense${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.reviewExpenses,
             },
           ],
@@ -805,16 +792,16 @@ export class TasksService {
   }
 
   mapAggregateToUnreportedExpensesTask(
-    aggregate: { totalCount: number; totalAmount: number },
+    aggregate: { count: number; total_amount: number },
     homeCurrency: string
   ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+    if (aggregate.count > 0) {
       const task = {
-        amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-        count: aggregate.totalCount,
+        amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+        count: aggregate.count,
         header: 'Expenses are ready to report',
-        subheader: `${aggregate.totalCount} expense${aggregate.totalCount === 1 ? '' : 's'} ${this.getAmountString(
-          aggregate.totalAmount,
+        subheader: `${aggregate.count} expense${aggregate.count === 1 ? '' : 's'} ${this.getAmountString(
+          aggregate.total_amount,
           homeCurrency
         )} can be added to a report`,
         icon: TaskIcon.REPORT,
@@ -835,16 +822,16 @@ export class TasksService {
     statsResponse: Datum[],
     countName: string,
     sumName: string
-  ): { totalCount: number; totalAmount: number } {
+  ): { count: number; total_amount: number } {
     const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
     const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
     return {
-      totalCount: countAggregate && countAggregate.function_value,
-      totalAmount: amountAggregate && amountAggregate.function_value,
+      count: countAggregate && countAggregate.function_value,
+      total_amount: amountAggregate && amountAggregate.function_value,
     };
   }
 
-  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
+  mapScalarReportStatsResponse(statsResponse: Datum[]): { count: number; total_amount: number } {
     return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
