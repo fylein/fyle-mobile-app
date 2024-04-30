@@ -7,7 +7,6 @@ export const virtualCardDetailsResponse: { data: CardDetailsResponse } = deepFre
   data: {
     full_card_number: '123412341234123',
     cvv: '123',
-    // @ts-ignore
     expiry_date: '2029-01-01T00:00:00+00:00',
   },
 });
