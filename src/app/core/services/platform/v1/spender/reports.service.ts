@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject, from, of, range } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
+import { Observable, range } from 'rxjs';
+import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -12,7 +12,7 @@ import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-pa
 @Injectable({
   providedIn: 'root',
 })
-export class SpenderReportsService {
+export class ReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
@@ -25,7 +25,7 @@ export class SpenderReportsService {
         return range(0, count);
       }),
       concatMap((page) => {
-        let params = {
+        const params = {
           state: queryParams.state,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
@@ -37,7 +37,7 @@ export class SpenderReportsService {
   }
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
+    const params = {
       state: queryParams.state,
       limit: 1,
       offset: 0,
@@ -58,26 +58,5 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiPayload<Report>>('/reports', data)
       .pipe(map((res) => res.data));
-  }
-
-  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
-    const payload = {
-      data: {
-        id: rptId,
-        expense_ids: [txnId],
-      },
-      reason: comment,
-    };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
-  }
-
-  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
-    const payload = {
-      data: {
-        id: rptId,
-        expense_ids: expenseIds,
-      },
-    };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
   }
 }

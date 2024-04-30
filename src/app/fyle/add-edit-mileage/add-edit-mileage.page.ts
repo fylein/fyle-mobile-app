@@ -85,7 +85,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -294,7 +294,7 @@ export class AddEditMileagePage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
+    private platformReportService: ReportsService,
     private fb: FormBuilder,
     private projectService: ProjectsService,
     private mileageService: MileageService,
@@ -2572,22 +2572,22 @@ export class AddEditMileagePage implements OnInit {
                 const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2877,7 +2877,7 @@ export class AddEditMileagePage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (config.removeMileageFromReport) {
-            return this.platformReportService.ejectExpenses(config.reportId, config.id);
+            return this.reportService.removeTransaction(config.reportId, config.id);
           }
           return this.transactionService.delete(config.id);
         },
