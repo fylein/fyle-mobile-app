@@ -42,7 +42,7 @@ export class ApproverFileService {
       .pipe(map((response) => response.data));
   }
 
-  downloadFile(id: string) {
+  downloadFile(id: string): {} {
     return this.approverPlatformApiService.get('/files/download?id=' + id);
   }
 }
