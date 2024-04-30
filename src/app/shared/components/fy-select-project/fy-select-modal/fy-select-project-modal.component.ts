@@ -66,7 +66,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     return;
   }
 
-  getProjects(searchNameText: string): Observable<{ label: string; value: ExtendedProject | ExtendedProject[] }[]> {
+  getProjects(
+    searchNameText: string
+  ): Observable<{ label: string | undefined; value: ExtendedProject | ExtendedProject[] }[]> {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
