@@ -230,7 +230,7 @@ export const expectedProjects2 = [
     value: null,
   },
   {
-    label: '',
+    label: undefined,
     value: [
       {
         ap1_email: null,
