@@ -54,17 +54,19 @@ export class ApproverReportsService {
   }
 
   getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+    const queryParams = {
+      data: {
+        query_params: `state=${params.state}`,
+      },
+    };
     return this.approverPlatformApiService
-      .post<{ data: StatsResponse }>('/reports/stats', {
-        data: {
-          query_params: `state=${params.state}`,
-        },
-      })
+      .post<{ data: StatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 
   getReport(id: string): Observable<Report> {
-    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
+    const queryParams = { id: `eq.${id}` };
+    return this.getReportsByParams(queryParams).pipe(map((res) => res.data[0]));
   }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
