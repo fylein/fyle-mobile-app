@@ -25,7 +25,7 @@ export class ReportsService {
         return range(0, count);
       }),
       concatMap((page) => {
-        let params = {
+        const params = {
           state: queryParams.state,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
@@ -37,7 +37,7 @@ export class ReportsService {
   }
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
+    const params = {
       state: queryParams.state,
       limit: 1,
       offset: 0,
