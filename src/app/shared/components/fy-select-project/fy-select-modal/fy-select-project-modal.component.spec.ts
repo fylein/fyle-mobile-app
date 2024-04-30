@@ -166,7 +166,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     it('should get projects when current selection is defined', (done) => {
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      component.currentSelection = testProjectV2;
+      component.currentSelection = [testProjectV2];
       fixture.detectChanges();
 
       component.getProjects('projects').subscribe((res) => {

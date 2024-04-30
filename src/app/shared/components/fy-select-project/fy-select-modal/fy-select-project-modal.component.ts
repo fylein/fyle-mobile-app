@@ -29,7 +29,7 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() currentSelection: ExtendedProject;
+  @Input() currentSelection: ExtendedProject | [ExtendedProject];
 
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
@@ -130,10 +130,10 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         const currentElement = [];
         if (
           this.currentSelection &&
-          !projects.some((project) => project.project_id === this.currentSelection.project_id)
+          !projects.some((project) => project.project_id === (this.currentSelection as ExtendedProject).project_id) // Cast this.currentSelection to ExtendedProject
         ) {
           currentElement.push({
-            label: this.currentSelection.project_name,
+            label: (this.currentSelection as ExtendedProject).project_name,
             value: this.currentSelection,
           });
         }
