@@ -3,13 +3,13 @@ import { ReportStats } from '../models/report-stats.model';
 
 export const expectedReportStats: ReportStats = {
   draft: {
-    count: 6,
+    count: 2,
+    total_amount: 93165.91,
     failed_amount: null,
     failed_count: null,
     processing_amount: null,
     processing_count: null,
     reimbursable_amount: null,
-    total_amount: 93165.91,
   },
   report: {
     count: 2,

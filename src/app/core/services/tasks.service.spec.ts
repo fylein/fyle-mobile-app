@@ -58,7 +58,11 @@ import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
-import { expectedReportStats, expectedSentBackResponse } from '../mock-data/report-stats.data';
+import {
+  expectedEmptyReportStats,
+  expectedReportStats,
+  expectedSentBackResponse,
+} from '../mock-data/report-stats.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -80,7 +84,6 @@ describe('TasksService', () => {
   beforeEach(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
-      'getReportStatsData',
       'getAllExtendedReports',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
@@ -189,20 +192,16 @@ describe('TasksService', () => {
     });
   });
 
-  function setupUnsibmittedReportsResponse() {
-    spenderReportsService.getReportsStats
-      .withArgs({
-        state: 'eq.DRAFT',
-      })
-      .and.returnValue(of(expectedReportStats.draft));
-  }
-
   it('should be able to fetch unsubmitted reports', (done) => {
-    setupUnsibmittedReportsResponse();
+    spenderReportsService.getReportsStats.and.returnValue(of(expectedReportStats.draft));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     humanizeCurrencyPipe.transform
-      .withArgs(unsubmittedReportsResponse[0].aggregates[1].function_value, homeCurrency, true)
-      .and.returnValue('0.00');
+      .withArgs(expectedReportStats.draft.total_amount, homeCurrency, true)
+      .and.returnValue('93.17K');
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.draft.total_amount, homeCurrency)
+      .and.returnValue('₹93.17K');
+    humanizeCurrencyPipe.transform.and.returnValue('93.1K');
     tasksService.getUnsubmittedReportsTasks().subscribe((unsubmittedReportsTasks) => {
       expect(unsubmittedReportsTasks).toEqual([unsubmittedReportTaskSample]);
       done();
@@ -278,7 +277,7 @@ describe('TasksService', () => {
 
     approverReportsService.getReportsStats
       .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]]`,
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
         state: 'eq.APPROVER_PENDING',
       })
       .and.returnValue(of(expectedReportStats.report));
@@ -697,7 +696,7 @@ describe('TasksService', () => {
   function setupData() {
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     advanceRequestService.getAdvanceRequestStats.and.returnValue(of(sentBackAdvancesResponse));
-    setupUnsibmittedReportsResponse();
+    spenderReportsService.getReportsStats.and.returnValue(of(expectedReportStats.draft));
     getUnreportedExpenses();
     spenderReportsService.getReportsStats
       .withArgs({
@@ -706,9 +705,9 @@ describe('TasksService', () => {
       .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    spenderReportsService.getReportsStats
+    approverReportsService.getReportsStats
       .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]]`,
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
         state: 'eq.APPROVER_PENDING',
       })
       .and.returnValue(of(expectedReportStats.report));
@@ -730,7 +729,7 @@ describe('TasksService', () => {
     tasksService.getTasks().subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
-        'Report sent back!',
+        'Reports sent back!',
         'Incomplete expenses',
         'Unsubmitted reports',
         'Expenses are ready to report',
@@ -764,7 +763,7 @@ describe('TasksService', () => {
     tasksService.getTasks(true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
-        'Report sent back!',
+        'Reports sent back!',
         'Incomplete expenses',
         'Reports to be approved',
         'Advances sent back!',
@@ -905,7 +904,7 @@ describe('TasksService', () => {
     ]);
   });
 
-  it('should generate proper content in all cases of unsibmitted report tasks', () => {
+  it('should generate proper content in all cases of unsubmitted report tasks', () => {
     humanizeCurrencyPipe.transform
       .withArgs(unsubmittedReportsResponse[0].aggregates[1].function_value, homeCurrency, true)
       .and.returnValue('0.00');

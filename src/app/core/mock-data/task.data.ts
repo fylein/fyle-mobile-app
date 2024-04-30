@@ -100,10 +100,10 @@ export const unreportedExpenseTaskSample2 = {
 };
 
 export const unsubmittedReportTaskSample = {
-  amount: '0.00',
+  amount: '93.17K',
   count: 2,
   header: 'Unsubmitted reports',
-  subheader: '2 reports remain in draft state',
+  subheader: '2 reports worth ₹93.17K  remain in draft state',
   icon: TaskIcon.REPORT,
   ctas: [
     {
