@@ -478,7 +478,7 @@ export class TasksService {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.approverReportsService.getReportsStats({
-          next_approver_user_ids: `cs.[${eou.us.id}]]`,
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
           state: 'eq.APPROVER_PENDING',
         })
       )
