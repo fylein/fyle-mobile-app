@@ -150,7 +150,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
     const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
     searchInput.value = '';
@@ -172,7 +172,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event: any) => event.srcElement.value),
       startWith(''),
@@ -203,11 +203,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option): void {
     if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
