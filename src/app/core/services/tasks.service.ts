@@ -791,10 +791,7 @@ export class TasksService {
     }
   }
 
-  mapAggregateToUnreportedExpensesTask(
-    aggregate: { count: number; total_amount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
+  mapAggregateToUnreportedExpensesTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       const task = {
         amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
