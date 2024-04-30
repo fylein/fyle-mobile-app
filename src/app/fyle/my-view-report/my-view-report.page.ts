@@ -34,7 +34,6 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -128,8 +127,7 @@ export class MyViewReportPage {
     private statusService: StatusService,
     private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService,
-    private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService
+    private platformHandlerService: PlatformHandlerService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -596,7 +594,7 @@ export class MyViewReportPage {
 
   addExpensesToReport(selectedExpenseIds: string[]): void {
     this.isExpensesLoading = true;
-    this.spenderReportsService.addExpenses(this.reportId, selectedExpenseIds).subscribe(() => {
+    this.reportService.addTransactions(this.reportId, selectedExpenseIds).subscribe(() => {
       this.loadReportDetails$.next();
       this.loadReportTxns$.next();
       this.trackingService.addToExistingReport();

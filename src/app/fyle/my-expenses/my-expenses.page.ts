@@ -77,7 +77,6 @@ import { FyFiltersComponent } from '../../shared/components/fy-filters/fy-filter
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -225,8 +224,7 @@ export class MyExpensesPage implements OnInit {
     private categoriesService: CategoriesService,
     private navController: NavController,
     private expenseService: ExpensesService,
-    private sharedExpenseService: SharedExpenseService,
-    private spenderReportsService: SpenderReportsService
+    private sharedExpenseService: SharedExpenseService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -1345,7 +1343,7 @@ export class MyExpensesPage implements OnInit {
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.spenderReportsService.addExpenses(report.rp_id, selectedExpensesId).pipe(map(() => report))),
+      switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }

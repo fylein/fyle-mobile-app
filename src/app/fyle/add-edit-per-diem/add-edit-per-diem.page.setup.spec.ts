@@ -14,7 +14,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -63,12 +63,9 @@ describe('AddEditPerDiemPage', () => {
       'getReportById',
       'getFilteredPendingReports',
       'addTransactions',
+      'removeTransaction',
     ]);
-    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
-      'getAllReportsByParams',
-      'ejectExpenses',
-      'addExpenses',
-    ]);
+    const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', ['getAllReportsByParams']);
     const projectServiceSpy = jasmine.createSpyObj('ProjectService', [
       'getAllowedOrgCategoryIds',
       'getProjectCount',
@@ -173,8 +170,8 @@ describe('AddEditPerDiemPage', () => {
           useValue: reportServiceSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: platformSpenderReportsServiceSpy,
+          provide: ReportsService,
+          useValue: platformReportsServiceSpy,
         },
         {
           provide: ProjectsService,

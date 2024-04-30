@@ -30,7 +30,6 @@ import { MyCreateReportPage } from './my-create-report.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -46,7 +45,6 @@ describe('MyCreateReportPage', () => {
   let refinerService: jasmine.SpyObj<RefinerService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
-  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
@@ -65,7 +63,6 @@ describe('MyCreateReportPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
@@ -123,10 +120,6 @@ describe('MyCreateReportPage', () => {
           provide: ExpensesService,
           useValue: expensesServiceSpy,
         },
-        {
-          provide: SpenderReportsService,
-          useValue: spenderReportsServiceSpy,
-        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -143,7 +136,6 @@ describe('MyCreateReportPage', () => {
     storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
-    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     currencyService.getHomeCurrency.and.returnValue(of('USD'));
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -220,7 +212,7 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
-      spenderReportsService.addExpenses.and.returnValue(of(null));
+      reportService.addTransactions.and.returnValue(of(null));
       component.readyToReportExpenses = cloneDeep(readyToReportExpensesData);
       component.selectedElements = cloneDeep([readyToReportExpensesData[0]]);
       fixture.detectChanges();
@@ -236,7 +228,7 @@ describe('MyCreateReportPage', () => {
         Expense_Count: 1,
         Report_Value: component.selectedTotalAmount,
       });
-      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
+      expect(reportService.addTransactions).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
         readyToReportExpensesData[0].id,
       ]);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
