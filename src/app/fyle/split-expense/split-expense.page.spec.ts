@@ -109,7 +109,7 @@ import {
   splitExpenseDataWithCostCenter2,
   splitExpenseDataWithProject,
   splitExpenseDataWithProject2,
-} from 'src/app/core/mock-data/split-expense-data';
+} from 'src/app/core/mock-data/split-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
