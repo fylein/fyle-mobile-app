@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/extended-project.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 
 @Component({
@@ -33,7 +33,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() defaultValue = false;
 
-  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: ProjectV2; selected?: boolean }[];
 
   @Input() touchedInParent: boolean;
 

@@ -62,7 +62,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/extended-project.model';
 import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -213,9 +213,9 @@ export class AddEditPerDiemPage implements OnInit {
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   presetProjectId: number;
 
@@ -243,7 +243,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject>;
+  selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
@@ -687,7 +687,7 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project: ExtendedProject) =>
+      concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
           map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
         )
@@ -846,7 +846,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
@@ -902,7 +902,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
 
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))

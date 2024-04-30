@@ -1,5 +1,5 @@
 import { RecentlyUsed } from '../models/v1/recently_used.model';
-import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/extended-project.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { CostCenter } from '../models/v1/cost-center.model';
 
@@ -26,7 +26,7 @@ export const recentlyUsedRes: RecentlyUsed = {
   ],
 };
 
-export const recentlyUsedProjectRes: ExtendedProject[] = [
+export const recentlyUsedProjectRes: ProjectV2[] = [
   {
     ap1_email: 'john.d@fyle.in',
     ap1_full_name: 'John Doe',

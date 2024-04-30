@@ -5,7 +5,7 @@ import { PlatformMileageRates } from './platform/platform-mileage-rates.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
-import { ExtendedProject } from './v2/extended-project.model';
+import { ProjectV2 } from './v2/extended-project.model';
 import { Report } from '../models/platform/v1/report.model';
 
 export interface MileageFormValue {
@@ -22,7 +22,7 @@ export interface MileageFormValue {
   mileage_rate_name: PlatformMileageRates;
   vehicle_type: string;
   dateOfSpend: Date;
-  project: ExtendedProject;
+  project: ProjectV2;
   costCenter: CostCenter;
   billable: boolean;
   purpose: string;

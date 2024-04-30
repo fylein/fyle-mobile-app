@@ -1,4 +1,4 @@
-import { ExtendedProject } from './v2/extended-project.model';
+import { ProjectV2 } from './v2/extended-project.model';
 
 export interface SplitExpense {
   amount: number;
@@ -17,7 +17,7 @@ export interface SplitExpense {
     sub_category: string;
     updated_at: string;
   };
-  project?: ExtendedProject;
+  project?: ProjectV2;
   cost_center?: {
     id: number;
     created_at: string;

@@ -38,7 +38,7 @@ import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/extended-project.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
@@ -105,7 +105,7 @@ export class SplitExpensePage {
 
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  selectedProject: ExtendedProject;
+  selectedProject: ProjectV2;
 
   expenseFields: ExpenseField[];
 
@@ -373,7 +373,7 @@ export class SplitExpensePage {
   setSplitExpenseProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ExtendedProject,
+    project: ProjectV2,
     costCenter: ExpenseField
   ): void {
     if (splitFormValue.project?.project_id) {
@@ -410,7 +410,7 @@ export class SplitExpensePage {
   setCategoryAndProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ExtendedProject,
+    project: ProjectV2,
     costCenter: ExpenseField
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
@@ -437,7 +437,7 @@ export class SplitExpensePage {
         this.transaction.project_id
       ) {
         //if split_expense or source txn has projectIds, call the method to get project and push to promises
-        let project: ExtendedProject;
+        let project: ProjectV2;
         if (splitFormValue.project) {
           project = splitFormValue.project;
         } else {
@@ -831,7 +831,7 @@ export class SplitExpensePage {
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
-    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
+    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
     this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
 
     // Set max and min date for form

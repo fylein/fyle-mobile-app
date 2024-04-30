@@ -15,7 +15,7 @@ import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
@@ -40,7 +40,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() defaultValue = false;
 
-  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+  @Input() recentlyUsed: { label: string; value: ProjectV2; selected?: boolean }[];
 
   @Input() label: string;
 
