@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, tap, concatMap, finalize } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -19,6 +19,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -26,13 +27,13 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
   styleUrls: ['./fy-select-project-modal.component.scss'],
 })
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: ExtendedProject;
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<{ label: string; value: ExtendedProject; selected?: boolean }[]>;
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -44,7 +45,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() label: string;
 
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentrecentlyUsedItems$: Observable<{ label: string; value: ExtendedProject; selected?: boolean }[]>;
 
   value;
 
@@ -61,9 +62,16 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): number {
+    return 0;
+  }
 
-  getProjects(searchNameText) {
+  getProjects(searchNameText: string): Observable<
+    {
+      label: string;
+      value: ExtendedProject;
+    }[]
+  > {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -83,7 +91,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService
+            .get()
+            .pipe(map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])),
           of(null)
         )
       ),
@@ -145,20 +155,20 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     );
   }
 
-  clearValue() {
+  clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedItems() {
+  getRecentlyUsedItems(): Observable<{ label: string; value: ExtendedProject; selected?: boolean }[]> {
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) =>
-          options.map((option) => {
+        map((options) =>
+          options.map((option: { label: string; value: ExtendedProject; selected?: boolean }) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
           })
@@ -167,27 +177,28 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     }
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => this.getProjects(searchText)),
-      map((projects: any[]) =>
+      switchMap((searchText: string) => this.getProjects(searchText)),
+      map((projects: { label: string; value: ExtendedProject; selected?: boolean }[]) =>
         projects.map((project) => {
+          console.log('Project', project);
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
-          return project;
+          return project as { label: string; value: ExtendedProject; selected?: boolean };
         })
       )
     );
 
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
           this.utilityService.searchArrayStream(searchText)
@@ -198,11 +209,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     this.cdr.detectChanges();
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option) {
+  onElementSelect(option: { label: string; value: ExtendedProject; selected?: boolean }): void {
     if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
