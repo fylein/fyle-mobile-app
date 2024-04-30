@@ -660,7 +660,7 @@ export class TasksService {
       return [
         {
           amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
-          count: aggregate.total_amount,
+          count: aggregate.count,
           header: `Report${aggregate.count === 1 ? '' : 's'} sent back!`,
           subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
             aggregate.total_amount,

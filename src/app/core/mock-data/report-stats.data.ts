@@ -1,3 +1,4 @@
+import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
 import { ReportStats } from '../models/report-stats.model';
 
 export const expectedReportStats: ReportStats = {
@@ -11,7 +12,7 @@ export const expectedReportStats: ReportStats = {
     total_amount: 93165.91,
   },
   report: {
-    count: 45,
+    count: 2,
     total_amount: 5177243929.65219,
     failed_amount: null,
     failed_count: null,
@@ -94,4 +95,14 @@ export const expectedEmptyReportStats: ReportStats = {
     processing_count: null,
     reimbursable_amount: null,
   },
+};
+
+export const expectedSentBackResponse: ReportsStatsResponsePlatform = {
+  total_amount: 4500,
+  count: 2,
+  failed_amount: null,
+  failed_count: null,
+  processing_amount: null,
+  processing_count: null,
+  reimbursable_amount: null,
 };

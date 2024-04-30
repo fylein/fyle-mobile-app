@@ -58,14 +58,14 @@ export const teamReportTaskSample = {
 };
 
 export const sentBackReportTaskSample = {
-  amount: '44.53',
-  count: 1,
-  header: 'Report sent back!',
-  subheader: '1 report worth ₹44.53  was sent back by your approver',
+  amount: '4.5K',
+  count: 2,
+  header: 'Reports sent back!',
+  subheader: '2 reports worth ₹4.5K  were sent back by your approver',
   icon: TaskIcon.REPORT,
   ctas: [
     {
-      content: 'View Report',
+      content: 'View Reports',
       event: TASKEVENT.openSentBackReport,
     },
   ],
