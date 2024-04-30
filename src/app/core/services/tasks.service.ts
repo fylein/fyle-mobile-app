@@ -449,7 +449,7 @@ export class TasksService {
 
   getUnsubmittedReportsStats(): Observable<ReportsStatsResponsePlatform> {
     return this.spenderReportsService.getReportsStats({
-      state: 'eq.(DRAFT)',
+      state: 'eq.DRAFT',
     });
   }
 
