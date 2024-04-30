@@ -201,7 +201,8 @@ export const openFiltersOptions = deepFreeze([
   } as FilterOptions<string>,
 ]);
 
-export const filterPopoverParams = deepFreeze({
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
+export const filterPopoverParams = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: openFiltersOptions,
@@ -211,9 +212,10 @@ export const filterPopoverParams = deepFreeze({
     activeFilterInitialName: 'State',
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const popoverControllerParams = deepFreeze({
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
+export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Cannot Delete Report',
@@ -224,11 +226,12 @@ export const popoverControllerParams = deepFreeze({
     },
   },
   cssClass: 'pop-up-in-center',
-});
+};
 
 const mockDeleteMethod = (): Observable<void> => of();
 
-export const deletePopoverParamsRes = deepFreeze({
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
+export const deletePopoverParamsRes = {
   component: FyDeleteDialogComponent,
   cssClass: 'delete-dialog',
   backdropDismiss: false,
@@ -238,4 +241,4 @@ export const deletePopoverParamsRes = deepFreeze({
     infoMessage: 'Deleting the report will not delete any of the expenses.',
     deleteMethod: mockDeleteMethod,
   },
-});
+};
