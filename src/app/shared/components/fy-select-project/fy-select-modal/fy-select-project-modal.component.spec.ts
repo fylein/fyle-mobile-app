@@ -109,7 +109,7 @@ describe('FyProjectSelectModalComponent', () => {
     projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
-      RecentLocalStorageItemsService,
+      RecentLocalStorageItemsService
     ) as jasmine.SpyObj<RecentLocalStorageItemsService>;
     utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
@@ -166,7 +166,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     it('should get projects when current selection is defined', (done) => {
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      component.currentSelection = [testProjectV2];
+      component.currentSelection = testProjectV2;
       fixture.detectChanges();
 
       component.getProjects('projects').subscribe((res) => {
@@ -258,7 +258,7 @@ describe('FyProjectSelectModalComponent', () => {
             label: 'label',
             value: testProjectV2,
           },
-        ]),
+        ])
       );
       component.recentlyUsed = null;
       component.cacheName = 'project';
@@ -310,7 +310,7 @@ describe('FyProjectSelectModalComponent', () => {
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
         { value: 'value' },
-        'label',
+        'label'
       );
     });
   });

@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize, tap } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -19,6 +19,7 @@ import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
+import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -28,7 +29,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef;
 
-  @Input() currentSelection: any;
+  @Input() currentSelection: ExtendedProject;
 
   @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
 
@@ -61,9 +62,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  ngOnInit() {}
+  ngOnInit(): void {
+    return;
+  }
 
-  getProjects(searchNameText) {
+  getProjects(searchNameText: string): Observable<{ label: string; value: ExtendedProject | ExtendedProject[] }[]> {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -83,7 +86,9 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       switchMap((orgSettings) =>
         iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
-          this.orgUserSettingsService.get().pipe(map((orgUserSettings: any) => orgUserSettings.project_ids || [])),
+          this.orgUserSettingsService
+            .get()
+            .pipe(map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])),
           of(null)
         )
       ),
@@ -172,7 +177,10 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
       map((event: any) => event.srcElement.value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) => this.getProjects(searchText)),
+      switchMap((searchText: string) => this.getProjects(searchText)),
+      tap((projects) => {
+        console.log('Projects', projects);
+      }),
       map((projects: any[]) =>
         projects.map((project) => {
           if (isEqual(project.value, this.currentSelection)) {
