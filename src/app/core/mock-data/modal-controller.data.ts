@@ -1,5 +1,4 @@
-import deepFreeze from 'deep-freeze-strict';
-
+/* eslint-disable custom-rules/prefer-deep-freeze */
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
@@ -26,7 +25,7 @@ import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-s
 import { apiExpenseRes } from './expense.data';
 import { apiExpenses1 } from './platform/v1/expense.data';
 
-export const modalControllerParams = deepFreeze({
+export const modalControllerParams = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: [
@@ -46,9 +45,9 @@ export const modalControllerParams = deepFreeze({
     activeFilterInitialName: 'approvalDate',
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const modalControllerParams2 = deepFreeze({
+export const modalControllerParams2 = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: filterOptions1,
@@ -56,36 +55,36 @@ export const modalControllerParams2 = deepFreeze({
     activeFilterInitialName: 'approvalDate',
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const newReportModalParams = deepFreeze({
+export const newReportModalParams = {
   component: CreateNewReportComponent,
   componentProps: {
     selectedExpensesToReport: apiExpenseRes,
   },
   mode: <Mode>'ios',
   ...fyModalProperties,
-});
+};
 
-export const newReportModalParams2 = deepFreeze({
+export const newReportModalParams2 = {
   component: createReportV2,
   componentProps: {
     selectedExpensesToReport: apiExpenses1,
   },
   mode: <Mode>'ios',
   ...fyModalProperties,
-});
+};
 
-export const addExpenseToReportModalParams2 = deepFreeze({
+export const addExpenseToReportModalParams2 = {
   component: v2,
   componentProps: {
     txId: '12345',
   },
   mode: <Mode>'ios',
   ...fyModalProperties,
-});
+};
 
-export const popoverControllerParams = deepFreeze({
+export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: '2 Draft Expenses blocking the way',
@@ -100,9 +99,9 @@ export const popoverControllerParams = deepFreeze({
     },
   },
   cssClass: 'pop-up-in-center',
-});
+};
 
-export const openFromComponentConfig = deepFreeze({
+export const openFromComponentConfig = {
   data: {
     icon: 'warning-fill',
     showCloseButton: true,
@@ -110,9 +109,9 @@ export const openFromComponentConfig = deepFreeze({
   },
   duration: 3000,
   panelClass: ['msb-failure-with-report-btn'],
-});
+};
 
-export const taskModalControllerParams = deepFreeze({
+export const taskModalControllerParams = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: [
@@ -167,9 +166,9 @@ export const taskModalControllerParams = deepFreeze({
     activeFilterInitialName: 'Expenses',
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const taskModalControllerParams2 = deepFreeze({
+export const taskModalControllerParams2 = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: [
@@ -224,9 +223,9 @@ export const taskModalControllerParams2 = deepFreeze({
     activeFilterInitialName: undefined,
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const teamReportsModalControllerParams = deepFreeze({
+export const teamReportsModalControllerParams = {
   component: FyFiltersComponent,
   componentProps: {
     filterOptions: [
@@ -332,9 +331,9 @@ export const teamReportsModalControllerParams = deepFreeze({
     activeFilterInitialName: 'State',
   },
   cssClass: 'dialog-popover',
-});
+};
 
-export const popoverControllerParams2 = deepFreeze({
+export const popoverControllerParams2 = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Unsaved Changes',
@@ -349,9 +348,9 @@ export const popoverControllerParams2 = deepFreeze({
     },
   },
   cssClass: 'pop-up-in-center',
-});
+};
 
-export const addToReportModalControllerParams = deepFreeze({
+export const addToReportModalControllerParams = {
   component: FyAddToReportModalComponent,
   componentProps: {
     options: reportOptionsData,
@@ -374,9 +373,9 @@ export const addToReportModalControllerParams = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const popoverControllerParams3 = deepFreeze({
+export const popoverControllerParams3 = {
   component: FyInputPopoverComponent,
   componentProps: {
     title: 'New Draft Report',
@@ -386,9 +385,9 @@ export const popoverControllerParams3 = deepFreeze({
     isRequired: true,
   },
   cssClass: 'fy-dialog-popover',
-});
+};
 
-export const modalControllerParams3 = deepFreeze({
+export const modalControllerParams3 = {
   component: CaptureReceiptComponent,
   componentProps: {
     isModal: true,
@@ -396,18 +395,18 @@ export const modalControllerParams3 = deepFreeze({
     allowBulkFyle: false,
   },
   cssClass: 'hide-modal',
-});
+};
 
-export const modalControllerParams4 = deepFreeze({
+export const modalControllerParams4 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: advanceRequestFileUrlData2,
     canEdit: true,
   },
   mode: 'ios' as Mode,
-});
+};
 
-export const modalControllerParams5 = deepFreeze({
+export const modalControllerParams5 = {
   component: ViewCommentComponent,
   componentProps: {
     objectType: 'advance_requests',
@@ -421,9 +420,9 @@ export const modalControllerParams5 = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const popoverControllerParams5 = deepFreeze({
+export const popoverControllerParams5 = {
   component: PopupAlertComponent,
   cssClass: 'pop-up-in-center',
   componentProps: {
@@ -438,27 +437,27 @@ export const popoverControllerParams5 = deepFreeze({
       action: 'cancel',
     },
   },
-});
+};
 
-export const popoverControllerParams6 = deepFreeze({
+export const popoverControllerParams6 = {
   component: FyPopoverComponent,
   cssClass: 'fy-dialog-popover',
   componentProps: {
     title: 'Send Back',
     formLabel: 'Reason For Sending Back Advance',
   },
-});
+};
 
-export const popoverControllerParams7 = deepFreeze({
+export const popoverControllerParams7 = {
   component: FyPopoverComponent,
   cssClass: 'fy-dialog-popover',
   componentProps: {
     title: 'Reject',
     formLabel: 'Please mention the reason for rejecting the advance request',
   },
-});
+};
 
-export const modalControllerParams6 = deepFreeze({
+export const modalControllerParams6 = {
   component: ViewCommentComponent,
   componentProps: {
     objectType: 'advance_requests',
@@ -472,9 +471,9 @@ export const modalControllerParams6 = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const modalControllerParams7 = deepFreeze({
+export const modalControllerParams7 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: fileObject4[0],
@@ -489,18 +488,18 @@ export const modalControllerParams7 = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const popoverControllerParams8 = deepFreeze({
+export const popoverControllerParams8 = {
   component: FyPopoverComponent,
   componentProps: {
     title: 'Pull Back Advance?',
     formLabel: 'Pulling back your advance request will allow you to edit and re-submit the request.',
   },
   cssClass: 'fy-dialog-popover',
-});
+};
 
-export const modalControllerParams8 = deepFreeze({
+export const modalControllerParams8 = {
   component: ViewCommentComponent,
   componentProps: {
     objectType: 'advance_requests',
@@ -514,9 +513,9 @@ export const modalControllerParams8 = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const modalControllerParams9 = deepFreeze({
+export const modalControllerParams9 = {
   component: FyViewAttachmentComponent,
   componentProps: {
     attachments: fileObject4[0],
@@ -530,9 +529,9 @@ export const modalControllerParams9 = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const virtualSelectModalControllerParams = deepFreeze({
+export const virtualSelectModalControllerParams = {
   component: VirtualSelectModalComponent,
   componentProps: {
     options: [],
@@ -558,9 +557,9 @@ export const virtualSelectModalControllerParams = deepFreeze({
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-});
+};
 
-export const permissionDeniedPopoverParams = deepFreeze({
+export const permissionDeniedPopoverParams = {
   component: PopupAlertComponent,
   componentProps: {
     title: 'Photos Permission',
@@ -576,4 +575,4 @@ export const permissionDeniedPopoverParams = deepFreeze({
   },
   cssClass: 'pop-up-in-center',
   backdropDismiss: false,
-});
+};
