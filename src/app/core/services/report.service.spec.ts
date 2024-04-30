@@ -247,6 +247,26 @@ describe('ReportService', () => {
     });
   });
 
+  it('removeTransaction(): should remove a transaction from report', (done) => {
+    apiService.post.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const txnID = 'txTQVBx7W8EO';
+
+    const params = {
+      status: {
+        comment: null,
+      },
+    };
+
+    reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   describe('getMyReports()', () => {
     it('should get reports from API as specified by params', (done) => {
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
@@ -496,6 +516,20 @@ describe('ReportService', () => {
     });
   });
 
+  it('addTransactions(): should add a transaction to a report', (done) => {
+    apiService.post.and.returnValue(of(null));
+    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
+
+    const reportID = 'rpvcIMRMyM3A';
+    const tnxs = ['txTQVBx7W8EO'];
+
+    reportService.addTransactions(reportID, tnxs).subscribe(() => {
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
+      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
   it('actions(): should get report actions', (done) => {
     apiService.get.and.returnValue(of(apiReportActions));
 
@@ -521,26 +555,23 @@ describe('ReportService', () => {
 
   it('create(): should create a new report', (done) => {
     spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
-    spenderPlatformV1ApiService.post.and.returnValue(of(null));
+    apiService.post.and.returnValue(of(null));
     spyOn(reportService, 'submit').and.returnValue(of(null));
 
     const reportPurpose = {
       purpose: 'A new report',
       source: 'MOBILE',
     };
-    const expenseIds = ['tx6Oe6FaYDZl'];
+    const txnIds = ['tx6Oe6FaYDZl'];
     const reportID = 'rp5eUkeNm9wB';
-    const payload = {
-      data: {
-        id: reportID,
-        expense_ids: expenseIds,
-      },
+    const txnParam = {
+      ids: txnIds,
     };
 
-    reportService.create(reportPurpose, expenseIds).subscribe((res) => {
+    reportService.create(reportPurpose, txnIds).subscribe((res) => {
       expect(res).toEqual(reportUnflattenedData2);
       expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
+      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, txnParam);
       expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });

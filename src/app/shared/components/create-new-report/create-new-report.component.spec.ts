@@ -27,7 +27,6 @@ import {
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { Expense } from 'src/app/core/models/expense.model';
 import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -38,7 +37,6 @@ describe('CreateNewReportComponent', () => {
   let refinerService: jasmine.SpyObj<RefinerService>;
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let expenseFieldsService: jasmine.SpyObj<ExpenseFieldsService>;
-  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     modalController = jasmine.createSpyObj('ModalController', ['dismiss']);
@@ -52,7 +50,6 @@ describe('CreateNewReportComponent', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
@@ -75,7 +72,6 @@ describe('CreateNewReportComponent', () => {
         { provide: ExpenseFieldsService, useValue: expenseFieldsService },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
         { provide: FyCurrencyPipe, useValue: fyCurrencyPipeSpy },
-        { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -85,7 +81,6 @@ describe('CreateNewReportComponent', () => {
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
-    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
 
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
@@ -201,7 +196,7 @@ describe('CreateNewReportComponent', () => {
       const Report_Value = 0;
       const report = reportUnflattenedData2;
       reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
-      spenderReportsService.addExpenses.and.returnValue(of(undefined));
+      reportService.addTransactions.and.returnValue(of(undefined));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);
@@ -209,7 +204,7 @@ describe('CreateNewReportComponent', () => {
       expect(component.showReportNameError).toBeFalse();
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({ Expense_Count, Report_Value });
       expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportParam);
-      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(reportID, tnxs);
+      expect(reportService.addTransactions).toHaveBeenCalledOnceWith(reportID, tnxs);
       expect(component.saveDraftReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({
         report,

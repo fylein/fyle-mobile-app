@@ -31,7 +31,6 @@ import { FySelectCommuteDetailsComponent } from 'src/app/shared/components/fy-se
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 @Component({
   selector: 'app-tasks',
@@ -76,8 +75,7 @@ export class TasksComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ngOnInit(): void {
@@ -567,7 +565,7 @@ export class TasksComponent implements OnInit {
 
   addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.spenderReportsService.addExpenses(report.rp_id, selectedExpensesId).pipe(map(() => report))),
+      switchMap(() => this.reportService.addTransactions(report.rp_id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }
