@@ -20,6 +20,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
+import { ProjectOptionType, ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -27,13 +28,13 @@ import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
   styleUrls: ['./fy-select-project-modal.component.scss'],
 })
 export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
-  @ViewChild('searchBar') searchBarRef: ElementRef;
+  @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: ExtendedProject | [ExtendedProject];
 
-  @Input() filteredOptions$: Observable<{ label: string; value: any; selected?: boolean }[]>;
+  @Input() filteredOptions$: Observable<ProjectOptionTypeWithLabel[]>;
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -41,11 +42,11 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   @Input() defaultValue = false;
 
-  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+  @Input() recentlyUsed: ProjectOptionTypeWithLabel[];
 
   @Input() label: string;
 
-  recentrecentlyUsedItems$: Observable<any[]>;
+  recentrecentlyUsedItems$: Observable<ExtendedProject[] | ProjectOptionTypeWithLabel[]>;
 
   value;
 
@@ -154,18 +155,18 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   clearValue(): void {
     this.value = '';
-    const searchInput = this.searchBarRef.nativeElement as HTMLInputElement;
+    const searchInput = this.searchBarRef.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedItems() {
+  getRecentlyUsedItems(): Observable<ExtendedProject[] | ProjectOptionTypeWithLabel[]> {
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
-        map((options: any) =>
-          options.map((option) => {
+        map((options) =>
+          options.map((option: ProjectOptionTypeWithLabel) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
           })
@@ -176,25 +177,25 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: string) => this.getProjects(searchText)),
-      map((projects: any[]) =>
-        projects.map((project) => {
+      map((projects) =>
+        projects.map((project: { label: string; value: ExtendedProject; selected?: boolean }) => {
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
-          return project;
+          return project as { label: string; value: ExtendedProject; selected?: boolean };
         })
       )
     );
 
     this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: any) => event.srcElement.value),
+      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
       startWith(''),
       distinctUntilChanged(),
-      switchMap((searchText) =>
+      switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method
           this.utilityService.searchArrayStream(searchText)
@@ -209,8 +210,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option): void {
-    if (this.cacheName && option.value) {
+  onElementSelect(option: ProjectOptionType | ProjectOptionTypeWithLabel | string | ExtendedProject): void {
+    if (this.cacheName && ((option as ProjectOptionType) || (option as ProjectOptionTypeWithLabel)).value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);
