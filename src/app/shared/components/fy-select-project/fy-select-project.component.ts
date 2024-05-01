@@ -25,7 +25,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() placeholder: string;
 
-  @Input() cacheName;
+  @Input() cacheName: string;
 
   @Input() selectionElement: TemplateRef<ElementRef>;
 
@@ -41,15 +41,15 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   displayValue;
 
-  innerValue;
+  innerValue: ExtendedProject | string;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (_: any) => void = noop;
+  onChangeCallback: (value) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
-  get valid() {
+  get valid(): boolean {
     if (this.touchedInParent) {
       return this.touchedInParent;
     } else {
@@ -57,16 +57,16 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  get value(): any {
+  get value(): ExtendedProject | string {
     return this.innerValue;
   }
 
-  set value(v: any) {
+  set value(v: ExtendedProject | string) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = selectedOption.project_name;
+        this.displayValue = (selectedOption as ExtendedProject).project_name;
       } else {
         this.displayValue = '';
       }
@@ -75,9 +75,11 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  ngOnDestroy(): void {}
+  ngOnDestroy(): void {
+    return;
+  }
 
-  async openModal() {
+  async openModal(): Promise<void> {
     const projectModal = await this.modalController.create({
       component: FyProjectSelectModalComponent,
       componentProps: {
@@ -95,20 +97,21 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
     await projectModal.present();
 
-    const { data } = await projectModal.onWillDismiss();
+    const { data }: { data?: { label: string; value: ExtendedProject; selected?: boolean } } =
+      await projectModal.onWillDismiss();
 
     if (data) {
       this.value = data.value;
     }
   }
 
-  onBlur() {
+  onBlur(): void {
     this.onTouchedCallback();
   }
 
-  writeValue(value: any): void {
+  writeValue(value): void {
     if (value !== this.innerValue) {
-      this.innerValue = value;
+      this.innerValue = value as ExtendedProject;
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.project_name;
@@ -118,11 +121,11 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  registerOnChange(fn: any) {
+  registerOnChange(fn: (newValue) => void): void {
     this.onChangeCallback = fn;
   }
 
-  registerOnTouched(fn: any) {
+  registerOnTouched(fn: () => void): void {
     this.onTouchedCallback = fn;
   }
 }
