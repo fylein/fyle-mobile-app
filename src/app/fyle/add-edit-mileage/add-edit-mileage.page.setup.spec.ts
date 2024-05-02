@@ -38,7 +38,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -98,12 +98,9 @@ describe('AddEditMileagePage', () => {
       'getAutoSubmissionReportName',
       'getFilteredPendingReports',
       'addTransactions',
+      'removeTransaction',
     ]);
-    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
-      'getAllReportsByParams',
-      'ejectExpenses',
-      'addExpenses',
-    ]);
+    const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', ['getAllReportsByParams']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll', 'filterByCategory']);
     const customFieldsServiceSpy = jasmine.createSpyObj('CustomFieldsService', ['standardizeCustomFields']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', [
@@ -288,8 +285,8 @@ describe('AddEditMileagePage', () => {
           useValue: reportServiceSpy,
         },
         {
-          provide: SpenderReportsService,
-          useValue: platformSpenderReportsServiceSpy,
+          provide: ReportsService,
+          useValue: platformReportsServiceSpy,
         },
         {
           provide: CustomInputsService,

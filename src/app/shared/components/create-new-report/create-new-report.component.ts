@@ -11,7 +11,6 @@ import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -47,8 +46,7 @@ export class CreateNewReportComponent implements OnInit {
     private trackingService: TrackingService,
     private refinerService: RefinerService,
     private currencyService: CurrencyService,
-    private expenseFieldsService: ExpenseFieldsService,
-    private spenderReportsService: SpenderReportsService
+    private expenseFieldsService: ExpenseFieldsService
   ) {}
 
   getReportTitle(): Subscription {
@@ -131,7 +129,7 @@ export class CreateNewReportComponent implements OnInit {
           ),
           switchMap((report: ReportV1) => {
             if (txnIds.length > 0) {
-              return this.spenderReportsService.addExpenses(report.id, txnIds).pipe(map(() => report));
+              return this.reportService.addTransactions(report.id, txnIds).pipe(map(() => report));
             } else {
               return of(report);
             }
