@@ -34,7 +34,6 @@ import {
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
-import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
