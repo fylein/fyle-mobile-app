@@ -11,7 +11,7 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options-with-label.model';
+import { ProjectOption } from 'src/app/core/models/project-options.model';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -23,7 +23,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() currentSelection: ExtendedProject;
 
-  @Input() filteredOptions$: Observable<ProjectOptionTypeWithLabel[]>;
+  @Input() filteredOptions$: Observable<ProjectOption[]>;
 
   @Input() cacheName: string;
 
@@ -33,11 +33,11 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() defaultValue = false;
 
-  @Input() recentlyUsed: ProjectOptionTypeWithLabel[];
+  @Input() recentlyUsed: ProjectOption[];
 
   @Input() label: string;
 
-  recentrecentlyUsedItems$: Observable<ProjectOptionTypeWithLabel[]>;
+  recentrecentlyUsedItems$: Observable<ProjectOption[]>;
 
   value: string;
 
@@ -54,7 +54,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  getProjects(searchNameText: string): Observable<ProjectOptionTypeWithLabel[]> {
+  getProjects(searchNameText: string): Observable<ProjectOption[]> {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -145,13 +145,13 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedItems(): Observable<ExtendedProject[] | ProjectOptionTypeWithLabel[]> {
+  getRecentlyUsedItems(): Observable<ExtendedProject[] | ProjectOption[]> {
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
       return from(this.recentLocalStorageItemsService.get(this.cacheName)).pipe(
         map((options) =>
-          options.map((option: ProjectOptionTypeWithLabel) => {
+          options.map((option: ProjectOption) => {
             option.selected = isEqual(option.value, this.currentSelection);
             return option;
           })
@@ -171,7 +171,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
-          return project as ProjectOptionTypeWithLabel;
+          return project as ProjectOption;
         })
       )
     );
@@ -198,7 +198,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: ProjectOptionTypeWithLabel): void {
+  onElementSelect(option: ProjectOption): void {
     if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
