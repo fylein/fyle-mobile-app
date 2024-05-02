@@ -1,13 +1,4 @@
-import {
-  Component,
-  OnInit,
-  AfterViewInit,
-  ViewChild,
-  ElementRef,
-  Input,
-  ChangeDetectorRef,
-  TemplateRef,
-} from '@angular/core';
+import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize } from 'rxjs/operators';
@@ -20,14 +11,15 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { ProjectOptionType, ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options.model';
+import { ProjectOptionType } from 'src/app/core/models/project-options.model';
+import { ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options-with-label.model';
 
 @Component({
   selector: 'app-fy-select-modal',
   templateUrl: './fy-select-project-modal.component.html',
   styleUrls: ['./fy-select-project-modal.component.scss'],
 })
-export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
+export class FyProjectSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
   @Input() currentSelection: ExtendedProject | [ExtendedProject];
@@ -63,13 +55,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  ngOnInit(): void {
-    return;
-  }
-
-  getProjects(
-    searchNameText: string
-  ): Observable<{ label: string | undefined; value: ExtendedProject | ExtendedProject[] }[]> {
+  getProjects(searchNameText: string): Observable<{ label: string; value: ExtendedProject | ExtendedProject[] }[]> {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -131,7 +117,7 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
         const currentElement = [];
         if (
           this.currentSelection &&
-          !projects.some((project) => project.project_id === (this.currentSelection as ExtendedProject).project_id) // Cast this.currentSelection to ExtendedProject
+          !projects.some((project) => project.project_id === (this.currentSelection as ExtendedProject).project_id)
         ) {
           currentElement.push({
             label: (this.currentSelection as ExtendedProject).project_name,
@@ -176,8 +162,8 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.filteredOptions$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
+    this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
+      map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: string) => this.getProjects(searchText)),
@@ -186,13 +172,16 @@ export class FyProjectSelectModalComponent implements OnInit, AfterViewInit {
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
-          return project as { label: string; value: ExtendedProject; selected?: boolean };
+          return project as ProjectOptionTypeWithLabel;
         })
       )
     );
 
-    this.recentrecentlyUsedItems$ = fromEvent(this.searchBarRef.nativeElement, 'keyup').pipe(
-      map((event: KeyboardEvent) => (event.target as HTMLInputElement).value),
+    this.recentrecentlyUsedItems$ = fromEvent<{ target: HTMLInputElement }>(
+      this.searchBarRef.nativeElement,
+      'keyup'
+    ).pipe(
+      map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
       switchMap((searchText: string) =>
