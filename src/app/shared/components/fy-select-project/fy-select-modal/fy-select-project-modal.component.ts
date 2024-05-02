@@ -21,7 +21,7 @@ import { ProjectOption } from 'src/app/core/models/project-options.model';
 export class FyProjectSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
-  @Input() currentSelection: ExtendedProject;
+  @Input() currentSelection: ProjectV2;
 
   @Input() filteredOptions$: Observable<ProjectOption[]>;
 
@@ -145,7 +145,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     searchInput.dispatchEvent(new Event('keyup'));
   }
 
-  getRecentlyUsedItems(): Observable<ExtendedProject[] | ProjectOption[]> {
+  getRecentlyUsedItems(): Observable<ProjectV2[] | ProjectOption[]> {
     if (this.recentlyUsed) {
       return of(this.recentlyUsed);
     } else {
@@ -167,7 +167,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       distinctUntilChanged(),
       switchMap((searchText: string) => this.getProjects(searchText)),
       map((projects) =>
-        projects.map((project: { label: string; value: ExtendedProject; selected?: boolean }) => {
+        projects.map((project: { label: string; value: ProjectV2; selected?: boolean }) => {
           if (isEqual(project.value, this.currentSelection)) {
             project.selected = true;
           }
