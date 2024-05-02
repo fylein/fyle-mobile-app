@@ -5,6 +5,7 @@ import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
 import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
+import { ProjectOption } from 'src/app/core/models/project-options.model';
 
 @Component({
   selector: 'app-fy-select-project',
@@ -33,7 +34,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() defaultValue = false;
 
-  @Input() recentlyUsed: { label: string; value: ExtendedProject; selected?: boolean }[];
+  @Input() recentlyUsed: ProjectOption[];
 
   @Input() touchedInParent: boolean;
 
@@ -97,8 +98,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
     await projectModal.present();
 
-    const { data }: { data?: { label: string; value: ExtendedProject; selected?: boolean } } =
-      await projectModal.onWillDismiss();
+    const { data }: { data?: ProjectOption } = await projectModal.onWillDismiss();
 
     if (data) {
       this.value = data.value;
