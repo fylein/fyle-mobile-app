@@ -36,7 +36,7 @@ import { click, getAllElementsBySelector, getElementBySelector, getTextContent }
 import { By } from '@angular/platform-browser';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 
-fdescribe('FyProjectSelectModalComponent', () => {
+describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
