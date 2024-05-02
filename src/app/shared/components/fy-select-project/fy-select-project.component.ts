@@ -39,9 +39,9 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   @Input() validInParent: boolean;
 
-  displayValue;
+  displayValue: string;
 
-  innerValue: ExtendedProject | string;
+  innerValue: ExtendedProject;
 
   onTouchedCallback: () => void = noop;
 
@@ -57,21 +57,21 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  get value(): ExtendedProject | string {
+  get value(): ExtendedProject {
     return this.innerValue;
   }
 
-  set value(v: ExtendedProject | string) {
+  set value(v: ExtendedProject) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
       if (selectedOption) {
-        this.displayValue = (selectedOption as ExtendedProject).project_name;
+        this.displayValue = selectedOption.project_name;
       } else {
         this.displayValue = '';
       }
 
-      this.onChangeCallback(v as ExtendedProject);
+      this.onChangeCallback(v);
     }
   }
 
@@ -109,9 +109,9 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     this.onTouchedCallback();
   }
 
-  writeValue(value: ExtendedProject | string[]): void {
+  writeValue(value: ExtendedProject): void {
     if (value !== this.innerValue) {
-      this.innerValue = value as ExtendedProject;
+      this.innerValue = value;
       const selectedOption = this.innerValue;
       if (selectedOption) {
         this.displayValue = selectedOption.project_name;
