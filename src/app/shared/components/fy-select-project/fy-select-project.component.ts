@@ -80,7 +80,6 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
   }
 
   async openModal(): Promise<void> {
-    console.log('Modal opened');
     const projectModal = await this.modalController.create({
       component: FyProjectSelectModalComponent,
       componentProps: {
