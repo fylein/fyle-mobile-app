@@ -45,7 +45,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (value) => void = noop;
+  onChangeCallback: (value: ExtendedProject) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
@@ -71,7 +71,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
         this.displayValue = '';
       }
 
-      this.onChangeCallback(v);
+      this.onChangeCallback(v as ExtendedProject);
     }
   }
 
@@ -80,6 +80,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
   }
 
   async openModal(): Promise<void> {
+    console.log('Modal opened');
     const projectModal = await this.modalController.create({
       component: FyProjectSelectModalComponent,
       componentProps: {
@@ -109,7 +110,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     this.onTouchedCallback();
   }
 
-  writeValue(value): void {
+  writeValue(value: ExtendedProject | string[]): void {
     if (value !== this.innerValue) {
       this.innerValue = value as ExtendedProject;
       const selectedOption = this.innerValue;
@@ -121,7 +122,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  registerOnChange(fn: (newValue) => void): void {
+  registerOnChange(fn: (newValue: ExtendedProject) => void): void {
     this.onChangeCallback = fn;
   }
 
