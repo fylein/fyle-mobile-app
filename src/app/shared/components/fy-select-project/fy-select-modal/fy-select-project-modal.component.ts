@@ -11,7 +11,6 @@ import { UtilityService } from 'src/app/core/services/utility.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
-import { ProjectOptionType } from 'src/app/core/models/project-options.model';
 import { ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options-with-label.model';
 
 @Component({
@@ -22,7 +21,7 @@ import { ProjectOptionTypeWithLabel } from 'src/app/core/models/project-options-
 export class FyProjectSelectModalComponent implements AfterViewInit {
   @ViewChild('searchBar') searchBarRef: ElementRef<HTMLInputElement>;
 
-  @Input() currentSelection: ExtendedProject | [ExtendedProject];
+  @Input() currentSelection: ExtendedProject;
 
   @Input() filteredOptions$: Observable<ProjectOptionTypeWithLabel[]>;
 
@@ -38,9 +37,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   @Input() label: string;
 
-  recentrecentlyUsedItems$: Observable<ExtendedProject[] | ProjectOptionTypeWithLabel[]>;
+  recentrecentlyUsedItems$: Observable<ProjectOptionTypeWithLabel[]>;
 
-  value;
+  value: string;
 
   isLoading = false;
 
@@ -55,7 +54,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private orgSettingsService: OrgSettingsService
   ) {}
 
-  getProjects(searchNameText: string): Observable<{ label: string; value: ExtendedProject | ExtendedProject[] }[]> {
+  getProjects(searchNameText: string): Observable<ProjectOptionTypeWithLabel[]> {
     // set isLoading to true
     this.isLoading = true;
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
@@ -117,10 +116,10 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         const currentElement = [];
         if (
           this.currentSelection &&
-          !projects.some((project) => project.project_id === (this.currentSelection as ExtendedProject).project_id)
+          !projects.some((project) => project.project_id === this.currentSelection.project_id)
         ) {
           currentElement.push({
-            label: (this.currentSelection as ExtendedProject).project_name,
+            label: this.currentSelection.project_name,
             value: this.currentSelection,
           });
         }
@@ -199,8 +198,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     this.modalController.dismiss();
   }
 
-  onElementSelect(option: ProjectOptionType | ProjectOptionTypeWithLabel | string | ExtendedProject): void {
-    if (this.cacheName && ((option as ProjectOptionType) || (option as ProjectOptionTypeWithLabel)).value) {
+  onElementSelect(option: ProjectOptionTypeWithLabel): void {
+    if (this.cacheName && option.value) {
       this.recentLocalStorageItemsService.post(this.cacheName, option, 'label');
     }
     this.modalController.dismiss(option);

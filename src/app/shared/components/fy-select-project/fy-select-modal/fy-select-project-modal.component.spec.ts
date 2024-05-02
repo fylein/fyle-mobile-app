@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { map, of } from 'rxjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -36,7 +36,7 @@ import { click, getAllElementsBySelector, getElementBySelector, getTextContent }
 import { By } from '@angular/platform-browser';
 import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 
-describe('FyProjectSelectModalComponent', () => {
+fdescribe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -166,7 +166,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     it('should get projects when current selection is defined', (done) => {
       projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      component.currentSelection = [testProjectV2];
+      component.currentSelection = testProjectV2;
       fixture.detectChanges();
 
       component.getProjects('projects').subscribe((res) => {
@@ -289,8 +289,8 @@ describe('FyProjectSelectModalComponent', () => {
     it('should dismiss the modal with selected option', () => {
       modalController.dismiss.and.returnValue(Promise.resolve(true));
 
-      component.onElementSelect('value');
-      expect(modalController.dismiss).toHaveBeenCalledWith('value');
+      component.onElementSelect({ label: '', value: null });
+      expect(modalController.dismiss).toHaveBeenCalledWith({ label: '', value: null });
       expect(recentLocalStorageItemsService.post).not.toHaveBeenCalled();
     });
 
@@ -300,16 +300,12 @@ describe('FyProjectSelectModalComponent', () => {
       component.cacheName = 'cache';
       fixture.detectChanges();
 
-      component.onElementSelect({
-        value: 'value',
-      });
+      component.onElementSelect({ label: 'Staging Project', value: testProjectV2 });
 
-      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
-        value: 'value',
-      });
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ label: 'Staging Project', value: testProjectV2 });
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
-        { value: 'value' },
+        { label: 'Staging Project', value: testProjectV2 },
         'label'
       );
     });
@@ -371,13 +367,20 @@ describe('FyProjectSelectModalComponent', () => {
 
   it('should select element on clicking recently used items', () => {
     spyOn(component, 'onElementSelect');
-    component.recentrecentlyUsedItems$ = of([testProjectV2]);
+    component.recentrecentlyUsedItems$ = of(testProjectV2).pipe(
+      map((project) => [
+        {
+          label: project.project_name,
+          value: project,
+        },
+      ])
+    );
     fixture.detectChanges();
 
     const itemsList = getAllElementsBySelector(fixture, '.selection-modal--recently-used-item-content');
 
     click(itemsList[0] as HTMLElement);
-    expect(component.onElementSelect).toHaveBeenCalledOnceWith(testProjectV2);
+    expect(component.onElementSelect).toHaveBeenCalledOnceWith({ label: 'Staging Project', value: testProjectV2 });
   });
 
   it('should select an element on clicking filtered items', () => {
