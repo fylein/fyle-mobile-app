@@ -37,13 +37,14 @@ describe('UtilityService', () => {
 
   describe('refineNestedObject():', () => {
     it('should return the nested object when the custom field type is number, string etc', () => {
-      expect(utilityService.refineNestedObject(customFieldData1)).toEqual(customFieldData1);
+      const mockCustomField = cloneDeep(customFieldData1);
+      expect(utilityService.refineNestedObject(mockCustomField)).toEqual(customFieldData1);
     });
 
     it('should return the nested object when the custom field type is select', () => {
       spyOn(utilityService, 'discardNullChar').and.returnValue('select-1');
       const mockCustomFieldData = cloneDeep(customFieldData2);
-      expect(utilityService.refineNestedObject(customFieldData2)).toEqual(customFieldData2);
+      expect(utilityService.refineNestedObject(mockCustomFieldData)).toEqual(customFieldData2);
       expect(utilityService.discardNullChar).toHaveBeenCalledOnceWith('select-1');
     });
   });
