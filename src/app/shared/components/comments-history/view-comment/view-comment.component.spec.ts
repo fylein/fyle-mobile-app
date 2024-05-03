@@ -20,6 +20,7 @@ import {
   getEstatusApiResponse,
   updateReponseWithFlattenedEStatus,
 } from 'src/app/core/test-data/status.service.spec.data';
+import { cloneDeep } from 'lodash';
 
 describe('ViewCommentComponent', () => {
   let component: ViewCommentComponent;
@@ -60,13 +61,14 @@ describe('ViewCommentComponent', () => {
       ],
     }).compileComponents();
 
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    statusService.find.and.returnValue(of(apiCommentsResponse));
+    authService.getEou.and.resolveTo(apiEouRes);
+    const mockCommentResponse = cloneDeep(apiCommentsResponse);
+    statusService.find.and.returnValue(of(mockCommentResponse));
     statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
 
     fixture = TestBed.createComponent(ViewCommentComponent);
     component = fixture.componentInstance;
-    component.estatuses$ = of(apiCommentsResponse);
+    component.estatuses$ = of(mockCommentResponse);
     component.objectType = 'transactions';
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
@@ -95,8 +97,8 @@ describe('ViewCommentComponent', () => {
   describe('closeCommentModal():', () => {
     it('should close the modal if the comment is discarded', fakeAsync(() => {
       const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
-      popOverSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { action: 'discard' } }));
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo({ data: { action: 'discard' } });
       component.closeCommentModal();
       tick(500);
       expect(popoverController.create).toHaveBeenCalledOnceWith({
@@ -124,7 +126,7 @@ describe('ViewCommentComponent', () => {
       component.newComment = null;
       component.isCommentAdded = true;
       component.closeCommentModal();
-      modalController.dismiss.and.returnValue(Promise.resolve({ data: { updated: true } } as any));
+      modalController.dismiss.and.resolveTo({ data: { updated: true } } as any);
       expect(modalController.dismiss).toHaveBeenCalled();
       expect(trackingService.addComment).toHaveBeenCalledTimes(1);
     });
@@ -133,7 +135,7 @@ describe('ViewCommentComponent', () => {
       component.newComment = null;
       component.isCommentAdded = false;
       component.closeCommentModal();
-      modalController.dismiss.and.returnValue(Promise.resolve(Promise.resolve({ data: { updated: false } } as any)));
+      modalController.dismiss.and.resolveTo({ data: { updated: false } } as any);
       expect(modalController.dismiss).toHaveBeenCalled();
       expect(trackingService.viewComment).toHaveBeenCalledTimes(1);
     });
@@ -214,7 +216,7 @@ describe('ViewCommentComponent', () => {
       }));
 
       const totalCommentsCount = 33;
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       statusService.find.and.returnValue(of(updatedApiCommentsResponse));
       statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
       component.ngOnInit();

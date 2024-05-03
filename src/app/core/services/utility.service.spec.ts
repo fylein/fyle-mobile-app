@@ -12,6 +12,7 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import { SortingParam } from '../models/sorting-param.model';
 
 import { UtilityService } from './utility.service';
+import { cloneDeep } from 'lodash';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
@@ -41,6 +42,7 @@ describe('UtilityService', () => {
 
     it('should return the nested object when the custom field type is select', () => {
       spyOn(utilityService, 'discardNullChar').and.returnValue('select-1');
+      const mockCustomFieldData = cloneDeep(customFieldData2);
       expect(utilityService.refineNestedObject(customFieldData2)).toEqual(customFieldData2);
       expect(utilityService.discardNullChar).toHaveBeenCalledOnceWith('select-1');
     });
