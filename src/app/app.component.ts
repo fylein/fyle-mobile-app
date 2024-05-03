@@ -7,7 +7,6 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { AppVersionService } from './core/services/app-version.service';
-import { environment } from 'src/environments/environment';
 import { RouterAuthService } from './core/services/router-auth.service';
 import { NetworkService } from './core/services/network.service';
 import { App } from '@capacitor/app';
@@ -75,7 +74,7 @@ export class AppComponent implements OnInit {
     this.registerBackButtonAction();
   }
 
-  registerBackButtonAction() {
+  registerBackButtonAction(): void {
     this.platform.backButton.subscribeWithPriority(BackButtonActionPriority.LOW, () => {
       if (this.router.url.includes('sign_in')) {
         this.backButtonService.showAppCloseAlert();
@@ -91,7 +90,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  initializeApp() {
+  initializeApp(): void {
     // eslint-disable-next-line max-len
     // Sample url - "https://fyle.app.link/branchio_redirect?redirect_uri=https%3A%2F%2Fstaging.fylehq.ninja%2Fapp%2Fmain%2F%23%2Fenterprise%2Freports%2Frpsv8oKuAfGe&org_id=orrjqbDbeP9p"
 
@@ -137,7 +136,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -145,7 +144,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
 
     if ((window as any) && (window as any).localStorage) {
@@ -217,7 +216,7 @@ export class AppComponent implements OnInit {
     this.gmapsService.loadLibrary();
   }
 
-  switchDelegator(isSwitchedToDelegator: boolean) {
+  switchDelegator(isSwitchedToDelegator: boolean): void {
     this.isSwitchedToDelegator = isSwitchedToDelegator;
   }
 }
