@@ -25,7 +25,7 @@ const fixDate = (data) =>
   }));
 
 describe('ProjectsService', () => {
-  let projectService: ProjectsService;
+  let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
 
@@ -46,18 +46,18 @@ describe('ProjectsService', () => {
         },
       ],
     });
-    projectService = TestBed.inject(ProjectsService);
+    projectsService = TestBed.inject(ProjectsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
   });
 
   it('should be created', () => {
-    expect(projectService).toBeTruthy();
+    expect(projectsService).toBeTruthy();
   });
 
   it('should be able to fetch project by id', (done) => {
     apiV2Service.get.and.returnValue(of(apiV2ResponseSingle));
-    projectService.getbyId(257528).subscribe((res) => {
+    projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(fixDate(apiV2ResponseSingle.data)[0]);
       done();
     });
@@ -71,7 +71,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch all active projects', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
-    projectService.getAllActive().subscribe((res) => {
+    projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
       done();
     });
@@ -86,7 +86,7 @@ describe('ProjectsService', () => {
   it('should be able to fetch data when no params provided', (done) => {
     apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
 
-    projectService.getByParamsUnformatted({}).subscribe((res) => {
+    projectsService.getByParamsUnformatted({}).subscribe((res) => {
       expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
       done();
     });
@@ -95,7 +95,7 @@ describe('ProjectsService', () => {
   it('should be able to fetch data when params are provided', (done) => {
     apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
 
-    const result = projectService.getByParamsUnformatted(testProjectParams);
+    const result = projectsService.getByParamsUnformatted(testProjectParams);
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
@@ -107,19 +107,19 @@ describe('ProjectsService', () => {
   });
 
   it('should category list after filter as per project passed', () => {
-    const result = projectService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
+    const result = projectsService.getAllowedOrgCategoryIds(testProjectV2, testActiveCategoryList);
     expect(result).toEqual(allowedActiveCategories);
   });
 
   it('should return whole category list if project passed is not present', () => {
-    const result = projectService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
+    const result = projectsService.getAllowedOrgCategoryIds(null, testActiveCategoryList);
     expect(result).toEqual(testActiveCategoryList);
   });
 
   it('should get project count restricted by a set of category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
-    const result = projectService.getProjectCount({ categoryIds: testCategoryIds });
+    const result = projectsService.getProjectCount({ categoryIds: testCategoryIds });
     result.subscribe((res) => {
       expect(res).toEqual(2);
       done();
@@ -129,8 +129,8 @@ describe('ProjectsService', () => {
   it('should get project count not restricted by a set of category IDs', (done) => {
     apiService.get.and.returnValue(of(apiResponseActiveOnly));
 
-    const resultWithOutParam = projectService.getProjectCount();
-    const resultWithParam = projectService.getProjectCount({ categoryIds: null });
+    const resultWithOutParam = projectsService.getProjectCount();
+    const resultWithParam = projectsService.getProjectCount({ categoryIds: null });
 
     resultWithOutParam.subscribe((res) => {
       expect(res).toEqual(apiResponseActiveOnly.length);
