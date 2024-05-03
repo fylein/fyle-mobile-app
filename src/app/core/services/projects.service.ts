@@ -10,12 +10,18 @@ import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformProject } from '../models/platform/platform-project.model';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
+  constructor(
+    private apiService: ApiService,
+    private apiV2Service: ApiV2Service,
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
+  ) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -146,22 +152,13 @@ export class ProjectsService {
   }
 
   getbyId(projectId: number | string): Observable<ProjectV2> {
-    return this.apiV2Service
-      .get<ProjectV2, {}>('/projects', {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params: {
-          project_id: `eq.${projectId}`,
+          id: `eq.${projectId}`,
         },
       })
-      .pipe(
-        map(
-          (res) =>
-            res.data.map((datum) => ({
-              ...datum,
-              project_created_at: new Date(datum.project_created_at),
-              project_updated_at: new Date(datum.project_updated_at),
-            }))[0]
-        )
-      );
+      .pipe(map((res) => this.transformToV2Response(res.data)[0]));
   }
 
   transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
