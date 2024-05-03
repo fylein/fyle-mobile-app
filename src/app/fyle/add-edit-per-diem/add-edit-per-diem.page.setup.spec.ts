@@ -66,7 +66,7 @@ describe('AddEditPerDiemPage', () => {
       'removeTransaction',
     ]);
     const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', ['getAllReportsByParams']);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectService', [
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectService', [
       'getAllowedOrgCategoryIds',
       'getProjectCount',
       'getbyId',
@@ -175,7 +175,7 @@ describe('AddEditPerDiemPage', () => {
         },
         {
           provide: ProjectsService,
-          useValue: projectServiceSpy,
+          useValue: projectsServiceSpy,
         },
         {
           provide: TransactionsOutboxService,

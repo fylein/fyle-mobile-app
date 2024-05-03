@@ -296,7 +296,7 @@ export class AddEditMileagePage implements OnInit {
     private reportService: ReportService,
     private platformReportService: ReportsService,
     private fb: FormBuilder,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private mileageService: MileageService,
     private mileageRatesService: MileageRatesService,
     private transactionsOutboxService: TransactionsOutboxService,
@@ -467,7 +467,7 @@ export class AddEditMileagePage implements OnInit {
       concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
           map((activeCategories: OrgCategory[]) =>
-            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
+            this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)
           )
         )
       ),
@@ -1160,7 +1160,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId);
         } else {
           return of(null);
         }
@@ -1570,7 +1570,7 @@ export class AddEditMileagePage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
