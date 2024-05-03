@@ -1,5 +1,5 @@
 import { RecentlyUsed } from '../models/v1/recently_used.model';
-import { ProjectV2 } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { CostCenter } from '../models/v1/cost-center.model';
 

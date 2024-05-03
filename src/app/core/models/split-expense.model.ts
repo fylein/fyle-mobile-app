@@ -1,4 +1,4 @@
-import { ProjectV2 } from './v2/extended-project.model';
+import { ProjectV2 } from './v2/project-v2.model';
 
 export interface SplitExpense {
   amount: number;

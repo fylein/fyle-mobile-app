@@ -5,7 +5,7 @@ import { PlatformMileageRates } from './platform/platform-mileage-rates.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
-import { ProjectV2 } from './v2/extended-project.model';
+import { ProjectV2 } from './v2/project-v2.model';
 import { Report } from '../models/platform/v1/report.model';
 
 export interface MileageFormValue {

@@ -5,7 +5,7 @@ import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { ApiService } from './api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
-import { ProjectV2 } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';

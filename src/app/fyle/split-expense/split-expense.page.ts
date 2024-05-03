@@ -38,7 +38,7 @@ import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { ProjectV2 } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
