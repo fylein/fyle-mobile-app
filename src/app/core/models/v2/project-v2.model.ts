@@ -1,4 +1,4 @@
-export interface ExtendedProject {
+export interface ProjectV2 {
   ap1_email: string;
   ap1_full_name: string;
   ap2_email: string;

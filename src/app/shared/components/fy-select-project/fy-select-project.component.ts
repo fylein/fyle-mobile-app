@@ -3,7 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { noop } from 'rxjs';
 import { ModalController } from '@ionic/angular';
 import { FyProjectSelectModalComponent } from './fy-select-modal/fy-select-project-modal.component';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
 
@@ -42,11 +42,11 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
 
   displayValue: string;
 
-  innerValue: ExtendedProject;
+  innerValue: ProjectV2;
 
   onTouchedCallback: () => void = noop;
 
-  onChangeCallback: (value: ExtendedProject) => void = noop;
+  onChangeCallback: (value: ProjectV2) => void = noop;
 
   constructor(private modalController: ModalController, private modalProperties: ModalPropertiesService) {}
 
@@ -58,11 +58,11 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  get value(): ExtendedProject {
+  get value(): ProjectV2 {
     return this.innerValue;
   }
 
-  set value(v: ExtendedProject) {
+  set value(v: ProjectV2) {
     if (v !== this.innerValue) {
       this.innerValue = v;
       const selectedOption = this.innerValue;
@@ -109,7 +109,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     this.onTouchedCallback();
   }
 
-  writeValue(value: ExtendedProject): void {
+  writeValue(value: ProjectV2): void {
     if (value !== this.innerValue) {
       this.innerValue = value;
       const selectedOption = this.innerValue;
@@ -121,7 +121,7 @@ export class FySelectProjectComponent implements ControlValueAccessor, OnDestroy
     }
   }
 
-  registerOnChange(fn: (newValue: ExtendedProject) => void): void {
+  registerOnChange(fn: (newValue: ProjectV2) => void): void {
     this.onChangeCallback = fn;
   }
 

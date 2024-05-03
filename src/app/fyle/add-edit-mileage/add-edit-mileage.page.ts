@@ -63,7 +63,7 @@ import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.mode
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -222,11 +222,11 @@ export class AddEditMileagePage implements OnInit {
     recent_locations?: string[];
   }>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
   presetProjectId: number;
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
 
@@ -262,7 +262,7 @@ export class AddEditMileagePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject>;
+  selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
@@ -464,7 +464,7 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project: ExtendedProject) =>
+      concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
           map((activeCategories: OrgCategory[]) =>
             this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
@@ -968,7 +968,7 @@ export class AddEditMileagePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
@@ -1064,7 +1064,7 @@ export class AddEditMileagePage implements OnInit {
   setupSelectedProjects(): void {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
   }
 
   setupSelectedCostCenters(): void {
@@ -1140,7 +1140,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getProjects(): Observable<ExtendedProject | null> {
+  getProjects(): Observable<ProjectV2 | null> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
