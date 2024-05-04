@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { RecentLocalStorageItems } from '../models/recent-local-storage-items.model';
 
-export const recentLocalStorageItemsRes: RecentLocalStorageItems[] = [
+export const recentLocalStorageItemsRes: RecentLocalStorageItems[] = deepFreeze([
   {
     label: '12232',
     value: {
@@ -18,9 +20,9 @@ export const recentLocalStorageItemsRes: RecentLocalStorageItems[] = [
     selected: false,
     custom: false,
   },
-];
+]);
 
-export const recentItemsRes: RecentLocalStorageItems[] = [
+export const recentItemsRes: RecentLocalStorageItems[] = deepFreeze([
   {
     label: 'New New Mileage',
     value: {
@@ -55,9 +57,9 @@ export const recentItemsRes: RecentLocalStorageItems[] = [
     selected: false,
     custom: false,
   },
-];
+]);
 
-export const itemsRes: RecentLocalStorageItems = {
+export const itemsRes: RecentLocalStorageItems = deepFreeze({
   label: 'New New Mileage',
   value: {
     code: null,
@@ -73,11 +75,11 @@ export const itemsRes: RecentLocalStorageItems = {
   },
   selected: false,
   custom: false,
-};
+});
 
 export const propertyRes = 'label';
 
-export const postRecentItemsRes: RecentLocalStorageItems[] = [
+export const postRecentItemsRes: RecentLocalStorageItems[] = deepFreeze([
   {
     label: 'New New Mileage',
     value: {
@@ -129,4 +131,4 @@ export const postRecentItemsRes: RecentLocalStorageItems[] = [
     selected: false,
     custom: false,
   },
-];
+]);

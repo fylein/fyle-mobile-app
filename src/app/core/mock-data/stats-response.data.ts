@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Datum, StatsResponse } from '../models/v2/stats-response.model';
 // type StatsResponse = {
 //   data: {
@@ -317,7 +319,7 @@ export const txnStats = new StatsResponse({
   url: '/v2/expenses/stats',
 });
 
-export const transactionDatum1: Datum[] = [
+export const transactionDatum1: Datum[] = deepFreeze([
   {
     name: '',
     dimensions: [],
@@ -360,9 +362,9 @@ export const transactionDatum1: Datum[] = [
       },
     ],
   },
-];
+]);
 
-export const transactionDatum2: Datum[] = [
+export const transactionDatum2: Datum[] = deepFreeze([
   {
     name: '',
     dimensions: [],
@@ -396,9 +398,9 @@ export const transactionDatum2: Datum[] = [
       },
     ],
   },
-];
+]);
 
-export const transactionDatum3: Datum[] = [
+export const transactionDatum3: Datum[] = deepFreeze([
   {
     name: '',
     dimensions: [],
@@ -413,4 +415,4 @@ export const transactionDatum3: Datum[] = [
       },
     ],
   },
-];
+]);

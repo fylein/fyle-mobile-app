@@ -182,7 +182,8 @@ describe('NotificationsPage', () => {
   it('removeAdminUnsbscribedEvents(): should remove admin unsubscribe events', fakeAsync(() => {
     component.orgSettings$ = of(orgSettingsWithUnsubscribeEvent);
     component.orgSettings = orgSettingsWithUnsubscribeEvent;
-    component.notificationEvents = cloneDeep(notificationEventsData2);
+    const mockNotificationEvents = cloneDeep(notificationEventsData2);
+    component.notificationEvents = cloneDeep(mockNotificationEvents);
 
     component.removeAdminUnsbscribedEvents();
     tick(500);
@@ -191,17 +192,19 @@ describe('NotificationsPage', () => {
   }));
 
   it('updateAdvanceRequestFeatures(): should update advance request features', () => {
-    component.notificationEvents = notificationEventsData;
+    const mockNotificationEvents = cloneDeep(notificationEventsData);
+    component.notificationEvents = mockNotificationEvents;
     component.orgSettings$ = of(orgSettingsData);
 
     component.updateAdvanceRequestFeatures();
 
-    expect(Object.keys(notificationEventsData.features).includes('advances')).toBeFalse();
+    expect(Object.keys(mockNotificationEvents.features).includes('advances')).toBeFalse();
   });
 
   describe('updateDelegateeNotifyPreference():', () => {
     it('should set settings to notify delegatee', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify my delegate',
@@ -212,7 +215,8 @@ describe('NotificationsPage', () => {
     });
 
     it('should set settings to notify delegatee and user', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify me and my delegate',
@@ -223,7 +227,8 @@ describe('NotificationsPage', () => {
     });
 
     it('should set settings to notify user', () => {
-      component.orgUserSettings = orgUserSettingsData;
+      const mockOrgUserSettings = cloneDeep(orgUserSettingsData);
+      component.orgUserSettings = mockOrgUserSettings;
 
       component.updateDelegateeNotifyPreference({
         value: 'Notify me only',

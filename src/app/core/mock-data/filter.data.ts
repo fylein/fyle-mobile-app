@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 
@@ -16,7 +18,7 @@ type Filter = Partial<{
   transactionType: string;
 }>;
 
-export const filterData1: Filter = {
+export const filterData1: Filter = deepFreeze({
   createdOn: {
     name: 'custom',
     customDateStart: new Date('2023-02-20T00:00:00.000Z'),
@@ -28,9 +30,9 @@ export const filterData1: Filter = {
     customDateEnd: new Date('2023-02-24T00:00:00.000Z'),
   },
   transactionType: 'Debit',
-};
+});
 
-export const filterOptions1 = [
+export const filterOptions1 = deepFreeze([
   {
     name: 'Type',
     optionType: FilterOptionType.multiselect,
@@ -99,4 +101,4 @@ export const filterOptions1 = [
       },
     ],
   } as FilterOptions<string>,
-];
+]);

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { VirtualSelectOption } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-option.interface';
 
-export const virtualSelectOptionData: VirtualSelectOption = {
+export const virtualSelectOptionData: VirtualSelectOption = deepFreeze({
   label: 'Airlines',
   value: {
     code: null,
@@ -15,9 +17,9 @@ export const virtualSelectOptionData: VirtualSelectOption = {
     updated_at: '2023-07-20T09:58:39.922648+00:00',
   },
   selected: false,
-};
+});
 
-export const virtualSelectOptionData2: VirtualSelectOption = {
+export const virtualSelectOptionData2: VirtualSelectOption = deepFreeze({
   label: 'Mail',
   value: {
     code: null,
@@ -32,9 +34,9 @@ export const virtualSelectOptionData2: VirtualSelectOption = {
     updated_at: '2023-07-20T09:58:39.922648+00:00',
   },
   selected: false,
-};
+});
 
-export const virtualSelectOptionData3: VirtualSelectOption = {
+export const virtualSelectOptionData3: VirtualSelectOption = deepFreeze({
   label: 'Train',
   value: {
     code: null,
@@ -49,30 +51,33 @@ export const virtualSelectOptionData3: VirtualSelectOption = {
     updated_at: '2023-07-20T09:58:39.922648+00:00',
   },
   selected: false,
-};
+});
 
-export const virtualSelectOptionData4: VirtualSelectOption[] = [virtualSelectOptionData, virtualSelectOptionData2];
+export const virtualSelectOptionData4: VirtualSelectOption[] = deepFreeze([
+  virtualSelectOptionData,
+  virtualSelectOptionData2,
+]);
 
-export const virtualSelectOptionData5: VirtualSelectOption[] = [
+export const virtualSelectOptionData5: VirtualSelectOption[] = deepFreeze([
   { ...virtualSelectOptionData2 },
   virtualSelectOptionData3,
-];
+]);
 
-export const expectedVirtualSelectOptionData: VirtualSelectOption[] = [
+export const expectedVirtualSelectOptionData: VirtualSelectOption[] = deepFreeze([
   { label: 'None', value: null },
   virtualSelectOptionData2,
-];
+]);
 
-export const expectedSelectableOptionsData: VirtualSelectOption[] = [
+export const expectedSelectableOptionsData: VirtualSelectOption[] = deepFreeze([
   { ...virtualSelectOptionData2, isRecentlyUsed: true },
   { ...virtualSelectOptionData3, isRecentlyUsed: true },
   virtualSelectOptionData,
   virtualSelectOptionData2,
-];
+]);
 
-export const expectedFilteredOptionsData: VirtualSelectOption[] = [
+export const expectedFilteredOptionsData: VirtualSelectOption[] = deepFreeze([
   { label: 'None', value: null },
   virtualSelectOptionData,
   virtualSelectOptionData2,
   { label: 'Train', value: virtualSelectOptionData3, selected: true },
-];
+]);

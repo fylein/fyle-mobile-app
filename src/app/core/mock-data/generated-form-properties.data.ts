@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { GeneratedFormProperties } from '../models/generated-form-properties.model';
 import { dependentCustomProperties } from './custom-property.data';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 
-export const generatedFormPropertiesData1: GeneratedFormProperties = {
+export const generatedFormPropertiesData1: GeneratedFormProperties = deepFreeze({
   source_account_id: '1234',
   billable: true,
   currency: 'INR',
@@ -37,9 +39,9 @@ export const generatedFormPropertiesData1: GeneratedFormProperties = {
   distance: 100,
   distance_unit: 'KM',
   locations: [optionsData15.value, optionsData33.value],
-};
+});
 
-export const generatedFormPropertiesData2: GeneratedFormProperties = {
+export const generatedFormPropertiesData2: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   billable: undefined,
   currency: 'USD',
@@ -76,9 +78,9 @@ export const generatedFormPropertiesData2: GeneratedFormProperties = {
   distance: undefined,
   distance_unit: undefined,
   locations: [optionsData15.options[0].value, optionsData33.options[0].value],
-};
+});
 
-export const generatedFormPropertiesData3: GeneratedFormProperties = {
+export const generatedFormPropertiesData3: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   billable: undefined,
   currency: 'USD',
@@ -113,16 +115,16 @@ export const generatedFormPropertiesData3: GeneratedFormProperties = {
   distance: undefined,
   distance_unit: undefined,
   locations: [optionsData15.options[0].value, optionsData33.options[0].value],
-};
+});
 
-export const generatedFormPropertiesData4: GeneratedFormProperties = {
+export const generatedFormPropertiesData4: GeneratedFormProperties = deepFreeze({
   ...generatedFormPropertiesData3,
   source_account_id: undefined,
   currency: undefined,
   amount: undefined,
-};
+});
 
-export const generatedFormPropertiesData5: GeneratedFormProperties = {
+export const generatedFormPropertiesData5: GeneratedFormProperties = deepFreeze({
   source_account_id: 'accDDeaVIs6p6',
   billable: undefined,
   currency: 'USD',
@@ -148,4 +150,4 @@ export const generatedFormPropertiesData5: GeneratedFormProperties = {
   distance: undefined,
   distance_unit: undefined,
   locations: [optionsData15.options[0].value, optionsData33.options[0].value],
-};
+});

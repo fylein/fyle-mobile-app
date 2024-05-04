@@ -60,6 +60,10 @@ export class ViewCommentComponent implements OnInit {
     public platform: Platform
   ) {}
 
+  setContentScrollToBottom(): void {
+    this.content.scrollToBottom(500);
+  }
+
   addComment() {
     if (this.newComment) {
       const data = {
@@ -170,7 +174,7 @@ export class ViewCommentComponent implements OnInit {
           map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf())),
           finalize(() => {
             setTimeout(() => {
-              this.content.scrollToBottom(500);
+              this.setContentScrollToBottom();
             }, 500);
           })
         )
