@@ -13,6 +13,7 @@ import { virtualCardResponse, virtualCardUndefinedResponse } from '../mock-data/
 import { VirtualCardsCombinedRequest } from '../models/virtual-cards-combined-request.model';
 import { cardDetailsRes } from '../mock-data/platform-corporate-card-detail.data';
 import { virtualCardCombinedRequest } from '../mock-data/virtual-cards-combined-request.data';
+import { cloneDeep } from 'lodash';
 
 describe('VirtualCardsService', () => {
   let virtualCardsService: VirtualCardsService;
@@ -48,9 +49,9 @@ describe('VirtualCardsService', () => {
     const virtualCardsRequest: VirtualCardsRequest = {
       id: 'vc1234',
     };
-    const expectedResponse: { data: CardDetailsResponse } = virtualCardDetailsResponse;
+    const expectedResponse: { data: CardDetailsResponse } = cloneDeep(virtualCardDetailsResponse);
     expectedResponse.data.expiry_date = new Date(expectedResponse.data.expiry_date);
-    spenderPlatformV1ApiService.post.and.returnValue(of(virtualCardDetailsResponse));
+    spenderPlatformV1ApiService.post.and.returnValue(of(expectedResponse));
 
     virtualCardsService.getCardDetails(virtualCardsRequest).subscribe((res) => {
       expect(res).toEqual(expectedResponse.data);
@@ -108,7 +109,7 @@ describe('VirtualCardsService', () => {
       spenderPlatformV1ApiService.get.and.returnValue(of(virtualCardUndefinedResponse));
 
       virtualCardsService.getVirtualCard(virtualCardsRequest).subscribe((res) => {
-        expect(res).toEqual(undefined);
+        expect(res).toBeUndefined();
         done();
       });
     });
