@@ -4,7 +4,6 @@ module.exports.getGoogleCredentialsAndroid = (NATIVE_CONFIG) => `
 {
     "project_info": {
     "project_number": "${process.env.FYLE_MOBILE_PROJECT_NUMBER}",
-    "firebase_url": "${process.env.FYLE_MOBILE_FIREBASE_URL}",
     "project_id": "${process.env.FYLE_MOBILE_PROJECT_ID}",
     "storage_bucket": "${process.env.FYLE_MOBILE_STORAGE_BUCKET}"
     },
