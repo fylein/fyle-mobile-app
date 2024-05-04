@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ApiV2Response } from '../models/api-v2.model';
 import { PlatformCategory } from '../models/platform/platform-category.model';
 
-export const platformApiCategoryRes: ApiV2Response<PlatformCategory> = {
+export const platformApiCategoryRes: ApiV2Response<PlatformCategory> = deepFreeze({
   count: 318,
   data: [
     {
@@ -19,9 +21,9 @@ export const platformApiCategoryRes: ApiV2Response<PlatformCategory> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const platformApiAllCategories: ApiV2Response<PlatformCategory> = {
+export const platformApiAllCategories: ApiV2Response<PlatformCategory> = deepFreeze({
   count: 4,
   data: [
     {
@@ -78,9 +80,9 @@ export const platformApiAllCategories: ApiV2Response<PlatformCategory> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const platformApiCategoryById: ApiV2Response<PlatformCategory> = {
+export const platformApiCategoryById: ApiV2Response<PlatformCategory> = deepFreeze({
   count: 3,
   data: [
     {
@@ -124,9 +126,9 @@ export const platformApiCategoryById: ApiV2Response<PlatformCategory> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const platformApiCategoriesByName: ApiV2Response<PlatformCategory> = {
+export const platformApiCategoriesByName: ApiV2Response<PlatformCategory> = deepFreeze({
   count: 3,
   data: [
     {
@@ -170,4 +172,4 @@ export const platformApiCategoriesByName: ApiV2Response<PlatformCategory> = {
     },
   ],
   offset: 0,
-};
+});

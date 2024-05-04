@@ -1,4 +1,6 @@
-export const expenseRouteData = [
+import deepFreeze from 'deep-freeze-strict';
+
+export const expenseRouteData = deepFreeze([
   {
     category: 'Food',
     state: 'DRAFT',
@@ -33,4 +35,4 @@ export const expenseRouteData = [
     state: 'DRAFT',
     route: ['/', 'enterprise', 'add_edit_expense'],
   },
-];
+]);

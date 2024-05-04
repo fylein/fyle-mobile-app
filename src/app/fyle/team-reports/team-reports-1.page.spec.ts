@@ -104,7 +104,8 @@ export function TestCases1(getTestBed) {
         reportService.getTeamReports.and.returnValue(of(paginatedPipeValue));
         reportService.getTeamReportsCount.and.returnValue(of(20));
         mockAddNewFiltersToParams = spyOn(component, 'addNewFiltersToParams');
-        mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData);
+        const mockTasksQuery = cloneDeep(tasksQueryParamsWithFiltersData);
+        mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
       });

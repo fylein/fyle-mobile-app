@@ -1,4 +1,6 @@
-export const projects = [
+import deepFreeze from 'deep-freeze-strict';
+
+export const projects = deepFreeze([
   {
     ap1_email: null,
     ap1_full_name: null,
@@ -37,9 +39,9 @@ export const projects = [
     projectv2_name: 'Abercrombie International Group',
     sub_project_name: null,
   },
-];
+]);
 
-export const labelledProjects = [
+export const labelledProjects = deepFreeze([
   {
     label: 'project1',
     value: {
@@ -84,9 +86,9 @@ export const labelledProjects = [
       sub_project_name: null,
     },
   },
-];
+]);
 
-export const expectedLabelledProjects = [
+export const expectedLabelledProjects = deepFreeze([
   {
     label: 'project1',
     value: {
@@ -131,9 +133,9 @@ export const expectedLabelledProjects = [
       sub_project_name: null,
     },
   },
-];
+]);
 
-export const singleProjects1 = {
+export const singleProjects1 = deepFreeze({
   ap1_email: 'john.d@fyle.in',
   ap1_full_name: 'John Doe',
   ap2_email: 'james.d@fyle.in',
@@ -151,9 +153,9 @@ export const singleProjects1 = {
   project_updated_at: new Date('2023-02-22T04:58:55.727Z'),
   projectv2_name: 'Abercrombie International Group',
   sub_project_name: null,
-};
+});
 
-export const singleProject2 = {
+export const singleProject2 = deepFreeze({
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,
@@ -171,9 +173,9 @@ export const singleProject2 = {
   project_updated_at: new Date('2021-07-08T10:28:27.686886'),
   projectv2_name: 'Customer Mapped Project',
   sub_project_name: null,
-};
+});
 
-export const expectedProjects = [
+export const expectedProjects = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -222,9 +224,9 @@ export const expectedProjects = [
       sub_project_name: null,
     },
   },
-];
+]);
 
-export const expectedProjects2 = [
+export const expectedProjects2 = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -297,9 +299,9 @@ export const expectedProjects2 = [
       sub_project_name: null,
     },
   },
-];
+]);
 
-export const expectedProjects3 = [
+export const expectedProjects3 = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -349,9 +351,9 @@ export const expectedProjects3 = [
       sub_project_name: null,
     },
   },
-];
+]);
 
-export const expectedProjects4 = [
+export const expectedProjects4 = deepFreeze([
   {
     label: 'project1',
     value: {
@@ -374,4 +376,4 @@ export const expectedProjects4 = [
       sub_project_name: null,
     },
   },
-];
+]);

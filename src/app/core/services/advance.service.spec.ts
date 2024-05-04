@@ -9,6 +9,7 @@ import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
 import { SpenderService } from './platform/v1/spender/spender.service';
 import { advancePlatform } from '../mock-data/advance-platform.data';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceService', () => {
   let advanceService: AdvanceService;
@@ -59,8 +60,9 @@ describe('AdvanceService', () => {
   });
 
   it('fixDates(): should convert string values to dates', () => {
+    const mockExtendedAdvData = cloneDeep(extendedAdvWithoutDates);
     //@ts-ignore
-    expect(advanceService.fixDates(extendedAdvWithoutDates)).toEqual(extendedAdvWithDates);
+    expect(advanceService.fixDates(mockExtendedAdvData)).toEqual(extendedAdvWithDates);
   });
 
   describe('getSpenderAdvances():', () => {

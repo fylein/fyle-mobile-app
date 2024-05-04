@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PerDiemRates } from '../models/v1/per-diem-rates.model';
 
-export const perDiemRatesData1: PerDiemRates = {
+export const perDiemRatesData1: PerDiemRates = deepFreeze({
   active: true,
   created_at: new Date('2023-08-21'),
   currency: 'USD',
@@ -11,12 +13,12 @@ export const perDiemRatesData1: PerDiemRates = {
   rate: 30,
   readableRate: '$30.00 per day',
   updated_at: new Date('2023-08-21'),
-};
+});
 
-export const perDiemRatesData2: PerDiemRates = {
+export const perDiemRatesData2: PerDiemRates = deepFreeze({
   ...perDiemRatesData1,
   currency: 'INR',
   full_name: 'Rate 1 (300 INR per day)',
   rate: 300,
   readableRate: '₹300.00 per day',
-};
+});

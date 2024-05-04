@@ -1,4 +1,6 @@
 /* eslint-disable id-blacklist */
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccountType } from '../enums/account-type.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { unflattenedTxn } from '../mock-data/unflattened-expense.data';
@@ -7,7 +9,7 @@ import { ExtendedAccount } from '../models/extended-account.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
-export const account1Data = {
+export const account1Data = deepFreeze({
   acc_id: 'accfziaxbGFVW',
   acc_created_at: new Date('2018-10-08T07:04:42.753Z'),
   acc_updated_at: new Date('2022-04-27T08:57:52.221Z'),
@@ -31,9 +33,9 @@ export const account1Data = {
   orig_amount: null,
   amount: null,
   advance_id: null,
-};
+});
 
-export const unflattenedAccount1Data = {
+export const unflattenedAccount1Data = deepFreeze({
   acc: {
     id: 'accfziaxbGFVW',
     created_at: new Date('2018-10-08T07:04:42.753Z'),
@@ -60,9 +62,9 @@ export const unflattenedAccount1Data = {
   orig: { currency: null, amount: null },
   currency: null,
   amount: null,
-};
+});
 
-export const account2Data = {
+export const account2Data = deepFreeze({
   acc_id: 'acct0IxPgGvLa',
   acc_created_at: new Date('2018-11-05T18:35:59.912Z'),
   acc_updated_at: new Date('2021-09-29T19:35:23.965Z'),
@@ -86,9 +88,9 @@ export const account2Data = {
   orig_amount: null,
   amount: 800000,
   advance_id: 'advT96eCXZtCo',
-};
+});
 
-export const unflattenedAccount2Data = {
+export const unflattenedAccount2Data = deepFreeze({
   acc: {
     id: 'acc6mK6CEesGL',
     created_at: new Date('2018-11-15T06:25:00.402Z'),
@@ -126,9 +128,9 @@ export const unflattenedAccount2Data = {
   },
   currency: 'USD',
   amount: 23213,
-};
+});
 
-export const unflattenedAccount3Data = {
+export const unflattenedAccount3Data = deepFreeze({
   acc: {
     id: 'acct0IxPgGvLa',
     created_at: new Date('2018-11-05T18:35:59.912Z'),
@@ -148,9 +150,9 @@ export const unflattenedAccount3Data = {
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
-};
+});
 
-export const unflattenedAccount4Data = {
+export const unflattenedAccount4Data = deepFreeze({
   acc: {
     id: 'acct0IxPgGvLa',
     created_at: new Date('2018-11-05T18:35:59.912Z'),
@@ -170,9 +172,9 @@ export const unflattenedAccount4Data = {
   orig: null,
   currency: 'USD',
   amount: 800000,
-};
+});
 
-export const unflattenedTransactionPersonal: UnflattenedTransaction = {
+export const unflattenedTransactionPersonal: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -339,9 +341,9 @@ export const unflattenedTransactionPersonal: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const paymentModeDataPersonal = {
+export const paymentModeDataPersonal = deepFreeze({
   acc: {
     id: 'accZ1IWjhjLyu4',
     created_at: new Date('2019-01-11T16:41:56.485Z'),
@@ -379,9 +381,9 @@ export const paymentModeDataPersonal = {
   },
   currency: null,
   amount: null,
-};
+});
 
-export const paymentModeDataPersonal2 = {
+export const paymentModeDataPersonal2 = deepFreeze({
   acc: {
     id: 'accZ1IWjhjLyu4',
     created_at: new Date('2019-01-11T16:41:56.485Z'),
@@ -419,9 +421,9 @@ export const paymentModeDataPersonal2 = {
   },
   currency: null,
   amount: null,
-};
+});
 
-export const unflattenedTransactionCCC: UnflattenedTransaction = {
+export const unflattenedTransactionCCC: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -588,9 +590,9 @@ export const unflattenedTransactionCCC: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const paymentModeDataCCC = {
+export const paymentModeDataCCC = deepFreeze({
   acc: {
     id: 'accZ1IWjhjLv4',
     created_at: new Date('2019-01-11T16:41:56.485Z'),
@@ -628,9 +630,9 @@ export const paymentModeDataCCC = {
   },
   currency: null,
   amount: null,
-};
+});
 
-export const paymentModesData = [
+export const paymentModesData = deepFreeze([
   {
     label: 'Personal Card/Cash',
     value: {
@@ -757,9 +759,9 @@ export const paymentModesData = [
       amount: null,
     },
   },
-];
+]);
 
-export const unflattenedTxnWithoutSourceAccountIdData = {
+export const unflattenedTxnWithoutSourceAccountIdData = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -927,9 +929,9 @@ export const unflattenedTxnWithoutSourceAccountIdData = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const paymentModeDataCCCWithoutAccountProperty = {
+export const paymentModeDataCCCWithoutAccountProperty = deepFreeze({
   acc: {
     id: 'accZ1IWjhjLv4',
     created_at: new Date('2019-01-11T16:41:56.485Z'),
@@ -965,9 +967,9 @@ export const paymentModeDataCCCWithoutAccountProperty = {
   },
   currency: null,
   amount: null,
-};
+});
 
-export const paymentModeDataAdvance = {
+export const paymentModeDataAdvance = deepFreeze({
   acc: {
     id: 'acc6mK6CEesGL',
     created_at: new Date('2018-11-15T06:25:00.402Z'),
@@ -1005,9 +1007,9 @@ export const paymentModeDataAdvance = {
   },
   currency: 'USD',
   amount: 23213,
-};
+});
 
-export const paymentModeDataMultipleAdvance = {
+export const paymentModeDataMultipleAdvance = deepFreeze({
   acc: {
     id: 'acct0IxPgGvLa',
     created_at: new Date('2018-11-05T18:35:59.912Z'),
@@ -1029,9 +1031,9 @@ export const paymentModeDataMultipleAdvance = {
   orig: { currency: 'USD', amount: 500 },
   currency: 'USD',
   amount: 800000,
-};
+});
 
-export const paymentModeDataMultipleAdvWithoutOrigAmt = {
+export const paymentModeDataMultipleAdvWithoutOrigAmt = deepFreeze({
   acc: {
     id: 'acct0IxPgGvLa',
     created_at: new Date('2018-11-05T18:35:59.912Z'),
@@ -1053,9 +1055,9 @@ export const paymentModeDataMultipleAdvWithoutOrigAmt = {
   orig: null,
   currency: 'USD',
   amount: 800000,
-};
+});
 
-export const multiplePaymentModesData: ExtendedAccount[] = [
+export const multiplePaymentModesData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1167,9 +1169,9 @@ export const multiplePaymentModesData: ExtendedAccount[] = [
     currency: 'USD',
     amount: 23213,
   },
-];
+]);
 
-export const multiplePaymentModesWithoutAdvData: ExtendedAccount[] = [
+export const multiplePaymentModesWithoutAdvData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1244,9 +1246,9 @@ export const multiplePaymentModesWithoutAdvData: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);
 
-export const multiplePaymentModesWithoutPersonalAccData: ExtendedAccount[] = [
+export const multiplePaymentModesWithoutPersonalAccData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1321,9 +1323,9 @@ export const multiplePaymentModesWithoutPersonalAccData: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);
 
-export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = [
+export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accYoo40xd0C1',
@@ -1441,9 +1443,9 @@ export const multiplePaymentModesWithCompanyAccData: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);
 
-export const multiplePaymentModesWithoutCCCAccData: ExtendedAccount[] = [
+export const multiplePaymentModesWithoutCCCAccData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1522,9 +1524,9 @@ export const multiplePaymentModesWithoutCCCAccData: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);
 
-export const multiplePaymentModesIncPersonalAccData: ExtendedAccount[] = [
+export const multiplePaymentModesIncPersonalAccData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1603,9 +1605,9 @@ export const multiplePaymentModesIncPersonalAccData: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);
 
-export const multipleAdvAccountsData: ExtendedAccount[] = [
+export const multipleAdvAccountsData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -1684,9 +1686,9 @@ export const multipleAdvAccountsData: ExtendedAccount[] = [
     currency: 'USD',
     amount: 23213,
   },
-];
+]);
 
-export const etxnObjData = {
+export const etxnObjData = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1701,9 +1703,9 @@ export const etxnObjData = {
     org_user_id: 'ouvyOFOSx5bh',
   },
   dataUrls: [],
-};
+});
 
-export const etxnObjWithSourceData = {
+export const etxnObjWithSourceData = deepFreeze({
   tx: {
     skip_reimbursement: true,
     source: 'MOBILE',
@@ -1722,9 +1724,9 @@ export const etxnObjWithSourceData = {
     account_type: AccountType.PERSONAL,
     account_id: 'accZ1IWjhjLv4',
   },
-};
+});
 
-export const etxnObjWithAdvSourceData = {
+export const etxnObjWithAdvSourceData = deepFreeze({
   tx: {
     skip_reimbursement: true,
     source: 'MOBILE',
@@ -1743,9 +1745,9 @@ export const etxnObjWithAdvSourceData = {
     account_type: AccountType.ADVANCE,
     account_id: 'accYoo40xd0C1',
   },
-};
+});
 
-export const orgSettingsData: OrgSettings = {
+export const orgSettingsData: OrgSettings = deepFreeze({
   org_id: 'orrb8EW1zZsy',
   mileage: {
     allowed: true,
@@ -2139,9 +2141,9 @@ export const orgSettingsData: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});
 
-export const orgSettingsAdvDisabledData: OrgSettings = {
+export const orgSettingsAdvDisabledData: OrgSettings = deepFreeze({
   org_id: 'orrb8EW1zZsy',
   mileage: {
     allowed: true,
@@ -2535,9 +2537,9 @@ export const orgSettingsAdvDisabledData: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});
 
-export const paymentModesResData = [
+export const paymentModesResData = deepFreeze([
   {
     label: 'Corporate Card',
     value: {
@@ -2706,9 +2708,9 @@ export const paymentModesResData = [
       amount: 23213,
     },
   },
-];
+]);
 
-export const paymentModesAccountsData = [
+export const paymentModesAccountsData = deepFreeze([
   {
     acc: {
       id: 'accWUsrRlinFb',
@@ -2820,9 +2822,9 @@ export const paymentModesAccountsData = [
     currency: 'USD',
     amount: 23213,
   },
-];
+]);
 
-export const accountsData: ExtendedAccount[] = [
+export const accountsData: ExtendedAccount[] = deepFreeze([
   {
     acc: {
       id: 'acc5APeygFjRd',
@@ -2934,26 +2936,26 @@ export const accountsData: ExtendedAccount[] = [
     currency: 'INR',
     amount: 499,
   },
-];
+]);
 
-export const orgSettingsDataWithoutAdvPro = {
+export const orgSettingsDataWithoutAdvPro = deepFreeze({
   ...orgSettingsData,
   advanced_projects: {
     allowed: true,
     enabled: true,
     enable_individual_projects: true,
   },
-};
+});
 
-export const orgSettingsWithoutAutofill: OrgSettings = {
+export const orgSettingsWithoutAutofill: OrgSettings = deepFreeze({
   ...orgSettingsData,
   org_expense_form_autofills: {
     allowed: false,
     enabled: false,
   },
-};
+});
 
-export const paymentModesConfig = {
+export const paymentModesConfig = deepFreeze({
   etxn: unflattenedTxn,
   orgSettings: {
     ...orgSettingsData,
@@ -2965,4 +2967,4 @@ export const paymentModesConfig = {
   },
   expenseType: ExpenseType.MILEAGE,
   isPaymentModeConfigurationsEnabled: true,
-};
+});

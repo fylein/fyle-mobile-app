@@ -257,7 +257,8 @@ export function TestCases5(getTestBed) {
       spyOn(component, 'getProjects').and.returnValue(of(expectedProjectsResponse[0]));
       spyOn(component, 'getReports').and.returnValue(of(expectedReportsPaginated[0]));
       spyOn(component, 'getSelectedCostCenters').and.returnValue(of(costCentersData[0]));
-      spyOn(component, 'getMileageByVehicleType').and.returnValue(unfilteredMileageRatesData[0]);
+      const mockMileageRates = cloneDeep(unfilteredMileageRatesData[0]);
+      spyOn(component, 'getMileageByVehicleType').and.returnValue(mockMileageRates);
     }
 
     function setupMocks() {
@@ -768,7 +769,8 @@ export function TestCases5(getTestBed) {
         const mockOrgSettings = cloneDeep(orgSettingsRes);
         mockOrgSettings.commute_deduction_settings = { allowed: true, enabled: true };
         orgSettingsService.get.and.returnValue(of(mockOrgSettings));
-        employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
+        const mockCommuteDetailsResponse = cloneDeep(commuteDetailsResponseData);
+        employeesService.getCommuteDetails.and.returnValue(of(mockCommuteDetailsResponse));
         mileageService.getCommuteDeductionOptions.and.returnValue(commuteDeductionOptionsData1);
         mileageService.isCommuteDeductionEnabled.and.returnValue(true);
         spyOn(component, 'updateDistanceOnDeductionChange');

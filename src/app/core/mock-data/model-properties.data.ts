@@ -1,4 +1,6 @@
-export const fyModalProperties = {
+import deepFreeze from 'deep-freeze-strict';
+
+export const fyModalProperties = deepFreeze({
   cssClass: 'fy-modal',
   showBackdrop: true,
   canDismiss: true,
@@ -7,9 +9,9 @@ export const fyModalProperties = {
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-};
+});
 
-export const shareReportModalProperties = {
+export const shareReportModalProperties = deepFreeze({
   cssClass: 'share-report-modal',
   showBackdrop: true,
   canDismiss: true,
@@ -18,4 +20,4 @@ export const shareReportModalProperties = {
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-};
+});
