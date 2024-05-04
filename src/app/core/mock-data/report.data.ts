@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedReport } from '../models/report.model';
 
-export const apiExtendedReportRes: ExtendedReport[] = [
+export const apiExtendedReportRes: ExtendedReport[] = deepFreeze([
   {
     rp_id: 'rprAfNrce73O',
     rp_org_user_id: 'ouX8dwsbLCLv',
@@ -209,9 +211,9 @@ export const apiExtendedReportRes: ExtendedReport[] = [
     rp_risk_state_expense_count: null,
     rp_risk_state: null,
   },
-];
+]);
 
-export const expectedAllReports: ExtendedReport[] = [
+export const expectedAllReports: ExtendedReport[] = deepFreeze([
   {
     _search_document:
       "'0':5 '2023':3 '4':1 'a':8 'abhishek':10 'ajain@fyle.in':12 'bangalore':9 'c/2023/02/r/5':6 'feb':2 'inr':4 'jain':11 'lion':7",
@@ -318,9 +320,9 @@ export const expectedAllReports: ExtendedReport[] = [
     us_email: 'ajain@fyle.in',
     us_full_name: 'Abhishek Jain',
   },
-];
+]);
 
-export const expectedPaginatedReports: ExtendedReport[] = [
+export const expectedPaginatedReports: ExtendedReport[] = deepFreeze([
   {
     _search_document:
       "'0':5 '2023':3 '4':1 'a':8 'abhishek':10 'ajain@fyle.in':12 'bangalore':9 'c/2023/02/r/5':6 'feb':2 'inr':4 'jain':11 'lion':7",
@@ -481,9 +483,9 @@ export const expectedPaginatedReports: ExtendedReport[] = [
     us_email: 'ajain@fyle.in',
     us_full_name: 'Abhishek Jain',
   },
-];
+]);
 
-export const reportParam: ExtendedReport = {
+export const reportParam: ExtendedReport = deepFreeze({
   _search_document:
     "'46040':4 'a':8,14,20,26 'abhishek':32 'ajain@fyle.in':34 'business':11,17,23,29 'c/2022/10/r/37':5 'director':6 'indeed':13,19,25,31 'inr':3 'jain':33 'long':10,16,22,28 'mumbai':7 'report':2 'testing':1 'unit':12,18,24,30 'very':9,15,21,27",
   approved_by: null,
@@ -533,9 +535,9 @@ export const reportParam: ExtendedReport = {
   sequential_approval_turn: false,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});
 
-export const expectedReportSingleResponse: ExtendedReport = {
+export const expectedReportSingleResponse: ExtendedReport = deepFreeze({
   _search_document:
     "'145':5 'a':8 'abhishek':10 'ajain@fyle.in':12 'bangalore':9 'c/2023/01/r/31':6 'columns':3 'inr':4 'jain':11 'lion':7 'manage':2 'test':1",
   approved_by: ['out3t2X258rd'],
@@ -592,9 +594,9 @@ export const expectedReportSingleResponse: ExtendedReport = {
   sequential_approval_turn: false,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});
 
-export const apiErptcReportsRes: ExtendedReport[] = [
+export const apiErptcReportsRes: ExtendedReport[] = deepFreeze([
   {
     rp_id: 'rpfClhA1lglE',
     rp_org_user_id: 'ouCI4UQ2G0K1',
@@ -799,9 +801,9 @@ export const apiErptcReportsRes: ExtendedReport[] = [
     rp_risk_state_expense_count: null,
     rp_risk_state: null,
   },
-];
+]);
 
-export const newReportParam = {
+export const newReportParam = deepFreeze({
   _search_document:
     "'46040':4 'a':8,14,20,26 'abhishek':32 'ajain@fyle.in':34 'business':11,17,23,29 'c/2022/10/r/37':5 'director':6 'indeed':13,19,25,31 'inr':3 'jain':33 'long':10,16,22,28 'mumbai':7 'report':2 'testing':1 'unit':12,18,24,30 'very':9,15,21,27",
   approved_by: null,
@@ -851,9 +853,9 @@ export const newReportParam = {
   sequential_approval_turn: false,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});
 
-export const reportData1: ExtendedReport = {
+export const reportData1: ExtendedReport = deepFreeze({
   _search_document:
     "'0':7 '2023':3 '3':1 'a':11,17,23,29 'abhishek':35 'ajain@fyle.in':37 'business':14,20,26,32 'c/2023/07/r/17':8 'director':9 'expense':5 'indeed':16,22,28,34 'inr':6 'jain':36 'jul':2 'long':13,19,25,31 'mumbai':10 'office':4 'unit':15,21,27,33 'very':12,18,24,30",
   approved_by: null,
@@ -906,4 +908,4 @@ export const reportData1: ExtendedReport = {
   sequential_approval_turn: false,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});

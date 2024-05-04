@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { File } from '../models/file.model';
 
-export const fileData1: File[] = [
+export const fileData1: File[] = deepFreeze([
   {
     id: 'fi1w2IE6JeqS',
     org_user_id: 'ouX8dwsbLCLv',
@@ -16,9 +18,9 @@ export const fileData1: File[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fi1w2IE6JeqS/download',
   },
-];
+]);
 
-export const fileData2: File[] = [
+export const fileData2: File[] = deepFreeze([
   {
     id: 'fiK7c69UDJNb',
     org_user_id: 'ouX8dwsbLCLv',
@@ -34,9 +36,9 @@ export const fileData2: File[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiK7c69UDJNb/download',
   },
-];
+]);
 
-export const fileData3: File[] = [
+export const fileData3: File[] = deepFreeze([
   {
     id: 'fiV1gXpyCcbU',
     org_user_id: 'ouX8dwsbLCLv',
@@ -52,4 +54,4 @@ export const fileData3: File[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
   },
-];
+]);

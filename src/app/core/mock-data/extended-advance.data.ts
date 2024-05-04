@@ -1,10 +1,12 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedAdvance } from '../models/extended_advance.model';
 import { ApiV2Response } from '../models/api-v2.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { AdvancesPlatform } from '../models/platform/advances-platform.model';
 import { CustomFieldTypes } from '../enums/platform/v1/custom-fields-type.enum';
 
-export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
+export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = deepFreeze({
   count: 1,
   data: [
     {
@@ -38,21 +40,21 @@ export const singleExtendedAdvancesData: ApiV2Response<ExtendedAdvance> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const extendedAdvWithDates = {
+export const extendedAdvWithDates = deepFreeze({
   ...singleExtendedAdvancesData,
   adv_created_at: new Date('2019-10-31T04:36:01.927Z'),
   adv_issued_at: new Date('2019-10-31T04:35:10.391Z'),
-};
+});
 
-export const extendedAdvWithoutDates = {
+export const extendedAdvWithoutDates = deepFreeze({
   ...singleExtendedAdvancesData,
   adv_created_at: '2019-10-31T04:36:01.927Z',
   adv_issued_at: '2019-10-31T04:35:10.391Z',
-};
+});
 
-export const singleExtendedAdvancesData2: ApiV2Response<ExtendedAdvance> = {
+export const singleExtendedAdvancesData2: ApiV2Response<ExtendedAdvance> = deepFreeze({
   count: 11,
   data: [
     {
@@ -87,9 +89,9 @@ export const singleExtendedAdvancesData2: ApiV2Response<ExtendedAdvance> = {
   limit: 1,
   offset: 0,
   url: '/v2/advances',
-};
+});
 
-export const singleExtendedAdvancesData3: ExtendedAdvance = {
+export const singleExtendedAdvancesData3: ExtendedAdvance = deepFreeze({
   ...singleExtendedAdvancesData.data[0],
   type: 'advance',
   amount: 5044,
@@ -98,9 +100,9 @@ export const singleExtendedAdvancesData3: ExtendedAdvance = {
   currency: 'INR',
   orig_currency: null,
   purpose: 'testing',
-};
+});
 
-export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = {
+export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = deepFreeze({
   count: 11,
   offset: 200,
   data: [
@@ -174,4 +176,4 @@ export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = {
       user_id: 'usvKA4X8Ugcr',
     },
   ],
-};
+});

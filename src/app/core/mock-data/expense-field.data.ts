@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformExpenseField } from '../models/platform/platform-expense-field.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 
-export const expenseFieldResponse: ExpenseField[] = [
+export const expenseFieldResponse: ExpenseField[] = deepFreeze([
   {
     id: 2,
     created_at: new Date('2018-01-31T23:50:27.221Z'),
@@ -152,9 +154,9 @@ export const expenseFieldResponse: ExpenseField[] = [
     code: null,
     roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
   },
-];
+]);
 
-export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField> = {
+export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField> = deepFreeze({
   count: 5,
   data: [
     {
@@ -254,9 +256,9 @@ export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseFi
     },
   ],
   offset: 0,
-};
+});
 
-export const transformedResponse: ExpenseField[] = [
+export const transformedResponse: ExpenseField[] = deepFreeze([
   {
     id: 214657,
     code: null,
@@ -352,9 +354,9 @@ export const transformedResponse: ExpenseField[] = [
     updated_at: new Date('2023-02-01T09:49:21.584869+00:00'),
     parent_field_id: null,
   },
-];
+]);
 
-export const expenseFieldWithBillable: ExpenseField[] = [
+export const expenseFieldWithBillable: ExpenseField[] = deepFreeze([
   {
     id: 188990,
     created_at: new Date('2021-07-29T11:05:38.811Z'),
@@ -412,9 +414,9 @@ export const expenseFieldWithBillable: ExpenseField[] = [
     ],
     field: 'billable',
   },
-];
+]);
 
-export const expenseFieldWithSeq: ExpenseField[] = [
+export const expenseFieldWithSeq: ExpenseField[] = deepFreeze([
   {
     id: 2,
     created_at: new Date('2018-01-31T23:50:27.221Z'),
@@ -609,9 +611,9 @@ export const expenseFieldWithSeq: ExpenseField[] = [
     code: null,
     roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
   },
-];
+]);
 
-export const customExpensefields: ExpenseField[] = [
+export const customExpensefields: ExpenseField[] = deepFreeze([
   {
     id: 200227,
     code: null,
@@ -764,9 +766,9 @@ export const customExpensefields: ExpenseField[] = [
     updated_at: new Date('2023-02-05T09:48:18.482566+00:00'),
     parent_field_id: null,
   },
-];
+]);
 
-export const transformedResponse2 = [
+export const transformedResponse2 = deepFreeze([
   {
     id: 214657,
     code: null,
@@ -805,9 +807,9 @@ export const transformedResponse2 = [
     updated_at: new Date('2023-02-02T13:44:00.708837+00:00'),
     parent_field_id: 112312,
   },
-];
+]);
 
-export const projectNameNullField = [
+export const projectNameNullField = deepFreeze([
   {
     id: 214657,
     code: null,
@@ -827,9 +829,9 @@ export const projectNameNullField = [
     updated_at: new Date('2023-02-01T09:49:21.584869+00:00'),
     parent_field_id: 12345,
   },
-];
+]);
 
-export const dependentCustomFields: ExpenseField[] = [
+export const dependentCustomFields: ExpenseField[] = deepFreeze([
   {
     id: 219199,
     code: null,
@@ -887,9 +889,9 @@ export const dependentCustomFields: ExpenseField[] = [
     updated_at: new Date('2023-03-01T13:12:32.545615+00:00'),
     parent_field_id: 219174,
   },
-];
+]);
 
-export const dependentCustomFields2: ExpenseField[] = [
+export const dependentCustomFields2: ExpenseField[] = deepFreeze([
   {
     id: 219527,
     code: null,
@@ -928,9 +930,9 @@ export const dependentCustomFields2: ExpenseField[] = [
     updated_at: new Date('2023-02-23T10:45:08.313777+00:00'),
     parent_field_id: 219175,
   },
-];
+]);
 
-export const mileageDependentFields: ExpenseField[] = [
+export const mileageDependentFields: ExpenseField[] = deepFreeze([
   {
     id: 214657,
     code: null,
@@ -1026,9 +1028,9 @@ export const mileageDependentFields: ExpenseField[] = [
     updated_at: new Date('2023-02-01T09:49:21.584Z'),
     parent_field_id: null,
   },
-];
+]);
 
-export const costCenterExpenseField: ExpenseField = {
+export const costCenterExpenseField: ExpenseField = deepFreeze({
   id: 214661,
   code: null,
   column_name: 'cost_center_id',
@@ -1046,4 +1048,4 @@ export const costCenterExpenseField: ExpenseField = {
   type: 'SELECT',
   updated_at: new Date('2023-02-01T09:49:21.584Z'),
   parent_field_id: null,
-};
+});

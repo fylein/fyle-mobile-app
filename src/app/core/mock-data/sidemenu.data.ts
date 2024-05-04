@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { SidemenuItem } from '../models/sidemenu-item.model';
 
-export const sidemenuData1 = [
+export const sidemenuData1 = deepFreeze([
   {
     title: 'Dashboard',
     isVisible: true,
@@ -19,9 +21,9 @@ export const sidemenuData1 = [
     icon: 'gear',
     route: ['/', 'enterprise', 'my_profile'],
   },
-];
+]);
 
-export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
+export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = deepFreeze([
   {
     title: 'Dashboard',
     isVisible: true,
@@ -55,17 +57,17 @@ export const PrimaryOptionsRes1: Partial<SidemenuItem>[] = [
     route: ['/', 'enterprise', 'my_advances'],
     disabled: false,
   },
-];
+]);
 
-export const UpdatedOptionsRes: Partial<SidemenuItem> = {
+export const UpdatedOptionsRes: Partial<SidemenuItem> = deepFreeze({
   title: 'Personal Cards',
   isVisible: true,
   route: ['/', 'enterprise', 'personal_cards'],
   icon: 'card',
   disabled: false,
-};
+});
 
-export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
+export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = deepFreeze([
   {
     title: 'Team',
     isVisible: true,
@@ -85,9 +87,9 @@ export const PrimaryOptionsRes2: Partial<SidemenuItem>[] = [
       },
     ],
   },
-];
+]);
 
-export const getPrimarySidemenuOptionsRes1 = [
+export const getPrimarySidemenuOptionsRes1 = deepFreeze([
   {
     title: 'Dashboard',
     isVisible: true,
@@ -122,9 +124,9 @@ export const getPrimarySidemenuOptionsRes1 = [
     icon: 'user-three',
     disabled: false,
   },
-];
+]);
 
-export const getSecondarySidemenuOptionsRes1 = [
+export const getSecondarySidemenuOptionsRes1 = deepFreeze([
   {
     title: 'Delegated Accounts',
     isVisible: true,
@@ -152,9 +154,9 @@ export const getSecondarySidemenuOptionsRes1 = [
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },
-];
+]);
 
-export const setSideMenuRes: Partial<SidemenuItem>[] = [
+export const setSideMenuRes: Partial<SidemenuItem>[] = deepFreeze([
   {
     title: 'Dashboard',
     isVisible: true,
@@ -215,4 +217,4 @@ export const setSideMenuRes: Partial<SidemenuItem>[] = [
     route: ['/', 'enterprise', 'help'],
     disabled: false,
   },
-];
+]);

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FilteredSplitPolicyViolations } from '../models/filtered-split-policy-violations.model';
 
-export const filteredSplitPolicyViolationsData: FilteredSplitPolicyViolations = {
+export const filteredSplitPolicyViolationsData: FilteredSplitPolicyViolations = deepFreeze({
   rules: ['rule1', 'rule2', 'rule3'],
   action: {
     final_desired_state: {
@@ -20,9 +22,9 @@ export const filteredSplitPolicyViolationsData: FilteredSplitPolicyViolations = 
   amount: 45,
   isCriticalPolicyViolation: false,
   isExpanded: false,
-};
+});
 
-export const filteredSplitPolicyViolationsData2: FilteredSplitPolicyViolations = {
+export const filteredSplitPolicyViolationsData2: FilteredSplitPolicyViolations = deepFreeze({
   action: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -63,4 +65,4 @@ export const filteredSplitPolicyViolationsData2: FilteredSplitPolicyViolations =
   currency: 'INR',
   amount: 240000,
   isCriticalPolicyViolation: true,
-};
+});

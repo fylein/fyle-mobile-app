@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpenseFieldsMap } from '../models/v1/expense-fields-map.model';
 import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
 
-export const txnFieldsData: Partial<ExpenseFieldsObj> = {
+export const txnFieldsData: Partial<ExpenseFieldsObj> = deepFreeze({
   purpose: {
     id: 22,
     created_at: new Date(new Date('2018-01-31T23:50:27.221Z')),
@@ -218,9 +220,9 @@ export const txnFieldsData: Partial<ExpenseFieldsObj> = {
     ],
     field: 'org_category_id',
   },
-};
+});
 
-export const txnFieldsData2: Partial<ExpenseFieldsObj> = {
+export const txnFieldsData2: Partial<ExpenseFieldsObj> = deepFreeze({
   ...txnFieldsData,
   vendor_id: {
     code: '1234',
@@ -393,9 +395,9 @@ export const txnFieldsData2: Partial<ExpenseFieldsObj> = {
     code: null,
     roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
   },
-};
+});
 
-export const txnFieldsData3: Partial<ExpenseFieldsObj> = {
+export const txnFieldsData3: Partial<ExpenseFieldsObj> = deepFreeze({
   ...txnFieldsData2,
   cost_center_id: {
     id: 3,
@@ -454,9 +456,9 @@ export const txnFieldsData3: Partial<ExpenseFieldsObj> = {
     ],
     field: 'cost_center_id',
   },
-};
+});
 
-export const expenseFieldsMapResponse: Partial<ExpenseFieldsMap> = {
+export const expenseFieldsMapResponse: Partial<ExpenseFieldsMap> = deepFreeze({
   purpose: [
     {
       id: 22,
@@ -676,9 +678,9 @@ export const expenseFieldsMapResponse: Partial<ExpenseFieldsMap> = {
       field: 'org_category_id',
     },
   ],
-};
+});
 
-export const expenseFieldsMapResponse2: Partial<ExpenseFieldsMap> = {
+export const expenseFieldsMapResponse2: Partial<ExpenseFieldsMap> = deepFreeze({
   bus_travel_class: [
     {
       id: 2,
@@ -880,9 +882,9 @@ export const expenseFieldsMapResponse2: Partial<ExpenseFieldsMap> = {
       roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
     },
   ],
-};
+});
 
-export const expenseFieldsMapResponse3 = {
+export const expenseFieldsMapResponse3 = deepFreeze({
   distance: [
     {
       id: 6,
@@ -930,9 +932,9 @@ export const expenseFieldsMapResponse3 = {
       roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
     },
   ],
-};
+});
 
-export const expenseFieldsMapResponse4 = {
+export const expenseFieldsMapResponse4 = deepFreeze({
   ...expenseFieldsMapResponse,
   ...expenseFieldsMapResponse2,
   project_id: [
@@ -959,9 +961,9 @@ export const expenseFieldsMapResponse4 = {
       input_type: 'input',
     },
   ],
-};
+});
 
-export const txnFieldsMap2: Partial<ExpenseFieldsObj> = {
+export const txnFieldsMap2: Partial<ExpenseFieldsObj> = deepFreeze({
   purpose: {
     id: 22,
     created_at: new Date('2018-01-31T23:50:27.221Z'),
@@ -1173,9 +1175,9 @@ export const txnFieldsMap2: Partial<ExpenseFieldsObj> = {
     ],
     field: 'org_category_id',
   },
-};
+});
 
-export const txnFieldsFlightData: Partial<ExpenseFieldsObj> = {
+export const txnFieldsFlightData: Partial<ExpenseFieldsObj> = deepFreeze({
   ...txnFieldsData2,
   flight_journey_travel_class: {
     id: 2,
@@ -1224,4 +1226,4 @@ export const txnFieldsFlightData: Partial<ExpenseFieldsObj> = {
     code: null,
     roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
   },
-};
+});

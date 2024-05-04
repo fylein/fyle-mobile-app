@@ -8,6 +8,7 @@ import {
   getApiResponse,
   updateReponseWithFlattenedEStatus,
 } from '../test-data/status.service.spec.data';
+import { cloneDeep } from 'lodash';
 
 describe('StatusService', () => {
   let statusService: StatusService;
@@ -37,7 +38,8 @@ describe('StatusService', () => {
   });
 
   it('should find all estatuses', (done) => {
-    apiService.get.and.returnValue(of(getApiResponse));
+    const mockGetApiResponse = cloneDeep(getApiResponse);
+    apiService.get.and.returnValue(of(mockGetApiResponse));
 
     statusService.find(type, id).subscribe((res) => {
       expect(res).toEqual(getEstatusApiResponse);
@@ -49,18 +51,20 @@ describe('StatusService', () => {
     apiService.get.and.returnValue(of(null));
 
     statusService.find(type, id).subscribe((res) => {
-      expect(res).toEqual(undefined);
+      expect(res).toBeUndefined();
       done();
     });
   });
 
   it('should use status map and update the comments accordingly by adding statuses', () => {
-    const result = statusService.createStatusMap(apiCommentsResponse, 'reports');
+    const mockApiCommentsResponse = cloneDeep(apiCommentsResponse);
+    const result = statusService.createStatusMap(mockApiCommentsResponse, 'reports');
     expect(result).toEqual(updateReponseWithFlattenedEStatus);
   });
 
   it('should find and return the latest comment', (done) => {
-    apiService.get.and.returnValue(of(getApiResponse));
+    const mockGetApiResponse = cloneDeep(getApiResponse);
+    apiService.get.and.returnValue(of(mockGetApiResponse));
 
     const result = statusService.findLatestComment(id, type, 'POLICY');
     result.subscribe((res) => {
