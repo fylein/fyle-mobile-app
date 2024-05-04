@@ -1020,7 +1020,7 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the formatted category option', (done) => {
-      const mockOptions = mergeExpensesOptionData4[0];
+      const mockOptions = cloneDeep(mergeExpensesOptionData4[0]);
       // @ts-ignore
       mergeExpensesService.formatCategoryOption(mockOptions).subscribe((res) => {
         expect(res).toEqual(mockOptions);
@@ -1031,8 +1031,9 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the formatted category option with label as Unspecified if id does not matches with options', (done) => {
+      const mockOptions = cloneDeep({ ...mergeExpensesOptionData4[0], value: 201951 });
       // @ts-ignore
-      mergeExpensesService.formatCategoryOption({ ...mergeExpensesOptionData4[0], value: 201951 }).subscribe((res) => {
+      mergeExpensesService.formatCategoryOption(mockOptions).subscribe((res) => {
         expect(res).toEqual({
           label: 'Unspecified',
           value: 201951,

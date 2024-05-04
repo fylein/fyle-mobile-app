@@ -19,6 +19,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 
 import { ExpenseFieldsService } from './expense-fields.service';
+import { cloneDeep } from 'lodash';
 
 describe('ExpenseFieldsService', () => {
   let expenseFieldsService: ExpenseFieldsService;
@@ -84,8 +85,9 @@ describe('ExpenseFieldsService', () => {
 
   it('filterbyCategory(): should filter expense fields by category', (done) => {
     const fields = ['purpose', 'txn_dt', 'vendor_id', 'org_category_id'];
+    const mockExpenseFieldsMapResponse = cloneDeep(expenseFieldsMapResponse);
     expenseFieldsService
-      .filterByOrgCategoryId(expenseFieldsMapResponse, fields, orgCategoryData)
+      .filterByOrgCategoryId(mockExpenseFieldsMapResponse, fields, orgCategoryData)
       .subscribe((expenseFields) => {
         expect(expenseFields).toEqual(expenseFieldObjData);
         done();

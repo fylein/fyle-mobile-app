@@ -4,6 +4,7 @@ import { of, delay } from 'rxjs';
 import { LocationService } from './location.service';
 import { locationData1, locationData2, locationData4, predictedLocation1 } from '../mock-data/location.data';
 import { HttpParams } from '@angular/common/http';
+import { cloneDeep } from 'lodash';
 
 describe('LocationService', () => {
   let locationService: LocationService;
@@ -101,7 +102,7 @@ describe('LocationService', () => {
     it('should return location details with display name if displayName is provided', () => {
       const placeId = 'pLcId123';
       const displayName = 'Tollygunge, Kolkata, West Bengal, India';
-      const locationDetails = locationData1;
+      const locationDetails = cloneDeep(locationData1);
       locationService.getGeocode(placeId, displayName).subscribe((result) => {
         expect(result).toEqual(locationDetails);
       });
@@ -114,7 +115,7 @@ describe('LocationService', () => {
     it('should not add the displayName to locationDetails when displayName is not provided', () => {
       const placeId = '12345';
       const displayName = '';
-      const locationDetails = locationData4;
+      const locationDetails = cloneDeep(locationData4);
       locationService.getGeocode(placeId, displayName).subscribe((result) => {
         expect(result).toEqual(locationDetails);
       });

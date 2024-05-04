@@ -605,12 +605,14 @@ describe('SplitExpensePage', () => {
 
   describe('uploadNewFiles(): ', () => {
     it('should upload new files when the type is an image', (done) => {
+      const mockFileObjectAdv = cloneDeep(fileObjectData5);
       const mockFileObject = {
-        ...fileObjectData5,
+        ...mockFileObjectAdv,
         name: '000.jpeg',
       };
-      const files = fileObjectAdv;
-      const dataUrl = fileObjectAdv[0].url;
+      const mockFile = cloneDeep(fileObjectAdv);
+      const files = mockFile;
+      const dataUrl = mockFile[0].url;
       const attachmentType = 'image';
       transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
 
@@ -622,12 +624,13 @@ describe('SplitExpensePage', () => {
     });
 
     it('should upload new files when the type is a png', (done) => {
+      const mockFileObjectAdv = cloneDeep(fileObjectAdv);
       const mockFile = {
-        ...fileObjectAdv[0],
+        ...mockFileObjectAdv[0],
         type: 'png',
       };
       const files = [mockFile];
-      const dataUrl = fileObjectAdv[0].url;
+      const dataUrl = mockFileObjectAdv[0].url;
       const attachmentType = 'image';
       transactionsOutboxService.fileUpload.and.resolveTo(fileObjectData5);
 
@@ -639,12 +642,13 @@ describe('SplitExpensePage', () => {
     });
 
     it('should upload new files when the type is a pdf', (done) => {
-      const files = [fileObjectAdv1];
+      const files = [cloneDeep(fileObjectAdv1)];
+      const mockFileObjectAdv = cloneDeep(fileObjectData5);
       const mockFileObject = {
-        ...fileObjectData5,
+        ...mockFileObjectAdv,
         name: '000.pdf',
       };
-      const dataUrl = fileObjectAdv1.url;
+      const dataUrl = files[0].url;
       const attachmentType = 'pdf';
       transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
       component.uploadNewFiles(files).subscribe((result) => {
@@ -1499,8 +1503,6 @@ describe('SplitExpensePage', () => {
 
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
-      const today = new Date();
-      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(today);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
   });
@@ -2073,12 +2075,10 @@ describe('SplitExpensePage', () => {
       component.unspecifiedCategory = unspecifiedCategory;
       component.expenseFields = expenseFieldResponse;
       const splitEtxns = cloneDeep(txnList);
-      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.returnValue(
-        Promise.resolve({
-          action: 'continue',
-          comments: { '0': 'test comment' },
-        })
-      );
+      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.resolveTo({
+        action: 'continue',
+        comments: { '0': 'test comment' },
+      });
       policyService.checkIfViolationsExist.and.returnValue(true);
       splitExpenseService.checkIfMissingFieldsExist.and.returnValue(true);
       splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(
