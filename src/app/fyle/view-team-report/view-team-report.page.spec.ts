@@ -240,9 +240,9 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('loadReports(): should load reports', (done) => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
     reportService.getReport.and.returnValue(of(expectedAllReports[0]));
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.resolveTo();
 
     component
       .loadReports()
@@ -304,17 +304,19 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      statusService.find.and.returnValue(of(newEstatusData1));
+      loaderService.hideLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockStatus = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      const mockPdfExportData = cloneDeep(pdfExportData1);
       reportService.getExports.and.returnValue(
         of({
-          results: pdfExportData1,
+          results: mockPdfExportData,
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
@@ -415,17 +417,19 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
-      loaderService.showLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      statusService.find.and.returnValue(of(newEstatusData1));
+      loaderService.hideLoader.and.resolveTo();
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockStatus = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      const mockPdfExportData = cloneDeep(pdfExportData2);
       reportService.getExports.and.returnValue(
         of({
-          results: pdfExportData2,
+          results: mockPdfExportData,
         })
       );
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
@@ -570,10 +574,10 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('deleteReport(): should delete report', async () => {
-    popupService.showPopup.and.returnValue(Promise.resolve('primary'));
-    loaderService.showLoader.and.returnValue(Promise.resolve());
+    popupService.showPopup.and.resolveTo('primary');
+    loaderService.showLoader.and.resolveTo();
     reportService.delete.and.returnValue(of(undefined));
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.resolveTo();
 
     await component.deleteReport();
 
@@ -601,15 +605,13 @@ describe('ViewTeamReportPageV2', () => {
     it('should open the modal and approve the report', async () => {
       humanizeCurrency.transform.and.callThrough();
       const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-      popoverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            action: 'approve',
-          },
-        })
-      );
+      popoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          action: 'approve',
+        },
+      });
 
-      popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+      popoverController.create.and.resolveTo(popoverSpy);
       reportService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
@@ -745,14 +747,12 @@ describe('ViewTeamReportPageV2', () => {
 
   it('shareReport(): should open share report modal', async () => {
     const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          email: 'ajn@fyle.in',
-        },
-      })
-    );
-    popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+    popoverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        email: 'ajn@fyle.in',
+      },
+    });
+    popoverController.create.and.resolveTo(popoverSpy);
 
     reportService.downloadSummaryPdfUrl.and.returnValue(of({ report_url: 'encodedcontent' }));
 
@@ -780,15 +780,13 @@ describe('ViewTeamReportPageV2', () => {
       duration: 3000,
     };
     const popoverSpy = jasmine.createSpyObj('popover', ['present', 'onWillDismiss']);
-    popoverSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          comment: 'comment',
-        },
-      })
-    );
+    popoverSpy.onWillDismiss.and.resolveTo({
+      data: {
+        comment: 'comment',
+      },
+    });
 
-    popoverController.create.and.returnValue(Promise.resolve(popoverSpy));
+    popoverController.create.and.resolveTo(popoverSpy);
     reportService.inquire.and.returnValue(of(undefined));
     snackbarProperties.setSnackbarProperties.and.returnValue(properties);
 
@@ -823,7 +821,7 @@ describe('ViewTeamReportPageV2', () => {
 
   it('openViewReportInfoModal(): should open report info modal', async () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
-    viewInfoModalSpy.onWillDismiss.and.returnValue(Promise.resolve());
+    viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
     const properties = {
       cssClass: 'fy-modal',
@@ -836,7 +834,7 @@ describe('ViewTeamReportPageV2', () => {
       handle: false,
     };
 
-    modalController.create.and.returnValue(Promise.resolve(viewInfoModalSpy));
+    modalController.create.and.resolveTo(viewInfoModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(properties);
 
     await component.openViewReportInfoModal();
@@ -981,13 +979,14 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    component.erpt$ = of(newReportParam);
+    const mockErpt = cloneDeep(newReportParam);
+    component.erpt$ = of(mockErpt);
     fixture.detectChanges();
     reportService.approverUpdateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
+    expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(mockErpt);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
@@ -1000,7 +999,7 @@ describe('ViewTeamReportPageV2', () => {
     it('should edit report name', fakeAsync(() => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       component.editReportName();
       tick(100);
@@ -1018,7 +1017,7 @@ describe('ViewTeamReportPageV2', () => {
     it('should not edit report name if data does not contain name', fakeAsync(() => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       component.editReportName();
       tick(100);

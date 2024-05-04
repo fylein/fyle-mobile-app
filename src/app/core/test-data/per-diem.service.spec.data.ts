@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccountType } from '../enums/account-type.enum';
 
-export const apiPerDiemByID = {
+export const apiPerDiemByID = deepFreeze({
   count: 1,
   data: [
     {
@@ -17,9 +19,9 @@ export const apiPerDiemByID = {
     },
   ],
   offset: 0,
-};
+});
 
-export const expectPerDiemByID = {
+export const expectPerDiemByID = deepFreeze({
   active: false,
   created_at: new Date('2018-10-25T09:40:40.729Z'),
   currency: 'INR',
@@ -28,9 +30,9 @@ export const expectPerDiemByID = {
   org_id: 'orrjqbDbeP9p',
   rate: 140,
   updated_at: new Date('2022-08-11T09:50:26.804Z'),
-};
+});
 
-export const apiPerDiemSingleResponse = {
+export const apiPerDiemSingleResponse = deepFreeze({
   count: 4,
   data: [
     {
@@ -47,9 +49,9 @@ export const apiPerDiemSingleResponse = {
     },
   ],
   offset: 0,
-};
+});
 
-export const expectedPerDiems = [
+export const expectedPerDiems = deepFreeze([
   {
     active: true,
     created_at: new Date('2018-10-08T06:37:01.337Z'),
@@ -90,9 +92,9 @@ export const expectedPerDiems = [
     rate: 3,
     updated_at: new Date('2023-01-10T07:18:10.082Z'),
   },
-];
+]);
 
-export const apiPerDiem = {
+export const apiPerDiem = deepFreeze({
   count: 4,
   data: [
     {
@@ -145,9 +147,9 @@ export const apiPerDiem = {
     },
   ],
   offset: 0,
-};
+});
 
-export const apiPerDiemFirst = {
+export const apiPerDiemFirst = deepFreeze({
   count: 4,
   data: [
     {
@@ -176,9 +178,9 @@ export const apiPerDiemFirst = {
     },
   ],
   offset: 0,
-};
+});
 
-export const apiPerDiemSecond = {
+export const apiPerDiemSecond = deepFreeze({
   count: 4,
   data: [
     {
@@ -207,9 +209,9 @@ export const apiPerDiemSecond = {
     },
   ],
   offset: 2,
-};
+});
 
-export const allPerDiemRatesParam = [
+export const allPerDiemRatesParam = deepFreeze([
   {
     active: true,
     created_at: '2020-08-12T16:09:14.551376+00:00',
@@ -246,9 +248,9 @@ export const allPerDiemRatesParam = [
     full_name: 'aaaa (12 AED per day)',
     readableRate: 'AED 12.00 per day',
   },
-];
+]);
 
-export const apiOrgUserSettings = {
+export const apiOrgUserSettings = deepFreeze({
   id: 'ous7cvGj3iOsi',
   created_at: new Date('2019-10-10T06:33:08.192Z'),
   updated_at: new Date('2022-12-07T10:37:57.155Z'),
@@ -392,9 +394,9 @@ export const apiOrgUserSettings = {
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL],
   },
-};
+});
 
-export const allowedPerDiem = [
+export const allowedPerDiem = deepFreeze([
   {
     active: true,
     created_at: '2020-08-12T16:09:14.551Z',
@@ -419,4 +421,4 @@ export const allowedPerDiem = [
     full_name: 'aaaa (12 AED per day)',
     readableRate: 'AED 12.00 per day',
   },
-];
+]);

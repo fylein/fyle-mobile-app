@@ -14,6 +14,7 @@ import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { cloneDeep } from 'lodash';
 
 describe('RouteSelectorComponent', () => {
   let component: RouteSelectorComponent;
@@ -44,7 +45,8 @@ describe('RouteSelectorComponent', () => {
     component = fixture.componentInstance;
     fb = TestBed.inject(FormBuilder) as jasmine.SpyObj<FormBuilder>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
-    component.mileageConfig = orgSettingsRes.mileage;
+    const mockOrgSettings = cloneDeep(orgSettingsRes);
+    component.mileageConfig = mockOrgSettings.mileage;
     component.formInitialized = true;
     component.onChangeSub = of(null).subscribe();
     component.form = fb.group({
@@ -92,7 +94,7 @@ describe('RouteSelectorComponent', () => {
     });
     expect(component.mileageLocations.length).toEqual(mileageLocationData1.length);
     expect(component.form.controls.distance.value).toEqual(20.0);
-    expect(component.form.controls.roundTrip.value).toEqual(true);
+    expect(component.form.controls.roundTrip.value).toBeTrue();
   });
 
   it('writeValue(): should write value to the form group', () => {
@@ -261,7 +263,8 @@ describe('RouteSelectorComponent', () => {
   describe('onTxnFieldsChange():', () => {
     beforeEach(() => {
       spyOn(component, 'ngOnChanges');
-      component.txnFields = expenseFieldsMapResponse3;
+      const mockExpenseFieldsMapResponse = cloneDeep(expenseFieldsMapResponse3);
+      component.txnFields = mockExpenseFieldsMapResponse;
     });
 
     it('should update form validators', () => {

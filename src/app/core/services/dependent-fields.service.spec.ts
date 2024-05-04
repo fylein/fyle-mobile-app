@@ -16,6 +16,7 @@ import {
 import { DependentFieldsService } from './dependent-fields.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { CustomInputsService } from './custom-inputs.service';
+import { cloneDeep } from 'lodash';
 
 describe('DependentFieldsService', () => {
   let dependentFieldsService: DependentFieldsService;
@@ -82,7 +83,8 @@ describe('DependentFieldsService', () => {
   describe('getDependentFieldsForBaseField(): ', () => {
     it('should return the dependent expense fields for the parent field', () => {
       const parentFieldId = 219175;
-      customInputsService.getAll.and.returnValue(of(customExpenseFields));
+      const mockCustomExpenseFields = cloneDeep(customExpenseFields);
+      customInputsService.getAll.and.returnValue(of(mockCustomExpenseFields));
 
       dependentFieldsService.getDependentFieldsForBaseField(parentFieldId).subscribe((res) => {
         expect(res).toEqual(dependentExpenseFields);
@@ -93,11 +95,13 @@ describe('DependentFieldsService', () => {
   describe('getDependentFieldValuesForBaseField(): ', () => {
     it('should return the dependent field values for parent field and txn custom properties', () => {
       const parentFieldId = 219175;
-      customInputsService.getAll.and.returnValue(of(customExpenseFields));
+      const mockCustomExpenseFields = cloneDeep(customExpenseFields);
+      customInputsService.getAll.and.returnValue(of(mockCustomExpenseFields));
       spyOn(dependentFieldsService, 'getDependentFieldsForBaseField').and.returnValue(of(dependentExpenseFields));
+      const mockTxnCustomProperties = cloneDeep(txnCustomProperties);
 
       dependentFieldsService
-        .getDependentFieldValuesForBaseField(txnCustomProperties, parentFieldId)
+        .getDependentFieldValuesForBaseField(mockTxnCustomProperties, parentFieldId)
         .subscribe((res) => {
           expect(res).toEqual(dependentFieldValues);
         });

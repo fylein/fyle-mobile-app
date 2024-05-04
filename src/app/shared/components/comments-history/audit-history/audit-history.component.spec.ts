@@ -15,6 +15,7 @@ import {
 } from 'src/app/core/test-data/status.service.spec.data';
 import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-case.pipe';
 import { getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { cloneDeep } from 'lodash';
 
 describe('AuditHistoryComponent', () => {
   let component: AuditHistoryComponent;
@@ -37,7 +38,8 @@ describe('AuditHistoryComponent', () => {
     component = fixture.componentInstance;
     expenseFieldsService = TestBed.inject(ExpenseFieldsService) as jasmine.SpyObj<ExpenseFieldsService>;
     expenseFieldsService.getAllEnabled.and.returnValue(of(transformedResponse2));
-    component.estatuses = estatusSample;
+    const mockEstatuses = cloneDeep(estatusSample);
+    component.estatuses = mockEstatuses;
     spyOn(component, 'hasDetails').and.callThrough();
     spyOn(component, 'getAndUpdateProjectName').and.callThrough();
     spyOn(component, 'setReimbursable').and.callThrough();
@@ -66,7 +68,7 @@ describe('AuditHistoryComponent', () => {
   });
 
   it('updateProjectNameKey(): should update project name', () => {
-    component.estatuses = eStatusWithProjectName;
+    component.estatuses = cloneDeep(eStatusWithProjectName);
     fixture.detectChanges();
 
     component.updateProjectNameKey();
@@ -75,7 +77,7 @@ describe('AuditHistoryComponent', () => {
   });
 
   it('updateProjectNameKey(): should update project name if it already exists', () => {
-    component.estatuses = eStatusWithProjectName2;
+    component.estatuses = cloneDeep(eStatusWithProjectName2);
     fixture.detectChanges();
 
     component.updateProjectNameKey();
@@ -96,7 +98,7 @@ describe('AuditHistoryComponent', () => {
   });
 
   it('setReimbursable(): should set re-imbursable', () => {
-    component.estatuses = eStatusWithReimbursible;
+    component.estatuses = cloneDeep(eStatusWithReimbursible);
     fixture.detectChanges();
 
     component.setReimbursable();
