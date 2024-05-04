@@ -1016,7 +1016,7 @@ describe('TasksService', () => {
 
   describe('getMobileNumberVerificationTasks(): ', () => {
     it('should not return any task if user has verified mobile number', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
@@ -1031,7 +1031,7 @@ describe('TasksService', () => {
     it('should not return any task if user has not enrolled for RTF', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
+      authService.getEou.and.resolveTo(eou);
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
@@ -1047,7 +1047,7 @@ describe('TasksService', () => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
       eou.ou.mobile = null;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
+      authService.getEou.and.resolveTo(eou);
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
@@ -1063,7 +1063,7 @@ describe('TasksService', () => {
     it('should return verify number task if user has verified mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
-      authService.getEou.and.returnValue(Promise.resolve(eou));
+      authService.getEou.and.resolveTo(eou);
       corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
       const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask').and.returnValue(
         [addMobileNumberTask]
@@ -1080,7 +1080,7 @@ describe('TasksService', () => {
   describe('getCommuteDetailsTasks():', () => {
     it('should return commute details task if commute details response data is not defined', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData2));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1094,7 +1094,7 @@ describe('TasksService', () => {
 
     it('should return commute details task if home location is not present', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsEnabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1108,7 +1108,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if mileage is disabled for org', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWoMileage));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1122,7 +1122,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if commute deduction settings is disabled for org', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData3));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {
@@ -1136,7 +1136,7 @@ describe('TasksService', () => {
 
     it('should not return commute details task if home location is present in commute details', (done) => {
       employeesService.getCommuteDetails.and.returnValue(of(commuteDetailsResponseData));
-      authService.getEou.and.returnValue(Promise.resolve(extendedOrgUserResponse));
+      authService.getEou.and.resolveTo(extendedOrgUserResponse);
       orgSettingsService.get.and.returnValue(of(orgSettingsWithCommuteDeductionsDisabled));
 
       tasksService.getCommuteDetailsTasks().subscribe((res) => {

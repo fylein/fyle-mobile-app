@@ -157,7 +157,7 @@ describe('SignInPage', () => {
 
     loaderService.showLoader.and.returnValue(new Promise(() => {}));
     router.navigate.and.stub();
-    routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(false));
+    routerAuthService.isLoggedIn.and.resolveTo(false);
 
     component.fg = formBuilder.group({
       email: [Validators.compose([Validators.required, Validators.pattern('\\S+@\\S+\\.\\S{2,}')])],
@@ -173,7 +173,7 @@ describe('SignInPage', () => {
   it('handleSamlSignIn(): should handle saml sign in ', fakeAsync(() => {
     const browserSpy = jasmine.createSpyObj('InAppBrowserObject', ['on', 'executeScript', 'close']);
     browserSpy.on.and.returnValue(of(new Event('event')));
-    browserSpy.executeScript.and.returnValue(Promise.resolve([JSON.stringify(samlResData1)]));
+    browserSpy.executeScript.and.resolveTo([JSON.stringify(samlResData1)]);
     browserSpy.close.and.returnValue(null);
     spyOn(component, 'checkSAMLResponseAndSignInUser');
     inAppBrowserService.create.and.returnValue(browserSpy);
@@ -189,10 +189,10 @@ describe('SignInPage', () => {
 
   describe('checkSAMLResponseAndSignInUser():', () => {
     it('should check saml response and sign in user', async () => {
-      routerAuthService.handleSignInResponse.and.returnValue(Promise.resolve(authResData1));
+      routerAuthService.handleSignInResponse.and.resolveTo(authResData1);
       spyOn(component, 'trackLoginInfo');
       pushNotificationService.initPush.and.callThrough();
-      router.navigate.and.returnValue(Promise.resolve(true));
+      router.navigate.and.resolveTo(true);
       authService.refreshEou.and.returnValue(of(apiEouRes));
 
       component.fg.controls.email.setValue('ajain@fyle.in');
@@ -362,7 +362,7 @@ describe('SignInPage', () => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       trackingService.onSignin.and.callThrough();
       pushNotificationService.initPush.and.callThrough();
-      router.navigate.and.returnValue(Promise.resolve(true));
+      router.navigate.and.resolveTo(true);
       component.fg.controls.password.setValue('password');
       component.fg.controls.email.setValue('email');
       fixture.detectChanges();
@@ -385,7 +385,7 @@ describe('SignInPage', () => {
       authService.refreshEou.and.returnValue(of(apiEouRes));
       trackingService.onSignin.and.callThrough();
       pushNotificationService.initPush.and.callThrough();
-      router.navigate.and.returnValue(Promise.resolve(true));
+      router.navigate.and.resolveTo(true);
       spyOn(component, 'handleError');
       fixture.detectChanges();
 
@@ -411,13 +411,13 @@ describe('SignInPage', () => {
     it('should sign in user with google', async () => {
       spyOn(component, 'trackLoginInfo');
 
-      googleAuthService.login.and.returnValue(Promise.resolve(authResData2));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      googleAuthService.login.and.resolveTo(authResData2);
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       routerAuthService.googleSignin.and.returnValue(of(authResData2));
       trackingService.onSignin.and.callThrough();
       pushNotificationService.initPush.and.callThrough();
-      router.navigate.and.returnValue(Promise.resolve(true));
+      router.navigate.and.resolveTo(true);
       authService.refreshEou.and.returnValue(of(apiEouRes));
 
       await component.googleSignIn();
@@ -436,7 +436,7 @@ describe('SignInPage', () => {
     });
 
     it("should throw an error if google reponse doesn't contain access token", async () => {
-      googleAuthService.login.and.returnValue(Promise.resolve(authResData1));
+      googleAuthService.login.and.resolveTo(authResData1);
       spyOn(component, 'handleError');
 
       await component.googleSignIn();
@@ -458,20 +458,20 @@ describe('SignInPage', () => {
   });
 
   it('ionViewWillEnter(): should set email', () => {
-    expect(component.emailSet).toEqual(false);
+    expect(component.emailSet).toBeFalse();
 
     component.fg.controls.email.setValue('email');
 
     component.ionViewWillEnter();
-    expect(component.emailSet).toEqual(true);
+    expect(component.emailSet).toBeTrue();
   });
 
   describe('ngOnInit(): ', () => {
     it('should navigate to switch org page if logged in ', fakeAsync(() => {
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
-      router.navigate.and.returnValue(Promise.resolve(true));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      routerAuthService.isLoggedIn.and.resolveTo(true);
+      router.navigate.and.resolveTo(true);
       component.ngOnInit();
       tick(100);
 
@@ -483,10 +483,10 @@ describe('SignInPage', () => {
 
     it('should set fg when email is not present in URl', fakeAsync(() => {
       activatedRoute.snapshot.params.email = null;
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
-      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
-      router.navigate.and.returnValue(Promise.resolve(true));
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
+      routerAuthService.isLoggedIn.and.resolveTo(true);
+      router.navigate.and.resolveTo(true);
       component.ngOnInit();
       tick(1000);
 
