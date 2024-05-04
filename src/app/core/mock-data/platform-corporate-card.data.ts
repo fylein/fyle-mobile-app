@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CardStatus } from '../enums/card-status.enum';
 import { DataFeedSource } from '../enums/data-feed-source.enum';
 import { PlatformCorporateCard } from '../models/platform/platform-corporate-card.model';
 
-export const mastercardRTFCard: PlatformCorporateCard = {
+export const mastercardRTFCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
   card_number: '555555******5555',
@@ -23,9 +25,9 @@ export const mastercardRTFCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});
 
-export const visaRTFCard: PlatformCorporateCard = {
+export const visaRTFCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'VISA_BANK',
   card_number: '455555******5555',
@@ -46,9 +48,9 @@ export const visaRTFCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});
 
-export const statementUploadedCard: PlatformCorporateCard = {
+export const statementUploadedCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
   card_number: '5555',
@@ -69,9 +71,9 @@ export const statementUploadedCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});
 
-export const virtualCard: PlatformCorporateCard = {
+export const virtualCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'American Express',
   card_number: '5555',
@@ -94,9 +96,9 @@ export const virtualCard: PlatformCorporateCard = {
   verification_status: 'NOT_VERIFIED',
   virtual_card_id: 'vc1234',
   virtual_card_state: CardStatus.PREACTIVE,
-};
+});
 
-export const bankFeedCard: PlatformCorporateCard = {
+export const bankFeedCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
   card_number: '555555******5555',
@@ -117,9 +119,9 @@ export const bankFeedCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});
 
-export const yodleeCard: PlatformCorporateCard = {
+export const yodleeCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'MASTERCARD_BANK',
   card_number: '555555******5555',
@@ -140,9 +142,9 @@ export const yodleeCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});
 
-export const amexFeedCard: PlatformCorporateCard = {
+export const amexFeedCard: PlatformCorporateCard = deepFreeze({
   assignor_user_id: 'usvKA4X8Ugcr',
   bank_name: 'AMEX_BANK',
   card_number: '**********81000',
@@ -163,4 +165,4 @@ export const amexFeedCard: PlatformCorporateCard = {
   updated_at: '2023-03-03T07:16:46.376082+00:00',
   user_id: 'usvKA4X8Ugcr',
   verification_status: 'NOT_VERIFIED',
-};
+});

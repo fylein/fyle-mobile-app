@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { UniqueCardStats } from '../models/unique-cards-stats.model';
 
-export const expectedUniqueCardStats: UniqueCardStats[] = [
+export const expectedUniqueCardStats: UniqueCardStats[] = deepFreeze([
   {
     cardNumber: '8698',
     cardName: 'DAMNA',
@@ -21,4 +23,4 @@ export const expectedUniqueCardStats: UniqueCardStats[] = [
     totalTxnsCount: 5,
     totalAmountValue: 371.87,
   },
-];
+]);

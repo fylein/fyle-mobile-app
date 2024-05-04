@@ -1,5 +1,5 @@
 export interface CardDetailsResponse {
   full_card_number: string;
   cvv: string;
-  expiry_date: Date;
+  expiry_date: Date | string;
 }
