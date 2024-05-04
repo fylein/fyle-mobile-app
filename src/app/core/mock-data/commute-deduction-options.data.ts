@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CommuteDeductionOptions } from '../models/commute-deduction-options.model';
 
-export const commuteDeductionOptionsData1: CommuteDeductionOptions[] = [
+export const commuteDeductionOptionsData1: CommuteDeductionOptions[] = deepFreeze([
   {
     label: 'One Way Distance',
     value: 'ONE_WAY',
@@ -16,4 +18,4 @@ export const commuteDeductionOptionsData1: CommuteDeductionOptions[] = [
     value: 'NO_DEDUCTION',
     distance: 0,
   },
-];
+]);

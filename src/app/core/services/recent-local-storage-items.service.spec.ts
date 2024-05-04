@@ -9,6 +9,7 @@ import {
   postRecentItemsRes,
 } from '../mock-data/recent-local-storage-items.data';
 import * as dayjs from 'dayjs';
+import { cloneDeep } from 'lodash';
 
 describe('RecentLocalStorageItemsService', () => {
   let recentLocalStorageItemsService: RecentLocalStorageItemsService;
@@ -71,7 +72,7 @@ describe('RecentLocalStorageItemsService', () => {
         updatedAt: dayjs().toISOString(),
         recentItems,
       };
-      storageService.get.and.returnValue(Promise.resolve(cache));
+      storageService.get.and.resolveTo(cache);
 
       const result = await recentLocalStorageItemsService.get(cacheName);
       expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
@@ -84,7 +85,7 @@ describe('RecentLocalStorageItemsService', () => {
         updatedAt: dayjs().diff(5, 'minute').toString(),
         recentItems: recentLocalStorageItemsRes,
       };
-      storageService.get.and.returnValue(Promise.resolve(outdatedCache));
+      storageService.get.and.resolveTo(outdatedCache);
       const result = await recentLocalStorageItemsService.get(cacheName);
       expect(storageService.get).toHaveBeenCalledOnceWith(cacheName);
       expect(result).toEqual([]);
@@ -115,40 +116,42 @@ describe('RecentLocalStorageItemsService', () => {
   describe('post():', () => {
     it('should maintain and update a cache of recent items in the local storage', async () => {
       const cacheName = 'mileageSubCategoryName';
-      const recentItems = postRecentItemsRes;
+      const mockPostRecentItemsRes = cloneDeep(postRecentItemsRes);
+      const recentItems = mockPostRecentItemsRes;
       const cache = {
         recentItems,
         updatedAt: jasmine.any(Date),
       };
 
       const indexOfItemSpy = spyOn(recentLocalStorageItemsService, 'indexOfItem');
-      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
+      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.resolveTo(mockPostRecentItemsRes);
 
       await recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes);
-      storageService.set.and.returnValue(Promise.resolve());
+      storageService.set.and.resolveTo();
 
       expect(indexOfItemSpy).toHaveBeenCalledOnceWith(recentItems, itemsRes, propertyRes);
       expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
       recentLocalStorageItemsService.post(cacheName, itemsRes, propertyRes).then((res) => {
-        expect(res).toEqual(postRecentItemsRes);
+        expect(res).toEqual(mockPostRecentItemsRes);
       });
       expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
     });
 
     it('should find the index of an item without the property argument', async () => {
       const cacheName = 'mileageSubCategoryName';
-      const recentItems = postRecentItemsRes;
+      const mockPostRecentItemsRes = cloneDeep(postRecentItemsRes);
+      const recentItems = mockPostRecentItemsRes;
       const cache = {
         recentItems,
         updatedAt: jasmine.any(Date),
       };
 
-      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.returnValue(Promise.resolve(postRecentItemsRes));
+      const getSpy = spyOn(recentLocalStorageItemsService, 'get').and.resolveTo(mockPostRecentItemsRes);
       await recentLocalStorageItemsService.post(cacheName, itemsRes);
-      storageService.set.and.returnValue(Promise.resolve());
+      storageService.set.and.resolveTo();
       expect(getSpy).toHaveBeenCalledOnceWith(cacheName);
       recentLocalStorageItemsService.post(cacheName, itemsRes).then((res) => {
-        expect(res).toEqual(postRecentItemsRes);
+        expect(res).toEqual(mockPostRecentItemsRes);
       });
       expect(storageService.set).toHaveBeenCalledOnceWith(cacheName, cache);
     });

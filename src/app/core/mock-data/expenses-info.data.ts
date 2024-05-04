@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpensesInfo } from '../services/expenses-info.model';
 import { apiExpenseRes } from './expense.data';
 
-export const expensesInfo: ExpensesInfo = {
+export const expensesInfo: ExpensesInfo = deepFreeze({
   isReportedAndAbove: false,
   isAdvancePresent: true,
   defaultExpenses: [
@@ -255,15 +257,15 @@ export const expensesInfo: ExpensesInfo = {
       vendorDetails: 'Angular',
     },
   ],
-};
+});
 
-export const expenseInfoWithoutDefaultExpense: ExpensesInfo = {
+export const expenseInfoWithoutDefaultExpense: ExpensesInfo = deepFreeze({
   isReportedAndAbove: false,
   isAdvancePresent: false,
   defaultExpenses: null,
-};
+});
 
-export const expensesInfoWithReportedExpense: ExpensesInfo = {
+export const expensesInfoWithReportedExpense: ExpensesInfo = deepFreeze({
   isReportedAndAbove: true,
   isAdvancePresent: true,
   defaultExpenses: [
@@ -272,15 +274,15 @@ export const expensesInfoWithReportedExpense: ExpensesInfo = {
       ...expensesInfo.defaultExpenses[0],
     },
   ],
-};
+});
 
-export const expensesInfoWithReportedExpenseAndNoAdvance: ExpensesInfo = {
+export const expensesInfoWithReportedExpenseAndNoAdvance: ExpensesInfo = deepFreeze({
   isReportedAndAbove: true,
   isAdvancePresent: false,
   defaultExpenses: [apiExpenseRes[0], apiExpenseRes[0]],
-};
+});
 
-export const expensesInfoWithMultipleAdvanceExpenses: ExpensesInfo = {
+export const expensesInfoWithMultipleAdvanceExpenses: ExpensesInfo = deepFreeze({
   isReportedAndAbove: false,
   isAdvancePresent: true,
   defaultExpenses: [
@@ -534,9 +536,9 @@ export const expensesInfoWithMultipleAdvanceExpenses: ExpensesInfo = {
       vendorDetails: 'Angular',
     },
   ],
-};
+});
 
-export const expensesInfoData1: ExpensesInfo = {
+export const expensesInfoData1: ExpensesInfo = deepFreeze({
   isReportedAndAbove: false,
   isAdvancePresent: true,
   defaultExpenses: [
@@ -1019,4 +1021,4 @@ export const expensesInfoData1: ExpensesInfo = {
       vendorDetails: 'Nilesh As Vendor',
     },
   ],
-};
+});

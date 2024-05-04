@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { paymentModeDataPersonal } from '../test-data/accounts.service.spec.data';
 import { expectedProjectsResponse } from '../test-data/projects.spec.data';
@@ -6,7 +8,7 @@ import { locationData1, locationData2 } from './location.data';
 import { unfilteredMileageRatesData } from './mileage-rate.data';
 import { orgCategoryData } from './org-category.data';
 
-export const formValue1 = {
+export const formValue1 = deepFreeze({
   mileage_rate_name: unfilteredMileageRatesData[0],
   route: {
     mileageLocations: [locationData1, locationData2],
@@ -20,9 +22,9 @@ export const formValue1 = {
   purpose: 'travel',
   costCenter: costCentersData[0],
   commuteDeduction: CommuteDeduction.ONE_WAY,
-};
+});
 
-export const formValue2 = {
+export const formValue2 = deepFreeze({
   mileage_rate_name: null,
   route: {
     mileageLocations: null,
@@ -35,4 +37,4 @@ export const formValue2 = {
   project: expectedProjectsResponse[0],
   purpose: 'travel',
   costCenter: costCentersData[0],
-};
+});

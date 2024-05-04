@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Option } from '../models/option.model';
 
-export const optionData1: Option[] = [
+export const optionData1: Option[] = deepFreeze([
   {
     label: 'report 1',
     value: {
@@ -132,4 +134,4 @@ export const optionData1: Option[] = [
       user_id: 'usvKA4X8Ugcr',
     },
   },
-];
+]);

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedAccount } from '../models/extended-account.model';
 
-export const extendedAccountData1: ExtendedAccount[] = [
+export const extendedAccountData1: ExtendedAccount[] = deepFreeze([
   {
     acc: null,
     ou: {
@@ -23,4 +25,4 @@ export const extendedAccountData1: ExtendedAccount[] = [
     currency: null,
     amount: null,
   },
-];
+]);

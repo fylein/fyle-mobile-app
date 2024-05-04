@@ -108,6 +108,7 @@ import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expe
 import { apiExpenses2, expenseData, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -1343,7 +1344,8 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getExpenseById.and.returnValue(of(expenseData));
-        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        const mockFileObject = cloneDeep(expectedFileData1);
+        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
         fileService.downloadUrl.and.returnValue(of('url'));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
@@ -1465,12 +1467,12 @@ export function TestCases5(getTestBed) {
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
 
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(expectedFileData1);
+          expect(res).toEqual(mockFileObject);
         });
 
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
@@ -1632,7 +1634,8 @@ export function TestCases5(getTestBed) {
         expensesService.getSplitExpenses.and.returnValue(of(splitExpensesData));
         transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[0]);
         transactionService.transformRawExpense.and.returnValue(splitExpTransformedData[1]);
-        fileService.findByTransactionId.and.returnValue(of(expectedFileData1));
+        const mockFileObject = cloneDeep(expectedFileData1);
+        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
         fileService.downloadUrl.and.returnValue(of('url'));
         activatedRoute.snapshot.params.activeIndex = JSON.stringify(1);
         activatedRoute.snapshot.params.txnIds = JSON.stringify(['id_1', 'id_2']);
@@ -1749,12 +1752,12 @@ export function TestCases5(getTestBed) {
         expect(expensesService.getExpenseById).not.toHaveBeenCalled();
 
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(expectedFileData1);
+          expect(res).toEqual(mockFileObject);
         });
 
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(undefined);
         expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(expectedFileData1[0]);
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();

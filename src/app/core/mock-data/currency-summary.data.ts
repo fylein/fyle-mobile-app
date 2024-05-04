@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CurrencySummary } from '../models/currency-summary.model';
 
-export const currencySummaryData: CurrencySummary[] = [
+export const currencySummaryData: CurrencySummary[] = deepFreeze([
   {
     name: 'CLF',
     currency: 'CLF',
@@ -22,4 +24,4 @@ export const currencySummaryData: CurrencySummary[] = [
     origAmount: 89,
     count: 1,
   },
-];
+]);

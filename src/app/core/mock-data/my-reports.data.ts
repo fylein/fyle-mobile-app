@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Observable, of } from 'rxjs';
 import { FyDeleteDialogComponent } from 'src/app/shared/components/fy-delete-dialog/fy-delete-dialog.component';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
@@ -6,7 +8,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 
-export const generatedFiltersStateDateSortParams = [
+export const generatedFiltersStateDateSortParams = deepFreeze([
   {
     name: 'State',
     value: 'approved',
@@ -23,9 +25,9 @@ export const generatedFiltersStateDateSortParams = [
     name: 'Sort By',
     value: 'dateOldToNew',
   },
-];
+]);
 
-export const generatedFiltersStateDate = [
+export const generatedFiltersStateDate = deepFreeze([
   {
     name: 'State',
     value: 'draft',
@@ -38,9 +40,9 @@ export const generatedFiltersStateDate = [
       endDate: undefined,
     },
   },
-];
+]);
 
-export const expectedGenerateFilterPillsData = [
+export const expectedGenerateFilterPillsData = deepFreeze([
   {
     label: 'State',
     type: 'state',
@@ -56,9 +58,9 @@ export const expectedGenerateFilterPillsData = [
     type: 'sort',
     value: 'date - old to new',
   },
-];
+]);
 
-export const openFiltersOptions = [
+export const openFiltersOptions = deepFreeze([
   {
     name: 'State',
     optionType: FilterOptionType.multiselect,
@@ -197,8 +199,9 @@ export const openFiltersOptions = [
       },
     ],
   } as FilterOptions<string>,
-];
+]);
 
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
 export const filterPopoverParams = {
   component: FyFiltersComponent,
   componentProps: {
@@ -211,6 +214,7 @@ export const filterPopoverParams = {
   cssClass: 'dialog-popover',
 };
 
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
 export const popoverControllerParams = {
   component: PopupAlertComponent,
   componentProps: {
@@ -226,6 +230,7 @@ export const popoverControllerParams = {
 
 const mockDeleteMethod = (): Observable<void> => of();
 
+// eslint-disable-next-line custom-rules/prefer-deep-freeze
 export const deletePopoverParamsRes = {
   component: FyDeleteDialogComponent,
   cssClass: 'delete-dialog',

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomProperty } from '../models/custom-properties.model';
 
-export const customPropertiesData: CustomProperty<string | string[]>[] = [
+export const customPropertiesData: CustomProperty<string | string[]>[] = deepFreeze([
   {
     name: 'userlist',
     value: [],
@@ -33,9 +35,9 @@ export const customPropertiesData: CustomProperty<string | string[]>[] = [
     name: 'select all 2',
     value: '2023-02-05T09:48:18.482566+00:00',
   },
-];
+]);
 
-export const dependentCustomProperties: CustomProperty<string>[] = [
+export const dependentCustomProperties: CustomProperty<string>[] = deepFreeze([
   {
     name: 'CUSTOM FIELD',
     value: '',
@@ -52,12 +54,12 @@ export const dependentCustomProperties: CustomProperty<string>[] = [
     name: 'Taj Mahaj Construction',
     value: null,
   },
-];
+]);
 
-export const dependentCustomProperties2: CustomProperty<string | Date>[] = [
+export const dependentCustomProperties2: CustomProperty<string | Date>[] = deepFreeze([
   ...dependentCustomProperties,
   {
     name: 'date property',
     value: new Date(),
   },
-];
+]);

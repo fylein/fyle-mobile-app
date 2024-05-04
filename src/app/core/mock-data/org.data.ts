@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Org } from '../models/org.model';
 
-export const orgData1: Org[] = [
+export const orgData1: Org[] = deepFreeze([
   {
     id: 'orNVthTo2Zyo',
     created_at: new Date('2018-01-31T23:50:27.216Z'),
@@ -21,9 +23,9 @@ export const orgData1: Org[] = [
     lite: false,
     dwolla_customers_metadata_id: 'dcmbDcwO330Wn',
   },
-];
+]);
 
-export const orgData2 = [
+export const orgData2 = deepFreeze([
   {
     id: 'orNVthTo2Zyo',
     created_at: new Date('2018-01-31T23:50:27.216Z'),
@@ -64,4 +66,4 @@ export const orgData2 = [
     lite: false,
     dwolla_customers_metadata_id: 'dcmbDcwO440Xn',
   },
-];
+]);
