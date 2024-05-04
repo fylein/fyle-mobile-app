@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformPolicyExpense } from '../models/platform/platform-policy-expense.model';
 import { ExpensePolicyStates } from '../models/platform/platform-expense-policy-states.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const platformPolicyExpenseData1: PlatformPolicyExpense = {
+export const platformPolicyExpenseData1: PlatformPolicyExpense = deepFreeze({
   spent_at: new Date('2023-02-07T17:00:00.000Z'),
   started_at: new Date('2023-02-04T17:00:00.000Z'),
   ended_at: new Date('2023-02-05T17:00:00.000Z'),
@@ -126,9 +128,9 @@ export const platformPolicyExpenseData1: PlatformPolicyExpense = {
   num_files: 0,
   is_matching_ccc: false,
   travel_classes: [],
-};
+});
 
-export const platformPolicyExpenseData2: PlatformPolicyExpense = {
+export const platformPolicyExpenseData2: PlatformPolicyExpense = deepFreeze({
   merchant: 'Uber',
   spent_at: new Date('2023-02-21T06:30:00.000Z'),
   foreign_currency: null,
@@ -200,24 +202,24 @@ export const platformPolicyExpenseData2: PlatformPolicyExpense = {
   per_diem_num_days: 0,
   num_files: 0,
   is_matching_ccc: false,
-};
+});
 
-export const platformPolicyExpenseData3: PlatformPolicyExpense = {
+export const platformPolicyExpenseData3: PlatformPolicyExpense = deepFreeze({
   ...platformPolicyExpenseData2,
   travel_classes: ['luxury'],
-};
+});
 
-export const platformPolicyExpenseData4: PlatformPolicyExpense = {
+export const platformPolicyExpenseData4: PlatformPolicyExpense = deepFreeze({
   ...platformPolicyExpenseData2,
   travel_classes: ['first-class'],
-};
+});
 
-export const platformPolicyExpenseData5: PlatformPolicyExpense = {
+export const platformPolicyExpenseData5: PlatformPolicyExpense = deepFreeze({
   ...platformPolicyExpenseData2,
   is_reimbursable: null,
-};
+});
 
-export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
   count: 1,
   data: [
     {
@@ -263,15 +265,15 @@ export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> =
     },
   ],
   offset: 0,
-};
+});
 
-export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = {
+export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
   count: 0,
   data: [],
   offset: 0,
-};
+});
 
-export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = {
+export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
   count: 1,
   data: [
     {
@@ -290,9 +292,9 @@ export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyS
     },
   ],
   offset: 0,
-};
+});
 
-export const splitExpensePolicyExp: PlatformPolicyExpense = {
+export const splitExpensePolicyExp: PlatformPolicyExpense = deepFreeze({
   id: 'txqhb1IwrujH',
   spent_at: new Date('2023-02-15T17:00:00.000Z'),
   merchant: 'New new new',
@@ -357,4 +359,4 @@ export const splitExpensePolicyExp: PlatformPolicyExpense = {
   mileage_calculated_distance: null,
   mileage_calculated_amount: null,
   travel_classes: [],
-};
+});
