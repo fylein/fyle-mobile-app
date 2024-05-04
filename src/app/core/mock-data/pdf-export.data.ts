@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PdfExport } from '../models/pdf-exports.model';
 
-export const pdfExportData1: PdfExport[] = [
+export const pdfExportData1: PdfExport[] = deepFreeze([
   {
     id: 'ldz3kKCK1ehw',
     sent_by: 'arjun.m@fyle.in',
@@ -53,9 +55,9 @@ export const pdfExportData1: PdfExport[] = [
     column_mappings: null,
     batch_size: null,
   },
-];
+]);
 
-export const pdfExportData2: PdfExport[] = [
+export const pdfExportData2: PdfExport[] = deepFreeze([
   {
     id: 'ldz3kKCK1ehw',
     sent_by: 'arjun.m@fyle.in',
@@ -134,4 +136,4 @@ export const pdfExportData2: PdfExport[] = [
     column_mappings: null,
     batch_size: null,
   },
-];
+]);

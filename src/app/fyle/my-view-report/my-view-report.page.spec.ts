@@ -308,7 +308,8 @@ describe('MyViewReportPage', () => {
       loaderService.showLoader.and.resolveTo();
       reportService.getReport.and.returnValue(of(erpt));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -401,7 +402,8 @@ describe('MyViewReportPage', () => {
       loaderService.showLoader.and.resolveTo();
       reportService.getReport.and.returnValue(of(null));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -486,13 +488,14 @@ describe('MyViewReportPage', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    component.erpt$ = of(newReportParam);
+    const mockErpt = cloneDeep(newReportParam);
+    component.erpt$ = of(mockErpt);
     fixture.detectChanges();
     reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(mockErpt);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
@@ -507,7 +510,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -533,7 +536,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -590,7 +593,7 @@ describe('MyViewReportPage', () => {
     const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
     deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
 
-    popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
+    popoverController.create.and.resolveTo(deleteReportPopoverSpy);
 
     component.deleteReportPopup(expectedAllReports[0]);
     tick(2000);
@@ -700,6 +703,7 @@ describe('MyViewReportPage', () => {
         },
       ]);
     });
+
     it('should go to edit expense page if canEdit is true', () => {
       component.canEdit$ = of(true);
       component.erpt$ = of(expectedAllReports[0]);
@@ -828,7 +832,7 @@ describe('MyViewReportPage', () => {
         email: 'aj@fyle.com',
       },
     });
-    modalController.create.and.returnValue(Promise.resolve(shareReportModalSpy));
+    modalController.create.and.resolveTo(shareReportModalSpy);
     reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
@@ -863,7 +867,7 @@ describe('MyViewReportPage', () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
     viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
-    modalController.create.and.returnValue(Promise.resolve(viewInfoModalSpy));
+    modalController.create.and.resolveTo(viewInfoModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
 
     await component.openViewReportInfoModal();
@@ -964,7 +968,7 @@ describe('MyViewReportPage', () => {
         },
       });
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
@@ -997,7 +1001,7 @@ describe('MyViewReportPage', () => {
       ]);
       addExpensesToReportModalSpy.onWillDismiss.and.resolveTo(null);
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 

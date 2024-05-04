@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import * as dayjs from 'dayjs';
 import { SplitExpense } from '../models/split-expense.model';
 
-export const splitExpense1: SplitExpense = {
+export const splitExpense1: SplitExpense = deepFreeze({
   amount: 15000,
   currency: 'INR',
   percentage: 60,
@@ -25,9 +27,9 @@ export const splitExpense1: SplitExpense = {
     projectv2_name: '3M',
     sub_project_name: null,
   },
-};
+});
 
-export const splitExpense2: SplitExpense = {
+export const splitExpense2: SplitExpense = deepFreeze({
   amount: 2160,
   currency: 'INR',
   percentage: 60,
@@ -44,48 +46,48 @@ export const splitExpense2: SplitExpense = {
     sub_category: '1',
     updated_at: '2023-04-17T12:55:49.475665+00:00',
   },
-};
+});
 
-export const splitExpense3 = {
+export const splitExpense3 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
   txn_dt: '2023-02-08',
   category: '',
-};
+});
 
-export const splitExpense4 = {
+export const splitExpense4 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
   txn_dt: dayjs(new Date()).format('YYYY-MM-DD'),
   category: '',
-};
+});
 
-export const splitExpense5 = {
+export const splitExpense5 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
   txn_dt: '2023-02-08',
   project: '',
-};
+});
 
-export const splitExpense6 = {
+export const splitExpense6 = deepFreeze({
   amount: 2000,
   currency: 'INR',
   percentage: 50,
   txn_dt: '2023-02-08',
   cost_center: '',
-};
+});
 
-export const splitExpense7 = {
+export const splitExpense7 = deepFreeze({
   ...splitExpense3,
   amount: null,
   currency: null,
   percentage: null,
-};
+});
 
-export const splitExpenseDataWithProject: SplitExpense = {
+export const splitExpenseDataWithProject: SplitExpense = deepFreeze({
   amount: 120,
   currency: 'INR',
   percentage: 60,
@@ -130,14 +132,14 @@ export const splitExpenseDataWithProject: SplitExpense = {
     sub_project_name: 'Sub 103',
   },
   txn_dt: '2023-08-10',
-};
+});
 
-export const splitExpenseDataWithProject2: SplitExpense = {
+export const splitExpenseDataWithProject2: SplitExpense = deepFreeze({
   ...splitExpenseDataWithProject,
   project: undefined,
-};
+});
 
-export const splitExpenseDataWithCostCenter: SplitExpense = {
+export const splitExpenseDataWithCostCenter: SplitExpense = deepFreeze({
   ...splitExpenseDataWithProject,
   project: undefined,
   cost_center: {
@@ -150,9 +152,9 @@ export const splitExpenseDataWithCostCenter: SplitExpense = {
     org_id: 'orOTDe765hQp',
     updated_at: '2023-01-04T04:00:32.338131+00:00',
   },
-};
+});
 
-export const splitExpenseDataWithCostCenter2: SplitExpense = {
+export const splitExpenseDataWithCostCenter2: SplitExpense = deepFreeze({
   ...splitExpenseDataWithCostCenter,
   cost_center: undefined,
-};
+});

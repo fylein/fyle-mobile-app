@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TaxSettings } from '../models/org-settings.model';
 
-export const taxSettingsData: TaxSettings = {
+export const taxSettingsData: TaxSettings = deepFreeze({
   allowed: true,
   enabled: true,
   name: null,
@@ -27,4 +29,4 @@ export const taxSettingsData: TaxSettings = {
       },
     },
   ],
-};
+});
