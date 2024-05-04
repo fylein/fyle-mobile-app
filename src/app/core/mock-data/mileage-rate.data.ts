@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { MileageRatesOptions } from '../models/mileage-rates-options.data';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const unfilteredMileageRatesData: PlatformMileageRates[] = [
+export const unfilteredMileageRatesData: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -69,9 +71,9 @@ export const unfilteredMileageRatesData: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '₹18.00/mile',
   },
-];
+]);
 
-export const filterEnabledMileageRatesData: PlatformMileageRates[] = [
+export const filterEnabledMileageRatesData: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -121,9 +123,9 @@ export const filterEnabledMileageRatesData: PlatformMileageRates[] = [
     vehicle_type: 'electric_car',
     readableRate: '₹122.00/mile',
   },
-];
+]);
 
-export const nullMileageRateData: PlatformMileageRates[] = [
+export const nullMileageRateData: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -173,9 +175,9 @@ export const nullMileageRateData: PlatformMileageRates[] = [
     vehicle_type: 'electric_car',
     readableRate: '₹122.00/mile',
   },
-];
+]);
 
-export const platformMileageRatesData1: PlatformMileageRates[] = [
+export const platformMileageRatesData1: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -207,9 +209,9 @@ export const platformMileageRatesData1: PlatformMileageRates[] = [
     vehicle_type: 'IRS testing',
     readableRate: '₹102.26/mile',
   },
-];
+]);
 
-export const platformMileageRatesData2: PlatformMileageRates[] = [
+export const platformMileageRatesData2: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -246,9 +248,9 @@ export const platformMileageRatesData2: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '₹18.00/mile',
   },
-];
+]);
 
-export const mileageRateApiRes1: PlatformMileageRates[] = [
+export const mileageRateApiRes1: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -280,9 +282,9 @@ export const mileageRateApiRes1: PlatformMileageRates[] = [
     vehicle_type: 'IRS testing',
     readableRate: '₹102.26/mile',
   },
-];
+]);
 
-export const mileageRateApiRes2: PlatformMileageRates[] = [
+export const mileageRateApiRes2: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -319,9 +321,9 @@ export const mileageRateApiRes2: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '₹18.00/mile',
   },
-];
+]);
 
-export const mileageRateOptions: MileageRatesOptions[] = [
+export const mileageRateOptions: MileageRatesOptions[] = deepFreeze([
   {
     label: 'Electric Car ($10/mi)',
     value: {
@@ -364,9 +366,9 @@ export const mileageRateOptions: MileageRatesOptions[] = [
       readableRate: '$10/mi',
     },
   },
-];
+]);
 
-export const unfilteredMileageRatesData2: PlatformMileageRates[] = [
+export const unfilteredMileageRatesData2: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -434,9 +436,9 @@ export const unfilteredMileageRatesData2: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '₹18.00/mile',
   },
-];
+]);
 
-export const expectedMileageData: PlatformMileageRates[] = [
+export const expectedMileageData: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825000+00:00'),
@@ -504,4 +506,4 @@ export const expectedMileageData: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '₹18.00/mile',
   },
-];
+]);

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedDeviceInfo } from '../models/extended-device-info.model';
 
-export const extendedDeviceInfoMockData: ExtendedDeviceInfo = {
+export const extendedDeviceInfoMockData: ExtendedDeviceInfo = deepFreeze({
   uuid: 'mockuuid123',
   appVersion: '5.50.0',
   liveUpdateAppVersion: '5.50.0',
@@ -11,9 +13,9 @@ export const extendedDeviceInfoMockData: ExtendedDeviceInfo = {
   manufacturer: 'Apple',
   isVirtual: false,
   webViewVersion: 'mockwebviewversion123',
-};
+});
 
-export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = {
+export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = deepFreeze({
   uuid: 'mockuuid124',
   appVersion: '5.52.0',
   liveUpdateAppVersion: '5.52.0',
@@ -24,9 +26,9 @@ export const extendedDeviceInfoMockData2: ExtendedDeviceInfo = {
   manufacturer: 'Samsung',
   isVirtual: false,
   webViewVersion: 'mockwebviewversion124',
-};
+});
 
-export const extendedDeviceInfoMockDataWoApp: ExtendedDeviceInfo = {
+export const extendedDeviceInfoMockDataWoApp: ExtendedDeviceInfo = deepFreeze({
   uuid: 'mockuuid124',
   appVersion: null,
   liveUpdateAppVersion: '5.52.0',
@@ -37,4 +39,4 @@ export const extendedDeviceInfoMockDataWoApp: ExtendedDeviceInfo = {
   manufacturer: 'Samsung',
   isVirtual: false,
   webViewVersion: 'mockwebviewversion124',
-};
+});

@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
-export const transformedExpenseData: Partial<UnflattenedTransaction> = {
+export const transformedExpenseData: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txvslh8aQMbu',
     created_at: new Date('2023-12-05T17:20:43.158Z'),
@@ -75,9 +77,9 @@ export const transformedExpenseData: Partial<UnflattenedTransaction> = {
     id: 'ou6cE4dCLH8d',
     org_id: 'orNbIQloYtfa',
   },
-};
+});
 
-export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransaction> = {
+export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txD5hIQgLuR5',
     created_at: new Date('2024-02-09T01:20:13.098Z'),
@@ -172,25 +174,25 @@ export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransacti
     id: 'ou6cE4dCLH8d',
     org_id: 'orNbIQloYtfa',
   },
-};
+});
 
-export const transformedExpenseDataWithReportId: Partial<UnflattenedTransaction> = {
+export const transformedExpenseDataWithReportId: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseDataWithSubCategory,
   tx: {
     ...transformedExpenseDataWithSubCategory.tx,
     report_id: 'rpbNc3kn5baq',
   },
-};
+});
 
-export const transformedExpenseDataWithReportId2: Partial<UnflattenedTransaction> = {
+export const transformedExpenseDataWithReportId2: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseDataWithSubCategory,
   tx: {
     ...transformedExpenseDataWithSubCategory.tx,
     report_id: 'rplD17WeBlha',
   },
-};
+});
 
-export const transformedExpenseWithExtractedData: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithExtractedData: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txO6d6eiB4JF',
     created_at: new Date('2024-02-11T17:27:43.416Z'),
@@ -290,9 +292,9 @@ export const transformedExpenseWithExtractedData: Partial<UnflattenedTransaction
     id: 'ou6cE4dCLH8d',
     org_id: 'orNbIQloYtfa',
   },
-};
+});
 
-export const transformedExpenseWithExtractedData2: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithExtractedData2: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseWithExtractedData,
   tx: {
     ...transformedExpenseWithExtractedData.tx,
@@ -309,9 +311,9 @@ export const transformedExpenseWithExtractedData2: Partial<UnflattenedTransactio
       category: 'Food',
     },
   },
-};
+});
 
-export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txmF3wgfj0Bs',
     created_at: new Date('2024-01-23T01:19:49.370Z'),
@@ -392,9 +394,9 @@ export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction>
     id: 'ouokfwl9OEdl',
     org_id: 'oroLKHBYQVvj',
   },
-};
+});
 
-export const transformedExpenseWithMatchCCCData2: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithMatchCCCData2: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseWithMatchCCCData,
   tx: {
     ...transformedExpenseWithMatchCCCData.tx,
@@ -402,9 +404,9 @@ export const transformedExpenseWithMatchCCCData2: Partial<UnflattenedTransaction
     matchCCCId: null,
     matched_corporate_card_transactions: [],
   },
-};
+});
 
-export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseWithMatchCCCData,
   tx: {
     ...transformedExpenseWithMatchCCCData.tx,
@@ -428,9 +430,9 @@ export const transformedExpenseWithMatchCCCData3: Partial<UnflattenedTransaction
       },
     ],
   },
-};
+});
 
-export const transformedExpenseWithMatchCCCData4: Partial<UnflattenedTransaction> = {
+export const transformedExpenseWithMatchCCCData4: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txmF3wgfj0Bs',
     created_at: new Date('2024-01-23T01:19:49.370Z'),
@@ -496,14 +498,14 @@ export const transformedExpenseWithMatchCCCData4: Partial<UnflattenedTransaction
     id: 'ouokfwl9OEdl',
     org_id: 'oroLKHBYQVvj',
   },
-};
+});
 
-export const mileageCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = {
+export const mileageCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseData,
   tx: { ...transformedExpenseData.tx, org_category: 'MILEAGE' },
-};
+});
 
-export const perDiemCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = {
+export const perDiemCategoryTransformedExpenseData: Partial<UnflattenedTransaction> = deepFreeze({
   ...transformedExpenseData,
   tx: { ...transformedExpenseData.tx, org_category: 'PER DIEM' },
-};
+});

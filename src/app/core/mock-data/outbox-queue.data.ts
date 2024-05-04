@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { expectedUnflattendedTxnData3 } from './unflattened-txn.data';
 
-export const outboxQueueData1: OutboxQueue[] = [
+export const outboxQueueData1: OutboxQueue[] = deepFreeze([
   {
     transaction: expectedUnflattendedTxnData3.tx,
     dataUrls: [
@@ -17,4 +19,4 @@ export const outboxQueueData1: OutboxQueue[] = [
     applyMagic: true,
     fileUploadCompleted: true,
   },
-];
+]);
