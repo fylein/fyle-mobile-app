@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
-export const lDUser: LDClient.LDUser = {
+export const lDUser: LDClient.LDUser = deepFreeze({
   key: 'usvKA4X8Ugcr',
   custom: {
     org_id: 'orNVthTo2Zyo',
@@ -9,4 +11,4 @@ export const lDUser: LDClient.LDUser = {
     org_created_at: '2018-01-31T23:50:27.216Z',
     asset: 'MOBILE - WEB',
   },
-};
+});

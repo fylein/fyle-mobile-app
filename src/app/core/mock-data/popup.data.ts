@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PopupConfig } from 'src/app/shared/components/fy-popup/popup.model';
 
-export const popupConfigData: PopupConfig = {
+export const popupConfigData: PopupConfig = deepFreeze({
   header: 'Delete Report?',
   message: `
           <p class="highlight-info">
@@ -13,20 +15,20 @@ export const popupConfigData: PopupConfig = {
   primaryCta: {
     text: 'Delete',
   },
-};
+});
 
-export const popupConfigData2: PopupConfig = {
+export const popupConfigData2: PopupConfig = deepFreeze({
   header: 'Cannot Delete Report',
   message: 'Report cannot be deleted',
   primaryCta: {
     text: 'Close',
   },
-};
+});
 
-export const popupConfigData3: PopupConfig = {
+export const popupConfigData3: PopupConfig = deepFreeze({
   header: 'Confirm',
   message: 'Are you sure you want to delete this Advance Request',
   primaryCta: {
     text: 'Delete Advance Request',
   },
-};
+});
