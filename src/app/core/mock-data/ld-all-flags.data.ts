@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
-export const ldAllFlagsRes: LDClient.LDFlagValue = {
+export const ldAllFlagsRes: LDClient.LDFlagValue = deepFreeze({
   approve_report_and_next_enabled: true,
   automate_report_submission_enabled: true,
   automate_reports_weekly: true,
@@ -20,4 +22,4 @@ export const ldAllFlagsRes: LDClient.LDFlagValue = {
   payment_mode_configurations: true,
   remove_offline_forms: true,
   upload_receipt_first_flow: false,
-};
+});

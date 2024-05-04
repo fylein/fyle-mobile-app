@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CommuteDetailsResponse } from '../models/platform/commute-details-response.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const commuteDetailsResponseData: PlatformApiResponse<CommuteDetailsResponse> = {
+export const commuteDetailsResponseData: PlatformApiResponse<CommuteDetailsResponse> = deepFreeze({
   count: 1,
   offset: 0,
   data: [
@@ -31,15 +33,15 @@ export const commuteDetailsResponseData: PlatformApiResponse<CommuteDetailsRespo
       },
     },
   ],
-};
+});
 
-export const commuteDetailsResponseData2: PlatformApiResponse<CommuteDetailsResponse> = {
+export const commuteDetailsResponseData2: PlatformApiResponse<CommuteDetailsResponse> = deepFreeze({
   count: 1,
   offset: 0,
   data: [],
-};
+});
 
-export const commuteDetailsResponseData3: PlatformApiResponse<CommuteDetailsResponse> = {
+export const commuteDetailsResponseData3: PlatformApiResponse<CommuteDetailsResponse> = deepFreeze({
   count: 1,
   offset: 0,
   data: [
@@ -55,4 +57,4 @@ export const commuteDetailsResponseData3: PlatformApiResponse<CommuteDetailsResp
       },
     },
   ],
-};
+});

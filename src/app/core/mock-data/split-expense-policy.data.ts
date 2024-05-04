@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { SplitExpensePolicy } from '../models/platform/v1/split-expense-policy.model';
 
-export const splitPolicyExp1: SplitExpensePolicy = {
+export const splitPolicyExp1: SplitExpensePolicy = deepFreeze({
   data: [
     {
       individual_desired_states: [],
@@ -15,4 +17,4 @@ export const splitPolicyExp1: SplitExpensePolicy = {
       },
     },
   ],
-};
+});

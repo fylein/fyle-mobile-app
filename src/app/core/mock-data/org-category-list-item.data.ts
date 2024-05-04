@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
 import { expectedOrgCategoriesPaginated } from './org-category.data';
 
-export const categorieListRes: OrgCategoryListItem[] = [
+export const categorieListRes: OrgCategoryListItem[] = deepFreeze([
   {
     label: 'Accounts Payable - Employees',
     value: expectedOrgCategoriesPaginated[0],
@@ -18,9 +20,9 @@ export const categorieListRes: OrgCategoryListItem[] = [
     label: 'samp category',
     value: expectedOrgCategoriesPaginated[3],
   },
-];
+]);
 
-export const recentUsedCategoriesRes: OrgCategoryListItem[] = [
+export const recentUsedCategoriesRes: OrgCategoryListItem[] = deepFreeze([
   {
     label: 'Office Supplies',
     value: {
@@ -66,9 +68,9 @@ export const recentUsedCategoriesRes: OrgCategoryListItem[] = [
       updated_at: new Date('2022-11-23T13:11:51.771676+00:00'),
     },
   },
-];
+]);
 
-export const orgCategoryListItemData1 = [
+export const orgCategoryListItemData1 = deepFreeze([
   {
     label: 'Business',
     value: {
@@ -129,4 +131,4 @@ export const orgCategoryListItemData1 = [
       updated_at: new Date('2023-01-09T16:54:09.929Z'),
     },
   },
-];
+]);

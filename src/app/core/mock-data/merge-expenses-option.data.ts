@@ -1,46 +1,48 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccountType } from '../enums/account-type.enum';
 import { MergeExpensesOption } from '../models/merge-expenses-option.model';
 
-export const billableOptions1: MergeExpensesOption<boolean> = {
+export const billableOptions1: MergeExpensesOption<boolean> = deepFreeze({
   label: 'Yes',
   value: true,
-};
+});
 
-export const billableOptions2: MergeExpensesOption<boolean> = {
+export const billableOptions2: MergeExpensesOption<boolean> = deepFreeze({
   label: 'No',
   value: false,
-};
+});
 
-export const paymentModeOptions1: MergeExpensesOption<string> = {
+export const paymentModeOptions1: MergeExpensesOption<string> = deepFreeze({
   label: 'Personal Card/Cash',
   value: AccountType.PERSONAL,
-};
+});
 
-export const paymentModeOptions2: MergeExpensesOption<string> = {
+export const paymentModeOptions2: MergeExpensesOption<string> = deepFreeze({
   label: 'Advance',
   value: AccountType.ADVANCE,
-};
+});
 
-export const paymentModeOptions3: MergeExpensesOption<string> = {
+export const paymentModeOptions3: MergeExpensesOption<string> = deepFreeze({
   label: 'Corporate Card',
   value: AccountType.CCC,
-};
+});
 
-export const sameOptions: MergeExpensesOption<boolean>[] = [billableOptions1, billableOptions1];
+export const sameOptions: MergeExpensesOption<boolean>[] = deepFreeze([billableOptions1, billableOptions1]);
 
-export const mergeExpensesOptionsData: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionsData: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'Receipt From Expense 1 ',
     value: 'tx3nHShG60zq',
   },
-];
+]);
 
-export const projectOptionsData: MergeExpensesOption<number> = {
+export const projectOptionsData: MergeExpensesOption<number> = deepFreeze({
   label: 'Staging Project',
   value: 3943,
-};
+});
 
-export const categoryOptionsData: MergeExpensesOption<number>[] = [
+export const categoryOptionsData: MergeExpensesOption<number>[] = deepFreeze([
   {
     label: 'Food / Travelling - Inland',
     value: 201952,
@@ -49,9 +51,9 @@ export const categoryOptionsData: MergeExpensesOption<number>[] = [
     label: 'Unspecified',
     value: 16582,
   },
-];
+]);
 
-export const mergeExpensesOptionData1: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData1: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'Mar 13 ₹1.00 Nilesh As Vendor - Staging Project',
     value: 'txKJAJ1flx7n',
@@ -60,9 +62,9 @@ export const mergeExpensesOptionData1: MergeExpensesOption<string>[] = [
     label: 'Mar 08 ₹1.00 Nilesh As Vendor - Staging Project',
     value: 'txz2vohKxBXu',
   },
-];
+]);
 
-export const mergeExpensesOptionData2: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData2: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: '  Nilesh As Vendor - Staging Project',
     value: 'txKJAJ1flx7n',
@@ -71,9 +73,9 @@ export const mergeExpensesOptionData2: MergeExpensesOption<string>[] = [
     label: '  Nilesh As Vendor - Staging Project',
     value: 'txz2vohKxBXu',
   },
-];
+]);
 
-export const mergeExpensesOptionData3: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData3: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'Staging Project',
     value: '3943',
@@ -82,9 +84,9 @@ export const mergeExpensesOptionData3: MergeExpensesOption<string>[] = [
     label: 'Staging Project',
     value: '3943',
   },
-];
+]);
 
-export const mergeExpensesOptionData4: MergeExpensesOption<number>[] = [
+export const mergeExpensesOptionData4: MergeExpensesOption<number>[] = deepFreeze([
   {
     label: 'Food',
     value: 201952,
@@ -93,9 +95,9 @@ export const mergeExpensesOptionData4: MergeExpensesOption<number>[] = [
     label: 'Hotel',
     value: 16582,
   },
-];
+]);
 
-export const mergeExpensesOptionData5: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData5: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'GST',
     value: 'tgXEJA6YUoZ1',
@@ -104,9 +106,9 @@ export const mergeExpensesOptionData5: MergeExpensesOption<string>[] = [
     label: 'GST',
     value: 'tgXEJA6YUoZ1',
   },
-];
+]);
 
-export const mergeExpensesOptionData6: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData6: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'ECONOMY',
     value: 'ECONOMY',
@@ -115,9 +117,9 @@ export const mergeExpensesOptionData6: MergeExpensesOption<string>[] = [
     label: 'BUSINESS',
     value: 'BUSINESS',
   },
-];
+]);
 
-export const mergeExpensesOptionData7: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData7: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'SLEEPER',
     value: 'SLEEPER',
@@ -126,9 +128,9 @@ export const mergeExpensesOptionData7: MergeExpensesOption<string>[] = [
     label: 'SLEEPER',
     value: 'SLEEPER',
   },
-];
+]);
 
-export const mergeExpensesOptionData8: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData8: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'AC',
     value: 'AC',
@@ -137,9 +139,9 @@ export const mergeExpensesOptionData8: MergeExpensesOption<string>[] = [
     label: 'AC',
     value: 'AC',
   },
-];
+]);
 
-export const mergeExpensesOptionData9: MergeExpensesOption<number>[] = [
+export const mergeExpensesOptionData9: MergeExpensesOption<number>[] = deepFreeze([
   {
     label: '25',
     value: 25,
@@ -148,9 +150,9 @@ export const mergeExpensesOptionData9: MergeExpensesOption<number>[] = [
     label: '30',
     value: 30,
   },
-];
+]);
 
-export const mergeExpensesOptionData10: MergeExpensesOption<string>[] = [
+export const mergeExpensesOptionData10: MergeExpensesOption<string>[] = deepFreeze([
   {
     label: 'KM',
     value: 'KM',
@@ -159,4 +161,4 @@ export const mergeExpensesOptionData10: MergeExpensesOption<string>[] = [
     label: 'MILES',
     value: 'MILES',
   },
-];
+]);

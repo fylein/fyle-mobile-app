@@ -1,10 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { cloneDeep } from 'lodash';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
-import { AdvanceRequestState } from 'src/app/core/models/advance-request-state.model';
 import { AdvanceRequestPlatform } from 'src/app/core/models/platform/advance-request-platform.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
-export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform> = deepFreeze({
   count: 1,
   offset: 0,
   data: [
@@ -87,9 +88,9 @@ export const advanceRequestPlatform: PlatformApiResponse<AdvanceRequestPlatform>
       ],
     },
   ],
-};
+});
 
-export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceRequestPlatform> = deepFreeze({
   count: 1,
   offset: 0,
   data: [
@@ -99,9 +100,9 @@ export const advanceRequestPlatformPulledBack: PlatformApiResponse<AdvanceReques
       id: 'areqiwr3Wwirl',
     },
   ],
-};
+});
 
-export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestPlatform> = {
+export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestPlatform> = deepFreeze({
   count: 1,
   offset: 0,
   data: [
@@ -111,4 +112,4 @@ export const advanceRequestPlatformSentBack: PlatformApiResponse<AdvanceRequestP
       state: 'SENT_BACK',
     },
   ],
-};
+});
