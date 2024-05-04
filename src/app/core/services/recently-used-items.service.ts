@@ -13,7 +13,7 @@ import { Currency, CurrencyName } from '../models/currency.model';
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(private apiService: ApiService, private projectService: ProjectsService) {}
+  constructor(private apiService: ApiService, private projectsService: ProjectsService) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
@@ -30,7 +30,7 @@ export class RecentlyUsedItemsService {
       config.recentValues.recent_project_ids.length > 0 &&
       config.eou
     ) {
-      return this.projectService
+      return this.projectsService
         .getByParamsUnformatted({
           orgId: config.eou.ou.org_id,
           active: true,

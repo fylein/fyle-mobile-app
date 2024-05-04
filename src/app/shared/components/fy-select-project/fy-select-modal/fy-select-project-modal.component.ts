@@ -46,7 +46,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private authService: AuthService,
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
@@ -63,7 +63,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     const defaultProject$ = this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-          return this.projectService.getbyId(orgUserSettings.preferences.default_project_id);
+          return this.projectsService.getbyId(orgUserSettings.preferences.default_project_id);
         } else {
           return of(null);
         }
@@ -83,7 +83,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       concatMap((allowedProjectIds) =>
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
-            this.projectService.getByParamsUnformatted({
+            this.projectsService.getByParamsUnformatted({
               orgId: eou.ou.org_id,
               active: true,
               sortDirection: 'asc',

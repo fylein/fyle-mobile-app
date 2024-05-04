@@ -33,8 +33,6 @@ module.exports.getGoogleCredentialsIos = (NATIVE_CONFIG) =>
       <true></true>
       <key>GOOGLE_APP_ID</key>
       <string>${process.env.FYLE_MOBILE_IOS_GOOGLE_APP_ID}</string>
-      <key>DATABASE_URL</key>
-      <string>${process.env.FYLE_MOBILE_FIREBASE_URL}</string>
   </dict>
 </plist>
 `

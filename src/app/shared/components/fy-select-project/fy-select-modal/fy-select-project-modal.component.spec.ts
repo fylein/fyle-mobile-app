@@ -40,7 +40,7 @@ describe('FyProjectSelectModalComponent', () => {
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: ChangeDetectorRef;
-  let projectService: jasmine.SpyObj<ProjectsService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -50,7 +50,7 @@ describe('FyProjectSelectModalComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
@@ -76,7 +76,7 @@ describe('FyProjectSelectModalComponent', () => {
         },
         {
           provide: ProjectsService,
-          useValue: projectServiceSpy,
+          useValue: projectsServiceSpy,
         },
         {
           provide: AuthService,
@@ -105,7 +105,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef);
-    projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
@@ -114,13 +114,13 @@ describe('FyProjectSelectModalComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
 
-    projectService.getbyId.and.returnValue(of(singleProjects1));
+    projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
-    projectService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
+    projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
     component.cacheName = 'projects';
     component.defaultValue = true;
@@ -138,8 +138,8 @@ describe('FyProjectSelectModalComponent', () => {
 
   describe('getProjects():', () => {
     it('should get projects when current selection is not defined', (done) => {
-      projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      projectsService.getByParamsUnformatted.and.returnValue(of(projects));
+      projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
 
       component.getProjects('projects').subscribe((res) => {
@@ -147,7 +147,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -158,13 +158,13 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
 
     it('should get projects when current selection is defined', (done) => {
-      projectService.getByParamsUnformatted.and.returnValue(of(projects));
+      projectsService.getByParamsUnformatted.and.returnValue(of(projects));
       component.currentSelection = testProjectV2;
       fixture.detectChanges();
 
@@ -173,7 +173,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -184,14 +184,14 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
 
     it('should get projects when default value is null and no default projects are available', (done) => {
       orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
-      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.defaultValue = false;
       fixture.detectChanges();
 
@@ -199,7 +199,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -210,7 +210,7 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });

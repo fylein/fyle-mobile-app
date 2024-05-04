@@ -259,7 +259,7 @@ export class AddEditPerDiemPage implements OnInit {
     private currencyService: CurrencyService,
     private reportService: ReportService,
     private platformReportService: ReportsService,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private transactionsOutboxService: TransactionsOutboxService,
     private transactionService: TransactionService,
     private authService: AuthService,
@@ -689,7 +689,7 @@ export class AddEditPerDiemPage implements OnInit {
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+          map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -1008,7 +1008,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1309,7 +1309,7 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId);
         } else {
           return of(null);
         }
