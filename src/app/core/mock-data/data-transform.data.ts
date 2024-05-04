@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FlattenedAccount } from '../models/flattened-account.model';
 
-export const dataErtpTransformed = {
+export const dataErtpTransformed = deepFreeze({
   '': {
     search_document:
       "'46040':4 'a':8,14,20,26 'abhishek':32 'ajain@fyle.in':34 'business':11,17,23,29 'c/2022/10/r/37':5 'director':6 'indeed':13,19,25,31 'inr':3 'jain':33 'long':10,16,22,28 'mumbai':7 'report':2 'testing':1 'unit':12,18,24,30 'very':9,15,21,27",
@@ -64,9 +66,9 @@ export const dataErtpTransformed = {
     email: 'ajain@fyle.in',
     full_name: 'Abhishek Jain',
   },
-};
+});
 
-export const apiErptReporDataParam = {
+export const apiErptReporDataParam = deepFreeze({
   '': {
     search_document:
       "'46040':4 'a':8,14,20,26 'abhishek':32 'ajain@fyle.in':34 'business':11,17,23,29 'c/2022/10/r/37':5 'director':6 'indeed':13,19,25,31 'inr':3 'jain':33 'long':10,16,22,28 'mumbai':7 'report':2 'testing':1 'unit':12,18,24,30 'very':9,15,21,27",
@@ -130,9 +132,9 @@ export const apiErptReporDataParam = {
     email: 'ajain@fyle.in',
     full_name: 'Abhishek Jain',
   },
-};
+});
 
-export const flattenedData: FlattenedAccount = {
+export const flattenedData: FlattenedAccount = deepFreeze({
   acc_id: 'acct0vTdfNQrT',
   acc_created_at: '2019-09-19T10:19:37.764Z',
   acc_updated_at: '2023-03-10T11:29:40.049Z',
@@ -156,9 +158,9 @@ export const flattenedData: FlattenedAccount = {
   orig_amount: 2500,
   amount: 2500,
   advance_id: 'aDvId123',
-};
+});
 
-export const unflattenedData = {
+export const unflattenedData = deepFreeze({
   acc: {
     id: 'acct0vTdfNQrT',
     created_at: '2019-09-19T10:19:37.764Z',
@@ -196,4 +198,4 @@ export const unflattenedData = {
   },
   currency: 'INR',
   amount: 2500,
-};
+});

@@ -5,12 +5,13 @@
     "zone-flags.ts",
     "test.ts",
     "main.ts",
-    "*.spec.ts"
+    "eslint-custom-rules/**/*"
   ],
   "plugins": ["max-params-no-constructor", "custom-rules"],
   "overrides": [
     {
       "files": ["*.ts"],
+      "excludedFiles": ["*.spec.ts", "*.e2e-spec.ts", "*.po.ts"],
       "parserOptions": {
         "project": ["tsconfig.json", "e2e/tsconfig.json"],
         "createDefaultProgram": true
@@ -94,6 +95,56 @@
       "files": ["*.data.ts"],
       "rules": {
         "custom-rules/prefer-deep-freeze": "error"
+      }
+    },
+    {
+      "files": ["*.spec.ts"],
+      "parserOptions": {
+        "project": ["tsconfig.json", "e2e/tsconfig.json"],
+        "createDefaultProgram": true
+      },
+      "extends": [
+        "plugin:@angular-eslint/ng-cli-compat"
+      ],
+      "rules": {
+        "jsdoc/newline-after-description": "off",
+        "@angular-eslint/component-class-suffix": "off",
+        "@typescript-eslint/naming-convention": "off",
+        "@angular-eslint/component-selector": "off",
+        "@angular-eslint/directive-selector": "off",
+        "indent": "off",
+        "semi": "off",
+        "no-underscore-dangle": "off",
+        "@angular-eslint/template/no-negated-async": "off",
+        "@typescript-eslint/prefer-for-of": "off",
+        "prefer-arrow/prefer-arrow-functions": "off",
+        "@typescript-eslint/ban-types": "off",
+        "@typescript-eslint/consistent-type-assertions": "off",
+        "@angular-eslint/no-conflicting-lifecycle": "off",
+        "lines-between-class-members": "off",
+        "@typescript-eslint/no-shadow": "off",
+        "complexity": "off",
+        "max-depth": "off",
+        "max-params-no-constructor/max-params-no-constructor": "off",
+        "max-len": "off",
+        "space-before-function-paren": "off",
+        "@typescript-eslint/quotes": "off",
+        "@typescript-eslint/no-unsafe-call": "off",
+        "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-assignment": "off",
+        "@typescript-eslint/no-unsafe-return": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
+        "@typescript-eslint/explicit-function-return-type": "off",
+        "@typescript-eslint/no-unnecessary-type-assertion": "off",
+        "@typescript-eslint/no-unused-vars": "off",
+        "@typescript-eslint/no-explicit-any": "off",
+        "@typescript-eslint/no-empty-function": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/no-inferrable-types": "off",
+        "no-unused-expressions": "off",
+        "custom-rules/space-before-it-blocks": "error",
+        "custom-rules/prefer-jasmine-matchers": "error",
+        "custom-rules/prefer-resolve-to-reject-with": "error"
       }
     }
   ]

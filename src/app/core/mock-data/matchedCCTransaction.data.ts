@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 import { TransactionStatus } from '../models/platform/v1/expense.model';
 
-export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = {
+export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = deepFreeze({
   id: 'btxnSte7sVQCM8',
   group_id: 'btxnSte7sVQCM8',
   amount: 260.37,
@@ -15,9 +17,9 @@ export const matchedCCTransactionData: Partial<MatchedCCCTransaction> = {
   orig_currency: null,
   status: TransactionStatus.PENDING,
   displayObject: 'Jul 3, 2018 - test description260.37',
-};
+});
 
-export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = {
+export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = deepFreeze({
   id: 'btxnBdS2Kpvzhy',
   group_id: 'btxnBdS2Kpvzhy',
   amount: 205.21,
@@ -31,9 +33,9 @@ export const matchedCCTransactionData2: Partial<MatchedCCCTransaction> = {
   orig_currency: null,
   status: TransactionStatus.PENDING,
   displayObject: 'Jun 6, 2018 - test description205.21',
-};
+});
 
-export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = {
+export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = deepFreeze({
   id: 'btxnBdS2Kpvzhy',
   group_id: 'btxnBdS2Kpvzhy',
   created_at: '2024-01-23T12:17:34.473632+00:00',
@@ -50,4 +52,4 @@ export const matchedCCTransactionData3: Partial<MatchedCCCTransaction> = {
   orig_amount: null,
   orig_currency: null,
   status: undefined,
-};
+});

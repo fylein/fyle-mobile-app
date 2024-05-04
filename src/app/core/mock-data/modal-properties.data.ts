@@ -1,4 +1,6 @@
-export const properties = {
+import deepFreeze from 'deep-freeze-strict';
+
+export const properties = deepFreeze({
   cssClass: 'fy-modal',
   showBackdrop: true,
   canDismiss: true,
@@ -7,4 +9,4 @@ export const properties = {
   initialBreakpoint: 1,
   breakpoints: [0, 1],
   handle: false,
-};
+});

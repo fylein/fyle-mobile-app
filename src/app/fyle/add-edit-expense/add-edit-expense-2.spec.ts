@@ -471,16 +471,17 @@ export function TestCases2(getTestBed) {
     describe('getEditExpenseObservable(): ', () => {
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData);
+        const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
         categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseWithExtractedData);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            transformedExpenseWithExtractedData.tx.extracted_data.category
+            mockTransformedExpense.tx.extracted_data.category
           );
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
@@ -490,10 +491,11 @@ export function TestCases2(getTestBed) {
 
       it('should return txn if state is not DRAFT', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseData);
+        const mockTransformedExpense = cloneDeep(transformedExpenseData);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseData);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
           done();
@@ -502,11 +504,12 @@ export function TestCases2(getTestBed) {
 
       it('should return txn when the expense or the extracted data does not contain any category', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData2);
+        const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData2);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseWithExtractedData2);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledTimes(1);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData2);
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
@@ -1151,7 +1154,8 @@ export function TestCases2(getTestBed) {
 
     describe('getParsedReceipt():', () => {
       it('should get parsed receipt', fakeAsync(() => {
-        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+        const mockParsedReceiptData = cloneDeep(parsedReceiptData1);
+        transactionOutboxService.parseReceipt.and.resolveTo(mockParsedReceiptData);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
         currencyService.getExchangeRate.and.returnValue(of(82));
 
@@ -1171,7 +1175,8 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get parsed receipt without date', fakeAsync(() => {
-        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData2);
+        const mockParsedReceiptData = cloneDeep(parsedReceiptData2);
+        transactionOutboxService.parseReceipt.and.resolveTo(mockParsedReceiptData);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
         currencyService.getExchangeRate.and.returnValue(of(82));
 

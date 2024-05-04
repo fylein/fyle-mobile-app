@@ -1,4 +1,6 @@
-export const actionSheetOptionsData = [
+import deepFreeze from 'deep-freeze-strict';
+
+export const actionSheetOptionsData = deepFreeze([
   {
     text: 'Split Expense By Category',
     handler: () => {},
@@ -19,8 +21,8 @@ export const actionSheetOptionsData = [
     text: 'Remove Card Expense',
     handler: () => {},
   },
-];
-export const expectedActionSheetButtonRes = [
+]);
+export const expectedActionSheetButtonRes = deepFreeze([
   {
     text: 'Capture Receipt',
     icon: 'assets/svg/camera.svg',
@@ -45,9 +47,9 @@ export const expectedActionSheetButtonRes = [
     cssClass: 'capture-receipt',
     handler: undefined,
   },
-];
+]);
 
-export const expectedActionSheetButtonsWithMileage = [
+export const expectedActionSheetButtonsWithMileage = deepFreeze([
   {
     text: 'Capture Receipt',
     icon: 'assets/svg/camera.svg',
@@ -66,9 +68,9 @@ export const expectedActionSheetButtonsWithMileage = [
     cssClass: 'capture-receipt',
     handler: undefined,
   },
-];
+]);
 
-export const expectedActionSheetButtonsWithPerDiem = [
+export const expectedActionSheetButtonsWithPerDiem = deepFreeze([
   {
     text: 'Capture Receipt',
     icon: 'assets/svg/camera.svg',
@@ -87,4 +89,4 @@ export const expectedActionSheetButtonsWithPerDiem = [
     cssClass: 'capture-receipt',
     handler: undefined,
   },
-];
+]);

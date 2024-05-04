@@ -26,6 +26,7 @@ import {
 } from '../test-data/org-settings.service.spec.data';
 
 import { OrgSettingsService } from './org-settings.service';
+import { cloneDeep } from 'lodash';
 
 const getApiData: OrgSettings = orgSettingsGetData;
 const postApiData: OrgSettingsResponse = orgSettingsPostData;
@@ -68,7 +69,8 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get the org settings properly', (done) => {
-    apiService.get.and.returnValue(of(postApiData));
+    const mockApiResponse = cloneDeep(postApiData);
+    apiService.get.and.returnValue(of(mockApiResponse));
     orgSettingsService.get().subscribe((res) => {
       expect(res).toEqual(getApiData);
       done();
@@ -84,9 +86,8 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get incoming tally account object', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(outgoingTallyAccountObject)).toEqual(
-      incomingTallyAccountObject
-    );
+    const mockAccountingObject = cloneDeep(outgoingTallyAccountObject);
+    expect(orgSettingsService.getIncomingAccountingObject(mockAccountingObject)).toEqual(incomingTallyAccountObject);
   });
 
   it('should be able to set outgoing tally account object', () => {
@@ -96,7 +97,8 @@ describe('OrgSettingsService', () => {
   });
 
   it('should be able to get incoming quick books account object', () => {
-    expect(orgSettingsService.getIncomingAccountingObject(outgoingQuickbooksAccountObject)).toEqual(
+    const mockAccountingObject = cloneDeep(outgoingQuickbooksAccountObject);
+    expect(orgSettingsService.getIncomingAccountingObject(mockAccountingObject)).toEqual(
       incomingQuickBooksAccountObject
     );
   });
