@@ -289,12 +289,12 @@ export function TestCases3(getTestBed) {
 
         expect(component.getParsedReceipt).toHaveBeenCalledOnceWith('url1', 'pdf');
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(component.inpageExtractedData).toEqual(null);
+        expect(component.inpageExtractedData).toBeNull();
         expect(component.fg.controls.currencyObj.value).toEqual({
           amount: null,
           currency: 'USD',
         });
-        expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.category.value).toBeNull();
         expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
         expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
@@ -328,7 +328,7 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
-        expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.category.value).toBeNull();
         expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
     });
@@ -374,8 +374,8 @@ export function TestCases3(getTestBed) {
         });
 
         expect(result).toEqual(orgCategoryData);
-        expect(component.recentCategories).toEqual(undefined);
-        expect(component.presetCategoryId).toEqual(undefined);
+        expect(component.recentCategories).toBeUndefined();
+        expect(component.presetCategoryId).toBeUndefined();
       });
 
       it('return auto fill category if recent categories is not present and expense category is empty', () => {
@@ -405,7 +405,8 @@ export function TestCases3(getTestBed) {
 
     describe('getExpenseAttachments():', () => {
       it('should return file observables in edit mode', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        const mockFileObject = cloneDeep(fileObject4);
+        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
         fileService.downloadUrl.and.returnValue(of('url'));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
@@ -416,25 +417,27 @@ export function TestCases3(getTestBed) {
           expect(res).toEqual(expectedFileData1);
           expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
           expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
           done();
         });
       });
 
       it('should return new expense file objects in add mode', (done) => {
-        component.newExpenseDataUrls = fileObject4;
+        const mockFileObject = cloneDeep(fileObject4);
+        component.newExpenseDataUrls = mockFileObject;
 
         component.getExpenseAttachments('add').subscribe((res) => {
-          expect(res).toEqual(fileObject4);
+          expect(res).toEqual(mockFileObject);
           done();
         });
       });
 
       it('should return new expense file objects of type pdf in add mode', (done) => {
-        component.newExpenseDataUrls = [fileObjectAdv1];
+        const mockExpenseDataUrls = cloneDeep(fileObjectAdv1);
+        component.newExpenseDataUrls = [mockExpenseDataUrls];
 
         component.getExpenseAttachments('add').subscribe((res) => {
-          expect(res).toEqual([fileObjectAdv1]);
+          expect(res).toEqual([mockExpenseDataUrls]);
           done();
         });
       });
@@ -478,8 +481,11 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = extractedData.data;
         fixture.detectChanges();
 
+        const mockCustomFieldData1 = cloneDeep(expectedCustomField[0]);
+        const mockCustomFieldData2 = cloneDeep(expectedCustomField[2]);
+        const mockEtxn = cloneDeep(unflattenedExpData);
         component
-          .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
+          .generateEtxnFromFg(of(mockEtxn), of([mockCustomFieldData1, mockCustomFieldData2]))
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedExpData.tx.id);
@@ -551,7 +557,8 @@ export function TestCases3(getTestBed) {
         });
         fixture.detectChanges();
 
-        component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
+        const mockCustomFieldData1 = cloneDeep(customFieldData2);
+        component.generateEtxnFromFg(of(unflattenedTxnData2), of(mockCustomFieldData1), true).subscribe((res) => {
           expect(res).toEqual(newExpFromFg2);
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, 'tx3qHxFNgRcZ');
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
@@ -619,8 +626,9 @@ export function TestCases3(getTestBed) {
         component.newExpenseDataUrls = [];
         fixture.detectChanges();
 
+        const mockCustomFields = cloneDeep(customFieldData1);
         component
-          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(mockCustomFields), false)
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg3);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, null);
@@ -685,40 +693,37 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
 
-        component
-          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
-          .subscribe((res) => {
-            expect(res).toEqual(newExpFromFg4);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
-              component.mode,
-              draftUnflattendedTxn.tx.id
-            );
-            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
-            expect(component.getBillable).toHaveBeenCalledTimes(1);
-            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
-            expect(component.getCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
-            expect(component.getProjectID).toHaveBeenCalledTimes(1);
-            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
-            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
-            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
-            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
-            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
-            expect(component.getPurpose).toHaveBeenCalledTimes(1);
-            expect(component.getFromDt).toHaveBeenCalledTimes(1);
-            expect(component.getToDt).toHaveBeenCalledTimes(1);
-            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
-            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
-            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getDistance).toHaveBeenCalledTimes(1);
-            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
-            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getAmount).toHaveBeenCalledTimes(1);
-            done();
-          });
+        const mockCustomFields = cloneDeep(customFieldData1);
+        const mockEtxn = cloneDeep(draftUnflattendedTxn);
+        component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields), false).subscribe((res) => {
+          expect(res).toEqual(newExpFromFg4);
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, draftUnflattendedTxn.tx.id);
+          expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getBillable).toHaveBeenCalledTimes(1);
+          expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+          expect(component.getProjectID).toHaveBeenCalledTimes(1);
+          expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+          expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+          expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+          expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+          expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+          expect(component.getPurpose).toHaveBeenCalledTimes(1);
+          expect(component.getFromDt).toHaveBeenCalledTimes(1);
+          expect(component.getToDt).toHaveBeenCalledTimes(1);
+          expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+          expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+          expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getDistance).toHaveBeenCalledTimes(1);
+          expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+          expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+          expect(component.getAmount).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
 
@@ -1174,6 +1179,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         categoriesService.getCategoryByName.and.returnValue(of(expectedOrgCategoryByName2));
       });
+
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
