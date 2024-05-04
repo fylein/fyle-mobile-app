@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ErrorType } from 'src/app/fyle/my-profile/verify-number-popover/error-type.model';
 
 type ErrorMapping = {
@@ -6,7 +8,7 @@ type ErrorMapping = {
   value?: number;
 };
 
-export const errorMappings: ErrorMapping[] = [
+export const errorMappings: ErrorMapping[] = deepFreeze([
   {
     type: 'LIMIT_REACHED',
     error: 'You have exhausted the limit to request OTP for your mobile number. Please try again after 24 hours.',
@@ -33,4 +35,4 @@ export const errorMappings: ErrorMapping[] = [
     value: 1,
     error: 'You have 1 attempt left to verify your mobile number.',
   },
-];
+]);

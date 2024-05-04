@@ -1,4 +1,6 @@
-export const virtualCardCombinedResponse = {
+import deepFreeze from 'deep-freeze-strict';
+
+export const virtualCardCombinedResponse = deepFreeze({
   vc1234: {
     full_card_number: '123451234512345',
     cvv: '1234',
@@ -6,4 +8,4 @@ export const virtualCardCombinedResponse = {
     nick_name: 'Nickname',
     current_amount: 1000,
   },
-};
+});

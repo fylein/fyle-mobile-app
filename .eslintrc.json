@@ -143,7 +143,8 @@
         "@typescript-eslint/no-inferrable-types": "off",
         "no-unused-expressions": "off",
         "custom-rules/space-before-it-blocks": "error",
-        "custom-rules/prefer-jasmine-matchers": "error"
+        "custom-rules/prefer-jasmine-matchers": "error",
+        "custom-rules/prefer-resolve-to-reject-with": "error"
       }
     }
   ]

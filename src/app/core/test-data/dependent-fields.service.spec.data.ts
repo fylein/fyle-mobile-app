@@ -1,16 +1,18 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomProperty } from '../models/custom-properties.model';
 import { DependentFieldValuesApiParams } from '../models/platform/dependent-field-values-api-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 
-export const dependentFieldValuesMethodParams = {
+export const dependentFieldValuesMethodParams = deepFreeze({
   fieldId: 219199,
   parentFieldId: 219175,
   parentFieldValue: 'Project 1',
-};
+});
 
-export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = {
+export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = deepFreeze({
   params: {
     expense_field_id: 'eq.219199',
     parent_expense_field_id: 'eq.219175',
@@ -20,9 +22,9 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = {
     limit: 20,
     order: 'expense_field_value.asc',
   },
-};
+});
 
-export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue> = {
+export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue> = deepFreeze({
   count: 2,
   data: [
     {
@@ -49,16 +51,16 @@ export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDepend
     },
   ],
   offset: 0,
-};
+});
 
-export const dependentFieldValuesWithSearchQueryMethodParams = {
+export const dependentFieldValuesWithSearchQueryMethodParams = deepFreeze({
   fieldId: 219199,
   parentFieldId: 219175,
   parentFieldValue: 'Project 1',
   searchQuery: 'code 2',
-};
+});
 
-export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesApiParams = {
+export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesApiParams = deepFreeze({
   params: {
     expense_field_id: 'eq.219199',
     expense_field_value: `ilike."%code 2%"`,
@@ -69,27 +71,28 @@ export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesA
     limit: 20,
     order: 'expense_field_value.asc',
   },
-};
+});
 
-export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue> = {
-  count: 1,
-  data: [
-    {
-      created_at: '2023-02-23T10:50:56.756648+00:00',
-      expense_field_id: 219199,
-      expense_field_value: 'Cost Code 2',
-      id: 8,
-      is_enabled: true,
-      org_id: 'orN6GkZNaD8b',
-      parent_expense_field_id: 219175,
-      parent_expense_field_value: 'Project 1',
-      updated_at: '2023-02-23T10:51:06.155705+00:00',
-    },
-  ],
-  offset: 0,
-};
+export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue> =
+  deepFreeze({
+    count: 1,
+    data: [
+      {
+        created_at: '2023-02-23T10:50:56.756648+00:00',
+        expense_field_id: 219199,
+        expense_field_value: 'Cost Code 2',
+        id: 8,
+        is_enabled: true,
+        org_id: 'orN6GkZNaD8b',
+        parent_expense_field_id: 219175,
+        parent_expense_field_value: 'Project 1',
+        updated_at: '2023-02-23T10:51:06.155705+00:00',
+      },
+    ],
+    offset: 0,
+  });
 
-export const customExpenseFields: ExpenseField[] = [
+export const customExpenseFields: ExpenseField[] = deepFreeze([
   {
     id: 219199,
     code: null,
@@ -185,9 +188,9 @@ export const customExpenseFields: ExpenseField[] = [
     updated_at: new Date('2023-03-17T12:29:13.566689+00:00'),
     parent_field_id: null,
   },
-];
+]);
 
-export const dependentExpenseFields: ExpenseField[] = [
+export const dependentExpenseFields: ExpenseField[] = deepFreeze([
   {
     id: 219199,
     code: null,
@@ -226,9 +229,9 @@ export const dependentExpenseFields: ExpenseField[] = [
     updated_at: new Date('2023-02-23T10:45:53.853907+00:00'),
     parent_field_id: 219199,
   },
-];
+]);
 
-export const txnCustomProperties: CustomProperty<string>[] = [
+export const txnCustomProperties: CustomProperty<string>[] = deepFreeze([
   {
     name: 'CUSTOM FIELD',
     value: 'qwwq',
@@ -241,9 +244,9 @@ export const txnCustomProperties: CustomProperty<string>[] = [
     name: 'Cost Area',
     value: null,
   },
-];
+]);
 
-export const dependentFieldValues: CustomProperty<string>[] = [
+export const dependentFieldValues: CustomProperty<string>[] = deepFreeze([
   {
     name: 'Cost Code',
     value: 'Wow this Works',
@@ -252,9 +255,9 @@ export const dependentFieldValues: CustomProperty<string>[] = [
     name: 'Cost Area',
     value: '-',
   },
-];
+]);
 
-export const txnCustomProperties2: CustomProperty<string>[] = [
+export const txnCustomProperties2: CustomProperty<string>[] = deepFreeze([
   {
     name: 'CUSTOM FIELD',
     value: 'custom field',
@@ -263,4 +266,4 @@ export const txnCustomProperties2: CustomProperty<string>[] = [
     name: 'Cost Code',
     value: 'Wow this Works',
   },
-];
+]);

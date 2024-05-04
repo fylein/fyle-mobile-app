@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { UndoMerge } from '../models/undo-merge.model';
 import { txnList } from './transaction.data';
 
-export const UndoMergeData: UndoMerge = {
+export const UndoMergeData: UndoMerge = deepFreeze({
   user_created_expense: {
     created_at: new Date('2022-02-17T14:12:49.079Z'),
     updated_at: new Date('2022-06-12T11:37:06.592Z'),
@@ -152,9 +154,9 @@ export const UndoMergeData: UndoMerge = {
     policy_amount: null,
     locations: [],
   },
-};
+});
 
-export const UndoMergeData2: UndoMerge = {
+export const UndoMergeData2: UndoMerge = deepFreeze({
   user_created_expense: txnList[0],
   auto_created_expense: txnList[1],
-};
+});

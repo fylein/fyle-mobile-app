@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 
-export const mergeExpenseFormData1 = {
+export const mergeExpenseFormData1 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG60zq',
@@ -23,9 +25,9 @@ export const mergeExpenseFormData1 = {
     location_1: optionsData15.options[0].value,
     location_2: optionsData33.options[0].value,
   },
-};
+});
 
-export const mergeExpenseFormData2 = {
+export const mergeExpenseFormData2 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG60zq',
@@ -47,9 +49,9 @@ export const mergeExpenseFormData2 = {
   categoryDependent: {
     location_1: optionsData15.options[0].value,
   },
-};
+});
 
-export const mergeExpenseFormData3 = {
+export const mergeExpenseFormData3 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG60zq',
@@ -69,9 +71,9 @@ export const mergeExpenseFormData3 = {
     ],
   },
   categoryDependent: {},
-};
+});
 
-export const mergeExpenseFormData4 = {
+export const mergeExpenseFormData4 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG60zq',
@@ -92,9 +94,9 @@ export const mergeExpenseFormData4 = {
     location_1: optionsData15.options[0].value,
     location_2: optionsData33.options[0].value,
   },
-};
+});
 
-export const mergeExpenseFormData5 = {
+export const mergeExpenseFormData5 = deepFreeze({
   genericFields: {
     paymentMode: 'CORPORATE_CARD',
     amount: 'tx3nHShG6035',
@@ -115,4 +117,4 @@ export const mergeExpenseFormData5 = {
     location_1: optionsData15.options[0].value,
     location_2: optionsData33.options[0].value,
   },
-};
+});
