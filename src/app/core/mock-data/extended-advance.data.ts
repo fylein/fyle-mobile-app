@@ -102,7 +102,7 @@ export const singleExtendedAdvancesData3: ExtendedAdvance = deepFreeze({
   purpose: 'testing',
 });
 
-export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform> = deepFreeze({
+export const platformAdvanceData: PlatformApiResponse<AdvancesPlatform[]> = deepFreeze({
   count: 11,
   offset: 200,
   data: [

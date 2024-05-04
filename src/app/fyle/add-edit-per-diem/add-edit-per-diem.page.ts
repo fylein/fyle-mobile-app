@@ -47,7 +47,7 @@ import { CustomFieldsService } from 'src/app/core/services/custom-fields.service
 import { cloneDeep, isEmpty, isEqual, isNumber } from 'lodash';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -62,7 +62,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { TokenService } from 'src/app/core/services/token.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { CostCenter, CostCenters } from 'src/app/core/models/v1/cost-center.model';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -213,9 +213,9 @@ export class AddEditPerDiemPage implements OnInit {
 
   recentlyUsedValues$: Observable<RecentlyUsed>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   presetProjectId: number;
 
@@ -243,7 +243,7 @@ export class AddEditPerDiemPage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject>;
+  selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
@@ -258,8 +258,8 @@ export class AddEditPerDiemPage implements OnInit {
     private customFieldsService: CustomFieldsService,
     private currencyService: CurrencyService,
     private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
-    private projectService: ProjectsService,
+    private platformReportService: ReportsService,
+    private projectsService: ProjectsService,
     private transactionsOutboxService: TransactionsOutboxService,
     private transactionService: TransactionService,
     private authService: AuthService,
@@ -687,9 +687,9 @@ export class AddEditPerDiemPage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project: ExtendedProject) =>
+      concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
-          map((activeCategories) => this.projectService.getAllowedOrgCategoryIds(project, activeCategories))
+          map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))
@@ -846,7 +846,7 @@ export class AddEditPerDiemPage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
 
     this.hardwareBackButtonAction = this.platform.backButton.subscribeWithPriority(
@@ -902,7 +902,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
 
     this.fg.controls.costCenter.valueChanges
       .pipe(takeUntil(this.onPageExit$))
@@ -1008,7 +1008,7 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1309,7 +1309,7 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId);
         } else {
           return of(null);
         }
@@ -2062,22 +2062,22 @@ export class AddEditPerDiemPage implements OnInit {
                 const criticalPolicyViolated = isNumber(etxn.tx.policy_amount) && etxn.tx.policy_amount < 0.0001;
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && selectedReportId !== txnCopy.tx.report_id) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -2286,7 +2286,7 @@ export class AddEditPerDiemPage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (removePerDiemFromReport) {
-            return this.platformReportService.ejectExpenses(reportId, id);
+            return this.reportService.removeTransaction(reportId, id);
           }
           return this.transactionService.delete(id);
         },

@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = deepFreeze({
+export const platformMileageRates: PlatformApiResponse<PlatformMileageRates[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -77,7 +77,7 @@ export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = d
   offset: 0,
 });
 
-export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates> = deepFreeze({
+export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates[]> = deepFreeze({
   count: 1,
   data: [
     {

@@ -83,7 +83,7 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -108,7 +108,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -144,7 +144,7 @@ type FormValue = {
     orig_amount: number;
   };
   paymentMode: ExtendedAccount;
-  project: ExtendedProject;
+  project: ProjectV2;
   category: OrgCategory;
   dateOfSpend: Date;
   vendor_id: {
@@ -333,13 +333,13 @@ export class AddEditExpensePage implements OnInit {
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
   recentCurrencies: Currency[];
 
   presetProjectId: number | string;
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
@@ -411,7 +411,7 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject | null>;
+  selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter | null>;
 
@@ -434,7 +434,7 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectsService: ProjectsService,
     private reportService: ReportService,
-    private platformReportService: SpenderReportsService,
+    private platformReportService: ReportsService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
@@ -1441,7 +1441,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedProjects(): Observable<ExtendedProject> {
+  getSelectedProjects(): Observable<ProjectV2> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1544,7 +1544,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects(): Observable<ExtendedProject[]> {
+  getRecentProjects(): Observable<ProjectV2[]> {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -2546,7 +2546,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }),
           startWith(initialProject),
-          concatMap((project: ExtendedProject) =>
+          concatMap((project: ProjectV2) =>
             activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
@@ -2715,7 +2715,7 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
@@ -2727,7 +2727,7 @@ export class AddEditExpensePage implements OnInit {
   setupSelectedProjectObservable(): void {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
   }
 
   setupSelectedCostCenterObservable(): void {
@@ -3893,22 +3893,22 @@ export class AddEditExpensePage implements OnInit {
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
-                    return this.platformReportService.addExpenses(selectedReportId, [tx.id]).pipe(
+                    return this.reportService.addTransactions(selectedReportId, [tx.id]).pipe(
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && selectedReportId && txnCopy.tx.report_id !== selectedReportId) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
-                      switchMap(() => this.platformReportService.addExpenses(selectedReportId, [tx.id])),
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
+                      switchMap(() => this.reportService.addTransactions(selectedReportId, [tx.id])),
                       tap(() => this.trackingService.addToExistingReportAddEditExpense()),
                       map(() => tx)
                     );
                   }
 
                   if (txnCopy.tx.report_id && !selectedReportId) {
-                    return this.platformReportService.ejectExpenses(txnCopy.tx.report_id, tx.id).pipe(
+                    return this.reportService.removeTransaction(txnCopy.tx.report_id, tx.id).pipe(
                       tap(() => this.trackingService.removeFromExistingReportEditExpense()),
                       map(() => tx)
                     );
@@ -4680,7 +4680,7 @@ export class AddEditExpensePage implements OnInit {
         ctaLoadingText: config.ctaLoadingText,
         deleteMethod: (): Observable<Expense | void> => {
           if (removeExpenseFromReport) {
-            return this.platformReportService.ejectExpenses(reportId, this.activatedRoute.snapshot.params.id as string);
+            return this.reportService.removeTransaction(reportId, this.activatedRoute.snapshot.params.id as string);
           }
           return this.transactionService.delete(this.activatedRoute.snapshot.params.id as string);
         },

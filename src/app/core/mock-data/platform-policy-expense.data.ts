@@ -219,7 +219,7 @@ export const platformPolicyExpenseData5: PlatformPolicyExpense = deepFreeze({
   is_reimbursable: null,
 });
 
-export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
+export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates[]> = deepFreeze({
   count: 1,
   data: [
     {
@@ -267,13 +267,13 @@ export const expensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> =
   offset: 0,
 });
 
-export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
+export const emptyApiResponse: PlatformApiResponse<ExpensePolicyStates[]> = deepFreeze({
   count: 0,
   data: [],
   offset: 0,
 });
 
-export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates> = deepFreeze({
+export const ApproverExpensePolicyStatesData: PlatformApiResponse<ExpensePolicyStates[]> = deepFreeze({
   count: 1,
   data: [
     {

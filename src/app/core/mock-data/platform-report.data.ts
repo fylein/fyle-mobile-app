@@ -71,13 +71,13 @@ export const platformReportData: Report = deepFreeze({
   user_id: 'usvKA4X8Ugcr',
 });
 
-export const platformReportCountData: PlatformApiResponse<Report> = deepFreeze({
+export const platformReportCountData: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [platformReportData],
   offset: 0,
 });
 
-export const allReportsPaginated1: PlatformApiResponse<Report> = deepFreeze({
+export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -208,7 +208,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report> = deepFreeze({
   offset: 0,
 });
 
-export const allReportsPaginated2: PlatformApiResponse<Report> = deepFreeze({
+export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {

@@ -33,7 +33,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -126,6 +125,21 @@ export class ReportService {
         return erpt;
       })
     );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addTransactions(rptId: string, txnIds: string[]): Observable<void> {
+    return this.apiService
+      .post<void>('/reports/' + rptId + '/txns', {
+        ids: txnIds,
+      })
+      .pipe(
+        tap(() => {
+          this.clearTransactionCache();
+        })
+      );
   }
 
   @CacheBuster({

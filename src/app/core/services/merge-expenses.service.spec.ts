@@ -105,7 +105,7 @@ describe('MergeExpensesService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
-  let projectService: jasmine.SpyObj<ProjectsService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
@@ -122,7 +122,7 @@ describe('MergeExpensesService', () => {
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectsService', ['getAllActive']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getAllActive']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['isValidDate']);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
@@ -135,7 +135,7 @@ describe('MergeExpensesService', () => {
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
-        { provide: ProjectsService, useValue: projectServiceSpy },
+        { provide: ProjectsService, useValue: projectsServiceSpy },
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: TaxGroupService, useValue: taxGroupServiceSpy },
@@ -149,7 +149,7 @@ describe('MergeExpensesService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
-    projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
@@ -406,7 +406,7 @@ describe('MergeExpensesService', () => {
 
   describe('formatProjectOptions():', () => {
     it('should return the project options', (done) => {
-      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
       const mockProjectOptions = cloneDeep(projectOptionsData);
       // @ts-ignore
       mergeExpensesService.formatProjectOptions(mockProjectOptions).subscribe((res) => {
@@ -416,7 +416,7 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the project options with label as project name if id matches with option', (done) => {
-      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
       const mockProjectOptions = cloneDeep(projectOptionsData);
       // @ts-ignore
       mergeExpensesService.formatProjectOptions({ ...mockProjectOptions, value: 257528 }).subscribe((res) => {
@@ -426,7 +426,7 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the project options when project is not present', (done) => {
-      projectService.getAllActive.and.returnValue(of([]));
+      projectsService.getAllActive.and.returnValue(of([]));
       // @ts-ignore
       mergeExpensesService.formatProjectOptions({ label: null, value: null }).subscribe((res) => {
         expect(res).toEqual({ label: undefined, value: null });

@@ -15,7 +15,6 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -61,8 +60,7 @@ export class MyCreateReportPage implements OnInit {
     private storageService: StorageService,
     private refinerService: RefinerService,
     private expensesService: ExpensesService,
-    private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   detectTitleChange(): void {
@@ -134,7 +132,7 @@ export class MyCreateReportPage implements OnInit {
             ),
             switchMap((report: ReportV1) => {
               if (expenseIDs.length) {
-                return this.spenderReportsService.addExpenses(report.id, expenseIDs).pipe(map(() => report));
+                return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
               }

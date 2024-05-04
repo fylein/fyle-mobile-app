@@ -4,7 +4,7 @@ import { CustomFieldTypes } from '../enums/platform/v1/custom-fields-type.enum';
 import { AdvancesPlatform } from '../models/platform/advances-platform.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const advancePlatform: PlatformApiResponse<AdvancesPlatform> = deepFreeze({
+export const advancePlatform: PlatformApiResponse<AdvancesPlatform[]> = deepFreeze({
   count: 1,
   offset: 0,
   data: [

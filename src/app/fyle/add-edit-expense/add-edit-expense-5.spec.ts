@@ -84,7 +84,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -122,7 +122,7 @@ export function TestCases5(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
-    let platformReportService: jasmine.SpyObj<SpenderReportsService>;
+    let platformReportService: jasmine.SpyObj<ReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -173,7 +173,7 @@ export function TestCases5(getTestBed) {
       categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
       dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
       reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-      platformReportService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+      platformReportService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
       projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
       customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
       customFieldsService = TestBed.inject(CustomFieldsService) as jasmine.SpyObj<CustomFieldsService>;

@@ -1,7 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { RecentlyUsed } from '../models/v1/recently_used.model';
-import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { CostCenter } from '../models/v1/cost-center.model';
 
@@ -28,7 +28,7 @@ export const recentlyUsedRes: RecentlyUsed = deepFreeze({
   ],
 });
 
-export const recentlyUsedProjectRes: ExtendedProject[] = deepFreeze([
+export const recentlyUsedProjectRes: ProjectV2[] = deepFreeze([
   {
     ap1_email: 'john.d@fyle.in',
     ap1_full_name: 'John Doe',

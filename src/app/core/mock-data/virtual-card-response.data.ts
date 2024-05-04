@@ -4,7 +4,7 @@ import { CardStatus } from '../enums/card-status.enum';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { VirtualCard } from '../models/virtual-card.model';
 
-export const virtualCardResponse: PlatformApiResponse<VirtualCard> = deepFreeze({
+export const virtualCardResponse: PlatformApiResponse<VirtualCard[]> = deepFreeze({
   count: 1,
   data: [
     {
@@ -26,7 +26,7 @@ export const virtualCardResponse: PlatformApiResponse<VirtualCard> = deepFreeze(
   offset: 0,
 });
 
-export const virtualCardUndefinedResponse: PlatformApiResponse<VirtualCard> = deepFreeze({
+export const virtualCardUndefinedResponse: PlatformApiResponse<VirtualCard[]> = deepFreeze({
   count: 0,
   data: undefined,
   offset: 0,

@@ -3,7 +3,7 @@ import deepFreeze from 'deep-freeze-strict';
 import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
-import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 
 export const apiResponseActiveOnly = deepFreeze([
   {
@@ -317,7 +317,7 @@ export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = deepFre
   },
 ]);
 
-export const expectedProjectsResponse: ExtendedProject[] = deepFreeze([
+export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
   {
     ap1_email: null,
     ap1_full_name: null,
@@ -370,7 +370,7 @@ export const testProjectParams: ProjectParams = deepFreeze({
   searchNameText: 'search',
 });
 
-export const testProjectV2: ExtendedProject = deepFreeze({
+export const testProjectV2: ProjectV2 = deepFreeze({
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,

@@ -12,7 +12,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 export class EmployeesService {
   constructor(private spenderService: SpenderService) {}
 
-  getCommuteDetails(eou: ExtendedOrgUser): Observable<PlatformApiResponse<CommuteDetailsResponse>> {
+  getCommuteDetails(eou: ExtendedOrgUser): Observable<PlatformApiResponse<CommuteDetailsResponse[]>> {
     return this.spenderService.get('/employees', {
       params: {
         user_id: `eq.${eou.us.id}`,

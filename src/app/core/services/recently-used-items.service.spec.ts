@@ -20,7 +20,7 @@ import { recentUsedCategoriesRes } from '../mock-data/org-category-list-item.dat
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
   let apiService: jasmine.SpyObj<ApiService>;
-  let projectService: jasmine.SpyObj<ProjectsService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -38,7 +38,7 @@ describe('RecentlyUsedItemsService', () => {
     });
     recentlyUsedItemsService = TestBed.inject(RecentlyUsedItemsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
-    projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
   });
 
   it('should be created', () => {
@@ -56,14 +56,14 @@ describe('RecentlyUsedItemsService', () => {
 
   describe('getRecentlyUsedProjects():', () => {
     it('should get all the recently used projects', (done) => {
-      projectService.getByParamsUnformatted.and.returnValue(of(recentlyUsedProjectRes));
+      projectsService.getByParamsUnformatted.and.returnValue(of(recentlyUsedProjectRes));
       const config = {
         recentValues: recentlyUsedRes,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
       };
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledOnceWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith({
           orgId: config.eou.ou.org_id,
           active: true,
           sortDirection: 'asc',

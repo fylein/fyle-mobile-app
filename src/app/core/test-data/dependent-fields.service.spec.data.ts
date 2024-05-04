@@ -24,7 +24,7 @@ export const dependentFieldValuesApiParams: DependentFieldValuesApiParams = deep
   },
 });
 
-export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue> = deepFreeze({
+export const dependentFieldValuesApiResponse: PlatformApiResponse<PlatformDependentFieldValue[]> = deepFreeze({
   count: 2,
   data: [
     {
@@ -73,7 +73,7 @@ export const dependentFieldValuesWithSearchQueryApiParams: DependentFieldValuesA
   },
 });
 
-export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue> =
+export const dependentFieldValuesApiResponseForSearchQuery: PlatformApiResponse<PlatformDependentFieldValue[]> =
   deepFreeze({
     count: 1,
     data: [

@@ -48,7 +48,7 @@ export class DependentFieldsService {
     }
 
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformDependentFieldValue>>('/dependent_expense_field_values', data)
+      .get<PlatformApiResponse<PlatformDependentFieldValue[]>>('/dependent_expense_field_values', data)
       .pipe(map((res) => res.data));
   }
 

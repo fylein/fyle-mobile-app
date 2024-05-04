@@ -156,7 +156,7 @@ export const expenseFieldResponse: ExpenseField[] = deepFreeze([
   },
 ]);
 
-export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField> = deepFreeze({
+export const platformExpenseFieldResponse: PlatformApiResponse<PlatformExpenseField[]> = deepFreeze({
   count: 5,
   data: [
     {
