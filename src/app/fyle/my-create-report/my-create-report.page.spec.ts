@@ -367,9 +367,10 @@ describe('MyCreateReportPage', () => {
   it('toggleTransaction(): should toggle selected transaction to unselected', () => {
     spyOn(component, 'getReportTitle');
 
-    component.toggleTransaction(selectedExpense1);
+    const mockSelectedExpense = cloneDeep(selectedExpense1);
+    component.toggleTransaction(mockSelectedExpense);
 
-    expect(selectedExpense1.isSelected).toBeFalse();
+    expect(mockSelectedExpense.isSelected).toBeFalse();
     expect(component.getReportTitle).toHaveBeenCalledTimes(1);
   });
 

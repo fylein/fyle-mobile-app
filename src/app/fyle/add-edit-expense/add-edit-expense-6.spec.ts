@@ -81,6 +81,7 @@ import {
 import { matchedCCTransactionData, matchedCCTransactionData2 } from 'src/app/core/mock-data/matchedCCTransaction.data';
 import { ccTransactionData, ccTransactionData1 } from 'src/app/core/mock-data/cc-transaction.data';
 import { ccTransactionResponseData } from 'src/app/core/mock-data/corporate-card-transaction-response.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases6(getTestBed) {
   describe('AddEditExpensePage-6', () => {
@@ -365,7 +366,8 @@ export function TestCases6(getTestBed) {
     describe('updateFormForExpenseFields():', () => {
       it('should update form with expense fields values', () => {
         component.etxn$ = of(unflattenedExpWithCCCExpn);
-        component.taxGroups$ = of(taxGroupData);
+        const mockTaxGroupData = cloneDeep(taxGroupData);
+        component.taxGroups$ = of(mockTaxGroupData);
         expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData3);
         fixture.detectChanges();
 
@@ -375,7 +377,8 @@ export function TestCases6(getTestBed) {
 
       it('should update form with expense fields values with billable fields', () => {
         component.etxn$ = of(unflattenedExpWithCCCExpn);
-        component.taxGroups$ = of(taxGroupData);
+        const mockTaxGroupData = cloneDeep(taxGroupData);
+        component.taxGroups$ = of(mockTaxGroupData);
         expenseFieldsService.getDefaultTxnFieldValues.and.returnValue(defaultTxnFieldValuesData3);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.billable.setValue(null);
@@ -391,7 +394,8 @@ export function TestCases6(getTestBed) {
 
     describe('setupExpenseFields():', () => {
       it('should setup expense fields', () => {
-        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(txnFieldsData2));
+        const mockTxnFields = cloneDeep(txnFieldsData2);
+        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(mockTxnFields));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.isIndividualProjectsEnabled$ = of(true);
         component.individualProjectIds$ = of([]);
@@ -411,7 +415,8 @@ export function TestCases6(getTestBed) {
       });
 
       it('should setup expense fields for offline mode and cost centers enabled', () => {
-        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(txnFieldsData3));
+        const mockTxnFields = cloneDeep(txnFieldsData3);
+        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(mockTxnFields));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.isIndividualProjectsEnabled$ = of(true);
         component.individualProjectIds$ = of([]);
@@ -428,7 +433,8 @@ export function TestCases6(getTestBed) {
       });
 
       it('should setup expense fields if cost centers are empty', () => {
-        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(txnFieldsData3));
+        const mockTxnFields = cloneDeep(txnFieldsData3);
+        spyOn(component, 'generateTxnFieldsMap').and.returnValue(of(mockTxnFields));
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.isIndividualProjectsEnabled$ = of(true);
         component.individualProjectIds$ = of([123]);
@@ -499,7 +505,8 @@ export function TestCases6(getTestBed) {
       it('should handle CCC expenses if expenses have matched_corporate_card_transaction synced', () => {
         const date = new Date('2018-07-03T13:00:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData, null);
+        const mockEtxn = cloneDeep(transformedExpenseWithMatchCCCData);
+        component.handleCCCExpenses(mockEtxn, null);
         expect(component.cardNumber).toEqual('7620');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
       });
@@ -507,8 +514,10 @@ export function TestCases6(getTestBed) {
       it('should handle CCC expenses if expense does not have matched_corporate_card_transaction synced', () => {
         const date = new Date('2018-07-03T13:00:00.000Z');
         jasmine.clock().mockDate(date);
-        corporateCreditCardExpenseService.transformCCTransaction.and.returnValue(matchedCCTransactionData);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData4, ccTransactionData);
+        const mockTransformedCCCTxn = cloneDeep(matchedCCTransactionData);
+        corporateCreditCardExpenseService.transformCCTransaction.and.returnValue(mockTransformedCCCTxn);
+        const mockEtxn = cloneDeep(transformedExpenseWithMatchCCCData4);
+        component.handleCCCExpenses(mockEtxn, ccTransactionData);
         expect(corporateCreditCardExpenseService.transformCCTransaction).toHaveBeenCalledOnceWith(ccTransactionData);
         expect(component.cardNumber).toEqual('7620');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData);
@@ -517,7 +526,8 @@ export function TestCases6(getTestBed) {
       it('should show card digits and vendor description', () => {
         const date = new Date('2018-06-06T08:30:00.000Z');
         jasmine.clock().mockDate(date);
-        component.handleCCCExpenses(transformedExpenseWithMatchCCCData3, null);
+        const mockEtxn = cloneDeep(transformedExpenseWithMatchCCCData3);
+        component.handleCCCExpenses(mockEtxn, null);
         expect(component.cardNumber).toEqual('9891');
         expect(component.matchedCCCTransaction).toEqual(matchedCCTransactionData2);
       });

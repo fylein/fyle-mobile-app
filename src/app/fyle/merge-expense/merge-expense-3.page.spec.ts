@@ -72,7 +72,7 @@ import { responseAfterAppliedFilter } from 'src/app/core/test-data/custom-inputs
 import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { dependentFieldsMappingForProject } from 'src/app/core/mock-data/dependent-field-mapping.data';
 import { expectedCustomInputFields } from 'src/app/core/mock-data/custom-field.data';
-import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response';
+import { apiCardV2Transactions } from 'src/app/core/mock-data/ccc-api-response.data';
 import { expenseInfoWithoutDefaultExpense, expensesInfo } from 'src/app/core/mock-data/expenses-info.data';
 import { customInputData1, customInputsData4 } from 'src/app/core/mock-data/custom-input.data';
 import { mergeExpenesesCustomInputsData } from 'src/app/core/mock-data/merge-expenses-custom-inputs.data';
@@ -302,7 +302,8 @@ export function TestCases3(getTestBed) {
       });
 
       it('should return customInput options correctly', () => {
-        const customInputOptions = component.generateCustomInputOptions(mergeExpenesesCustomInputsData);
+        const mockMergeExpensesCustomInputsData = cloneDeep(mergeExpenesesCustomInputsData);
+        const customInputOptions = component.generateCustomInputOptions(mockMergeExpensesCustomInputsData);
         expect(mergeExpensesService.formatCustomInputOptions).toHaveBeenCalledOnceWith(optionsDataMergeExpenses);
 
         expect(customInputOptions).toEqual({
@@ -334,7 +335,7 @@ export function TestCases3(getTestBed) {
 
       it('should set disableFormElements to true if isApprovedAndAbove length is greater than zero', () => {
         component.setAdvanceOrApprovedAndAbove(expensesInfo);
-        expect(component.disableFormElements).toEqual(true);
+        expect(component.disableFormElements).toBeTrue();
       });
 
       it('should set disableFormElements to false if isApprovedAndAbove length is zero and isAdvancePresent is false', () => {
@@ -342,13 +343,13 @@ export function TestCases3(getTestBed) {
         const mockExpenseInfo = cloneDeep(expensesInfo);
         mockExpenseInfo.isAdvancePresent = false;
         component.setAdvanceOrApprovedAndAbove(mockExpenseInfo);
-        expect(component.disableFormElements).toEqual(false);
+        expect(component.disableFormElements).toBeFalse();
       });
 
       it('should set disableFormElements to true if expensesInfo.isAdvancePresent is true', () => {
         mergeExpensesService.isApprovedAndAbove.and.returnValue([]);
         component.setAdvanceOrApprovedAndAbove(expensesInfo);
-        expect(component.disableFormElements).toEqual(true);
+        expect(component.disableFormElements).toBeTrue();
       });
     });
 
@@ -361,21 +362,21 @@ export function TestCases3(getTestBed) {
       it('should call mergeExpensesService.isReportedPresent() once and set isReportedExpensePresent to true if isReported length is greater than zero', () => {
         component.setIsReported(expensesInfo);
         expect(mergeExpensesService.isReportedPresent).toHaveBeenCalledOnceWith(expenseList2);
-        expect(component.isReportedExpensePresent).toEqual(true);
+        expect(component.isReportedExpensePresent).toBeTrue();
       });
 
       it('should set isReportedExpensePresent to false if isReported length is zero', () => {
         mergeExpensesService.isReportedPresent.and.returnValue([]);
         component.setIsReported(expensesInfo);
-        expect(component.isReportedExpensePresent).toEqual(false);
+        expect(component.isReportedExpensePresent).toBeFalse();
       });
 
       it('should set disableFormElements and showReceiptSelection to true if isReportedExpensePresent and expensesInfo.isAdvancePresent is true', () => {
         component.disableFormElements = false;
         component.showReceiptSelection = false;
         component.setIsReported(expensesInfo);
-        expect(component.disableFormElements).toEqual(true);
-        expect(component.showReceiptSelection).toEqual(true);
+        expect(component.disableFormElements).toBeTrue();
+        expect(component.showReceiptSelection).toBeTrue();
       });
 
       it('should not modify disableFormElements and showReceiptSelection if isReportedExpensePresent is false', () => {
@@ -383,8 +384,8 @@ export function TestCases3(getTestBed) {
         component.showReceiptSelection = false;
         mergeExpensesService.isReportedPresent.and.returnValue([]);
         component.setIsReported(expensesInfo);
-        expect(component.disableFormElements).toEqual(false);
-        expect(component.showReceiptSelection).toEqual(false);
+        expect(component.disableFormElements).toBeFalse();
+        expect(component.showReceiptSelection).toBeFalse();
       });
 
       it('should not modify disableFormElements and showReceiptSelection if expensesInfo.isAdvancePresent is false', () => {
@@ -393,8 +394,8 @@ export function TestCases3(getTestBed) {
         const mockExpenseInfo = cloneDeep(expensesInfo);
         mockExpenseInfo.isAdvancePresent = false;
         component.setIsReported(mockExpenseInfo);
-        expect(component.disableFormElements).toEqual(false);
-        expect(component.showReceiptSelection).toEqual(false);
+        expect(component.disableFormElements).toBeFalse();
+        expect(component.showReceiptSelection).toBeFalse();
       });
     });
 
@@ -423,7 +424,7 @@ export function TestCases3(getTestBed) {
         component.setInitialExpenseToKeepDetails(expensesInfo, true);
         expect(mergeExpensesService.isReportedOrAbove).toHaveBeenCalledOnceWith(expensesInfo);
         expect(component.setIsReported).toHaveBeenCalledOnceWith(expensesInfo);
-        expect(component.disableExpenseToKeep).toEqual(true);
+        expect(component.disableExpenseToKeep).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense that has already been submitted.'
         );
@@ -441,8 +442,8 @@ export function TestCases3(getTestBed) {
 
         expect(mergeExpensesService.isMoreThanOneAdvancePresent).toHaveBeenCalledOnceWith(expensesInfo, true);
         expect(component.setIsReported).not.toHaveBeenCalled();
-        expect(component.disableExpenseToKeep).toEqual(false);
-        expect(component.showReceiptSelection).toEqual(true);
+        expect(component.disableExpenseToKeep).toBeFalse();
+        expect(component.showReceiptSelection).toBeTrue();
         expect(component.expenseToKeepInfoText).toEqual(
           'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );
@@ -460,8 +461,8 @@ export function TestCases3(getTestBed) {
 
         expect(mergeExpensesService.isAdvancePresent).toHaveBeenCalledOnceWith(expensesInfo);
         expect(component.setIsReported).not.toHaveBeenCalled();
-        expect(component.disableExpenseToKeep).toEqual(true);
-        expect(component.showReceiptSelection).toEqual(false);
+        expect(component.disableExpenseToKeep).toBeTrue();
+        expect(component.showReceiptSelection).toBeFalse();
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );

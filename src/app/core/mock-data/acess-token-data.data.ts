@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccessTokenData } from '../models/access-token-data.model';
 
-export const apiAccessTokenRes: AccessTokenData = {
+export const apiAccessTokenRes: AccessTokenData = deepFreeze({
   iat: 1678349549,
   iss: 'FyleApp',
   user_id: 'usvKA4X8Ugcr',
@@ -12,9 +14,9 @@ export const apiAccessTokenRes: AccessTokenData = {
   version: '3',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1678353149,
-};
+});
 
-export const apiTokenWithoutRoles: AccessTokenData = {
+export const apiTokenWithoutRoles: AccessTokenData = deepFreeze({
   iat: 1678349549,
   iss: 'FyleApp',
   user_id: 'usvKA4X8Ugcr',
@@ -25,4 +27,4 @@ export const apiTokenWithoutRoles: AccessTokenData = {
   version: '3',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1678353149,
-};
+});

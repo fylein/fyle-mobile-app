@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceRequestCustomFieldValues } from '../models/advance-request-custom-field-values.model';
 
-export const advanceRequestCustomFieldValuesData: AdvanceRequestCustomFieldValues[] = [
+export const advanceRequestCustomFieldValuesData: AdvanceRequestCustomFieldValues[] = deepFreeze([
   {
     name: 'Phase',
     value: 'Phase 1',
@@ -21,9 +23,9 @@ export const advanceRequestCustomFieldValuesData: AdvanceRequestCustomFieldValue
     value: 'option1',
     type: 'OPTION',
   },
-];
+]);
 
-export const advanceRequestCustomFieldValuesData2: AdvanceRequestCustomFieldValues[] = [
+export const advanceRequestCustomFieldValuesData2: AdvanceRequestCustomFieldValues[] = deepFreeze([
   {
     name: 'Phase',
     value: 'Phase 1',
@@ -40,4 +42,4 @@ export const advanceRequestCustomFieldValuesData2: AdvanceRequestCustomFieldValu
     name: 'Checking',
     value: 'option1',
   },
-];
+]);

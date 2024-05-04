@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CCCExpUnflattened } from '../models/corporate-card-expense-unflattened.model';
 
-export const expectedECccResponse: CCCExpUnflattened[] = [
+export const expectedECccResponse: CCCExpUnflattened[] = deepFreeze([
   {
     ccce: {
       id: 'ccceYIJhT8Aj6U',
@@ -48,27 +50,27 @@ export const expectedECccResponse: CCCExpUnflattened[] = [
       transfer_settlement_id: null,
     },
   },
-];
+]);
 
-export const eCCCData1: CCCExpUnflattened = {
+export const eCCCData1: CCCExpUnflattened = deepFreeze({
   ...expectedECccResponse[0],
   ccce: {
     ...expectedECccResponse[0].ccce,
     corporate_credit_card_account_number: '123456789',
   },
   flow: 'newCCCFlow',
-};
+});
 
-export const eCCCData2: CCCExpUnflattened = {
+export const eCCCData2: CCCExpUnflattened = deepFreeze({
   ...expectedECccResponse[0],
   ccce: {
     ...expectedECccResponse[0].ccce,
     corporate_credit_card_account_number: '123456789',
     vendor: null,
   },
-};
+});
 
-export const eCCCData3: CCCExpUnflattened = {
+export const eCCCData3: CCCExpUnflattened = deepFreeze({
   ...expectedECccResponse[0],
   balance: {
     transfer_settlement_id: 'setxPixUhOPVL',
@@ -78,4 +80,4 @@ export const eCCCData3: CCCExpUnflattened = {
     ...expectedECccResponse[0].ccce,
     corporate_credit_card_account_number: '123456789',
   },
-};
+});

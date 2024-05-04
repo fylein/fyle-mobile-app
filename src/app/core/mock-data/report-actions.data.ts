@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ReportActions } from '../models/report-actions.model';
 
-export const apiReportActions: ReportActions = {
+export const apiReportActions: ReportActions = deepFreeze({
   id: 'rpxtbiLXQZUm',
   can_resubmit: false,
   can_approve: false,
@@ -13,4 +15,4 @@ export const apiReportActions: ReportActions = {
   can_payment_pending: false,
   can_undo_payment_pending: false,
   can_inquire: true,
-};
+});

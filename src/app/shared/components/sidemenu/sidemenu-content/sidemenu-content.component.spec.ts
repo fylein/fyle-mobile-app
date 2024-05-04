@@ -14,6 +14,7 @@ import {
   sidemenuItemData4,
 } from 'src/app/core/mock-data/sidemenu-item.data';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
+import { cloneDeep } from 'lodash';
 
 describe('SidemenuContentComponent', () => {
   let component: SidemenuContentComponent;
@@ -68,23 +69,25 @@ describe('SidemenuContentComponent', () => {
 
   describe('goToRoute():', () => {
     it('should call trackingService.menuItemClicked with correct argument', () => {
-      component.goToRoute(sidemenuItemData1);
+      const mockSideMenuItemData = cloneDeep(sidemenuItemData1);
+      component.goToRoute(mockSideMenuItemData);
       fixture.detectChanges();
-      expect(trackingService.menuItemClicked).toHaveBeenCalledOnceWith({ option: sidemenuItemData1.title });
+      expect(trackingService.menuItemClicked).toHaveBeenCalledOnceWith({ option: mockSideMenuItemData.title });
     });
 
     it('should toggle isDropdownOpen property when sidemenu item has dropdown options', () => {
-      component.goToRoute(sidemenuItemData2);
+      const mockSideMenuItemData = cloneDeep(sidemenuItemData2);
+      component.goToRoute(mockSideMenuItemData);
       fixture.detectChanges();
-      expect(sidemenuItemData2.isDropdownOpen).toBe(true); // initial click should open dropdown
-      component.goToRoute(sidemenuItemData2);
+      expect(mockSideMenuItemData.isDropdownOpen).toBeTrue(); // initial click should open dropdown
+      component.goToRoute(mockSideMenuItemData);
       fixture.detectChanges();
-      expect(sidemenuItemData2.isDropdownOpen).toBe(false); // second click should close dropdown
+      expect(mockSideMenuItemData.isDropdownOpen).toBeFalse(); // second click should close dropdown
     });
 
     it('should close the menucontroller when sidemenu item does not have dropdown options', () => {
       component.goToRoute(sidemenuItemData1);
-      expect(sidemenuItemData2.isDropdownOpen).toBe(false);
+      expect(sidemenuItemData2.isDropdownOpen).toBeFalse();
       expect(menuController.close).toHaveBeenCalledTimes(1);
     });
 

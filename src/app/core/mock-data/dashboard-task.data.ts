@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { DashboardTask } from '../models/dashboard-task.model';
 import { TaskIcon } from '../models/task-icon.enum';
 
-export const dashboardTasksData: DashboardTask[] = [
+export const dashboardTasksData: DashboardTask[] = deepFreeze([
   {
     icon: TaskIcon.WARNING,
     header: '77 Potential Duplicates',
@@ -34,4 +36,4 @@ export const dashboardTasksData: DashboardTask[] = [
     count: 11,
     ctas: [{ content: 'Show Reports', event: 5 }],
   },
-];
+]);

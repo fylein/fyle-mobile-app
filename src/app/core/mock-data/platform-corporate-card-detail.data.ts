@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformCorporateCardDetail } from '../models/platform-corporate-card-detail.model';
 import { mastercardRTFCard, statementUploadedCard, virtualCard, visaRTFCard } from './platform-corporate-card.data';
 import { virtualCardCombinedResponse } from './virtual-card-combined-response.data';
 
-export const virtualCardDetails: PlatformCorporateCardDetail[] = [
+export const virtualCardDetails: PlatformCorporateCardDetail[] = deepFreeze([
   {
     card: virtualCard,
     stats: {
@@ -14,9 +16,9 @@ export const virtualCardDetails: PlatformCorporateCardDetail[] = [
       totalAmountValue: 0,
     },
   },
-];
+]);
 
-export const cardDetailsRes: PlatformCorporateCardDetail[] = [
+export const cardDetailsRes: PlatformCorporateCardDetail[] = deepFreeze([
   {
     card: visaRTFCard,
     stats: {
@@ -51,9 +53,9 @@ export const cardDetailsRes: PlatformCorporateCardDetail[] = [
     },
   },
   virtualCardDetails[0],
-];
+]);
 
-export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = [
+export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = deepFreeze([
   {
     card: statementUploadedCard,
     stats: {
@@ -65,11 +67,11 @@ export const statementUploadedCardDetail: PlatformCorporateCardDetail[] = [
       totalAmountValue: 1874.4,
     },
   },
-];
+]);
 
-export const virtualCardDetailsCombined: PlatformCorporateCardDetail[] = [
+export const virtualCardDetailsCombined: PlatformCorporateCardDetail[] = deepFreeze([
   {
     ...virtualCardDetails[0],
-    virtualCardDetail: virtualCardCombinedResponse['vc1234'],
+    virtualCardDetail: virtualCardCombinedResponse.vc1234,
   },
-];
+]);

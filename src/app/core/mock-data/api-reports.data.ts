@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedReport } from '../models/report.model';
 import { ApiV2Response } from '../models/api-v2.model';
-export const apiReportRes: ApiV2Response<ExtendedReport> = {
+export const apiReportRes: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 4,
   data: [
     {
@@ -238,9 +240,9 @@ export const apiReportRes: ApiV2Response<ExtendedReport> = {
   limit: 4,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const apiReportSingleRes: ApiV2Response<ExtendedReport> = {
+export const apiReportSingleRes: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 1,
   data: [
     {
@@ -305,9 +307,9 @@ export const apiReportSingleRes: ApiV2Response<ExtendedReport> = {
   limit: 1,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const expectedReports: ApiV2Response<ExtendedReport> = {
+export const expectedReports: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 4,
   data: [
     {
@@ -545,9 +547,9 @@ export const expectedReports: ApiV2Response<ExtendedReport> = {
   limit: 4,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const apiAllReportsRes1: ApiV2Response<ExtendedReport> = {
+export const apiAllReportsRes1: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 2,
   data: [
     {
@@ -660,9 +662,9 @@ export const apiAllReportsRes1: ApiV2Response<ExtendedReport> = {
   limit: 2,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const apiAllReportsRes2: ApiV2Response<ExtendedReport> = {
+export const apiAllReportsRes2: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 1,
   data: [
     {
@@ -723,9 +725,9 @@ export const apiAllReportsRes2: ApiV2Response<ExtendedReport> = {
   limit: 2,
   offset: 2,
   url: '/v2/reports',
-};
+});
 
-export const apiTeamRptCountRes: ApiV2Response<ExtendedReport> = {
+export const apiTeamRptCountRes: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 25,
   data: [
     {
@@ -794,9 +796,9 @@ export const apiTeamRptCountRes: ApiV2Response<ExtendedReport> = {
   limit: 1,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const apiTeamRptSingleRes: ApiV2Response<ExtendedReport> = {
+export const apiTeamRptSingleRes: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 1,
   data: [
     {
@@ -865,9 +867,9 @@ export const apiTeamRptSingleRes: ApiV2Response<ExtendedReport> = {
   limit: 1,
   offset: 0,
   url: '/v2/reports',
-};
+});
 
-export const apiTeamReportPaginated1: ApiV2Response<ExtendedReport> = {
+export const apiTeamReportPaginated1: ApiV2Response<ExtendedReport> = deepFreeze({
   count: 25,
   data: [
     {
@@ -994,4 +996,4 @@ export const apiTeamReportPaginated1: ApiV2Response<ExtendedReport> = {
   limit: 10,
   offset: 0,
   url: '/v2/reports',
-};
+});

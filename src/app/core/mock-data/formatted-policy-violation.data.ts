@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FormattedPolicyViolation } from '../models/formatted-policy-violation.model';
 
-export const formattedPolicyViolation1: FormattedPolicyViolation = {
+export const formattedPolicyViolation1: FormattedPolicyViolation = deepFreeze({
   rules: [
     'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
   ],
@@ -42,9 +44,9 @@ export const formattedPolicyViolation1: FormattedPolicyViolation = {
   amount: 240000,
   isCriticalPolicyViolation: true,
   isExpanded: false,
-};
+});
 
-export const formattedPolicyViolation2: FormattedPolicyViolation = {
+export const formattedPolicyViolation2: FormattedPolicyViolation = deepFreeze({
   rules: [
     'The expense will be flagged, employee will be alerted, expense will be made unreportable and expense amount will be capped to the amount limit when expense amount in category 1 / chumma returns/1 / sd/1 / sub 123/aniruddha test / aniruddha sub/Food/Food / Travelling - Inland/Snacks/Stuff/te knklw/TEst Cateogory / 12 exceeds: INR 1000 and are fyled from  Paid by Employee payment mode(s). ',
   ],
@@ -98,14 +100,14 @@ export const formattedPolicyViolation2: FormattedPolicyViolation = {
   amount: 160000,
   isCriticalPolicyViolation: true,
   isExpanded: false,
-};
+});
 
-export const formattedTxnViolations = {
+export const formattedTxnViolations = deepFreeze({
   txc2KIogxUAy: formattedPolicyViolation1,
   txgfkvuYteta: formattedPolicyViolation2,
-};
+});
 
-export const formattedTxnViolations2 = {
+export const formattedTxnViolations2 = deepFreeze({
   txc2KIogxUAy: { ...formattedPolicyViolation1, isCriticalPolicyViolation: false },
   txgfkvuYteta: { ...formattedPolicyViolation2, isCriticalPolicyViolation: false },
-};
+});

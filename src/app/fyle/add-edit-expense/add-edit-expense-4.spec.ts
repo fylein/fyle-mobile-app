@@ -99,6 +99,7 @@ import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -435,7 +436,8 @@ export function TestCases4(getTestBed) {
     describe('addExpense():', () => {
       it('should add an expense', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         spyOn(component, 'trackAddExpense');
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
@@ -469,12 +471,11 @@ export function TestCases4(getTestBed) {
         component.isConnected$ = of(false);
         spyOn(component, 'trackAddExpense');
         component.fg.controls.report.setValue(expectedReportsPaginated[0]);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({
-            ...unflattenedTxnData,
-            dataUrls: [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'application/pdf' }],
-          })
-        );
+        const mockEtxn = cloneDeep({
+          ...unflattenedTxnData,
+          dataUrls: [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'application/pdf' }],
+        });
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionOutboxService.addEntry.and.resolveTo();
         component.selectedCCCTransaction = expectedECccResponse[0].ccce;
@@ -488,7 +489,7 @@ export function TestCases4(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            mockEtxn.tx,
             [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
             [],
             'rprAfNrce73O'
@@ -500,15 +501,14 @@ export function TestCases4(getTestBed) {
       it('should add expense with critical policy violation', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'trackAddExpense');
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
-        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: expectedUnflattendedTxnData3, comment: null })
-        );
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: mockEtxn, comment: null }));
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'trackCreateExpense');
         transactionOutboxService.addEntry.and.resolveTo();
@@ -527,7 +527,7 @@ export function TestCases4(getTestBed) {
               policyViolations: [
                 'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
               ],
-              etxn: expectedUnflattendedTxnData3,
+              etxn: mockEtxn,
             },
             jasmine.any(Observable)
           );
@@ -546,7 +546,8 @@ export function TestCases4(getTestBed) {
       it('should add expense with policy violations', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'trackAddExpense');
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData4);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
@@ -555,7 +556,7 @@ export function TestCases4(getTestBed) {
         ]);
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
           of({
-            etxn: expectedUnflattendedTxnData4,
+            etxn: mockEtxn,
             comment: 'continue',
           })
         );
@@ -577,18 +578,13 @@ export function TestCases4(getTestBed) {
                 'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
               ],
               policyAction: expensePolicyData.data.final_desired_state,
-              etxn: expectedUnflattendedTxnData4,
+              etxn: mockEtxn,
             },
             jasmine.any(Observable)
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            expectedUnflattendedTxnData4.tx,
-            [],
-            ['continue'],
-            undefined
-          );
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue'], undefined);
           done();
         });
       });

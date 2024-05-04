@@ -1,12 +1,14 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Report } from '../models/platform/v1/report.model';
 import { ReportsQueryParams } from '../models/platform/v1/reports-query-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const mockQueryParams: ReportsQueryParams = {
+export const mockQueryParams: ReportsQueryParams = deepFreeze({
   state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-};
+});
 
-export const platformReportData: Report = {
+export const platformReportData: Report = deepFreeze({
   amount: 0,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
@@ -67,15 +69,15 @@ export const platformReportData: Report = {
     id: 'usvKA4X8Ugcr',
   },
   user_id: 'usvKA4X8Ugcr',
-};
+});
 
-export const platformReportCountData: PlatformApiResponse<Report[]> = {
+export const platformReportCountData: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [platformReportData],
   offset: 0,
-};
+});
 
-export const allReportsPaginated1: PlatformApiResponse<Report[]> = {
+export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -204,9 +206,9 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const allReportsPaginated2: PlatformApiResponse<Report[]> = {
+export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -335,10 +337,13 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = {
     },
   ],
   offset: 2,
-};
+});
 
-export const expectedSingleReport: Report[] = [allReportsPaginated1.data[0]];
+export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);
 
-export const expectedReportsSinglePage: Report[] = [...allReportsPaginated1.data];
+export const expectedReportsSinglePage: Report[] = deepFreeze([...allReportsPaginated1.data]);
 
-export const expectedReportsPaginated: Report[] = [...allReportsPaginated1.data, ...allReportsPaginated2.data];
+export const expectedReportsPaginated: Report[] = deepFreeze([
+  ...allReportsPaginated1.data,
+  ...allReportsPaginated2.data,
+]);
