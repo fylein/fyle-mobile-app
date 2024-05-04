@@ -64,7 +64,8 @@ describe('ViewCommentComponent', () => {
     authService.getEou.and.resolveTo(apiEouRes);
     const mockCommentResponse = cloneDeep(apiCommentsResponse);
     statusService.find.and.returnValue(of(mockCommentResponse));
-    statusService.createStatusMap.and.returnValue(updateReponseWithFlattenedEStatus);
+    const mockStatusMap = cloneDeep(updateReponseWithFlattenedEStatus);
+    statusService.createStatusMap.and.returnValue(mockStatusMap);
 
     fixture = TestBed.createComponent(ViewCommentComponent);
     component = fixture.componentInstance;
@@ -72,7 +73,6 @@ describe('ViewCommentComponent', () => {
     component.objectType = 'transactions';
     component.objectId = 'tx1oTNwgRdRq';
     component.newComment = 'This is a new comment';
-    fixture.detectChanges();
   }));
 
   it('should create', () => {
@@ -84,6 +84,7 @@ describe('ViewCommentComponent', () => {
     const data = { comment: newComment };
     component.newComment = newComment;
     statusService.post.and.returnValue(of(null));
+    fixture.detectChanges();
     const focusSpy = spyOn(component.commentInput.nativeElement, 'focus');
     component.addComment();
 
@@ -215,6 +216,7 @@ describe('ViewCommentComponent', () => {
         st_org_user_id: 'POLICY',
       }));
 
+      spyOn(component, 'setContentScrollToBottom');
       const totalCommentsCount = 33;
       authService.getEou.and.resolveTo(apiEouRes);
       statusService.find.and.returnValue(of(updatedApiCommentsResponse));
@@ -238,6 +240,7 @@ describe('ViewCommentComponent', () => {
     }));
 
     it('should set type correctly for a given objectType', fakeAsync(() => {
+      spyOn(component, 'setContentScrollToBottom');
       component.objectType = 'Expenses';
       component.ngOnInit();
       tick(500);
