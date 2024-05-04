@@ -602,10 +602,11 @@ describe('ExpensesCardComponent', () => {
   });
 
   it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
-    component.matchReceiptWithEtxn(fileObjectData);
+    const mockFileObj = cloneDeep(fileObjectData);
+    component.matchReceiptWithEtxn(mockFileObj);
     expect(component.expense.tx_file_ids).toBeDefined();
-    expect(component.expense.tx_file_ids).toContain(fileObjectData.id);
-    expect(fileObjectData.transaction_id).toBe(component.expense.tx_id);
+    expect(component.expense.tx_file_ids).toContain(mockFileObj.id);
+    expect(mockFileObj.transaction_id).toBe(component.expense.tx_id);
   });
 
   describe('canAddAttchment():', () => {
@@ -652,7 +653,7 @@ describe('ExpensesCardComponent', () => {
       };
 
       fileService.getAttachmentType.and.returnValue(attachmentType);
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
       fileService.post.and.returnValue(of(fileObjectData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
@@ -672,7 +673,7 @@ describe('ExpensesCardComponent', () => {
   it('onFileUpload(): should add attachment when file is selected', fakeAsync(() => {
     const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
     const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-    fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
+    fileService.readFile.and.resolveTo(dataUrl);
     const mockNativeElement = {
       files: [mockFile],
     };
@@ -731,8 +732,8 @@ describe('ExpensesCardComponent', () => {
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
       const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
-      popOverSpy.onWillDismiss.and.returnValue(Promise.resolve(receiptDetails));
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(receiptDetails);
 
       component.addAttachments(event as any);
       fixture.detectChanges();
@@ -770,11 +771,11 @@ describe('ExpensesCardComponent', () => {
       spyOn(component, 'attachReceipt');
       spyOn(component, 'canAddAttachment').and.returnValue(true);
       const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
-      popOverSpy.onWillDismiss.and.returnValue(Promise.resolve(dataRes));
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(dataRes);
       const captureReceiptModalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(captureReceiptModalSpy));
-      captureReceiptModalSpy.onWillDismiss.and.returnValue(Promise.resolve(dataRes));
+      modalController.create.and.resolveTo(captureReceiptModalSpy);
+      captureReceiptModalSpy.onWillDismiss.and.resolveTo(dataRes);
       fileService.getImageTypeFromDataUrl.and.returnValue('png');
 
       component.addAttachments(event as any);
@@ -815,7 +816,7 @@ describe('ExpensesCardComponent', () => {
 
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toEqual(true);
+      expect(connectionStatus).toBeTrue();
     });
   }));
 

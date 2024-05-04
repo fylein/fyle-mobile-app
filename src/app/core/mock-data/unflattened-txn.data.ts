@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CommuteDeduction } from '../enums/commute-deduction.enum';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { personalCardTxn } from './transaction.data';
 
-export const unflattenedTxnData: UnflattenedTransaction = {
+export const unflattenedTxnData: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -151,9 +153,9 @@ export const unflattenedTxnData: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
+export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -301,9 +303,9 @@ export const unflattenedTxnDataWithSubCategory: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const unflattenedTxnWithExtractedData: UnflattenedTransaction = {
+export const unflattenedTxnWithExtractedData: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -322,9 +324,9 @@ export const unflattenedTxnWithExtractedData: UnflattenedTransaction = {
       invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     },
   },
-};
+});
 
-export const expectedUnflattendedTxnData1: UnflattenedTransaction = {
+export const expectedUnflattendedTxnData1: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     txn_dt: new Date('2023-01-24T11:30:00.000Z'),
@@ -472,9 +474,9 @@ export const expectedUnflattendedTxnData1: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const expectedUnflattendedTxnData2 = {
+export const expectedUnflattendedTxnData2 = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -593,18 +595,18 @@ export const expectedUnflattendedTxnData2 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const unflattenedTxnData2: UnflattenedTransaction = {
+export const unflattenedTxnData2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     amount: 100,
     user_amount: 100,
   },
-};
+});
 
-export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
+export const expectedUnflattendedTxnData3: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -761,9 +763,9 @@ export const expectedUnflattendedTxnData3: UnflattenedTransaction = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const expectedUnflattendedTxnData4: UnflattenedTransaction = {
+export const expectedUnflattendedTxnData4: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -914,9 +916,9 @@ export const expectedUnflattendedTxnData4: UnflattenedTransaction = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const expectedUnflattendedTxnData5 = {
+export const expectedUnflattendedTxnData5 = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -1051,9 +1053,9 @@ export const expectedUnflattendedTxnData5 = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = {
+export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1061,9 +1063,9 @@ export const unflattenedTxnDataWithoutCategoryData: UnflattenedTransaction = {
     org_category_id: null,
     fyle_category: 'unspecified',
   },
-};
+});
 
-export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: string } = {
+export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: string } = deepFreeze({
   etxn: {
     tx: {
       risk_state: null,
@@ -1235,9 +1237,9 @@ export const expWithCriticalViolation: { etxn: UnflattenedTransaction; comment: 
     dataUrls: [],
   },
   comment: null,
-};
+});
 
-export const unflattenedPaidExp: UnflattenedTransaction = {
+export const unflattenedPaidExp: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1245,9 +1247,9 @@ export const unflattenedPaidExp: UnflattenedTransaction = {
     fyle_category: 'TRAVEL',
     org_category_id: 12345,
   },
-};
+});
 
-export const unflattenedDraftExp: UnflattenedTransaction = {
+export const unflattenedDraftExp: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1255,9 +1257,9 @@ export const unflattenedDraftExp: UnflattenedTransaction = {
     fyle_category: 'unspecified',
     org_category_id: 12345,
   },
-};
+});
 
-export const unflattenedDraftExp2: UnflattenedTransaction = {
+export const unflattenedDraftExp2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1266,18 +1268,18 @@ export const unflattenedDraftExp2: UnflattenedTransaction = {
     fyle_category: 'unspecified',
     org_category_id: null,
   },
-};
+});
 
-export const unflattenedPaidExp2: UnflattenedTransaction = {
+export const unflattenedPaidExp2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     state: 'PAID',
     fyle_category: 'TRAVEL',
   },
-};
+});
 
-export const expectedExpenseObservable: Partial<UnflattenedTransaction> = {
+export const expectedExpenseObservable: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1311,9 +1313,9 @@ export const expectedExpenseObservable: Partial<UnflattenedTransaction> = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const expectedExpenseObservable2 = {
+export const expectedExpenseObservable2 = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1330,9 +1332,9 @@ export const expectedExpenseObservable2 = {
     project_id: 3943,
   },
   dataUrls: [],
-};
+});
 
-export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = {
+export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -1366,9 +1368,9 @@ export const expectedExpenseObservable3: Partial<UnflattenedTransaction> = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = {
+export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     source: 'MOBILE',
     currency: 'INR',
@@ -1400,9 +1402,9 @@ export const expectedExpenseObservable4: Partial<UnflattenedTransaction> = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = {
+export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     source: 'MOBILE',
     currency: 'USD',
@@ -1433,9 +1435,9 @@ export const expectedExpenseObservable5: Partial<UnflattenedTransaction> = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
+export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1450,17 +1452,17 @@ export const unflattenedTxnDataWithoutCategoryData2: UnflattenedTransaction = {
     org_category_id: 12345,
     fyle_category: 'unspecified',
   },
-};
+});
 
-export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = {
+export const unflattenedTransactionDataPersonalCard: UnflattenedTransaction = deepFreeze({
   ...expectedUnflattendedTxnData3,
   tx: {
     ...personalCardTxn,
     locations: null,
   },
-};
+});
 
-export const newUnflattenedTxn = {
+export const newUnflattenedTxn = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -1623,9 +1625,9 @@ export const newUnflattenedTxn = {
     test_call: null,
   },
   dataUrls: [],
-};
+});
 
-export const unflattenedTxnDataWithReportID = {
+export const unflattenedTxnDataWithReportID = deepFreeze({
   ...expectedUnflattendedTxnData2,
   tx: {
     ...expectedUnflattendedTxnData2.tx,
@@ -1651,9 +1653,9 @@ export const unflattenedTxnDataWithReportID = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const unflattenedTxnDataWithReportID2 = {
+export const unflattenedTxnDataWithReportID2 = deepFreeze({
   ...expectedUnflattendedTxnData2,
   tx: {
     ...expectedUnflattendedTxnData2.tx,
@@ -1679,9 +1681,9 @@ export const unflattenedTxnDataWithReportID2 = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const unflattenedTxnDataWithViolationUserReview = {
+export const unflattenedTxnDataWithViolationUserReview = deepFreeze({
   ...expectedUnflattendedTxnData2,
   tx: {
     ...expectedUnflattendedTxnData2.tx,
@@ -1708,18 +1710,18 @@ export const unflattenedTxnDataWithViolationUserReview = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const unflattenedExpenseWithCCCGroupId = {
+export const unflattenedExpenseWithCCCGroupId = deepFreeze({
   ...unflattenedTxnDataWithViolationUserReview,
   tx: {
     ...expectedUnflattendedTxnData2.tx,
     corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
     report_id: null,
   },
-};
+});
 
-export const unflattenedExpenseWithCCCGroupId2 = {
+export const unflattenedExpenseWithCCCGroupId2 = deepFreeze({
   ...unflattenedTxnDataWithViolationUserReview,
   tx: {
     ...expectedUnflattendedTxnData2.tx,
@@ -1728,47 +1730,47 @@ export const unflattenedExpenseWithCCCGroupId2 = {
     report_id: null,
     policy_amount: -100,
   },
-};
+});
 
-export const txnWithCCCGroupID = {
+export const txnWithCCCGroupID = deepFreeze({
   ...unflattenedTxnData.tx,
   corporate_credit_card_expense_group_id: 'ccceWauzF1A3oS',
   report_id: null,
-};
+});
 
-export const unflattenedExpWoProject = {
+export const unflattenedExpWoProject = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     project_id: null,
   },
-};
+});
 
-export const unflattenedExpWithReport = {
+export const unflattenedExpWithReport = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     report_id: 'rprAfNrce73O',
   },
-};
+});
 
-export const unflattenedExpWithCostCenter = {
+export const unflattenedExpWithCostCenter = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     cost_center_id: 2411,
   },
-};
+});
 
-export const unflattenedExpWoCostCenter = {
+export const unflattenedExpWoCostCenter = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     cost_center_id: null,
   },
-};
+});
 
-export const unflattenedExp2 = {
+export const unflattenedExp2 = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1787,9 +1789,9 @@ export const unflattenedExp2 = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
+export const unflattenedExpWithCCCExpn: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -1810,26 +1812,26 @@ export const unflattenedExpWithCCCExpn: UnflattenedTransaction = {
       thumbnail: 'data-url',
     },
   ],
-};
+});
 
-export const unflattenedExpWithCCCExpn1: UnflattenedTransaction = {
+export const unflattenedExpWithCCCExpn1: UnflattenedTransaction = deepFreeze({
   ...unflattenedExpWithCCCExpn,
   tx: {
     ...unflattenedExpWithCCCExpn.tx,
     split_group_id: 'tx6I9xcOZFU6',
   },
-};
+});
 
-export const unflattenedExpWithoutCCExpnSync: UnflattenedTransaction = {
+export const unflattenedExpWithoutCCExpnSync: UnflattenedTransaction = deepFreeze({
   ...unflattenedExpWithCCCExpn,
   tx: {
     ...unflattenedExpWithCCCExpn.tx,
     matched_corporate_card_transactions: [],
     split_group_id: 'tx6I9xcOZFU6',
   },
-};
+});
 
-export const trackCreateExpData: UnflattenedTransaction = {
+export const trackCreateExpData: UnflattenedTransaction = deepFreeze({
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1839,9 +1841,9 @@ export const trackCreateExpData: UnflattenedTransaction = {
     currency: 'USD',
     orig_currency: 'USD',
   },
-};
+});
 
-export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
+export const trackCreateExpDataWoCurrency: UnflattenedTransaction = deepFreeze({
   ...unflattenedExp2,
   tx: {
     ...unflattenedExp2.tx,
@@ -1851,9 +1853,9 @@ export const trackCreateExpDataWoCurrency: UnflattenedTransaction = {
     currency: null,
     orig_currency: 'USD',
   },
-};
+});
 
-export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
+export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = deepFreeze({
   ...expectedUnflattendedTxnData4,
   tx: {
     ...expectedUnflattendedTxnData4.tx,
@@ -1886,9 +1888,9 @@ export const trackAddExpenseWoCurrency: Partial<UnflattenedTransaction> = {
     test_call: false,
   },
   dataUrls: null,
-};
+});
 
-export const newExpFromFg: Partial<UnflattenedTransaction> = {
+export const newExpFromFg: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2039,9 +2041,9 @@ export const newExpFromFg: Partial<UnflattenedTransaction> = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const newExpFromFg2: Partial<UnflattenedTransaction> = {
+export const newExpFromFg2: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2193,9 +2195,9 @@ export const newExpFromFg2: Partial<UnflattenedTransaction> = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const newExpFromFg3: Partial<UnflattenedTransaction> = {
+export const newExpFromFg3: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2330,9 +2332,9 @@ export const newExpFromFg3: Partial<UnflattenedTransaction> = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const newExpFromFg4: Partial<UnflattenedTransaction> = {
+export const newExpFromFg4: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2467,9 +2469,9 @@ export const newExpFromFg4: Partial<UnflattenedTransaction> = {
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
   dataUrls: [],
-};
+});
 
-export const newExpFromFgPlatform: Partial<UnflattenedTransaction> = {
+export const newExpFromFgPlatform: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     id: 'txD5hIQgLuR5',
     created_at: new Date('2024-02-09T01:20:13.098Z'),
@@ -2581,14 +2583,14 @@ export const newExpFromFgPlatform: Partial<UnflattenedTransaction> = {
     org_id: 'orNbIQloYtfa',
   },
   dataUrls: [],
-};
+});
 
-export const expWithSplitGroupID: Partial<UnflattenedTransaction> = {
+export const expWithSplitGroupID: Partial<UnflattenedTransaction> = deepFreeze({
   ...unflattenedTxnData,
   tx: null,
-};
+});
 
-export const unflattenedTxnWithExtractedData2: UnflattenedTransaction = {
+export const unflattenedTxnWithExtractedData2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2607,9 +2609,9 @@ export const unflattenedTxnWithExtractedData2: UnflattenedTransaction = {
       invoice_dt: new Date('2023-02-24T12:03:57.680Z'),
     },
   },
-};
+});
 
-export const unflattenedDraftExp3: UnflattenedTransaction = {
+export const unflattenedDraftExp3: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2618,9 +2620,9 @@ export const unflattenedDraftExp3: UnflattenedTransaction = {
     fyle_category: null,
     org_category_id: null,
   },
-};
+});
 
-export const checkSplitExpData1: UnflattenedTransaction = {
+export const checkSplitExpData1: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2631,9 +2633,9 @@ export const checkSplitExpData1: UnflattenedTransaction = {
     org_category_id: null,
     split_group_id: 'tx3qHxFNgRcZ',
   },
-};
+});
 
-export const checkSplitExpData2: UnflattenedTransaction = {
+export const checkSplitExpData2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2641,9 +2643,9 @@ export const checkSplitExpData2: UnflattenedTransaction = {
     state: 'COMPLETE',
     split_group_id: null,
   },
-};
+});
 
-export const checkDebitCCCExpenseData1: UnflattenedTransaction = {
+export const checkDebitCCCExpenseData1: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2652,9 +2654,9 @@ export const checkDebitCCCExpenseData1: UnflattenedTransaction = {
     amount: 100,
     corporate_credit_card_expense_group_id: 'tx3qHxFNgRcZ',
   },
-};
+});
 
-export const checkDebitCCCExpenseData2: UnflattenedTransaction = {
+export const checkDebitCCCExpenseData2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2663,9 +2665,9 @@ export const checkDebitCCCExpenseData2: UnflattenedTransaction = {
     amount: -1,
     corporate_credit_card_expense_group_id: 'tx3qHxFNgRcZ',
   },
-};
+});
 
-export const setupFormExpenseWoCurrency: UnflattenedTransaction = {
+export const setupFormExpenseWoCurrency: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData,
@@ -2688,9 +2690,9 @@ export const setupFormExpenseWoCurrency: UnflattenedTransaction = {
       },
     ],
   },
-};
+});
 
-export const setupFormExpenseWoCurrency2: UnflattenedTransaction = {
+export const setupFormExpenseWoCurrency2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2712,9 +2714,9 @@ export const setupFormExpenseWoCurrency2: UnflattenedTransaction = {
       },
     ],
   },
-};
+});
 
-export const setupFormExpenseWoCurrency3: UnflattenedTransaction = {
+export const setupFormExpenseWoCurrency3: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2727,9 +2729,9 @@ export const setupFormExpenseWoCurrency3: UnflattenedTransaction = {
     locations: [],
     project_id: null,
   },
-};
+});
 
-export const expectedPersonalTxn: UnflattenedTransaction = {
+export const expectedPersonalTxn: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2878,9 +2880,9 @@ export const expectedPersonalTxn: UnflattenedTransaction = {
   },
   us: undefined,
   rp: undefined,
-};
+});
 
-export const newExpenseMileageData1: Partial<UnflattenedTransaction> = {
+export const newExpenseMileageData1: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -2904,9 +2906,9 @@ export const newExpenseMileageData1: Partial<UnflattenedTransaction> = {
     locations: [],
     custom_properties: [],
   },
-};
+});
 
-export const newExpenseMileageData2: Partial<UnflattenedTransaction> = {
+export const newExpenseMileageData2: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     skip_reimbursement: false,
     source: 'MOBILE',
@@ -2940,42 +2942,42 @@ export const newExpenseMileageData2: Partial<UnflattenedTransaction> = {
     ],
     custom_properties: [],
   },
-};
-export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = {
+});
+export const mileageCategoryUnflattenedExpense: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'MILEAGE' },
-};
+});
 
-export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = {
+export const perDiemCategoryUnflattenedExpense: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: { ...unflattenedTxnData.tx, org_category: 'PER DIEM' },
-};
+});
 
-export const unflattenedTxnWithSourceID: UnflattenedTransaction = {
+export const unflattenedTxnWithSourceID: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     source_account_id: 'acc6mK6CEesGL',
   },
-};
+});
 
-export const unflattenedTxnWithSourceID2: UnflattenedTransaction = {
+export const unflattenedTxnWithSourceID2: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     source_account_id: 'acc6mK6CEesXL',
   },
-};
+});
 
-export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = {
+export const unflattendedTxnWithPolicyAmount: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     policy_amount: 100,
   },
-};
+});
 
-export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
+export const unflattenedTxnWithTrackData: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -2988,17 +2990,17 @@ export const unflattenedTxnWithTrackData: UnflattenedTransaction = {
       },
     ],
   },
-};
+});
 
-export const unflattenedTxnDataWithReportID2UserReview: UnflattenedTransaction = {
+export const unflattenedTxnDataWithReportID2UserReview: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnDataWithReportID2,
   tx: {
     ...unflattenedTxnDataWithReportID2.tx,
     user_review_needed: true,
   },
-};
+});
 
-export const expenseTrackCreate: UnflattenedTransaction = {
+export const expenseTrackCreate: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
@@ -3011,9 +3013,9 @@ export const expenseTrackCreate: UnflattenedTransaction = {
       },
     ],
   },
-};
+});
 
-export const unflattenedTxnWithReportID3: UnflattenedTransaction = {
+export const unflattenedTxnWithReportID3: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -3161,9 +3163,9 @@ export const unflattenedTxnWithReportID3: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
+export const newMileageExpFromForm: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -3374,9 +3376,9 @@ export const newMileageExpFromForm: Partial<UnflattenedTransaction> = {
     sub_department: null,
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
-};
+});
 
-export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = {
+export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -3494,9 +3496,9 @@ export const newMileageExpFromForm2: Partial<UnflattenedTransaction> = {
     sub_department: null,
     joining_dt: new Date('2017-07-25T00:00:00.000Z'),
   },
-};
+});
 
-export const unflattenedTxnWithCategory: UnflattenedTransaction = {
+export const unflattenedTxnWithCategory: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -3644,17 +3646,17 @@ export const unflattenedTxnWithCategory: UnflattenedTransaction = {
   is: {
     test_call: null,
   },
-};
+});
 
-export const unflattenedTxnWithCC: UnflattenedTransaction = {
+export const unflattenedTxnWithCC: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     cost_center_id: 2411,
   },
-};
+});
 
-export const newMileageExpFromForm3: UnflattenedTransaction = {
+export const newMileageExpFromForm3: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnWithReportID3,
   tx: {
     ...unflattenedTxnWithReportID3.tx,
@@ -3689,12 +3691,12 @@ export const newMileageExpFromForm3: UnflattenedTransaction = {
       },
     ],
   },
-};
+});
 
-export const unflattenedMileageDataWithPolicyAmount: UnflattenedTransaction = {
+export const unflattenedMileageDataWithPolicyAmount: UnflattenedTransaction = deepFreeze({
   ...unflattenedTxnData,
   tx: {
     ...unflattenedTxnData.tx,
     policy_amount: 100,
   },
-};
+});

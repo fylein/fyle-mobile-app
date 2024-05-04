@@ -21,6 +21,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { Employee } from 'src/app/core/models/spender/employee.model';
 import { By } from '@angular/platform-browser';
+import { cloneDeep } from 'lodash';
 
 describe('FyUserlistModalComponent', () => {
   let component: FyUserlistModalComponent;
@@ -59,18 +60,19 @@ describe('FyUserlistModalComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+    const employeesData = cloneDeep(employeesRes.data);
+    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
     fixture = TestBed.createComponent(FyUserlistModalComponent);
     component = fixture.componentInstance;
     component.value = 'test value';
-    component.currentSelections = [
+    component.currentSelections = cloneDeep([
       'ajain+12+12+1@fyle.in',
       'ajain+12121212@fyle.in',
       'aaaaaaa@aaaabbbb.com',
       'aaaaasdjskjd@sdsd.com',
       'kawaljeet.ravi22@gmail.com',
       'abcdefg@somemail.com',
-    ];
+    ]);
     fixture.detectChanges();
   }));
 
@@ -191,7 +193,8 @@ describe('FyUserlistModalComponent', () => {
           'in.(ajain+12+12+1@fyle.in,ajain+12121212@fyle.in,aaaaaaa@aaaabbbb.com,aaaaasdjskjd@sdsd.com,kawaljeet.ravi22@gmail.com,abcdefg@somemail.com)',
       };
 
-      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+      const employeesData = cloneDeep(employeesParamsRes.data);
+      orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
       component.getDefaultUsersList().subscribe((res) => {
         fixture.detectChanges();
         expect(res).toEqual(searchedUserListRes);
@@ -213,12 +216,13 @@ describe('FyUserlistModalComponent', () => {
   });
 
   it('getSearchedUsersList(): should get the searched user list', fakeAsync(() => {
-    const params: any = {
+    const params = {
       limit: 20,
       order: 'us_full_name.asc,us_email.asc,ou_id',
       or: '(us_email.ilike.*ajain+12+12+1@fyle.in*,us_full_name.ilike.*ajain+12+12+1@fyle.in*)',
     };
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+    const employeesData = cloneDeep(employeesParamsRes.data);
+    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
     component.getSearchedUsersList('ajain+12+12+1@fyle.in').subscribe((res) => {
       fixture.detectChanges();
       expect(res).toEqual(searchedUserListRes);
@@ -295,24 +299,27 @@ describe('FyUserlistModalComponent', () => {
   describe('getUsersList():', () => {
     it('should return searched user list if searchText is provided', fakeAsync(() => {
       const searchText = 'ajain';
-      const getSearchedUsersListSpy = spyOn(component, 'getSearchedUsersList').and.returnValue(of(searchedUserListRes));
+      const mockUsersList = cloneDeep(searchedUserListRes);
+      const getSearchedUsersListSpy = spyOn(component, 'getSearchedUsersList').and.returnValue(of(mockUsersList));
       const result$ = component.getUsersList(searchText);
       fixture.detectChanges();
       expect(component.isLoading).toBeTrue();
       expect(getSearchedUsersListSpy).toHaveBeenCalledOnceWith(searchText);
       result$.subscribe((res) => {
-        expect(res).toEqual(searchedUserListRes);
+        expect(res).toEqual(mockUsersList);
       });
       tick(500);
     }));
 
     it('should return default users list if searchText is not provided', fakeAsync(() => {
-      const getDefaultUserListSpy = spyOn(component, 'getDefaultUsersList').and.returnValue(of(searchedUserListRes));
+      const mockUsersList = cloneDeep(searchedUserListRes);
+      spyOn(component, 'getSearchedUsersList').and.returnValue(of([]));
+      const getDefaultUserListSpy = spyOn(component, 'getDefaultUsersList').and.returnValue(of(mockUsersList));
       const result$ = component.getUsersList('');
       fixture.detectChanges();
       result$.subscribe((res) => {
         expect(component.isLoading).toBeTrue();
-        expect(res).toEqual(searchedUserListRes);
+        expect(res).toEqual(mockUsersList);
         expect(getDefaultUserListSpy).toHaveBeenCalledTimes(1);
       });
       tick(500);
