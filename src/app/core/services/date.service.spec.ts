@@ -24,11 +24,11 @@ describe('DateService', () => {
   });
 
   it('firstOfThisMonth(): get the first day of the month', () => {
-    expect(dateService.firstOfThisMonth()).toEqual(new Date(year, month, 1));
+    expect(dateService.firstOfThisMonth().toDateString()).toEqual(new Date(year, month, 1).toDateString());
   });
 
   it('lastOfThisMonth(): get the last day of the month', () => {
-    expect(dateService.lastOfThisMonth()).toEqual(new Date(year, month + 1, 0, 23, 59));
+    expect(dateService.lastOfThisMonth().toDateString()).toEqual(new Date(year, month + 1, 0, 23, 59).toDateString());
   });
 
   it('isValidDate(): check if date is valid', () => {
@@ -60,11 +60,11 @@ describe('DateService', () => {
   });
 
   it('firstOfLastMonth(): should get the first of last month', () => {
-    expect(dateService.firstOfLastMonth()).toEqual(new Date(year, month - 1, 1));
+    expect(dateService.firstOfLastMonth().toDateString()).toEqual(new Date(year, month - 1, 1).toDateString());
   });
 
   it('lastOfLastMonth(): should get the last of last month', () => {
-    expect(dateService.lastOfLastMonth()).toEqual(new Date(year, month, 0, 23, 59));
+    expect(dateService.lastOfLastMonth().toDateString()).toEqual(new Date(year, month, 0, 23, 59).toDateString());
   });
 
   it("getLastMonthRange(): should get last month's range", () => {

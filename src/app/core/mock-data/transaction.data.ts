@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TransactionStatus } from '../models/platform/v1/expense.model';
 import { Transaction } from '../models/v1/transaction.model';
 import { optionsData15, optionsData33 } from './merge-expenses-options-data.data';
 import { expectedTxnCustomProperties, txnCustomPropertiesData } from './txn-custom-properties.data';
 
-export const txnList: Transaction[] = [
+export const txnList: Transaction[] = deepFreeze([
   {
     created_at: new Date('2023-01-31T04:03:12.575Z'),
     updated_at: new Date('2023-01-31T04:03:12.575Z'),
@@ -172,9 +174,9 @@ export const txnList: Transaction[] = [
     policy_amount: null,
     locations: [],
   },
-];
+]);
 
-export const txnData: Transaction = {
+export const txnData: Transaction = deepFreeze({
   source: 'MOBILE_DASHCAM_BULK',
   txn_dt: new Date('2023-02-08T17:00:00.000Z'),
   currency: 'INR',
@@ -184,9 +186,9 @@ export const txnData: Transaction = {
   custom_attributes: null,
   source_account_id: 'acc5APeygFjRd',
   skip_reimbursement: false,
-};
+});
 
-export const txnData2: Transaction = {
+export const txnData2: Transaction = deepFreeze({
   created_at: new Date('2023-02-08T06:47:48.414Z'),
   updated_at: new Date('2023-02-08T06:47:48.414Z'),
   id: 'txNVtsqF8Siq',
@@ -260,9 +262,9 @@ export const txnData2: Transaction = {
   physical_bill_at: null,
   policy_amount: null,
   locations: [],
-};
+});
 
-export const upsertTxnParam: Transaction = {
+export const upsertTxnParam: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   txn_dt: new Date('2023-02-13T17:00:00.000Z'),
@@ -395,9 +397,9 @@ export const upsertTxnParam: Transaction = {
   admin_amount: null,
   custom_attributes: null,
   id: 'txT5J30Rsnbd',
-};
+});
 
-export const txnData4: Transaction = {
+export const txnData4: Transaction = deepFreeze({
   created_at: new Date('2023-02-13T07:26:41.582Z'),
   updated_at: new Date('2023-02-13T07:26:44.188Z'),
   id: 'txT5J30Rsnbd',
@@ -504,9 +506,9 @@ export const txnData4: Transaction = {
   physical_bill_at: null,
   policy_amount: null,
   locations: [],
-};
+});
 
-export const txnDataPayload: Transaction = {
+export const txnDataPayload: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   txn_dt: new Date('2023-02-13T17:00:00.000Z'),
@@ -556,9 +558,9 @@ export const txnDataPayload: Transaction = {
   user_amount: null,
   admin_amount: null,
   custom_attributes: null,
-};
+});
 
-export const splitPurposeTxn: Transaction = {
+export const splitPurposeTxn: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -674,9 +676,9 @@ export const splitPurposeTxn: Transaction = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Unspecified',
   custom_attributes: null,
-};
+});
 
-export const sourceSplitTxn: Transaction = {
+export const sourceSplitTxn: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -784,9 +786,9 @@ export const sourceSplitTxn: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: '1 / ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP',
-};
+});
 
-export const splitTxn: Transaction = {
+export const splitTxn: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -892,9 +894,9 @@ export const splitTxn: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: '1 / ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP ABCDFEIAPCALP',
-};
+});
 
-export const sourceTxn2: Transaction = {
+export const sourceTxn2: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -1002,9 +1004,9 @@ export const sourceTxn2: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Others',
-};
+});
 
-export const splitTxns: Transaction[] = [
+export const splitTxns: Transaction[] = deepFreeze([
   {
     risk_state: null,
     is_duplicate_expense: null,
@@ -1221,9 +1223,9 @@ export const splitTxns: Transaction[] = [
     is_implicit_merge_blocked: false,
     categoryDisplayName: 'Others',
   },
-];
+]);
 
-export const createSourceTxn: Transaction = {
+export const createSourceTxn: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -1410,9 +1412,9 @@ export const createSourceTxn: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Food / Travelling - Inland',
-};
+});
 
-export const createSourceTxn2: Transaction = {
+export const createSourceTxn2: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -1513,9 +1515,9 @@ export const createSourceTxn2: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Food / Travelling - Inland',
-};
+});
 
-export const splitTxn2: Transaction[] = [
+export const splitTxn2: Transaction[] = deepFreeze([
   {
     risk_state: null,
     is_duplicate_expense: null,
@@ -1888,9 +1890,9 @@ export const splitTxn2: Transaction[] = [
     is_implicit_merge_blocked: false,
     categoryDisplayName: 'Food / Travelling - Inland',
   },
-];
+]);
 
-export const txnParam1: Transaction = {
+export const txnParam1: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -2077,9 +2079,9 @@ export const txnParam1: Transaction = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Food / Travelling - Inland',
   custom_attributes: null,
-};
+});
 
-export const txnParam2: Transaction = {
+export const txnParam2: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -2266,9 +2268,9 @@ export const txnParam2: Transaction = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Food / Travelling - Inland',
   custom_attributes: null,
-};
+});
 
-export const txnData5: Transaction = {
+export const txnData5: Transaction = deepFreeze({
   ...txnData,
   orig_currency: 'USD',
   orig_amount: 200,
@@ -2293,17 +2295,17 @@ export const txnData5: Transaction = {
       value: [],
     },
   ],
-};
+});
 
-export const expectedTxnParams: Transaction = {
+export const expectedTxnParams: Transaction = deepFreeze({
   ...txnData5,
   split_group_id: 'txOJVaaPxo9O',
   split_group_user_amount: 100,
   orig_amount: 100,
   amount: 1000,
-};
+});
 
-export const expectedTxnParams2: Transaction = {
+export const expectedTxnParams2: Transaction = deepFreeze({
   ...txnData5,
   orig_amount: 100,
   amount: 1000,
@@ -2311,9 +2313,9 @@ export const expectedTxnParams2: Transaction = {
   split_group_user_amount: 100,
   cost_center_id: 13795,
   org_category_id: 123032,
-};
+});
 
-export const expectedTxnParams3: Transaction = {
+export const expectedTxnParams3: Transaction = deepFreeze({
   ...txnData5,
   orig_currency: undefined,
   split_group_user_amount: 100,
@@ -2321,9 +2323,9 @@ export const expectedTxnParams3: Transaction = {
   amount: null,
   cost_center_id: null,
   org_category_id: 117013,
-};
+});
 
-export const expectedTxnParams4: Transaction = {
+export const expectedTxnParams4: Transaction = deepFreeze({
   ...txnData5,
   orig_currency: undefined,
   split_group_user_amount: 100,
@@ -2331,16 +2333,16 @@ export const expectedTxnParams4: Transaction = {
   amount: null,
   cost_center_id: 13795,
   org_category_id: 123032,
-};
+});
 
-export const expectedTxnParams5: Transaction = {
+export const expectedTxnParams5: Transaction = deepFreeze({
   ...txnData5,
   source: 'MOBILE_SPLIT',
   orig_amount: null,
   amount: 0,
-};
+});
 
-export const splitExpenseTxn1: Transaction = {
+export const splitExpenseTxn1: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -2431,9 +2433,9 @@ export const splitExpenseTxn1: Transaction = {
   custom_properties: [],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Bus',
-};
+});
 
-export const splitExpenseTxn1_1: Transaction = {
+export const splitExpenseTxn1_1: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -2524,9 +2526,9 @@ export const splitExpenseTxn1_1: Transaction = {
   custom_properties: [],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Bus',
-};
+});
 
-export const txnAmount1: Transaction = {
+export const txnAmount1: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -2618,9 +2620,9 @@ export const txnAmount1: Transaction = {
   custom_properties: [],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Bus',
-};
+});
 
-export const splitExpenseTxn2: Transaction = {
+export const splitExpenseTxn2: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   id: 'txmsakgYZeCV',
@@ -2641,9 +2643,9 @@ export const splitExpenseTxn2: Transaction = {
   fyle_category: 'Entertainment',
   admin_amount: 0,
   user_amount: 0,
-};
+});
 
-export const splitExpenseTxn2_2: Transaction = {
+export const splitExpenseTxn2_2: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   state: 'COMPLETE',
@@ -2664,9 +2666,9 @@ export const splitExpenseTxn2_2: Transaction = {
   fyle_category: 'Entertainment',
   admin_amount: 0,
   user_amount: 0,
-};
+});
 
-export const splitExpenseTxn2_3: Transaction = {
+export const splitExpenseTxn2_3: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   id: 'txmsakgYZeCV',
@@ -2687,9 +2689,9 @@ export const splitExpenseTxn2_3: Transaction = {
   fyle_category: 'Entertainment',
   admin_amount: 0,
   user_amount: 0,
-};
+});
 
-export const txnAmount2: Transaction = {
+export const txnAmount2: Transaction = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE_CAMERA',
   txn_dt: new Date('2023-06-15T18:30:00.000Z'),
@@ -2708,9 +2710,9 @@ export const txnAmount2: Transaction = {
   fyle_category: 'Entertainment',
   admin_amount: 0,
   user_amount: 0,
-};
+});
 
-export const splitExpenseTxn3: Transaction[] = [
+export const splitExpenseTxn3: Transaction[] = deepFreeze([
   {
     risk_state: null,
     is_duplicate_expense: null,
@@ -2957,9 +2959,9 @@ export const splitExpenseTxn3: Transaction[] = [
     is_implicit_merge_blocked: false,
     categoryDisplayName: '1 / Entertainment',
   },
-];
+]);
 
-export const amtTxn3: Transaction = {
+export const amtTxn3: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3084,9 +3086,9 @@ export const amtTxn3: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: '1 / Entertainment',
-};
+});
 
-export const editExpTxn = {
+export const editExpTxn = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3190,9 +3192,9 @@ export const editExpTxn = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Software',
-};
+});
 
-export const editExpTxn2 = {
+export const editExpTxn2 = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3299,9 +3301,9 @@ export const editExpTxn2 = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
-};
+});
 
-export const editExpTxn3 = {
+export const editExpTxn3 = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3408,9 +3410,9 @@ export const editExpTxn3 = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
-};
+});
 
-export const editExpTxn4 = {
+export const editExpTxn4 = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3518,9 +3520,9 @@ export const editExpTxn4 = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
   tx_policy_amount: 0,
-};
+});
 
-export const editExpTxn5 = {
+export const editExpTxn5 = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3628,9 +3630,9 @@ export const editExpTxn5 = {
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
   tx_policy_amount: 0,
-};
+});
 
-export const personalCardTxn: Transaction = {
+export const personalCardTxn: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3749,9 +3751,9 @@ export const personalCardTxn: Transaction = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Software',
-};
+});
 
-export const modifiedTxnData4: Transaction = {
+export const modifiedTxnData4: Transaction = deepFreeze({
   ...txnData4,
   from_dt: new Date('2023-08-04'),
   to_dt: new Date('2023-08-07'),
@@ -3763,26 +3765,26 @@ export const modifiedTxnData4: Transaction = {
   org_category_id: 184692,
   txn_dt: new Date('Fri Aug 04 2023 05:30:00 GMT+0530 (India Standard Time)'),
   custom_properties: txnCustomPropertiesData,
-};
+});
 
-export const modifiedTxnData5: Transaction = {
+export const modifiedTxnData5: Transaction = deepFreeze({
   ...modifiedTxnData4,
   project_id: 384582,
-};
+});
 
-export const modifiedTxnData6: Transaction = {
+export const modifiedTxnData6: Transaction = deepFreeze({
   ...modifiedTxnData4,
   cost_center_id: 384582,
   project_id: undefined,
-};
+});
 
-export const modifiedTxnData7: Transaction = {
+export const modifiedTxnData7: Transaction = deepFreeze({
   ...modifiedTxnData4,
   cost_center_id: undefined,
   project_id: undefined,
-};
+});
 
-export const txnData6: Transaction = {
+export const txnData6: Transaction = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -3882,9 +3884,9 @@ export const txnData6: Transaction = {
   proposed_exchange_rate: 0,
   status_id: '',
   updated_at: undefined,
-};
+});
 
-export const perDiemTransaction: Partial<Transaction> = {
+export const perDiemTransaction: Partial<Transaction> = deepFreeze({
   source_account_id: 'accWUsrRlinFb',
   billable: true,
   org_category_id: 129140,
@@ -3907,9 +3909,9 @@ export const perDiemTransaction: Partial<Transaction> = {
   cost_center_name: 'Test3',
   cost_center_code: 'code3',
   user_reason_for_duplicate_expenses: null,
-};
+});
 
-export const editUnflattenedTransaction: Partial<Transaction> = {
+export const editUnflattenedTransaction: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4012,9 +4014,9 @@ export const editUnflattenedTransaction: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Software / Subscriptions',
-};
+});
 
-export const editUnflattenedTransactionPlatform: Partial<Transaction> = {
+export const editUnflattenedTransactionPlatform: Partial<Transaction> = deepFreeze({
   id: 'txD5hIQgLuR5',
   created_at: new Date('2024-02-09T01:20:13.098Z'),
   txn_dt: new Date('2024-02-09T06:00:00.000Z'),
@@ -4099,19 +4101,19 @@ export const editUnflattenedTransactionPlatform: Partial<Transaction> = {
   project_code: null,
   physical_bill: null,
   physical_bill_at: null,
-};
+});
 
-export const editUnflattenedTransactionPlatform2: Partial<Transaction> = {
+export const editUnflattenedTransactionPlatform2: Partial<Transaction> = deepFreeze({
   ...editUnflattenedTransactionPlatform,
   report_id: 'rpbNc3kn5baq',
-};
+});
 
-export const editUnflattenedTransactionPlatform3: Partial<Transaction> = {
+export const editUnflattenedTransactionPlatform3: Partial<Transaction> = deepFreeze({
   ...editUnflattenedTransactionPlatform,
   report_id: 'rplD17WeBlha',
-};
+});
 
-export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction> = {
+export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction> = deepFreeze({
   id: 'txmF3wgfj0Bs',
   created_at: new Date('2024-01-23T01:19:49.370Z'),
   txn_dt: new Date('2018-07-03T13:00:00.000Z'),
@@ -4184,9 +4186,9 @@ export const editUnflattenedTransactionWithMatchCCCPlatform: Partial<Transaction
   physical_bill: null,
   physical_bill_at: null,
   matchCCCId: 'btxnSte7sVQCM8',
-};
+});
 
-export const editTransaction2: Partial<Transaction> = {
+export const editTransaction2: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4289,9 +4291,9 @@ export const editTransaction2: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Software / Subscriptions',
-};
+});
 
-export const editTransaction3: Partial<Transaction> = {
+export const editTransaction3: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4420,9 +4422,9 @@ export const editTransaction3: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
-};
+});
 
-export const editTransaction4: Partial<Transaction> = {
+export const editTransaction4: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4551,9 +4553,9 @@ export const editTransaction4: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
-};
+});
 
-export const editTransaction5: Partial<Transaction> = {
+export const editTransaction5: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4656,9 +4658,9 @@ export const editTransaction5: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'Software / Subscriptions',
-};
+});
 
-export const editTransaction6: Partial<Transaction> = {
+export const editTransaction6: Partial<Transaction> = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -4787,43 +4789,43 @@ export const editTransaction6: Partial<Transaction> = {
   ],
   is_implicit_merge_blocked: false,
   categoryDisplayName: 'ani test',
-};
+});
 
-export const txnData7: Transaction = {
+export const txnData7: Transaction = deepFreeze({
   ...txnData5,
   orig_amount: 100,
   amount: 1000,
   split_group_id: 'txOJVaaPxo9O',
   split_group_user_amount: 100,
-};
+});
 
-export const txnData8: Transaction = {
+export const txnData8: Transaction = deepFreeze({
   ...txnData7,
   cost_center_id: 13795,
   org_category_id: 123032,
-};
+});
 
-export const txnData9: Transaction = {
+export const txnData9: Transaction = deepFreeze({
   ...txnData5,
   amount: null,
   orig_currency: undefined,
-};
+});
 
-export const txnData10: Transaction = {
+export const txnData10: Transaction = deepFreeze({
   ...txnData9,
   cost_center_id: 13795,
   org_category_id: 123032,
-};
+});
 
-export const txnData11: Transaction = {
+export const txnData11: Transaction = deepFreeze({
   ...txnData5,
   source: 'MOBILE_SPLIT',
   orig_amount: null,
   amount: 0,
-};
+});
 
-export const txnData12: Transaction = {
+export const txnData12: Transaction = deepFreeze({
   ...txnData11,
   cost_center_id: 13795,
   org_category_id: 123032,
-};
+});

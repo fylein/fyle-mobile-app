@@ -1,18 +1,20 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpenseDuplicateSet } from 'src/app/core/models/platform/v1/expense-duplicate-sets.model';
 
-export const expenseDuplicateSet: ExpenseDuplicateSet = {
+export const expenseDuplicateSet: ExpenseDuplicateSet = deepFreeze({
   expense_ids: ['tx5fBcPBAxLv', 'tx3nHShG60zq'],
-};
+});
 
-export const expenseDuplicateSet2: ExpenseDuplicateSet = {
+export const expenseDuplicateSet2: ExpenseDuplicateSet = deepFreeze({
   expense_ids: ['tx5fBcPBAxLv'],
-};
+});
 
-export const expenseDuplicateSet3: ExpenseDuplicateSet = {
+export const expenseDuplicateSet3: ExpenseDuplicateSet = deepFreeze({
   expense_ids: ['txal5xGjbZ1R'],
-};
+});
 
-export const expenseDuplicateSets: ExpenseDuplicateSet[] = [
+export const expenseDuplicateSets: ExpenseDuplicateSet[] = deepFreeze([
   { expense_ids: ['tx3I0ccSGlhg', 'txvAmVCGZUZi'] },
   { expense_ids: ['tx3rq5G9gzgf', 'txS1cDov9iZn'] },
   { expense_ids: ['tx6KauIKfjdJ', 'txT0ZmCrVOiD'] },
@@ -30,4 +32,4 @@ export const expenseDuplicateSets: ExpenseDuplicateSet[] = [
   { expense_ids: ['txjh5iDt7xXO', 'txkJsHIF6a9X'] },
   { expense_ids: ['txT0ZmCrVOiD', 'txws78AoalC9'] },
   { expense_ids: ['txT0ZmCrVOiD', 'txzjWIcqYxa9'] },
-];
+]);
