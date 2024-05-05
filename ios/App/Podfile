@@ -31,6 +31,12 @@ def capacitor_pods
   pod 'CordovaPluginsResources', :path => '../capacitor-cordova-ios-plugins'
 end
 
+target 'App' do
+  capacitor_pods
+  # Add your Pods here
+end
+
+
 post_install do |installer|
   assertDeploymentTarget(installer)
 end
