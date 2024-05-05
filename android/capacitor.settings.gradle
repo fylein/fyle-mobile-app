@@ -5,6 +5,9 @@ project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/
 include ':capacitor-community-camera-preview'
 project(':capacitor-community-camera-preview').projectDir = new File('../node_modules/@capacitor-community/camera-preview/android')
 
+include ':capacitor-community-tap-jacking'
+project(':capacitor-community-tap-jacking').projectDir = new File('../node_modules/@capacitor-community/tap-jacking/android')
+
 include ':capacitor-app'
 project(':capacitor-app').projectDir = new File('../node_modules/@capacitor/app/android')
 
@@ -13,6 +16,9 @@ project(':capacitor-browser').projectDir = new File('../node_modules/@capacitor/
 
 include ':capacitor-camera'
 project(':capacitor-camera').projectDir = new File('../node_modules/@capacitor/camera/android')
+
+include ':capacitor-clipboard'
+project(':capacitor-clipboard').projectDir = new File('../node_modules/@capacitor/clipboard/android')
 
 include ':capacitor-device'
 project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')

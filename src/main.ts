@@ -37,3 +37,6 @@ platformBrowserDynamic()
 
 // Call the element loader after the platform has been bootstrapped
 defineCustomElements(window);
+
+import { TapJacking } from '@capacitor-community/tap-jacking';
+TapJacking.preventOverlays();

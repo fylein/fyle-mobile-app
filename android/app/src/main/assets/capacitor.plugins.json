@@ -4,6 +4,10 @@
 		"classpath": "com.ahm.capacitor.camera.preview.CameraPreview"
 	},
 	{
+		"pkg": "@capacitor-community/tap-jacking",
+		"classpath": "com.mycompany.capacitor.tap.jacking.CapacitorTapJackingPlugin"
+	},
+	{
 		"pkg": "@capacitor/app",
 		"classpath": "com.capacitorjs.plugins.app.AppPlugin"
 	},
@@ -14,6 +18,10 @@
 	{
 		"pkg": "@capacitor/camera",
 		"classpath": "com.capacitorjs.plugins.camera.CameraPlugin"
+	},
+	{
+		"pkg": "@capacitor/clipboard",
+		"classpath": "com.capacitorjs.plugins.clipboard.ClipboardPlugin"
 	},
 	{
 		"pkg": "@capacitor/device",
@@ -61,6 +69,6 @@
 	},
 	{
 		"pkg": "capacitor-secure-storage-plugin",
-		"classpath": "com.whitestein.securestorage.SecureStoragePlugin"
+		"classpath": "com.whitestein.securestorage.SecureStoragePluginPlugin"
 	}
 ]

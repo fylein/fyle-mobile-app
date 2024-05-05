@@ -20,10 +20,14 @@ export class DeviceService {
       appInfo: this.getAppInfo(),
     }).pipe(
       map(({ deviceInfo, deviceId, appInfo }) =>
-        Object.assign(deviceInfo, deviceId, {
-          appVersion: appInfo.version,
-          liveUpdateAppVersion: environment.LIVE_UPDATE_APP_VERSION,
-        })
+        Object.assign(
+          deviceInfo,
+          { uuid: deviceId.identifier },
+          {
+            appVersion: appInfo.version,
+            liveUpdateAppVersion: environment.LIVE_UPDATE_APP_VERSION,
+          }
+        )
       )
     );
   }
