@@ -26,6 +26,7 @@ import { BackButtonActionPriority } from './core/models/back-button-action-prior
 import { BackButtonService } from './core/services/back-button.service';
 import { TextZoom } from '@capacitor/text-zoom';
 import { GmapsService } from './core/services/gmaps.service';
+import { TapJacking } from '@capacitor-community/tap-jacking';
 
 @Component({
   selector: 'app-root',
@@ -147,7 +148,7 @@ export class AppComponent implements OnInit {
     );
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.setupNetworkWatcher();
 
     if ((window as any) && (window as any).localStorage) {
@@ -219,6 +220,8 @@ export class AppComponent implements OnInit {
     });
 
     this.gmapsService.loadLibrary();
+
+    await TapJacking.preventOverlays();
   }
 
   switchDelegator(isSwitchedToDelegator: boolean) {
