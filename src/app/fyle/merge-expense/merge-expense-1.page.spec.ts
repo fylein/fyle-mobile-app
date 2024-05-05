@@ -149,6 +149,7 @@ export function TestCases1(getTestBed) {
         spyOn(component, 'loadCategoryDependentFields');
         spyOn(component, 'subscribeExpenseChange');
         spyOn(component, 'generateCustomInputOptions').and.returnValue(combinedOptionsData1);
+        spyOn(component, 'setupDefaultReceipts');
       });
 
       it('should setup class observables', () => {
@@ -300,10 +301,30 @@ export function TestCases1(getTestBed) {
           expect(res).toEqual(optionsData21);
         });
 
+        expect(component.setupDefaultReceipts).toHaveBeenCalledTimes(1);
+
         expect(mergeExpensesService.generateDistanceOptions).toHaveBeenCalledOnceWith(transformedPlatformedExpense1);
         expect(mergeExpensesService.generateDistanceUnitOptions).toHaveBeenCalledOnceWith(
           transformedPlatformedExpense1
         );
+      });
+    });
+
+    describe('setupDefaultReceipts():', () => {
+      beforeEach(() => {
+        component.expenses = cloneDeep(transformedPlatformedExpense1);
+        component.genericFieldsOptions$ = of(cloneDeep(combinedOptionsData1));
+      });
+
+      it('should set receipts_from as transaction ID if any of the merged expense has receipt', () => {
+        component.expenses[1].tx_file_ids = ['fi2xk29232qwr'];
+        component.setupDefaultReceipts(component.expenses);
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual('txZA0Oj6TV9c');
+      });
+
+      it('should set receipts_from as null if none of the merged expense has receipt', () => {
+        component.setupDefaultReceipts(component.expenses);
+        expect(component.fg.controls.genericFields.value.receipts_from).toEqual(null);
       });
     });
 
@@ -344,6 +365,7 @@ export function TestCases1(getTestBed) {
           tax_amount: 0.01,
           costCenter: null,
           purpose: null,
+          receipts_from: undefined,
         });
         expect(mergeExpensesService.getFieldValue).toHaveBeenCalledTimes(11);
       });

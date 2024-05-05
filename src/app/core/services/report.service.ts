@@ -7,7 +7,7 @@ import { CacheBuster, Cacheable } from 'ts-cacheable';
 import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
-import { PlatformReport } from '../models/platform/platform-report.model';
+import { Report } from '../models/platform/v1/report.model';
 import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
@@ -33,7 +33,6 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
-import { Expense } from '../models/expense.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -241,7 +240,7 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
+  updateReportPurpose(erpt: ExtendedReport): Observable<Report> {
     const params = {
       data: {
         id: erpt.rp_id,
@@ -624,8 +623,8 @@ export class ReportService {
     );
   }
 
-  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<PlatformReport> {
-    const params: { data: Pick<PlatformReport, 'id' | 'source' | 'purpose'> } = {
+  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+    const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
         id: erpt.rp_id,
         source: erpt.rp_source,

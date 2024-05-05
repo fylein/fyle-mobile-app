@@ -70,7 +70,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { IndividualExpensePolicyState } from 'src/app/core/models/platform/platform-individual-expense-policy-state.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TaxGroup } from 'src/app/core/models/tax-group.model';
 import { CorporateCardExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
@@ -83,7 +83,7 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -108,6 +108,7 @@ import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentLocalStorageItemsService } from 'src/app/core/services/recent-local-storage-items.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -143,14 +144,14 @@ type FormValue = {
     orig_amount: number;
   };
   paymentMode: ExtendedAccount;
-  project: ExtendedProject;
+  project: ProjectV2;
   category: OrgCategory;
   dateOfSpend: Date;
   vendor_id: {
     display_name: string;
   };
   purpose: string;
-  report: UnflattenedReport;
+  report: Report;
   tax_group: TaxGroup;
   tax_amount: number;
   location_1: string | Destination;
@@ -223,7 +224,7 @@ export class AddEditExpensePage implements OnInit {
 
   taxSettings$: Observable<TaxSettings>;
 
-  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
+  reports$: Observable<{ label: string; value: Report }[]>;
 
   isProjectsEnabled$: Observable<boolean>;
 
@@ -332,13 +333,13 @@ export class AddEditExpensePage implements OnInit {
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
   recentCurrencies: Currency[];
 
   presetProjectId: number | string;
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
@@ -410,7 +411,7 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject | null>;
+  selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter | null>;
 
@@ -433,6 +434,7 @@ export class AddEditExpensePage implements OnInit {
     private dateService: DateService,
     private projectsService: ProjectsService,
     private reportService: ReportService,
+    private platformReportService: ReportsService,
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private transactionService: TransactionService,
@@ -711,7 +713,7 @@ export class AddEditExpensePage implements OnInit {
       expenseFields: this.customInputsService.getAll(true).pipe(shareReplay(1)),
     }).subscribe(
       (res: { generatedEtxn: UnflattenedTransaction; txnFields: ExpenseFieldsObj; expenseFields: ExpenseField[] }) => {
-        if (res.generatedEtxn.tx.report_id && !formValue.report?.rp?.id) {
+        if (res.generatedEtxn.tx.report_id && !formValue.report?.id) {
           const popoverMessage =
             'Looks like you have removed this expense from the report. Please select a report for this expense before splitting it.';
           return this.showSplitBlockedPopover(popoverMessage);
@@ -737,7 +739,7 @@ export class AddEditExpensePage implements OnInit {
             currencyObj: JSON.stringify(this.fg.controls.currencyObj.value),
             fileObjs: JSON.stringify(res.generatedEtxn.dataUrls),
             selectedCCCTransaction: this.selectedCCCTransaction ? JSON.stringify(this.selectedCCCTransaction) : null,
-            selectedReportId: formValue.report ? JSON.stringify(formValue.report.rp.id) : null,
+            selectedReportId: formValue.report ? JSON.stringify(formValue.report.id) : null,
             selectedProject: formValue.project ? JSON.stringify(formValue.project) : null,
             expenseFields: res.expenseFields ? JSON.stringify(res.expenseFields) : null,
           },
@@ -1439,7 +1441,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedProjects(): Observable<ExtendedProject> {
+  getSelectedProjects(): Observable<ProjectV2> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1479,7 +1481,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedReport(): Observable<UnflattenedReport> {
+  getSelectedReport(): Observable<Report> {
     return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -1493,22 +1495,20 @@ export class AddEditExpensePage implements OnInit {
         }: {
           autoSubmissionReportName: string;
           etxn: Partial<UnflattenedTransaction>;
-          reportOptions: { label: string; value: UnflattenedReport }[];
+          reportOptions: { label: string; value: Report }[];
         }) => {
           if (etxn.tx.report_id) {
             return reportOptions
               .map((res) => res.value)
-              .find((reportOption: UnflattenedReport) => reportOption.rp.id === etxn.tx.report_id);
+              .find((reportOption: Report) => reportOption.id === etxn.tx.report_id);
           } else if (!etxn.tx.report_id && this.activatedRoute.snapshot.params.rp_id) {
             return reportOptions
               .map((res) => res.value)
-              .find(
-                (reportOption: UnflattenedReport) => reportOption.rp.id === this.activatedRoute.snapshot.params.rp_id
-              );
+              .find((reportOption: Report) => reportOption.id === this.activatedRoute.snapshot.params.rp_id);
           } else if (
             !autoSubmissionReportName &&
             reportOptions.length === 1 &&
-            reportOptions[0].value.rp.state === 'DRAFT'
+            reportOptions[0].value.state === 'DRAFT'
           ) {
             return reportOptions[0].value;
           } else {
@@ -1544,7 +1544,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects(): Observable<ExtendedProject[]> {
+  getRecentProjects(): Observable<ProjectV2[]> {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -2546,7 +2546,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }),
           startWith(initialProject),
-          concatMap((project: ExtendedProject) =>
+          concatMap((project: ProjectV2) =>
             activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
@@ -2715,7 +2715,7 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
@@ -2727,7 +2727,7 @@ export class AddEditExpensePage implements OnInit {
   setupSelectedProjectObservable(): void {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
   }
 
   setupSelectedCostCenterObservable(): void {
@@ -3143,14 +3143,17 @@ export class AddEditExpensePage implements OnInit {
       })
     );
 
-    this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
+    this.reports$ = this.platformReportService
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
-        map((reports: UnflattenedReport[]) => reports.map((report) => ({ label: report.rp.purpose, value: report })))
+        map((reports) =>
+          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+        ),
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
       ) as Observable<
       {
         label: string;
-        value: UnflattenedReport;
+        value: Report;
       }[]
     >;
 
@@ -3585,7 +3588,7 @@ export class AddEditExpensePage implements OnInit {
       invalidPaymentMode: that.checkIfInvalidPaymentMode().pipe(take(1)),
       isReceiptMissingAndMandatory: that.checkIfReceiptIsMissingAndMandatory('SAVE_EXPENSE'),
     }).subscribe(({ invalidPaymentMode, isReceiptMissingAndMandatory }) => {
-      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.rp?.id;
+      const saveIncompleteExpense = that.activatedRoute.snapshot.params.dataUrl && !formValues.report?.id;
       if (saveIncompleteExpense || (that.fg.valid && !invalidPaymentMode && !isReceiptMissingAndMandatory)) {
         if (that.mode === 'add') {
           if (that.isCreatedFromPersonalCard) {
@@ -3877,14 +3880,16 @@ export class AddEditExpensePage implements OnInit {
               this.trackingService.viewExpense({ Type: 'Receipt' });
             }
 
-            const reportControl = this.fg.value as { report: UnflattenedReport };
+            const reportControl = this.fg.value as {
+              report: Report;
+            };
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
               switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
-                const selectedReportId = reportControl.report && reportControl.report.rp && reportControl.report.rp.id;
+                const selectedReportId = reportControl.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(etxn as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
@@ -4187,7 +4192,7 @@ export class AddEditExpensePage implements OnInit {
               formValues.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = formValues.report.rp.id;
+              reportId = formValues.report.id;
             }
 
             etxn.dataUrls = etxn.dataUrls.map((data: FileObject) => {
@@ -4430,6 +4435,11 @@ export class AddEditExpensePage implements OnInit {
           .pipe(
             switchMap((fileObj: FileObject) => {
               fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
+              this.trackingService.fileUploadComplete({
+                mode: 'edit',
+                'File ID': fileObj?.id,
+                'Txn ID': fileObj?.transaction_id,
+              });
               return this.fileService.post(fileObj);
             }),
             switchMap(() =>
@@ -4499,6 +4509,9 @@ export class AddEditExpensePage implements OnInit {
       const popup = await this.popoverController.create({
         component: CameraOptionsPopupComponent,
         cssClass: 'camera-options-popover',
+        componentProps: {
+          mode: this.mode,
+        },
       });
 
       await popup.present();

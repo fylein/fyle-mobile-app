@@ -1,11 +1,11 @@
 import { CustomInput } from './custom-input.model';
 import { ExtendedAccount } from './extended-account.model';
-import { UnflattenedReport } from './report-unflattened.model';
+import { Report } from './platform/v1/report.model';
 import { TxnCustomProperties } from './txn-custom-properties.model';
 import { CostCenter } from './v1/cost-center.model';
 import { OrgCategory } from './v1/org-category.model';
 import { PerDiemRates } from './v1/per-diem-rates.model';
-import { ExtendedProject } from './v2/extended-project.model';
+import { ProjectV2 } from './v2/project-v2.model';
 
 export interface PerDiemFormValue {
   currencyObj: {
@@ -15,11 +15,11 @@ export interface PerDiemFormValue {
     orig_amount: number;
   };
   paymentMode: ExtendedAccount;
-  project: ExtendedProject;
+  project: ProjectV2;
   sub_category: OrgCategory;
   purpose: string;
   num_days: number;
-  report: UnflattenedReport;
+  report: Report;
   from_dt: string;
   to_dt: string;
   custom_inputs: CustomInput[];

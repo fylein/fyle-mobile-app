@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomProperty } from '../models/custom-properties.model';
 import { ExpenseField } from '../models/v1/expense-field.model';
 
-export const platformApiResponse = {
+export const platformApiResponse = deepFreeze({
   count: 6,
   data: [
     {
@@ -168,9 +170,9 @@ export const platformApiResponse = {
     },
   ],
   offset: 0,
-};
+});
 
-export const authRespone = {
+export const authRespone = deepFreeze({
   ou: {
     id: 'ouX8dwsbLCLv',
     created_at: new Date('2018-02-01T02:32:25.267Z'),
@@ -332,9 +334,9 @@ export const authRespone = {
     customer_id: 'dwcJzfwZCgwkdfG',
     bank_account_added: true,
   },
-};
+});
 
-export const filterTestData: ExpenseField[] = [
+export const filterTestData: ExpenseField[] = deepFreeze([
   {
     id: 200226,
     created_at: new Date('2022-02-25T05:44:36.169Z'),
@@ -1185,9 +1187,9 @@ export const filterTestData: ExpenseField[] = [
       'AUDITOR',
     ],
   },
-];
+]);
 
-export const responseAfterAppliedFilter: ExpenseField[] = [
+export const responseAfterAppliedFilter: ExpenseField[] = deepFreeze([
   {
     id: 200227,
     created_at: new Date('2022-02-25T05:44:59.645Z'),
@@ -1836,9 +1838,9 @@ export const responseAfterAppliedFilter: ExpenseField[] = [
       'AUDITOR',
     ],
   },
-];
+]);
 
-export const customProperties: CustomProperty<string | boolean | string[] | Date>[] = [
+export const customProperties: CustomProperty<string | boolean | string[] | Date>[] = deepFreeze([
   {
     name: 'USer List CF',
     value: [],
@@ -1863,9 +1865,9 @@ export const customProperties: CustomProperty<string | boolean | string[] | Date
     name: 'Boolean value',
     value: false,
   },
-];
+]);
 
-export const filledCustomProperties = [
+export const filledCustomProperties = deepFreeze([
   {
     name: 'USer List CF',
     value: [],
@@ -1914,9 +1916,9 @@ export const filledCustomProperties = [
     options: [],
     displayValue: 'No',
   },
-];
+]);
 
-export const filledDependentFields = [
+export const filledDependentFields = deepFreeze([
   {
     id: 218227,
     name: 'CF1',
@@ -1941,9 +1943,9 @@ export const filledDependentFields = [
     displayValue: '-',
     mandatory: true,
   },
-];
+]);
 
-export const customInputData: ExpenseField[] = [
+export const customInputData: ExpenseField[] = deepFreeze([
   {
     org_category_ids: [248066, 248067, 248068, 248069, 110351],
     code: null,
@@ -2017,9 +2019,9 @@ export const customInputData: ExpenseField[] = [
     updated_at: new Date('2023-02-06T07:08:06.528927+00:00'),
     parent_field_id: null,
   },
-];
+]);
 
-export const customInput2 = [
+export const customInput2 = deepFreeze([
   {
     org_category_ids: [248066, 248067, 248068, 248069, 110351],
     code: null,
@@ -2093,4 +2095,4 @@ export const customInput2 = [
     updated_at: new Date('2023-02-06T07:08:06.528927+00:00'),
     parent_field_id: null,
   },
-];
+]);

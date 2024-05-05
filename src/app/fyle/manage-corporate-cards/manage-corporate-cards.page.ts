@@ -259,7 +259,6 @@ export class ManageCorporateCardsPage {
         this.trackingService.cardUnenrolled({
           'Card Network': cardType,
           'Card ID': card.id,
-          'Card Number': card.card_number,
         });
       });
     }

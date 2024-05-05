@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Employee } from '../models/spender/employee.model';
 
-export const selectedOptionRes: Partial<Employee> = {
+export const selectedOptionRes: Partial<Employee> = deepFreeze({
   ou_id: 'oubQzXeZbwbS',
   ou_org_id: 'orNVthTo2Zyo',
   ou_roles: '["FYLER","APPROVER","HOD","HOP","AUDITOR","FINANCE"]',
@@ -9,9 +11,9 @@ export const selectedOptionRes: Partial<Employee> = {
   us_full_name: 'AA',
   us_id: 'usTdvbcxOqjs',
   is_selected: false,
-};
+});
 
-export const filteredOptionsRes: Partial<Employee>[] = [
+export const filteredOptionsRes: Partial<Employee>[] = deepFreeze([
   {
     ou_id: 'oubQzXeZbwbS',
     ou_org_id: 'orNVthTo2Zyo',
@@ -72,9 +74,9 @@ export const filteredOptionsRes: Partial<Employee>[] = [
     us_id: 'usi3jriNhseA',
     is_selected: false,
   },
-];
+]);
 
-export const filteredDataRes: Partial<Employee>[] = [
+export const filteredDataRes: Partial<Employee>[] = deepFreeze([
   {
     us_email: 'ajain+12121212@fyle.in',
     is_selected: true,
@@ -95,9 +97,9 @@ export const filteredDataRes: Partial<Employee>[] = [
     us_email: 'abcdefg@somemail.com',
     is_selected: true,
   },
-];
+]);
 
-export const searchedUserListRes: Partial<Employee>[] = [
+export const searchedUserListRes: Partial<Employee>[] = deepFreeze([
   {
     ou_id: 'oubQzXeZbwbS',
     ou_org_id: 'orNVthTo2Zyo',
@@ -128,4 +130,4 @@ export const searchedUserListRes: Partial<Employee>[] = [
     us_id: 'usvKA4X8Ugcr',
     is_selected: false,
   },
-];
+]);

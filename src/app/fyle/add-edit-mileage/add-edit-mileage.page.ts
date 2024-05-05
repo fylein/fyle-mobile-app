@@ -54,7 +54,7 @@ import { ExpensePolicy } from 'src/app/core/models/platform/platform-expense-pol
 import { FinalExpensePolicyState } from 'src/app/core/models/platform/platform-final-expense-policy-state.model';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { PublicPolicyExpense } from 'src/app/core/models/public-policy-expense.model';
-import { UnflattenedReport } from 'src/app/core/models/report-unflattened.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { CostCenter } from 'src/app/core/models/v1/cost-center.model';
@@ -63,7 +63,7 @@ import { ExpenseFieldsObj } from 'src/app/core/models/v1/expense-fields-obj.mode
 import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-category.model';
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -85,6 +85,7 @@ import { PolicyService } from 'src/app/core/services/policy.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { RecentlyUsedItemsService } from 'src/app/core/services/recently-used-items.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { StorageService } from 'src/app/core/services/storage.service';
@@ -163,7 +164,7 @@ export class AddEditMileagePage implements OnInit {
 
   costCenters$: Observable<CostCenterOptions[]>;
 
-  reports$: Observable<{ label: string; value: UnflattenedReport }[]>;
+  reports$: Observable<{ label: string; value: Report }[]>;
 
   isAmountCapped$: Observable<boolean>;
 
@@ -221,11 +222,11 @@ export class AddEditMileagePage implements OnInit {
     recent_locations?: string[];
   }>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
   presetProjectId: number;
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   recentCostCenters: { label: string; value: CostCenter; selected?: boolean }[];
 
@@ -261,7 +262,7 @@ export class AddEditMileagePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject>;
+  selectedProject$: BehaviorSubject<ProjectV2>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
@@ -293,8 +294,9 @@ export class AddEditMileagePage implements OnInit {
     private customInputsService: CustomInputsService,
     private customFieldsService: CustomFieldsService,
     private reportService: ReportService,
+    private platformReportService: ReportsService,
     private fb: FormBuilder,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private mileageService: MileageService,
     private mileageRatesService: MileageRatesService,
     private transactionsOutboxService: TransactionsOutboxService,
@@ -453,7 +455,6 @@ export class AddEditMileagePage implements OnInit {
   }
 
   setupFilteredCategories(activeCategories$: Observable<OrgCategory[]>): void {
-    const formValue = this.getFormValues();
     this.filteredCategories$ = this.fg.controls.project.valueChanges.pipe(
       tap(() => {
         if (!this.fg.controls.project.value) {
@@ -463,10 +464,10 @@ export class AddEditMileagePage implements OnInit {
         }
       }),
       startWith(this.fg.controls.project.value),
-      concatMap((project: ExtendedProject) =>
+      concatMap((project: ProjectV2) =>
         activeCategories$.pipe(
           map((activeCategories: OrgCategory[]) =>
-            this.projectService.getAllowedOrgCategoryIds(project, activeCategories)
+            this.projectsService.getAllowedOrgCategoryIds(project, activeCategories)
           )
         )
       ),
@@ -476,6 +477,8 @@ export class AddEditMileagePage implements OnInit {
     );
 
     this.filteredCategories$.subscribe((categories) => {
+      const formValue = this.getFormValues();
+
       if (
         formValue.sub_category &&
         formValue.sub_category.id &&
@@ -965,7 +968,7 @@ export class AddEditMileagePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
@@ -1061,7 +1064,7 @@ export class AddEditMileagePage implements OnInit {
   setupSelectedProjects(): void {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
   }
 
   setupSelectedCostCenters(): void {
@@ -1137,7 +1140,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getProjects(): Observable<ExtendedProject | null> {
+  getProjects(): Observable<ProjectV2 | null> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1157,7 +1160,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId);
         } else {
           return of(null);
         }
@@ -1165,7 +1168,7 @@ export class AddEditMileagePage implements OnInit {
     );
   }
 
-  getReports(): Observable<UnflattenedReport | null> {
+  getReports(): Observable<Report | null> {
     return forkJoin({
       autoSubmissionReportName: this.autoSubmissionReportName$,
       etxn: this.etxn$,
@@ -1173,11 +1176,11 @@ export class AddEditMileagePage implements OnInit {
     }).pipe(
       map(({ autoSubmissionReportName, etxn, reportOptions }) => {
         if (etxn.tx.report_id) {
-          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.rp.id === etxn.tx.report_id);
+          return reportOptions.map((res) => res.value).find((reportOption) => reportOption.id === etxn.tx.report_id);
         } else if (
           !autoSubmissionReportName &&
           reportOptions.length === 1 &&
-          reportOptions[0].value.rp.state === 'DRAFT'
+          reportOptions[0].value.state === 'DRAFT'
         ) {
           return reportOptions[0].value;
         } else {
@@ -1567,7 +1570,7 @@ export class AddEditMileagePage implements OnInit {
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectService.getProjectCount({ categoryIds: projectCategoryIds })),
+      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
@@ -1633,11 +1636,20 @@ export class AddEditMileagePage implements OnInit {
       )
     );
 
-    this.reports$ = this.reportService
-      .getFilteredPendingReports({ state: 'edit' })
+    this.reports$ = this.platformReportService
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
-        map((reports) => reports.map((report: UnflattenedReport) => ({ label: report.rp.purpose, value: report })))
-      );
+        // Filter out partially approved reports
+        map((reports) =>
+          reports.filter((report) => !report.approvals.some((approval) => approval.state === 'APPROVAL_DONE'))
+        ),
+        map((reports: Report[]) => reports.map((report) => ({ label: report.purpose, value: report })))
+      ) as Observable<
+      {
+        label: string;
+        value: Report;
+      }[]
+    >;
 
     this.setupTxnFields();
 
@@ -2556,7 +2568,7 @@ export class AddEditMileagePage implements OnInit {
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const formValue = this.getFormValues();
-                const selectedReportId = formValue.report && formValue.report.rp && formValue.report.rp.id;
+                const selectedReportId = formValue.report?.id;
                 const criticalPolicyViolated = this.getIsPolicyExpense(tx as unknown as Expense);
                 if (!criticalPolicyViolated) {
                   if (!txnCopy.tx.report_id && selectedReportId) {
@@ -2808,7 +2820,7 @@ export class AddEditMileagePage implements OnInit {
               reportValue?.report &&
               (etxn.tx.policy_amount === null || (etxn.tx.policy_amount && !(etxn.tx.policy_amount < 0.0001)))
             ) {
-              reportId = reportValue.report.rp?.id;
+              reportId = reportValue.report?.id;
             }
             return of(
               this.transactionsOutboxService.addEntryAndSync(

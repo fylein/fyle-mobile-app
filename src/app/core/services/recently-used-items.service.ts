@@ -5,7 +5,7 @@ import { RecentlyUsed } from '../models/v1/recently_used.model';
 import { ApiService } from './api.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { map } from 'rxjs/operators';
-import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 import { OrgCategoryListItem } from '../models/v1/org-category.model';
 import { Currency, CurrencyName } from '../models/currency.model';
@@ -13,7 +13,7 @@ import { Currency, CurrencyName } from '../models/currency.model';
   providedIn: 'root',
 })
 export class RecentlyUsedItemsService {
-  constructor(private apiService: ApiService, private projectService: ProjectsService) {}
+  constructor(private apiService: ApiService, private projectsService: ProjectsService) {}
 
   getRecentlyUsed(): Observable<RecentlyUsed> {
     return this.apiService.get('/recently_used');
@@ -23,14 +23,14 @@ export class RecentlyUsedItemsService {
     recentValues: RecentlyUsed;
     eou: ExtendedOrgUser;
     categoryIds: string[];
-  }): Observable<ExtendedProject[]> {
+  }): Observable<ProjectV2[]> {
     if (
       config.recentValues &&
       config.recentValues.recent_project_ids &&
       config.recentValues.recent_project_ids.length > 0 &&
       config.eou
     ) {
-      return this.projectService
+      return this.projectsService
         .getByParamsUnformatted({
           orgId: config.eou.ou.org_id,
           active: true,
@@ -43,7 +43,7 @@ export class RecentlyUsedItemsService {
         })
         .pipe(
           map((project) => {
-            const projectsMap: { [key: string]: ExtendedProject } = {};
+            const projectsMap: { [key: string]: ProjectV2 } = {};
             project.forEach((item) => {
               projectsMap[item.project_id] = item;
             });

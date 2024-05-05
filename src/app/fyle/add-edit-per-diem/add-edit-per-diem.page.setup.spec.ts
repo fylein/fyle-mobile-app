@@ -14,6 +14,7 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { CustomFieldsService } from 'src/app/core/services/custom-fields.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ReportService } from 'src/app/core/services/report.service';
+import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { TransactionsOutboxService } from 'src/app/core/services/transactions-outbox.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
@@ -64,7 +65,8 @@ describe('AddEditPerDiemPage', () => {
       'addTransactions',
       'removeTransaction',
     ]);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectService', [
+    const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', ['getAllReportsByParams']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectService', [
       'getAllowedOrgCategoryIds',
       'getProjectCount',
       'getbyId',
@@ -168,8 +170,12 @@ describe('AddEditPerDiemPage', () => {
           useValue: reportServiceSpy,
         },
         {
+          provide: ReportsService,
+          useValue: platformReportsServiceSpy,
+        },
+        {
           provide: ProjectsService,
-          useValue: projectServiceSpy,
+          useValue: projectsServiceSpy,
         },
         {
           provide: TransactionsOutboxService,

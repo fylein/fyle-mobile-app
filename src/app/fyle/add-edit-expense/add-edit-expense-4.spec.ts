@@ -14,6 +14,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fileObject4 } from 'src/app/core/mock-data/file-object.data';
 import { outboxQueueData1 } from 'src/app/core/mock-data/outbox-queue.data';
 import { apiPersonalCardTxnsRes } from 'src/app/core/mock-data/personal-card-txns.data';
+import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
 import { expectedErpt, expectedErptPlatform } from 'src/app/core/mock-data/report-unflattened.data';
 import {
   createExpenseProperties,
@@ -98,6 +99,7 @@ import {
   transformedExpenseWithMatchCCCData,
   transformedExpenseWithMatchCCCData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { cloneDeep } from 'lodash';
 
 export function TestCases4(getTestBed) {
   return describe('AddEditExpensePage-4', () => {
@@ -338,6 +340,8 @@ export function TestCases4(getTestBed) {
           },
         });
 
+        component.mode = 'edit';
+
         modalController.create.and.resolveTo(captureReceiptModalSpy);
 
         component.addAttachments(new Event('click'));
@@ -346,6 +350,9 @@ export function TestCases4(getTestBed) {
         expect(popoverController.create).toHaveBeenCalledOnceWith({
           component: CameraOptionsPopupComponent,
           cssClass: 'camera-options-popover',
+          componentProps: {
+            mode: component.mode,
+          },
         });
         expect(modalController.create).toHaveBeenCalledOnceWith({
           component: CaptureReceiptComponent,
@@ -429,7 +436,8 @@ export function TestCases4(getTestBed) {
     describe('addExpense():', () => {
       it('should add an expense', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         spyOn(component, 'trackAddExpense');
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyDataWoData));
@@ -438,7 +446,7 @@ export function TestCases4(getTestBed) {
         authService.getEou.and.resolveTo(apiEouRes);
         activatedRoute.snapshot.params.rp_id = 'rp_id';
         transactionOutboxService.addEntryAndSync.and.resolveTo(outboxQueueData1[0]);
-        component.fg.controls.report.setValue(expectedErpt[0]);
+        component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         fixture.detectChanges();
 
         component.addExpense('SAVE_EXPENSE').subscribe((etxn) => {
@@ -462,13 +470,12 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         component.isConnected$ = of(false);
         spyOn(component, 'trackAddExpense');
-        component.fg.controls.report.setValue(expectedErpt[0]);
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(
-          of({
-            ...unflattenedTxnData,
-            dataUrls: [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'application/pdf' }],
-          })
-        );
+        component.fg.controls.report.setValue(expectedReportsPaginated[0]);
+        const mockEtxn = cloneDeep({
+          ...unflattenedTxnData,
+          dataUrls: [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'application/pdf' }],
+        });
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         authService.getEou.and.resolveTo(apiEouRes);
         transactionOutboxService.addEntry.and.resolveTo();
         component.selectedCCCTransaction = expectedECccResponse[0].ccce;
@@ -482,7 +489,7 @@ export function TestCases4(getTestBed) {
           expect(component.generateEtxnFromFg).toHaveBeenCalledTimes(2);
           expect(authService.getEou).toHaveBeenCalledTimes(1);
           expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx,
+            mockEtxn.tx,
             [{ url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf', type: 'pdf' }],
             [],
             'rprAfNrce73O'
@@ -494,15 +501,14 @@ export function TestCases4(getTestBed) {
       it('should add expense with critical policy violation', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'trackAddExpense');
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData3));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData3);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([
           'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
         ]);
-        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(
-          of({ etxn: expectedUnflattendedTxnData3, comment: null })
-        );
+        spyOn(component, 'criticalPolicyViolationErrorHandler').and.returnValue(of({ etxn: mockEtxn, comment: null }));
         authService.getEou.and.resolveTo(apiEouRes);
         spyOn(component, 'trackCreateExpense');
         transactionOutboxService.addEntry.and.resolveTo();
@@ -521,7 +527,7 @@ export function TestCases4(getTestBed) {
               policyViolations: [
                 'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
               ],
-              etxn: expectedUnflattendedTxnData3,
+              etxn: mockEtxn,
             },
             jasmine.any(Observable)
           );
@@ -540,7 +546,8 @@ export function TestCases4(getTestBed) {
       it('should add expense with policy violations', (done) => {
         spyOn(component, 'getCustomFields').and.returnValue(of(txnCustomProperties));
         spyOn(component, 'trackAddExpense');
-        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(expectedUnflattendedTxnData4));
+        const mockEtxn = cloneDeep(expectedUnflattendedTxnData4);
+        spyOn(component, 'generateEtxnFromFg').and.returnValue(of(mockEtxn));
         component.isConnected$ = of(true);
         spyOn(component, 'checkPolicyViolation').and.returnValue(of(expensePolicyData));
         policyService.getCriticalPolicyRules.and.returnValue([]);
@@ -549,7 +556,7 @@ export function TestCases4(getTestBed) {
         ]);
         spyOn(component, 'policyViolationErrorHandler').and.returnValue(
           of({
-            etxn: expectedUnflattendedTxnData4,
+            etxn: mockEtxn,
             comment: 'continue',
           })
         );
@@ -571,18 +578,13 @@ export function TestCases4(getTestBed) {
                 'The expense will be flagged when the total amount of all expenses in category Others in a month exceeds: INR 3000.',
               ],
               policyAction: expensePolicyData.data.final_desired_state,
-              etxn: expectedUnflattendedTxnData4,
+              etxn: mockEtxn,
             },
             jasmine.any(Observable)
           );
           expect(authService.getEou).toHaveBeenCalledOnceWith();
           expect(component.trackCreateExpense).toHaveBeenCalledOnceWith(expectedUnflattendedTxnData4, false);
-          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(
-            expectedUnflattendedTxnData4.tx,
-            [],
-            ['continue'],
-            undefined
-          );
+          expect(transactionOutboxService.addEntry).toHaveBeenCalledOnceWith(mockEtxn.tx, [], ['continue'], undefined);
           done();
         });
       });
@@ -925,7 +927,7 @@ export function TestCases4(getTestBed) {
         transactionService.upsert.and.returnValue(of(transformedExpenseData.tx));
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         transactionService.transformExpense.and.returnValue(transformedExpenseData);
-        component.fg.controls.report.setValue(expectedErptPlatform[0]);
+        component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         reportService.addTransactions.and.returnValue(of(undefined));
         fixture.detectChanges();
 
@@ -943,7 +945,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseData.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txvslh8aQMbu');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txvslh8aQMbu']);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txvslh8aQMbu']);
           done();
         });
       });
@@ -955,7 +957,7 @@ export function TestCases4(getTestBed) {
         spyOn(component, 'trackPolicyCorrections');
         spyOn(component, 'trackEditExpense');
         component.etxn$ = of(transformedExpenseDataWithReportId);
-        component.fg.controls.report.setValue(expectedErptPlatform[0]);
+        component.fg.controls.report.setValue(expectedReportsPaginated[0]);
         policyService.getCriticalPolicyRules.and.returnValue([]);
         policyService.getPolicyRules.and.returnValue([]);
         reportService.removeTransaction.and.returnValue(of(undefined));
@@ -981,7 +983,7 @@ export function TestCases4(getTestBed) {
           expect(transactionService.upsert).toHaveBeenCalledOnceWith(transformedExpenseDataWithReportId.tx);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txD5hIQgLuR5');
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseDataWithReportId);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpIfg2VWQKGJ', ['txD5hIQgLuR5']);
+          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['txD5hIQgLuR5']);
           expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpbNc3kn5baq', 'txD5hIQgLuR5');
           done();
         });

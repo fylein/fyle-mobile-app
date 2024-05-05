@@ -1,6 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { ApiV2Service } from './api-v2.service';
-import { AuthService } from './auth.service';
 import { AdvanceService } from './advance.service';
 import {
   singleExtendedAdvancesData,
@@ -9,31 +7,27 @@ import {
 } from '../mock-data/extended-advance.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { of } from 'rxjs';
+import { SpenderService } from './platform/v1/spender/spender.service';
+import { advancePlatform } from '../mock-data/advance-platform.data';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceService', () => {
   let advanceService: AdvanceService;
-  let apiv2Service: jasmine.SpyObj<ApiV2Service>;
-  let authService: jasmine.SpyObj<AuthService>;
+  let spenderService: jasmine.SpyObj<SpenderService>;
 
   beforeEach(() => {
-    const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['get']);
     TestBed.configureTestingModule({
       providers: [
         AdvanceService,
         {
-          provide: ApiV2Service,
-          useValue: apiv2ServiceSpy,
-        },
-        {
-          provide: AuthService,
-          useValue: authServiceSpy,
+          provide: SpenderService,
+          useValue: spenderServiceSpy,
         },
       ],
     });
     advanceService = TestBed.inject(AdvanceService);
-    apiv2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
-    authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+    spenderService = TestBed.inject(SpenderService) as jasmine.SpyObj<SpenderService>;
   });
 
   it('should be created', () => {
@@ -42,15 +36,15 @@ describe('AdvanceService', () => {
 
   it('getAdvance(): should get an advance from ID', (done) => {
     const id = 'advETmi3eePvQ';
-    apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
+    spenderService.get.and.returnValue(of(advancePlatform));
     // @ts-ignore
     spyOn(advanceService, 'fixDates').and.returnValue(singleExtendedAdvancesData.data[0]);
 
     advanceService.getAdvance(id).subscribe((res) => {
       expect(res).toEqual(singleExtendedAdvancesData.data[0]);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advances', {
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advances', {
         params: {
-          adv_id: `eq.${id}`,
+          id: `eq.${id}`,
         },
       });
       // @ts-ignore
@@ -66,31 +60,27 @@ describe('AdvanceService', () => {
   });
 
   it('fixDates(): should convert string values to dates', () => {
+    const mockExtendedAdvData = cloneDeep(extendedAdvWithoutDates);
     //@ts-ignore
-    expect(advanceService.fixDates(extendedAdvWithoutDates)).toEqual(extendedAdvWithDates);
+    expect(advanceService.fixDates(mockExtendedAdvData)).toEqual(extendedAdvWithDates);
   });
 
-  describe('getMyadvances():', () => {
+  describe('getSpenderAdvances():', () => {
     it('should return advances', (done) => {
       const config = {
         offset: 0,
-        limit: 10,
-        queryParams: { status: 'ACTIVE' },
+        limit: 200,
       };
 
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
-      advanceService.getMyadvances(config).subscribe((res) => {
+      spenderService.get.and.returnValue(of(advancePlatform));
+      advanceService.getSpenderAdvances(config).subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
-        expect(apiv2Service.get).toHaveBeenCalledWith('/advances', {
+        expect(spenderService.get).toHaveBeenCalledWith('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            assignee_ou_id: 'eq.' + apiEouRes.ou.id,
-            ...config.queryParams,
           },
         });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
       });
       done();
     });
@@ -98,22 +88,18 @@ describe('AdvanceService', () => {
     it('should return advances without queryparams', (done) => {
       const config = {
         offset: 0,
-        limit: 10,
+        limit: 200,
         queryParams: {},
       };
-
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(singleExtendedAdvancesData));
-      advanceService.getMyadvances().subscribe((res) => {
+      spenderService.get.and.returnValue(of(advancePlatform));
+      advanceService.getSpenderAdvances().subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData);
-        expect(apiv2Service.get).toHaveBeenCalledWith('/advances', {
+        expect(spenderService.get).toHaveBeenCalledWith('/advances', {
           params: {
             offset: config.offset,
             limit: config.limit,
-            assignee_ou_id: 'eq.' + apiEouRes.ou.id,
           },
         });
-        expect(authService.getEou).toHaveBeenCalledTimes(1);
       });
       done();
     });
@@ -121,13 +107,13 @@ describe('AdvanceService', () => {
 
   describe('getMyAdvancesCount():', () => {
     it(' should get advances count', (done) => {
-      spyOn(advanceService, 'getMyadvances').and.returnValue(of(singleExtendedAdvancesData));
+      spyOn(advanceService, 'getSpenderAdvances').and.returnValue(of(singleExtendedAdvancesData));
       const queryParams = {
         status: 'ACTIVE',
       };
       advanceService.getMyAdvancesCount(queryParams).subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData.count);
-        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: { ...queryParams },
@@ -137,10 +123,10 @@ describe('AdvanceService', () => {
     });
 
     it(' should get advances count without queryparams', (done) => {
-      spyOn(advanceService, 'getMyadvances').and.returnValue(of(singleExtendedAdvancesData));
+      spyOn(advanceService, 'getSpenderAdvances').and.returnValue(of(singleExtendedAdvancesData));
       advanceService.getMyAdvancesCount().subscribe((res) => {
         expect(res).toEqual(singleExtendedAdvancesData.count);
-        expect(advanceService.getMyadvances).toHaveBeenCalledOnceWith({
+        expect(advanceService.getSpenderAdvances).toHaveBeenCalledOnceWith({
           offset: 0,
           limit: 1,
           queryParams: {},

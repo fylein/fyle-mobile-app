@@ -1,3 +1,4 @@
+/* eslint-disable custom-rules/prefer-deep-freeze */
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
@@ -12,7 +13,7 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FyAddToReportModalComponent } from 'src/app/shared/components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { reportOptionsData } from './report-options.data';
-import { expectedErpt } from './report-unflattened.data';
+import { expectedReportsPaginated } from './platform-report.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
@@ -353,7 +354,7 @@ export const addToReportModalControllerParams = {
   component: FyAddToReportModalComponent,
   componentProps: {
     options: reportOptionsData,
-    currentSelection: expectedErpt[0],
+    currentSelection: expectedReportsPaginated[0],
     selectionElement: undefined,
     showNullOption: true,
     cacheName: '',
@@ -502,7 +503,7 @@ export const modalControllerParams8 = {
   component: ViewCommentComponent,
   componentProps: {
     objectType: 'advance_requests',
-    objectId: 'areqoVuT5I8OOy',
+    objectId: 'areqiwr3Wwirr',
   },
   cssClass: 'fy-modal',
   showBackdrop: true,

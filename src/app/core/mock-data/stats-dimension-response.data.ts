@@ -1,7 +1,8 @@
-import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
-import { ApiV2Response } from '../models/v2/api-v2-response.model';
+import deepFreeze from 'deep-freeze-strict';
 
-export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
+import { StatsDimensionResponse } from '../models/stats-dimension-response.model';
+
+export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = deepFreeze([
   {
     aggregates: [
       {
@@ -16,17 +17,17 @@ export const apiTxnUnreportedStatsRes: StatsDimensionResponse[] = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = [
+export const apiTxnUnreportedStatsEmptyRes: StatsDimensionResponse[] = deepFreeze([
   {
     aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
+export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = deepFreeze([
   {
     aggregates: [
       {
@@ -41,30 +42,30 @@ export const apiTxnIncompleteStatsRes: StatsDimensionResponse[] = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = [
+export const apiTxnIncompleteStatsEmptyRes: StatsDimensionResponse[] = deepFreeze([
   {
     aggregates: [],
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const apiUnreportedParams: Partial<StatsDimensionResponse> = {
+export const apiUnreportedParams: Partial<StatsDimensionResponse> = deepFreeze({
   scalar: true,
   tx_state: 'in.(COMPLETE)',
   or: '(tx_policy_amount.is.null,tx_policy_amount.gt.0.0001)',
   tx_report_id: 'is.null',
-};
+});
 
-export const apiIncompleteParams: Partial<StatsDimensionResponse> = {
+export const apiIncompleteParams: Partial<StatsDimensionResponse> = deepFreeze({
   scalar: true,
   tx_state: 'in.(DRAFT)',
   tx_report_id: 'is.null',
-};
+});
 
-export const expectedReportRawStats: StatsDimensionResponse[] = [
+export const expectedReportRawStats: StatsDimensionResponse[] = deepFreeze([
   {
     aggregates: [
       {
@@ -79,4 +80,4 @@ export const expectedReportRawStats: StatsDimensionResponse[] = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);

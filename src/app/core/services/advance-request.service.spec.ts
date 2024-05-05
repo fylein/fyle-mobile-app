@@ -12,7 +12,7 @@ import {
   pullBackAdvancedRequests,
   rejectedAdvReqRes,
 } from '../mock-data/advance-requests.data';
-import { advanceReqApprovals } from '../mock-data/approval.data';
+import { advanceReqApprovals, advanceReqApprovalsPublic } from '../mock-data/approval.data';
 import {
   customField2,
   customFields,
@@ -32,6 +32,9 @@ import {
   extendedAdvReqSubmitted,
   extendedAdvReqWithDates,
   extendedAdvReqWithoutDates,
+  publicAdvanceRequestRes,
+  publicAdvanceRequestResPulledBack,
+  publicAdvanceRequestResSentBack,
   singleErqRes,
   singleErqUnflattened,
   singleExtendedAdvReqRes,
@@ -53,6 +56,12 @@ import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from './timezone.service';
 import { SpenderService } from './platform/v1/spender/spender.service';
+import {
+  advanceRequestPlatform,
+  advanceRequestPlatformPulledBack,
+  advanceRequestPlatformSentBack,
+} from '../mock-data/platform/v1/advance-request-platform.data';
+import { cloneDeep } from 'lodash';
 
 describe('AdvanceRequestService', () => {
   let advanceRequestService: AdvanceRequestService;
@@ -74,7 +83,7 @@ describe('AdvanceRequestService', () => {
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const timezoneServiceSpy = jasmine.createSpyObj('TimezoneService', ['convertToUtc']);
-    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post']);
+    const spenderServiceSpy = jasmine.createSpyObj('SpenderService', ['post', 'get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -153,6 +162,77 @@ describe('AdvanceRequestService', () => {
       // @ts-ignore
       expect(advanceRequestService.fixDates).toHaveBeenCalledOnceWith(singleExtendedAdvReqRes.data[0]);
       done();
+    });
+  });
+
+  describe('getAdvanceRequestPlatform(): ', () => {
+    it('should get an advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwiri';
+      const expectedData = cloneDeep(publicAdvanceRequestRes);
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatform.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatform.data[0]
+        );
+        done();
+      });
+    });
+
+    it('should get a sent back advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwirk';
+      const expectedData = cloneDeep(publicAdvanceRequestResSentBack);
+      spenderService.get.and.returnValue(of(advanceRequestPlatformSentBack));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(advanceRequestPlatformSentBack.data[0]);
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatformSentBack.data[0]
+        );
+        done();
+      });
+    });
+
+    it('should get a pulled back advance request from ID', (done) => {
+      const advReqID = 'areqiwr3Wwirr';
+      const expectedData = cloneDeep(publicAdvanceRequestResPulledBack);
+      spenderService.get.and.returnValue(of(advanceRequestPlatformPulledBack));
+      // @ts-ignore
+      spyOn(advanceRequestService, 'fixDatesForPlatformFields').and.returnValue(
+        // @ts-ignore
+        advanceRequestPlatformPulledBack.data[0]
+      );
+
+      advanceRequestService.getAdvanceRequestPlatform(advReqID).subscribe((res) => {
+        expect(res).toEqual(expectedData.data[0]);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            id: `eq.${advReqID}`,
+          },
+        });
+        // @ts-ignore
+        expect(advanceRequestService.fixDatesForPlatformFields).toHaveBeenCalledOnceWith(
+          advanceRequestPlatformPulledBack.data[0]
+        );
+        done();
+      });
     });
   });
 
@@ -254,7 +334,6 @@ describe('AdvanceRequestService', () => {
     const params = {
       state: 'eq.SENT_BACK',
     };
-
     advanceRequestService.getAdvanceRequestStats(params).subscribe((res) => {
       expect(res).toEqual(statsResponse);
       expect(spenderService.post).toHaveBeenCalledOnceWith('/advance_requests/stats', {
@@ -382,8 +461,30 @@ describe('AdvanceRequestService', () => {
 
   describe('fixDates():', () => {
     it('should convert string values to dates', () => {
+      const mockAdvanceReqData = cloneDeep(extendedAdvReqWithoutDates);
       //@ts-ignore
-      expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
+      expect(advanceRequestService.fixDates(mockAdvanceReqData)).toEqual(extendedAdvReqWithDates);
+    });
+  });
+
+  it('fixDatesForPlatformFields(): should convert string values to dates', () => {
+    const mockAdvanceReqData = cloneDeep(advanceRequestPlatform.data[0]);
+    //@ts-ignore
+    expect(advanceRequestService.fixDatesForPlatformFields(mockAdvanceReqData)).toEqual(advanceRequestPlatform.data[0]);
+  });
+
+  it('getEReq(): should get advance request', (done) => {
+    apiService.get.and.returnValue(of(singleErqRes));
+    dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
+    spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
+
+    const advID = 'areqGzKF1Tne23';
+
+    advanceRequestService.getEReq(advID).subscribe((res) => {
+      expect(res).toEqual(singleErqUnflattened);
+      expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
+      expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
+      done();
     });
   });
 
@@ -396,6 +497,20 @@ describe('AdvanceRequestService', () => {
       expect(res).toEqual(advanceReqApprovals);
       //@ts-ignore
       expect(advanceRequestService.getApproversByAdvanceRequestId).toHaveBeenCalledOnceWith(advID);
+      done();
+    });
+  });
+
+  it('getActiveApproversByAdvanceRequestId(): should get active approvers for an advance request', (done) => {
+    const advID = 'areqiwr3Wwirr';
+    //@ts-ignore
+    spenderService.get.and.returnValue(of(advanceRequestPlatform));
+    advanceRequestService.getActiveApproversByAdvanceRequestIdPlatform(advID).subscribe((res) => {
+      expect(res).toEqual(advanceReqApprovalsPublic);
+      //@ts-ignore
+      expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+        params: { id: `eq.${advID}` },
+      });
       done();
     });
   });
@@ -417,10 +532,11 @@ describe('AdvanceRequestService', () => {
       fileService.post.and.returnValue(of(fileObjectData3));
       spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
 
-      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(fileData1)).subscribe((res) => {
+      const mockFileObject = cloneDeep(fileData1);
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile);
         expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
-        expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
+        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
@@ -441,10 +557,11 @@ describe('AdvanceRequestService', () => {
       fileService.post.and.returnValue(of(fileObjectData4));
       spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
 
-      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(fileData2)).subscribe((res) => {
+      const mockFileObject = cloneDeep(fileData2);
+      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile2);
         expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
-        expect(fileService.post).toHaveBeenCalledOnceWith(fileData2[0]);
+        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
@@ -460,14 +577,14 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getEReq(): should get advance request', (done) => {
-    apiService.get.and.returnValue(of(singleErqRes));
+  it('getEReqFromPlatform(): should get advance request', (done) => {
+    spyOn(advanceRequestService, 'getAdvanceRequestPlatform').and.returnValue(of(publicAdvanceRequestRes.data[0]));
     dataTransformService.unflatten.and.returnValue(singleErqUnflattened);
     spyOn(dateService, 'fixDates').and.returnValue(of(expectedSingleErq));
 
     const advID = 'areqGzKF1Tne23';
 
-    advanceRequestService.getEReq(advID).subscribe((res) => {
+    advanceRequestService.getEReqFromPlatform(advID).subscribe((res) => {
       expect(res).toEqual(singleErqUnflattened);
       expect(dataTransformService.unflatten).toHaveBeenCalledOnceWith(singleErqRes);
       expect(dateService.fixDates).toHaveBeenCalledOnceWith(singleErqUnflattened.areq);
@@ -477,11 +594,15 @@ describe('AdvanceRequestService', () => {
 
   describe('modifyAdvanceRequestCustomFields():', () => {
     it('should modify advance request custom fields', () => {
-      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFields)).toEqual(expectedCustomFieldsWoDate);
+      const mockCustomFields = cloneDeep(customFields);
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
+        expectedCustomFieldsWoDate
+      );
     });
 
     it('should modify custom fields with date value', () => {
-      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customField2)).toEqual(
+      const mockCustomFields = cloneDeep(customField2);
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
         expectedCustomFieldsWithDate
       );
     });
@@ -555,6 +676,132 @@ describe('AdvanceRequestService', () => {
     });
   });
 
+  describe('getSpenderAdvanceRequestsCount():', () => {
+    it('should get advance request count', (done) => {
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(publicAdvanceRequestRes));
+      const queryParams = {
+        advance_id: 'eq.null',
+      };
+
+      advanceRequestService.getSpenderAdvanceRequestsCount(queryParams).subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes.count);
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: { ...queryParams },
+        });
+        done();
+      });
+    });
+
+    it('should get advance request count without query parmas', (done) => {
+      spyOn(advanceRequestService, 'getSpenderAdvanceRequests').and.returnValue(of(publicAdvanceRequestRes));
+
+      advanceRequestService.getSpenderAdvanceRequestsCount().subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes.count);
+        expect(advanceRequestService.getSpenderAdvanceRequests).toHaveBeenCalledOnceWith({
+          offset: 0,
+          limit: 1,
+          queryParams: {},
+        });
+        done();
+      });
+    });
+  });
+
+  describe('getSpenderAdvanceRequests():', () => {
+    it('should get all advance request', (done) => {
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
+
+      const param = {
+        offset: 0,
+        limit: 200,
+        queryParams: {
+          advance_id: 'eq.null',
+          order: 'created_at.desc,id.desc',
+        },
+      };
+
+      advanceRequestService.getSpenderAdvanceRequests(param).subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: param.offset,
+            limit: param.limit,
+            ...param.queryParams,
+          },
+        });
+        done();
+      });
+    });
+
+    it('should get all advance request with default params', (done) => {
+      spenderService.get.and.returnValue(of(advanceRequestPlatform));
+
+      advanceRequestService.getSpenderAdvanceRequests().subscribe((res) => {
+        expect(res).toEqual(publicAdvanceRequestRes);
+        expect(spenderService.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: 0,
+            limit: 200,
+            advance_id: 'eq.null',
+          },
+        });
+        done();
+      });
+    });
+  });
+
+  describe('getMyadvanceRequests():', () => {
+    it('should get all advance request', (done) => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
+
+      const param = {
+        offset: 0,
+        limit: 10,
+        queryParams: {
+          areq_advance_id: 'is.null',
+          order: 'areq_created_at.desc,areq_id.desc',
+        },
+      };
+
+      advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: param.offset,
+            limit: param.limit,
+            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+            ...param.queryParams,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+
+    it('should get all advance request with default params', (done) => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
+
+      advanceRequestService.getMyadvanceRequests().subscribe((res) => {
+        expect(res).toEqual(mockApiV2Res);
+        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
+          params: {
+            offset: 0,
+            limit: 10,
+            areq_org_user_id: 'eq.' + apiEouRes.ou.id,
+          },
+        });
+        expect(authService.getEou).toHaveBeenCalledTimes(1);
+        done();
+      });
+    });
+  });
+
   describe('getMyAdvanceRequestsCount():', () => {
     it('should get advance request count', (done) => {
       spyOn(advanceRequestService, 'getMyadvanceRequests').and.returnValue(of(teamAdvanceCountRes));
@@ -588,38 +835,11 @@ describe('AdvanceRequestService', () => {
     });
   });
 
-  it('getMyadvanceRequests(): should get all advance request', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
-
-    const param = {
-      offset: 0,
-      limit: 10,
-      queryParams: {
-        areq_advance_id: 'is.null',
-        order: 'areq_created_at.desc,areq_id.desc',
-      },
-    };
-
-    advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
-      expect(res).toEqual(allAdvanceRequestsRes);
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
-        params: {
-          offset: param.offset,
-          limit: param.limit,
-          areq_org_user_id: 'eq.' + apiEouRes.ou.id,
-          ...param.queryParams,
-        },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   describe('getTeamAdvanceRequests():', () => {
     it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -640,7 +860,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,
@@ -657,8 +877,9 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVAL PENDING', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -679,7 +900,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,
@@ -696,8 +917,9 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVED', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -718,7 +940,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CommuteDetails } from '../models/platform/v1/commute-details.model';
 
-export const commuteDetailsData: CommuteDetails = {
+export const commuteDetailsData: CommuteDetails = deepFreeze({
   distance: 10,
   distance_unit: 'KM',
   id: 12345,
@@ -20,4 +22,4 @@ export const commuteDetailsData: CommuteDetails = {
     state: 'Karnataka',
     city: 'Bangalore',
   },
-};
+});

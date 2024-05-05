@@ -1,22 +1,24 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FilterPill } from 'src/app/shared/components/fy-filter-pills/filter-pill.interface';
 
-export const creditTxnFilterPill: FilterPill[] = [
+export const creditTxnFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Transactions Type',
     type: 'string',
     value: 'Credit',
   },
-];
+]);
 
-export const debitTxnFilterPill: FilterPill[] = [
+export const debitTxnFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Transactions Type',
     type: 'string',
     value: 'Debit',
   },
-];
+]);
 
-export const allFilterPills: FilterPill[] = [
+export const allFilterPills: FilterPill[] = deepFreeze([
   {
     label: 'Created On',
     type: 'date',
@@ -32,9 +34,9 @@ export const allFilterPills: FilterPill[] = [
     type: 'string',
     value: 'Debit',
   },
-];
+]);
 
-export const taskFiltersPills: FilterPill[] = [
+export const taskFiltersPills: FilterPill[] = deepFreeze([
   {
     label: 'Expenses',
     type: 'Expenses',
@@ -50,8 +52,8 @@ export const taskFiltersPills: FilterPill[] = [
     type: 'Advances',
     value: 'Sent Back',
   },
-];
-export const expectedFilterPill1: FilterPill[] = [
+]);
+export const expectedFilterPill1: FilterPill[] = deepFreeze([
   {
     label: 'Type',
     type: 'state',
@@ -82,9 +84,9 @@ export const expectedFilterPill1: FilterPill[] = [
     type: 'splitExpense',
     value: 'yes',
   },
-];
+]);
 
-export const expectedFilterPill2: FilterPill[] = [
+export const expectedFilterPill2: FilterPill[] = deepFreeze([
   {
     label: 'Receipts Attached',
     type: 'receiptsAttached',
@@ -100,103 +102,103 @@ export const expectedFilterPill2: FilterPill[] = [
     type: 'splitExpense',
     value: 'yes',
   },
-];
+]);
 
-export const stateFilterPill: FilterPill = {
+export const stateFilterPill: FilterPill = deepFreeze({
   label: 'Type',
   type: 'state',
   value: 'Incomplete, Complete',
-};
+});
 
-export const receiptsAttachedFilterPill: FilterPill = {
+export const receiptsAttachedFilterPill: FilterPill = deepFreeze({
   label: 'Receipts Attached',
   type: 'receiptsAttached',
   value: 'yes',
-};
+});
 
-export const dateFilterPill: FilterPill[] = [
+export const dateFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Date',
     type: 'date',
     value: 'this Week',
   },
-];
+]);
 
-export const typeFilterPill: FilterPill = {
+export const typeFilterPill: FilterPill = deepFreeze({
   label: 'Expense Type',
   type: 'type',
   value: 'Per Diem, Mileage',
-};
+});
 
-export const sortFilterPill: FilterPill = {
+export const sortFilterPill: FilterPill = deepFreeze({
   label: 'Sort By',
   type: 'sort',
   value: 'category - a to z',
-};
+});
 
-export const cardFilterPill: FilterPill = {
+export const cardFilterPill: FilterPill = deepFreeze({
   label: 'Cards',
   type: 'cardNumbers',
   value: '****1234, ****5678',
-};
+});
 
-export const splitExpenseFilterPill: FilterPill = {
+export const splitExpenseFilterPill: FilterPill = deepFreeze({
   label: 'Split Expense',
   type: 'splitExpense',
   value: 'yes',
-};
+});
 
-export const filterTypeMappings: FilterPill[] = [
+export const filterTypeMappings: FilterPill[] = deepFreeze([
   stateFilterPill,
   receiptsAttachedFilterPill,
   typeFilterPill,
   dateFilterPill[0],
   sortFilterPill,
   splitExpenseFilterPill,
-];
+]);
 
-export const sortByDescFilterPill: FilterPill[] = [
+export const sortByDescFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Sort By',
     type: 'sort',
     value: 'amount - high to low',
   },
-];
+]);
 
-export const sortByAscFilterPill: FilterPill[] = [
+export const sortByAscFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Sort By',
     type: 'sort',
     value: 'amount - low to high',
   },
-];
+]);
 
-export const sortByDateAscFilterPill: FilterPill[] = [
+export const sortByDateAscFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Sort By',
     type: 'sort',
     value: 'date - old to new',
   },
-];
+]);
 
-export const sortByDateDescFilterPill: FilterPill[] = [
+export const sortByDateDescFilterPill: FilterPill[] = deepFreeze([
   {
     label: 'Sort By',
     type: 'sort',
     value: 'date - new to old',
   },
-];
+]);
 
-export const expectedDateFilterPill = [
+export const expectedDateFilterPill = deepFreeze([
   {
     label: 'Date',
     type: 'date',
     value: '2023-01-21 to 2023-01-31',
   },
-];
+]);
 
-export const stateFilterPill2: FilterPill = {
+export const stateFilterPill2: FilterPill = deepFreeze({
   label: 'Type',
   type: 'state',
   value: 'Incomplete, Complete, approved',
-};
+});

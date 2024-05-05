@@ -1,6 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
+import { ApprovalPublic } from '../models/approval-public.model';
 import { Approval } from '../models/approval.model';
 
-export const advanceReqApprovals: Approval[] = [
+export const advanceReqApprovals: Approval[] = deepFreeze([
   {
     id: 8314,
     created_at: null,
@@ -15,4 +18,12 @@ export const advanceReqApprovals: Approval[] = [
     approver_org_id: 'orNVthTo2Zyo',
     comment: null,
   },
-];
+]);
+
+export const advanceReqApprovalsPublic: ApprovalPublic[] = deepFreeze([
+  {
+    state: 'APPROVAL_PENDING',
+    approver_email: 'john.doe@example.com',
+    approver_name: 'John Doe',
+  },
+]);

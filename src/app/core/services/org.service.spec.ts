@@ -8,6 +8,7 @@ import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
 import { OrgService } from './org.service';
 import { TrackingService } from './tracking.service';
+import { cloneDeep } from 'lodash';
 
 describe('OrgService', () => {
   let orgService: OrgService;
@@ -112,17 +113,19 @@ describe('OrgService', () => {
 
   describe('suggestOrgCurrency():', () => {
     it('should suggest org currency', (done) => {
-      apiService.get.and.returnValue(of(currencyIpData));
+      const mockCurrencyIpData = cloneDeep(currencyIpData);
+      apiService.get.and.returnValue(of(mockCurrencyIpData));
 
       orgService.suggestOrgCurrency().subscribe((res) => {
-        expect(res).toEqual(currencyIpData.currency);
+        expect(res).toEqual(mockCurrencyIpData.currency);
         expect(apiService.get).toHaveBeenCalledOnceWith('/currency/ip');
         done();
       });
     });
 
     it('should return `USD` if api does not return currency', (done) => {
-      apiService.get.and.returnValue(of(currencyIpData2));
+      const mockCurrencyIpData = cloneDeep(currencyIpData2);
+      apiService.get.and.returnValue(of(mockCurrencyIpData));
 
       orgService.suggestOrgCurrency().subscribe((res) => {
         expect(res).toEqual('USD');
@@ -134,14 +137,15 @@ describe('OrgService', () => {
 
   it('setCurrencyBasedOnIp(): should set currency based on ip', (done) => {
     spyOn(orgService, 'suggestOrgCurrency').and.returnValue(of(currencyIpData.currency));
-    spyOn(orgService, 'getCurrentOrg').and.returnValue(of(orgData1[0]));
-    spyOn(orgService, 'updateOrg').and.returnValue(of(orgData1[0]));
+    const mockOrgData = cloneDeep(orgData1[0]);
+    spyOn(orgService, 'getCurrentOrg').and.returnValue(of(mockOrgData));
+    spyOn(orgService, 'updateOrg').and.returnValue(of(mockOrgData));
 
     orgService.setCurrencyBasedOnIp().subscribe((res) => {
-      expect(res).toEqual(orgData1[0]);
+      expect(res).toEqual(mockOrgData);
       expect(orgService.suggestOrgCurrency).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
-      expect(orgService.updateOrg).toHaveBeenCalledOnceWith(orgData1[0]);
+      expect(orgService.updateOrg).toHaveBeenCalledOnceWith(mockOrgData);
       done();
     });
   });

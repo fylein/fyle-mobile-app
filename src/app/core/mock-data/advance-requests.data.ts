@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceRequests } from '../models/advance-requests.model';
 
-export const advanceRequests: AdvanceRequests = {
+export const advanceRequests: AdvanceRequests = deepFreeze({
   id: 'areqMP09oaYXBf',
   created_at: new Date('2023-02-23T16:24:01.335Z'),
   approved_at: null,
@@ -73,14 +75,14 @@ export const advanceRequests: AdvanceRequests = {
   updated_by: null,
   is_sent_back: false,
   is_pulled_back: true,
-};
+});
 
-export const pullBackAdvancedRequests: AdvanceRequests = {
+export const pullBackAdvancedRequests: AdvanceRequests = deepFreeze({
   ...advanceRequests,
   is_pulled_back: true,
-};
+});
 
-export const expectedSingleErq = {
+export const expectedSingleErq = deepFreeze({
   id: 'areqGzKF1Tne23',
   created_at: '2023-02-23T02:16:15.260Z',
   approved_at: null,
@@ -102,14 +104,14 @@ export const expectedSingleErq = {
   updated_by: null,
   is_sent_back: null,
   is_pulled_back: null,
-};
+});
 
-export const advancedRequests2: AdvanceRequests = {
+export const advancedRequests2: AdvanceRequests = deepFreeze({
   ...advanceRequests,
   id: 'areq99bN9mZgu1',
-};
+});
 
-export const draftAdvancedRequestRes: AdvanceRequests = {
+export const draftAdvancedRequestRes: AdvanceRequests = deepFreeze({
   id: 'areqo6m2UmDSfq',
   created_at: new Date('2023-02-24T12:28:18.700Z'),
   updated_at: new Date('2023-02-24T12:28:18.700Z'),
@@ -191,9 +193,9 @@ export const draftAdvancedRequestRes: AdvanceRequests = {
       type: null,
     },
   ],
-};
+});
 
-export const draftAdvancedRequestParam = {
+export const draftAdvancedRequestParam = deepFreeze({
   org_user_id: 'ouX8dwsbLCLv',
   currency: 'USD',
   source: 'MOBILE',
@@ -254,9 +256,9 @@ export const draftAdvancedRequestParam = {
       value: false,
     },
   ],
-};
+});
 
-export const rejectedAdvReqRes: AdvanceRequests = {
+export const rejectedAdvReqRes: AdvanceRequests = deepFreeze({
   id: 'areqVU0Xr5suPC',
   created_at: new Date('2023-02-24T12:48:00.608Z'),
   updated_at: new Date('2023-02-24T12:48:48.860Z'),
@@ -338,9 +340,9 @@ export const rejectedAdvReqRes: AdvanceRequests = {
       type: 'BOOLEAN',
     },
   ],
-};
+});
 
-export const checkPolicyAdvReqParam: AdvanceRequests = {
+export const checkPolicyAdvReqParam: AdvanceRequests = deepFreeze({
   id: 'areq4YujEm52Ub',
   created_at: new Date('2023-02-23T19:37:01.207Z'),
   approved_at: null,
@@ -378,9 +380,9 @@ export const checkPolicyAdvReqParam: AdvanceRequests = {
   updated_by: null,
   is_sent_back: null,
   is_pulled_back: true,
-};
+});
 
-export const advanceRequests2: Partial<AdvanceRequests> = {
+export const advanceRequests2: Partial<AdvanceRequests> = deepFreeze({
   ...advanceRequests,
   currency: 'USD',
   amount: 130,
@@ -389,11 +391,11 @@ export const advanceRequests2: Partial<AdvanceRequests> = {
   notes: 'Test notes',
   source: 'MOBILE',
   custom_field_values: null,
-};
+});
 
-export const advanceRequests3: Partial<AdvanceRequests> = {
+export const advanceRequests3: Partial<AdvanceRequests> = deepFreeze({
   org_user_id: 'ouX8dwsbLCLv',
   currency: 'GNF',
   source: 'MOBILE',
   created_at: new Date(),
-};
+});

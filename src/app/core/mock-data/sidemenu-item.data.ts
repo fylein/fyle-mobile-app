@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { SidemenuItem } from '../models/sidemenu-item.model';
 
-export const sidemenuItemData1: SidemenuItem = {
+export const sidemenuItemData1: SidemenuItem = deepFreeze({
   title: 'Dashboard',
   isVisible: true,
   icon: 'dashboard',
@@ -9,9 +11,9 @@ export const sidemenuItemData1: SidemenuItem = {
   isDropdownOpen: false,
   dropdownOptions: [],
   openLiveChat: false,
-};
+});
 
-export const sidemenuItemData2: SidemenuItem = {
+export const sidemenuItemData2: SidemenuItem = deepFreeze({
   title: 'Team',
   isVisible: true,
   icon: 'user-three',
@@ -31,17 +33,17 @@ export const sidemenuItemData2: SidemenuItem = {
   ],
   route: [],
   openLiveChat: false,
-};
+});
 
-export const sidemenuItemData3: Partial<SidemenuItem> = {
+export const sidemenuItemData3: Partial<SidemenuItem> = deepFreeze({
   title: 'Live Chat',
   isVisible: true,
   icon: 'chat',
   openLiveChat: true,
   disabled: false,
-};
+});
 
-export const sidemenuItemData4: Partial<SidemenuItem> = {
+export const sidemenuItemData4: Partial<SidemenuItem> = deepFreeze({
   title: 'Switch Organization',
   isVisible: true,
   icon: 'swap',
@@ -55,4 +57,4 @@ export const sidemenuItemData4: Partial<SidemenuItem> = {
     },
   ],
   disabled: false,
-};
+});

@@ -92,15 +92,15 @@
   <div *ngIf="receiptOptions?.length !== 0" class="merge-expenses--internal-block">
     <app-fy-select
       [enableSearch]="false"
-      [label]="'Select receipt'"
+      [label]="'Receipt'"
       [disabled]="disableFormElements || receiptOptions?.length === 0"
       [mandatory]="false"
       [nullOption]="false"
       [options]="receiptOptions"
       [selectModalHeader]="'Select receipt'"
-      formControlName="receipt_ids"
-      [touchedInParent]="genericFieldsFormGroup.controls.receipt_ids.touched"
-      [validInParent]="genericFieldsFormGroup.controls.receipt_ids.valid"
+      formControlName="receipts_from"
+      [touchedInParent]="genericFieldsFormGroup.controls.receipts_from.touched"
+      [validInParent]="genericFieldsFormGroup.controls.receipts_from.valid"
     >
     </app-fy-select>
   </div>

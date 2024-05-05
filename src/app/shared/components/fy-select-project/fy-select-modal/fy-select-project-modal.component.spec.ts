@@ -15,7 +15,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { of } from 'rxjs';
+import { map, of } from 'rxjs';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import { orgSettingsData, orgSettingsDataWithoutAdvPro } from 'src/app/core/test-data/accounts.service.spec.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
@@ -34,14 +34,13 @@ import {
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
-import { recentlyUsedRes } from 'src/app/core/mock-data/recently-used.data';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
   let fixture: ComponentFixture<FyProjectSelectModalComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: ChangeDetectorRef;
-  let projectService: jasmine.SpyObj<ProjectsService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -51,7 +50,7 @@ describe('FyProjectSelectModalComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getbyId', 'getByParamsUnformatted']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const recentLocalStorageItemsServiceSpy = jasmine.createSpyObj('RecentLocalStorageItemsService', ['get', 'post']);
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
@@ -77,7 +76,7 @@ describe('FyProjectSelectModalComponent', () => {
         },
         {
           provide: ProjectsService,
-          useValue: projectServiceSpy,
+          useValue: projectsServiceSpy,
         },
         {
           provide: AuthService,
@@ -106,7 +105,7 @@ describe('FyProjectSelectModalComponent', () => {
 
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef);
-    projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
@@ -115,13 +114,13 @@ describe('FyProjectSelectModalComponent', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
 
-    projectService.getbyId.and.returnValue(of(singleProjects1));
+    projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
-    projectService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
+    projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
     component.cacheName = 'projects';
     component.defaultValue = true;
@@ -139,8 +138,8 @@ describe('FyProjectSelectModalComponent', () => {
 
   describe('getProjects():', () => {
     it('should get projects when current selection is not defined', (done) => {
-      projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      projectsService.getByParamsUnformatted.and.returnValue(of(projects));
+      projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
 
       component.getProjects('projects').subscribe((res) => {
@@ -148,7 +147,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -159,14 +158,14 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
 
     it('should get projects when current selection is defined', (done) => {
-      projectService.getByParamsUnformatted.and.returnValue(of(projects));
-      component.currentSelection = [testProjectV2];
+      projectsService.getByParamsUnformatted.and.returnValue(of(projects));
+      component.currentSelection = testProjectV2;
       fixture.detectChanges();
 
       component.getProjects('projects').subscribe((res) => {
@@ -174,7 +173,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -185,14 +184,14 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
 
     it('should get projects when default value is null and no default projects are available', (done) => {
       orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
-      projectService.getbyId.and.returnValue(of(expectedProjects[0].value));
+      projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.defaultValue = false;
       fixture.detectChanges();
 
@@ -200,7 +199,7 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectService.getByParamsUnformatted).toHaveBeenCalledWith({
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
           orgId: 'orNVthTo2Zyo',
           active: true,
           sortDirection: 'asc',
@@ -211,7 +210,7 @@ describe('FyProjectSelectModalComponent', () => {
           offset: 0,
           limit: 20,
         });
-        expect(projectService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
         done();
       });
     });
@@ -289,8 +288,8 @@ describe('FyProjectSelectModalComponent', () => {
     it('should dismiss the modal with selected option', () => {
       modalController.dismiss.and.returnValue(Promise.resolve(true));
 
-      component.onElementSelect('value');
-      expect(modalController.dismiss).toHaveBeenCalledWith('value');
+      component.onElementSelect({ label: '', value: null });
+      expect(modalController.dismiss).toHaveBeenCalledWith({ label: '', value: null });
       expect(recentLocalStorageItemsService.post).not.toHaveBeenCalled();
     });
 
@@ -300,16 +299,12 @@ describe('FyProjectSelectModalComponent', () => {
       component.cacheName = 'cache';
       fixture.detectChanges();
 
-      component.onElementSelect({
-        value: 'value',
-      });
+      component.onElementSelect({ label: 'Staging Project', value: testProjectV2 });
 
-      expect(modalController.dismiss).toHaveBeenCalledOnceWith({
-        value: 'value',
-      });
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ label: 'Staging Project', value: testProjectV2 });
       expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith(
         component.cacheName,
-        { value: 'value' },
+        { label: 'Staging Project', value: testProjectV2 },
         'label'
       );
     });
@@ -371,13 +366,20 @@ describe('FyProjectSelectModalComponent', () => {
 
   it('should select element on clicking recently used items', () => {
     spyOn(component, 'onElementSelect');
-    component.recentrecentlyUsedItems$ = of([testProjectV2]);
+    component.recentrecentlyUsedItems$ = of(testProjectV2).pipe(
+      map((project) => [
+        {
+          label: project.project_name,
+          value: project,
+        },
+      ])
+    );
     fixture.detectChanges();
 
     const itemsList = getAllElementsBySelector(fixture, '.selection-modal--recently-used-item-content');
 
     click(itemsList[0] as HTMLElement);
-    expect(component.onElementSelect).toHaveBeenCalledOnceWith(testProjectV2);
+    expect(component.onElementSelect).toHaveBeenCalledOnceWith({ label: 'Staging Project', value: testProjectV2 });
   });
 
   it('should select an element on clicking filtered items', () => {

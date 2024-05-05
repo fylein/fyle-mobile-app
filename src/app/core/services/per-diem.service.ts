@@ -65,7 +65,7 @@ export class PerDiemService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .get<PlatformApiResponse<PlatformPerDiemRates[]>>('/per_diem_rates', data)
       .pipe(
         map((res) => this.transformFrom(res.data)),
         map((res) => res[0])
@@ -81,7 +81,7 @@ export class PerDiemService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .get<PlatformApiResponse<PlatformPerDiemRates[]>>('/per_diem_rates', data)
       .pipe(map((res) => this.transformFrom(res.data)));
   }
 
@@ -94,7 +94,7 @@ export class PerDiemService {
       },
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformPerDiemRates>>('/per_diem_rates', data)
+      .get<PlatformApiResponse<PlatformPerDiemRates[]>>('/per_diem_rates', data)
       .pipe(map((res) => res.count));
   }
 
