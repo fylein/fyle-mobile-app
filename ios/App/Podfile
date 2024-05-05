@@ -31,14 +31,6 @@ def capacitor_pods
   pod 'CordovaPluginsResources', :path => '../capacitor-cordova-ios-plugins'
 end
 
-target 'App' do
-  capacitor_pods
-  # Add your Pods here
-  pod 'FirebaseCore'
-  pod 'Firebase/Messaging'
-end
-
-
 post_install do |installer|
   assertDeploymentTarget(installer)
 end
