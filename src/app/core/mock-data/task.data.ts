@@ -71,6 +71,20 @@ export const sentBackReportTaskSample = {
   ],
 };
 
+export const sentBackReportTaskSingularSample = {
+  amount: '4.5K',
+  count: 1,
+  header: 'Report sent back!',
+  subheader: '1 report worth ₹4.5K  was sent back by your approver',
+  icon: TaskIcon.REPORT,
+  ctas: [
+    {
+      content: 'View Report',
+      event: TASKEVENT.openSentBackReport,
+    },
+  ],
+};
+
 export const unreportedExpenseTaskSample = {
   amount: '142.26K',
   count: 13,

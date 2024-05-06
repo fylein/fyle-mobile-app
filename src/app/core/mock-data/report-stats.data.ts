@@ -106,3 +106,13 @@ export const expectedSentBackResponse: ReportsStatsResponsePlatform = {
   processing_count: null,
   reimbursable_amount: null,
 };
+
+export const expectedSentBackResponseSingularReport: ReportsStatsResponsePlatform = {
+  total_amount: 4500,
+  count: 1,
+  failed_amount: null,
+  failed_count: null,
+  processing_amount: null,
+  processing_count: null,
+  reimbursable_amount: null,
+};

@@ -36,6 +36,7 @@ import {
   draftExpenseTaskSample2,
   unreportedExpenseTaskSample2,
   commuteDeductionTask,
+  sentBackReportTaskSingularSample,
 } from '../mock-data/task.data';
 import { mastercardRTFCard } from '../mock-data/platform-corporate-card.data';
 import { OrgSettingsService } from './org-settings.service';
@@ -62,6 +63,7 @@ import {
   expectedEmptyReportStats,
   expectedReportStats,
   expectedSentBackResponse,
+  expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 
 describe('TasksService', () => {
@@ -260,6 +262,28 @@ describe('TasksService', () => {
 
     tasksService.getSentBackReportTasks().subscribe((sentBackReportsTasks) => {
       expect(sentBackReportsTasks).toEqual([sentBackReportTaskSample]);
+      done();
+    });
+  });
+
+  it('should show proper content for singular sent back report', (done) => {
+    spenderReportsService.getReportsStats
+      .withArgs({
+        state: 'eq.APPROVER_INQUIRY',
+      })
+      .and.returnValue(of(expectedSentBackResponseSingularReport));
+
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedSentBackResponse.total_amount, homeCurrency, true)
+      .and.returnValue('4.5K');
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedSentBackResponse.total_amount, homeCurrency)
+      .and.returnValue('₹4.5K');
+
+    tasksService.getSentBackReportTasks().subscribe((sentBackReportsTasks) => {
+      expect(sentBackReportsTasks).toEqual([sentBackReportTaskSingularSample]);
       done();
     });
   });
