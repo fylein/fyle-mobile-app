@@ -171,7 +171,7 @@ export const apiV2ResponseSingle = deepFreeze({
   url: '/v2/projects',
 });
 
-export const platformProjectSingleRes: PlatformApiResponse<PlatformProject[]> = {
+export const platformProjectSingleRes: PlatformApiResponse<PlatformProject[]> = deepFreeze({
   count: 1,
   data: [
     {
@@ -189,7 +189,7 @@ export const platformProjectSingleRes: PlatformApiResponse<PlatformProject[]> = 
     },
   ],
   offset: 0,
-};
+});
 
 export const testActiveCategoryList: OrgCategory[] = deepFreeze([
   {
