@@ -60,13 +60,11 @@ describe('ApproverReportsService', () => {
 
   it('generateStatsQueryParams(): should generate stats query params', () => {
     const queryParams = {
-      state: 'in.(COMPLETE)',
-      report_id: 'is.null',
-      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+      state: 'eq.DRAFT',
     };
 
     const result = approverReportsService.generateStatsQueryParams(queryParams);
-    expect(result).toEqual('state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)');
+    expect(result).toEqual('state=eq.DRAFT');
   });
 
   it('getReportsCount(): should get a count of reports', (done) => {
