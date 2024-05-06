@@ -45,6 +45,7 @@ import { individualExpPolicyStateData1 } from 'src/app/core/mock-data/individual
 import { PerDiemRedirectedFrom } from 'src/app/core/models/per-diem-redirected-from.enum';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases5(getTestBed) {
   return describe('add-edit-per-diem test cases set 5', () => {
@@ -58,6 +59,7 @@ export function TestCases5(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -126,6 +128,7 @@ export function TestCases5(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       component.fg = formBuilder.group({
         currencyObj: [
           {
@@ -348,7 +351,7 @@ export function TestCases5(getTestBed) {
 
     describe('getDeleteReportParams():', () => {
       it('should return modal params and method to remove expense from report if removePerDiemFromReport is true', () => {
-        reportService.removeTransaction.and.returnValue(of());
+        spenderReportsService.ejectExpenses.and.returnValue(of());
 
         component
           .getDeleteReportParams(
@@ -358,7 +361,7 @@ export function TestCases5(getTestBed) {
             'rpFE5X1Pqi9P'
           )
           .componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
+        expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rpFE5X1Pqi9P', 'tx5n59fvxk4z');
         expect(transactionService.delete).not.toHaveBeenCalled();
       });
 
@@ -372,7 +375,7 @@ export function TestCases5(getTestBed) {
           )
           .componentProps.deleteMethod();
         expect(transactionService.delete).toHaveBeenCalledOnceWith('tx5n59fvxk4z');
-        expect(reportService.removeTransaction).not.toHaveBeenCalled();
+        expect(spenderReportsService.ejectExpenses).not.toHaveBeenCalled();
       });
     });
 
