@@ -10,6 +10,7 @@ import {
   platformReportCountData,
   expectedReportsSinglePage,
   mockQueryParams,
+  mockQueryParamsForCount,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
@@ -42,7 +43,7 @@ describe('SpenderReportsService', () => {
     spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
 
     const expectedParams: ReportsQueryParams = {
-      ...mockQueryParams,
+      ...mockQueryParamsForCount,
       limit: 1,
       offset: 0,
     };
@@ -63,13 +64,11 @@ describe('SpenderReportsService', () => {
       ...mockQueryParams,
       limit: 2,
       offset: 0,
-      order: 'created_at.desc,id.desc',
     };
     const expectedParams2: ReportsQueryParams = {
       ...mockQueryParams,
       limit: 2,
       offset: 2,
-      order: 'created_at.desc,id.desc',
     };
 
     getReportsByParams.withArgs(expectedParams1).and.returnValue(of(allReportsPaginated1));

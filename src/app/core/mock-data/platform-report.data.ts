@@ -7,6 +7,10 @@ export const mockQueryParams: ReportsQueryParams = {
   order: 'created_at.desc,id.desc',
 };
 
+export const mockQueryParamsForCount: ReportsQueryParams = {
+  state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+};
+
 export const platformReportData: Report = {
   amount: 0,
   approvals: [],
