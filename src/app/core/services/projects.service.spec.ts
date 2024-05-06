@@ -68,6 +68,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch project by id', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
+    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
 
     projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
@@ -76,6 +77,7 @@ describe('ProjectsService', () => {
           id: 'eq.257528',
         },
       });
+      expect(transformToV2ResponseSpy).toHaveBeenCalled();
       done();
     });
   });
