@@ -280,12 +280,12 @@ describe('ViewExpensePage', () => {
   describe('isNumber', () => {
     it('should return true for a number', () => {
       const result = component.isNumber(42);
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
 
     it('should return false for a non-number value', () => {
       const result = component.isNumber('42');
-      expect(result).toBe(false);
+      expect(result).toBeFalse();
     });
   });
 
