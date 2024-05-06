@@ -70,7 +70,7 @@ describe('ProjectsService', () => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
 
     projectsService.getbyId(257528).subscribe((res) => {
-      expect(apiV2ResponseSingle.data[0]).toEqual(jasmine.objectContaining(res));
+      expect(res).toEqual(apiV2ResponseSingle.data[0]);
       done();
     });
 
