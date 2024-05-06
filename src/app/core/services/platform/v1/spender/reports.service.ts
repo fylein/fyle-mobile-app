@@ -36,48 +36,6 @@ export class SpenderReportsService {
     return this.transactionService.clearCache();
   }
 
-  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
-    return this.getReportsCount(queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) => {
-        let params = {
-          state: queryParams.state,
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-        };
-        return this.getReportsByParams(params);
-      }),
-      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
-    );
-  }
-
-  getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
-      state: queryParams.state,
-      limit: 1,
-      offset: 0,
-    };
-    return this.getReportsByParams(params).pipe(map((res) => res.count));
-  }
-
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
-    const config = {
-      params: {
-        ...queryParams,
-      },
-    };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
-  }
-
-  createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(map((res) => res.data));
-  }
-
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
@@ -111,5 +69,47 @@ export class SpenderReportsService {
         this.clearTransactionCache();
       })
     );
+  }
+
+  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
+    return this.getReportsCount(queryParams).pipe(
+      switchMap((count) => {
+        count = count > this.paginationSize ? count / this.paginationSize : 1;
+        return range(0, count);
+      }),
+      concatMap((page) => {
+        const params = {
+          state: queryParams.state,
+          offset: this.paginationSize * page,
+          limit: this.paginationSize,
+        };
+        return this.getReportsByParams(params);
+      }),
+      reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
+    );
+  }
+
+  getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
+    const params = {
+      state: queryParams.state,
+      limit: 1,
+      offset: 0,
+    };
+    return this.getReportsByParams(params).pipe(map((res) => res.count));
+  }
+
+  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
+    const config = {
+      params: {
+        ...queryParams,
+      },
+    };
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
+  }
+
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(map((res) => res.data));
   }
 }
