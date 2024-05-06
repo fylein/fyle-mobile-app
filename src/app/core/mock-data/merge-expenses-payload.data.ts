@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { MergeExpensesPayload } from '../models/merge-expenses-payload.model';
 
-export const mergeExpensesPayload: MergeExpensesPayload = {
+export const mergeExpensesPayload: MergeExpensesPayload = deepFreeze({
   source_txn_ids: ['txKj4PEIUAXw'],
   target_txn_id: 'txVNpvgTPW4Z',
   target_txn_fields: {
@@ -49,4 +51,4 @@ export const mergeExpensesPayload: MergeExpensesPayload = {
     ],
     locations: [],
   },
-};
+});

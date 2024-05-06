@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { UnformattedTransaction } from '../models/unformatted-transaction.model';
 
-export const unformattedTxnData: Partial<UnformattedTransaction>[] = [
+export const unformattedTxnData: Partial<UnformattedTransaction>[] = deepFreeze([
   {
     created_at: new Date('2023-02-08T06:47:48.414Z'),
     updated_at: new Date('2023-02-08T06:47:48.414Z'),
@@ -72,4 +74,4 @@ export const unformattedTxnData: Partial<UnformattedTransaction>[] = [
     policy_amount: null,
     locations: [],
   },
-];
+]);

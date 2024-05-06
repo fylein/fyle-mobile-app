@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { UnflattenedReport } from '../models/report-unflattened.model';
 
-export const expectedErpt: UnflattenedReport[] = [
+export const expectedErpt: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rprAfNrce73O',
@@ -233,9 +235,9 @@ export const expectedErpt: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);
 
-export const expectedErptPlatform: UnflattenedReport[] = [
+export const expectedErptPlatform: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rpIfg2VWQKGJ',
@@ -326,9 +328,9 @@ export const expectedErptPlatform: UnflattenedReport[] = [
       email: 'devendra.r@fyle.in',
     },
   },
-];
+]);
 
-export const expectedSingleErpt: UnflattenedReport = {
+export const expectedSingleErpt: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rprAfNrce73O',
     org_user_id: 'ouX8dwsbLCLv',
@@ -385,9 +387,9 @@ export const expectedSingleErpt: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const extendedReportParam: UnflattenedReport[] = [
+export const extendedReportParam: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rp5eUkeNm9wB',
@@ -612,9 +614,9 @@ export const extendedReportParam: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);
 
-export const expectedUnflattenedReports: UnflattenedReport[] = [
+export const expectedUnflattenedReports: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rp5eUkeNm9wB',
@@ -839,9 +841,9 @@ export const expectedUnflattenedReports: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);
 
-export const unflattenedErptc: UnflattenedReport = {
+export const unflattenedErptc: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rprAfNrce73O',
     org_user_id: 'ouX8dwsbLCLv',
@@ -898,9 +900,9 @@ export const unflattenedErptc: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const unflattenedErptcArrayItem1: UnflattenedReport = {
+export const unflattenedErptcArrayItem1: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rprAfNrce73O',
     org_user_id: 'ouX8dwsbLCLv',
@@ -957,9 +959,9 @@ export const unflattenedErptcArrayItem1: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const unflattenedErptcArrayItem2: UnflattenedReport = {
+export const unflattenedErptcArrayItem2: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rpLMyvYSXgJy',
     org_user_id: 'ouX8dwsbLCLv',
@@ -1016,9 +1018,9 @@ export const unflattenedErptcArrayItem2: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const unflattenedErptcArrayItem3: UnflattenedReport = {
+export const unflattenedErptcArrayItem3: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rpxtbiLXQZUm',
     org_user_id: 'ouX8dwsbLCLv',
@@ -1075,9 +1077,9 @@ export const unflattenedErptcArrayItem3: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const unflattenedErptcArrayItem4: UnflattenedReport = {
+export const unflattenedErptcArrayItem4: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rpSGcIEwzxDd',
     org_user_id: 'ouX8dwsbLCLv',
@@ -1134,9 +1136,9 @@ export const unflattenedErptcArrayItem4: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const singleERptcFixDatesMock: UnflattenedReport = {
+export const singleERptcFixDatesMock: UnflattenedReport = deepFreeze({
   rp: {
     id: 'rprAfNrce73O',
     org_user_id: 'ouX8dwsbLCLv',
@@ -1193,9 +1195,9 @@ export const singleERptcFixDatesMock: UnflattenedReport = {
     full_name: 'Abhishek Jain',
     email: 'ajain@fyle.in',
   },
-};
+});
 
-export const addApproverERpts: UnflattenedReport[] = [
+export const addApproverERpts: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rp35DK02IvMP',
@@ -1456,9 +1458,9 @@ export const addApproverERpts: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);
 
-export const expectedAddedApproverERpts: UnflattenedReport[] = [
+export const expectedAddedApproverERpts: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rp35DK02IvMP',
@@ -1623,9 +1625,9 @@ export const expectedAddedApproverERpts: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);
 
-export const draftReportPerDiemData: UnflattenedReport[] = [
+export const draftReportPerDiemData: UnflattenedReport[] = deepFreeze([
   {
     rp: {
       id: 'rp35DK02IvMP',
@@ -1700,4 +1702,4 @@ export const draftReportPerDiemData: UnflattenedReport[] = [
       email: 'ajain@fyle.in',
     },
   },
-];
+]);

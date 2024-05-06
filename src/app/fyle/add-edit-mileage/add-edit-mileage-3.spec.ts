@@ -533,10 +533,11 @@ export function TestCases3(getTestBed) {
           mileageCategories: [mileageCategories2[1]],
         })
       );
-      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(txnFieldsData));
+      const mockTxnFields = cloneDeep(txnFieldsData);
+      expenseFieldsService.filterByOrgCategoryId.and.returnValue(of(mockTxnFields));
 
       component.getTransactionFields().subscribe((res) => {
-        expect(res).toEqual(txnFieldsData);
+        expect(res).toEqual(mockTxnFields);
         expect(expenseFieldsService.getAllMap).toHaveBeenCalledTimes(1);
         expect(component.getMileageCategories).toHaveBeenCalledTimes(1);
         expect(expenseFieldsService.filterByOrgCategoryId).toHaveBeenCalledOnceWith(

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceApprover } from '../models/approver.model';
 
-export const AdvanceRequestApprover: AdvanceApprover[] = [
+export const AdvanceRequestApprover: AdvanceApprover[] = deepFreeze([
   {
     id: 8311,
     created_at: null,
@@ -15,4 +17,4 @@ export const AdvanceRequestApprover: AdvanceApprover[] = [
     approver_org_id: 'orYtMVz2qisQ',
     comment: null,
   },
-];
+]);

@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { TransactionStatus } from '../models/platform/v1/expense.model';
 
-export const ccTransactionResponseData: CorporateCardTransactionRes = {
+export const ccTransactionResponseData: CorporateCardTransactionRes = deepFreeze({
   data: [
     {
       amount: 205.21,
@@ -92,18 +94,18 @@ export const ccTransactionResponseData: CorporateCardTransactionRes = {
       user_id: 'usvMoPfCC9Xw',
     },
   ],
-};
+});
 
-export const ccTransactionResponseData1: CorporateCardTransactionRes = {
+export const ccTransactionResponseData1: CorporateCardTransactionRes = deepFreeze({
   data: [
     {
       ...ccTransactionResponseData.data[0],
       id: 'btxnSte7sVQCM8',
     },
   ],
-};
+});
 
-export const unmatchCCCExpenseResponseData: CorporateCardTransactionRes = {
+export const unmatchCCCExpenseResponseData: CorporateCardTransactionRes = deepFreeze({
   data: [
     {
       amount: 260.37,
@@ -210,9 +212,9 @@ export const unmatchCCCExpenseResponseData: CorporateCardTransactionRes = {
       user_id: 'usvMoPfCC9Xw',
     },
   ],
-};
+});
 
-export const matchCCCExpenseResponseData: CorporateCardTransactionRes = {
+export const matchCCCExpenseResponseData: CorporateCardTransactionRes = deepFreeze({
   data: [
     {
       amount: 260.37,
@@ -266,4 +268,4 @@ export const matchCCCExpenseResponseData: CorporateCardTransactionRes = {
       user_id: 'usvMoPfCC9Xw',
     },
   ],
-};
+});

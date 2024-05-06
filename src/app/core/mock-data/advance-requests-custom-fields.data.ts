@@ -1,5 +1,7 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceRequestsCustomFields } from '../models/advance-requests-custom-fields.model';
-export const advanceRequestCustomFieldData: AdvanceRequestsCustomFields[] = [
+export const advanceRequestCustomFieldData: AdvanceRequestsCustomFields[] = deepFreeze([
   {
     id: 150,
     org_id: 'orNVthTo2Zyo',
@@ -42,9 +44,9 @@ export const advanceRequestCustomFieldData: AdvanceRequestsCustomFields[] = [
     last_updated_by: 'ouX8dwsbLCLv',
     placeholder: '123',
   },
-];
+]);
 
-export const advanceRequestCustomFieldData2: AdvanceRequestsCustomFields[] = [
+export const advanceRequestCustomFieldData2: AdvanceRequestsCustomFields[] = deepFreeze([
   {
     id: 150,
     org_id: 'orNVthTo2Zyo',
@@ -87,4 +89,4 @@ export const advanceRequestCustomFieldData2: AdvanceRequestsCustomFields[] = [
     last_updated_by: 'ouX8dwsbLCLv',
     placeholder: null,
   },
-];
+]);

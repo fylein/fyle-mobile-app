@@ -5,6 +5,7 @@ import { ApiService } from './api.service';
 import { DateService } from './date.service';
 
 import { FileService } from './file.service';
+import { cloneDeep } from 'lodash';
 
 describe('FileService', () => {
   let fileService: FileService;
@@ -118,7 +119,7 @@ describe('FileService', () => {
   describe('setFileType():', () => {
     it('should set the file type', () => {
       spyOn(fileService, 'getFileExtension').and.returnValue('jpeg');
-      const file = fileObjectAdv[0];
+      const file = cloneDeep(fileObjectAdv[0]);
       const fileWithFileType = fileService.setFileType(file);
       expect(fileWithFileType.file_type).toEqual('image');
       expect(fileService.getFileExtension).toHaveBeenCalledOnceWith(file.name);
@@ -126,7 +127,7 @@ describe('FileService', () => {
 
     it('should set the file pdf type', () => {
       spyOn(fileService, 'getFileExtension').and.returnValue('pdf');
-      const file = fileObjectAdv1;
+      const file = cloneDeep(fileObjectAdv1);
       const fileWithFileType = fileService.setFileType(file);
       expect(fileWithFileType.file_type).toEqual('pdf');
       expect(fileService.getFileExtension).toHaveBeenCalledOnceWith(file.name);

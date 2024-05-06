@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
-export const apiEouRes: ExtendedOrgUser = {
+export const apiEouRes: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'ouX8dwsbLCLv',
     created_at: new Date('2018-02-01T02:32:25.267Z'),
@@ -102,9 +104,9 @@ export const apiEouRes: ExtendedOrgUser = {
     customer_id: 'dwcJzfwZCgwkdfG',
     bank_account_added: true,
   },
-};
+});
 
-export const eouRes2: ExtendedOrgUser = {
+export const eouRes2: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'ouX8dwsbLCLv',
     created_at: new Date('2018-02-01T02:32:25.267Z'),
@@ -184,9 +186,9 @@ export const eouRes2: ExtendedOrgUser = {
     customer_id: 'dwcJzfwZCgwkdfG',
     bank_account_added: true,
   },
-};
+});
 
-export const eouRes3: ExtendedOrgUser = {
+export const eouRes3: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'ouX8dwsbLCLv',
     created_at: new Date('2018-02-01T02:32:25.267Z'),
@@ -301,9 +303,9 @@ export const eouRes3: ExtendedOrgUser = {
     customer_id: 'dwcJzfwZCgwkdfG',
     bank_account_added: true,
   },
-};
+});
 
-export const eouFlattended: EouApiResponse = {
+export const eouFlattended: EouApiResponse = deepFreeze({
   ou_id: 'ouX8dwsbLCLv',
   ou_created_at: new Date('2018-02-01T02:32:25.267Z'),
   ou_org_id: 'orNVthTo2Zyo',
@@ -398,20 +400,20 @@ export const eouFlattended: EouApiResponse = {
   dwolla_customer_id: 'dwcJzfwZCgwkdfG',
   dwolla_bank_account_added: true,
   ou_cost_center_ids: [13792, 13793, 13794, 14018, 13795, 13995, 9493, 9494, 13785, 13787, 13788, 13789, 13790, 13791],
-};
+});
 
-export const eouWithNoAttempts: ExtendedOrgUser = {
+export const eouWithNoAttempts: ExtendedOrgUser = deepFreeze({
   ...apiEouRes,
   ou: {
     ...apiEouRes.ou,
     mobile_verification_attempts_left: 0,
   },
-};
+});
 
-export const eouWithPendingDetails: ExtendedOrgUser = {
+export const eouWithPendingDetails: ExtendedOrgUser = deepFreeze({
   ...apiEouRes,
   ou: {
     ...apiEouRes.ou,
     status: 'PENDING_DETAILS',
   },
-};
+});

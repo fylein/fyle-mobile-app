@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { StaticMapProperties } from '../models/static-map-properties.interface';
 
-export const staticMapPropertiesData: StaticMapProperties = {
+export const staticMapPropertiesData: StaticMapProperties = deepFreeze({
   zoom: 18,
   routeColor: '0x00BFFF',
   markers: [
@@ -34,4 +36,4 @@ export const staticMapPropertiesData: StaticMapProperties = {
   width: window.innerWidth,
   height: 266,
   resolutionScale: 2,
-};
+});
