@@ -276,7 +276,8 @@ export function TestCases4(getTestBed) {
           custom_inputs: customPropertiesData as CustomInput[],
         });
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
-        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData);
+        const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData);
+        customFieldsService.standardizeCustomFields.and.returnValue(mockTxnCustomProperties);
         fixture.detectChanges();
 
         component.getCustomInputs().subscribe((res) => {
@@ -293,7 +294,8 @@ export function TestCases4(getTestBed) {
 
       it('should get custom inputs if no previous custom inputs are assigned', (done) => {
         spyOn(component, 'checkMileageCategories').and.returnValue(of(orgCategoryData));
-        customFieldsService.standardizeCustomFields.and.returnValue(txnCustomPropertiesData3);
+        const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3);
+        customFieldsService.standardizeCustomFields.and.returnValue(mockTxnCustomProperties);
         spyOn(component, 'getFormValues').and.returnValue({
           custom_inputs: null,
         });
@@ -693,9 +695,10 @@ export function TestCases4(getTestBed) {
         component.commuteDetails = commuteDetailsData;
         component.fg.patchValue({ commuteDeduction: CommuteDeduction.ONE_WAY });
         fixture.detectChanges();
+        const mockTxnCustomProperties = cloneDeep(txnCustomProperties4);
 
         component
-          .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(txnCustomProperties4), of(10))
+          .generateEtxnFromFg(of(unflattenedTxnWithReportID3), of(mockTxnCustomProperties), of(10))
           .subscribe((res) => {
             expect(res).toEqual(newMileageExpFromForm);
             expect(component.getFormValues).toHaveBeenCalledTimes(1);

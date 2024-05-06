@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ApiV2Response } from '../models/api-v2.model';
 import { PersonalCard } from '../models/personal_card.model';
 
-export const apiLinkedAccRes: ApiV2Response<PersonalCard> = {
+export const apiLinkedAccRes: ApiV2Response<PersonalCard> = deepFreeze({
   count: 11,
   data: [
     {
@@ -46,9 +48,9 @@ export const apiLinkedAccRes: ApiV2Response<PersonalCard> = {
   limit: 11,
   offset: 0,
   url: '/v2/personal_bank_accounts',
-};
+});
 
-export const deletePersonalCardRes: PersonalCard = {
+export const deletePersonalCardRes: PersonalCard = deepFreeze({
   account_number: 'xxxx9806',
   account_type: 'CREDIT',
   bank_name: 'Dag Site yodlee',
@@ -66,9 +68,9 @@ export const deletePersonalCardRes: PersonalCard = {
   unclassified_count: 0,
   update_credentials: false,
   updated_at: new Date('2022-05-31T07:40:58.190907'),
-};
+});
 
-export const linkedAccountsRes: PersonalCard[] = [
+export const linkedAccountsRes: PersonalCard[] = deepFreeze([
   {
     account_number: 'xxxx4227',
     account_type: 'CHECKING',
@@ -107,4 +109,4 @@ export const linkedAccountsRes: PersonalCard[] = [
     update_credentials: false,
     updated_at: new Date('2023-01-12T15:57:47.178727'),
   },
-];
+]);

@@ -6,7 +6,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
-import { apiCardV2Transactions } from '../mock-data/ccc-api-response';
+import { apiCardV2Transactions } from '../mock-data/ccc-api-response.data';
 import { expectedECccResponse } from '../mock-data/corporate-card-expense-unflattened.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';

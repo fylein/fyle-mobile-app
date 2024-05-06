@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 import { FilterState } from '../enums/filter-state.enum';
 import { ExpenseFilters } from '../models/expense-filters.model';
 
-export const expenseFiltersData1: Partial<ExpenseFilters> = {
+export const expenseFiltersData1: Partial<ExpenseFilters> = deepFreeze({
   state: ['DRAFT', 'READY_TO_REPORT'],
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
@@ -12,9 +14,9 @@ export const expenseFiltersData1: Partial<ExpenseFilters> = {
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersDataWoCards: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWoCards: Partial<ExpenseFilters> = deepFreeze({
   state: ['DRAFT', 'READY_TO_REPORT'],
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
@@ -22,9 +24,9 @@ export const expenseFiltersDataWoCards: Partial<ExpenseFilters> = {
   sortParam: 'category->name',
   sortDir: 'asc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData1Old: Partial<ExpenseFilters> = {
+export const expenseFiltersData1Old: Partial<ExpenseFilters> = deepFreeze({
   state: ['DRAFT', 'READY_TO_REPORT'],
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
@@ -33,17 +35,17 @@ export const expenseFiltersData1Old: Partial<ExpenseFilters> = {
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData2: Partial<ExpenseFilters> = {
+export const expenseFiltersData2: Partial<ExpenseFilters> = deepFreeze({
   date: DateFilters.thisWeek,
   receiptsAttached: 'YES',
   sortParam: 'category->name',
   sortDir: 'asc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData3: Partial<ExpenseFilters> = {
+export const expenseFiltersData3: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: 'Last Month',
   customDateStart: new Date('2023-01-04'),
@@ -52,43 +54,43 @@ export const expenseFiltersData3: Partial<ExpenseFilters> = {
   type: ['Mileage'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'Yes',
-};
+});
 
-export const expenseFiltersData4: Partial<ExpenseFilters> = {
+export const expenseFiltersData4: Partial<ExpenseFilters> = deepFreeze({
   ...expenseFiltersData3,
   customDateStart: undefined,
   customDateEnd: undefined,
-};
+});
 
-export const expenseFiltersData5: Partial<ExpenseFilters> = {
+export const expenseFiltersData5: Partial<ExpenseFilters> = deepFreeze({
   receiptsAttached: 'YES',
   sortParam: 'amount',
   sortDir: 'desc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData5Old: Partial<ExpenseFilters> = {
+export const expenseFiltersData5Old: Partial<ExpenseFilters> = deepFreeze({
   receiptsAttached: 'YES',
   sortParam: 'tx_amount',
   sortDir: 'desc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData6: Partial<ExpenseFilters> = {
+export const expenseFiltersData6: Partial<ExpenseFilters> = deepFreeze({
   receiptsAttached: 'YES',
   sortParam: 'spent_at',
   sortDir: 'asc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersData7: Partial<ExpenseFilters> = {
+export const expenseFiltersData7: Partial<ExpenseFilters> = deepFreeze({
   receiptsAttached: 'YES',
   sortParam: 'tx_txn_dt',
   sortDir: 'asc',
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersDataWCustom: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWCustom: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
   customDateStart: new Date('2023-01-04'),
@@ -97,9 +99,9 @@ export const expenseFiltersDataWCustom: Partial<ExpenseFilters> = {
   type: [ExpenseType.MILEAGE, ExpenseType.PER_DIEM, 'RegularExpenses'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'Yes',
-};
+});
 
-export const expenseFiltersDataWithCustomStart: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWithCustomStart: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
   customDateStart: new Date('2023-01-04'),
@@ -107,9 +109,9 @@ export const expenseFiltersDataWithCustomStart: Partial<ExpenseFilters> = {
   type: ['Mileage'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'Yes',
-};
+});
 
-export const expenseFiltersDataWithCustomEnd: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWithCustomEnd: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
   customDateEnd: new Date('2023-01-10'),
@@ -117,9 +119,9 @@ export const expenseFiltersDataWithCustomEnd: Partial<ExpenseFilters> = {
   type: ['Mileage'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'Yes',
-};
+});
 
-export const expenseFiltersDataWoReceipts: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWoReceipts: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
   customDateEnd: new Date('2023-01-10'),
@@ -127,9 +129,9 @@ export const expenseFiltersDataWoReceipts: Partial<ExpenseFilters> = {
   type: ['Mileage'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'Yes',
-};
+});
 
-export const expenseFiltersDataWoSplit: Partial<ExpenseFilters> = {
+export const expenseFiltersDataWoSplit: Partial<ExpenseFilters> = deepFreeze({
   state: 'custom',
   date: DateFilters.custom,
   customDateEnd: new Date('2023-01-10'),
@@ -137,9 +139,9 @@ export const expenseFiltersDataWoSplit: Partial<ExpenseFilters> = {
   type: ['Mileage'],
   cardNumbers: ['1234', '2389'],
   splitExpense: 'NO',
-};
+});
 
-export const expenseFiltersDataAllStates: Partial<ExpenseFilters> = {
+export const expenseFiltersDataAllStates: Partial<ExpenseFilters> = deepFreeze({
   state: [FilterState.DRAFT, FilterState.CANNOT_REPORT, FilterState.POLICY_VIOLATED, FilterState.READY_TO_REPORT],
   date: DateFilters.thisWeek,
   customDateStart: new Date('2023-01-04'),
@@ -150,9 +152,9 @@ export const expenseFiltersDataAllStates: Partial<ExpenseFilters> = {
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersDataMonth: Partial<ExpenseFilters> = {
+export const expenseFiltersDataMonth: Partial<ExpenseFilters> = deepFreeze({
   state: [FilterState.DRAFT, FilterState.CANNOT_REPORT, FilterState.POLICY_VIOLATED, FilterState.READY_TO_REPORT],
   date: DateFilters.thisMonth,
   customDateStart: new Date('2023-01-04'),
@@ -163,9 +165,9 @@ export const expenseFiltersDataMonth: Partial<ExpenseFilters> = {
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
-};
+});
 
-export const expenseFiltersDataLastMonth: Partial<ExpenseFilters> = {
+export const expenseFiltersDataLastMonth: Partial<ExpenseFilters> = deepFreeze({
   state: [FilterState.DRAFT],
   date: DateFilters.lastMonth,
   customDateStart: new Date('2023-01-04'),
@@ -176,4 +178,4 @@ export const expenseFiltersDataLastMonth: Partial<ExpenseFilters> = {
   sortDir: 'asc',
   cardNumbers: ['1234', '5678'],
   splitExpense: 'YES',
-};
+});

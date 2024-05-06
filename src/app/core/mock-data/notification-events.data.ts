@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { NotificationEvents } from '../models/notification-events.model';
 
-export const notificationEventsData: NotificationEvents = {
+export const notificationEventsData: NotificationEvents = deepFreeze({
   features: {
     expensesAndReports: {
       textLabel: 'Expenses and Reports',
@@ -193,9 +195,9 @@ export const notificationEventsData: NotificationEvents = {
       eventType: 'eadvance_requests_rejected',
     },
   ],
-};
+});
 
-export const notificationEventsData2: NotificationEvents = {
+export const notificationEventsData2: NotificationEvents = deepFreeze({
   features: {
     expensesAndReports: {
       textLabel: 'Expenses and Reports',
@@ -388,9 +390,9 @@ export const notificationEventsData2: NotificationEvents = {
       eventType: 'eadvance_requests_rejected',
     },
   ],
-};
+});
 
-export const notificationEventsData3: NotificationEvents = {
+export const notificationEventsData3: NotificationEvents = deepFreeze({
   features: {
     expensesAndReports: {
       textLabel: 'Expenses and Reports',
@@ -583,4 +585,4 @@ export const notificationEventsData3: NotificationEvents = {
       eventType: 'eadvance_requests_rejected',
     },
   ],
-};
+});

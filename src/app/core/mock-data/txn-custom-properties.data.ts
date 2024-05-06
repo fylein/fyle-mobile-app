@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
-export const txnCustomPropertiesData: TxnCustomProperties[] = [
+export const txnCustomPropertiesData: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     mandatory: false,
@@ -103,9 +105,9 @@ export const txnCustomPropertiesData: TxnCustomProperties[] = [
     type: 'DATE',
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const txnCustomPropertiesData2: TxnCustomProperties[] = [
+export const txnCustomPropertiesData2: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     mandatory: false,
@@ -208,9 +210,9 @@ export const txnCustomPropertiesData2: TxnCustomProperties[] = [
     type: 'DATE',
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const txnCustomPropertiesData3: TxnCustomProperties[] = [
+export const txnCustomPropertiesData3: TxnCustomProperties[] = deepFreeze([
   {
     id: 213300,
     prefix: '',
@@ -286,9 +288,9 @@ export const txnCustomPropertiesData3: TxnCustomProperties[] = [
     options: undefined,
     parent_field_id: null,
   },
-];
+]);
 
-export const txnCustomPropertiesData4: TxnCustomProperties[] = [
+export const txnCustomPropertiesData4: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     prefix: '',
@@ -377,9 +379,9 @@ export const txnCustomPropertiesData4: TxnCustomProperties[] = [
     options: [],
     parent_field_id: null,
   },
-];
+]);
 
-export const expectedTxnCustomProperties: TxnCustomProperties[] = [
+export const expectedTxnCustomProperties: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     mandatory: false,
@@ -433,9 +435,9 @@ export const expectedTxnCustomProperties: TxnCustomProperties[] = [
     type: 'DATE',
     value: new Date('2023-02-13T17:00:00.000Z'),
   },
-];
+]);
 
-export const TxnCustomProperties3: TxnCustomProperties[] = [
+export const TxnCustomProperties3: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     mandatory: false,
@@ -456,9 +458,9 @@ export const TxnCustomProperties3: TxnCustomProperties[] = [
     type: 'DATE',
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const txnCustomProperties4: TxnCustomProperties[] = [
+export const txnCustomProperties4: TxnCustomProperties[] = deepFreeze([
   {
     id: 318297,
     mandatory: true,
@@ -532,9 +534,9 @@ export const txnCustomProperties4: TxnCustomProperties[] = [
     type: 'DATE',
     value: new Date('2023-02-13T17:00:00.000Z'),
   },
-];
+]);
 
-export const txnCustomPropertiesData6: TxnCustomProperties[] = [
+export const txnCustomPropertiesData6: TxnCustomProperties[] = deepFreeze([
   {
     id: 200227,
     mandatory: false,
@@ -637,9 +639,9 @@ export const txnCustomPropertiesData6: TxnCustomProperties[] = [
     type: 'DATE',
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const txnCustomPropertiesData5: TxnCustomProperties[] = [
+export const txnCustomPropertiesData5: TxnCustomProperties[] = deepFreeze([
   {
     id: 318297,
     mandatory: true,
@@ -713,4 +715,4 @@ export const txnCustomPropertiesData5: TxnCustomProperties[] = [
     type: 'DATE',
     value: new Date('2023-02-13T17:00:00.000Z'),
   },
-];
+]);

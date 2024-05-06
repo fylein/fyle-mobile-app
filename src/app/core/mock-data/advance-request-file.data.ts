@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceRequestFile } from '../models/advance-request-file.model';
 
-export const advRequestFile: AdvanceRequestFile = {
+export const advRequestFile: AdvanceRequestFile = deepFreeze({
   files: [
     {
       id: 'fi1w2IE6JeqS',
@@ -92,9 +94,9 @@ export const advRequestFile: AdvanceRequestFile = {
     is_sent_back: false,
     is_pulled_back: true,
   },
-};
+});
 
-export const advRequestFile2: AdvanceRequestFile = {
+export const advRequestFile2: AdvanceRequestFile = deepFreeze({
   files: [
     {
       id: 'fiK7c69UDJNb',
@@ -186,4 +188,4 @@ export const advRequestFile2: AdvanceRequestFile = {
     is_sent_back: false,
     is_pulled_back: true,
   },
-};
+});

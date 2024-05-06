@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { InfoCardData } from '../models/info-card-data.model';
 
-export const allInfoCardsData: InfoCardData[] = [
+export const allInfoCardsData: InfoCardData[] = deepFreeze([
   {
     title: 'Message Receipts',
     content: 'Message your receipts to Fyle at (302) 440-2921.',
@@ -15,4 +17,4 @@ export const allInfoCardsData: InfoCardData[] = [
     toastMessageContent: 'Email Copied Successfully',
     isShown: true,
   },
-];
+]);

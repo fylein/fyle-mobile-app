@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { SplitPayload } from '../models/platform/v1/split-payload.model';
 import { splitsData1 } from './splits.data';
 
-export const splitPayloadData1: SplitPayload = {
+export const splitPayloadData1: SplitPayload = deepFreeze({
   id: 'sdfd2391',
   claim_amount: 1900,
   splits: [
@@ -47,9 +49,9 @@ export const splitPayloadData1: SplitPayload = {
       value: 'string1',
     },
   ],
-};
+});
 
-export const splitPayloadData2: SplitPayload = {
+export const splitPayloadData2: SplitPayload = deepFreeze({
   is_reimbursable: true,
   source: 'MOBILE',
   spent_at: new Date('Mon Feb 13 2023 22:30:00 GMT+0530 (India Standard Time)'),
@@ -95,10 +97,10 @@ export const splitPayloadData2: SplitPayload = {
   splits: splitsData1,
   travel_classes: [],
   report_id: 'rp0AGAoeQfQX',
-};
+});
 
-export const splitPayloadData3: SplitPayload = {
+export const splitPayloadData3: SplitPayload = deepFreeze({
   ...splitPayloadData2,
   category_id: 16569,
   is_reimbursable: null,
-};
+});

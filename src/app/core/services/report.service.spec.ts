@@ -73,6 +73,7 @@ import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-tr
 import { platformReportData } from '../mock-data/platform-report.data';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { cloneDeep } from 'lodash';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -269,7 +270,7 @@ describe('ReportService', () => {
 
   describe('getMyReports()', () => {
     it('should get reports from API as specified by params', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(apiReportRes));
       spyOn(dateService, 'fixDates').and.returnValues(
         apiReportRes.data[0],
@@ -303,7 +304,7 @@ describe('ReportService', () => {
     });
 
     it('should get reports from API when no order is specified', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(apiReportRes));
       spyOn(dateService, 'fixDates').and.returnValues(
         apiReportRes.data[0],
@@ -366,7 +367,8 @@ describe('ReportService', () => {
 
   it('getERpt(): should get an extended report', (done) => {
     apiService.get.and.returnValue(of(apiExtendedReportRes[0]));
-    dataTransformService.unflatten.and.returnValue(unflattenedErptc);
+    const mockUnflattenedErptc = cloneDeep(unflattenedErptc);
+    dataTransformService.unflatten.and.returnValue(mockUnflattenedErptc);
     spyOn(dateService, 'fixDates').and.returnValue(singleERptcFixDatesMock);
     spyOn(dateService, 'getLocalDate').and.returnValue(new Date('2023-01-21T07:29:01.958Z'));
 
@@ -399,7 +401,7 @@ describe('ReportService', () => {
   });
 
   it('getReport(): should get the report from API as per report ID given', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     spyOn(reportService, 'getMyReports').and.returnValue(of(apiReportSingleRes));
 
     const reportID = 'rpfClhA1lglE';
@@ -437,7 +439,7 @@ describe('ReportService', () => {
 
   describe('getTeamReports()', () => {
     it('should get all team reports', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
       spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
@@ -467,7 +469,7 @@ describe('ReportService', () => {
     });
 
     it('should get all team reports when order is not specified', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(apiTeamReportPaginated1));
       spyOn(dateService, 'fixDates').and.returnValues(apiTeamReportPaginated1.data[0], apiTeamReportPaginated1.data[1]);
 
@@ -627,7 +629,8 @@ describe('ReportService', () => {
 
   describe('getReportAutoSubmissionDetails():', () => {
     it('should get submission details', (done) => {
-      spenderPlatformV1ApiService.post.and.returnValue(of(apiReportAutoSubmissionDetails));
+      const mockApiReportAutoSubmissionDetails = cloneDeep(apiReportAutoSubmissionDetails);
+      spenderPlatformV1ApiService.post.and.returnValue(of(mockApiReportAutoSubmissionDetails));
 
       reportService.getReportAutoSubmissionDetails().subscribe((res) => {
         expect(res).toEqual({
@@ -885,7 +888,7 @@ describe('ReportService', () => {
     it('should get extended reports count', (done) => {
       networkService.isOnline.and.returnValue(of(true));
       apiService.get.and.returnValue(of({ count: 4 }));
-      storageService.set.and.returnValue(Promise.resolve(null));
+      storageService.set.and.resolveTo(null);
 
       const apiParam = ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'];
 
@@ -901,7 +904,7 @@ describe('ReportService', () => {
 
     it('should return count when device is offline and use storage to give count', (done) => {
       networkService.isOnline.and.returnValue(of(false));
-      storageService.get.and.returnValue(Promise.resolve({ count: 4 }));
+      storageService.get.and.resolveTo({ count: 4 });
 
       reportService.getPaginatedERptcCount({}).subscribe((res) => {
         expect(res).toEqual({ count: 4 });
@@ -1040,7 +1043,9 @@ describe('ReportService', () => {
   });
 
   it('addApprovers(): add approvers to reports', () => {
-    const res = reportService.addApprovers(addApproverERpts, approversData1);
+    const mockApproverData = cloneDeep(approversData1);
+    const mockERpts = cloneDeep(addApproverERpts);
+    const res = reportService.addApprovers(mockERpts, mockApproverData);
 
     expect(res).toEqual(expectedAddedApproverERpts);
   });
@@ -1071,7 +1076,7 @@ describe('ReportService', () => {
 
   describe('getReportStatsData()', () => {
     it('should get report stats data', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(apiReportStatsRawRes));
 
       const params = {
@@ -1093,7 +1098,7 @@ describe('ReportService', () => {
     });
 
     it('should get report stats data when default stats has been set to false', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
       apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRawRes)));
 
       const params = {
@@ -1115,7 +1120,7 @@ describe('ReportService', () => {
   });
 
   it('getReportStats(): should get report stats', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
 
     reportService.getReportStats(apiReportStatParams).subscribe((res) => {

@@ -1,10 +1,12 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomProperty } from '../models/custom-properties.model';
 
 interface dependentFieldMapping {
   [fieldId: number]: CustomProperty<string>[];
 }
 
-export const dependentFieldsMappingForProject: dependentFieldMapping = {
+export const dependentFieldsMappingForProject: dependentFieldMapping = deepFreeze({
   316908: [
     {
       name: 'CF1',
@@ -33,9 +35,9 @@ export const dependentFieldsMappingForProject: dependentFieldMapping = {
       value: null,
     },
   ],
-};
+});
 
-export const dependentFieldsMappingForSameProject: dependentFieldMapping = {
+export const dependentFieldsMappingForSameProject: dependentFieldMapping = deepFreeze({
   316992: [
     {
       name: 'CF1',
@@ -50,13 +52,13 @@ export const dependentFieldsMappingForSameProject: dependentFieldMapping = {
       value: 'CF3.3',
     },
   ],
-};
+});
 
-export const dependentFieldsMappingForNoDependentFields: dependentFieldMapping = {
+export const dependentFieldsMappingForNoDependentFields: dependentFieldMapping = deepFreeze({
   316992: [],
-};
+});
 
-export const dependentFieldsMappingForCostCenter: dependentFieldMapping = {
+export const dependentFieldsMappingForCostCenter: dependentFieldMapping = deepFreeze({
   16743: [
     {
       name: 'Dependent Field Of Cost Center',
@@ -69,4 +71,4 @@ export const dependentFieldsMappingForCostCenter: dependentFieldMapping = {
       value: 'Dep. Value 3',
     },
   ],
-};
+});
