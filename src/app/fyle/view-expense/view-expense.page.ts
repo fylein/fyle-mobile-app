@@ -427,7 +427,7 @@ export class ViewExpensePage {
           return of([]);
         }
       }),
-      map((response) => {
+      map((response: PlatformFileGenerateUrlsResponse[]) => {
         const files = response.filter((file) => file.content_type !== 'text/html');
         const fileObjs = files.map((obj) => {
           const details = this.fileService.getReceiptsDetails(obj.name, obj.download_url);
