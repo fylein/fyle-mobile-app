@@ -34,13 +34,6 @@ export class SpenderReportsService {
           limit: this.paginationSize,
         };
 
-        if (order) {
-          params = {
-            ...params,
-            order,
-          };
-        }
-
         return this.getReportsByParams(params);
       }),
       reduce((acc, curr) => acc.concat(curr.data), [] as Report[])

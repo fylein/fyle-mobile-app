@@ -10,6 +10,7 @@ import {
   platformReportCountData,
   expectedReportsSinglePage,
   mockQueryParams,
+  mockQueryParamsForCount,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
@@ -42,7 +43,7 @@ describe('SpenderReportsService', () => {
     spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
 
     const expectedParams: ReportsQueryParams = {
-      ...mockQueryParams,
+      ...mockQueryParamsForCount,
       limit: 1,
       offset: 0,
     };
@@ -77,6 +78,7 @@ describe('SpenderReportsService', () => {
       expect(res).toEqual(expectedReportsPaginated);
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        order: 'created_at.desc,id.desc',
       });
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
@@ -93,6 +95,7 @@ describe('SpenderReportsService', () => {
       ...mockQueryParams,
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
 
     getReportsByParams.withArgs(expectedParams).and.returnValue(of(allReportsPaginated1));
@@ -110,6 +113,7 @@ describe('SpenderReportsService', () => {
       state: 'DRAFT',
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
     const expectedConfig = {
       params: {
@@ -190,6 +194,23 @@ describe('SpenderReportsService', () => {
     };
     spenderReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
+      done();
+    });
+  });
+
+  it('createDraft(): should create a draft report and return the report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: allReportsPaginated1.data[0] }));
+
+    const reportParam = {
+      data: {
+        purpose: 'A draft Report',
+        source: 'MOBILE',
+      },
+    };
+
+    spenderReportsService.createDraft(reportParam).subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
       done();
     });
   });
