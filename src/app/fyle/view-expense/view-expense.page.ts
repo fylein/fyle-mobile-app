@@ -4,7 +4,7 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';

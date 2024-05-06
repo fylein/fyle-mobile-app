@@ -49,6 +49,8 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -72,6 +74,8 @@ describe('ViewExpensePage', () => {
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let activateRouteMock: ActivatedRoute;
 
   beforeEach(waitForAsync(() => {
@@ -117,6 +121,9 @@ describe('ViewExpensePage', () => {
     ]);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
+
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
       declarations: [ViewExpensePage],
@@ -197,6 +204,14 @@ describe('ViewExpensePage', () => {
         {
           useValue: spenderExpensesServiceSpy,
           provide: SpenderExpensesService,
+        },
+        {
+          useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
+        },
+        {
+          useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
         },
         {
           provide: ActivatedRoute,
