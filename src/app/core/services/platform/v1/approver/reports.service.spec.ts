@@ -58,6 +58,17 @@ describe('ApproverReportsService', () => {
     });
   });
 
+  it('generateStatsQueryParams(): should generate stats query params', () => {
+    const queryParams = {
+      state: 'in.(COMPLETE)',
+      report_id: 'is.null',
+      or: '(policy_amount.is.null,policy_amount.gt.0.0001)',
+    };
+
+    const result = approverReportsService.generateStatsQueryParams(queryParams);
+    expect(result).toEqual('state=in.(COMPLETE)&report_id=is.null&or=(policy_amount.is.null,policy_amount.gt.0.0001)');
+  });
+
   it('getReportsCount(): should get a count of reports', (done) => {
     // Mock the response of getReportsByParams
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
