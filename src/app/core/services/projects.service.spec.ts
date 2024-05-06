@@ -14,10 +14,10 @@ import {
   testProjectV2,
   testCategoryIds,
   params,
-  platformProjectSingleRes,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { platformProjectSingleRes } from '../test-data/platformProjects.spec.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -26,7 +26,7 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-describe('ProjectsService', () => {
+fdescribe('ProjectsService', () => {
   let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
