@@ -63,11 +63,13 @@ describe('SpenderReportsService', () => {
       ...mockQueryParams,
       limit: 2,
       offset: 0,
+      order: 'created_at.desc,id.desc',
     };
     const expectedParams2: ReportsQueryParams = {
       ...mockQueryParams,
       limit: 2,
       offset: 2,
+      order: 'created_at.desc,id.desc',
     };
 
     getReportsByParams.withArgs(expectedParams1).and.returnValue(of(allReportsPaginated1));
@@ -77,6 +79,7 @@ describe('SpenderReportsService', () => {
       expect(res).toEqual(expectedReportsPaginated);
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        order: 'created_at.desc,id.desc',
       });
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
@@ -93,6 +96,7 @@ describe('SpenderReportsService', () => {
       ...mockQueryParams,
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
 
     getReportsByParams.withArgs(expectedParams).and.returnValue(of(allReportsPaginated1));
@@ -110,6 +114,7 @@ describe('SpenderReportsService', () => {
       state: 'DRAFT',
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
     const expectedConfig = {
       params: {
