@@ -71,13 +71,12 @@ describe('ProjectsService', () => {
 
     projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+        params: {
+          id: 'eq.257528',
+        },
+      });
       done();
-    });
-
-    expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/projects', {
-      params: {
-        id: 'eq.257528',
-      },
     });
   });
 
