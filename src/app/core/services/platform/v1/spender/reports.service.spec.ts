@@ -195,7 +195,7 @@ describe('SpenderReportsService', () => {
   });
 
   it('createDraft(): should create a draft report and return the report', (done) => {
-    spenderPlatformV1ApiService.post.and.returnValue(of(allReportsPaginated1));
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: allReportsPaginated1.data[0] }));
 
     const reportParam = {
       data: {
