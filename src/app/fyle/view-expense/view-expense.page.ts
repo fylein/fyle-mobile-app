@@ -418,14 +418,11 @@ export class ViewExpensePage {
       take(1),
       switchMap((expense) => {
         if (expense.file_ids?.length > 0) {
-          let generateUrlsBulk$: Observable<PlatformFileGenerateUrlsResponse[]> = null;
           if (this.view === ExpenseView.individual) {
-            generateUrlsBulk$ = this.spenderFileService.generateUrlsBulk(expense.file_ids);
+            return this.spenderFileService.generateUrlsBulk(expense.file_ids);
           } else {
-            generateUrlsBulk$ = this.approverFileService.generateUrlsBulk(expense.file_ids);
+            return this.approverFileService.generateUrlsBulk(expense.file_ids);
           }
-
-          return generateUrlsBulk$;
         } else {
           return of([]);
         }
