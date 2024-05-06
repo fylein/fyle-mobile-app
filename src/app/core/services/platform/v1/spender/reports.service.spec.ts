@@ -193,4 +193,21 @@ describe('SpenderReportsService', () => {
       done();
     });
   });
+
+  it('createDraft(): should create a draft report and return the report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(allReportsPaginated1));
+
+    const reportParam = {
+      data: {
+        purpose: 'A draft Report',
+        source: 'MOBILE',
+      },
+    };
+
+    spenderReportsService.createDraft(reportParam).subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
+      done();
+    });
+  });
 });
