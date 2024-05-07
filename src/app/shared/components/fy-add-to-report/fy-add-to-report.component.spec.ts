@@ -171,13 +171,11 @@ describe('FyAddToReportComponent', () => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       reportService.getReportPurpose.and.returnValue(of('Client Meeting'));
       const draftReportPopoverSpy = jasmine.createSpyObj('draftReportPopover', ['present', 'onWillDismiss']);
-      draftReportPopoverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            newValue: 'Client Meeting',
-          },
-        })
-      );
+      draftReportPopoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          newValue: 'Client Meeting',
+        },
+      });
       popoverController.create.and.resolveTo(draftReportPopoverSpy);
       // const mockReportData = cloneDeep(expectedReportsPaginated[1]);
       // mockReportData.id = 'rp72SaHM7Fbz';
@@ -186,7 +184,7 @@ describe('FyAddToReportComponent', () => {
     });
 
     it('should set value equals to value returned by modalController and track addToReportFromExpense and openAddToReportModal event if createDraftReport is false', fakeAsync(() => {
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: false,
@@ -210,7 +208,7 @@ describe('FyAddToReportComponent', () => {
     }));
 
     it('should call popoverController and create a report as a draft', fakeAsync(() => {
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: true,
@@ -249,7 +247,7 @@ describe('FyAddToReportComponent', () => {
       const mockReportData = cloneDeep(expectedReportsPaginated[1]);
       mockReportData.id = 'rp72SaHM7Fbz';
       platformSpenderReportsService.createDraft.and.returnValue(of(mockReportData));
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: true,
@@ -260,7 +258,7 @@ describe('FyAddToReportComponent', () => {
       component.openModal();
       tick(100);
 
-      expect(component.value).toEqual(undefined);
+      expect(component.value).toBeUndefined();
     }));
   });
 

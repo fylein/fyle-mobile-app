@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
-export const projectDependentFields: TxnCustomProperties[] = [
+export const projectDependentFields: TxnCustomProperties[] = deepFreeze([
   {
     id: 218227,
     prefix: '',
@@ -56,9 +58,9 @@ export const projectDependentFields: TxnCustomProperties[] = [
     options: ['CF5.1', 'CF5.2', 'CF5.3', 'CF5.4', 'CF5.5'],
     parent_field_id: 218230,
   },
-];
+]);
 
-export const costCenterDependentFields: TxnCustomProperties[] = [
+export const costCenterDependentFields: TxnCustomProperties[] = deepFreeze([
   {
     id: 221308,
     prefix: '',
@@ -70,4 +72,4 @@ export const costCenterDependentFields: TxnCustomProperties[] = [
     options: [],
     parent_field_id: 221283,
   },
-];
+]);

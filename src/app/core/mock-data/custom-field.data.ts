@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomField } from '../models/custom_field.model';
 
-export const customFields: CustomField[] = [
+export const customFields: CustomField[] = deepFreeze([
   {
     id: 111,
     name: 'Test Number',
@@ -13,18 +15,18 @@ export const customFields: CustomField[] = [
     value: false,
     type: 'BOOLEAN',
   },
-];
+]);
 
-export const customField2 = [
+export const customField2 = deepFreeze([
   {
     id: 115,
     name: 'test date',
     value: '2023-02-23T16:24:01.335Z',
     type: 'DATE',
   },
-];
+]);
 
-export const customFieldData1: CustomField[] = [
+export const customFieldData1: CustomField[] = deepFreeze([
   {
     id: 111,
     name: 'Test Number',
@@ -43,9 +45,9 @@ export const customFieldData1: CustomField[] = [
     value: false,
     type: 'BOOLEAN',
   },
-];
+]);
 
-export const customFieldData2: CustomField[] = [
+export const customFieldData2: CustomField[] = deepFreeze([
   {
     id: 111,
     name: 'Test Number',
@@ -70,9 +72,9 @@ export const customFieldData2: CustomField[] = [
     value: 'select-1',
     type: 'SELECT',
   },
-];
+]);
 
-export const expectedCustomField = [
+export const expectedCustomField = deepFreeze([
   {
     id: 111,
     name: 'Test Number',
@@ -91,9 +93,9 @@ export const expectedCustomField = [
     value: false,
     type: 'BOOLEAN',
   },
-];
+]);
 
-export const expectedCustomFieldsWoDate = [
+export const expectedCustomFieldsWoDate = deepFreeze([
   {
     id: 111,
     name: 'Test Number',
@@ -106,18 +108,18 @@ export const expectedCustomFieldsWoDate = [
     value: false,
     type: 'BOOLEAN',
   },
-];
+]);
 
-export const expectedCustomFieldsWithDate = [
+export const expectedCustomFieldsWithDate = deepFreeze([
   {
     id: 115,
     name: 'test date',
     value: new Date('2023-02-23T16:24:01.335Z'),
     type: 'DATE',
   },
-];
+]);
 
-export const expectedCustomInputFields: CustomField[] = [
+export const expectedCustomInputFields: CustomField[] = deepFreeze([
   {
     name: 'userlist',
     value: 'txKJAJ1flx7n',
@@ -150,4 +152,4 @@ export const expectedCustomInputFields: CustomField[] = [
     name: 'select all 2',
     value: null,
   },
-];
+]);

@@ -1,6 +1,6 @@
-import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject, from, of, range } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
+import { Inject, Injectable, PlatformRef } from '@angular/core';
+import { Observable, Subject, range } from 'rxjs';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -8,9 +8,13 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
-import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { CacheBuster } from 'ts-cacheable';
+import { UserEventService } from '../../../user-event.service';
+import { TransactionService } from '../../../transaction.service';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+
+const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -18,8 +22,56 @@ import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/re
 export class SpenderReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private userEventService: UserEventService,
+    private transactionService: TransactionService
+  ) {
+    reportsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  clearTransactionCache(): Observable<null> {
+    return this.transactionService.clearCache();
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: [txnId],
+      },
+      reason: comment,
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: expenseIds,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
 
   getAllReportsByParams(queryParams: ReportsQueryParams, order?: string): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
@@ -28,7 +80,7 @@ export class SpenderReportsService {
         return range(0, count);
       }),
       concatMap((page) => {
-        let params = {
+        const params = {
           ...queryParams,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
@@ -41,7 +93,7 @@ export class SpenderReportsService {
   }
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
+    const params = {
       state: queryParams.state,
       limit: 1,
       offset: 0,
@@ -49,17 +101,18 @@ export class SpenderReportsService {
     return this.getReportsByParams(params).pipe(map((res) => res.count));
   }
 
-  getReportsByParams(queryParams: ReportsQueryParams): Observable<PlatformApiResponse<Report>> {
+  getReportsByParams(queryParams: ReportsQueryParams): Observable<PlatformApiResponse<Report[]>> {
     const config = {
       params: {
         ...queryParams,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
-  getReport(id: string): Observable<Report> {
-    return this.getReportsByParams({ id: `eq.${id}` }).pipe(map((res) => res.data[0]));
+  getReportById(id: string): Observable<Report> {
+    const queryParams = { id: `eq.${id}` };
+    return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
   createDraft(data: CreateDraftParams): Observable<Report> {
@@ -68,34 +121,14 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
-    const payload = {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<PlatformReportsStatsResponse> {
+    const queryParams = {
       data: {
-        id: rptId,
-        expense_ids: [txnId],
+        query_params: `state=${params.state}`,
       },
-      reason: comment,
     };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
-  }
-
-  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
     return this.spenderPlatformV1ApiService
-      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', {
-        data: {
-          query_params: `state=${params.state}`,
-        },
-      })
+      .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
-  }
-
-  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
-    const payload = {
-      data: {
-        id: rptId,
-        expense_ids: expenseIds,
-      },
-    };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
   }
 }

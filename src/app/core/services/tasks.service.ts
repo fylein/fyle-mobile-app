@@ -15,14 +15,14 @@ import { UserEventService } from './user-event.service';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
-import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
+import { ReportState } from '../models/platform/v1/report.model';
 
 @Injectable({
   providedIn: 'root',
@@ -430,9 +430,9 @@ export class TasksService {
     );
   }
 
-  getSentBackReports(): Observable<ReportsStatsResponsePlatform> {
+  getSentBackReports(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
-      state: 'eq.APPROVER_INQUIRY',
+      state: `eq.${ReportState.APPROVER_INQUIRY}`,
     });
   }
 
@@ -441,21 +441,21 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapSentBackReportsToTasks(reportsStats, homeCurrency)
       )
     );
   }
 
-  getUnsubmittedReportsStats(): Observable<ReportsStatsResponsePlatform> {
+  getUnsubmittedReportsStats(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     });
   }
 
   getSentBackAdvancesStats(): Observable<StatsResponse> {
     return this.advancesRequestService.getAdvanceRequestStats({
-      state: 'eq.SENT_BACK',
+      state: `eq.SENT_BACK`,
     });
   }
 
@@ -474,12 +474,12 @@ export class TasksService {
     );
   }
 
-  getTeamReportsStats(): Observable<ReportsStatsResponsePlatform> {
+  getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.approverReportsService.getReportsStats({
           next_approver_user_ids: `cs.[${eou.us.id}]`,
-          state: 'eq.APPROVER_PENDING',
+          state: `eq.${ReportState.APPROVER_PENDING}`,
         })
       )
     );
@@ -490,7 +490,7 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
       )
     );
@@ -563,7 +563,7 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapAggregateToUnsubmittedReportTask(reportsStats, homeCurrency)
       )
     );
@@ -655,7 +655,7 @@ export class TasksService {
     return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
   }
 
-  mapSentBackReportsToTasks(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapSentBackReportsToTasks(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {
@@ -711,7 +711,7 @@ export class TasksService {
     }
   }
 
-  mapAggregateToUnsubmittedReportTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapAggregateToUnsubmittedReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {
@@ -736,7 +736,7 @@ export class TasksService {
     }
   }
 
-  mapAggregateToTeamReportTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapAggregateToTeamReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {

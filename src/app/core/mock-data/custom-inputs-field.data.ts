@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FormBuilder } from '@angular/forms';
 import { CustomInputsField } from '../models/custom-inputs-field.model';
 const formBuilder = new FormBuilder();
 
-export const customInputsFieldData1: CustomInputsField[] = [
+export const customInputsFieldData1: CustomInputsField[] = deepFreeze([
   {
     control: formBuilder.group({
       name: 'Merchant',
@@ -17,7 +19,7 @@ export const customInputsFieldData1: CustomInputsField[] = [
     type: 'text',
     value: 'Jio',
   },
-];
+]);
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const expectedCustomInputsFieldWithoutControl = customInputsFieldData1.map(({ control, ...otherProps }) => ({

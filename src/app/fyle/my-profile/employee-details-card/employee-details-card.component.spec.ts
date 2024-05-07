@@ -6,6 +6,7 @@ import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { getTextContent } from 'src/app/core/dom-helpers';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { click } from 'src/app/core/dom-helpers';
+import { cloneDeep } from 'lodash';
 
 describe('EmployeeDetailsCardComponent', () => {
   let component: EmployeeDetailsCardComponent;
@@ -20,7 +21,8 @@ describe('EmployeeDetailsCardComponent', () => {
     fixture = TestBed.createComponent(EmployeeDetailsCardComponent);
     component = fixture.componentInstance;
 
-    component.eou = apiEouRes;
+    const mockApiEouRes = cloneDeep(apiEouRes);
+    component.eou = mockApiEouRes;
     fixture.detectChanges();
   }));
 

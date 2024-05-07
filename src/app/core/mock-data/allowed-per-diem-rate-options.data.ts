@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AllowedPerDiemRateOptions } from '../models/allowed-per-diem-rate-options.model';
 
-export const allowedPerDiemRateOptionsData1: AllowedPerDiemRateOptions[] = [
+export const allowedPerDiemRateOptionsData1: AllowedPerDiemRateOptions[] = deepFreeze([
   {
     label: 'BulkTest2',
     value: {
@@ -31,4 +33,4 @@ export const allowedPerDiemRateOptionsData1: AllowedPerDiemRateOptions[] = [
       readableRate: 'AED 12.00 per day',
     },
   },
-];
+]);

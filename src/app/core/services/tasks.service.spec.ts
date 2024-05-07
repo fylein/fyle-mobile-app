@@ -58,7 +58,7 @@ import {
 import { orgSettingsPendingRestrictions } from '../mock-data/org-settings.data';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
-import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import {
   expectedEmptyReportStats,
   expectedReportStats,
@@ -647,7 +647,7 @@ describe('TasksService', () => {
       {
         total_amount: 0,
         count: 0,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -657,7 +657,7 @@ describe('TasksService', () => {
       {
         total_amount: 0,
         count: 0,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -677,7 +677,7 @@ describe('TasksService', () => {
       {
         total_amount: 0,
         count: 0,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -874,7 +874,7 @@ describe('TasksService', () => {
       {
         count: 2,
         total_amount: sentBackResponse[0].aggregates[1].function_value,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -937,7 +937,7 @@ describe('TasksService', () => {
       {
         total_amount: unsubmittedReportsResponse[0].aggregates[1].function_value,
         count: 1,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -970,7 +970,7 @@ describe('TasksService', () => {
       {
         total_amount: teamReportResponse[0].aggregates[1].function_value,
         count: 1,
-      } as ReportsStatsResponsePlatform,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 

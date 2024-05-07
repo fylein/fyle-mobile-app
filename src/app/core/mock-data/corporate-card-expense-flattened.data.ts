@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CCCExpFlattened } from '../models/corporate-card-expense-flattened.model';
 
-export const eCCCApiResponse: CCCExpFlattened[] = [
+export const eCCCApiResponse: CCCExpFlattened[] = deepFreeze([
   {
     ccce_id: 'ccceYIJhT8Aj6U',
     ccce_created_at: new Date('2021-03-26T09:29:14.586Z'),
@@ -34,4 +36,4 @@ export const eCCCApiResponse: CCCExpFlattened[] = [
     ou_department_id: 'deptpmQ0SsMO0S',
     tx_project_id: null,
   },
-];
+]);

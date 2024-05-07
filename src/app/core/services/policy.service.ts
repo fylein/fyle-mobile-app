@@ -118,7 +118,7 @@ export class PolicyService {
       expense_id: `eq.${expenseId}`,
     };
     return this.approverPlatformApiService
-      .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
+      .get<PlatformApiResponse<ExpensePolicyStates[]>>('/expense_policy_states', {
         params,
       })
       .pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
@@ -129,7 +129,7 @@ export class PolicyService {
       expense_id: `eq.${expenseId}`,
     };
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<ExpensePolicyStates>>('/expense_policy_states', {
+      .get<PlatformApiResponse<ExpensePolicyStates[]>>('/expense_policy_states', {
         params,
       })
       .pipe(map((policyStates) => (policyStates.count > 0 ? policyStates.data[0].individual_desired_states : [])));
