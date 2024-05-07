@@ -581,7 +581,7 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      let header = 'Header';
+      const header = 'Header';
       let body = 'Body';
       let ctaText = 'cta';
       let ctaLoadingText = 'loading';
