@@ -80,7 +80,8 @@ export class TasksComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -520,19 +521,20 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
-      const queryParams = {
-        state: 'eq.APPROVER_PENDING',
-        offset: 0,
-        limit: 1,
-      };
-      from(this.loaderService.showLoader('Opening your report...'))
-        .pipe(
-          switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
-        )
-        .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
-        });
+      from(this.authService.getEou()).pipe(
+        const queryParams = {
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
+          state: 'eq.APPROVER_PENDING',
+        };
+        from(this.loaderService.showLoader('Opening your report...'))
+          .pipe(
+            switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe((res) => {
+            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+          });
+      )
     } else {
       this.router.navigate(['/', 'enterprise', 'team_reports'], {
         queryParams: {
