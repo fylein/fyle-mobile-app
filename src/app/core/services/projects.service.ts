@@ -185,11 +185,11 @@ export class ProjectsService {
       project_created_at: platformProject.created_at,
       project_description: platformProject.description,
       project_id: platformProject.id,
-      project_name: platformProject.name,
+      project_name: platformProject.display_name,
       project_org_category_ids: platformProject.category_ids,
       project_org_id: platformProject.org_id,
       project_updated_at: platformProject.updated_at,
-      projectv2_name: platformProject.display_name,
+      projectv2_name: platformProject.name,
       sub_project_name: platformProject.sub_project,
     }));
 

@@ -1,5 +1,5 @@
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
-import { PlatformProject } from '../models/platform/platform-project.model';
+import { PlatformApiResponse } from '../../../models/platform/platform-api-response.model';
+import { PlatformProject } from '../../../models/platform/platform-project.model';
 import deepFreeze from 'deep-freeze-strict';
 
 export const platformProjectSingleRes: PlatformApiResponse<PlatformProject[]> = deepFreeze({

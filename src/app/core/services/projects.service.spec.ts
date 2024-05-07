@@ -17,7 +17,7 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformProjectSingleRes } from '../test-data/platformProjects.spec.data';
+import { platformProjectSingleRes } from '../mock-data/platform/v1/platform-project.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
