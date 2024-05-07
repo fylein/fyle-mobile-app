@@ -10,7 +10,6 @@ import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';

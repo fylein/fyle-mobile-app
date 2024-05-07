@@ -15,7 +15,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
-import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Component({

@@ -20,7 +20,7 @@ import { ReportV1 } from '../models/report-v1.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExtendedReport } from '../models/report.model';
 import { Approver } from '../models/v1/approver.model';
-import { Datum, StatsResponse } from '../models/v2/stats-response.model';
+import { Datum } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
