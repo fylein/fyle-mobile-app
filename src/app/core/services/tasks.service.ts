@@ -21,7 +21,7 @@ import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
 import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
-import { ReportsStatsResponsePlatform } from '../models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 
 @Injectable({
@@ -430,7 +430,7 @@ export class TasksService {
     );
   }
 
-  getSentBackReports(): Observable<ReportsStatsResponsePlatform> {
+  getSentBackReports(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
       state: 'eq.APPROVER_INQUIRY',
     });
@@ -441,13 +441,13 @@ export class TasksService {
       reportsStats: this.getSentBackReports(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapSentBackReportsToTasks(reportsStats, homeCurrency)
       )
     );
   }
 
-  getUnsubmittedReportsStats(): Observable<ReportsStatsResponsePlatform> {
+  getUnsubmittedReportsStats(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
       state: 'eq.DRAFT',
     });
@@ -474,7 +474,7 @@ export class TasksService {
     );
   }
 
-  getTeamReportsStats(): Observable<ReportsStatsResponsePlatform> {
+  getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
         this.approverReportsService.getReportsStats({
@@ -490,7 +490,7 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
       )
     );
@@ -563,7 +563,7 @@ export class TasksService {
       reportsStats: this.getUnsubmittedReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: ReportsStatsResponsePlatform; homeCurrency: string }) =>
+      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
         this.mapAggregateToUnsubmittedReportTask(reportsStats, homeCurrency)
       )
     );
@@ -655,7 +655,7 @@ export class TasksService {
     return amount > 0 ? ` worth ${this.humanizeCurrency.transform(amount, currency)} ` : '';
   }
 
-  mapSentBackReportsToTasks(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapSentBackReportsToTasks(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {
@@ -711,7 +711,7 @@ export class TasksService {
     }
   }
 
-  mapAggregateToUnsubmittedReportTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapAggregateToUnsubmittedReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {
@@ -736,7 +736,7 @@ export class TasksService {
     }
   }
 
-  mapAggregateToTeamReportTask(aggregate: ReportsStatsResponsePlatform, homeCurrency: string): DashboardTask[] {
+  mapAggregateToTeamReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
     if (aggregate.count > 0) {
       return [
         {

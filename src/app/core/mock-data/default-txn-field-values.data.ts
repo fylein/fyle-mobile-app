@@ -1,36 +1,38 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { DefaultTxnFieldValues } from '../models/v1/default-txn-field-values.model';
 
-export const defaultTxnFieldValuesData: Partial<DefaultTxnFieldValues> = {
+export const defaultTxnFieldValuesData: Partial<DefaultTxnFieldValues> = deepFreeze({
   purpose: 'test_term',
   tax_group_id: 'GST',
-};
+});
 
-export const defaultTxnFieldValuesData2_1: Partial<DefaultTxnFieldValues> = {
+export const defaultTxnFieldValuesData2_1: Partial<DefaultTxnFieldValues> = deepFreeze({
   purpose: 'test_term',
   tax_group_id: 'GST',
   flight_journey_travel_class: {
     options: ['BUSINESS'],
   },
-};
+});
 
-export const defaultTxnFieldValuesData3: Partial<DefaultTxnFieldValues> = {
+export const defaultTxnFieldValuesData3: Partial<DefaultTxnFieldValues> = deepFreeze({
   purpose: 'test_term',
   tax_group_id: 'GST',
   vendor_id: 'vendor',
   billable: true,
-};
+});
 
-export const defaultTxnFieldValuesData2: Partial<DefaultTxnFieldValues> = {
+export const defaultTxnFieldValuesData2: Partial<DefaultTxnFieldValues> = deepFreeze({
   purpose: 'test_term',
   cost_center_id: 15818,
   from_dt: '2023-01-01',
   to_dt: '2023-02-02',
   num_days: 32,
   billable: true,
-};
+});
 
-export const defaultTxnFieldValuesData4: Partial<DefaultTxnFieldValues> = {
+export const defaultTxnFieldValuesData4: Partial<DefaultTxnFieldValues> = deepFreeze({
   purpose: 'test_term',
   cost_center_id: 15818,
   billable: true,
-};
+});

@@ -1,4 +1,6 @@
-export const mergeExpenesesCustomInputsData = [
+import deepFreeze from 'deep-freeze-strict';
+
+export const mergeExpenesesCustomInputsData = deepFreeze([
   [
     {
       name: 'status',
@@ -13,4 +15,4 @@ export const mergeExpenesesCustomInputsData = [
       value: null,
     },
   ],
-];
+]);

@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ReportV1 } from '../models/report-v1.model';
 
-export const reportUnflattenedData: ReportV1 = {
+export const reportUnflattenedData: ReportV1 = deepFreeze({
   created_at: new Date('2023-01-19T16:25:46.804Z'),
   updated_at: new Date('2023-01-19T16:25:46.804Z'),
   last_updated_by: {
@@ -49,9 +51,9 @@ export const reportUnflattenedData: ReportV1 = {
   location4: null,
   location5: null,
   type: 'EXPENSE',
-};
+});
 
-export const reportUnflattenedData2: ReportV1 = {
+export const reportUnflattenedData2: ReportV1 = deepFreeze({
   created_at: new Date('2023-01-21T07:45:18.869Z'),
   updated_at: new Date('2023-01-21T07:45:18.869Z'),
   last_updated_by: {
@@ -100,9 +102,9 @@ export const reportUnflattenedData2: ReportV1 = {
   location4: null,
   location5: null,
   type: 'EXPENSE',
-};
+});
 
-export const apiEmptyReportRes: ReportV1 = {
+export const apiEmptyReportRes: ReportV1 = deepFreeze({
   created_at: null,
   updated_at: null,
   last_updated_by: null,
@@ -139,9 +141,9 @@ export const apiEmptyReportRes: ReportV1 = {
   location4: null,
   location5: null,
   type: null,
-};
+});
 
-export const apiReportUpdatedDetails: ReportV1 = {
+export const apiReportUpdatedDetails: ReportV1 = deepFreeze({
   created_at: new Date('2022-10-31T13:54:46.317Z'),
   updated_at: new Date('2023-01-23T10:53:52.220Z'),
   last_updated_by: {
@@ -190,4 +192,4 @@ export const apiReportUpdatedDetails: ReportV1 = {
   location4: null,
   location5: null,
   type: 'EXPENSE',
-};
+});

@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { corporateCardTransaction } from '../models/platform/v1/cc-transaction.model';
 import { TransactionStatus } from '../models/platform/v1/expense.model';
 
-export const ccTransactionData: corporateCardTransaction = {
+export const ccTransactionData: corporateCardTransaction = deepFreeze({
   amount: 260.37,
   assignor_user: null,
   assignor_user_id: null,
@@ -104,9 +106,9 @@ export const ccTransactionData: corporateCardTransaction = {
     id: 'usvMoPfCC9Xw',
   },
   user_id: 'usvMoPfCC9Xw',
-};
+});
 
-export const ccTransactionData1: corporateCardTransaction = {
+export const ccTransactionData1: corporateCardTransaction = deepFreeze({
   amount: 205.21,
   assignor_user: null,
   assignor_user_id: null,
@@ -193,4 +195,4 @@ export const ccTransactionData1: corporateCardTransaction = {
     id: 'usvMoPfCC9Xw',
   },
   user_id: 'usvMoPfCC9Xw',
-};
+});

@@ -1,8 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ReportOptions } from '../models/report-options.model';
-import { expectedErpt, expectedUnflattenedReports } from './report-unflattened.data';
 import { expectedReportsPaginated } from './platform-report.data';
 // TODO: update the spec file for fy-add-to-report component to use these mock data in next pr -hp
-export const reportOptionsData: ReportOptions[] = [
+export const reportOptionsData: ReportOptions[] = deepFreeze([
   {
     label: 'report1',
     value: expectedReportsPaginated[0],
@@ -11,16 +12,16 @@ export const reportOptionsData: ReportOptions[] = [
     label: 'report2',
     value: expectedReportsPaginated[1],
   },
-];
+]);
 
-export const reportOptionsData2: ReportOptions[] = [
+export const reportOptionsData2: ReportOptions[] = deepFreeze([
   {
     label: 'report1',
     value: expectedReportsPaginated[0],
   },
-];
+]);
 
-export const reportOptionsData3: ReportOptions[] = [
+export const reportOptionsData3: ReportOptions[] = deepFreeze([
   {
     label: '#8:  Jan 2023',
     value: expectedReportsPaginated[0],
@@ -37,9 +38,9 @@ export const reportOptionsData3: ReportOptions[] = [
     label: '#4:  Jan 2023',
     value: expectedReportsPaginated[3],
   },
-];
+]);
 
-export const reportOptionsData4 = [
+export const reportOptionsData4 = deepFreeze([
   {
     label: '#8:  Jan 2023',
     value: {
@@ -284,4 +285,4 @@ export const reportOptionsData4 = [
       },
     },
   },
-];
+]);

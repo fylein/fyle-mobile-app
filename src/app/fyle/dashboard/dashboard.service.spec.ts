@@ -3,12 +3,10 @@ import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { completeStats, emptyStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
-import { StatsResponse } from 'src/app/core/models/v2/stats-response.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { expectedAssignedCCCStats } from '../../core/mock-data/ccc-expense.details.data';
 import { expectedEmptyReportStats, expectedReportStats } from '../../core/mock-data/report-stats.data';
 import { apiAssignedCardDetailsRes } from '../../core/mock-data/stats-response.data';
@@ -183,7 +181,7 @@ describe('DashboardService', () => {
   });
 
   it('getCCCDetails(): should get assigned card details', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiV2Service.getStats.and.returnValue(of(apiAssignedCardDetailsRes));
 
     const apiParams =

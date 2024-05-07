@@ -193,6 +193,11 @@ export class TrackingService {
     this.eventTrack('View Attachment', properties);
   }
 
+  // File upload complete event
+  fileUploadComplete(properties = {}): void {
+    this.eventTrack('File Upload Complete', properties);
+  }
+
   // File download complete event
   fileDownloadComplete(properties = {}): void {
     this.eventTrack('File Download Complete', properties);
@@ -640,8 +645,8 @@ export class TrackingService {
     this.eventTrack('Verify Mobile Number');
   }
 
-  mobileNumberVerified(): void {
-    this.eventTrack('Mobile Number Verified');
+  mobileNumberVerified(properties = {}): void {
+    this.eventTrack('Mobile Number Verified', properties);
   }
 
   smsDeepLinkOpened(properties = {}): void {
