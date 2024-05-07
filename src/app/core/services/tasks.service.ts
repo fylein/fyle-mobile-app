@@ -15,7 +15,6 @@ import { UserEventService } from './user-event.service';
 import { CurrencyService } from './currency.service';
 import { TaskDictionary } from '../models/task-dictionary.model';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
-import { Datum } from '../models/v2/stats-response.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { OrgSettingsService } from './org-settings.service';
 import { EmployeesService } from './platform/v1/spender/employees.service';
@@ -23,6 +22,7 @@ import { StatsResponse } from '../models/platform/v1/stats-response.model';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
+import { ReportState } from '../models/platform/v1/report.model';
 
 @Injectable({
   providedIn: 'root',
@@ -432,7 +432,7 @@ export class TasksService {
 
   getSentBackReports(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
-      state: 'eq.APPROVER_INQUIRY',
+      state: `eq.${ReportState.APPROVER_INQUIRY}`,
     });
   }
 
@@ -449,13 +449,13 @@ export class TasksService {
 
   getUnsubmittedReportsStats(): Observable<PlatformReportsStatsResponse> {
     return this.spenderReportsService.getReportsStats({
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     });
   }
 
   getSentBackAdvancesStats(): Observable<StatsResponse> {
     return this.advancesRequestService.getAdvanceRequestStats({
-      state: 'eq.SENT_BACK',
+      state: `eq.SENT_BACK`,
     });
   }
 
@@ -479,7 +479,7 @@ export class TasksService {
       switchMap((eou) =>
         this.approverReportsService.getReportsStats({
           next_approver_user_ids: `cs.[${eou.us.id}]`,
-          state: 'eq.APPROVER_PENDING',
+          state: `eq.${ReportState.APPROVER_PENDING}`,
         })
       )
     );
