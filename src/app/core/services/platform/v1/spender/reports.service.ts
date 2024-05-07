@@ -101,7 +101,7 @@ export class SpenderReportsService {
     return this.getReportsByParams(params).pipe(map((res) => res.count));
   }
 
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
+  getReportsByParams(queryParams: ReportsQueryParams): Observable<PlatformApiResponse<Report[]>> {
     const config = {
       params: {
         ...queryParams,
