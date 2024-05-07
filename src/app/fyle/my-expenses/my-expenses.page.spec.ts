@@ -979,7 +979,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.simpleSearchText).toBe('');
       expect(inputElement.value).toBe('');
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toEqual(true);
+      expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('should clear the search text and not toggle isSearchBarFocused when isFromCancel is not specified', () => {
@@ -988,7 +988,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.simpleSearchText).toBe('');
       expect(inputElement.value).toBe('');
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toEqual(false);
+      expect(component.isSearchBarFocused).toBeFalse();
     });
   });
 
