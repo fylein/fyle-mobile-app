@@ -15,6 +15,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
+import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Component({
   selector: 'app-stats',
@@ -22,13 +23,13 @@ import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  draftStats$: Observable<{ count: number; sum: number }>;
+  draftStats$: Observable<ReportsStatsResponsePlatform>;
 
-  approvedStats$: Observable<{ count: number; sum: number }>;
+  approvedStats$: Observable<ReportsStatsResponsePlatform>;
 
-  paymentPendingStats$: Observable<{ count: number; sum: number }>;
+  paymentPendingStats$: Observable<ReportsStatsResponsePlatform>;
 
-  processingStats$: Observable<{ count: number; sum: number }>;
+  processingStats$: Observable<ReportsStatsResponsePlatform>;
 
   homeCurrency$: Observable<string>;
 
@@ -89,7 +90,7 @@ export class StatsComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     const simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled }))
     );
 
     const isNonReimbursableOrg$ = orgSettings$.pipe(

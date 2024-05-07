@@ -9,10 +9,12 @@ import {
   expectedReportsPaginated,
   expectedReportsSinglePage,
   mockQueryParams,
+  mockQueryParamsForCount,
   platformReportCountData,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
+import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -61,7 +63,7 @@ describe('ApproverReportsService', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
 
     const expectedParams: ReportsQueryParams = {
-      ...mockQueryParams,
+      ...mockQueryParamsForCount,
       limit: 1,
       offset: 0,
     };
@@ -96,6 +98,7 @@ describe('ApproverReportsService', () => {
       expect(res).toEqual(expectedReportsPaginated);
       expect(approverReportsService.getReportsCount).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        order: 'created_at.desc,id.desc',
       });
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
@@ -159,14 +162,14 @@ describe('ApproverReportsService', () => {
       count: 2,
       total_amount: 1200,
     };
-    approverPlatformApiService.post.and.returnValue(of({ data: statsResponse }));
+    approverPlatformApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
     const params = {
       state: 'eq.DRAFT',
     };
 
     approverReportsService.getReportsStats(params).subscribe((res) => {
-      expect(res).toEqual(statsResponse);
+      expect(res).toEqual(expectedReportStats.draft);
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
         data: {
           query_params: `state=${params.state}`,

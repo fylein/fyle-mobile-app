@@ -6,6 +6,11 @@ import { PlatformApiResponse } from '../models/platform/platform-api-response.mo
 
 export const mockQueryParams: ReportsQueryParams = deepFreeze({
   state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+  order: 'created_at.desc,id.desc',
+});
+
+export const mockQueryParamsForCount: ReportsQueryParams = deepFreeze({
+  state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
 });
 
 export const platformReportData: Report = deepFreeze({
