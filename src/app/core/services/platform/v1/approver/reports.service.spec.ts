@@ -149,7 +149,6 @@ describe('ApproverReportsService', () => {
       id: 'eq.rpvcIMRMyM3A',
     };
     approverReportsService.getReport('rpvcIMRMyM3A').subscribe((res) => {
-      console.log(res);
       expect(approverReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });
