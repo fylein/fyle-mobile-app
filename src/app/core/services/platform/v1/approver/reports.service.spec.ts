@@ -61,7 +61,7 @@ describe('ApproverReportsService', () => {
 
   it('generateStatsQueryParams(): should generate stats query params', () => {
     const queryParams = {
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     };
 
     const result = approverReportsService.generateStatsQueryParams(queryParams);
