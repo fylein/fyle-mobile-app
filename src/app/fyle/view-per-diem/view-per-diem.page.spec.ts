@@ -372,12 +372,12 @@ describe('ViewPerDiemPage', () => {
 
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
-        expect(projectDependentCustomProperties).toEqual(undefined);
+        expect(projectDependentCustomProperties).toBeUndefined();
       });
 
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
-        expect(costCenterDependentCustomProperties).toEqual(undefined);
+        expect(costCenterDependentCustomProperties).toBeUndefined();
       });
     }));
 

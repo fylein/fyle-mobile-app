@@ -43,7 +43,7 @@ export class MergeExpensesService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private customInputsService: CustomInputsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
     private taxGroupService: TaxGroupService
@@ -748,7 +748,7 @@ export class MergeExpensesService {
   }
 
   private formatProjectOptions(option: MergeExpensesOption<number>): Observable<MergeExpensesOption<number>> {
-    const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
+    const projects$ = this.projectsService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
         const index = projects.map((project) => project.id).indexOf(option.value);

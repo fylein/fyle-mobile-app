@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CombinedOptions } from '../models/combined-options.model';
 import {
   optionsData10,
@@ -22,7 +24,7 @@ import {
   optionsData9,
 } from './merge-expenses-options-data.data';
 
-export const combinedOptionsData1 = {
+export const combinedOptionsData1 = deepFreeze({
   amountOptionsData: optionsData3,
   dateOfSpendOptionsData: optionsData6,
   paymentModeOptionsData: optionsData7,
@@ -34,15 +36,15 @@ export const combinedOptionsData1 = {
   taxAmountOptionsData: optionsData12,
   constCenterOptionsData: optionsData13,
   purposeOptionsData: optionsData14,
-};
+});
 
-export const combinedOptionsData2: CombinedOptions<string | Date | boolean> = {
+export const combinedOptionsData2: CombinedOptions<string | Date | boolean> = deepFreeze({
   userlist: optionsData3,
   test: optionsData6,
   category2: optionsData31,
-};
+});
 
-export const combinedOptionsData3 = {
+export const combinedOptionsData3 = deepFreeze({
   location1OptionsData: optionsData15,
   location2OptionsData: optionsData33,
   onwardDateOptionsData: optionsData16,
@@ -53,4 +55,4 @@ export const combinedOptionsData3 = {
   busTravelClassOptionsData: optionsData19,
   distanceOptionsData: optionsData20,
   distanceUnitOptionsData: optionsData21,
-};
+});

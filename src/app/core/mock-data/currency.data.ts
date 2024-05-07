@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Currency, CurrencyName } from '../models/currency.model';
 
-export const apiAllCurrencies: CurrencyName = {
+export const apiAllCurrencies: CurrencyName = deepFreeze({
   AED: 'United Arab Emirates Dirham',
   AFN: 'Afghan Afghani',
   ALL: 'Albanian Lek',
@@ -171,9 +173,9 @@ export const apiAllCurrencies: CurrencyName = {
   ZMK: 'Zambian Kwacha (pre-2013)',
   ZMW: 'Zambian Kwacha',
   ZWL: 'Zimbabwean Dollar',
-};
+});
 
-export const apiAllCurrencies2: CurrencyName = {
+export const apiAllCurrencies2: CurrencyName = deepFreeze({
   AED: 'United Arab Emirates Dirham',
   AFN: 'Afghan Afghani',
   ALL: 'Albanian Lek',
@@ -199,9 +201,9 @@ export const apiAllCurrencies2: CurrencyName = {
   BTN: 'Bhutanese Ngultrum',
   BWP: 'Botswanan Pula',
   BYN: null,
-};
+});
 
-export const selectedCurrencies: Currency[] = [
+export const selectedCurrencies: Currency[] = deepFreeze([
   {
     shortCode: 'USD',
     longName: 'US Dollar',
@@ -214,14 +216,14 @@ export const selectedCurrencies: Currency[] = [
     shortCode: 'JPY',
     longName: 'JPY',
   },
-];
+]);
 
-export const selectedCurrencyNames: CurrencyName = {
+export const selectedCurrencyNames: CurrencyName = deepFreeze({
   INR: 'Indian Rupee',
   USD: 'US Dollar',
-};
+});
 
-export const selectedCurrencies2: Currency[] = [
+export const selectedCurrencies2: Currency[] = deepFreeze([
   {
     shortCode: 'INR',
     longName: 'Indian Rupee',
@@ -230,4 +232,4 @@ export const selectedCurrencies2: Currency[] = [
     shortCode: 'USD',
     longName: 'US Dollar',
   },
-];
+]);

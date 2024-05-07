@@ -34,6 +34,8 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { SpenderService } from 'src/app/core/services/platform/v1/spender/spender.service';
 import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -54,6 +56,7 @@ describe('MyProfilePage', () => {
   let matSnackBar: jasmine.SpyObj<MatSnackBar>;
   let snackbarProperties: jasmine.SpyObj<SnackbarPropertiesService>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
+  let paymentModeService: jasmine.SpyObj<PaymentModesService>;
 
   beforeEach(waitForAsync(() => {
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou', 'logout', 'refreshEou']);
@@ -77,6 +80,7 @@ describe('MyProfilePage', () => {
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const paymentModeServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getPaymentModeDisplayName']);
 
     TestBed.configureTestingModule({
       declarations: [MyProfilePage],
@@ -156,6 +160,10 @@ describe('MyProfilePage', () => {
           provide: SnackbarPropertiesService,
           useValue: snackbarPropertiesSpy,
         },
+        {
+          provide: PaymentModesService,
+          useValue: paymentModeServiceSpy,
+        },
         SpenderService,
       ],
     }).compileComponents();
@@ -180,6 +188,7 @@ describe('MyProfilePage', () => {
     matSnackBar = TestBed.inject(MatSnackBar) as jasmine.SpyObj<MatSnackBar>;
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
+    paymentModeService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
 
     component.loadEou$ = new BehaviorSubject(null);
     component.eou$ = of(apiEouRes);
@@ -379,6 +388,7 @@ describe('MyProfilePage', () => {
     spyOn(component, 'setInfoCardsData');
     spyOn(component, 'setPreferenceSettings');
     spyOn(component, 'setCCCFlags');
+    paymentModeService.getPaymentModeDisplayName.and.returnValue('Personal Cash/Card');
     fixture.detectChanges();
 
     component.reset();
@@ -395,6 +405,10 @@ describe('MyProfilePage', () => {
 
     expect(component.orgUserSettings).toEqual(orgUserSettingsData);
     expect(component.orgSettings).toEqual(orgSettingsData);
+    expect(paymentModeService.getPaymentModeDisplayName).toHaveBeenCalledOnceWith(
+      orgSettingsData.payment_mode_settings.payment_modes_order[0]
+    );
+    expect(component.defaultPaymentMode).toEqual('Personal Cash/Card');
   }));
 
   it('setCCCFlags(): should set ccc flags as per the org and org user settings', () => {

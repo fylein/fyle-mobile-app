@@ -1237,7 +1237,8 @@ describe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${thisMonthRange.from.toISOString()},rp_created_at.lt.${thisMonthRange.to.toISOString()})`;
       dateService.getThisMonthRange.and.returnValue(thisMonthRange);
-      component.filters = filter8;
+      const mockFilter = cloneDeep(filter8);
+      component.filters = mockFilter;
 
       component.generateDateParams(newQueryParams);
 
@@ -1254,7 +1255,8 @@ describe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${thisWeekRange.from.toISOString()},rp_created_at.lt.${thisWeekRange.to.toISOString()})`;
       dateService.getThisWeekRange.and.returnValue(thisWeekRange);
-      component.filters = filter9;
+      const mockFilter = cloneDeep(filter9);
+      component.filters = mockFilter;
 
       component.generateDateParams(newQueryParams);
 
@@ -1271,7 +1273,8 @@ describe('MyReportsPage', () => {
       };
       const expectedAndQuery = `(rp_created_at.gte.${lastMonthRange.from.toISOString()},rp_created_at.lt.${lastMonthRange.to.toISOString()})`;
       dateService.getLastMonthRange.and.returnValue(lastMonthRange);
-      component.filters = filter10;
+      const mockFilter = cloneDeep(filter10);
+      component.filters = mockFilter;
 
       component.generateDateParams(newQueryParams);
 
@@ -1282,7 +1285,8 @@ describe('MyReportsPage', () => {
     it('should not generate date params when date filter is not set', () => {
       spyOn(component, 'generateCustomDateParams');
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
-      component.filters = filter11;
+      const mockFilter = cloneDeep(filter11);
+      component.filters = mockFilter;
 
       component.generateDateParams(newQueryParams);
 
@@ -1292,7 +1296,8 @@ describe('MyReportsPage', () => {
 
     it('should convert customDateStart and customDateEnd string to date', () => {
       spyOn(component, 'generateCustomDateParams');
-      component.filters = filter12;
+      const mockFilter = cloneDeep(filter12);
+      component.filters = mockFilter;
       const newQueryParams: { or: string[]; and?: string } = { or: [] };
 
       component.generateDateParams(newQueryParams);
@@ -1448,7 +1453,7 @@ describe('MyReportsPage', () => {
         'present',
         'onWillDismiss',
       ]);
-      popoverController.create.and.returnValue(Promise.resolve(cannotDeleteReportPopOverSpy));
+      popoverController.create.and.resolveTo(cannotDeleteReportPopOverSpy);
       const mockErpt = cloneDeep({ ...apiExtendedReportRes[0], rp_state: 'APPROVED' });
 
       component.onDeleteReportClick(mockErpt);
@@ -1460,7 +1465,7 @@ describe('MyReportsPage', () => {
     it('should call the deleteReport and do a refresh if rp_state consist any of DRAFT, APPROVER_PENDING, APPROVER_INQUIRY', fakeAsync(() => {
       const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
       deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
-      popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
+      popoverController.create.and.resolveTo(deleteReportPopoverSpy);
       spyOn(component, 'doRefresh');
       spyOn(component, 'getDeleteReportPopoverParams').and.returnValue(deletePopoverParamsRes);
       reportService.delete.and.returnValue(of(null));
@@ -1526,7 +1531,7 @@ describe('MyReportsPage', () => {
       expect(component.simpleSearchText).toEqual('');
       expect(inputElement.value).toEqual('');
       expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toEqual(true);
+      expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
@@ -1542,7 +1547,7 @@ describe('MyReportsPage', () => {
       expect(component.simpleSearchText).toEqual('');
       expect(inputElement.value).toEqual('');
       expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toEqual(false);
+      expect(component.isSearchBarFocused).toBeFalse();
     });
   });
 
@@ -1562,7 +1567,7 @@ describe('MyReportsPage', () => {
 
     inputElement.dispatchEvent(new Event('focus'));
 
-    expect(component.isSearchBarFocused).toEqual(true);
+    expect(component.isSearchBarFocused).toBeTrue();
   });
 
   it('onFilterPillsClearAll(): should call clearFilters', () => {
@@ -1937,6 +1942,7 @@ describe('MyReportsPage', () => {
     beforeEach(() => {
       spyOn(component, 'convertSelectedSortFitlersToFilters');
     });
+
     it('should convert selected filters to corresponding Filters object', () => {
       const selectedFilters = selectedFilters3;
 
@@ -2408,7 +2414,7 @@ describe('MyReportsPage', () => {
     ]);
     spyOn(component, 'generateSelectedFilters').and.returnValue([{ name: 'state', value: 'PENDING' }]);
     filterPopoverSpy.onWillDismiss.and.resolveTo({ data: selectedFilters1 });
-    modalController.create.and.returnValue(Promise.resolve(filterPopoverSpy));
+    modalController.create.and.resolveTo(filterPopoverSpy);
 
     component.openFilters('State');
     tick(200);

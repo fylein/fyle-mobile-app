@@ -96,6 +96,7 @@ import { customInputData } from '../test-data/custom-inputs.spec.data';
 import * as dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
+import { cloneDeep } from 'lodash';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -104,7 +105,7 @@ describe('MergeExpensesService', () => {
   let corporateCreditCardExpenseService: jasmine.SpyObj<CorporateCreditCardExpenseService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let humanizeCurrencyPipe: jasmine.SpyObj<HumanizeCurrencyPipe>;
-  let projectService: jasmine.SpyObj<ProjectsService>;
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
@@ -121,7 +122,7 @@ describe('MergeExpensesService', () => {
     ]);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', ['getAll']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectsService', ['getAllActive']);
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectsService', ['getAllActive']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['isValidDate']);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
@@ -134,7 +135,7 @@ describe('MergeExpensesService', () => {
         { provide: CorporateCreditCardExpenseService, useValue: corporateCreditCardExpenseServiceSpy },
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: HumanizeCurrencyPipe, useValue: humanizeCurrencyPipeSpy },
-        { provide: ProjectsService, useValue: projectServiceSpy },
+        { provide: ProjectsService, useValue: projectsServiceSpy },
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: TaxGroupService, useValue: taxGroupServiceSpy },
@@ -148,7 +149,7 @@ describe('MergeExpensesService', () => {
     ) as jasmine.SpyObj<CorporateCreditCardExpenseService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     humanizeCurrencyPipe = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
-    projectService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
@@ -371,19 +372,20 @@ describe('MergeExpensesService', () => {
   });
 
   it('getAttachements(): should return the attachments', (done) => {
-    fileService.findByTransactionId.and.returnValue(of(fileObject5));
+    const mockFileObject = cloneDeep(fileObject5);
+    fileService.findByTransactionId.and.returnValue(of(mockFileObject));
     fileService.downloadUrl.and.returnValue(of('mock-url'));
     fileService.getReceiptsDetails.and.returnValue({
-      thumbnail: fileObject5[0].thumbnail,
-      type: fileObject5[0].type,
+      thumbnail: mockFileObject[0].thumbnail,
+      type: mockFileObject[0].type,
     });
 
     const transactionId = 'txz2vohKxBXu';
     mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
-      expect(res).toEqual(fileObject5);
+      expect(res).toEqual(mockFileObject);
       expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObject5[0].id);
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObject5[0].name, 'mock-url');
+      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(mockFileObject[0].id);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject[0].name, 'mock-url');
       done();
     });
   });
@@ -404,25 +406,27 @@ describe('MergeExpensesService', () => {
 
   describe('formatProjectOptions():', () => {
     it('should return the project options', (done) => {
-      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+      const mockProjectOptions = cloneDeep(projectOptionsData);
       // @ts-ignore
-      mergeExpensesService.formatProjectOptions(projectOptionsData).subscribe((res) => {
-        expect(res).toEqual(projectOptionsData);
+      mergeExpensesService.formatProjectOptions(mockProjectOptions).subscribe((res) => {
+        expect(res).toEqual(mockProjectOptions);
         done();
       });
     });
 
     it('should return the project options with label as project name if id matches with option', (done) => {
-      projectService.getAllActive.and.returnValue(of(projectsV1Data));
+      projectsService.getAllActive.and.returnValue(of(projectsV1Data));
+      const mockProjectOptions = cloneDeep(projectOptionsData);
       // @ts-ignore
-      mergeExpensesService.formatProjectOptions({ ...projectOptionsData, value: 257528 }).subscribe((res) => {
+      mergeExpensesService.formatProjectOptions({ ...mockProjectOptions, value: 257528 }).subscribe((res) => {
         expect(res).toEqual({ label: 'Customer Mapped Project', value: 257528 });
         done();
       });
     });
 
     it('should return the project options when project is not present', (done) => {
-      projectService.getAllActive.and.returnValue(of([]));
+      projectsService.getAllActive.and.returnValue(of([]));
       // @ts-ignore
       mergeExpensesService.formatProjectOptions({ label: null, value: null }).subscribe((res) => {
         expect(res).toEqual({ label: undefined, value: null });
@@ -838,7 +842,7 @@ describe('MergeExpensesService', () => {
       categoriesService.getAll.and.returnValue(of(orgCategoryData1));
       const categoryId = '201951';
       mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
-        expect(res).toEqual(undefined);
+        expect(res).toBeUndefined();
         expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
       });
     });
@@ -847,7 +851,7 @@ describe('MergeExpensesService', () => {
       categoriesService.getAll.and.returnValue(of([expectedOrgCategoryByName2]));
       const categoryId = '201951';
       mergeExpensesService.getCategoryName(categoryId).subscribe((res) => {
-        expect(res).toEqual(undefined);
+        expect(res).toBeUndefined();
         expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
       });
     });
@@ -901,8 +905,9 @@ describe('MergeExpensesService', () => {
   describe('formatTaxGroupOption():', () => {
     it('formatTaxGroupOption(): should return the formatted tax group option', (done) => {
       taxGroupService.get.and.returnValue(of(taxGroupData));
+      const mockOptions = cloneDeep(optionsData11.options[0]);
       // @ts-ignore
-      mergeExpensesService.formatTaxGroupOption(optionsData11.options[0]).subscribe((res) => {
+      mergeExpensesService.formatTaxGroupOption(mockOptions).subscribe((res) => {
         expect(res).toEqual(mergeExpensesOptionData5[0]);
         expect(taxGroupService.get).toHaveBeenCalledTimes(1);
         done();
@@ -928,71 +933,78 @@ describe('MergeExpensesService', () => {
     it('should return the formatted custom input options by type with valid date', () => {
       dateService.isValidDate.and.returnValues(false, true);
       spyOn(mergeExpensesService, 'setFormattedDate').and.returnValue('Mar 10, 2021');
+      const mockOptions = cloneDeep(optionsData22);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData22);
+      const res = mergeExpensesService.formatCustomInputOptionsByType(mockOptions);
       expect(res).toEqual(optionsData23);
-      expect(dateService.isValidDate).toHaveBeenCalledWith(<Date>optionsData22[1].value);
+      expect(dateService.isValidDate).toHaveBeenCalledWith(mockOptions[1].value as Date);
     });
 
     it('should return the formatted custom input options by type without date', () => {
       dateService.isValidDate.and.returnValues(false, false);
+      const mockOptions = cloneDeep(optionsData24);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData24);
+      const res = mergeExpensesService.formatCustomInputOptionsByType(mockOptions);
       expect(res).toEqual(optionsData25);
     });
 
     it('should return the formatted custom input options by type with repeated string options', () => {
       dateService.isValidDate.and.returnValues(false, false);
+      const mockOptions = cloneDeep(optionsData27);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData27);
+      const res = mergeExpensesService.formatCustomInputOptionsByType(mockOptions);
       expect(res).toEqual(optionsData28);
     });
 
     it('should return the formatted custom input options by type with repeated number options', () => {
       dateService.isValidDate.and.returnValues(false, false);
+      const mockOptions = cloneDeep(optionsData29);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptionsByType(optionsData29);
+      const res = mergeExpensesService.formatCustomInputOptionsByType(mockOptions);
       expect(res).toEqual(optionsData30);
     });
 
     it('should return the formatted custom input options by type with repeated select options', () => {
       dateService.isValidDate.and.returnValues(false, false);
+      const mockOptions = cloneDeep(optionsData22);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptionsByType([optionsData22[0], optionsData22[0]]);
-      expect(res).toEqual([optionsData22[0]]);
+      const res = mergeExpensesService.formatCustomInputOptionsByType([mockOptions[0], mockOptions[0]]);
+      expect(res).toEqual([mockOptions[0]]);
     });
   });
 
   describe('formatCustomInputOptions():', () => {
     it('should return the formatted custom input options', () => {
+      const mockOptions = cloneDeep(optionsData22);
       // @ts-ignore
-      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([optionsData22[0]]);
+      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([mockOptions[0]]);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptions(optionsData22);
+      const res = mergeExpensesService.formatCustomInputOptions(mockOptions);
       const expectedRes = {
         // eslint-disable-next-line quote-props
-        userlist: optionsData22[0],
+        userlist: mockOptions[0],
       };
       expect(res).toEqual(expectedRes);
       // @ts-ignore
-      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(optionsData22);
+      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(mockOptions);
     });
 
     it('should return the formatted custom input options without options', () => {
+      const mockOptions = cloneDeep(optionsData26);
       // @ts-ignore
-      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([optionsData26[0]]);
+      spyOn(mergeExpensesService, 'formatCustomInputOptionsByType').and.returnValue([mockOptions[0]]);
       // @ts-ignore
-      const res = mergeExpensesService.formatCustomInputOptions(optionsData26);
+      const res = mergeExpensesService.formatCustomInputOptions(mockOptions);
       const expectedRes = {
         // eslint-disable-next-line quote-props
         numberfield: {
           options: [],
-          ...optionsData26[0],
+          ...mockOptions[0],
         },
       };
       expect(res).toEqual(expectedRes);
       // @ts-ignore
-      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(optionsData26);
+      expect(mergeExpensesService.formatCustomInputOptionsByType).toHaveBeenCalledWith(mockOptions);
     });
   });
 
@@ -1008,9 +1020,10 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the formatted category option', (done) => {
+      const mockOptions = cloneDeep(mergeExpensesOptionData4[0]);
       // @ts-ignore
-      mergeExpensesService.formatCategoryOption(mergeExpensesOptionData4[0]).subscribe((res) => {
-        expect(res).toEqual(mergeExpensesOptionData4[0]);
+      mergeExpensesService.formatCategoryOption(mockOptions).subscribe((res) => {
+        expect(res).toEqual(mockOptions);
         expect(categoriesService.getAll).toHaveBeenCalledTimes(1);
         expect(categoriesService.filterRequired).toHaveBeenCalledOnceWith(orgCategoryData1);
         done();
@@ -1018,8 +1031,9 @@ describe('MergeExpensesService', () => {
     });
 
     it('should return the formatted category option with label as Unspecified if id does not matches with options', (done) => {
+      const mockOptions = cloneDeep({ ...mergeExpensesOptionData4[0], value: 201951 });
       // @ts-ignore
-      mergeExpensesService.formatCategoryOption({ ...mergeExpensesOptionData4[0], value: 201951 }).subscribe((res) => {
+      mergeExpensesService.formatCategoryOption(mockOptions).subscribe((res) => {
         expect(res).toEqual({
           label: 'Unspecified',
           value: 201951,

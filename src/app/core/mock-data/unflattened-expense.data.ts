@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpenseSource } from '../models/expense-source.enum';
 import { ExpenseState } from '../models/expense-state.enum';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { UnflattenedTransaction } from '../models/unflattened-transaction.model';
 
-export const unflattenExp1: { tx: PublicPolicyExpense } = {
+export const unflattenExp1: { tx: PublicPolicyExpense } = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -111,9 +113,9 @@ export const unflattenExp1: { tx: PublicPolicyExpense } = {
     status_id: '',
     updated_at: undefined,
   },
-};
+});
 
-export const unflattenExp2: { tx: PublicPolicyExpense } = {
+export const unflattenExp2: { tx: PublicPolicyExpense } = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -225,9 +227,9 @@ export const unflattenExp2: { tx: PublicPolicyExpense } = {
     status_id: '',
     updated_at: undefined,
   },
-};
+});
 
-export const unflattenedTxn: UnflattenedTransaction = {
+export const unflattenedTxn: UnflattenedTransaction = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -352,9 +354,9 @@ export const unflattenedTxn: UnflattenedTransaction = {
   is: {
     test_call: false,
   },
-};
+});
 
-export const unflattenedExpData = {
+export const unflattenedExpData = deepFreeze({
   tx: {
     risk_state: null,
     is_duplicate_expense: null,
@@ -523,9 +525,9 @@ export const unflattenedExpData = {
     test_call: null,
   },
   dataUrls: [],
-};
+});
 
-export const draftUnflattendedTxn = {
+export const draftUnflattendedTxn = deepFreeze({
   ...unflattenedExpData,
   tx: {
     ...unflattenedExpData.tx,
@@ -535,9 +537,9 @@ export const draftUnflattendedTxn = {
     org_category_id: null,
     fyle_category: 'UNSPECIFIED',
   },
-};
+});
 
-export const draftUnflattendedTxn2: UnflattenedTransaction = {
+export const draftUnflattendedTxn2: UnflattenedTransaction = deepFreeze({
   ...unflattenedExpData,
   tx: {
     ...unflattenedExpData.tx,
@@ -547,9 +549,9 @@ export const draftUnflattendedTxn2: UnflattenedTransaction = {
     org_category_id: null,
     fyle_category: null,
   },
-};
+});
 
-export const draftUnflattendedTxn3 = {
+export const draftUnflattendedTxn3 = deepFreeze({
   ...unflattenedExpData,
   tx: {
     ...unflattenedExpData.tx,
@@ -559,9 +561,9 @@ export const draftUnflattendedTxn3 = {
     org_category_id: null,
     fyle_category: 'UNSPECIFIED',
   },
-};
+});
 
-export const draftUnflattendedTxn4: UnflattenedTransaction = {
+export const draftUnflattendedTxn4: UnflattenedTransaction = deepFreeze({
   ...unflattenedExpData,
   tx: {
     ...unflattenedExpData.tx,
@@ -571,9 +573,9 @@ export const draftUnflattendedTxn4: UnflattenedTransaction = {
     org_category_id: 212690,
     fyle_category: null,
   },
-};
+});
 
-export const unflattenedTxnDataPerDiem = {
+export const unflattenedTxnDataPerDiem = deepFreeze({
   tx: {
     // TODO: Enum for state and source
     skip_reimbursement: false,
@@ -593,4 +595,4 @@ export const unflattenedTxnDataPerDiem = {
     custom_properties: [],
     org_user_id: 'ouX8dwsbLCLv',
   },
-};
+});

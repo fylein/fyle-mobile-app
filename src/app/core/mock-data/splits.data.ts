@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Splits } from '../models/platform/v1/splits.model';
 
-export const splitsData1: Splits[] = [
+export const splitsData1: Splits[] = deepFreeze([
   {
     claim_amount: 56.6,
     spent_at: new Date(),
@@ -12,9 +14,9 @@ export const splitsData1: Splits[] = [
     purpose: 'split test 1',
     custom_fields: [],
   },
-];
+]);
 
-export const splitData2: Splits[] = [
+export const splitData2: Splits[] = deepFreeze([
   {
     claim_amount: null,
     spent_at: new Date('Tue Jan 31 2023 22:30:00 GMT+0530 (India Standard Time)'),
@@ -53,4 +55,4 @@ export const splitData2: Splits[] = [
     ],
     claim_amount: null,
   },
-];
+]);

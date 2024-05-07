@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import { EmailEvents, OrgSettings, TaxSettings } from '../models/org-settings.model';
 import { orgSettingsData } from '../test-data/accounts.service.spec.data';
 
-export const orgSettingsRes: OrgSettings = {
+export const orgSettingsRes: OrgSettings = deepFreeze({
   org_id: 'orrjqbDbeP9p',
   mileage: {
     allowed: true,
@@ -407,9 +409,9 @@ export const orgSettingsRes: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});
 
-export const orgSettingsParams2: OrgSettings = {
+export const orgSettingsParams2: OrgSettings = deepFreeze({
   org_id: 'orrjqbDbeP9p',
   mileage: {
     allowed: true,
@@ -814,9 +816,9 @@ export const orgSettingsParams2: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});
 
-export const orgSettingsParamWoCCC: OrgSettings = {
+export const orgSettingsParamWoCCC: OrgSettings = deepFreeze({
   org_id: 'orrjqbDbeP9p',
   mileage: {
     allowed: true,
@@ -1199,35 +1201,35 @@ export const orgSettingsParamWoCCC: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});
 
-export const orgSettingsCCCDisabled: OrgSettings = {
+export const orgSettingsCCCDisabled: OrgSettings = deepFreeze({
   ...orgSettingsData,
   corporate_credit_card_settings: {
     ...orgSettingsData.corporate_credit_card_settings,
     allowed: false,
     enabled: false,
   },
-};
+});
 
-export const orgSettingsCCCEnabled: OrgSettings = {
+export const orgSettingsCCCEnabled: OrgSettings = deepFreeze({
   ...orgSettingsData,
   corporate_credit_card_settings: {
     ...orgSettingsData.corporate_credit_card_settings,
     allowed: true,
     enabled: true,
   },
-};
+});
 
-export const orgSettingsParamsWithSimplifiedReport: OrgSettings = {
+export const orgSettingsParamsWithSimplifiedReport: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   simplified_report_closure_settings: {
     allowed: true,
     enabled: true,
   },
-};
+});
 
-export const taxSettingsData: TaxSettings = {
+export const taxSettingsData: TaxSettings = deepFreeze({
   allowed: true,
   enabled: true,
   name: null,
@@ -1254,14 +1256,14 @@ export const taxSettingsData: TaxSettings = {
       },
     },
   ],
-};
+});
 
-export const taxSettingsData2: TaxSettings = {
+export const taxSettingsData2: TaxSettings = deepFreeze({
   ...taxSettingsData,
   enabled: false,
-};
+});
 
-export const orgSettingsWoTax: OrgSettings = {
+export const orgSettingsWoTax: OrgSettings = deepFreeze({
   ...orgSettingsData,
   tax_settings: { ...orgSettingsData.tax_settings, enabled: false },
   advances: null,
@@ -1275,9 +1277,9 @@ export const orgSettingsWoTax: OrgSettings = {
   advance_requests: {
     enabled: true,
   },
-};
+});
 
-export const orgSettingsWoTaxAndRtf: OrgSettings = {
+export const orgSettingsWoTaxAndRtf: OrgSettings = deepFreeze({
   ...orgSettingsWoTax,
   visa_enrollment_settings: {
     allowed: true,
@@ -1287,22 +1289,22 @@ export const orgSettingsWoTaxAndRtf: OrgSettings = {
     allowed: true,
     enabled: false,
   },
-};
+});
 
-export const orgSettingsCCCDisabled2: OrgSettings = {
+export const orgSettingsCCCDisabled2: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   corporate_credit_card_settings: null,
-};
+});
 
-export const orgSettingsCCCDisabled3: OrgSettings = {
+export const orgSettingsCCCDisabled3: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   corporate_credit_card_settings: {
     allowed: true,
     enabled: null,
   },
-};
+});
 
-export const orgSettingsRTFDisabled: OrgSettings = {
+export const orgSettingsRTFDisabled: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   mastercard_enrollment_settings: {
     allowed: false,
@@ -1312,45 +1314,45 @@ export const orgSettingsRTFDisabled: OrgSettings = {
     allowed: false,
     enabled: false,
   },
-};
+});
 
-export const orgSettingsWithProjectAndAutofill: OrgSettings = {
+export const orgSettingsWithProjectAndAutofill: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   org_expense_form_autofills: {
     allowed: true,
     enabled: true,
   },
-};
+});
 
-export const orgSettingsWithExpenseFormAutofill: OrgSettings = {
+export const orgSettingsWithExpenseFormAutofill: OrgSettings = deepFreeze({
   ...orgSettingsParams2,
   org_expense_form_autofills: {
     allowed: true,
     enabled: true,
   },
-};
+});
 
-export const orgSettingsProjectDisabled: OrgSettings = {
+export const orgSettingsProjectDisabled: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   projects: {
     allowed: false,
     enabled: false,
   },
-};
+});
 
-export const orgSettingsWoAdvance: OrgSettings = {
+export const orgSettingsWoAdvance: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   advances: null,
-};
+});
 
-export const orgSettingsCCDisabled: OrgSettings = {
+export const orgSettingsCCDisabled: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   cost_centers: {
     enabled: false,
   },
-};
+});
 
-export const orgSettingsOrgAutofill: OrgSettings = {
+export const orgSettingsOrgAutofill: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   org_expense_form_autofills: {
     enabled: true,
@@ -1358,55 +1360,55 @@ export const orgSettingsOrgAutofill: OrgSettings = {
   },
   advanced_projects: null,
   projects: null,
-};
+});
 
-export const orgSettingsWoProjects: OrgSettings = {
+export const orgSettingsWoProjects: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   advanced_projects: null,
   projects: null,
-};
+});
 
-export const orgSettingsWoMileage: OrgSettings = {
+export const orgSettingsWoMileage: OrgSettings = deepFreeze({
   ...orgSettingsParams2,
   mileage: null,
-};
+});
 
-export const orgSettingsWithUnsubscribeEvent: OrgSettings = {
+export const orgSettingsWithUnsubscribeEvent: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   admin_email_settings: {
     ...orgSettingsRes.admin_email_settings,
     unsubscribed_events: [EmailEvents.DELEGATOR_SUBSCRIPTION, EmailEvents.EADVANCES_CREATED],
   },
-};
+});
 
-export const orgSettingsWithV2ExpensesPage: OrgSettings = {
+export const orgSettingsWithV2ExpensesPage: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   mobile_app_my_expenses_beta_enabled: true,
-};
+});
 
-export const orgSettingsWoV2ExpensesPage: OrgSettings = {
+export const orgSettingsWoV2ExpensesPage: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   mobile_app_my_expenses_beta_enabled: false,
-};
+});
 
-export const orgSettingsPendingRestrictions: OrgSettings = {
+export const orgSettingsPendingRestrictions: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   corporate_credit_card_settings: { enabled: true },
   pending_cct_expense_restriction: { enabled: true },
-};
+});
 
-export const orgSettingsWithCommuteDeductionsEnabled: OrgSettings = {
+export const orgSettingsWithCommuteDeductionsEnabled: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   commute_deduction_settings: {
     enabled: true,
     allowed: true,
   },
-};
+});
 
-export const orgSettingsWithCommuteDeductionsDisabled: OrgSettings = {
+export const orgSettingsWithCommuteDeductionsDisabled: OrgSettings = deepFreeze({
   ...orgSettingsRes,
   commute_deduction_settings: {
     enabled: false,
     allowed: false,
   },
-};
+});

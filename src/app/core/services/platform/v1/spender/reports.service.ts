@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, Subject, from, of, range } from 'rxjs';
-import { catchError, concatMap, map, mergeMap, reduce, switchMap, tap } from 'rxjs/operators';
+import { Observable, Subject, range } from 'rxjs';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -10,6 +10,11 @@ import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
+import { CacheBuster } from 'ts-cacheable';
+import { UserEventService } from '../../../user-event.service';
+import { TransactionService } from '../../../transaction.service';
+
+const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
@@ -17,8 +22,56 @@ import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/plat
 export class SpenderReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private userEventService: UserEventService,
+    private transactionService: TransactionService
+  ) {
+    reportsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  clearTransactionCache(): Observable<null> {
+    return this.transactionService.clearCache();
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: [txnId],
+      },
+      reason: comment,
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: expenseIds,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
 
   getAllReportsByParams(queryParams: ReportsQueryParams, order?: string): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
@@ -27,7 +80,7 @@ export class SpenderReportsService {
         return range(0, count);
       }),
       concatMap((page) => {
-        let params = {
+        const params = {
           ...queryParams,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
@@ -47,7 +100,7 @@ export class SpenderReportsService {
   }
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
+    const params = {
       state: queryParams.state,
       limit: 1,
       offset: 0,
@@ -55,13 +108,13 @@ export class SpenderReportsService {
     return this.getReportsByParams(params).pipe(map((res) => res.count));
   }
 
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report>> {
+  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
     const config = {
       params: {
         ...queryParams,
       },
     };
-    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report>>('/reports', config);
+    return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
   getReport(id: string): Observable<Report> {
