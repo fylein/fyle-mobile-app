@@ -1069,6 +1069,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'setAllExpensesCountAndAmount');
       spyOn(component, 'setOutboxExpenseStatsOnSelect');
     });
+
     it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
       component.switchOutboxSelectionMode();
 
