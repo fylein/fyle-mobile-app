@@ -181,7 +181,7 @@ describe('DashboardService', () => {
   });
 
   it('getCCCDetails(): should get assigned card details', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiV2Service.getStats.and.returnValue(of(apiAssignedCardDetailsRes));
 
     const apiParams =
