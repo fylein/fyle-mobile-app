@@ -24,7 +24,7 @@ export class ApproverReportsService {
         return range(0, count);
       }),
       concatMap((page) => {
-        let params = {
+        const params = {
           ...queryParams,
           offset: this.paginationSize * page,
           limit: this.paginationSize,

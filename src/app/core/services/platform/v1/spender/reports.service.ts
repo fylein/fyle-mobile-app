@@ -73,7 +73,7 @@ export class SpenderReportsService {
     );
   }
 
-  getAllReportsByParams(queryParams: ReportsQueryParams, order?: string): Observable<Report[]> {
+  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
@@ -85,13 +85,6 @@ export class SpenderReportsService {
           offset: this.paginationSize * page,
           limit: this.paginationSize,
         };
-
-        if (order) {
-          params = {
-            ...params,
-            order,
-          };
-        }
 
         return this.getReportsByParams(params);
       }),
@@ -128,17 +121,6 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
-    const payload = {
-      data: {
-        id: rptId,
-        expense_ids: [txnId],
-      },
-      reason: comment,
-    };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload);
-  }
-
   getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
     const queryParams = {
       data: {
@@ -148,15 +130,5 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService
       .post<{ data: StatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
-  }
-
-  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
-    const payload = {
-      data: {
-        id: rptId,
-        expense_ids: expenseIds,
-      },
-    };
-    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload);
   }
 }
