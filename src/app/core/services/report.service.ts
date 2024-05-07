@@ -130,21 +130,6 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  addTransactions(rptId: string, txnIds: string[]): Observable<void> {
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/txns', {
-        ids: txnIds,
-      })
-      .pipe(
-        tap(() => {
-          this.clearTransactionCache();
-        })
-      );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
   createDraft(report: ReportPurpose): Observable<ReportV1> {
     return this.apiService
       .post<ReportV1>('/reports', report)
@@ -154,28 +139,20 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  create(report: ReportPurpose, txnIds: string[]): Observable<ReportV1> {
+  create(report: ReportPurpose, expenseIds: string[]): Observable<ReportV1> {
     return this.createDraft(report).pipe(
-      switchMap((newReport: ReportV1) =>
-        this.apiService
-          .post<ReportV1>('/reports/' + newReport.id + '/txns', { ids: txnIds })
-          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))))
-      )
+      switchMap((newReport: ReportV1) => {
+        const payload = {
+          data: {
+            id: newReport.id,
+            expense_ids: expenseIds,
+          },
+        };
+        return this.spenderPlatformV1ApiService
+          .post<Report>('/reports/add_expenses', payload)
+          .pipe(switchMap(() => this.submit(newReport.id).pipe(map(() => newReport))));
+      })
     );
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  removeTransaction(rptId: string, txnId: string, comment?: string[]): Observable<void> {
-    const aspy = {
-      status: {
-        comment,
-      },
-    };
-    return this.apiService
-      .post<void>('/reports/' + rptId + '/txns/' + txnId + '/remove', aspy)
-      .pipe(tap(() => this.clearTransactionCache()));
   }
 
   @CacheBuster({
