@@ -29,6 +29,7 @@ import { Expense } from 'src/app/core/models/expense.model';
 import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 describe('CreateNewReportComponent', () => {
   let component: CreateNewReportComponent;
@@ -53,7 +54,7 @@ describe('CreateNewReportComponent', () => {
     refinerService = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     currencyService = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     expenseFieldsService = jasmine.createSpyObj('ExpenseFieldsService', ['getAllMap']);
-    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
+    spenderReportsService = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
     const humanizeCurrencyPipeSpy = jasmine.createSpyObj('HumanizeCurrency', ['transform']);
     const fyCurrencyPipeSpy = jasmine.createSpyObj('FyCurrencyPipe', ['transform']);
 
@@ -91,7 +92,7 @@ describe('CreateNewReportComponent', () => {
 
     currencyService.getHomeCurrency.and.returnValue(of(orgData1[0].currency));
     expenseFieldsService.getAllMap.and.returnValue(of(expenseFieldsMapResponse2));
-    reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+    spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
     fixture = TestBed.createComponent(CreateNewReportComponent);
     component = fixture.componentInstance;
     component.selectedElements = apiExpenses1;
@@ -205,13 +206,15 @@ describe('CreateNewReportComponent', () => {
       const reportID = 'rp5eUkeNm9wB';
       const txns = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const reportParam = {
-        purpose: '#3 : Mar 2023',
-        source: 'MOBILE',
+        data: {
+          purpose: '#3 : Mar 2023',
+          source: 'MOBILE',
+        },
       };
       const Expense_Count = txns.length;
       const Report_Value = 0;
       const report = reportUnflattenedData2;
-      reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+      spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
       spenderReportsService.addExpenses.and.returnValue(of(undefined));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
@@ -219,7 +222,7 @@ describe('CreateNewReportComponent', () => {
       expect(component.saveDraftReportLoader).toBeFalse();
       expect(component.showReportNameError).toBeFalse();
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({ Expense_Count, Report_Value });
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportParam);
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith(reportParam);
       expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(reportID, txns);
       expect(component.saveDraftReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({
@@ -233,20 +236,22 @@ describe('CreateNewReportComponent', () => {
       component.reportTitle = '#3 : Mar 2023';
       const tnxs = [];
       const reportParam = {
-        purpose: '#3 : Mar 2023',
-        source: 'MOBILE',
+        data: {
+          purpose: '#3 : Mar 2023',
+          source: 'MOBILE',
+        },
       };
       const Expense_Count = tnxs.length;
       const Report_Value = 0;
       const report = reportUnflattenedData2;
-      reportService.createDraft.and.returnValue(of(reportUnflattenedData2));
+      spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
       tick(500);
       expect(component.saveDraftReportLoader).toBeFalse();
       expect(component.showReportNameError).toBeFalse();
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({ Expense_Count, Report_Value });
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportParam);
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith(reportParam);
       expect(component.saveDraftReportLoader).toBeFalse();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({
         report,
