@@ -159,7 +159,6 @@ describe('SpenderReportsService', () => {
       id: 'eq.rpvcIMRMyM3A',
     };
     spenderReportsService.getReport('rpvcIMRMyM3A').subscribe((res) => {
-      console.log(res);
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });
