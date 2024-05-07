@@ -16,6 +16,8 @@ import {
   params,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
+import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
+import { platformProjectSingleRes } from '../mock-data/platform/v1/platform-project.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -28,10 +30,12 @@ describe('ProjectsService', () => {
   let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
+  let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
+    const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -44,11 +48,18 @@ describe('ProjectsService', () => {
           provide: ApiV2Service,
           useValue: apiv2ServiceSpy,
         },
+        {
+          provide: SpenderPlatformV1ApiService,
+          useValue: spenderPlatformApiServiceSpy,
+        },
       ],
     });
     projectsService = TestBed.inject(ProjectsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
+    spenderPlatformV1ApiService = TestBed.inject(
+      SpenderPlatformV1ApiService
+    ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
   });
 
   it('should be created', () => {
@@ -56,16 +67,18 @@ describe('ProjectsService', () => {
   });
 
   it('should be able to fetch project by id', (done) => {
-    apiV2Service.get.and.returnValue(of(apiV2ResponseSingle));
-    projectsService.getbyId(257528).subscribe((res) => {
-      expect(res).toEqual(fixDate(apiV2ResponseSingle.data)[0]);
-      done();
-    });
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
+    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
 
-    expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
-      params: {
-        project_id: 'eq.257528',
-      },
+    projectsService.getbyId(257528).subscribe((res) => {
+      expect(res).toEqual(apiV2ResponseSingle.data[0]);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+        params: {
+          id: 'eq.257528',
+        },
+      });
+      expect(transformToV2ResponseSpy).toHaveBeenCalled();
+      done();
     });
   });
 
