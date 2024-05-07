@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { SelectedFilters } from 'src/app/shared/components/fy-filters/selected-filters.interface';
 
-export const selectedFilters1: SelectedFilters<string>[] = [
+export const selectedFilters1: SelectedFilters<string>[] = deepFreeze([
   {
     name: 'Created On',
     value: 'custom',
@@ -29,9 +31,9 @@ export const selectedFilters1: SelectedFilters<string>[] = [
     name: 'Receipts Attached',
     value: 'custom',
   },
-];
+]);
 
-export const selectedFilters2: SelectedFilters<string>[] = [
+export const selectedFilters2: SelectedFilters<string>[] = deepFreeze([
   {
     name: 'Updated On',
     value: 'custom',
@@ -52,9 +54,9 @@ export const selectedFilters2: SelectedFilters<string>[] = [
     name: 'Transactions Type',
     value: 'Debit',
   },
-];
+]);
 
-export const selectedFilters3 = [
+export const selectedFilters3 = deepFreeze([
   { name: 'State', value: 'Approved' },
   {
     name: 'Date',
@@ -62,23 +64,23 @@ export const selectedFilters3 = [
     associatedData: { startDate: new Date('2023-04-01'), endDate: new Date('2023-04-04') },
   },
   { name: 'Sort By', value: 'dateNewToOld' },
-];
+]);
 
-export const selectedFilters4 = [
+export const selectedFilters4 = deepFreeze([
   { name: 'State', value: 'Approved' },
   { name: 'Date', value: 'Last 7 Days', associatedData: undefined },
   { name: 'Sort By', value: 'dateNewToOld' },
-];
+]);
 
-export const selectedFilters5 = [
+export const selectedFilters5 = deepFreeze([
   {
     name: 'Date',
     value: 'Last Month',
     associatedData: { startDate: new Date('2023-01-04'), endDate: new Date('2023-01-10') },
   },
-];
+]);
 
-export const taskSelectedFiltersData: SelectedFilters<string[]>[] = [
+export const taskSelectedFiltersData: SelectedFilters<string[]>[] = deepFreeze([
   {
     name: 'Expenses',
     value: ['DRAFT'],
@@ -91,9 +93,9 @@ export const taskSelectedFiltersData: SelectedFilters<string[]>[] = [
     name: 'Advances',
     value: ['SENT_BACK'],
   },
-];
+]);
 
-export const selectedFilters6: SelectedFilters<string | string[]>[] = [
+export const selectedFilters6: SelectedFilters<string | string[]>[] = deepFreeze([
   {
     name: 'State',
     value: 'DRAFT',
@@ -106,14 +108,14 @@ export const selectedFilters6: SelectedFilters<string | string[]>[] = [
       endDate: new Date('2023-02-02'),
     },
   },
-];
+]);
 
-export const selectedFiltersParams: SelectedFilters<string> = {
+export const selectedFiltersParams: SelectedFilters<string> = deepFreeze({
   name: 'Sort By',
   value: 'dateNewToOld',
-};
+});
 
-export const selectedFiltersParams2: SelectedFilters<string>[] = [
+export const selectedFiltersParams2: SelectedFilters<string>[] = deepFreeze([
   {
     name: 'State',
     value: 'DRAFT',
@@ -131,9 +133,9 @@ export const selectedFiltersParams2: SelectedFilters<string>[] = [
       endDate: new Date('2023-02-02'),
     },
   },
-];
+]);
 
-export const selectedFilters7: SelectedFilters<string | string[]>[] = [
+export const selectedFilters7: SelectedFilters<string | string[]>[] = deepFreeze([
   ...selectedFilters5,
   {
     name: 'Type',
@@ -156,9 +158,9 @@ export const selectedFilters7: SelectedFilters<string | string[]>[] = [
     name: 'Split Expense',
     value: 'Yes',
   },
-];
+]);
 
-export const selectedFilters8: SelectedFilters<string | string[]>[] = [
+export const selectedFilters8: SelectedFilters<string | string[]>[] = deepFreeze([
   {
     name: 'Date',
     value: 'Last Month',
@@ -184,9 +186,9 @@ export const selectedFilters8: SelectedFilters<string | string[]>[] = [
     name: 'Split Expense',
     value: 'Yes',
   },
-];
+]);
 
-export const selectedFilters9: SelectedFilters<string | string[]>[] = [
+export const selectedFilters9: SelectedFilters<string | string[]>[] = deepFreeze([
   {
     name: 'Type',
     value: ['DRAFT', 'READY_TO_REPORT'],
@@ -215,4 +217,4 @@ export const selectedFilters9: SelectedFilters<string | string[]>[] = [
     name: 'Split Expense',
     value: 'YES',
   },
-];
+]);

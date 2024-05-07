@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { UnflattenedAdvanceRequest } from '../models/unflattened-advance-request.model';
 
-export const unflattenedAdvanceRequestData: UnflattenedAdvanceRequest = {
+export const unflattenedAdvanceRequestData: UnflattenedAdvanceRequest = deepFreeze({
   areq: {
     id: 'areqLFKMxUSAlQ',
     created_at: new Date('2023-10-03T09:20:22.112Z'),
@@ -69,4 +71,4 @@ export const unflattenedAdvanceRequestData: UnflattenedAdvanceRequest = {
   new: {
     state: 'APPROVAL_PENDING',
   },
-};
+});

@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { cloneDeep } from 'lodash';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
@@ -9,7 +11,7 @@ import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expe
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
 
-export const expenseData: Expense = {
+export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
@@ -235,9 +237,9 @@ export const expenseData: Expense = {
   },
   user_id: 'usvKA4X8Ugcr',
   verifier_comments: [],
-};
+});
 
-export const mileageExpense: Expense = {
+export const mileageExpense: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: new Date('2023-11-01T00:10:01.286157+00:00'),
   admin_amount: null,
@@ -617,9 +619,9 @@ export const mileageExpense: Expense = {
   },
   user_id: 'us29O6z3jnd3',
   verifier_comments: [],
-};
+});
 
-export const perDiemExpense: Expense = {
+export const perDiemExpense: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: new Date('2023-11-02T07:56:41.065000+00:00'),
   admin_amount: null,
@@ -973,13 +975,13 @@ export const perDiemExpense: Expense = {
   },
   user_id: 'usvKA4X8Ugcr',
   verifier_comments: [],
-};
+});
 
-export const expenseResponseData = [expenseData];
+export const expenseResponseData = deepFreeze([expenseData]);
 
-export const expenseResponseData2 = [expenseData, expenseData];
+export const expenseResponseData2 = deepFreeze([expenseData, expenseData]);
 
-export const expenseResponseData3: Expense[] = [
+export const expenseResponseData3: Expense[] = deepFreeze([
   {
     ...cloneDeep(expenseData),
     amount: 89,
@@ -1001,60 +1003,60 @@ export const expenseResponseData3: Expense[] = [
     currency: 'INR',
     foreign_currency: 'EUR',
   },
-];
+]);
 
-export const criticalPolicyViolatedExpense: Expense = {
+export const criticalPolicyViolatedExpense: Expense = deepFreeze({
   ...expenseData,
   policy_amount: 0.00009,
-};
+});
 
 type Category = Pick<PlatformCategory, 'code' | 'id' | 'display_name' | 'name' | 'sub_category' | 'system_category'>;
 
-const mileageCategory: Category = {
+const mileageCategory: Category = deepFreeze({
   code: null,
   display_name: 'mileage display',
   id: 267841,
   name: 'Mileage',
   sub_category: 'Others',
   system_category: 'Mileage',
-};
+});
 
-const perDiemCategory = {
+const perDiemCategory = deepFreeze({
   code: null,
   display_name: 'Per Diem display',
   id: 267841,
   name: 'Per Diem',
   sub_category: 'Others',
   system_category: 'Per Diem',
-};
+});
 
-export const mileageExpenseWithDistance: Expense = {
+export const mileageExpenseWithDistance: Expense = deepFreeze({
   ...expenseData,
   distance: 25,
   distance_unit: MileageUnitEnum.KM,
   category: mileageCategory,
-};
+});
 
-export const mileageExpenseWithoutDistance: Expense = {
+export const mileageExpenseWithoutDistance: Expense = deepFreeze({
   ...expenseData,
   distance: 0,
   distance_unit: MileageUnitEnum.KM,
   category: mileageCategory,
-};
+});
 
-export const perDiemExpenseWithSingleNumDays: Expense = {
+export const perDiemExpenseWithSingleNumDays: Expense = deepFreeze({
   ...expenseData,
   category: perDiemCategory,
   per_diem_num_days: 1,
-};
+});
 
-export const perDiemExpenseWithMultipleNumDays: Expense = {
+export const perDiemExpenseWithMultipleNumDays: Expense = deepFreeze({
   ...expenseData,
   category: perDiemCategory,
   per_diem_num_days: 3,
-};
+});
 
-export const apiExpenses1: Expense[] = [
+export const apiExpenses1: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
 
@@ -1715,25 +1717,25 @@ export const apiExpenses1: Expense[] = [
     user_id: 'usuQPzaT0w9C',
     verifier_comments: [],
   },
-];
+]);
 
-export const perDiemExpenseWithSingleNumDays2: Expense = {
+export const perDiemExpenseWithSingleNumDays2: Expense = deepFreeze({
   ...perDiemExpenseWithSingleNumDays,
   category: {
     ...perDiemExpenseWithSingleNumDays.category,
     name: 'Per Diem',
   },
-};
+});
 
-export const mileageExpenseWithDistance2: Expense = {
+export const mileageExpenseWithDistance2: Expense = deepFreeze({
   ...mileageExpenseWithDistance,
   category: {
     ...mileageExpenseWithDistance.category,
     name: 'Mileage',
   },
-};
+});
 
-export const readyToReportExpensesData: Expense[] = [
+export const readyToReportExpensesData: Expense[] = deepFreeze([
   {
     ...expenseData,
     amount: 50,
@@ -1744,9 +1746,9 @@ export const readyToReportExpensesData: Expense[] = [
     amount: 100,
     id: 'txWjW9qT2Vf1',
   },
-];
+]);
 
-export const readyToReportExpensesData2: Expense[] = [
+export const readyToReportExpensesData2: Expense[] = deepFreeze([
   {
     ...expenseData,
     amount: 100,
@@ -1759,19 +1761,19 @@ export const readyToReportExpensesData2: Expense[] = [
     is_reimbursable: true,
     id: 'txWjW9qT2Vf1',
   },
-];
+]);
 
-export const nonReimbursableExpense: Expense = {
+export const nonReimbursableExpense: Expense = deepFreeze({
   ...expenseData,
   is_reimbursable: false,
-};
+});
 
-export const draftExpense: Expense = {
+export const draftExpense: Expense = deepFreeze({
   ...expenseData,
   state: ExpenseState.DRAFT,
-};
+});
 
-export const splitExpensesData: Expense[] = [
+export const splitExpensesData: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
     added_to_report_at: null,
@@ -2068,11 +2070,11 @@ export const splitExpensesData: Expense[] = [
     verifications: [],
     verifier_comments: [],
   },
-];
+]);
 
-export const apiExpenses2: Expense[] = [splitExpensesData[0]];
+export const apiExpenses2: Expense[] = deepFreeze([splitExpensesData[0]]);
 
-export const apiExpenses3: Expense[] = [
+export const apiExpenses3: Expense[] = deepFreeze([
   {
     accounting_export_summary: {},
     added_to_report_at: null,
@@ -2369,9 +2371,9 @@ export const apiExpenses3: Expense[] = [
     verifications: [],
     verifier_comments: [],
   },
-];
+]);
 
-export const platformExpenseData: Expense = {
+export const platformExpenseData: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
@@ -2535,9 +2537,9 @@ export const platformExpenseData: Expense = {
   },
   user_id: 'usvMoPfCC9Xw',
   verifier_comments: ['Amount changed due to following reason(s) : No policy violation explanation provided'],
-};
+});
 
-export const platformExpenseDataWithSubCategory: Expense = {
+export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,
   id: 'txD5hIQgLuR5',
@@ -2755,19 +2757,19 @@ export const platformExpenseDataWithSubCategory: Expense = {
   user_id: 'usvMoPfCC9Xw',
   verifications: [],
   verifier_comments: [],
-};
+});
 
-export const platformExpenseDataWithReportId: Expense = {
+export const platformExpenseDataWithReportId: Expense = deepFreeze({
   ...platformExpenseDataWithSubCategory,
   report_id: 'rpbNc3kn5baq',
-};
+});
 
-export const platformExpenseDataWithReportId2: Expense = {
+export const platformExpenseDataWithReportId2: Expense = deepFreeze({
   ...platformExpenseDataWithSubCategory,
   report_id: 'rplD17WeBlha',
-};
+});
 
-export const platformExpenseWithExtractedData: Expense = {
+export const platformExpenseWithExtractedData: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
@@ -2959,9 +2961,9 @@ export const platformExpenseWithExtractedData: Expense = {
   user_id: 'usvMoPfCC9Xw',
   verifications: [],
   verifier_comments: [],
-};
+});
 
-export const platformExpenseWithExtractedData2: Expense = {
+export const platformExpenseWithExtractedData2: Expense = deepFreeze({
   ...platformExpenseWithExtractedData,
   category: {
     code: null,
@@ -2979,9 +2981,9 @@ export const platformExpenseWithExtractedData2: Expense = {
     invoice_dt: null,
     vendor_name: 'SWIGGY',
   },
-};
+});
 
-export const platformExpenseWithMatchCCC: Expense = {
+export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   accounting_export_summary: {},
   added_to_report_at: null,
   admin_amount: null,
@@ -3139,26 +3141,26 @@ export const platformExpenseWithMatchCCC: Expense = {
   user_id: 'usvMoPfCC9Xw',
   verifications: [],
   verifier_comments: [],
-};
+});
 
-export const platformExpenseWithMatchCCC2: Expense = {
+export const platformExpenseWithMatchCCC2: Expense = deepFreeze({
   ...platformExpenseWithMatchCCC,
   matched_corporate_card_transaction_ids: [],
   matched_corporate_card_transactions: [],
-};
+});
 
-export const mileageCategoryPlatformExpenseData: Expense = {
+export const mileageCategoryPlatformExpenseData: Expense = deepFreeze({
   ...platformExpenseData,
   category: { ...platformExpenseData.category, name: 'MILEAGE' },
-};
+});
 
-export const perDiemCategoryPlatformExpenseData: Expense = {
+export const perDiemCategoryPlatformExpenseData: Expense = deepFreeze({
   ...platformExpenseData,
   category: { ...platformExpenseData.category, name: 'PER DIEM' },
-};
+});
 
-export const expensesList: Expense[] = [
+export const expensesList: Expense[] = deepFreeze([
   {
     ...platformExpenseData,
   },
-];
+]);

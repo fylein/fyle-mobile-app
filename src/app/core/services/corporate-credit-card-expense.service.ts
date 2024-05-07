@@ -51,7 +51,7 @@ export class CorporateCreditCardExpenseService {
   })
   getCorporateCards(): Observable<PlatformCorporateCard[]> {
     return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformCorporateCard>>('/corporate_cards')
+      .get<PlatformApiResponse<PlatformCorporateCard[]>>('/corporate_cards')
       .pipe(map((res) => res.data));
   }
 

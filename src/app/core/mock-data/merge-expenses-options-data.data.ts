@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { MergeExpensesOptionsData } from '../models/merge-expenses-options-data.model';
 import { Destination } from '../models/destination.model';
 
-export const optionsData2: MergeExpensesOptionsData<boolean> = {
+export const optionsData2: MergeExpensesOptionsData<boolean> = deepFreeze({
   options: [
     {
       label: 'No',
@@ -9,9 +11,9 @@ export const optionsData2: MergeExpensesOptionsData<boolean> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData3: MergeExpensesOptionsData<string> = {
+export const optionsData3: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'INR 1',
@@ -23,9 +25,9 @@ export const optionsData3: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData4: MergeExpensesOptionsData<string> = {
+export const optionsData4: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'USD 1  (INR 1)',
@@ -37,9 +39,9 @@ export const optionsData4: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData5: MergeExpensesOptionsData<string> = {
+export const optionsData5: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: '0',
@@ -51,9 +53,9 @@ export const optionsData5: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData6: MergeExpensesOptionsData<Date> = {
+export const optionsData6: MergeExpensesOptionsData<Date> = deepFreeze({
   options: [
     {
       label: 'Mar 13, 2023',
@@ -65,9 +67,9 @@ export const optionsData6: MergeExpensesOptionsData<Date> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData7: MergeExpensesOptionsData<string> = {
+export const optionsData7: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'Corporate Card',
@@ -79,9 +81,9 @@ export const optionsData7: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData8: MergeExpensesOptionsData<string> = {
+export const optionsData8: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'Nilesh As Vendor',
@@ -93,9 +95,9 @@ export const optionsData8: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData9: MergeExpensesOptionsData<number> = {
+export const optionsData9: MergeExpensesOptionsData<number> = deepFreeze({
   options: [
     {
       label: 'Staging Project',
@@ -107,9 +109,9 @@ export const optionsData9: MergeExpensesOptionsData<number> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData10: MergeExpensesOptionsData<number> = {
+export const optionsData10: MergeExpensesOptionsData<number> = deepFreeze({
   options: [
     {
       label: 'Food',
@@ -121,9 +123,9 @@ export const optionsData10: MergeExpensesOptionsData<number> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData11: MergeExpensesOptionsData<string> = {
+export const optionsData11: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'GST',
@@ -135,9 +137,9 @@ export const optionsData11: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData12: MergeExpensesOptionsData<number> = {
+export const optionsData12: MergeExpensesOptionsData<number> = deepFreeze({
   options: [
     {
       label: '0.01',
@@ -149,9 +151,9 @@ export const optionsData12: MergeExpensesOptionsData<number> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData13: MergeExpensesOptionsData<number> = {
+export const optionsData13: MergeExpensesOptionsData<number> = deepFreeze({
   options: [
     {
       label: 'Cost Center 1',
@@ -163,9 +165,9 @@ export const optionsData13: MergeExpensesOptionsData<number> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData14: MergeExpensesOptionsData<string> = {
+export const optionsData14: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'Outing',
@@ -177,9 +179,9 @@ export const optionsData14: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData15: MergeExpensesOptionsData<Destination> = {
+export const optionsData15: MergeExpensesOptionsData<Destination> = deepFreeze({
   options: [
     {
       label: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
@@ -196,9 +198,9 @@ export const optionsData15: MergeExpensesOptionsData<Destination> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData16: MergeExpensesOptionsData<Date> = {
+export const optionsData16: MergeExpensesOptionsData<Date> = deepFreeze({
   options: [
     {
       label: 'Mar 13, 2023',
@@ -210,9 +212,9 @@ export const optionsData16: MergeExpensesOptionsData<Date> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData17: MergeExpensesOptionsData<string> = {
+export const optionsData17: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'ECONOMY',
@@ -224,9 +226,9 @@ export const optionsData17: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData18: MergeExpensesOptionsData<string> = {
+export const optionsData18: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'SLEEPER',
@@ -238,9 +240,9 @@ export const optionsData18: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData19: MergeExpensesOptionsData<string> = {
+export const optionsData19: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'AC',
@@ -252,9 +254,9 @@ export const optionsData19: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData20: MergeExpensesOptionsData<number> = {
+export const optionsData20: MergeExpensesOptionsData<number> = deepFreeze({
   options: [
     {
       label: '25',
@@ -266,9 +268,9 @@ export const optionsData20: MergeExpensesOptionsData<number> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData21: MergeExpensesOptionsData<string> = {
+export const optionsData21: MergeExpensesOptionsData<string> = deepFreeze({
   options: [
     {
       label: 'KM',
@@ -280,9 +282,9 @@ export const optionsData21: MergeExpensesOptionsData<string> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsData22: MergeExpensesOptionsData<string[] | Date>[] = [
+export const optionsData22: MergeExpensesOptionsData<string[] | Date>[] = deepFreeze([
   {
     options: [
       {
@@ -302,9 +304,9 @@ export const optionsData22: MergeExpensesOptionsData<string[] | Date>[] = [
     id: 200229,
     name: 'date field',
   },
-];
+]);
 
-export const optionsData23: MergeExpensesOptionsData<string[] | Date>[] = [
+export const optionsData23: MergeExpensesOptionsData<string[] | Date>[] = deepFreeze([
   {
     options: [
       {
@@ -329,9 +331,9 @@ export const optionsData23: MergeExpensesOptionsData<string[] | Date>[] = [
       },
     ],
   },
-];
+]);
 
-export const optionsData24: MergeExpensesOptionsData<string[] | string>[] = [
+export const optionsData24: MergeExpensesOptionsData<string[] | string>[] = deepFreeze([
   {
     options: [
       {
@@ -351,9 +353,9 @@ export const optionsData24: MergeExpensesOptionsData<string[] | string>[] = [
     id: 200211,
     name: 'text field',
   },
-];
+]);
 
-export const optionsData25: MergeExpensesOptionsData<string[] | string>[] = [
+export const optionsData25: MergeExpensesOptionsData<string[] | string>[] = deepFreeze([
   {
     options: [
       {
@@ -378,9 +380,9 @@ export const optionsData25: MergeExpensesOptionsData<string[] | string>[] = [
     id: 200211,
     name: 'text field',
   },
-];
+]);
 
-export const optionsData26: MergeExpensesOptionsData<number>[] = [
+export const optionsData26: MergeExpensesOptionsData<number>[] = deepFreeze([
   {
     options: null,
     areSameValues: false,
@@ -388,9 +390,9 @@ export const optionsData26: MergeExpensesOptionsData<number>[] = [
     id: 200212,
     name: 'numberfield',
   },
-];
+]);
 
-export const optionsData27: MergeExpensesOptionsData<string>[] = [
+export const optionsData27: MergeExpensesOptionsData<string>[] = deepFreeze([
   {
     options: [],
     areSameValues: false,
@@ -405,9 +407,9 @@ export const optionsData27: MergeExpensesOptionsData<string>[] = [
     id: 200213,
     name: 'customcategory',
   },
-];
+]);
 
-export const optionsData28: MergeExpensesOptionsData<string>[] = [
+export const optionsData28: MergeExpensesOptionsData<string>[] = deepFreeze([
   {
     options: [
       {
@@ -424,9 +426,9 @@ export const optionsData28: MergeExpensesOptionsData<string>[] = [
     id: 200213,
     name: 'customcategory',
   },
-];
+]);
 
-export const optionsData29: MergeExpensesOptionsData<number>[] = [
+export const optionsData29: MergeExpensesOptionsData<number>[] = deepFreeze([
   {
     options: [],
     areSameValues: false,
@@ -441,9 +443,9 @@ export const optionsData29: MergeExpensesOptionsData<number>[] = [
     id: 200215,
     name: 'customNumber',
   },
-];
+]);
 
-export const optionsData30: MergeExpensesOptionsData<number>[] = [
+export const optionsData30: MergeExpensesOptionsData<number>[] = deepFreeze([
   {
     options: [
       {
@@ -460,9 +462,9 @@ export const optionsData30: MergeExpensesOptionsData<number>[] = [
     id: 200215,
     name: 'customNumber',
   },
-];
+]);
 
-export const optionsData31: MergeExpensesOptionsData<boolean> = {
+export const optionsData31: MergeExpensesOptionsData<boolean> = deepFreeze({
   options: [
     {
       label: 'No',
@@ -474,9 +476,9 @@ export const optionsData31: MergeExpensesOptionsData<boolean> = {
     },
   ],
   areSameValues: true,
-};
+});
 
-export const optionsData32: MergeExpensesOptionsData<string[] | string>[] = [
+export const optionsData32: MergeExpensesOptionsData<string[] | string>[] = deepFreeze([
   {
     id: 200227,
     name: 'userlist',
@@ -530,9 +532,9 @@ export const optionsData32: MergeExpensesOptionsData<string[] | string>[] = [
     ],
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const optionsData33: MergeExpensesOptionsData<Destination> = {
+export const optionsData33: MergeExpensesOptionsData<Destination> = deepFreeze({
   options: [
     {
       label: 'Kalyan Station Rd, Bhanunagar KalyanWest, Bhoiwada, Kalyan, Maharashtra 421301, India',
@@ -550,27 +552,28 @@ export const optionsData33: MergeExpensesOptionsData<Destination> = {
     },
   ],
   areSameValues: false,
-};
+});
 
-export const optionsDataMergeExpenses: MergeExpensesOptionsData<string | Record<string, string[]> | string[]>[] = [
-  {
-    name: 'status',
-    value: '',
-    options: [],
-  },
-  {
-    name: 'Multi Type',
-    value: ['Multi 1'],
-    options: [
-      {
-        label: 'Multi 1',
-        value: ['Multi 1'],
-      },
-    ],
-  },
-  {
-    name: 'name',
-    value: null,
-    options: [],
-  },
-];
+export const optionsDataMergeExpenses: MergeExpensesOptionsData<string | Record<string, string[]> | string[]>[] =
+  deepFreeze([
+    {
+      name: 'status',
+      value: '',
+      options: [],
+    },
+    {
+      name: 'Multi Type',
+      value: ['Multi 1'],
+      options: [
+        {
+          label: 'Multi 1',
+          value: ['Multi 1'],
+        },
+      ],
+    },
+    {
+      name: 'name',
+      value: null,
+      options: [],
+    },
+  ]);

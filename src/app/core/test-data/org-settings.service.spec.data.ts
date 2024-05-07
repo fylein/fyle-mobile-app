@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AllowedPaymentModes } from '../models/allowed-payment-modes.enum';
 import {
   AccountingExportSettings,
@@ -6,7 +8,7 @@ import {
   OrgSettingsResponse,
 } from '../models/org-settings.model';
 
-export const orgSettingsGetData: OrgSettings = {
+export const orgSettingsGetData: OrgSettings = deepFreeze({
   org_id: 'orNVthTo2Zyo',
   mileage: {
     allowed: true,
@@ -442,9 +444,9 @@ export const orgSettingsGetData: OrgSettings = {
     enabled: true,
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
-};
+});
 
-export const orgSettingsPostData: OrgSettingsResponse = {
+export const orgSettingsPostData: OrgSettingsResponse = deepFreeze({
   org_id: 'orNVthTo2Zyo',
   project_settings: {
     allowed: true,
@@ -876,23 +878,23 @@ export const orgSettingsPostData: OrgSettingsResponse = {
     enabled: true,
   },
   pending_cct_expense_restriction: { enabled: true, allowed: true },
-};
+});
 
-export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = {
+export const orgSettingsAmexFeedDataRequest: OrgSettingsResponse = deepFreeze({
   ...orgSettingsPostData,
   amex_feed_enrollment_settings: null,
-};
+});
 
-export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = {
+export const orgSettingsAmexFeedDataResponse: OrgSettingsResponse = deepFreeze({
   ...orgSettingsGetData,
   amex_feed_enrollment_settings: {
     allowed: undefined,
     enabled: undefined,
     virtual_card_settings_enabled: undefined,
   },
-};
+});
 
-export const outgoingTallyAccountObj: AccountingExportSettings = {
+export const outgoingTallyAccountObj: AccountingExportSettings = deepFreeze({
   allowed: undefined,
   tally_settings: {
     enabled: true,
@@ -910,9 +912,9 @@ export const outgoingTallyAccountObj: AccountingExportSettings = {
     blocked_payment_types: [],
   },
   integration_exports_enabled: true,
-};
+});
 
-export const incomingTallyAccoutingObj: IncomingAccountObject = {
+export const incomingTallyAccoutingObj: IncomingAccountObject = deepFreeze({
   enabled: true,
   type: 'TALLY',
   settings: {
@@ -931,9 +933,9 @@ export const incomingTallyAccoutingObj: IncomingAccountObject = {
     blocked_payment_types: [],
   },
   integration_exports_enabled: true,
-};
+});
 
-export const outgoingQuickbooksAccountObj: AccountingExportSettings = {
+export const outgoingQuickbooksAccountObj: AccountingExportSettings = deepFreeze({
   allowed: undefined,
   quick_books_settings: {
     enabled: true,
@@ -949,9 +951,9 @@ export const outgoingQuickbooksAccountObj: AccountingExportSettings = {
     separate_org_user_advance_ledger: true,
   },
   integration_exports_enabled: true,
-};
+});
 
-export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
+export const incomingQuickbooksAccoutingObj: IncomingAccountObject = deepFreeze({
   enabled: true,
   type: 'QUICKBOOKS',
   settings: {
@@ -968,9 +970,9 @@ export const incomingQuickbooksAccoutingObj: IncomingAccountObject = {
     separate_org_user_advance_ledger: true,
   },
   integration_exports_enabled: true,
-};
+});
 
-export const outgoingAccountSettingsObj: AccountingExportSettings = {
+export const outgoingAccountSettingsObj: AccountingExportSettings = deepFreeze({
   allowed: undefined,
   accounting_settings: {
     enabled: true,
@@ -983,9 +985,9 @@ export const outgoingAccountSettingsObj: AccountingExportSettings = {
     collapse_expenses: true,
   },
   integration_exports_enabled: true,
-};
+});
 
-export const incomingAccountSettingsObj: IncomingAccountObject = {
+export const incomingAccountSettingsObj: IncomingAccountObject = deepFreeze({
   enabled: true,
   type: null,
   settings: {
@@ -999,42 +1001,42 @@ export const incomingAccountSettingsObj: IncomingAccountObject = {
     collapse_expenses: true,
   },
   integration_exports_enabled: true,
-};
+});
 
-export const incomingAccountingObj: IncomingAccountObject = {
+export const incomingAccountingObj: IncomingAccountObject = deepFreeze({
   enabled: false,
   type: null,
   settings: null,
   integration_exports_enabled: undefined,
-};
+});
 
-export const incomingTallyAccountingObjWithoutSettings: IncomingAccountObject = {
+export const incomingTallyAccountingObjWithoutSettings: IncomingAccountObject = deepFreeze({
   enabled: false,
   type: 'TALLY',
   settings: null,
   integration_exports_enabled: false,
-};
+});
 
-export const incomingQuickbooksAccountingObjWithoutSettings: IncomingAccountObject = {
+export const incomingQuickbooksAccountingObjWithoutSettings: IncomingAccountObject = deepFreeze({
   enabled: false,
   type: 'QUICKBOOKS',
   settings: null,
   integration_exports_enabled: false,
-};
+});
 
-export const outgoingAccountingTallyObjWithoutSettings: AccountingExportSettings = {
+export const outgoingAccountingTallyObjWithoutSettings: AccountingExportSettings = deepFreeze({
   allowed: undefined,
   integration_exports_enabled: false,
   tally_settings: {},
-};
+});
 
-export const outgoingAccountingQuickbooksObjWithoutSettings: AccountingExportSettings = {
+export const outgoingAccountingQuickbooksObjWithoutSettings: AccountingExportSettings = deepFreeze({
   allowed: undefined,
   integration_exports_enabled: false,
   quick_books_settings: {},
-};
+});
 
-export const orgSettingsData: OrgSettings = {
+export const orgSettingsData: OrgSettings = deepFreeze({
   org_id: 'orNVthTo2Zyo',
   mileage: {
     allowed: true,
@@ -1436,4 +1438,4 @@ export const orgSettingsData: OrgSettings = {
     enabled: true,
     virtual_card_settings_enabled: true,
   },
-};
+});

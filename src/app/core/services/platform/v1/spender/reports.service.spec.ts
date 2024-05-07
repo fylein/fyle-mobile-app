@@ -14,24 +14,34 @@ import {
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { UserEventService } from '../../../user-event.service';
+import { TransactionService } from '../../../transaction.service';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
+  let transactionService: jasmine.SpyObj<TransactionService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     TestBed.configureTestingModule({
       providers: [
         SpenderReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
         { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceSpy },
+        { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: TransactionService, useValue: transactionServiceSpy },
       ],
     });
     spenderReportsService = TestBed.inject(SpenderReportsService);
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
   });
 
   it('should be created', () => {
@@ -130,6 +140,7 @@ describe('SpenderReportsService', () => {
 
   it('addExpenses(): should add an expense to a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
+    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -142,6 +153,40 @@ describe('SpenderReportsService', () => {
     };
     spenderReportsService.addExpenses(reportID, txns).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('getReportById(): should get a report by id', () => {
+    spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
+    const queryParams = {
+      id: 'eq.rpvcIMRMyM3A',
+    };
+    spenderReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
+    });
+  });
+
+  it('getReportsStats(): should get advance request stats', (done) => {
+    const statsResponse = {
+      count: 2,
+      total_amount: 1200,
+    };
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: statsResponse }));
+
+    const params = {
+      state: 'eq.DRAFT',
+    };
+
+    spenderReportsService.getReportsStats(params).subscribe((res) => {
+      expect(res).toEqual(statsResponse);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      });
       done();
     });
   });
@@ -181,6 +226,7 @@ describe('SpenderReportsService', () => {
 
   it('ejectExpenses(): should remove an expense from a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
+    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -194,6 +240,7 @@ describe('SpenderReportsService', () => {
     };
     spenderReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });

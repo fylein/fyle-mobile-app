@@ -31,6 +31,7 @@ import {
   displayOrgCategoriesByName,
   expectedOrgCategoryByName,
 } from '../mock-data/org-category.data';
+import { cloneDeep } from 'lodash';
 
 describe('CategoriesService', () => {
   let categoriesService: CategoriesService;
@@ -133,7 +134,8 @@ describe('CategoriesService', () => {
   });
 
   it('addDisplayName(): should modify display name', () => {
-    expect(categoriesService.addDisplayName(orgCategoryWoDisplayName)).toEqual(orgCategoryWithDisplayName);
+    const mockCategory = cloneDeep(orgCategoryWoDisplayName);
+    expect(categoriesService.addDisplayName(mockCategory)).toEqual(orgCategoryWithDisplayName);
   });
 
   it('filterByOrgCategoryId(): should filter a category by ID', () => {
@@ -146,11 +148,13 @@ describe('CategoriesService', () => {
 
   describe('sortCategories():', () => {
     it('should sort categories', () => {
-      expect(categoriesService.sortCategories(transformedOrgCategories)).toEqual(sortedCategory);
+      const mockCategories = cloneDeep(transformedOrgCategories);
+      expect(categoriesService.sortCategories(mockCategories)).toEqual(sortedCategory);
     });
 
     it('should sort categories when categories and sub-categories are same', () => {
-      expect(categoriesService.sortCategories(unsortedCategories1)).toEqual(sortedCategories1);
+      const mockCategories = cloneDeep(unsortedCategories1);
+      expect(categoriesService.sortCategories(mockCategories)).toEqual(sortedCategories1);
     });
   });
 

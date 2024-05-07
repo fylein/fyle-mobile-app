@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AdvanceRequestActions } from '../models/advance-request-actions.model';
 
-export const apiAdvanceRequestAction: AdvanceRequestActions = {
+export const apiAdvanceRequestAction: AdvanceRequestActions = deepFreeze({
   id: 'areqoVuT5I8OOy',
   can_save: true,
   can_submit: true,
@@ -13,4 +15,4 @@ export const apiAdvanceRequestAction: AdvanceRequestActions = {
   can_pull_back: false,
   can_pay: false,
   can_delete: true,
-};
+});

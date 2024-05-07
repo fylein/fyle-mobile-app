@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { RecentlyUsed } from '../models/v1/recently_used.model';
-import { ExtendedProject } from '../models/v2/extended-project.model';
+import { ProjectV2 } from '../models/v2/project-v2.model';
 import { Currency, CurrencyName } from '../models/currency.model';
 import { CostCenter } from '../models/v1/cost-center.model';
 
-export const recentlyUsedRes: RecentlyUsed = {
+export const recentlyUsedRes: RecentlyUsed = deepFreeze({
   recent_project_ids: [168826, 247943, 247946],
   recent_org_category_ids: [89469, 129111, 16576],
   recent_cost_center_ids: [6671, 6725, 89, 2406],
@@ -24,9 +26,9 @@ export const recentlyUsedRes: RecentlyUsed = {
     '16/10, 16/10, Mariyamman Kovil St, Vagai Nagar, Ramanathapuram, Tamil Nadu 623504, India',
     'mg road race',
   ],
-};
+});
 
-export const recentlyUsedProjectRes: ExtendedProject[] = [
+export const recentlyUsedProjectRes: ProjectV2[] = deepFreeze([
   {
     ap1_email: 'john.d@fyle.in',
     ap1_full_name: 'John Doe',
@@ -85,9 +87,9 @@ export const recentlyUsedProjectRes: ExtendedProject[] = [
     projectv2_name: 'AcuVision Eye Centre',
     sub_project_name: null,
   },
-];
+]);
 
-export const recentCurrencyRes: Currency[] = [
+export const recentCurrencyRes: Currency[] = deepFreeze([
   {
     shortCode: 'ARS',
     longName: 'Argentine Peso',
@@ -104,94 +106,95 @@ export const recentCurrencyRes: Currency[] = [
     shortCode: 'CLP',
     longName: 'Chilean Peso',
   },
-];
+]);
 
-export const currencies: CurrencyName = {
+export const currencies: CurrencyName = deepFreeze({
   ARS: 'Argentine Peso',
   INR: 'Indian Rupee',
   EUR: 'Euro',
   CLP: 'Chilean Peso',
-};
+});
 
-export const recentlyUsedResWithoutCurr = {
+export const recentlyUsedResWithoutCurr = deepFreeze({
   ...recentlyUsedRes,
   recent_currencies: [],
-};
+});
 
-export const recentlyUsedResWithoutCostCenterId = {
+export const recentlyUsedResWithoutCostCenterId = deepFreeze({
   ...recentlyUsedRes,
   recent_cost_center_ids: [],
-};
+});
 
-export const recentlyUsedCategoryWithoutId = {
+export const recentlyUsedCategoryWithoutId = deepFreeze({
   ...recentlyUsedRes,
   recent_org_category_ids: [],
-};
+});
 
-export const costCentersResWithNonMatchingIds = {
+export const costCentersResWithNonMatchingIds = deepFreeze({
   ...recentlyUsedRes,
   recent_cost_center_ids: [2456, 2457, 3457, 3458],
-};
+});
 
-export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCenter; selected?: boolean }[]> = [
-  {
-    label: 'Cost center 1',
-    value: {
-      active: true,
-      code: '92344',
-      created_at: new Date('2020-10-27T17:07:55.516633+00:00'),
-      description: 'This is the description for cost center 1',
-      id: 6671,
-      name: 'Cost center 1',
-      org_id: 'orNVthTo2Zyo',
-      updated_at: new Date('2020-10-27T17:08:13.441319+00:00'),
+export const recentlyUsedCostCentersRes: Partial<{ label: string; value: CostCenter; selected?: boolean }[]> =
+  deepFreeze([
+    {
+      label: 'Cost center 1',
+      value: {
+        active: true,
+        code: '92344',
+        created_at: new Date('2020-10-27T17:07:55.516633+00:00'),
+        description: 'This is the description for cost center 1',
+        id: 6671,
+        name: 'Cost center 1',
+        org_id: 'orNVthTo2Zyo',
+        updated_at: new Date('2020-10-27T17:08:13.441319+00:00'),
+      },
     },
-  },
-  {
-    label: 'Cost center 2',
-    value: {
-      active: true,
-      code: 'A very long cost center code',
-      created_at: new Date('2020-12-08T03:11:07.653324+00:00'),
-      description: 'This is the description for cost center 2',
-      id: 6725,
-      name: 'Cost center 2',
-      org_id: 'orNVthTo2Zyo',
-      updated_at: new Date('2022-07-14T13:13:56.757449+00:00'),
+    {
+      label: 'Cost center 2',
+      value: {
+        active: true,
+        code: 'A very long cost center code',
+        created_at: new Date('2020-12-08T03:11:07.653324+00:00'),
+        description: 'This is the description for cost center 2',
+        id: 6725,
+        name: 'Cost center 2',
+        org_id: 'orNVthTo2Zyo',
+        updated_at: new Date('2022-07-14T13:13:56.757449+00:00'),
+      },
     },
-  },
-  {
-    label: 'Cost center 3',
-    value: {
-      active: true,
-      code: 'Administrion',
-      created_at: new Date('2019-02-01T06:59:07.889634+00:00'),
-      description: 'This is the description for cost center 3',
-      id: 89,
-      name: 'Cost center 3',
-      org_id: 'orNVthTo2Zyo',
-      updated_at: new Date('2019-08-28T10:11:41.004307+00:00'),
+    {
+      label: 'Cost center 3',
+      value: {
+        active: true,
+        code: 'Administrion',
+        created_at: new Date('2019-02-01T06:59:07.889634+00:00'),
+        description: 'This is the description for cost center 3',
+        id: 89,
+        name: 'Cost center 3',
+        org_id: 'orNVthTo2Zyo',
+        updated_at: new Date('2019-08-28T10:11:41.004307+00:00'),
+      },
     },
-  },
-  {
-    label: 'Cost center 4',
-    value: {
-      active: true,
-      code: 'code1',
-      created_at: new Date('2019-06-24T08:25:08.307285+00:00'),
-      description: 'This is the description for cost center 4',
-      id: 2406,
-      name: 'Cost center 4',
-      org_id: 'orNVthTo2Zyo',
-      updated_at: new Date('2022-09-08T19:17:19.671789+00:00'),
+    {
+      label: 'Cost center 4',
+      value: {
+        active: true,
+        code: 'code1',
+        created_at: new Date('2019-06-24T08:25:08.307285+00:00'),
+        description: 'This is the description for cost center 4',
+        id: 2406,
+        name: 'Cost center 4',
+        org_id: 'orNVthTo2Zyo',
+        updated_at: new Date('2022-09-08T19:17:19.671789+00:00'),
+      },
     },
-  },
-];
+  ]);
 
 export const recentlyUsedMileages: Pick<
   RecentlyUsed,
   'recent_start_locations' | 'recent_end_locations' | 'recent_locations'
-> = {
+> = deepFreeze({
   recent_start_locations: [
     'MG Road, Halasuru, Yellappa Chetty Layout, Sivanchetti Gardens, Bengaluru, Karnataka, India',
     'MG Road, Yellappa Chetty Layout, Sivanchetti Gardens, Halasuru, Karnataka, India',
@@ -207,4 +210,4 @@ export const recentlyUsedMileages: Pick<
     '16/10, 16/10, Mariyamman Kovil St, Vagai Nagar, Ramanathapuram, Tamil Nadu 623504, India',
     'mg road race',
   ],
-};
+});

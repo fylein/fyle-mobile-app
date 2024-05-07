@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PersonalCardTxn } from '../models/personal_card_txn.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
-export const apiPersonalCardTxnsRes: ApiV2Response<PersonalCardTxn> = {
+export const apiPersonalCardTxnsRes: ApiV2Response<PersonalCardTxn> = deepFreeze({
   count: 1,
   data: [
     {
@@ -33,9 +35,9 @@ export const apiPersonalCardTxnsRes: ApiV2Response<PersonalCardTxn> = {
   limit: 1,
   offset: 0,
   url: '/v2/personal_bank_transactions',
-};
+});
 
-export const matchedPersonalCardTxn: PersonalCardTxn = {
+export const matchedPersonalCardTxn: PersonalCardTxn = deepFreeze({
   _search_document:
     "'200':1 '200.00':2 'card':5 'debit':4,18 'huskyteambkstore':11 'purchase':6 'usd':3 'wa':16 'xx':8 'xx/xx':7 'xxp':9 'xxx':13,14 'xxx-xxx-xxxx':12 'xxxx':15 'xxxxuw':10 'xxxxx':17",
   ba_account_number: 'xxxx2345',
@@ -76,4 +78,4 @@ export const matchedPersonalCardTxn: PersonalCardTxn = {
       vendor_name: 'Office & Shipping',
     },
   ],
-};
+});

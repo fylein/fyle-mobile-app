@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ReportStats } from '../models/report-stats.model';
 
-export const expectedReportStats: ReportStats = {
+export const expectedReportStats: ReportStats = deepFreeze({
   draft: {
     count: 6,
     failed_amount: null,
@@ -46,9 +48,9 @@ export const expectedReportStats: ReportStats = {
     processing_count: null,
     reimbursable_amount: null,
   },
-};
+});
 
-export const expectedEmptyReportStats: ReportStats = {
+export const expectedEmptyReportStats: ReportStats = deepFreeze({
   draft: {
     total_amount: 0,
     count: 0,
@@ -94,4 +96,4 @@ export const expectedEmptyReportStats: ReportStats = {
     processing_count: null,
     reimbursable_amount: null,
   },
-};
+});

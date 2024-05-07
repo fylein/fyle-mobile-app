@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 interface ValueErrorMapping {
   value: string | null;
   error: string | null;
 }
 
-export const valueErrorMapping: ValueErrorMapping[] = [
+export const valueErrorMapping: ValueErrorMapping[] = deepFreeze([
   {
     value: null,
     error: 'Please enter a Mobile Number',
@@ -24,4 +26,4 @@ export const valueErrorMapping: ValueErrorMapping[] = [
     value: '+918080913866',
     error: null,
   },
-];
+]);

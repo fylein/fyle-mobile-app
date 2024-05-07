@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Expense } from '../models/expense.model';
 
-export const expensesWithDependentFields: Expense[] = [
+export const expensesWithDependentFields: Expense[] = deepFreeze([
   {
     corporate_credit_card_account_number: null,
     credit: false,
@@ -445,9 +447,9 @@ export const expensesWithDependentFields: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: '213',
   },
-];
+]);
 
-export const expensesWithSameProject: Expense[] = [
+export const expensesWithSameProject: Expense[] = deepFreeze([
   {
     corporate_credit_card_account_number: null,
     credit: false,
@@ -871,4 +873,4 @@ export const expensesWithSameProject: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: '213',
   },
-];
+]);

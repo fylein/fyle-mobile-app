@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { MatchedCCCTransaction } from '../models/matchedCCCTransaction.model';
 
-export const matchedCCCTransactionData1: MatchedCCCTransaction = {
+export const matchedCCCTransactionData1: MatchedCCCTransaction = deepFreeze({
   amount: -680.62,
   balance_transfer_id: null,
   card_or_account_number: '9880',
@@ -18,4 +20,4 @@ export const matchedCCCTransactionData1: MatchedCCCTransaction = {
   txn_dt: '2019-07-13T00:00:00.000Z',
   updated_at: '2023-07-17T13:24:47.274Z',
   vendor: 'HOTEL MARRIOT',
-};
+});
