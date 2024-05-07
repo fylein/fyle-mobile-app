@@ -5,7 +5,7 @@ import { FyAddToReportComponent } from './fy-add-to-report.component';
 import { Injector, NO_ERRORS_SCHEMA } from '@angular/core';
 import { FormControl, NG_VALUE_ACCESSOR, NgControl } from '@angular/forms';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { expectedReportsPaginated } from 'src/app/core/mock-data/platform-report.data';
@@ -23,7 +23,7 @@ describe('FyAddToReportComponent', () => {
   let component: FyAddToReportComponent;
   let fixture: ComponentFixture<FyAddToReportComponent>;
   let reportService: jasmine.SpyObj<ReportService>;
-  let platformReportsService: jasmine.SpyObj<ReportsService>;
+  let platformSpenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let modalProperties: jasmine.SpyObj<ModalPropertiesService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -36,7 +36,7 @@ describe('FyAddToReportComponent', () => {
       'createDraft',
       'getFilteredPendingReports',
     ]);
-    const platformReportsServiceSpy = jasmine.createSpyObj('ReportsService', [
+    const platformSpenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
       'getAllReportsByParams',
       'getReportsCount',
       'getReportsByParams',
@@ -71,8 +71,8 @@ describe('FyAddToReportComponent', () => {
           useValue: reportServiceSpy,
         },
         {
-          provide: ReportsService,
-          useValue: platformReportsServiceSpy,
+          provide: SpenderReportsService,
+          useValue: platformSpenderReportsServiceSpy,
         },
         {
           provide: ModalController,
@@ -98,7 +98,7 @@ describe('FyAddToReportComponent', () => {
     component = fixture.componentInstance;
     fixture.debugElement.injector.get(NG_VALUE_ACCESSOR);
     reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
-    platformReportsService = TestBed.inject(ReportsService) as jasmine.SpyObj<ReportsService>;
+    platformSpenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     modalProperties = TestBed.inject(ModalPropertiesService) as jasmine.SpyObj<ModalPropertiesService>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -171,22 +171,20 @@ describe('FyAddToReportComponent', () => {
       modalProperties.getModalDefaultProperties.and.returnValue(properties);
       reportService.getReportPurpose.and.returnValue(of('Client Meeting'));
       const draftReportPopoverSpy = jasmine.createSpyObj('draftReportPopover', ['present', 'onWillDismiss']);
-      draftReportPopoverSpy.onWillDismiss.and.returnValue(
-        Promise.resolve({
-          data: {
-            newValue: 'Client Meeting',
-          },
-        })
-      );
+      draftReportPopoverSpy.onWillDismiss.and.resolveTo({
+        data: {
+          newValue: 'Client Meeting',
+        },
+      });
       popoverController.create.and.resolveTo(draftReportPopoverSpy);
       // const mockReportData = cloneDeep(expectedReportsPaginated[1]);
       // mockReportData.id = 'rp72SaHM7Fbz';
-      platformReportsService.createDraft.and.returnValue(of(expectedReportsPaginated[0]));
-      platformReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
+      platformSpenderReportsService.createDraft.and.returnValue(of(expectedReportsPaginated[0]));
+      platformSpenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsPaginated));
     });
 
     it('should set value equals to value returned by modalController and track addToReportFromExpense and openAddToReportModal event if createDraftReport is false', fakeAsync(() => {
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: false,
@@ -204,13 +202,13 @@ describe('FyAddToReportComponent', () => {
       expect(component.value).toEqual(expectedReportsPaginated[0]);
       expect(trackingService.addToReportFromExpense).toHaveBeenCalledTimes(1);
       expect(trackingService.openAddToReportModal).toHaveBeenCalledTimes(1);
-      expect(platformReportsService.createDraft).not.toHaveBeenCalled();
+      expect(platformSpenderReportsService.createDraft).not.toHaveBeenCalled();
       expect(trackingService.createDraftReportFromExpense).not.toHaveBeenCalled();
       expect(trackingService.openCreateDraftReportPopover).not.toHaveBeenCalled();
     }));
 
     it('should call popoverController and create a report as a draft', fakeAsync(() => {
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: true,
@@ -227,10 +225,10 @@ describe('FyAddToReportComponent', () => {
       expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
       expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams3);
       expect(reportService.getReportPurpose).toHaveBeenCalledOnceWith({ ids: null });
-      expect(platformReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+      expect(platformSpenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
-      expect(platformReportsService.createDraft).toHaveBeenCalledOnceWith({
+      expect(platformSpenderReportsService.createDraft).toHaveBeenCalledOnceWith({
         data: {
           purpose: 'Client Meeting',
           source: 'MOBILE',
@@ -248,8 +246,8 @@ describe('FyAddToReportComponent', () => {
     it('should set value to undefined if createDraftReport is true and none of the filtered reports id matches with newly created report id', fakeAsync(() => {
       const mockReportData = cloneDeep(expectedReportsPaginated[1]);
       mockReportData.id = 'rp72SaHM7Fbz';
-      platformReportsService.createDraft.and.returnValue(of(mockReportData));
-      let selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
+      platformSpenderReportsService.createDraft.and.returnValue(of(mockReportData));
+      const selectionModalControllerSpy = jasmine.createSpyObj('selectionModal', ['present', 'onWillDismiss']);
       selectionModalControllerSpy.onWillDismiss.and.resolveTo({
         data: {
           createDraftReport: true,
@@ -260,7 +258,7 @@ describe('FyAddToReportComponent', () => {
       component.openModal();
       tick(100);
 
-      expect(component.value).toEqual(undefined);
+      expect(component.value).toBeUndefined();
     }));
   });
 

@@ -37,6 +37,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-view-mileage',
@@ -130,7 +131,8 @@ export class ViewMileagePage {
     private fileService: FileService,
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService,
-    private mileageRatesService: MileageRatesService
+    private mileageRatesService: MileageRatesService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -217,7 +219,7 @@ export class ViewMileagePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
+        deleteMethod: (): Observable<void> => this.approverReportsService.ejectExpenses(this.reportId, this.expenseId),
       },
     };
   }

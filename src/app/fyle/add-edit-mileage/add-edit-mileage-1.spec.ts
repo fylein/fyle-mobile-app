@@ -77,6 +77,7 @@ import { AddEditMileagePage } from './add-edit-mileage.page';
 import { extendedAccountData1 } from 'src/app/core/mock-data/extended-account.data';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases1(getTestBed) {
   return describe('AddEditMileage-1', () => {
@@ -90,6 +91,7 @@ export function TestCases1(getTestBed) {
     let dateService: jasmine.SpyObj<DateService>;
     let projectsService: jasmine.SpyObj<ProjectsService>;
     let reportService: jasmine.SpyObj<ReportService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
     let customInputsService: jasmine.SpyObj<CustomInputsService>;
     let customFieldsService: jasmine.SpyObj<CustomFieldsService>;
     let transactionService: jasmine.SpyObj<TransactionService>;
@@ -188,6 +190,7 @@ export function TestCases1(getTestBed) {
       mileageService = TestBed.inject(MileageService) as jasmine.SpyObj<MileageService>;
       mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
       locationService = TestBed.inject(LocationService) as jasmine.SpyObj<LocationService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
       component.fg = formBuilder.group({
         mileage_rate_name: [],
@@ -578,13 +581,13 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      let header = 'Header';
-      let body = 'Body';
-      let ctaText = 'cta';
-      let ctaLoadingText = 'loading';
+      const header = 'Header';
+      const body = 'Body';
+      const ctaText = 'cta';
+      const ctaLoadingText = 'loading';
 
       it('should get config params for delete report modal and call method to remove txn from report', () => {
-        reportService.removeTransaction.and.returnValue(of());
+        spenderReportsService.ejectExpenses.and.returnValue(of());
 
         const result = component.getDeleteReportParams({
           header,
@@ -597,7 +600,7 @@ export function TestCases1(getTestBed) {
         });
 
         result.componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledOnceWith('rp123', 'txn123');
+        expect(spenderReportsService.ejectExpenses).toHaveBeenCalledOnceWith('rp123', 'txn123');
       });
 
       it('should get config params for delete report modal and call method to delete expense', () => {

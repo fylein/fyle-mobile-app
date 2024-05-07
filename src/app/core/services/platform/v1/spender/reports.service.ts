@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@angular/core';
-import { Observable, range } from 'rxjs';
-import { concatMap, map, reduce, switchMap } from 'rxjs/operators';
+import { Observable, Subject, range } from 'rxjs';
+import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
@@ -8,15 +8,68 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { CacheBuster } from 'ts-cacheable';
+import { UserEventService } from '../../../user-event.service';
+import { TransactionService } from '../../../transaction.service';
+
+const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
 })
-export class ReportsService {
+export class SpenderReportsService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
+    private userEventService: UserEventService,
+    private transactionService: TransactionService
+  ) {
+    reportsCacheBuster$.subscribe(() => {
+      this.userEventService.clearTaskCache();
+    });
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  clearTransactionCache(): Observable<null> {
+    return this.transactionService.clearCache();
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  ejectExpenses(rptId: string, txnId: string, comment?: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: [txnId],
+      },
+      reason: comment,
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/eject_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
+
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  addExpenses(rptId: string, expenseIds: string[]): Observable<void> {
+    const payload = {
+      data: {
+        id: rptId,
+        expense_ids: expenseIds,
+      },
+    };
+    return this.spenderPlatformV1ApiService.post<void>('/reports/add_expenses', payload).pipe(
+      tap(() => {
+        this.clearTransactionCache();
+      })
+    );
+  }
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(

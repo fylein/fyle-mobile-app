@@ -9,7 +9,6 @@ import { TransactionService } from './transaction.service';
 import { FileService } from './file.service';
 import { StatusService } from './status.service';
 import { cloneDeep, indexOf } from 'lodash';
-import { ReportService } from './report.service';
 import { ParsedReceipt } from '../models/parsed_receipt.model';
 import { TrackingService } from './tracking.service';
 import { Expense } from '../models/expense.model';
@@ -19,6 +18,7 @@ import { Transaction } from '../models/v1/transaction.model';
 import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 @Injectable({
   providedIn: 'root',
@@ -46,7 +46,7 @@ export class TransactionsOutboxService {
     private fileService: FileService,
     private statusService: StatusService,
     private httpClient: HttpClient,
-    private reportService: ReportService,
+    private spenderReportsService: SpenderReportsService,
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
@@ -400,8 +400,8 @@ export class TransactionsOutboxService {
               that.removeEntry(entry);
               if (reportId) {
                 const txnIds = [resp.id];
-                that.reportService
-                  .addTransactions(reportId, txnIds)
+                that.spenderReportsService
+                  .addExpenses(reportId, txnIds)
                   .toPromise()
                   .then(() => {
                     this.trackingService.addToExistingReportAddEditExpense();
