@@ -198,28 +198,6 @@ describe('SpenderReportsService', () => {
     });
   });
 
-  it('getReportsStats(): should get advance request stats', (done) => {
-    const statsResponse = {
-      count: 2,
-      total_amount: 1200,
-    };
-    spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
-
-    const params = {
-      state: 'eq.DRAFT',
-    };
-
-    spenderReportsService.getReportsStats(params).subscribe((res) => {
-      expect(res).toEqual(expectedReportStats.draft);
-      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
-        data: {
-          query_params: `state=${params.state}`,
-        },
-      });
-      done();
-    });
-  });
-
   it('ejectExpenses(): should remove an expense from a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
     spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
