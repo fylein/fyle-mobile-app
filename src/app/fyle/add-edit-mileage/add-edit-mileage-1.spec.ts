@@ -582,9 +582,9 @@ export function TestCases1(getTestBed) {
 
     describe('getDeleteReportParams():', () => {
       const header = 'Header';
-      let body = 'Body';
-      let ctaText = 'cta';
-      let ctaLoadingText = 'loading';
+      const body = 'Body';
+      const ctaText = 'cta';
+      const ctaLoadingText = 'loading';
 
       it('should get config params for delete report modal and call method to remove txn from report', () => {
         spenderReportsService.ejectExpenses.and.returnValue(of());
