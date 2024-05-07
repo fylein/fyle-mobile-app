@@ -12,6 +12,7 @@ import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformProject } from '../models/platform/platform-project.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { PlatformProjectParams } from '../models/platform/v1/platform-project-params.model';
 
 @Injectable({
   providedIn: 'root',
@@ -26,8 +27,8 @@ export class ProjectsService {
   @Cacheable()
   getByParamsUnformatted(
     projectParams: Partial<{
-      orgId: string;
-      active: boolean;
+      org_id: string;
+      is_enabled: boolean;
       orgCategoryIds: string[];
       searchNameText: string;
       limit: number;
@@ -38,20 +39,20 @@ export class ProjectsService {
     }>
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
-    let { orgId, active, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
+    let { org_id, is_enabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
 
-    const params: ProjectParams = {
-      project_org_id: 'eq.' + orgId,
+    const params: PlatformProjectParams = {
+      org_id: 'eq.' + org_id,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
       offset: offset || 0,
     };
 
     // `active` can be optional
-    this.addActiveFilter(active, params);
+    this.addActiveFilter(is_enabled, params);
 
     // `orgCategoryIds` can be optional
     this.addOrgCategoryIdsFilter(orgCategoryIds, params);
@@ -62,19 +63,11 @@ export class ProjectsService {
     // `searchNameText` can be optional
     this.addNameSearchFilter(searchNameText, params);
 
-    return this.apiV2Service
-      .get<ProjectV2, {}>('/projects', {
+    return this.spenderPlatformV1ApiService
+      .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params,
       })
-      .pipe(
-        map((res) =>
-          res.data.map((datum) => ({
-            ...datum,
-            project_created_at: new Date(datum.project_created_at),
-            project_updated_at: new Date(datum.project_updated_at),
-          }))
-        )
-      );
+      .pipe(map((res) => this.transformToV2Response(res.data)));
   }
 
   @Cacheable()
@@ -94,27 +87,27 @@ export class ProjectsService {
     );
   }
 
-  addNameSearchFilter(searchNameText: string, params: ProjectParams): void {
+  addNameSearchFilter(searchNameText: string, params: PlatformProjectParams): void {
     if (typeof searchNameText !== 'undefined' && searchNameText !== null) {
-      params.project_name = 'ilike.%' + searchNameText + '%';
+      params.name = 'ilike.%' + searchNameText + '%';
     }
   }
 
-  addProjectIdsFilter(projectIds: number[], params: ProjectParams): void {
+  addProjectIdsFilter(projectIds: number[], params: PlatformProjectParams): void {
     if (typeof projectIds !== 'undefined' && projectIds !== null) {
-      params.project_id = 'in.(' + projectIds.join(',') + ')';
+      params.id = 'in.(' + projectIds.join(',') + ')';
     }
   }
 
-  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: ProjectParams): void {
+  addOrgCategoryIdsFilter(orgCategoryIds: string[], params: PlatformProjectParams): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.project_org_category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
+      params.category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
     }
   }
 
-  addActiveFilter(active: boolean, params: ProjectParams): void {
-    if (typeof active !== 'undefined' && active !== null) {
-      params.project_active = 'eq.' + active;
+  addActiveFilter(is_enabled: boolean, params: PlatformProjectParams): void {
+    if (typeof is_enabled !== 'undefined' && is_enabled !== null) {
+      params.is_enabled = 'eq.' + is_enabled;
     }
   }
 
