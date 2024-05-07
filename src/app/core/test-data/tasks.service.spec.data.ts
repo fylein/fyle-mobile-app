@@ -1,4 +1,5 @@
 import deepFreeze from 'deep-freeze-strict';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
 export const potentialDuplicatesApiResponse = deepFreeze([
   { transaction_ids: ['tx3I0ccSGlhg', 'txvAmVCGZUZi'], fields: ['amount', 'currency', 'txn_dt'] },
@@ -22,16 +23,16 @@ export const potentialDuplicatesApiResponse = deepFreeze([
   { transaction_ids: ['txT0ZmCrVOiD', 'txzjWIcqYxa9'], fields: ['amount', 'currency', 'txn_dt'] },
 ]);
 
-export const extendedOrgUserResponse = deepFreeze({
+export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'out3t2X258rd',
     created_at: new Date('2019-02-04T10:26:36.877Z'),
     org_id: 'orrjqbDbeP9p',
     user_id: 'usN0bYiJRI5V',
-    employee_id: null,
+    employee_id: 'ouE1vAIIxhaA',
     location: 'indiax',
     level: null,
-    level_id: null,
+    level_id: 'lvlPtroPaClQy',
     band: null,
     rank: null,
     business_unit: null,
