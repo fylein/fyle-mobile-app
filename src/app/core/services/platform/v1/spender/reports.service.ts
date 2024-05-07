@@ -13,6 +13,7 @@ import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/plat
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
+import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -121,14 +122,14 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
     const queryParams = {
       data: {
         query_params: `state=${params.state}`,
       },
     };
     return this.spenderPlatformV1ApiService
-      .post<{ data: StatsResponse }>('/reports/stats', queryParams)
+      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }

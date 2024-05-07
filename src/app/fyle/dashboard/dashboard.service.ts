@@ -61,13 +61,14 @@ export class DashboardService {
     const paymentProcessingStats = this.spenderReportsService.getReportsStats({
       state: 'eq.PAYMENT_PROCESSING',
     });
-    const reportStatsObservable$ = forkJoin({
+    const reportStatsValues = {
       draft: draftStats,
       report: reportedStats,
       approved: approvedStats,
       paymentPending: paymentPendingStats,
       processing: paymentProcessingStats,
-    });
+    };
+    const reportStatsObservable$ = forkJoin(reportStatsValues);
     return reportStatsObservable$;
   }
 
