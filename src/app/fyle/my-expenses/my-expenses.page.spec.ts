@@ -75,7 +75,7 @@ import {
   perDiemExpenseWithSingleNumDays,
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { reportUnflattenedData } from 'src/app/core/mock-data/report-v1.data';
-import { apiExtendedReportRes, expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
+import { expectedReportSingleResponse } from 'src/app/core/mock-data/report.data';
 import { selectedFilters1, selectedFilters2 } from 'src/app/core/mock-data/selected-filters.data';
 import {
   snackbarPropertiesRes,
@@ -125,6 +125,7 @@ import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -257,7 +258,10 @@ describe('MyExpensesV2Page', () => {
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'getAllReportsByParams',
+    ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
       'getExpensesCount',
       'getExpenses',
@@ -475,7 +479,7 @@ describe('MyExpensesV2Page', () => {
       expensesService.getExpensesCount.and.returnValue(of(10));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
 
-      reportService.getAllExtendedReports.and.returnValue(of(apiExtendedReportRes));
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
 
@@ -914,30 +918,25 @@ describe('MyExpensesV2Page', () => {
       component.ionViewWillEnter();
       tick(500);
 
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
+      expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(apiExtendedReportRes);
+        expect(openReports).toEqual(expectedReportsSinglePage);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
     it('should set openReports$ and call doRefresh if report_approvals is defined', fakeAsync(() => {
-      const extendedReportResWithReportApproval = [expectedReportSingleResponse];
-      reportService.getAllExtendedReports.and.returnValue(of(extendedReportResWithReportApproval));
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       component.ionViewWillEnter();
       tick(500);
 
-      expect(reportService.getAllExtendedReports).toHaveBeenCalledOnceWith({
-        queryParams: {
-          rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        },
+      expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(extendedReportResWithReportApproval);
+        expect(openReports).toEqual(expectedReportsSinglePage);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
@@ -2220,7 +2219,7 @@ describe('MyExpensesV2Page', () => {
       'onDidDismiss',
     ]);
     addExpenseToNewReportModalSpy.onDidDismiss.and.resolveTo({
-      data: { report: apiExtendedReportRes[0], message: 'new report is created' },
+      data: { report: expectedReportsSinglePage[0], message: 'new report is created' },
     });
     modalController.create.and.resolveTo(addExpenseToNewReportModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
@@ -2230,7 +2229,7 @@ describe('MyExpensesV2Page', () => {
     tick(100);
     expect(modalController.create).toHaveBeenCalledOnceWith(newReportModalParams2);
     expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
-      report: apiExtendedReportRes[0],
+      report: expectedReportsSinglePage[0],
       message: 'new report is created',
     });
   }));
@@ -2384,7 +2383,7 @@ describe('MyExpensesV2Page', () => {
     it('should navigate to my_view_report and open matSnackbar', () => {
       component.showAddToReportSuccessToast({
         message: 'Expense added to report successfully',
-        report: apiExtendedReportRes[0],
+        report: expectedReportsSinglePage[0],
       });
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -2448,12 +2447,12 @@ describe('MyExpensesV2Page', () => {
 
     spenderReportsService.addExpenses.and.returnValue(of());
     component
-      .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
+      .addTransactionsToReport(expectedReportsSinglePage[0], ['tx5fBcPBAxLv'])
       .pipe(
         tap((updatedReport) => {
           expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
           expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
-          expect(updatedReport).toEqual(apiExtendedReportRes[0]);
+          expect(updatedReport).toEqual(expectedReportsSinglePage[0]);
         }),
         finalize(() => {
           expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
@@ -2467,40 +2466,40 @@ describe('MyExpensesV2Page', () => {
     beforeEach(() => {
       component.selectedElements = apiExpenses1;
       component.isNewReportsFlowEnabled = true;
-      component.openReports$ = of(apiExtendedReportRes);
+      component.openReports$ = of(expectedReportsSinglePage);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'showAddToReportSuccessToast');
     });
 
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', () => {
-      spyOn(component, 'addTransactionsToReport').and.returnValue(of(apiExtendedReportRes[0]));
+      spyOn(component, 'addTransactionsToReport').and.returnValue(of(expectedReportsSinglePage[0]));
 
       matBottomsheet.open.and.returnValue({
         afterDismissed: () =>
           of({
-            report: apiExtendedReportRes[0],
+            report: expectedReportsSinglePage[0],
           }),
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
 
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
       });
-      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(apiExtendedReportRes[0], [
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0], [
         'txDDLtRaflUW',
         'tx5WDG9lxBDT',
       ]);
       expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
-        message: 'Expenses added to report successfully',
-        report: apiExtendedReportRes[0],
+        message: 'Expenses added to an existing draft report',
+        report: expectedReportsSinglePage[0],
       });
     });
 
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', () => {
-      const mockReportData = cloneDeep(apiExtendedReportRes);
-      mockReportData[0].rp_state = 'DRAFT';
+      const mockReportData = cloneDeep(expectedReportsSinglePage);
+      mockReportData[0].state = 'DRAFT';
       component.openReports$ = of(mockReportData);
       spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReportData[0]));
       matBottomsheet.open.and.returnValue({
@@ -2537,7 +2536,7 @@ describe('MyExpensesV2Page', () => {
 
       component.showOldReportsMatBottomSheet();
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: apiExtendedReportRes, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
       });
 

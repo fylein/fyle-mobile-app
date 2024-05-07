@@ -342,8 +342,73 @@ export const allReportsPaginated2: PlatformApiResponse<Report> = {
   offset: 2,
 };
 
+export const submittedReportData: Report = {
+  amount: 300,
+  approvals: [],
+  created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  currency: 'USD',
+  employee: {
+    ach_account: {
+      added: true,
+      verified: null,
+    },
+    business_unit:
+      'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
+    code: null,
+    department: {
+      code: null,
+      display_name: '0000000 / arun',
+      id: 'dept7HJ9C4wvtX',
+      name: '0000000',
+      sub_department: 'arun',
+    },
+    department_id: 'dept7HJ9C4wvtX',
+    id: 'ouX8dwsbLCLv',
+    location: 'Mumbai',
+    org_id: 'orNVthTo2Zyo',
+    title: 'director',
+    user: {
+      email: 'ajain@fyle.in',
+      full_name: 'Abhishek Jain',
+      id: 'usvKA4X8Ugcr',
+    },
+    user_id: 'usvKA4X8Ugcr',
+  },
+  employee_id: 'ouX8dwsbLCLv',
+  id: 'rpMvN0P10l6F',
+  is_exported: false,
+  is_manually_flagged: false,
+  is_physical_bill_submitted: false,
+  is_policy_flagged: false,
+  is_verified: false,
+  last_approved_at: null,
+  last_paid_at: null,
+  last_resubmitted_at: null,
+  last_submitted_at: null,
+  next_approver_user_ids: null,
+  num_expenses: 0,
+  org_id: 'orNVthTo2Zyo',
+  physical_bill_submitted_at: null,
+  purpose: '#6:  Jan 2023',
+  seq_num: 'C/2023/07/R/17',
+  settlement_id: null,
+  source: 'WEBAPP',
+  state: 'APPROVER_PENDING',
+  state_display_name: 'Draft',
+  tax: null,
+  updated_at: new Date('2023-08-09T13:02:35.097839+00:00'),
+  user: {
+    email: 'ajain@fyle.in',
+    full_name: 'Abhishek Jain',
+    id: 'usvKA4X8Ugcr',
+  },
+  user_id: 'usvKA4X8Ugcr',
+};
+
 export const expectedSingleReport: Report[] = [allReportsPaginated1.data[0]];
 
 export const expectedReportsSinglePage: Report[] = [...allReportsPaginated1.data];
+
+export const expectedReportsSinglePageSubmitted: Report[] = [...allReportsPaginated1.data, submittedReportData];
 
 export const expectedReportsPaginated: Report[] = [...allReportsPaginated1.data, ...allReportsPaginated2.data];
