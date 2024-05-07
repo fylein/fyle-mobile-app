@@ -153,12 +153,13 @@ describe('SpenderReportsService', () => {
     });
   });
 
-  it('getReport(): should get a report by id', () => {
+  it('getReportById(): should get a report by id', () => {
     spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {
       id: 'eq.rpvcIMRMyM3A',
     };
-    spenderReportsService.getReport('rpvcIMRMyM3A').subscribe((res) => {
+    spenderReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });

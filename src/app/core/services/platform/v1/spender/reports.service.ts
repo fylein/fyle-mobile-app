@@ -110,9 +110,9 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
-  getReport(id: string): Observable<Report> {
+  getReportById(id: string): Observable<Report> {
     const queryParams = { id: `eq.${id}` };
-    return this.getReportsByParams(queryParams).pipe(map((res) => res.data[0]));
+    return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
   createDraft(data: CreateDraftParams): Observable<Report> {

@@ -36,7 +36,7 @@ export class ApproverReportsService {
   }
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
-    let params = {
+    const params = {
       state: queryParams.state,
       limit: 1,
       offset: 0,
@@ -44,13 +44,13 @@ export class ApproverReportsService {
     return this.getReportsByParams(params).pipe(map((res) => res.count));
   }
 
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report>> {
+  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
     const config = {
       params: {
         ...queryParams,
       },
     };
-    return this.approverPlatformApiService.get<PlatformApiResponse<Report>>('/reports', config);
+    return this.approverPlatformApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
   getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
@@ -64,9 +64,9 @@ export class ApproverReportsService {
       .pipe(map((res) => res.data));
   }
 
-  getReport(id: string): Observable<Report> {
+  getReportById(id: string): Observable<Report> {
     const queryParams = { id: `eq.${id}` };
-    return this.getReportsByParams(queryParams).pipe(map((res) => res.data[0]));
+    return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {
