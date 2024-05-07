@@ -34,6 +34,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-tasks',
@@ -521,12 +522,12 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
-      from(this.authService.getEou()).pipe(
+      from(this.authService.getEou()).subscribe((eou) => {
         const queryParams = {
           next_approver_user_ids: `cs.[${eou.us.id}]`,
           state: 'eq.APPROVER_PENDING',
         };
-        from(this.loaderService.showLoader('Opening your report...'))
+        return from(this.loaderService.showLoader('Opening your report...'))
           .pipe(
             switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
             finalize(() => this.loaderService.hideLoader())
@@ -534,7 +535,7 @@ export class TasksComponent implements OnInit {
           .subscribe((res) => {
             this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
           });
-      )
+      });
     } else {
       this.router.navigate(['/', 'enterprise', 'team_reports'], {
         queryParams: {
