@@ -90,7 +90,7 @@ export class StatsComponent implements OnInit {
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
 
     const simplifyReportsSettings$ = orgSettings$.pipe(
-      map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
+      map((orgSettings) => ({ enabled: orgSettings.simplified_report_closure_settings?.enabled }))
     );
 
     const isNonReimbursableOrg$ = orgSettings$.pipe(
