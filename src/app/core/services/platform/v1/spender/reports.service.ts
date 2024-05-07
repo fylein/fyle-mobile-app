@@ -8,6 +8,8 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
+import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
@@ -79,10 +81,11 @@ export class SpenderReportsService {
       }),
       concatMap((page) => {
         const params = {
-          state: queryParams.state,
+          ...queryParams,
           offset: this.paginationSize * page,
           limit: this.paginationSize,
         };
+
         return this.getReportsByParams(params);
       }),
       reduce((acc, curr) => acc.concat(curr.data), [] as Report[])
@@ -107,9 +110,25 @@ export class SpenderReportsService {
     return this.spenderPlatformV1ApiService.get<PlatformApiResponse<Report[]>>('/reports', config);
   }
 
+  getReportById(id: string): Observable<Report> {
+    const queryParams = { id: `eq.${id}` };
+    return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
+  }
+
   createDraft(data: CreateDraftParams): Observable<Report> {
     return this.spenderPlatformV1ApiService
       .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(map((res) => res.data));
+  }
+
+  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+    const queryParams = {
+      data: {
+        query_params: `state=${params.state}`,
+      },
+    };
+    return this.spenderPlatformV1ApiService
+      .post<{ data: StatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }
