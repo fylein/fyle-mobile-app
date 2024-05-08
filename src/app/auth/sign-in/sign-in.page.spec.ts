@@ -6,7 +6,10 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
+<<<<<<< HEAD
 // import { PushNotificationService } from 'src/app/core/services/push-notification.service';
+=======
+>>>>>>> 3216ffcfb914e8ded84ec521ffe91416bdb1cd92
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
@@ -41,7 +44,6 @@ describe('SignInPage', () => {
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
   let googleAuthService: jasmine.SpyObj<GoogleAuthService>;
   let inAppBrowser: jasmine.SpyObj<InAppBrowser>;
-  // let pushNotificationService: jasmine.SpyObj<PushNotificationService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let deviceService: jasmine.SpyObj<DeviceService>;
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
@@ -61,7 +63,6 @@ describe('SignInPage', () => {
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const googleAuthServiceSpy = jasmine.createSpyObj('GoogleAuthService', ['login']);
     const inAppBrowserSpy = jasmine.createSpyObj('InAppBrowser', ['create']);
-    // const pushNotificationServiceSpy = jasmine.createSpyObj('PushNotificationService', ['initPush']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['onSignin', 'eventTrack']);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const loginInfoServiceSpy = jasmine.createSpyObj('LoginInfoService', ['addLoginInfo']);
@@ -114,10 +115,6 @@ describe('SignInPage', () => {
           provide: InAppBrowser,
           useValue: inAppBrowserSpy,
         },
-        // {
-        //   provide: PushNotificationService,
-        //   useValue: pushNotificationServiceSpy,
-        // },
         {
           provide: TrackingService,
           useValue: trackingServiceSpy,
@@ -149,7 +146,6 @@ describe('SignInPage', () => {
     activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
     googleAuthService = TestBed.inject(GoogleAuthService) as jasmine.SpyObj<GoogleAuthService>;
     inAppBrowser = TestBed.inject(InAppBrowser) as jasmine.SpyObj<InAppBrowser>;
-    // pushNotificationService = TestBed.inject(PushNotificationService) as jasmine.SpyObj<PushNotificationService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     deviceService = TestBed.inject(DeviceService) as jasmine.SpyObj<DeviceService>;
     loginInfoService = TestBed.inject(LoginInfoService) as jasmine.SpyObj<LoginInfoService>;
@@ -191,7 +187,6 @@ describe('SignInPage', () => {
     it('should check saml response and sign in user', async () => {
       routerAuthService.handleSignInResponse.and.returnValue(Promise.resolve(authResData1));
       spyOn(component, 'trackLoginInfo');
-      // pushNotificationService.initPush.and.callThrough();
       router.navigate.and.returnValue(Promise.resolve(true));
       authService.refreshEou.and.returnValue(of(apiEouRes));
 
@@ -203,7 +198,6 @@ describe('SignInPage', () => {
       expect(routerAuthService.handleSignInResponse).toHaveBeenCalledOnceWith(samlResData1);
       expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
-      // expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
 
@@ -361,7 +355,6 @@ describe('SignInPage', () => {
       routerAuthService.basicSignin.and.returnValue(of(authResData1));
       authService.refreshEou.and.returnValue(of(apiEouRes));
       trackingService.onSignin.and.callThrough();
-      // pushNotificationService.initPush.and.callThrough();
       router.navigate.and.returnValue(Promise.resolve(true));
       component.fg.controls.password.setValue('password');
       component.fg.controls.email.setValue('email');
@@ -374,7 +367,6 @@ describe('SignInPage', () => {
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('email', {
         label: 'Email',
       });
-      // expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
     });
 
@@ -384,7 +376,6 @@ describe('SignInPage', () => {
       routerAuthService.basicSignin.and.returnValue(throwError(() => new HttpErrorResponse({ error: 'error' })));
       authService.refreshEou.and.returnValue(of(apiEouRes));
       trackingService.onSignin.and.callThrough();
-      // pushNotificationService.initPush.and.callThrough();
       router.navigate.and.returnValue(Promise.resolve(true));
       spyOn(component, 'handleError');
       fixture.detectChanges();
@@ -416,7 +407,6 @@ describe('SignInPage', () => {
       loaderService.hideLoader.and.returnValue(Promise.resolve());
       routerAuthService.googleSignin.and.returnValue(of(authResData2));
       trackingService.onSignin.and.callThrough();
-      // pushNotificationService.initPush.and.callThrough();
       router.navigate.and.returnValue(Promise.resolve(true));
       authService.refreshEou.and.returnValue(of(apiEouRes));
 
@@ -430,7 +420,6 @@ describe('SignInPage', () => {
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in', {
         label: 'Email',
       });
-      // expect(pushNotificationService.initPush).toHaveBeenCalledTimes(1);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'auth', 'switch_org', { choose: true }]);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
     });

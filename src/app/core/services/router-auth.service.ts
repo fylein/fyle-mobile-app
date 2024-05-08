@@ -10,7 +10,6 @@ import { ApiV2Service } from './api-v2.service';
 import { LocationService } from './location.service';
 import { TransactionsOutboxService } from './transactions-outbox.service';
 import { VendorService } from './vendor.service';
-// import { PushNotificationService } from './push-notification.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExpenseAggregationService } from './expense-aggregation.service';
@@ -32,7 +31,6 @@ export class RouterAuthService {
     private locationService: LocationService,
     private transactionOutboxService: TransactionsOutboxService,
     private vendorService: VendorService,
-    // private pushNotificationService: PushNotificationService,
     private approverPlatformApiService: ApproverPlatformApiService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private expenseAggregationService: ExpenseAggregationService,
@@ -62,7 +60,6 @@ export class RouterAuthService {
     this.locationService.setRoot(domain);
     this.transactionOutboxService.setRoot(domain);
     this.vendorService.setRoot(domain);
-    // this.pushNotificationService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);
     this.approverPlatformApiService.setRoot(domain);
     this.spenderPlatformV1ApiService.setRoot(domain);

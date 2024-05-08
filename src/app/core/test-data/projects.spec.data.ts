@@ -1,5 +1,4 @@
 import deepFreeze from 'deep-freeze-strict';
-
 import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
@@ -146,13 +145,7 @@ export const apiV2ResponseSingle = deepFreeze({
   count: 1,
   data: [
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
