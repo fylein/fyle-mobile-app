@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
