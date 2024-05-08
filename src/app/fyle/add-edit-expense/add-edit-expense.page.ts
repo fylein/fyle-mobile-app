@@ -1627,9 +1627,7 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => {
-        return etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]);
-      }),
+      switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
       map((fileObjs) => (fileObjs && fileObjs.length) || 0)
     );
   }
@@ -3098,9 +3096,7 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => {
-            return etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]);
-          }),
+          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
           switchMap((fileObjs) => from(fileObjs)),
           concatMap((fileObj: FileObject) =>
             this.fileService.downloadUrl(fileObj.id).pipe(
@@ -4425,9 +4421,7 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => {
-            return etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]);
-          }),
+          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
           map((fileObjs) => fileObjs?.length || 0)
         );
 
