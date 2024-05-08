@@ -8,7 +8,6 @@ import { CustomInputsService } from 'src/app/core/services/custom-inputs.service
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, filter, take } from 'rxjs/operators';
-import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
@@ -106,7 +105,6 @@ export class ViewPerDiemPage {
     private customInputsService: CustomInputsService,
     private perDiemService: PerDiemService,
     private policyService: PolicyService,
-    private reportService: ReportService,
     private router: Router,
     private popoverController: PopoverController,
     private statusService: StatusService,
