@@ -268,7 +268,7 @@ describe('CreateNewReportComponent', () => {
 
       const txnIds = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const report = reportUnflattenedData2;
-      reportService.create.and.returnValue(of(reportUnflattenedData2));
+      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.ctaClickedEvent('submit_report');
       fixture.detectChanges();
       tick(500);
