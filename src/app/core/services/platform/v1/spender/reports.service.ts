@@ -73,6 +73,15 @@ export class SpenderReportsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Report>>('/reports', data)
+      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res.data))));
+  }
+
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
@@ -113,15 +122,6 @@ export class SpenderReportsService {
   getReportById(id: string): Observable<Report> {
     const queryParams = { id: `eq.${id}` };
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
   }
 
   getReportsStats(params: PlatformStatsRequestParams): Observable<PlatformReportsStatsResponse> {
