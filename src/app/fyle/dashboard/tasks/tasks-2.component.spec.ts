@@ -44,6 +44,7 @@ import {
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -360,6 +361,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
+        authService.getEou.and.resolveTo(apiEouRes);
         approverReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       });
 
@@ -371,8 +373,7 @@ export function TestCases2(getTestBed) {
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
         expect(approverReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
           state: 'eq.APPROVER_PENDING',
-          offset: 0,
-          limit: 1,
+          next_approver_user_ids: `cs.[${apiEouRes.us.id}]`,
         });
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
