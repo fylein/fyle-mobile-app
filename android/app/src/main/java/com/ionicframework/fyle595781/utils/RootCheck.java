@@ -1,6 +1,5 @@
 package com.ionicframework.fyle595781.utils;
 
-
 import android.content.Context;
 import android.content.pm.PackageManager;
 import java.io.BufferedReader;
