@@ -6,10 +6,7 @@ import { ReportStats } from 'src/app/core/models/report-stats.model';
 import { CorporateCreditCardExpenseService } from 'src/app/core/services/corporate-credit-card-expense.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Stats } from '../../core/models/stats.model';
-import { StatsResponse } from '../../core/models/v2/stats-response.model';
-import { ReportService } from '../../core/services/report.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Injectable()
 export class DashboardService {
@@ -64,13 +61,14 @@ export class DashboardService {
     const paymentProcessingStats = this.spenderReportsService.getReportsStats({
       state: 'eq.PAYMENT_PROCESSING',
     });
-    const reportStatsObservable$ = forkJoin({
+    const reportStatsValues = {
       draft: draftStats,
       report: reportedStats,
       approved: approvedStats,
       paymentPending: paymentPendingStats,
       processing: paymentProcessingStats,
-    });
+    };
+    const reportStatsObservable$ = forkJoin(reportStatsValues);
     return reportStatsObservable$;
   }
 

@@ -101,7 +101,7 @@ describe('TransactionsOutboxService', () => {
   it('saveQueue(): should save queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    storageService.set.and.returnValue(Promise.resolve(null));
+    storageService.set.and.resolveTo(null);
     transactionsOutboxService.saveQueue();
     expect(storageService.set).toHaveBeenCalledOnceWith('outbox', transactionsOutboxService.queue);
   });
@@ -109,7 +109,7 @@ describe('TransactionsOutboxService', () => {
   it('saveDataExtractionQueue(): should save data extraction queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.dataExtractionQueue = mockQueue;
-    storageService.set.and.returnValue(Promise.resolve(null));
+    storageService.set.and.resolveTo(null);
     transactionsOutboxService.saveDataExtractionQueue();
     expect(storageService.set).toHaveBeenCalledOnceWith(
       'data_extraction_queue',
@@ -164,7 +164,7 @@ describe('TransactionsOutboxService', () => {
   it('removeDataExtractionEntry():', async () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.dataExtractionQueue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
     await transactionsOutboxService.removeDataExtractionEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -173,7 +173,7 @@ describe('TransactionsOutboxService', () => {
   });
 
   it('addDataExtractionEntry():', () => {
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
     transactionsOutboxService.addDataExtractionEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -201,14 +201,14 @@ describe('TransactionsOutboxService', () => {
   it('removeEntry(): should remove entry from queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.removeEntry(outboxQueueData1[0]);
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
     expect(transactionsOutboxService.queue.length).toEqual(0);
   });
 
   it('addEntry(): should add entry to queue', () => {
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.addEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -220,8 +220,8 @@ describe('TransactionsOutboxService', () => {
     beforeEach(() => {
       const mockQueue = cloneDeep(outboxQueueData1);
       transactionsOutboxService.queue = mockQueue;
-      spyOn(transactionsOutboxService, 'addEntry').and.returnValue(Promise.resolve());
-      spyOn(transactionsOutboxService, 'syncEntry').and.returnValue(Promise.resolve(outboxQueueData1[0]));
+      spyOn(transactionsOutboxService, 'addEntry').and.resolveTo();
+      spyOn(transactionsOutboxService, 'syncEntry').and.resolveTo(outboxQueueData1[0]);
     });
 
     it('should add entry to queue and sync', () => {
@@ -275,7 +275,7 @@ describe('TransactionsOutboxService', () => {
   it('deleteOfflineExpense(): should delete offline expense', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.deleteOfflineExpense(0);
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
     expect(transactionsOutboxService.queue.length).toEqual(0);

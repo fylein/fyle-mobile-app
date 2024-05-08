@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { DependentFieldOption } from '../models/dependent-field-option.model';
 
-export const dependentFieldOptions: DependentFieldOption[] = [
+export const dependentFieldOptions: DependentFieldOption[] = deepFreeze([
   {
     label: 'Other Dep. Value 1',
     value: 'Other Dep. Value 1',
@@ -16,9 +18,9 @@ export const dependentFieldOptions: DependentFieldOption[] = [
     value: 'Other Dep. Value 3',
     selected: false,
   },
-];
+]);
 
-export const dependentFieldOptionsWithoutSelection: DependentFieldOption[] = [
+export const dependentFieldOptionsWithoutSelection: DependentFieldOption[] = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -39,9 +41,9 @@ export const dependentFieldOptionsWithoutSelection: DependentFieldOption[] = [
     value: 'Other Dep. Value 3',
     selected: false,
   },
-];
+]);
 
-export const dependentFieldOptionsWithSelection: DependentFieldOption[] = [
+export const dependentFieldOptionsWithSelection: DependentFieldOption[] = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -62,9 +64,9 @@ export const dependentFieldOptionsWithSelection: DependentFieldOption[] = [
     value: 'Other Dep. Value 3',
     selected: false,
   },
-];
+]);
 
-export const dependentFieldOptionsWithSelectionNotInList: DependentFieldOption[] = [
+export const dependentFieldOptionsWithSelectionNotInList: DependentFieldOption[] = deepFreeze([
   {
     label: 'None',
     value: null,
@@ -90,4 +92,4 @@ export const dependentFieldOptionsWithSelectionNotInList: DependentFieldOption[]
     value: 'Other Dep. Value 3',
     selected: false,
   },
-];
+]);

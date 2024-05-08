@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
@@ -34,6 +33,7 @@ import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-det
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-tasks',
@@ -80,7 +80,8 @@ export class TasksComponent implements OnInit {
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -520,19 +521,20 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
-      const queryParams = {
-        state: 'eq.APPROVER_PENDING',
-        offset: 0,
-        limit: 1,
-      };
-      from(this.loaderService.showLoader('Opening your report...'))
-        .pipe(
-          switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
-          finalize(() => this.loaderService.hideLoader())
-        )
-        .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
-        });
+      from(this.authService.getEou()).subscribe((eou) => {
+        const queryParams = {
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
+          state: 'eq.APPROVER_PENDING',
+        };
+        return from(this.loaderService.showLoader('Opening your report...'))
+          .pipe(
+            switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe((res) => {
+            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+          });
+      });
     } else {
       this.router.navigate(['/', 'enterprise', 'team_reports'], {
         queryParams: {

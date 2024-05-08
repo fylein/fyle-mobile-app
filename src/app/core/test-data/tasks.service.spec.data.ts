@@ -1,4 +1,7 @@
-export const potentialDuplicatesApiResponse = [
+import deepFreeze from 'deep-freeze-strict';
+import { ExtendedOrgUser } from '../models/extended-org-user.model';
+
+export const potentialDuplicatesApiResponse = deepFreeze([
   { transaction_ids: ['tx3I0ccSGlhg', 'txvAmVCGZUZi'], fields: ['amount', 'currency', 'txn_dt'] },
   { transaction_ids: ['tx3rq5G9gzgf', 'txS1cDov9iZn'], fields: ['amount', 'currency', 'txn_dt'] },
   { transaction_ids: ['tx6KauIKfjdJ', 'txT0ZmCrVOiD'], fields: ['amount', 'currency', 'txn_dt'] },
@@ -18,18 +21,18 @@ export const potentialDuplicatesApiResponse = [
   { transaction_ids: ['txjh5iDt7xXO', 'txkJsHIF6a9X'], fields: ['amount', 'currency', 'txn_dt'] },
   { transaction_ids: ['txT0ZmCrVOiD', 'txws78AoalC9'], fields: ['amount', 'currency', 'txn_dt'] },
   { transaction_ids: ['txT0ZmCrVOiD', 'txzjWIcqYxa9'], fields: ['amount', 'currency', 'txn_dt'] },
-];
+]);
 
-export const extendedOrgUserResponse = {
+export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'out3t2X258rd',
     created_at: new Date('2019-02-04T10:26:36.877Z'),
     org_id: 'orrjqbDbeP9p',
     user_id: 'usN0bYiJRI5V',
-    employee_id: null,
+    employee_id: 'ouE1vAIIxhaA',
     location: 'indiax',
     level: null,
-    level_id: null,
+    level_id: 'lvlPtroPaClQy',
     band: null,
     rank: null,
     business_unit: null,
@@ -167,9 +170,9 @@ export const extendedOrgUserResponse = {
     customer_id: 'dwc8ZDUdZeUHhrI',
     bank_account_added: true,
   },
-};
+});
 
-export const teamReportResponse = [
+export const teamReportResponse = deepFreeze([
   {
     aggregates: [
       {
@@ -184,9 +187,9 @@ export const teamReportResponse = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const sentBackResponse = [
+export const sentBackResponse = deepFreeze([
   {
     aggregates: [
       {
@@ -201,9 +204,9 @@ export const sentBackResponse = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const unsubmittedReportsResponse = [
+export const unsubmittedReportsResponse = deepFreeze([
   {
     aggregates: [
       {
@@ -218,9 +221,9 @@ export const unsubmittedReportsResponse = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const allExtendedReportsResponse = [
+export const allExtendedReportsResponse = deepFreeze([
   {
     _search_document:
       "'1':1 '2022':3 '44.53':5 'aiyush':9 'aiyush.dhar@fyle.in':10 'c/2022/11/r/2':6 'indiax':8 'inr':4 'oct':2 'se':7",
@@ -444,9 +447,9 @@ export const allExtendedReportsResponse = [
     us_email: 'aiyush.dhar@fyle.in',
     us_full_name: 'Aiyush',
   },
-];
+]);
 
-export const unreportedExpensesResponse = [
+export const unreportedExpensesResponse = deepFreeze([
   {
     aggregates: [
       {
@@ -461,9 +464,9 @@ export const unreportedExpensesResponse = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const incompleteExpensesResponse = [
+export const incompleteExpensesResponse = deepFreeze([
   {
     aggregates: [
       {
@@ -478,9 +481,9 @@ export const incompleteExpensesResponse = [
     dimensions: [],
     name: 'scalar_stat',
   },
-];
+]);
 
-export const sentBackAdvancesResponse = {
+export const sentBackAdvancesResponse = deepFreeze({
   count: 5,
   total_amount: 123370000,
-};
+});

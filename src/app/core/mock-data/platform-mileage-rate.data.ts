@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformMileageRates } from '../models/platform/platform-mileage-rates.model';
 
-export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = {
+export const platformMileageRates: PlatformApiResponse<PlatformMileageRates[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -73,9 +75,9 @@ export const platformMileageRates: PlatformApiResponse<PlatformMileageRates> = {
     },
   ],
   offset: 0,
-};
+});
 
-export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates> = {
+export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileageRates[]> = deepFreeze({
   count: 1,
   data: [
     {
@@ -92,9 +94,9 @@ export const platformMileageRatesSingleData: PlatformApiResponse<PlatformMileage
     },
   ],
   offset: 0,
-};
+});
 
-export const platformMileageRates2: PlatformMileageRates[] = [
+export const platformMileageRates2: PlatformMileageRates[] = deepFreeze([
   {
     code: null,
     created_at: new Date('2017-04-06T04:52:07.825Z'),
@@ -131,4 +133,4 @@ export const platformMileageRates2: PlatformMileageRates[] = [
     vehicle_type: 'Type 1',
     readableRate: '$10/mi',
   },
-];
+]);

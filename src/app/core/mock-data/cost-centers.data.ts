@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CostCenterOptions } from '../models/cost-centers-options.model';
 import { CostCenter, CostCenters } from '../models/v1/cost-center.model';
 
-export const costCentersData: CostCenter[] = [
+export const costCentersData: CostCenter[] = deepFreeze([
   {
     active: true,
     code: null,
@@ -42,9 +44,9 @@ export const costCentersData: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
   },
-];
+]);
 
-export const costCentersData2: CostCenter[] = [
+export const costCentersData2: CostCenter[] = deepFreeze([
   {
     active: true,
     code: 'code3',
@@ -85,9 +87,9 @@ export const costCentersData2: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2022-09-09T10:30:25.552998+00:00'),
   },
-];
+]);
 
-export const costCentersData3: CostCenter[] = [
+export const costCentersData3: CostCenter[] = deepFreeze([
   {
     active: true,
     code: null,
@@ -128,9 +130,9 @@ export const costCentersData3: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2022-09-09T10:30:25.552998+00:00'),
   },
-];
+]);
 
-export const costCenterApiRes1: CostCenter[] = [
+export const costCenterApiRes1: CostCenter[] = deepFreeze([
   {
     active: true,
     code: null,
@@ -151,9 +153,9 @@ export const costCenterApiRes1: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2019-08-13T14:18:55.500829+00:00'),
   },
-];
+]);
 
-export const costCenterApiRes2: CostCenter[] = [
+export const costCenterApiRes2: CostCenter[] = deepFreeze([
   {
     active: true,
     code: null,
@@ -174,9 +176,9 @@ export const costCenterApiRes2: CostCenter[] = [
     org_id: 'orNVthTo2Zyo',
     updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
   },
-];
+]);
 
-export const expectedCCdata: CostCenters[] = [
+export const expectedCCdata: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
@@ -203,9 +205,9 @@ export const expectedCCdata: CostCenters[] = [
       updated_at: new Date('2019-08-13T14:18:55.500Z'),
     },
   },
-];
+]);
 
-export const expectedCCdata2: CostCenters[] = [
+export const expectedCCdata2: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
@@ -219,9 +221,9 @@ export const expectedCCdata2: CostCenters[] = [
       updated_at: new Date('2019-06-24T15:12:05.002Z'),
     },
   },
-];
+]);
 
-export const expectedCCdata3: CostCenters[] = [
+export const expectedCCdata3: CostCenters[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
@@ -274,16 +276,16 @@ export const expectedCCdata3: CostCenters[] = [
       updated_at: new Date('2022-05-19T11:58:29.364759+00:00'),
     },
   },
-];
+]);
 
-export const costCentersOptions: CostCenterOptions[] = [
+export const costCentersOptions: CostCenterOptions[] = deepFreeze([
   {
     label: 'cc 1',
     value: costCentersData[0],
   },
-];
+]);
 
-export const costCenterOptions2: CostCenterOptions[] = [
+export const costCenterOptions2: CostCenterOptions[] = deepFreeze([
   {
     label: 'SMS1',
     value: {
@@ -336,4 +338,4 @@ export const costCenterOptions2: CostCenterOptions[] = [
       updated_at: new Date('2022-05-19T11:58:29.364Z'),
     },
   },
-];
+]);
