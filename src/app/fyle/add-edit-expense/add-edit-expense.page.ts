@@ -3068,7 +3068,7 @@ export class AddEditExpensePage implements OnInit {
      */
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
-      this.platformExpense$ = this.expensesService.getExpenseById(id).pipe(shareReplay(1));
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
       const pendingTxnRestrictionEnabled$ = this.orgSettingsService
         .get()
         .pipe(
