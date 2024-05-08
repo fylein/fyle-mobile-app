@@ -50,13 +50,16 @@ import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageSubmitted,
+} from 'src/app/core/mock-data/platform-report.data';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let fileService: jasmine.SpyObj<FileService>;
@@ -79,7 +82,6 @@ describe('ViewExpensePage', () => {
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -119,7 +121,10 @@ describe('ViewExpensePage', () => {
     ]);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewExpensePage],
@@ -132,10 +137,6 @@ describe('ViewExpensePage', () => {
         {
           useValue: transactionServiceSpy,
           provide: TransactionService,
-        },
-        {
-          useValue: reportServiceSpy,
-          provide: ReportService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -225,7 +226,6 @@ describe('ViewExpensePage', () => {
     fixture = TestBed.createComponent(ViewExpensePage);
     component = fixture.componentInstance;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
@@ -489,7 +489,7 @@ describe('ViewExpensePage', () => {
         type: 'image',
         thumbnail: 'mock-thumbnail',
       });
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
     });
 
     it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {
@@ -680,7 +680,7 @@ describe('ViewExpensePage', () => {
         custom_fields: null,
       };
 
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -699,7 +699,7 @@ describe('ViewExpensePage', () => {
         state: ExpenseState.DRAFT,
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamReportPaginated1.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;

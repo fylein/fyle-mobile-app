@@ -375,10 +375,10 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report?.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )
