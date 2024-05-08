@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformDependentFieldValue } from '../models/platform/platform-dependent-field-value.model';
 
-export const dependentFieldValues: PlatformDependentFieldValue[] = [
+export const dependentFieldValues: PlatformDependentFieldValue[] = deepFreeze([
   {
     created_at: '2023-03-23T07:29:25.836584+00:00',
     expense_field_id: 221309,
@@ -34,9 +36,9 @@ export const dependentFieldValues: PlatformDependentFieldValue[] = [
     parent_expense_field_value: 'Project 1',
     updated_at: '2023-03-23T07:29:36.441882+00:00',
   },
-];
+]);
 
-export const dependentFieldOptionsForCostCode: PlatformDependentFieldValue[] = [
+export const dependentFieldOptionsForCostCode: PlatformDependentFieldValue[] = deepFreeze([
   {
     created_at: '2023-02-23T10:50:38.058403+00:00',
     expense_field_id: 219199,
@@ -59,4 +61,4 @@ export const dependentFieldOptionsForCostCode: PlatformDependentFieldValue[] = [
     parent_expense_field_value: 'Project 1',
     updated_at: '2023-02-23T10:51:06.155705+00:00',
   },
-];
+]);

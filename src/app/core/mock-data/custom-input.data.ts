@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CustomInput } from '../models/custom-input.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 
-export const customInputData1: Partial<CustomInput>[] = [
+export const customInputData1: Partial<CustomInput>[] = deepFreeze([
   {
     id: 218266,
     options: [],
@@ -54,9 +56,9 @@ export const customInputData1: Partial<CustomInput>[] = [
     name: 'Cost Area',
     value: null,
   },
-];
+]);
 
-export const customInputData2: TxnCustomProperties[] = [
+export const customInputData2: TxnCustomProperties[] = deepFreeze([
   {
     id: 218266,
     options: [],
@@ -105,9 +107,9 @@ export const customInputData2: TxnCustomProperties[] = [
     name: 'Cost Code',
     value: 'Wow this Works',
   },
-];
+]);
 
-export const customInputsData3: Partial<CustomInput>[] = [
+export const customInputsData3: Partial<CustomInput>[] = deepFreeze([
   {
     id: 211326,
     options: [],
@@ -136,9 +138,9 @@ export const customInputsData3: Partial<CustomInput>[] = [
     name: 'Cost Code',
     value: 'Wow this Works',
   },
-];
+]);
 
-export const customInputsData4: Partial<CustomInput>[] = [
+export const customInputsData4: Partial<CustomInput>[] = deepFreeze([
   {
     id: 200227,
     name: 'userlist',
@@ -192,9 +194,9 @@ export const customInputsData4: Partial<CustomInput>[] = [
     ],
     value: '2023-02-13T17:00:00.000Z',
   },
-];
+]);
 
-export const expectedCustomInputs: Partial<CustomInput>[] = [
+export const expectedCustomInputs: Partial<CustomInput>[] = deepFreeze([
   {
     id: 211326,
     options: [],
@@ -223,4 +225,4 @@ export const expectedCustomInputs: Partial<CustomInput>[] = [
     name: 'Cost Code',
     value: 'Wow this Works',
   },
-];
+]);

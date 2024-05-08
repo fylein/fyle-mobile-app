@@ -12,6 +12,7 @@ import { of } from 'rxjs';
 import { employeesParamsRes } from 'src/app/core/test-data/org-user.service.spec.data';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { cloneDeep } from 'lodash';
 
 describe('ApproverDialogComponent', () => {
   let component: ApproverDialogComponent;
@@ -91,13 +92,14 @@ describe('ApproverDialogComponent', () => {
     orgUserService = TestBed.inject(OrgUserService) as jasmine.SpyObj<OrgUserService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
 
-    component.initialApproverList = approvers;
+    component.initialApproverList = cloneDeep(approvers);
 
     component.approverEmailsList = ['jay.b@fyle.in', 'ajain@fyle.in'];
 
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
-    loaderService.showLoader.and.returnValue(Promise.resolve(null));
-    loaderService.hideLoader.and.returnValue(Promise.resolve(null));
+    const employeesData = cloneDeep(employeesParamsRes.data);
+    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
+    loaderService.showLoader.and.resolveTo(null);
+    loaderService.hideLoader.and.resolveTo(null);
 
     fixture.detectChanges();
   }));
@@ -162,7 +164,7 @@ describe('ApproverDialogComponent', () => {
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
       expect(component.selectedApproversList.length).toEqual(3);
-      expect(component.areApproversAdded).toEqual(false);
+      expect(component.areApproversAdded).toBeFalse();
     });
 
     it('should remove an unchecked approver', () => {
@@ -191,7 +193,7 @@ describe('ApproverDialogComponent', () => {
 
       expect(component.getSelectedApproversDict).toHaveBeenCalledTimes(1);
       expect(component.selectedApproversList.length).toEqual(0);
-      expect(component.areApproversAdded).toEqual(true);
+      expect(component.areApproversAdded).toBeTrue();
     });
   });
 
@@ -211,8 +213,8 @@ describe('ApproverDialogComponent', () => {
   describe('getDefaultUsersList():', () => {
     it(' should get default user list', fakeAsync(() => {
       orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
-      loaderService.showLoader.and.returnValue(Promise.resolve(null));
-      loaderService.hideLoader.and.returnValue(Promise.resolve(null));
+      loaderService.showLoader.and.resolveTo(null);
+      loaderService.hideLoader.and.resolveTo(null);
 
       const params = {
         order: 'us_full_name.asc,us_email.asc,ou_id',
@@ -229,8 +231,8 @@ describe('ApproverDialogComponent', () => {
     it('if approver email list is empty', () => {
       component.approverEmailsList = [];
       orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
-      loaderService.showLoader.and.returnValue(Promise.resolve(null));
-      loaderService.hideLoader.and.returnValue(Promise.resolve(null));
+      loaderService.showLoader.and.resolveTo(null);
+      loaderService.hideLoader.and.resolveTo(null);
       fixture.detectChanges();
 
       const params = {
@@ -247,7 +249,8 @@ describe('ApproverDialogComponent', () => {
   });
 
   it('getSearchedUsersList(): get users list from search text', (done) => {
-    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesParamsRes.data));
+    const employeesData = cloneDeep(employeesParamsRes.data);
+    orgUserService.getEmployeesBySearch.and.returnValue(of(employeesData));
 
     component.getSearchedUsersList('text').subscribe((res) => {
       expect(res).toEqual([

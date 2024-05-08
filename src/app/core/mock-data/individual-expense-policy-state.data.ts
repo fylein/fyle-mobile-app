@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { IndividualExpensePolicyState } from '../models/platform/platform-individual-expense-policy-state.model';
 
-export const individualExpPolicyStateData1: IndividualExpensePolicyState = {
+export const individualExpPolicyStateData1: IndividualExpensePolicyState = deepFreeze({
   add_approver_user_ids: [],
   amount: 0,
   expense_policy_rule: {
@@ -15,9 +17,9 @@ export const individualExpPolicyStateData1: IndividualExpensePolicyState = {
     'expense could not be added to a report or submitted',
   ],
   run_status: 'VIOLATED_ACTION_SUCCESS',
-};
+});
 
-export const individualExpPolicyStateData2: IndividualExpensePolicyState[] = [
+export const individualExpPolicyStateData2: IndividualExpensePolicyState[] = deepFreeze([
   {
     add_approver_user_ids: [],
     amount: 0,
@@ -46,9 +48,9 @@ export const individualExpPolicyStateData2: IndividualExpensePolicyState[] = [
     run_result: ['expense will be flagged for verification and approval'],
     run_status: 'VIOLATED_ACTION_SUCCESS',
   },
-];
+]);
 
-export const individualExpPolicyStateData3: IndividualExpensePolicyState[] = [
+export const individualExpPolicyStateData3: IndividualExpensePolicyState[] = deepFreeze([
   {
     add_approver_user_ids: [],
     amount: null,
@@ -75,4 +77,4 @@ export const individualExpPolicyStateData3: IndividualExpensePolicyState[] = [
     run_result: ['expense will be flagged for verification and approval'],
     run_status: 'VIOLATED_ACTION_SUCCESS',
   },
-];
+]);

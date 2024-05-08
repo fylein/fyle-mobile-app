@@ -15,6 +15,7 @@ import {
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { ReportState } from '../../../../models/platform/v1/report.model';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -60,7 +61,7 @@ describe('ApproverReportsService', () => {
 
   it('generateStatsQueryParams(): should generate stats query params', () => {
     const queryParams = {
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     };
 
     const result = approverReportsService.generateStatsQueryParams(queryParams);
@@ -155,26 +156,22 @@ describe('ApproverReportsService', () => {
     });
   });
 
-  it('getReport(): should get a report by id', () => {
+  it('getReportById(): should get a report by id', () => {
     spyOn(approverReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
     const queryParams = {
       id: 'eq.rpvcIMRMyM3A',
     };
-    approverReportsService.getReport('rpvcIMRMyM3A').subscribe((res) => {
-      console.log(res);
+    approverReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(approverReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });
 
   it('getReportsStats(): should get advance request stats', (done) => {
-    const statsResponse: StatsResponse = {
-      count: 2,
-      total_amount: 1200,
-    };
     approverPlatformApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
     const params = {
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     };
 
     approverReportsService.getReportsStats(params).subscribe((res) => {

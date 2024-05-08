@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Expense } from '../models/expense.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
-export const expenseV2Data: ApiV2Response<Expense> = {
+export const expenseV2Data: ApiV2Response<Expense> = deepFreeze({
   count: 1145,
   data: [
     {
@@ -205,9 +207,9 @@ export const expenseV2Data: ApiV2Response<Expense> = {
   limit: 1,
   offset: 0,
   url: '/v2/expenses',
-};
+});
 
-export const expenseV2DataMultiple: ApiV2Response<Expense> = {
+export const expenseV2DataMultiple: ApiV2Response<Expense> = deepFreeze({
   count: 2,
   data: [
     {
@@ -624,4 +626,4 @@ export const expenseV2DataMultiple: ApiV2Response<Expense> = {
   limit: 2,
   offset: 0,
   url: '/v2/expenses',
-};
+});

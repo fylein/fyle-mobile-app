@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-options.interface';
 import { AdvancesStates } from '../models/advances-states.model';
@@ -5,7 +7,7 @@ import { SortingValue } from '../models/sorting-value.model';
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { ExpenseType } from '../enums/expense-type.enum';
 
-export const filterOptions: FilterOptions<string>[] = [
+export const filterOptions: FilterOptions<string>[] = deepFreeze([
   {
     name: 'State',
     optionType: FilterOptionType.multiselect,
@@ -51,9 +53,9 @@ export const filterOptions: FilterOptions<string>[] = [
       },
     ],
   },
-];
+]);
 
-export const filterOptions2: FilterOptions<string>[] = [
+export const filterOptions2: FilterOptions<string>[] = deepFreeze([
   {
     name: 'Type',
     optionType: FilterOptionType.multiselect,
@@ -178,9 +180,9 @@ export const filterOptions2: FilterOptions<string>[] = [
       },
     ],
   },
-];
+]);
 
-export const filterOptions3: FilterOptions<string>[] = [
+export const filterOptions3: FilterOptions<string>[] = deepFreeze([
   {
     name: 'Type',
     optionType: FilterOptionType.multiselect,
@@ -305,4 +307,4 @@ export const filterOptions3: FilterOptions<string>[] = [
       },
     ],
   },
-];
+]);

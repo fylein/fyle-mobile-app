@@ -461,16 +461,16 @@ describe('AdvanceRequestService', () => {
 
   describe('fixDates():', () => {
     it('should convert string values to dates', () => {
+      const mockAdvanceReqData = cloneDeep(extendedAdvReqWithoutDates);
       //@ts-ignore
-      expect(advanceRequestService.fixDates(extendedAdvReqWithoutDates)).toEqual(extendedAdvReqWithDates);
+      expect(advanceRequestService.fixDates(mockAdvanceReqData)).toEqual(extendedAdvReqWithDates);
     });
   });
 
   it('fixDatesForPlatformFields(): should convert string values to dates', () => {
+    const mockAdvanceReqData = cloneDeep(advanceRequestPlatform.data[0]);
     //@ts-ignore
-    expect(advanceRequestService.fixDatesForPlatformFields(advanceRequestPlatform.data[0])).toEqual(
-      advanceRequestPlatform.data[0]
-    );
+    expect(advanceRequestService.fixDatesForPlatformFields(mockAdvanceReqData)).toEqual(advanceRequestPlatform.data[0]);
   });
 
   it('getEReq(): should get advance request', (done) => {
@@ -532,10 +532,11 @@ describe('AdvanceRequestService', () => {
       fileService.post.and.returnValue(of(fileObjectData3));
       spyOn(advanceRequestService, 'submit').and.returnValue(of(advanceRequests));
 
-      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(fileData1)).subscribe((res) => {
+      const mockFileObject = cloneDeep(fileData1);
+      advanceRequestService.createAdvReqWithFilesAndSubmit(advanceRequests, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile);
         expect(advanceRequestService.submit).toHaveBeenCalledOnceWith(advanceRequests);
-        expect(fileService.post).toHaveBeenCalledOnceWith(fileData1[0]);
+        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
@@ -556,10 +557,11 @@ describe('AdvanceRequestService', () => {
       fileService.post.and.returnValue(of(fileObjectData4));
       spyOn(advanceRequestService, 'saveDraft').and.returnValue(of(advancedRequests2));
 
-      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(fileData2)).subscribe((res) => {
+      const mockFileObject = cloneDeep(fileData2);
+      advanceRequestService.saveDraftAdvReqWithFiles(advancedRequests2, of(mockFileObject)).subscribe((res) => {
         expect(res).toEqual(advRequestFile2);
         expect(advanceRequestService.saveDraft).toHaveBeenCalledOnceWith(advancedRequests2);
-        expect(fileService.post).toHaveBeenCalledOnceWith(fileData2[0]);
+        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileObject[0]);
         done();
       });
     });
@@ -592,11 +594,15 @@ describe('AdvanceRequestService', () => {
 
   describe('modifyAdvanceRequestCustomFields():', () => {
     it('should modify advance request custom fields', () => {
-      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customFields)).toEqual(expectedCustomFieldsWoDate);
+      const mockCustomFields = cloneDeep(customFields);
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
+        expectedCustomFieldsWoDate
+      );
     });
 
     it('should modify custom fields with date value', () => {
-      expect(advanceRequestService.modifyAdvanceRequestCustomFields(customField2)).toEqual(
+      const mockCustomFields = cloneDeep(customField2);
+      expect(advanceRequestService.modifyAdvanceRequestCustomFields(mockCustomFields)).toEqual(
         expectedCustomFieldsWithDate
       );
     });
@@ -728,6 +734,7 @@ describe('AdvanceRequestService', () => {
         done();
       });
     });
+
     it('should get all advance request with default params', (done) => {
       spenderService.get.and.returnValue(of(advanceRequestPlatform));
 
@@ -747,8 +754,9 @@ describe('AdvanceRequestService', () => {
 
   describe('getMyadvanceRequests():', () => {
     it('should get all advance request', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const param = {
         offset: 0,
@@ -760,7 +768,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getMyadvanceRequests(param).subscribe((res) => {
-        expect(res).toEqual(allAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: param.offset,
@@ -773,12 +781,14 @@ describe('AdvanceRequestService', () => {
         done();
       });
     });
+
     it('should get all advance request with default params', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       advanceRequestService.getMyadvanceRequests().subscribe((res) => {
-        expect(res).toEqual(allAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: 0,
@@ -827,8 +837,9 @@ describe('AdvanceRequestService', () => {
 
   describe('getTeamAdvanceRequests():', () => {
     it('should get all team advance requests | APPROVAL PENDING AND APPROVED', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -849,7 +860,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,
@@ -866,8 +877,9 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVAL PENDING', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -888,7 +900,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,
@@ -905,8 +917,9 @@ describe('AdvanceRequestService', () => {
     });
 
     it('should get all team advance requests | APPROVED', (done) => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-      apiv2Service.get.and.returnValue(of(allTeamAdvanceRequestsRes));
+      authService.getEou.and.resolveTo(apiEouRes);
+      const mockApiV2Res = cloneDeep(allTeamAdvanceRequestsRes);
+      apiv2Service.get.and.returnValue(of(mockApiV2Res));
 
       const params = {
         offset: 0,
@@ -927,7 +940,7 @@ describe('AdvanceRequestService', () => {
       };
 
       advanceRequestService.getTeamAdvanceRequests(params).subscribe((res) => {
-        expect(res).toEqual(allTeamAdvanceRequestsRes);
+        expect(res).toEqual(mockApiV2Res);
         expect(apiv2Service.get).toHaveBeenCalledOnceWith('/advance_requests', {
           params: {
             offset: params.offset,

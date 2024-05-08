@@ -581,10 +581,10 @@ export function TestCases1(getTestBed) {
     });
 
     describe('getDeleteReportParams():', () => {
-      let header = 'Header';
-      let body = 'Body';
-      let ctaText = 'cta';
-      let ctaLoadingText = 'loading';
+      const header = 'Header';
+      const body = 'Body';
+      const ctaText = 'cta';
+      const ctaLoadingText = 'loading';
 
       it('should get config params for delete report modal and call method to remove txn from report', () => {
         spenderReportsService.ejectExpenses.and.returnValue(of());
@@ -925,7 +925,7 @@ export function TestCases1(getTestBed) {
 
       it('should return an error object when the date is after the upper bound of the valid range', () => {
         const tomorrow = new Date();
-        tomorrow.setDate(tomorrow.getDate() + 2);
+        tomorrow.setDate(tomorrow.getDate() + 3);
         const control = new FormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });

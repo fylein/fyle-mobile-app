@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Expense } from '../models/expense.model';
 import { ApiV2Response } from '../models/v2/api-v2-response.model';
 
-export const apiExpenseRes: Expense[] = [
+export const apiExpenseRes: Expense[] = deepFreeze([
   {
     tx_risk_state: null,
     tx_is_duplicate_expense: null,
@@ -130,9 +132,9 @@ export const apiExpenseRes: Expense[] = [
     ],
     tx_is_implicit_merge_blocked: false,
   },
-];
+]);
 
-export const expenseData1: Expense = {
+export const expenseData1: Expense = deepFreeze({
   tx_categoryDisplayName: 'Groceries',
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
@@ -257,9 +259,9 @@ export const expenseData1: Expense = {
     },
   ],
   tx_is_implicit_merge_blocked: false,
-};
+});
 
-export const expenseData2: Expense = {
+export const expenseData2: Expense = deepFreeze({
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -382,9 +384,9 @@ export const expenseData2: Expense = {
     },
   ],
   tx_is_implicit_merge_blocked: false,
-};
+});
 
-export const etxncData: ApiV2Response<Expense> = {
+export const etxncData: ApiV2Response<Expense> = deepFreeze({
   limit: 1,
   offset: 0,
   count: 1,
@@ -596,9 +598,9 @@ export const etxncData: ApiV2Response<Expense> = {
       us_full_name: 'Abhishek Jain',
     },
   ],
-};
+});
 
-export const etxncListData: ApiV2Response<Expense> = {
+export const etxncListData: ApiV2Response<Expense> = deepFreeze({
   count: 2,
   data: [
     {
@@ -1026,9 +1028,9 @@ export const etxncListData: ApiV2Response<Expense> = {
   limit: 2,
   offset: 0,
   url: '/v2/expenses',
-};
+});
 
-export const expenseDataWithDateString = {
+export const expenseDataWithDateString = deepFreeze({
   tx_categoryDisplayName: 'Groceries',
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
@@ -1153,9 +1155,9 @@ export const expenseDataWithDateString = {
     },
   ],
   tx_is_implicit_merge_blocked: false,
-};
+});
 
-export const etxnData: Expense = {
+export const etxnData: Expense = deepFreeze({
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: [
@@ -1294,9 +1296,9 @@ export const etxnData: Expense = {
   ],
   tx_is_implicit_merge_blocked: false,
   tx_categoryDisplayName: 'Ani test 1 / sub1',
-};
+});
 
-export const expenseList: Expense[] = [
+export const expenseList: Expense[] = deepFreeze([
   {
     _search_document:
       "'1024.0':1 '1024.00':2 'a':13,19,25,31 'abhishek':37 'ajain@fyle.in':39 'ani':40,42 'business':16,22,28,34 'card':8 'complete':4 'description':5 'director':11 'e/2022/02/t/874':10 'indeed':18,24,30,36 'inr':3 'is':6 'j3duuf':45 'jain':38 'long':15,21,27,33 'mumbai':12 'project':47 'staging':46 'test':41,43 'transaction':9 'unit':17,23,29,35 'vendor':44 'very':14,20,26,32 'yuv3hw':7",
@@ -1519,9 +1521,9 @@ export const expenseList: Expense[] = [
     us_email: 'ajain@fyle.in',
     us_full_name: 'Abhishek Jain',
   },
-];
+]);
 
-export const expenseList2: Expense[] = [
+export const expenseList2: Expense[] = deepFreeze([
   {
     _search_document:
       "'1024.0':1 '1024.00':2 'a':13,19,25,31 'abhishek':37 'ajain@fyle.in':39 'ani':40,42 'business':16,22,28,34 'card':8 'complete':4 'description':5 'director':11 'e/2022/02/t/874':10 'indeed':18,24,30,36 'inr':3 'is':6 'j3duuf':45 'jain':38 'long':15,21,27,33 'mumbai':12 'project':47 'staging':46 'test':41,43 'transaction':9 'unit':17,23,29,35 'vendor':44 'very':14,20,26,32 'yuv3hw':7",
@@ -1848,9 +1850,9 @@ export const expenseList2: Expense[] = [
     ],
     tx_is_implicit_merge_blocked: false,
   },
-];
+]);
 
-export const mileageExpenseWithoutDistance: Expense = {
+export const mileageExpenseWithoutDistance: Expense = deepFreeze({
   _search_document:
     "'0':1 '0.00':2 'a':10,16,22,28 'abhishek':34 'ajain@fyle.in':36 'business':13,19,25,31 'complete':4 'director':8 'duowigw':38 'e/2023/01/t/111':7 'indeed':15,21,27,33 'inr':3 'jain':35 'long':12,18,24,30 'mileage':37,39 'mumbai':9 'project':41 'staging':40 'term':6 'test':5 'unit':14,20,26,32 'very':11,17,23,29",
   corporate_credit_card_account_number: null,
@@ -2051,9 +2053,9 @@ export const mileageExpenseWithoutDistance: Expense = {
   isPolicyViolated: true,
   isCriticalPolicyViolated: true,
   vendorDetails: '0 KM',
-};
+});
 
-export const mileageExpenseWithDistance: Expense = {
+export const mileageExpenseWithDistance: Expense = deepFreeze({
   _search_document:
     "'0':1 '0.00':2 'a':10,16,22,28 'abhishek':34 'ajain@fyle.in':36 'business':13,19,25,31 'complete':4 'director':8 'duowigw':38 'e/2023/01/t/111':7 'indeed':15,21,27,33 'inr':3 'jain':35 'long':12,18,24,30 'mileage':37,39 'mumbai':9 'project':41 'staging':40 'term':6 'test':5 'unit':14,20,26,32 'very':11,17,23,29",
   corporate_credit_card_account_number: null,
@@ -2254,9 +2256,9 @@ export const mileageExpenseWithDistance: Expense = {
   isPolicyViolated: true,
   isCriticalPolicyViolated: true,
   vendorDetails: '0 KM',
-};
+});
 
-export const perDiemExpenseSingleNumDays: Expense = {
+export const perDiemExpenseSingleNumDays: Expense = deepFreeze({
   _search_document: null,
   corporate_credit_card_account_number: null,
   credit: false,
@@ -2456,9 +2458,9 @@ export const perDiemExpenseSingleNumDays: Expense = {
   isPolicyViolated: false,
   isCriticalPolicyViolated: false,
   vendorDetails: null,
-};
+});
 
-export const perDiemExpenseMultipleNumDays: Expense = {
+export const perDiemExpenseMultipleNumDays: Expense = deepFreeze({
   _search_document: null,
   corporate_credit_card_account_number: null,
   credit: false,
@@ -2658,9 +2660,9 @@ export const perDiemExpenseMultipleNumDays: Expense = {
   isPolicyViolated: false,
   isCriticalPolicyViolated: false,
   vendorDetails: null,
-};
+});
 
-export const expenseData3 = {
+export const expenseData3 = deepFreeze({
   tx_risk_state: null,
   tx_is_duplicate_expense: null,
   tx_duplicates: null,
@@ -2792,9 +2794,9 @@ export const expenseData3 = {
     },
   ],
   tx_is_implicit_merge_blocked: false,
-};
+});
 
-export const expenseList3: Expense[] = [
+export const expenseList3: Expense[] = deepFreeze([
   {
     _search_document:
       "'1024.0':1 '1024.00':2 'a':13,19,25,31 'abhishek':37 'ajain@fyle.in':39 'ani':40,42 'business':16,22,28,34 'card':8 'complete':4 'description':5 'director':11 'e/2022/02/t/874':10 'indeed':18,24,30,36 'inr':3 'is':6 'j3duuf':45 'jain':38 'long':15,21,27,33 'mumbai':12 'project':47 'staging':46 'test':41,43 'transaction':9 'unit':17,23,29,35 'vendor':44 'very':14,20,26,32 'yuv3hw':7",
@@ -3121,9 +3123,9 @@ export const expenseList3: Expense[] = [
     ],
     tx_is_implicit_merge_blocked: false,
   },
-];
+]);
 
-export const expenseList4: Expense[] = [
+export const expenseList4: Expense[] = deepFreeze([
   {
     _search_document:
       "'1':38 '89':1 '89.00':2 'a':11,17,23,29 'abcdfeiapcalp':39,40,41,42,43 'abhishek':35 'ajain@fyle.in':37 'approver':4 'aus':46 'business':14,20,26,32 'director':9 'e/2023/01/t/120':8 'indeed':16,22,28,34 'inr':3 'jain':36 'long':13,19,25,31 'mumbai':10 'nilesh':45 'others':44 'pending':5 'project':49 'staging':48 'term':7 'test':6 'unit':15,21,27,33 'vendor':47 'very':12,18,24,30",
@@ -3736,9 +3738,9 @@ export const expenseList4: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: '2 Days',
   },
-];
+]);
 
-export const splitExpData: Expense[] = [
+export const splitExpData: Expense[] = deepFreeze([
   {
     tx_risk_state: null,
     tx_is_duplicate_expense: null,
@@ -4063,8 +4065,8 @@ export const splitExpData: Expense[] = [
     tx_is_implicit_merge_blocked: false,
     tx_categoryDisplayName: 'Food / Travelling - Inland',
   },
-];
-export const splitExpData2: Expense[] = [
+]);
+export const splitExpData2: Expense[] = deepFreeze([
   {
     tx_risk_state: null,
     tx_is_duplicate_expense: null,
@@ -4373,9 +4375,9 @@ export const splitExpData2: Expense[] = [
     tx_is_implicit_merge_blocked: false,
     tx_categoryDisplayName: '00',
   },
-];
+]);
 
-export const advanceExpensesList: Expense[] = [
+export const advanceExpensesList: Expense[] = deepFreeze([
   {
     tx_risk_state: null,
     tx_is_duplicate_expense: null,
@@ -4504,9 +4506,9 @@ export const advanceExpensesList: Expense[] = [
     ],
     tx_is_implicit_merge_blocked: false,
   },
-];
+]);
 
-export const mergeExpenseData1: Expense[] = [
+export const mergeExpenseData1: Expense[] = deepFreeze([
   {
     _search_document:
       "'1':1 '1.00':2 'a':10,16,22,28 'abhishek':34 'ajain@fyle.in':36 'australian':39 'business':13,19,25,31 'complete':4 'director':8 'e/2023/03/t/133':7 'indeed':15,21,27,33 'inr':3 'jain':35 'long':12,18,24,30 'mumbai':9 'office':41 'others':37,38 'project':43 'staging':42 'taxation':40 'term':6 'test':5 'unit':14,20,26,32 'very':11,17,23,29",
@@ -4992,9 +4994,9 @@ export const mergeExpenseData1: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: 'Angular',
   },
-];
+]);
 
-export const expensesDataWithCC: Expense[] = [
+export const expensesDataWithCC: Expense[] = deepFreeze([
   {
     _search_document:
       "'1':1,37 '1.00':2 'a':10,16,22,28 'abcdfeiapcalp':38,39,40,41,42 'abhishek':34 'ajain@fyle.in':36 'as':45 'business':13,19,25,31 'complete':4 'director':8 'e/2023/03/t/537':7 'indeed':15,21,27,33 'inr':3 'jain':35 'long':12,18,24,30 'mumbai':9 'nilesh':44 'others':43 'project':48 'staging':47 'term':6 'test':5 'unit':14,20,26,32 'vendor':46 'very':11,17,23,29",
@@ -5495,9 +5497,9 @@ export const expensesDataWithCC: Expense[] = [
     isCriticalPolicyViolated: false,
     vendorDetails: 'Nilesh As Vendor',
   },
-];
+]);
 
-export const newExpenseViewReport: Expense[] = [
+export const newExpenseViewReport: Expense[] = deepFreeze([
   { ...expenseData1, tx_report_id: 'rpkkdCNBFsJ2', tx_txn_dt: new Date('2023-01-24T17:00:00.000Z') },
   {
     ...expenseData2,
@@ -5506,9 +5508,9 @@ export const newExpenseViewReport: Expense[] = [
     tx_id: 'txz2vohKxBXu',
   },
   { ...expenseData3, tx_report_id: 'rpkkdCNBFsJ2' },
-];
+]);
 
-export const expectedFormattedTransaction: Partial<Expense>[] = [
+export const expectedFormattedTransaction: Partial<Expense>[] = deepFreeze([
   {
     tx_created_at: new Date('2023-02-08T06:47:48.414Z'),
     tx_updated_at: new Date('2023-02-08T06:47:48.414Z'),
@@ -5580,14 +5582,14 @@ export const expectedFormattedTransaction: Partial<Expense>[] = [
     tx_policy_amount: null,
     tx_locations: [],
   },
-];
+]);
 
-export const policyExpense2: Expense = {
+export const policyExpense2: Expense = deepFreeze({
   ...apiExpenseRes[0],
   tx_policy_amount: 0,
-};
+});
 
-export const selectedExpenses: Expense[] = [
+export const selectedExpenses: Expense[] = deepFreeze([
   {
     ...expenseList[0],
     isSelected: true,
@@ -5600,9 +5602,9 @@ export const selectedExpenses: Expense[] = [
     tx_skip_reimbursement: false,
     tx_txn_dt: new Date('2023-01-23T17:00:00'),
   },
-];
+]);
 
-export const selectedExpense1: Expense = {
+export const selectedExpense1: Expense = deepFreeze({
   _search_document:
     "'-102717':57 '1':42 '111':9 '20210809':56 '5':53 '899':1 '899.00':2 'a':15,21,27,33 'abcdfeiapcalp':43,44,45,46,47 'abhishek':39 'ajain@fyle.in':41 'ana':12 'approver':4 'aus':55 'board':50 'business':18,24,30,36 'director':13 'e/2023/01/t/89':8 'equalization':52 'honecomb':54 'indeed':20,26,32,38 'inr':3,10 'jain':40 'long':17,23,29,35 'mumbai':14 'of':51 'others':11,48 'pending':5 'project':59 'staging':58 'state':49 'term':7 'test':6 'unit':19,25,31,37 'very':16,22,28,34",
   corporate_credit_card_account_number: null,
@@ -5807,19 +5809,19 @@ export const selectedExpense1: Expense = {
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
   isSelected: true,
-};
+});
 
-export const policyExpense3: Expense = {
+export const policyExpense3: Expense = deepFreeze({
   ...apiExpenseRes[0],
   tx_policy_amount: 0.0000001,
-};
+});
 
-export const expenseListwithoutID: Expense[] = [
+export const expenseListwithoutID: Expense[] = deepFreeze([
   { ...expenseList4[0], tx_id: null },
   { ...expenseList4[1], tx_id: null },
-];
+]);
 
-export const splitExpTransformedData: Partial<Expense>[] = [
+export const splitExpTransformedData: Partial<Expense>[] = deepFreeze([
   {
     tx_id: 'txal5xGjbZ1R',
     tx_txn_dt: new Date('2024-01-31T06:30:00.000Z'),
@@ -5920,9 +5922,9 @@ export const splitExpTransformedData: Partial<Expense>[] = [
     source_account_id: 'acc7F6bwRa52p',
     source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
   },
-];
+]);
 
-export const splitExpTransformedData1: Partial<Expense>[] = [
+export const splitExpTransformedData1: Partial<Expense>[] = deepFreeze([
   {
     tx_id: 'txQNInZMIHgZ',
     tx_txn_dt: new Date('2024-01-31T06:30:00.000Z'),
@@ -6023,11 +6025,11 @@ export const splitExpTransformedData1: Partial<Expense>[] = [
     source_account_id: 'acc7F6bwRa52p',
     source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
   },
-];
+]);
 
 export const transformedPlatformedExpense: Partial<Expense> = splitExpTransformedData[0];
 
-export const transformedPlatformedExpense1: Partial<Expense>[] = [
+export const transformedPlatformedExpense1: Partial<Expense>[] = deepFreeze([
   {
     tx_id: 'txZA0Oj6TV9c',
     tx_txn_dt: new Date('2024-01-31T11:30:00.000Z'),
@@ -6126,4 +6128,4 @@ export const transformedPlatformedExpense1: Partial<Expense>[] = [
     source_account_id: 'acc7F6bwRa52p',
     source_account_type: 'PERSONAL_CORPORATE_CREDIT_CARD_ACCOUNT',
   },
-];
+]);

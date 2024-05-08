@@ -1,8 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccessTokenData } from '../models/access-token-data.model';
 import { EouApiResponse } from '../models/eou-api-response.model';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
 
-export const currentEouRes: ExtendedOrgUser = {
+export const currentEouRes: ExtendedOrgUser = deepFreeze({
   ou: {
     id: 'ouX8dwsbLCLv',
     created_at: new Date('2018-02-01T02:32:25.267Z'),
@@ -86,9 +88,9 @@ export const currentEouRes: ExtendedOrgUser = {
     customer_id: 'dwcJzfwZCgwkdfG',
     bank_account_added: true,
   },
-};
+});
 
-export const currentEouUnflatted: EouApiResponse = {
+export const currentEouUnflatted: EouApiResponse = deepFreeze({
   ou_id: 'ouX8dwsbLCLv',
   ou_created_at: new Date('2018-02-01T02:32:25.267Z'),
   ou_org_id: 'orNVthTo2Zyo',
@@ -166,9 +168,9 @@ export const currentEouUnflatted: EouApiResponse = {
   dwolla_customer_id: 'dwcJzfwZCgwkdfG',
   dwolla_bank_account_added: true,
   ou_cost_center_ids: [13792, 13793, 13794],
-};
+});
 
-export const employeesRes = {
+export const employeesRes = deepFreeze({
   count: 95,
   data: [
     {
@@ -195,9 +197,9 @@ export const employeesRes = {
   limit: 5,
   offset: 0,
   url: '/v2/spender_employees',
-};
+});
 
-export const employeesParamsRes = {
+export const employeesParamsRes = deepFreeze({
   count: 929,
   data: [
     {
@@ -233,9 +235,9 @@ export const employeesParamsRes = {
   limit: 20,
   offset: 0,
   url: '/v2/spender_employees',
-};
+});
 
-export const eouListWithDisabledUser = [
+export const eouListWithDisabledUser = deepFreeze([
   {
     ou: {
       id: 'ouwszMqKW1JR',
@@ -395,9 +397,9 @@ export const eouListWithDisabledUser = [
       bank_account_added: null,
     },
   },
-];
+]);
 
-export const switchToDelegatorParams = {
+export const switchToDelegatorParams = deepFreeze({
   id: 'ou5qrPJbGfWM',
   created_at: new Date('2019-06-20T07:33:45.690Z'),
   org_id: 'orNVthTo2Zyo',
@@ -447,9 +449,9 @@ export const switchToDelegatorParams = {
   default_cost_center_name: null,
   default_cost_center_code: null,
   cost_center_ids: [13696, 14018, 13701],
-};
+});
 
-export const extendedOrgUserResponse = {
+export const extendedOrgUserResponse = deepFreeze({
   ou: {
     id: 'ou5qrPJbGfWM',
     created_at: new Date('2019-06-20T07:33:45.690Z'),
@@ -533,15 +535,15 @@ export const extendedOrgUserResponse = {
     customer_id: 'dwcMdzMqqWLD9Ds',
     bank_account_added: null,
   },
-};
+});
 
-export const postUserParam = {
+export const postUserParam = deepFreeze({
   full_name: 'Dimple',
   email: 'dimple.kh+321@fyle.in',
   password: 'Test@1234523456',
-};
+});
 
-export const postUserResponse = {
+export const postUserResponse = deepFreeze({
   created_at: new Date('2023-01-05T08:44:47.180Z'),
   email: 'dimple.kh+321@fyle.in',
   email_verified_at: new Date('2023-01-05T08:46:21.970Z'),
@@ -549,9 +551,9 @@ export const postUserResponse = {
   id: 'usXHGWJ1UXMP',
   onboarded: false,
   password: 'Test@1234523456',
-};
+});
 
-export const postOrgUser = {
+export const postOrgUser = deepFreeze({
   id: 'ou5tyO64Eg0L',
   created_at: new Date('2021-11-17T02:54:07.855Z'),
   updated_at: new Date('2023-01-05T08:57:31.543Z'),
@@ -583,9 +585,9 @@ export const postOrgUser = {
   dwolla_customers_metadata_id: null,
   bank_account_type: null,
   bank_routing_number: null,
-};
+});
 
-export const accessTokenData: AccessTokenData = {
+export const accessTokenData: AccessTokenData = deepFreeze({
   allowed_CIDRs: '[]',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1672915952,
@@ -597,9 +599,9 @@ export const accessTokenData: AccessTokenData = {
   scopes: '[]',
   user_id: 'usMjLibmye7s',
   version: '3',
-};
+});
 
-export const accessTokenWithProxyOrgUserId: AccessTokenData = {
+export const accessTokenWithProxyOrgUserId: AccessTokenData = deepFreeze({
   allowed_CIDRs: '[]',
   cluster_domain: '"https://staging.fyle.tech"',
   exp: 1672915952,
@@ -612,4 +614,4 @@ export const accessTokenWithProxyOrgUserId: AccessTokenData = {
   scopes: '[]',
   user_id: 'usMjLibmye7s',
   version: '3',
-};
+});

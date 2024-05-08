@@ -9,6 +9,7 @@ import {
 import { customInputData, platformApiResponse } from '../test-data/custom-inputs.spec.data';
 
 import { CustomFieldsService } from './custom-fields.service';
+import { cloneDeep } from 'lodash';
 
 describe('CustomFieldsService', () => {
   let customFieldsService: CustomFieldsService;
@@ -41,22 +42,26 @@ describe('CustomFieldsService', () => {
 
   describe('setDefaultValue():', () => {
     it('should set default value to false for boolean type', () => {
-      const result = customFieldsService.setDefaultValue(txnCustomPropertiesData3[0], 'BOOLEAN');
-      expect(result.value).toBe(false);
+      const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3[0]);
+      const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'BOOLEAN');
+      expect(result.value).toBeFalse();
     });
 
     it('should set default value to empty string for select type', () => {
-      const result = customFieldsService.setDefaultValue(txnCustomPropertiesData3[1], 'SELECT');
+      const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3[1]);
+      const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'SELECT');
       expect(result.value).toBe('');
     });
 
     it('should set default value to empty string for multi select type', () => {
-      const result = customFieldsService.setDefaultValue(txnCustomPropertiesData[2], 'MULTI_SELECT');
+      const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData3[2]);
+      const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'MULTI_SELECT');
       expect(result.value).toBe('');
     });
 
     it('should set default value to empty string for user select type', () => {
-      const result = customFieldsService.setDefaultValue(txnCustomPropertiesData[0], 'USER_LIST');
+      const mockTxnCustomProperties = cloneDeep(txnCustomPropertiesData[0]);
+      const result = customFieldsService.setDefaultValue(mockTxnCustomProperties, 'USER_LIST');
       expect(result.value).toEqual([]);
     });
   });

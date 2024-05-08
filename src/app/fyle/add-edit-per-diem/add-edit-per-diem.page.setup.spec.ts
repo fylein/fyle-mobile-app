@@ -69,7 +69,7 @@ describe('AddEditPerDiemPage', () => {
       'ejectExpenses',
       'addExpenses',
     ]);
-    const projectServiceSpy = jasmine.createSpyObj('ProjectService', [
+    const projectsServiceSpy = jasmine.createSpyObj('ProjectService', [
       'getAllowedOrgCategoryIds',
       'getProjectCount',
       'getbyId',
@@ -178,7 +178,7 @@ describe('AddEditPerDiemPage', () => {
         },
         {
           provide: ProjectsService,
-          useValue: projectServiceSpy,
+          useValue: projectsServiceSpy,
         },
         {
           provide: TransactionsOutboxService,

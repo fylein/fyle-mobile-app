@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Position } from '@capacitor/geolocation';
 import { Location } from '../models/location.model';
 import { PredictedLocation } from '../models/predicted-location.model';
-export const locationData1: Location = {
+export const locationData1: Location = deepFreeze({
   city: 'Kolkata',
   state: 'West Bengal',
   country: 'India',
@@ -9,9 +11,9 @@ export const locationData1: Location = {
   latitude: 22.4986357,
   longitude: 88.3453906,
   display: 'Tollygunge, Kolkata, West Bengal, India',
-};
+});
 
-export const locationData2: Location = {
+export const locationData2: Location = deepFreeze({
   city: 'Kolkata',
   state: 'West Bengal',
   country: 'India',
@@ -19,9 +21,9 @@ export const locationData2: Location = {
   latitude: 22.5851477,
   longitude: 88.34680530000001,
   display: 'Howrah Bridge, Kolkata, West Bengal, India',
-};
+});
 
-export const locationData3: Location = {
+export const locationData3: Location = deepFreeze({
   city: 'Kolkata',
   state: 'West Bengal',
   country: 'India',
@@ -29,9 +31,9 @@ export const locationData3: Location = {
   latitude: 22.5474164,
   longitude: 88.3598025,
   display: 'Park Street, Mullick Bazar, Beniapukur, Kolkata, West Bengal, India',
-};
+});
 
-export const locationData4: Location = {
+export const locationData4: Location = deepFreeze({
   city: 'Thane',
   state: 'Maharashtra',
   country: 'India',
@@ -39,9 +41,9 @@ export const locationData4: Location = {
   latitude: 19.2183307,
   longitude: 72.9780897,
   display: 'Thane, Maharashtra, India',
-};
+});
 
-export const predictedLocation1: PredictedLocation[] = [
+export const predictedLocation1: PredictedLocation[] = deepFreeze([
   {
     description: 'Bengaluru, Karnataka, India',
     matched_substrings: [
@@ -158,9 +160,9 @@ export const predictedLocation1: PredictedLocation[] = [
     ],
     types: ['locality', 'political', 'geocode'],
   },
-];
+]);
 
-export const coordinatesData1: Position = {
+export const coordinatesData1: Position = deepFreeze({
   timestamp: Date.now(),
   coords: {
     latitude: 10.12,
@@ -171,9 +173,9 @@ export const coordinatesData1: Position = {
     speed: 0.099,
     heading: 0,
   },
-};
+});
 
-export const coordinatesData2: Position = {
+export const coordinatesData2: Position = deepFreeze({
   timestamp: Date.now(),
   coords: {
     latitude: 19.0748,
@@ -184,4 +186,4 @@ export const coordinatesData2: Position = {
     speed: 0.099,
     heading: 0,
   },
-};
+});
