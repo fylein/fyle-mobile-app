@@ -43,11 +43,11 @@ export const expectedReportStats: ReportStats = deepFreeze({
   processing: {
     count: 7,
     total_amount: 5012.12,
-    failed_amount: 0,
-    failed_count: 0,
-    processing_amount: 0,
-    processing_count: 0,
-    reimbursable_amount: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: 5012.12,
+    processing_count: 7,
+    reimbursable_amount: null,
   },
 });
 

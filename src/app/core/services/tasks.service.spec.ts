@@ -60,11 +60,11 @@ import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import {
-  expectedEmptyReportStats,
   expectedReportStats,
   expectedSentBackResponse,
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
+import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -229,7 +229,7 @@ describe('TasksService', () => {
       })
       .and.returnValue(of(completeStats));
 
-    spenderReportsService.getAllReportsByParams.and.returnValue(of(allExtendedReportsResponse));
+    reportService.getAllExtendedReports.and.returnValue(of(allExtendedReportsResponse));
   }
 
   it('should be able to fetch unreported expenses tasks', () => {
