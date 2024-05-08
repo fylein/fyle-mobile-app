@@ -1,9 +1,10 @@
+import deepFreeze from 'deep-freeze-strict';
 import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { ProjectV2 } from '../models/v2/project-v2.model';
 
-export const apiResponseActiveOnly = [
+export const apiResponseActiveOnly = deepFreeze([
   {
     id: 257528,
     created_at: new Date('2021-05-12T10:28:40.834Z'),
@@ -46,9 +47,9 @@ export const apiResponseActiveOnly = [
     approver2_id: null,
     org_category_ids: null,
   },
-];
+]);
 
-export const expectedReponseActiveOnly = [
+export const expectedReponseActiveOnly = deepFreeze([
   {
     id: 257528,
     created_at: new Date('2021-05-12T10:28:40.834Z'),
@@ -91,9 +92,9 @@ export const expectedReponseActiveOnly = [
     approver2_id: null,
     org_category_ids: null,
   },
-];
+]);
 
-export const apiV2ResponseMultiple = {
+export const apiV2ResponseMultiple = deepFreeze({
   count: 2,
   data: [
     {
@@ -138,19 +139,13 @@ export const apiV2ResponseMultiple = {
   limit: 4,
   offset: 0,
   url: '/v2/projects',
-};
+});
 
-export const apiV2ResponseSingle = {
+export const apiV2ResponseSingle = deepFreeze({
   count: 1,
   data: [
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -166,9 +161,9 @@ export const apiV2ResponseSingle = {
   limit: 1,
   offset: 0,
   url: '/v2/projects',
-};
+});
 
-export const testActiveCategoryList: OrgCategory[] = [
+export const testActiveCategoryList: OrgCategory[] = deepFreeze([
   {
     code: '4060340',
     created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
@@ -205,9 +200,9 @@ export const testActiveCategoryList: OrgCategory[] = [
     sub_category: 'Cell phone',
     updated_at: new Date('2022-05-05T17:46:15.434494+00:00'),
   },
-];
+]);
 
-export const testActiveCategoryListOptions: OrgCategoryListItem[] = [
+export const testActiveCategoryListOptions: OrgCategoryListItem[] = deepFreeze([
   {
     label: 'Snacks',
     value: {
@@ -253,9 +248,9 @@ export const testActiveCategoryListOptions: OrgCategoryListItem[] = [
       updated_at: new Date('2022-05-05T17:46:15.434494+00:00'),
     },
   },
-];
+]);
 
-export const allowedActiveCategories: OrgCategory[] = [
+export const allowedActiveCategories: OrgCategory[] = deepFreeze([
   {
     code: '4060340',
     created_at: new Date('2018-01-31T23:50:27.215171+00:00'),
@@ -280,9 +275,9 @@ export const allowedActiveCategories: OrgCategory[] = [
     sub_category: 'Induction',
     updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
   },
-];
+]);
 
-export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = [
+export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = deepFreeze([
   {
     label: 'Snacks',
     value: {
@@ -313,9 +308,9 @@ export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = [
       updated_at: new Date('2022-07-05T07:52:00.417939+00:00'),
     },
   },
-];
+]);
 
-export const expectedProjectsResponse: ProjectV2[] = [
+export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
   {
     ap1_email: null,
     ap1_full_name: null,
@@ -354,9 +349,9 @@ export const expectedProjectsResponse: ProjectV2[] = [
     projectv2_name: 'Fyle Engineering',
     sub_project_name: null,
   },
-];
+]);
 
-export const testProjectParams: ProjectParams = {
+export const testProjectParams: ProjectParams = deepFreeze({
   orgId: 'orNVthTo2Zyo',
   active: true,
   sortDirection: 'asc',
@@ -366,9 +361,9 @@ export const testProjectParams: ProjectParams = {
   offset: 0,
   limit: 10,
   searchNameText: 'search',
-};
+});
 
-export const testProjectV2: ProjectV2 = {
+export const testProjectV2: ProjectV2 = deepFreeze({
   ap1_email: null,
   ap1_full_name: null,
   ap2_email: null,
@@ -386,11 +381,11 @@ export const testProjectV2: ProjectV2 = {
   project_updated_at: new Date('2022-11-23T08:55:29.400Z'),
   projectv2_name: 'Staging Project',
   sub_project_name: null,
-};
+});
 
-export const testCategoryIds = ['145429', '140530', '145458', '122269'];
+export const testCategoryIds = deepFreeze(['145429', '140530', '145458', '122269']);
 
-export const params = {
+export const params = deepFreeze({
   project_org_id: 'eq.orNVthTo2Zyo',
   order: 'project_name.asc',
   limit: 10,
@@ -399,9 +394,9 @@ export const params = {
   project_org_category_ids: 'ov.{,122269,122270,122271,122272,122273}',
   project_id: 'in.(3943,305792,148971,247936)',
   project_name: 'ilike.%search%',
-};
+});
 
-export const projectsV1Data: ProjectV1[] = [
+export const projectsV1Data: ProjectV1[] = deepFreeze([
   {
     created_at: new Date('2021-05-12T10:28:40.834844'),
     updated_at: new Date('2021-07-08T10:28:27.686886'),
@@ -412,9 +407,9 @@ export const projectsV1Data: ProjectV1[] = [
     updated_at: new Date('2021-07-08T10:28:27.686886'),
     ...apiResponseActiveOnly[1],
   },
-];
+]);
 
-export const projectsV1Data2: ProjectV1[] = [
+export const projectsV1Data2: ProjectV1[] = deepFreeze([
   {
     created_at: new Date('2021-05-12T10:28:40.834844'),
     updated_at: new Date('2021-07-08T10:28:27.686886'),
@@ -422,4 +417,4 @@ export const projectsV1Data2: ProjectV1[] = [
     name: 'Staging Project',
     ...apiResponseActiveOnly[0],
   },
-];
+]);

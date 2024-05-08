@@ -96,7 +96,7 @@ describe('SetupAccountPage', () => {
 
     networkService.connectivityWatcher.and.returnValue(new EventEmitter());
     networkService.isOnline.and.returnValue(of(true));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     orgService.setCurrencyBasedOnIp.and.returnValue(of(orgData1[0]));
@@ -115,14 +115,14 @@ describe('SetupAccountPage', () => {
 
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toEqual(true);
+      expect(connectionStatus).toBeTrue();
     });
   }));
 
   it('openCurrenySelectionModal(): should open the currency select modal', fakeAsync(() => {
     const modalSpy = jasmine.createSpyObj('Modal', ['present', 'onWillDismiss']);
-    modalController.create.and.returnValue(Promise.resolve(modalSpy));
-    modalSpy.onWillDismiss.and.returnValue(Promise.resolve({ data: { currency: { shortCode: 'USD' } } }));
+    modalController.create.and.resolveTo(modalSpy);
+    modalSpy.onWillDismiss.and.resolveTo({ data: { currency: { shortCode: 'USD' } } });
 
     component.openCurrenySelectionModal();
     fixture.detectChanges();
@@ -136,7 +136,8 @@ describe('SetupAccountPage', () => {
 
   it('postUser(): should update the password of the user', fakeAsync(() => {
     orgUserService.postUser.and.returnValue(of(postUserResponse));
-    component.eou$ = of(currentEouRes);
+    const mockEou = cloneDeep(currentEouRes);
+    component.eou$ = of(mockEou);
     component.fg.controls.password.setValue('qwerty@123456');
     const updatedEou = {
       id: 'usvKA4X8Ugcr',
@@ -149,7 +150,7 @@ describe('SetupAccountPage', () => {
     };
     component.postUser().subscribe(() => {
       expect(orgUserService.postUser).toHaveBeenCalledOnceWith(updatedEou);
-      expect(currentEouRes.us).toEqual(updatedEou);
+      expect(mockEou.us).toEqual(updatedEou);
     });
   }));
 
@@ -173,20 +174,22 @@ describe('SetupAccountPage', () => {
 
   describe('saveGuessedMileage():', () => {
     it('should set the desired mileage value if the org currency is USD', fakeAsync(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      const mockOrgSettings = cloneDeep(orgSettingsRes);
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
       component.org$ = of(orgData1[0]);
       orgSettingsService.post.and.returnValue(of(orgSettingsPostData));
       component.saveGuessedMileage().subscribe(() => {
-        expect(orgSettingsRes.mileage.four_wheeler).toBe(0.58);
-        expect(orgSettingsRes.mileage.unit).toBe('MILES');
-        expect(orgSettingsRes.mileage.enabled).toBe(true);
-        expect(orgSettingsRes.mileage.two_wheeler).toBe(0.58);
+        expect(mockOrgSettings.mileage.four_wheeler).toBe(0.58);
+        expect(mockOrgSettings.mileage.unit).toBe('MILES');
+        expect(mockOrgSettings.mileage.enabled).toBeTrue();
+        expect(mockOrgSettings.mileage.two_wheeler).toBe(0.58);
       });
-      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
+      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(mockOrgSettings);
     }));
 
     it('should set the desired mileage value if the org currency is not USD', fakeAsync(() => {
-      orgSettingsService.get.and.returnValue(of(orgSettingsRes));
+      const mockOrgSettings = cloneDeep(orgSettingsRes);
+      orgSettingsService.get.and.returnValue(of(mockOrgSettings));
       const orgData12 = {
         ...orgData1[0],
         currency: 'INR',
@@ -195,13 +198,13 @@ describe('SetupAccountPage', () => {
       orgSettingsService.post.and.returnValue(of(orgSettingsPostData));
       component.saveGuessedMileage().subscribe(() => {
         fixture.detectChanges();
-        expect(orgSettingsRes.mileage.four_wheeler).toBe(8.0);
-        expect(orgSettingsRes.mileage.unit).toBe('KM');
-        expect(orgSettingsRes.mileage.enabled).toBe(true);
-        expect(orgSettingsRes.mileage.two_wheeler).toBe(6.0);
+        expect(mockOrgSettings.mileage.four_wheeler).toBe(8.0);
+        expect(mockOrgSettings.mileage.unit).toBe('KM');
+        expect(mockOrgSettings.mileage.enabled).toBeTrue();
+        expect(mockOrgSettings.mileage.two_wheeler).toBe(6.0);
       });
       tick(500);
-      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(orgSettingsRes);
+      expect(orgSettingsService.post).toHaveBeenCalledOnceWith(mockOrgSettings);
     }));
   });
 
@@ -211,8 +214,8 @@ describe('SetupAccountPage', () => {
       spyOn(component, 'postUser').and.returnValue(of(postUserResponse));
       spyOn(component, 'postOrg').and.returnValue(of(orgData1[0]));
       spyOn(component, 'saveGuessedMileage').and.returnValue(of(orgSettingsRes));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       authService.refreshEou.and.returnValue(of(eouRes3));
       component.fg.setValue({
         companyName: 'Acme Inc.',
@@ -223,7 +226,7 @@ describe('SetupAccountPage', () => {
       fixture.detectChanges();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBe(true);
+      expect(component.fg.valid).toBeTrue();
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(component.postUser).toHaveBeenCalledTimes(1);
       expect(component.postOrg).toHaveBeenCalledTimes(1);
@@ -244,13 +247,13 @@ describe('SetupAccountPage', () => {
       });
 
       const toastSpy = jasmine.createSpyObj('HTMLIonToastElement', ['present']);
-      toastSpy.present.and.returnValue(Promise.resolve());
-      toastController.create.and.returnValue(Promise.resolve(toastSpy));
+      toastSpy.present.and.resolveTo();
+      toastController.create.and.resolveTo(toastSpy);
       component.saveData();
       fixture.detectChanges();
       tick(500);
       expect(component.fg.markAllAsTouched).toHaveBeenCalledTimes(1);
-      expect(component.fg.valid).toBe(false);
+      expect(component.fg.valid).toBeFalse();
       expect(toastController.create).toHaveBeenCalledOnceWith({
         message: 'Please fill all required fields to proceed',
         color: 'danger',

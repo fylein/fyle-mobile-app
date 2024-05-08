@@ -89,12 +89,12 @@ export class DashboardPage {
   }
 
   get filterPills(): FilterPill[] {
-    return this.tasksComponent?.filterPills;
+    return this.tasksComponent.filterPills;
   }
 
   ionViewWillLeave(): void {
     this.onPageExit$.next(null);
-    this.hardwareBackButtonAction?.unsubscribe();
+    this.hardwareBackButtonAction.unsubscribe();
   }
 
   setupNetworkWatcher(): void {

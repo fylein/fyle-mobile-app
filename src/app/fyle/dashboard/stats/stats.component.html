@@ -15,7 +15,7 @@
               [name]="'Draft'"
               [reportState]="ReportStates.DRAFT"
               [count]="reportStatsData.reportStats?.draft?.count"
-              [value]="reportStatsData.reportStats?.draft?.sum"
+              [value]="reportStatsData.reportStats?.draft?.total_amount"
               (badgeClicked)="goToReportsPage($event)"
             ></app-stat-badge>
           </ion-col>
@@ -26,7 +26,7 @@
               [name]="reportStatsData.simplifyReportsSettings.enabled ? 'Submitted' : 'Reported'"
               [reportState]="ReportStates.APPROVER_PENDING"
               [count]="reportStatsData.reportStats?.report?.count"
-              [value]="reportStatsData.reportStats?.report?.sum"
+              [value]="reportStatsData.reportStats?.report?.total_amount"
               (badgeClicked)="goToReportsPage($event)"
             ></app-stat-badge>
           </ion-col>
@@ -42,7 +42,7 @@
               [name]="'Approved'"
               [reportState]="ReportStates.APPROVED"
               [count]="reportStatsData.reportStats?.approved?.count"
-              [value]="reportStatsData.reportStats?.approved?.sum"
+              [value]="reportStatsData.reportStats?.approved?.total_amount"
               (badgeClicked)="goToReportsPage($event)"
             ></app-stat-badge>
           </ion-col>
@@ -57,7 +57,7 @@
                 [name]="'Processing'"
                 [reportState]="ReportStates.PAYMENT_PROCESSING"
                 [count]="reportStatsData.reportStats?.processing?.count"
-                [value]="reportStatsData.reportStats?.processing?.sum"
+                [value]="reportStatsData.reportStats?.processing?.total_amount"
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
             </ng-container>
@@ -68,7 +68,7 @@
                 [name]="'Payment Pending'"
                 [reportState]="ReportStates.PAYMENT_PENDING"
                 [count]="reportStatsData.reportStats?.paymentPending?.count"
-                [value]="reportStatsData.reportStats?.paymentPending?.sum"
+                [value]="reportStatsData.reportStats?.paymentPending?.total_amount"
                 (badgeClicked)="goToReportsPage($event)"
               ></app-stat-badge>
             </ng-template>

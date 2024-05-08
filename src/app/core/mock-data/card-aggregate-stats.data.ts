@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CardAggregateStats } from '../models/card-aggregate-stats.model';
 
-export const cardAggregateStatParam: CardAggregateStats[] = [
+export const cardAggregateStatParam: CardAggregateStats[] = deepFreeze([
   {
     aggregates: [
       {
@@ -79,9 +81,9 @@ export const cardAggregateStatParam: CardAggregateStats[] = [
       },
     ],
   },
-];
+]);
 
-export const cardAggregateStatParam2: CardAggregateStats[] = [
+export const cardAggregateStatParam2: CardAggregateStats[] = deepFreeze([
   {
     aggregates: [],
     key: [
@@ -151,9 +153,9 @@ export const cardAggregateStatParam2: CardAggregateStats[] = [
       },
     ],
   },
-];
+]);
 
-export const cardAggregateStatParam3: CardAggregateStats[] = [
+export const cardAggregateStatParam3: CardAggregateStats[] = deepFreeze([
   {
     aggregates: [
       {
@@ -180,4 +182,4 @@ export const cardAggregateStatParam3: CardAggregateStats[] = [
       },
     ],
   },
-];
+]);

@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { AccountType } from '../enums/account-type.enum';
 import { OrgUserSettings } from '../models/org_user_settings.model';
 
-export const orgUserSettingsData: OrgUserSettings = {
+export const orgUserSettingsData: OrgUserSettings = deepFreeze({
   id: 'ousS9MgDNQ6NB',
   created_at: new Date('2018-02-01T02:32:25.275Z'),
   updated_at: new Date('2023-01-23T09:47:32.266Z'),
@@ -158,27 +160,27 @@ export const orgUserSettingsData: OrgUserSettings = {
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
-};
+});
 
-export const orgUserSettingsWoPaymentModes: OrgUserSettings = {
+export const orgUserSettingsWoPaymentModes: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   payment_mode_settings: {
     allowed: false,
     enabled: false,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
-};
+});
 
-export const orgUserSettingsWoPayModesCompany: OrgUserSettings = {
+export const orgUserSettingsWoPayModesCompany: OrgUserSettings = deepFreeze({
   ...orgUserSettingsWoPaymentModes,
   preferences: {
     default_project_id: 3943,
     default_vehicle_type: 'four_wheeler',
     default_payment_mode: 'COMPANY_ACCOUNT',
   },
-};
+});
 
-export const orgUserSettingsData2: OrgUserSettings = {
+export const orgUserSettingsData2: OrgUserSettings = deepFreeze({
   id: 'ousS9MgDNQ6NB',
   created_at: new Date('2018-02-01T02:32:25.275Z'),
   updated_at: new Date('2023-02-03T14:01:22.940Z'),
@@ -335,9 +337,9 @@ export const orgUserSettingsData2: OrgUserSettings = {
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
-};
+});
 
-export const orgUserSettingsData3: OrgUserSettings = {
+export const orgUserSettingsData3: OrgUserSettings = deepFreeze({
   id: 'ousS9MgDNQ6NB',
   created_at: new Date('2018-02-01T02:32:25.275Z'),
   updated_at: new Date('2023-02-08T10:04:47.852Z'),
@@ -494,9 +496,9 @@ export const orgUserSettingsData3: OrgUserSettings = {
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
-};
+});
 
-export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
+export const orgUserSettingsDataWoCCIDs: OrgUserSettings = deepFreeze({
   id: 'ousS9MgDNQ6NB',
   created_at: new Date('2018-02-01T02:32:25.275Z'),
   updated_at: new Date('2023-01-23T09:47:32.266Z'),
@@ -653,60 +655,60 @@ export const orgUserSettingsDataWoCCIDs: OrgUserSettings = {
     enabled: true,
     allowed_payment_modes: [AccountType.PERSONAL, AccountType.CCC, AccountType.COMPANY],
   },
-};
+});
 
-export const orgUserSettingsWithCurrency: OrgUserSettings = {
+export const orgUserSettingsWithCurrency: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   currency_settings: {
     enabled: true,
     preferred_currency: 'USD',
   },
-};
+});
 
-export const orgUserSettingsWoDefaultProject: OrgUserSettings = {
+export const orgUserSettingsWoDefaultProject: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   preferences: {
     ...orgUserSettingsData.preferences,
     default_project_id: null,
   },
-};
+});
 
-export const orgUserSettingsWoInstaFyle: OrgUserSettings = {
+export const orgUserSettingsWoInstaFyle: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   insta_fyle_settings: {
     ...orgUserSettingsData.insta_fyle_settings,
     allowed: true,
   },
-};
+});
 
-export const orgUserSettingsWoProjects: OrgUserSettings = {
+export const orgUserSettingsWoProjects: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   project_ids: null,
-};
+});
 
-export const notificationDelegateeSettings1: OrgUserSettings = {
+export const notificationDelegateeSettings1: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   notification_settings: {
     ...orgUserSettingsData.notification_settings,
     notify_delegatee: true,
     notify_user: false,
   },
-};
+});
 
-export const notificationDelegateeSettings2: OrgUserSettings = {
+export const notificationDelegateeSettings2: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   notification_settings: {
     ...orgUserSettingsData.notification_settings,
     notify_delegatee: false,
     notify_user: true,
   },
-};
+});
 
-export const notificationDelegateeSettings3: OrgUserSettings = {
+export const notificationDelegateeSettings3: OrgUserSettings = deepFreeze({
   ...orgUserSettingsData,
   notification_settings: {
     ...orgUserSettingsData.notification_settings,
     notify_delegatee: true,
     notify_user: true,
   },
-};
+});
