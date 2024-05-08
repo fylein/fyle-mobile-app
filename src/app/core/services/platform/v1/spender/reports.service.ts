@@ -1,4 +1,4 @@
-import { Inject, Injectable, PlatformRef } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { Observable, Subject, range } from 'rxjs';
 import { concatMap, map, reduce, switchMap, tap } from 'rxjs/operators';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
