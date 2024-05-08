@@ -5,7 +5,6 @@ import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pip
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 import {
-  allExtendedReportsResponse,
   extendedOrgUserResponse,
   incompleteExpensesResponse,
   potentialDuplicatesApiResponse,
@@ -65,6 +64,7 @@ import {
   expectedSentBackResponse,
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
+import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -229,7 +229,7 @@ describe('TasksService', () => {
       })
       .and.returnValue(of(completeStats));
 
-    spenderReportsService.getAllReportsByParams.and.returnValue(of(allExtendedReportsResponse));
+    spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
   }
 
   it('should be able to fetch unreported expenses tasks', () => {
