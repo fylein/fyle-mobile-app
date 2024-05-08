@@ -64,10 +64,10 @@ describe('RecentlyUsedItemsService', () => {
       };
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith({
-          orgId: config.eou.ou.org_id,
-          active: true,
+          org_id: config.eou.ou.org_id,
+          is_enabled: true,
           sortDirection: 'asc',
-          sortOrder: 'project_name',
+          sortOrder: 'name',
           orgCategoryIds: config.categoryIds,
           projectIds: config.recentValues.recent_project_ids,
           offset: 0,

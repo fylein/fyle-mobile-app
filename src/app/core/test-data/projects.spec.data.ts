@@ -1,5 +1,4 @@
 import deepFreeze from 'deep-freeze-strict';
-import { ProjectParams } from '../models/project-params.model';
 import { ProjectV1 } from '../models/v1/extended-project.model';
 import { OrgCategory, OrgCategoryListItem } from '../models/v1/org-category.model';
 import { ProjectV2 } from '../models/v2/project-v2.model';
@@ -98,13 +97,7 @@ export const apiV2ResponseMultiple = deepFreeze({
   count: 2,
   data: [
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1184',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -117,13 +110,7 @@ export const apiV2ResponseMultiple = deepFreeze({
       sub_project_name: null,
     },
     {
-      ap1_email: null,
-      ap1_full_name: null,
-      ap2_email: null,
-      ap2_full_name: null,
       project_active: true,
-      project_approver1_id: null,
-      project_approver2_id: null,
       project_code: '1182',
       project_created_at: new Date('2021-05-12T10:28:40.834844'),
       project_description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
@@ -312,13 +299,7 @@ export const allowedActiveCategoriesListOptions: OrgCategoryListItem[] = deepFre
 
 export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
   {
-    ap1_email: null,
-    ap1_full_name: null,
-    ap2_email: null,
-    ap2_full_name: null,
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '1184',
     project_created_at: new Date('2021-05-12T10:28:40.834844'),
     project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
@@ -331,13 +312,7 @@ export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
     sub_project_name: null,
   },
   {
-    ap1_email: null,
-    ap1_full_name: null,
-    ap2_email: null,
-    ap2_full_name: null,
     project_active: true,
-    project_approver1_id: null,
-    project_approver2_id: null,
     project_code: '1182',
     project_created_at: new Date('2021-05-12T10:28:40.834844'),
     project_description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
@@ -351,11 +326,11 @@ export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
   },
 ]);
 
-export const testProjectParams: ProjectParams = deepFreeze({
-  orgId: 'orNVthTo2Zyo',
-  active: true,
+export const testProjectParams = deepFreeze({
+  org_id: 'orNVthTo2Zyo',
+  is_enabled: true,
   sortDirection: 'asc',
-  sortOrder: 'project_name',
+  sortOrder: 'name',
   orgCategoryIds: [null, '122269', '122270', '122271', '122272', '122273'],
   projectIds: [3943, 305792, 148971, 247936],
   offset: 0,

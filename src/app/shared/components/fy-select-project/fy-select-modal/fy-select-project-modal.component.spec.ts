@@ -117,7 +117,7 @@ describe('FyProjectSelectModalComponent', () => {
     projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
     projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
@@ -125,7 +125,7 @@ describe('FyProjectSelectModalComponent', () => {
     component.cacheName = 'projects';
     component.defaultValue = true;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
-    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
+    recentLocalStorageItemsService.get.and.resolveTo([testProjectV2]);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
 
     fixture.detectChanges();
@@ -140,7 +140,7 @@ describe('FyProjectSelectModalComponent', () => {
     it('should get projects when current selection is not defined', (done) => {
       projectsService.getByParamsUnformatted.and.returnValue(of(projects));
       projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects);
@@ -148,10 +148,10 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
+          org_id: 'orNVthTo2Zyo',
+          is_enabled: true,
           sortDirection: 'asc',
-          sortOrder: 'project_name',
+          sortOrder: 'name',
           orgCategoryIds: undefined,
           projectIds: null,
           searchNameText: '',
@@ -174,10 +174,10 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
+          org_id: 'orNVthTo2Zyo',
+          is_enabled: true,
           sortDirection: 'asc',
-          sortOrder: 'project_name',
+          sortOrder: 'name',
           orgCategoryIds: undefined,
           projectIds: null,
           searchNameText: '',
@@ -200,10 +200,10 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          active: true,
+          org_id: 'orNVthTo2Zyo',
+          is_enabled: true,
           sortDirection: 'asc',
-          sortOrder: 'project_name',
+          sortOrder: 'name',
           orgCategoryIds: undefined,
           projectIds: null,
           searchNameText: '',
@@ -251,14 +251,12 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should get project from recently used storage if not already present', (done) => {
-      recentLocalStorageItemsService.get.and.returnValue(
-        Promise.resolve([
-          {
-            label: 'label',
-            value: testProjectV2,
-          },
-        ])
-      );
+      recentLocalStorageItemsService.get.and.resolveTo([
+        {
+          label: 'label',
+          value: testProjectV2,
+        },
+      ]);
       component.recentlyUsed = null;
       component.cacheName = 'project';
       fixture.detectChanges();
@@ -277,16 +275,16 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('onDoneClick(): should dimiss the modal on clicking the done CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+  it('onDoneClick(): should dimiss the modal on clicking the done CTA', async () => {
+    modalController.dismiss.and.resolveTo(true);
 
-    component.onDoneClick();
+    await component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
   });
 
   describe('onElementSelect():', () => {
     it('should dismiss the modal with selected option', () => {
-      modalController.dismiss.and.returnValue(Promise.resolve(true));
+      modalController.dismiss.and.resolveTo(true);
 
       component.onElementSelect({ label: '', value: null });
       expect(modalController.dismiss).toHaveBeenCalledWith({ label: '', value: null });
@@ -294,7 +292,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should cache the selected option and dismiss the modal', () => {
-      modalController.dismiss.and.returnValue(Promise.resolve(true));
+      modalController.dismiss.and.resolveTo(true);
       recentLocalStorageItemsService.post.and.returnValue(null);
       component.cacheName = 'cache';
       fixture.detectChanges();

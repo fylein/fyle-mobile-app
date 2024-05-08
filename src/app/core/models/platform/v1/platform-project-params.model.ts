@@ -6,7 +6,7 @@ export interface PlatformProjectParams {
   sortOrder?: string;
   searchNameText?: string;
   active?: boolean;
-  is_enabled?: string;
+  is_enabled?: string | boolean;
   id?: string;
   category_ids?: string;
   org_id?: string;

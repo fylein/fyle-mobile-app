@@ -17,7 +17,11 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformProjectSingleRes } from '../mock-data/platform/v1/platform-project.data';
+import {
+  ProjectPlatformParams,
+  platformAPIResponseMultiple,
+  platformProjectSingleRes,
+} from '../mock-data/platform/v1/platform-project.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -97,24 +101,27 @@ describe('ProjectsService', () => {
   });
 
   it('should be able to fetch data when no params provided', (done) => {
-    apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
 
     projectsService.getByParamsUnformatted({}).subscribe((res) => {
-      expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
+      expect(res).toEqual(apiV2ResponseMultiple.data);
       done();
     });
   });
 
   it('should be able to fetch data when params are provided', (done) => {
-    apiV2Service.get.and.returnValue(of(apiV2ResponseMultiple));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
+    const params = ProjectPlatformParams;
+    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
 
     const result = projectsService.getByParamsUnformatted(testProjectParams);
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
-      expect(apiV2Service.get).toHaveBeenCalledWith('/projects', {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/projects', {
         params,
       });
+      expect(transformToV2ResponseSpy).toHaveBeenCalled();
       done();
     });
   });
