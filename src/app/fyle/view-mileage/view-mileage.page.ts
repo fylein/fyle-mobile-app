@@ -7,7 +7,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
-import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -117,7 +116,6 @@ export class ViewMileagePage {
     private transactionService: TransactionService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
-    private reportService: ReportService,
     private popoverController: PopoverController,
     private router: Router,
     private networkService: NetworkService,
