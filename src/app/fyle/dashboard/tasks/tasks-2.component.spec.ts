@@ -113,7 +113,6 @@ export function TestCases2(getTestBed) {
           expect(tasksService.getTasks).toHaveBeenCalledTimes(2);
           expect(tasksService.getTasks).toHaveBeenCalledWith(true, component.loadData$.getValue());
           expect(component.trackTasks).toHaveBeenCalledTimes(2);
-          expect;
           expect(component.taskCount).toEqual(dashboardTasksData.length);
           expect(res).toEqual(dashboardTasksData);
         });
