@@ -55,6 +55,7 @@ import { MyViewReportPage } from './my-view-report.page';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -75,6 +76,7 @@ describe('MyViewReportPage', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -116,6 +118,7 @@ describe('MyViewReportPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -202,6 +205,10 @@ describe('MyViewReportPage', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
@@ -224,6 +231,7 @@ describe('MyViewReportPage', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     component.erpt$ = of(newReportParam);
     component.canEdit$ = of(true);
@@ -300,7 +308,8 @@ describe('MyViewReportPage', () => {
       loaderService.showLoader.and.resolveTo();
       reportService.getReport.and.returnValue(of(erpt));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -393,7 +402,8 @@ describe('MyViewReportPage', () => {
       loaderService.showLoader.and.resolveTo();
       reportService.getReport.and.returnValue(of(null));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
@@ -478,13 +488,14 @@ describe('MyViewReportPage', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    component.erpt$ = of(newReportParam);
+    const mockErpt = cloneDeep(newReportParam);
+    component.erpt$ = of(mockErpt);
     fixture.detectChanges();
     reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(mockErpt);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
@@ -499,7 +510,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -525,7 +536,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -582,7 +593,7 @@ describe('MyViewReportPage', () => {
     const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
     deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
 
-    popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
+    popoverController.create.and.resolveTo(deleteReportPopoverSpy);
 
     component.deleteReportPopup(expectedAllReports[0]);
     tick(2000);
@@ -692,6 +703,7 @@ describe('MyViewReportPage', () => {
         },
       ]);
     });
+
     it('should go to edit expense page if canEdit is true', () => {
       component.canEdit$ = of(true);
       component.erpt$ = of(expectedAllReports[0]);
@@ -820,7 +832,7 @@ describe('MyViewReportPage', () => {
         email: 'aj@fyle.com',
       },
     });
-    modalController.create.and.returnValue(Promise.resolve(shareReportModalSpy));
+    modalController.create.and.resolveTo(shareReportModalSpy);
     reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
@@ -855,7 +867,7 @@ describe('MyViewReportPage', () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
     viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
-    modalController.create.and.returnValue(Promise.resolve(viewInfoModalSpy));
+    modalController.create.and.resolveTo(viewInfoModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
 
     await component.openViewReportInfoModal();
@@ -956,7 +968,7 @@ describe('MyViewReportPage', () => {
         },
       });
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
@@ -989,7 +1001,7 @@ describe('MyViewReportPage', () => {
       ]);
       addExpensesToReportModalSpy.onWillDismiss.and.resolveTo(null);
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
@@ -1017,13 +1029,16 @@ describe('MyViewReportPage', () => {
     component.reportId = 'rpFkJ6jUJOyg';
     component.unreportedExpenses = [expense1, expense2];
     fixture.detectChanges();
-    reportService.addTransactions.and.returnValue(of(null));
+    spenderReportsService.addExpenses.and.returnValue(of(null));
 
     spyOn(component.loadReportDetails$, 'next');
     spyOn(component.loadReportTxns$, 'next');
 
     component.addExpensesToReport(['txcSFe6efB62', 'tx3qHxFNgRcZ']);
-    expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', ['txcSFe6efB62', 'tx3qHxFNgRcZ']);
+    expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rpFkJ6jUJOyg', [
+      'txcSFe6efB62',
+      'tx3qHxFNgRcZ',
+    ]);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
     expect(component.loadReportTxns$.next).toHaveBeenCalledTimes(1);
     expect(component.unreportedExpenses).toEqual([expenseData]);

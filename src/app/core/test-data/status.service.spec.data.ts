@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExtendedStatus } from '../models/extended_status.model';
 
-export const getApiResponse = [
+export const getApiResponse = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: '2022-09-23T15:33:52.696Z',
@@ -84,9 +86,9 @@ export const getApiResponse = [
     us_full_name: null,
     us_email: null,
   },
-];
+]);
 
-export const getEstatusApiResponse: ExtendedStatus[] = [
+export const getEstatusApiResponse: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -170,9 +172,9 @@ export const getEstatusApiResponse: ExtendedStatus[] = [
     us_full_name: null,
     us_email: null,
   },
-];
+]);
 
-export const apiCommentsResponse: ExtendedStatus[] = [
+export const apiCommentsResponse: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'stB3NqJuL3eE',
     st_created_at: new Date('2022-10-28T05:54:01.537Z'),
@@ -702,9 +704,9 @@ export const apiCommentsResponse: ExtendedStatus[] = [
     isSelfComment: false,
     isOthersComment: true,
   },
-];
+]);
 
-export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
+export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'stB3NqJuL3eE',
     st_created_at: new Date('2022-10-28T05:54:01.537Z'),
@@ -1366,9 +1368,9 @@ export const updateReponseWithFlattenedEStatus: ExtendedStatus[] = [
       icon: 'edit',
     },
   },
-];
+]);
 
-export const estatusData1: ExtendedStatus[] = [
+export const estatusData1: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -1437,9 +1439,9 @@ export const estatusData1: ExtendedStatus[] = [
       icon: 'food',
     },
   },
-];
+]);
 
-export const expectedEstatusData1: ExtendedStatus[] = [
+export const expectedEstatusData1: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -1511,9 +1513,9 @@ export const expectedEstatusData1: ExtendedStatus[] = [
     },
     has_details: false,
   },
-];
+]);
 
-export const updatedProjectKeyEstData: ExtendedStatus[] = [
+export const updatedProjectKeyEstData: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -1585,9 +1587,9 @@ export const updatedProjectKeyEstData: ExtendedStatus[] = [
     },
     has_details: false,
   },
-];
+]);
 
-export const estatusSample = [
+export const estatusSample = deepFreeze([
   {
     st_id: 'st1YBfc0c0t6',
     st_created_at: new Date('2022-11-07T10:56:01.991Z'),
@@ -1704,9 +1706,9 @@ export const estatusSample = [
     },
     has_details: true,
   },
-];
+]);
 
-export const eStatusWithProjectName = [
+export const eStatusWithProjectName = deepFreeze([
   {
     st_id: 'sty8xyVwn2sK',
     st_created_at: new Date('2022-11-07T10:58:24.975Z'),
@@ -1730,9 +1732,9 @@ export const eStatusWithProjectName = [
       icon: 'radio-circle-outline',
     },
   },
-];
+]);
 
-export const eStatusWithProjectName2 = [
+export const eStatusWithProjectName2 = deepFreeze([
   {
     st_id: 'sty8xyVwn2sK',
     st_created_at: new Date('2022-11-07T10:58:24.975Z'),
@@ -1757,9 +1759,9 @@ export const eStatusWithProjectName2 = [
       icon: 'radio-circle-outline',
     },
   },
-];
+]);
 
-export const eStatusWithReimbursible = [
+export const eStatusWithReimbursible = deepFreeze([
   {
     st_id: 'stJ0lgtMHZW9',
     st_created_at: '2023-04-10T09:13:26.285Z',
@@ -1795,9 +1797,9 @@ export const eStatusWithReimbursible = [
     },
     has_details: true,
   },
-];
+]);
 
-export const newEstatusData1: ExtendedStatus[] = [
+export const newEstatusData1: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'st7ak7UoeTDH',
     st_created_at: new Date('2022-09-23T15:33:52.696Z'),
@@ -1867,9 +1869,9 @@ export const newEstatusData1: ExtendedStatus[] = [
     us_full_name: null,
     us_email: null,
   },
-];
+]);
 
-export const expectedNewStatusData: ExtendedStatus[] = [
+export const expectedNewStatusData: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'stIwoMKmTqeM',
     st_created_at: new Date('2022-09-21T15:33:50.409Z'),
@@ -1953,9 +1955,9 @@ export const expectedNewStatusData: ExtendedStatus[] = [
     isOthersComment: true,
     show_dt: false,
   },
-];
+]);
 
-export const systemComments1: ExtendedStatus[] = [
+export const systemComments1: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'stIwoMKmTqeM',
     st_created_at: new Date('2022-09-21T15:33:50.409Z'),
@@ -2022,9 +2024,9 @@ export const systemComments1: ExtendedStatus[] = [
     isOthersComment: true,
     show_dt: true,
   },
-];
+]);
 
-export const systemCommentsWithSt: ExtendedStatus[] = [
+export const systemCommentsWithSt: ExtendedStatus[] = deepFreeze([
   {
     st_id: 'stIwoMKmTqeM',
     st_created_at: new Date('2022-09-21T15:33:50.409Z'),
@@ -2100,4 +2102,4 @@ export const systemCommentsWithSt: ExtendedStatus[] = [
       icon: 'flag-fill',
     },
   },
-];
+]);

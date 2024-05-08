@@ -6,7 +6,6 @@ import { editUnflattenedTransaction, txnData2 } from '../mock-data/transaction.d
 import { DateService } from './date.service';
 import { FileService } from './file.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
-import { ReportService } from './report.service';
 import { StatusService } from './status.service';
 import { StorageService } from './storage.service';
 import { TrackingService } from './tracking.service';
@@ -19,6 +18,7 @@ import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
 import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -29,7 +29,7 @@ describe('TransactionsOutboxService', () => {
   let expensesService: jasmine.SpyObj<ExpensesService>;
   let fileService: jasmine.SpyObj<FileService>;
   let statusService: jasmine.SpyObj<StatusService>;
-  let reportService: jasmine.SpyObj<ReportService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
   let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
   const singleCaptureCountInSession = 0;
@@ -43,7 +43,7 @@ describe('TransactionsOutboxService', () => {
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpensesById']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['post', 'uploadUrl', 'uploadComplete']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['post']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['post']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['post']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', ['post']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['post']);
 
@@ -57,7 +57,7 @@ describe('TransactionsOutboxService', () => {
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: StatusService, useValue: statusServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
+        { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: TrackingService, useValue: trackingServiceSpy },
         { provide: OrgUserSettingsService, useValue: orgUserSettingsServiceSpy },
       ],
@@ -69,7 +69,7 @@ describe('TransactionsOutboxService', () => {
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
     httpMock = TestBed.inject(HttpTestingController);
@@ -101,7 +101,7 @@ describe('TransactionsOutboxService', () => {
   it('saveQueue(): should save queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    storageService.set.and.returnValue(Promise.resolve(null));
+    storageService.set.and.resolveTo(null);
     transactionsOutboxService.saveQueue();
     expect(storageService.set).toHaveBeenCalledOnceWith('outbox', transactionsOutboxService.queue);
   });
@@ -109,7 +109,7 @@ describe('TransactionsOutboxService', () => {
   it('saveDataExtractionQueue(): should save data extraction queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.dataExtractionQueue = mockQueue;
-    storageService.set.and.returnValue(Promise.resolve(null));
+    storageService.set.and.resolveTo(null);
     transactionsOutboxService.saveDataExtractionQueue();
     expect(storageService.set).toHaveBeenCalledOnceWith(
       'data_extraction_queue',
@@ -164,7 +164,7 @@ describe('TransactionsOutboxService', () => {
   it('removeDataExtractionEntry():', async () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.dataExtractionQueue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
     await transactionsOutboxService.removeDataExtractionEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -173,7 +173,7 @@ describe('TransactionsOutboxService', () => {
   });
 
   it('addDataExtractionEntry():', () => {
-    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveDataExtractionQueue').and.resolveTo();
     transactionsOutboxService.addDataExtractionEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -201,14 +201,14 @@ describe('TransactionsOutboxService', () => {
   it('removeEntry(): should remove entry from queue', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.removeEntry(outboxQueueData1[0]);
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
     expect(transactionsOutboxService.queue.length).toEqual(0);
   });
 
   it('addEntry(): should add entry to queue', () => {
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.addEntry(txnData2, [
       { url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.jpeg', type: 'image/jpeg' },
     ]);
@@ -220,8 +220,8 @@ describe('TransactionsOutboxService', () => {
     beforeEach(() => {
       const mockQueue = cloneDeep(outboxQueueData1);
       transactionsOutboxService.queue = mockQueue;
-      spyOn(transactionsOutboxService, 'addEntry').and.returnValue(Promise.resolve());
-      spyOn(transactionsOutboxService, 'syncEntry').and.returnValue(Promise.resolve(outboxQueueData1[0]));
+      spyOn(transactionsOutboxService, 'addEntry').and.resolveTo();
+      spyOn(transactionsOutboxService, 'syncEntry').and.resolveTo(outboxQueueData1[0]);
     });
 
     it('should add entry to queue and sync', () => {
@@ -275,7 +275,7 @@ describe('TransactionsOutboxService', () => {
   it('deleteOfflineExpense(): should delete offline expense', () => {
     const mockQueue = cloneDeep(outboxQueueData1);
     transactionsOutboxService.queue = mockQueue;
-    spyOn(transactionsOutboxService, 'saveQueue').and.returnValue(Promise.resolve());
+    spyOn(transactionsOutboxService, 'saveQueue').and.resolveTo();
     transactionsOutboxService.deleteOfflineExpense(0);
     expect(transactionsOutboxService.saveQueue).toHaveBeenCalledTimes(1);
     expect(transactionsOutboxService.queue.length).toEqual(0);

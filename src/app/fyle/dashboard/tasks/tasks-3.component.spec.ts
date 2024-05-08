@@ -26,6 +26,7 @@ import { unreportedExpensesQueryParams } from 'src/app/core/mock-data/platform/v
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-details-response.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 export function TestCases3(getTestBed) {
   return describe('test case set 3', () => {
@@ -46,6 +47,8 @@ export function TestCases3(getTestBed) {
     let networkService: jasmine.SpyObj<NetworkService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
       fixture = TestBed.createComponent(TasksComponent);
@@ -66,6 +69,7 @@ export function TestCases3(getTestBed) {
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
       orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
     }));
 
@@ -75,11 +79,11 @@ export function TestCases3(getTestBed) {
       expect(router.navigate).toHaveBeenCalledWith(['/', 'enterprise', 'potential-duplicates']);
     });
 
-    it('addTransactionsToReport(): should show loader, call reportService.addTransactions and hide the loader', (done) => {
+    it('addTransactionsToReport(): should show loader, call spenderReportsService.addExpenses and hide the loader', (done) => {
       loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo(true);
 
-      reportService.addTransactions.and.returnValue(of(undefined));
+      spenderReportsService.addExpenses.and.returnValue(of(undefined));
       component
         .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
         .pipe(
@@ -89,7 +93,7 @@ export function TestCases3(getTestBed) {
         )
         .subscribe((res) => {
           expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id, [
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(apiExtendedReportRes[0].rp_id, [
             'tx5fBcPBAxLv',
           ]);
           expect(res).toEqual(apiExtendedReportRes[0]);
@@ -105,13 +109,13 @@ export function TestCases3(getTestBed) {
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
 
       const message = 'Expenses added to report successfully';
-      component.showAddToReportSuccessToast({ message: message, report: apiExtendedReportRes[0] });
+      component.showAddToReportSuccessToast({ message, report: apiExtendedReportRes[0] });
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarPropertiesRes2,
         panelClass: ['msb-success-with-camera-icon'],
       });
       expect(snackbarProperties.setSnackbarProperties).toHaveBeenCalledOnceWith(ToastType.SUCCESS, {
-        message: message,
+        message,
         redirectionText: 'View Report',
       });
       expect(trackingService.showToastMessage).toHaveBeenCalledOnceWith({

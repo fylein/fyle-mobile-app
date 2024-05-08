@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { cloneDeep } from 'lodash';
 import { ApiV2Response } from '../models/api-v2.model';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
 import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 
-export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
+export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   count: 1,
   data: [
     {
@@ -78,9 +80,9 @@ export const singleExtendedAdvReqRes: ApiV2Response<ExtendedAdvanceRequest> = {
   limit: 1,
   offset: 0,
   url: '/v2/advance_requests',
-};
+});
 
-export const extendedAdvReqDraft: ExtendedAdvanceRequest = {
+export const extendedAdvReqDraft: ExtendedAdvanceRequest = deepFreeze({
   _search_document:
     "'54':1 'a':7,13,19,25 'abhishek':31 'ajain@fyle.in':33 'ar/2023/01/r/4':3 'business':10,16,22,28 'director':5 'fd':4 'indeed':12,18,24,30 'jain':32 'long':9,15,21,27 'mumbai':6 'tggg':2 'unit':11,17,23,29 'very':8,14,20,26",
   advance_request_approvals: null,
@@ -139,58 +141,58 @@ export const extendedAdvReqDraft: ExtendedAdvanceRequest = {
   project_name: null,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});
 
-export const extendedAdvReqInquiry: ExtendedAdvanceRequest = {
+export const extendedAdvReqInquiry: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_state: 'INQUIRY',
-};
+});
 
-export const extendedAdvReqSubmitted: ExtendedAdvanceRequest = {
+export const extendedAdvReqSubmitted: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_state: 'SUBMITTED',
-};
+});
 
-export const extendedAdvReqPaid: ExtendedAdvanceRequest = {
+export const extendedAdvReqPaid: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_state: 'PAID',
-};
+});
 
-export const extendedAdvReqApproved: ExtendedAdvanceRequest = {
+export const extendedAdvReqApproved: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_state: 'APPROVED',
-};
+});
 
-export const extendedAdvReqRejected: ExtendedAdvanceRequest = {
+export const extendedAdvReqRejected: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_state: 'REJECTED',
-};
+});
 
-export const extendedAdvReqPulledBack: ExtendedAdvanceRequest = {
+export const extendedAdvReqPulledBack: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_is_pulled_back: true,
-};
+});
 
-export const extendedAdvReqSentBack: ExtendedAdvanceRequest = {
+export const extendedAdvReqSentBack: ExtendedAdvanceRequest = deepFreeze({
   ...extendedAdvReqDraft,
   areq_is_sent_back: true,
-};
+});
 
-export const extendedAdvReqWithoutDates = {
+export const extendedAdvReqWithoutDates = deepFreeze({
   ...extendedAdvReqDraft,
   areq_created_at: '2023-01-16T06:22:47.058Z',
   areq_updated_at: '2023-01-16T06:22:47.058Z',
   areq_approved_at: '2023-01-16T06:22:47.058Z',
-};
+});
 
-export const extendedAdvReqWithDates = {
+export const extendedAdvReqWithDates = deepFreeze({
   ...extendedAdvReqDraft,
   areq_created_at: new Date('2023-01-16T06:22:47.058Z'),
   areq_updated_at: new Date('2023-01-16T06:22:47.058Z'),
   areq_approved_at: new Date('2023-01-16T06:22:47.058Z'),
-};
+});
 
-export const withoutDatesAdv = {
+export const withoutDatesAdv = deepFreeze({
   _search_document:
     "'54':1 'a':7,13,19,25 'abhishek':31 'ajain@fyle.in':33 'ar/2023/01/r/4':3 'business':10,16,22,28 'director':5 'fd':4 'indeed':12,18,24,30 'jain':32 'long':9,15,21,27 'mumbai':6 'tggg':2 'unit':11,17,23,29 'very':8,14,20,26",
   advance_request_approvals: null,
@@ -247,9 +249,9 @@ export const withoutDatesAdv = {
   project_name: null,
   us_email: 'ajain@fyle.in',
   us_full_name: 'Abhishek Jain',
-};
+});
 
-export const singleErqRes: ExtendedAdvanceRequestPublic = {
+export const singleErqRes: ExtendedAdvanceRequestPublic = deepFreeze({
   areq_advance_request_number: 'A/2020/10/T/95',
   areq_advance_id: 'advjrgwlk2Q',
   areq_amount: 47.99,
@@ -283,9 +285,9 @@ export const singleErqRes: ExtendedAdvanceRequestPublic = {
   areq_is_sent_back: false,
   project_name: 'Fast and Furious',
   project_code: 'C1234',
-};
+});
 
-export const singleErqUnflattened = {
+export const singleErqUnflattened = deepFreeze({
   areq: {
     id: 'areqGzKF1Tne23',
     created_at: new Date('2023-02-23T13:16:15.260Z'),
@@ -344,9 +346,9 @@ export const singleErqUnflattened = {
   new: {
     state: 'APPROVAL_PENDING',
   },
-};
+});
 
-export const teamAdvanceCountRes: ApiV2Response<ExtendedAdvanceRequest> = {
+export const teamAdvanceCountRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   count: 43,
   data: [
     {
@@ -421,9 +423,9 @@ export const teamAdvanceCountRes: ApiV2Response<ExtendedAdvanceRequest> = {
   limit: 1,
   offset: 0,
   url: '/v2/advance_requests',
-};
+});
 
-export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
+export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   count: 107,
   data: [
     {
@@ -550,9 +552,9 @@ export const allAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
   limit: 10,
   offset: 0,
   url: '/v2/advance_requests',
-};
+});
 
-export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic> = deepFreeze({
   count: 1,
   data: [
     {
@@ -586,9 +588,9 @@ export const publicAdvanceRequestRes: ApiV2Response<ExtendedAdvanceRequestPublic
     },
   ],
   offset: 0,
-};
+});
 
-export const publicAdvanceRequestResSentBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+export const publicAdvanceRequestResSentBack: ApiV2Response<ExtendedAdvanceRequestPublic> = deepFreeze({
   count: 1,
   data: [
     {
@@ -600,9 +602,9 @@ export const publicAdvanceRequestResSentBack: ApiV2Response<ExtendedAdvanceReque
     },
   ],
   offset: 0,
-};
+});
 
-export const publicAdvanceRequestResPulledBack: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+export const publicAdvanceRequestResPulledBack: ApiV2Response<ExtendedAdvanceRequestPublic> = deepFreeze({
   count: 1,
   data: [
     {
@@ -614,14 +616,14 @@ export const publicAdvanceRequestResPulledBack: ApiV2Response<ExtendedAdvanceReq
     },
   ],
   offset: 0,
-};
+});
 
-export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+export const publicAdvanceRequestRes2: ApiV2Response<ExtendedAdvanceRequestPublic> = deepFreeze({
   ...publicAdvanceRequestRes,
   count: 250,
-};
+});
 
-export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = {
+export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = deepFreeze({
   ...publicAdvanceRequestRes.data[0],
   type: 'request',
   currency: 'USD',
@@ -630,9 +632,9 @@ export const publicAdvanceRequestRes3: ExtendedAdvanceRequestPublic = {
   purpose: 'onsite client meeting',
   state: 'DRAFT',
   areq_is_pulled_back: true,
-};
+});
 
-export const publicAdvanceRequestRes4: ExtendedAdvanceRequestPublic = {
+export const publicAdvanceRequestRes4: ExtendedAdvanceRequestPublic = deepFreeze({
   ...publicAdvanceRequestRes.data[0],
   type: 'request',
   currency: 'USD',
@@ -641,9 +643,9 @@ export const publicAdvanceRequestRes4: ExtendedAdvanceRequestPublic = {
   purpose: 'onsite client meeting',
   state: 'DRAFT',
   areq_is_sent_back: true,
-};
+});
 
-export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPublic> = {
+export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPublic> = deepFreeze({
   count: 1,
   data: [
     {
@@ -677,9 +679,9 @@ export const publicAdvanceRequestRes5: ApiV2Response<ExtendedAdvanceRequestPubli
     },
   ],
   offset: 0,
-};
+});
 
-export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = {
+export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = deepFreeze({
   ...publicAdvanceRequestRes.data[0],
   type: 'request',
   currency: 'USD',
@@ -689,9 +691,9 @@ export const publicAdvanceRequestRes6: ExtendedAdvanceRequestPublic = {
   state: 'DRAFT',
   areq_is_sent_back: false,
   areq_is_pulled_back: true,
-};
+});
 
-export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = {
+export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   count: 43,
   data: [
     {
@@ -831,27 +833,27 @@ export const allTeamAdvanceRequestsRes: ApiV2Response<ExtendedAdvanceRequest> = 
   limit: 10,
   offset: 0,
   url: '/v2/advance_requests',
-};
+});
 
-export const myAdvanceRequestsData2: ApiV2Response<ExtendedAdvanceRequest> = {
+export const myAdvanceRequestsData2: ApiV2Response<ExtendedAdvanceRequest> = deepFreeze({
   ...allTeamAdvanceRequestsRes,
   count: 11,
-};
+});
 
-export const myAdvanceRequestsData3: ExtendedAdvanceRequest = {
+export const myAdvanceRequestsData3: ExtendedAdvanceRequest = deepFreeze({
   ...singleExtendedAdvReqRes.data[0],
   areq_state: 'DRAFT',
   areq_is_sent_back: true,
-};
+});
 
-export const myAdvanceRequestsData4: ExtendedAdvanceRequest = {
+export const myAdvanceRequestsData4: ExtendedAdvanceRequest = deepFreeze({
   ...singleExtendedAdvReqRes.data[0],
   areq_state: 'DRAFT',
   areq_is_sent_back: false,
   areq_is_pulled_back: false,
-};
+});
 
-export const myAdvanceRequestData5: ExtendedAdvanceRequest = {
+export const myAdvanceRequestData5: ExtendedAdvanceRequest = deepFreeze({
   ...singleExtendedAdvReqRes.data[0],
   type: 'request',
   currency: 'USD',
@@ -859,4 +861,4 @@ export const myAdvanceRequestData5: ExtendedAdvanceRequest = {
   created_at: new Date('2022-05-27T08:33:32.879009'),
   purpose: '213',
   state: 'APPROVAL_PENDING',
-};
+});

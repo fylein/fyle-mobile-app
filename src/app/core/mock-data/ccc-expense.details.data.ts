@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { CCCDetails } from '../models/ccc-expense-details.model';
 
-export const expectedAssignedCCCStats: CCCDetails = {
+export const expectedAssignedCCCStats: CCCDetails = deepFreeze({
   totalTxns: 1090,
   totalAmount: 589553.832,
   cardDetails: [
@@ -57,9 +59,9 @@ export const expectedAssignedCCCStats: CCCDetails = {
       ],
     },
   ],
-};
+});
 
-export const mastercardCCCStats: CCCDetails = {
+export const mastercardCCCStats: CCCDetails = deepFreeze({
   totalTxns: 12,
   totalAmount: 1874.4,
   cardDetails: [
@@ -116,10 +118,10 @@ export const mastercardCCCStats: CCCDetails = {
       ],
     },
   ],
-};
+});
 
-export const emptyCCCStats: CCCDetails = {
+export const emptyCCCStats: CCCDetails = deepFreeze({
   totalTxns: 0,
   totalAmount: 0,
   cardDetails: [],
-};
+});

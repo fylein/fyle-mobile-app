@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TaxGroup } from '../models/tax-group.model';
 
-export const taxGroupData: TaxGroup[] = [
+export const taxGroupData: TaxGroup[] = deepFreeze([
   {
     id: 'tgXEJA6YUoZ1',
     name: 'GST',
@@ -19,9 +21,9 @@ export const taxGroupData: TaxGroup[] = [
     org_id: 'orwruogwnngg',
     is_enabled: true,
   },
-];
+]);
 
-export const expectedTaxGroupData: { label: string; value: TaxGroup }[] = [
+export const expectedTaxGroupData: { label: string; value: TaxGroup }[] = deepFreeze([
   {
     label: 'GST',
     value: {
@@ -46,4 +48,4 @@ export const expectedTaxGroupData: { label: string; value: TaxGroup }[] = [
       is_enabled: true,
     },
   },
-];
+]);

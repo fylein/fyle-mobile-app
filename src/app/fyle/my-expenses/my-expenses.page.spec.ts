@@ -124,6 +124,7 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -159,6 +160,7 @@ describe('MyExpensesV2Page', () => {
   let inputElement: HTMLInputElement;
   let sharedExpenseService: jasmine.SpyObj<SharedExpenseService>;
   let expensesService: jasmine.SpyObj<ExpensesService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount', 'getExpensesTaskCount']);
@@ -255,6 +257,7 @@ describe('MyExpensesV2Page', () => {
     const popupServiceSpy = jasmine.createSpyObj('PopupService', ['showPopup']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', [
       'getExpensesCount',
       'getExpenses',
@@ -386,6 +389,10 @@ describe('MyExpensesV2Page', () => {
           provide: SharedExpenseService,
           useValue: sharedExpenseServiceSpy,
         },
+        {
+          provide: SpenderReportsService,
+          useValue: spenderReportsServiceSpy,
+        },
         ReportState,
         MaskNumber,
       ],
@@ -430,6 +437,7 @@ describe('MyExpensesV2Page', () => {
     snackbarProperties = TestBed.inject(SnackbarPropertiesService) as jasmine.SpyObj<SnackbarPropertiesService>;
     expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     sharedExpenseService = TestBed.inject(SharedExpenseService) as jasmine.SpyObj<SharedExpenseService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
     component.loadExpenses$ = new BehaviorSubject({});
   }));
@@ -965,13 +973,14 @@ describe('MyExpensesV2Page', () => {
       inputElement = component.simpleSearchInput.nativeElement;
       dispatchEventSpy = spyOn(inputElement, 'dispatchEvent');
     });
+
     it('should clear the search text and dispatch keyup event', () => {
       component.clearText('onSimpleSearchCancel');
 
       expect(component.simpleSearchText).toBe('');
       expect(inputElement.value).toBe('');
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toBe(true);
+      expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('should clear the search text and not toggle isSearchBarFocused when isFromCancel is not specified', () => {
@@ -980,7 +989,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.simpleSearchText).toBe('');
       expect(inputElement.value).toBe('');
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('keyup'));
-      expect(component.isSearchBarFocused).toBe(false);
+      expect(component.isSearchBarFocused).toBeFalse();
     });
   });
 
@@ -1011,6 +1020,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'selectExpense');
       spyOn(component, 'setAllExpensesCountAndAmount');
     });
+
     it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
       component.switchSelectionMode();
 
@@ -1061,6 +1071,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'setAllExpensesCountAndAmount');
       spyOn(component, 'setOutboxExpenseStatsOnSelect');
     });
+
     it('should set headerState to simpleSearch if searchString is defined in loadData', () => {
       component.switchOutboxSelectionMode();
 
@@ -1173,6 +1184,7 @@ describe('MyExpensesV2Page', () => {
       });
     });
   });
+
   describe('setupActionSheet()', () => {
     it('should update actionSheetButtons', () => {
       spyOn(component, 'actionSheetButtonsHandler');
@@ -1213,6 +1225,7 @@ describe('MyExpensesV2Page', () => {
         },
       ]);
     });
+
     it('should call trackingService and navigate to add_edit_mileage if action is add mileage', () => {
       const handler = component.actionSheetButtonsHandler('Add Mileage', 'add_edit_mileage');
       handler();
@@ -1228,6 +1241,7 @@ describe('MyExpensesV2Page', () => {
         },
       ]);
     });
+
     it('should call trackingService and navigate to add_edit_expense if action is add expense', () => {
       const handler = component.actionSheetButtonsHandler('Add Expense', 'add_edit_expense');
       handler();
@@ -1243,6 +1257,7 @@ describe('MyExpensesV2Page', () => {
         },
       ]);
     });
+
     it('should call trackingService and navigate to camera_overlay if action is capture receipts', () => {
       const handler = component.actionSheetButtonsHandler('capture receipts', 'camera_overlay');
       handler();
@@ -1285,6 +1300,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'switchSelectionMode');
       spyOn(component, 'onSimpleSearchCancel');
     });
+
     it('should call switchSelectionMode when headerState is HeaderState.multiselect', () => {
       component.headerState = HeaderState.multiselect;
 
@@ -1333,6 +1349,7 @@ describe('MyExpensesV2Page', () => {
         pageNumber: 2,
       });
     });
+
     it('should increment currentPageNumber and emit updated params and call complete() after 1s', fakeAsync(() => {
       const mockEvent = { target: { complete: jasmine.createSpy('complete') } };
 
@@ -1372,6 +1389,7 @@ describe('MyExpensesV2Page', () => {
       });
       spyOn(component, 'setExpenseStatsOnSelect');
     });
+
     it('should refresh data if ionRefresher event is not passed as an argument', fakeAsync(() => {
       component.doRefresh();
       tick(1000);
@@ -1451,6 +1469,7 @@ describe('MyExpensesV2Page', () => {
         filterPill.push(splitExpenseFilterPill);
       });
     });
+
     it('should return filterPills based on the properties present in filters', () => {
       const filterPillRes = component.generateFilterPills(expenseFiltersData1);
       expect(filterPillRes).toEqual(expectedFilterPill1);
@@ -2039,6 +2058,7 @@ describe('MyExpensesV2Page', () => {
       beforeEach(() => {
         // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(false);
       });
+
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
         component.selectedElements = expenses.map((expense) => {
@@ -2053,6 +2073,7 @@ describe('MyExpensesV2Page', () => {
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
         expect(component.showNewReportModal).not.toHaveBeenCalled();
       }));
+
       it('should call unreportableExpenseExceptionHandler if none of the reportable expenses are selected', fakeAsync(() => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
@@ -2110,6 +2131,7 @@ describe('MyExpensesV2Page', () => {
       beforeEach(() => {
         component.restrictPendingTransactionsEnabled = true;
       });
+
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
         const expenses = cloneDeep(apiExpenses1);
         component.selectedElements = expenses.map((expense) => {
@@ -2124,6 +2146,7 @@ describe('MyExpensesV2Page', () => {
         expect(component.showOldReportsMatBottomSheet).not.toHaveBeenCalled();
         expect(component.showNewReportModal).not.toHaveBeenCalled();
       }));
+
       it('should call doesExpenseHavePendingCardTransaction', fakeAsync(() => {
         component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
@@ -2145,6 +2168,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'showNonReportableExpenseSelectedToast');
       // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
+
     it('should call showNonReportableExpenseSelectedToast when mix of expense types are selected', () => {
       component.unreportableExpenseExceptionHandler(1, 1, 1);
       expect(component.showNonReportableExpenseSelectedToast).toHaveBeenCalledOnceWith(
@@ -2165,6 +2189,7 @@ describe('MyExpensesV2Page', () => {
       spyOn(component, 'openCriticalPolicyViolationPopOver');
       // sharedExpenseService.restrictPendingTransactionsEnabled.and.returnValues(true);
     });
+
     describe('reportableExpenseDialogHandler():', () => {
       it('should set proper message when only draft count is greater than 0', () => {
         component.reportableExpenseDialogHandler(1, 0, 0, 'newReport');
@@ -2438,13 +2463,13 @@ describe('MyExpensesV2Page', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
-    reportService.addTransactions.and.returnValue(of());
+    spenderReportsService.addExpenses.and.returnValue(of());
     component
       .addTransactionsToReport(apiExtendedReportRes[0], ['tx5fBcPBAxLv'])
       .pipe(
         tap((updatedReport) => {
           expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Adding transaction to report');
-          expect(reportService.addTransactions).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
+          expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith('rprAfNrce73O', ['tx5fBcPBAxLv']);
           expect(updatedReport).toEqual(apiExtendedReportRes[0]);
         }),
         finalize(() => {
@@ -2559,6 +2584,7 @@ describe('MyExpensesV2Page', () => {
       component.pendingTransactions = [];
       component.expensesToBeDeleted = apiExpenses1;
     });
+
     it('should update selectedElements and call deleteBulk method if expenseToBeDeleted is defined', () => {
       component.deleteSelectedExpenses([]);
       expect(transactionOutboxService.deleteBulkOfflineExpenses).not.toHaveBeenCalledOnceWith([], []);

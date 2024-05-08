@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 
-export const expensePolicyData: ExpensePolicy = {
+export const expensePolicyData: ExpensePolicy = deepFreeze({
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -13,13 +15,13 @@ export const expensePolicyData: ExpensePolicy = {
     },
     individual_desired_states: [],
   },
-};
+});
 
-export const expensePolicyDataWoData: ExpensePolicy = {
+export const expensePolicyDataWoData: ExpensePolicy = deepFreeze({
   data: null,
-};
+});
 
-export const splitExpPolicyData: ExpensePolicy = {
+export const splitExpPolicyData: ExpensePolicy = deepFreeze({
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -32,4 +34,4 @@ export const splitExpPolicyData: ExpensePolicy = {
     },
     individual_desired_states: [],
   },
-};
+});

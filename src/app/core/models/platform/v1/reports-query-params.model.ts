@@ -3,4 +3,5 @@ export interface ReportsQueryParams {
   offset?: number;
   limit?: number;
   order?: string;
+  id?: string;
 }

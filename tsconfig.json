@@ -19,7 +19,8 @@
     * Remove this later
     * @link https://github.com/ionic-team/ionicons/issues/1011#issuecomment-962038754
     */
-  "skipLibCheck": true
+  "skipLibCheck": true,
+  "allowSyntheticDefaultImports": true
   },
   "angularCompilerOptions": {
     "fullTemplateTypeCheck": true,

@@ -1,47 +1,99 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ReportStats } from '../models/report-stats.model';
 
-export const expectedReportStats: ReportStats = {
+export const expectedReportStats: ReportStats = deepFreeze({
   draft: {
     count: 6,
-    sum: 93165.91,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
+    total_amount: 93165.91,
   },
   report: {
     count: 45,
-    sum: 5177243929.65219,
+    total_amount: 5177243929.65219,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   approved: {
     count: 56,
-    sum: 28758273650702.816,
+    total_amount: 28758273650702.816,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   paymentPending: {
     count: 4,
-    sum: 501602.12,
+    total_amount: 501602.12,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   processing: {
     count: 7,
-    sum: 5012.12,
+    total_amount: 5012.12,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: 5012.12,
+    processing_count: 7,
+    reimbursable_amount: null,
   },
-};
+});
 
-export const expectedEmptyReportStats: ReportStats = {
+export const expectedEmptyReportStats: ReportStats = deepFreeze({
   draft: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   report: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   approved: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   paymentPending: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
   processing: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: null,
+    processing_count: null,
+    reimbursable_amount: null,
   },
-};
+});
