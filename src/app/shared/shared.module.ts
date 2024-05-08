@@ -70,7 +70,6 @@ import { NavigationFooterComponent } from './components/navigation-footer/naviga
 import { FyConnectionComponent } from './components/fy-connection/fy-connection.component';
 import { FyCriticalPolicyViolationComponent } from './components/fy-critical-policy-violation/fy-critical-policy-violation.component';
 import { PopupAlertComponent } from './components/popup-alert/popup-alert.component';
-import { CreateNewReportComponent } from './components/create-new-report/create-new-report.component';
 import { CreateNewReportComponent as CreateNewReportComponentV2 } from './components/create-new-report-v2/create-new-report.component';
 import { ExpensesCardComponent } from './components/expenses-card/expenses-card.component';
 import { ExpensesCardComponent as ExpensesCardComponentV2 } from './components/expenses-card-v2/expenses-card.component';
@@ -195,7 +194,6 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    CreateNewReportComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,
@@ -336,7 +334,6 @@ import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-
     FyConnectionComponent,
     FyCriticalPolicyViolationComponent,
     PopupAlertComponent,
-    CreateNewReportComponent,
     CreateNewReportComponentV2,
     ExpensesCardComponent,
     ExpensesCardComponentV2,

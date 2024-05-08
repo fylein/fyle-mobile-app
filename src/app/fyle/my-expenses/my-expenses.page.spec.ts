@@ -58,7 +58,6 @@ import {
   addExpenseToReportModalParams2,
   modalControllerParams,
   modalControllerParams2,
-  newReportModalParams,
   newReportModalParams2,
   openFromComponentConfig,
   popoverControllerParams,
