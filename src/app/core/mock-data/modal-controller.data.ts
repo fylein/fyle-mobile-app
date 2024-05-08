@@ -20,8 +20,6 @@ import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
-
-import { apiExpenseRes } from './expense.data';
 import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const modalControllerParams = {
