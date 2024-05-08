@@ -6,10 +6,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { GoogleAuthService } from 'src/app/core/services/google-auth.service';
 import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
-<<<<<<< HEAD
-// import { PushNotificationService } from 'src/app/core/services/push-notification.service';
-=======
->>>>>>> 3216ffcfb914e8ded84ec521ffe91416bdb1cd92
 import { TrackingService } from '../../core/services/tracking.service';
 import { DeviceService } from '../../core/services/device.service';
 import { LoginInfoService } from '../../core/services/login-info.service';
