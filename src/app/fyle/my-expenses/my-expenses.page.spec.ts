@@ -125,7 +125,11 @@ import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageFiltered,
+  expectedReportsSinglePageWithApproval,
+} from 'src/app/core/mock-data/platform-report.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -479,7 +483,7 @@ describe('MyExpensesV2Page', () => {
       expensesService.getExpensesCount.and.returnValue(of(10));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
 
-      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
 
@@ -922,13 +926,13 @@ describe('MyExpensesV2Page', () => {
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(expectedReportsSinglePage);
+        expect(openReports).toEqual(expectedReportsSinglePageFiltered);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set openReports$ and call doRefresh if report_approvals is defined', fakeAsync(() => {
-      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+    it('should set openReports$ and call doRefresh if report.approvals is defined', fakeAsync(() => {
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       component.ionViewWillEnter();
       tick(500);
 
@@ -936,7 +940,7 @@ describe('MyExpensesV2Page', () => {
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(expectedReportsSinglePage);
+        expect(openReports).toEqual(expectedReportsSinglePageFiltered);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
