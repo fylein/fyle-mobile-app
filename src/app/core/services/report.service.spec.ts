@@ -76,7 +76,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
-fdescribe('ReportService', () => {
+describe('ReportService', () => {
   let reportService: ReportService;
   let dataTransformService: jasmine.SpyObj<DataTransformService>;
   let dateService: DateService;
