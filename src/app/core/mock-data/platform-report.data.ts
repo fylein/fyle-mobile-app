@@ -728,6 +728,12 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
   user_id: 'usvKA4X8Ugcr',
 });
 
+export const paidReportData: Report = deepFreeze({
+  ...submittedReportDataWithApproval,
+  num_expenses: 1,
+  state: 'PAID',
+});
+
 export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);
 
 export const expectedReportsSinglePage: Report[] = deepFreeze([...allReportsPaginated1.data]);
