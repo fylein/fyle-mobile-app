@@ -499,10 +499,7 @@ describe('ViewPerDiemPage', () => {
 
     it('should set canDelete$ to false if report transaction equals 1', (done) => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
-      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
-      mockReport.num_expenses = 1;
 
-      approverReportsService.getReportById.and.returnValue(of(mockReport));
       approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
