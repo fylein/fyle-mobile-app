@@ -233,7 +233,7 @@ describe('SpenderReportsService', () => {
     spenderReportsService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
-      spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });

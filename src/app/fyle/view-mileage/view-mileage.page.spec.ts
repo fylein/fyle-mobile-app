@@ -49,6 +49,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import {
   expectedReportsSinglePage,
   expectedReportsSinglePageSubmitted,
+  paidReportData,
 } from '../../core/mock-data/platform-report.data';
 
 describe('ViewMileagePage', () => {
@@ -850,7 +851,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
