@@ -469,9 +469,10 @@ export class MyExpensesPage implements OnInit {
     this.isPerDiemEnabled$ = this.orgSettings$.pipe(map((orgSettings) => orgSettings?.per_diem?.enabled));
 
     this.orgSettings$.subscribe((orgSettings) => {
-      this.isNewReportsFlowEnabled = orgSettings.simplified_report_closure_settings?.enabled || false;
+      this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.restrictPendingTransactionsEnabled =
-        (orgSettings.corporate_credit_card_settings?.enabled && orgSettings.pending_cct_expense_restriction?.enabled) ||
+        (orgSettings?.corporate_credit_card_settings?.enabled &&
+          orgSettings.pending_cct_expense_restriction?.enabled) ||
         false;
     });
 
@@ -1337,7 +1338,7 @@ export class MyExpensesPage implements OnInit {
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       // Mixed data type as CREATE report and GET report API returns different responses
-      const reportId = (config.report as Report).id || (config.report as ReportV1).id;
+      const reportId = config.report.id;
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
   }
