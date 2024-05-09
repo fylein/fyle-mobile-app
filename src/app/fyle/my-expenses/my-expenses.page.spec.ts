@@ -64,7 +64,11 @@ import {
 } from 'src/app/core/mock-data/modal-controller.data';
 import { fyModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { mileagePerDiemPlatformCategoryData } from 'src/app/core/mock-data/org-category.data';
-import { orgSettingsParamsWithSimplifiedReport, orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
+import {
+  orgSettingsParamsWithSimplifiedReport,
+  orgSettingsPendingRestrictions,
+  orgSettingsRes,
+} from 'src/app/core/mock-data/org-settings.data';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
 import {
   apiExpenses1,
@@ -124,7 +128,12 @@ import { MyExpensesPage } from './my-expenses.page';
 import { MyExpensesService } from './my-expenses.service';
 import { completeStats, incompleteStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageFiltered,
+  expectedReportsSinglePageSubmitted,
+  expectedReportsSinglePageWithApproval,
+} from 'src/app/core/mock-data/platform-report.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -478,7 +487,7 @@ describe('MyExpensesV2Page', () => {
       expensesService.getExpensesCount.and.returnValue(of(10));
       expensesService.getExpenses.and.returnValue(of(apiExpenses1));
 
-      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       spyOn(component, 'doRefresh');
       spyOn(component, 'backButtonAction');
 
@@ -604,6 +613,15 @@ describe('MyExpensesV2Page', () => {
       );
       expect(tasksService.getExpensesTaskCount).toHaveBeenCalledTimes(1);
       expect(component.expensesTaskCount).toBe(10);
+    }));
+
+    it('should set restrictPendingTransactionsEnabled to true when orgSettings.pending_cct_expense_restriction is true', fakeAsync(() => {
+      orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+
+      component.ionViewWillEnter();
+      tick(500);
+
+      expect(component.restrictPendingTransactionsEnabled).toBeTrue();
     }));
 
     it('should set isNewReportFlowEnabled to true if simplified_report_closure_settings is defined ', fakeAsync(() => {
@@ -921,13 +939,13 @@ describe('MyExpensesV2Page', () => {
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(expectedReportsSinglePage);
+        expect(openReports).toEqual(expectedReportsSinglePageFiltered);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
 
-    it('should set openReports$ and call doRefresh if report_approvals is defined', fakeAsync(() => {
-      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+    it('should set openReports$ and call doRefresh if report.approvals is defined', fakeAsync(() => {
+      spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
       component.ionViewWillEnter();
       tick(500);
 
@@ -935,7 +953,7 @@ describe('MyExpensesV2Page', () => {
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
       });
       component.openReports$.subscribe((openReports) => {
-        expect(openReports).toEqual(expectedReportsSinglePage);
+        expect(openReports).toEqual(expectedReportsSinglePageFiltered);
       });
       expect(component.doRefresh).toHaveBeenCalledTimes(1);
     }));
@@ -2461,7 +2479,7 @@ describe('MyExpensesV2Page', () => {
     loaderService.showLoader.and.resolveTo();
     loaderService.hideLoader.and.resolveTo(true);
 
-    spenderReportsService.addExpenses.and.returnValue(of());
+    spenderReportsService.addExpenses.and.returnValue(of(null));
     component
       .addTransactionsToReport(expectedReportsSinglePage[0], ['tx5fBcPBAxLv'])
       .pipe(
@@ -2488,28 +2506,29 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined', () => {
-      spyOn(component, 'addTransactionsToReport').and.returnValue(of(expectedReportsSinglePage[0]));
+      component.openReports$ = of(expectedReportsSinglePageSubmitted);
+      spyOn(component, 'addTransactionsToReport').and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
 
       matBottomsheet.open.and.returnValue({
         afterDismissed: () =>
           of({
-            report: expectedReportsSinglePage[0],
+            report: expectedReportsSinglePageSubmitted[2],
           }),
       } as MatBottomSheetRef<ExtendedReport>);
 
       component.showOldReportsMatBottomSheet();
 
       expect(matBottomsheet.open).toHaveBeenCalledOnceWith(<any>AddTxnToReportDialogComponent, {
-        data: { openReports: expectedReportsSinglePage, isNewReportsFlowEnabled: true },
+        data: { openReports: expectedReportsSinglePageSubmitted, isNewReportsFlowEnabled: true },
         panelClass: ['mat-bottom-sheet-1'],
       });
-      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0], [
+      expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePageSubmitted[2], [
         'txDDLtRaflUW',
         'tx5WDG9lxBDT',
       ]);
       expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
-        message: 'Expenses added to an existing draft report',
-        report: expectedReportsSinglePage[0],
+        message: 'Expenses added to report successfully',
+        report: expectedReportsSinglePageSubmitted[2],
       });
     });
 
