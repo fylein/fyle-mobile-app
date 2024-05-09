@@ -3086,12 +3086,10 @@ export class AddEditExpensePage implements OnInit {
       })
         .pipe(take(1))
         .subscribe((config) => {
-          console.log('hellow: ', config.platformExpense);
-          const platformExpense = config.platformExpense as PlatformExpense;
           if (
             config.pendingTxnRestrictionEnabled &&
-            platformExpense.matched_corporate_card_transactions?.length &&
-            platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.platformExpense.matched_corporate_card_transactions?.length &&
+            config.platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
