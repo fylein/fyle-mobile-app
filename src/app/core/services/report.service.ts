@@ -210,12 +210,12 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+  updateReportPurpose(erpt: Report): Observable<Report> {
     const params = {
       data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
+        id: erpt.id,
+        source: erpt.source,
+        purpose: erpt.purpose,
       },
     };
     return this.spenderPlatformV1ApiService.post('/reports', params);

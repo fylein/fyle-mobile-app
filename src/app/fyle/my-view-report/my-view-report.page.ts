@@ -35,6 +35,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -45,7 +46,7 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<ExtendedReport>;
+  erpt$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -170,7 +171,7 @@ export class MyViewReportPage {
     this.erpt$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       shareReplay(1)
     );
@@ -227,7 +228,7 @@ export class MyViewReportPage {
       this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (erpt?.rp_state === 'APPROVER_INQUIRY') {
+      if (erpt?.state === 'APPROVER_INQUIRY') {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
@@ -320,7 +321,7 @@ export class MyViewReportPage {
       .pipe(
         take(1),
         switchMap((erpt) => {
-          erpt.rp_purpose = reportName;
+          erpt.purpose = reportName;
           return this.reportService.updateReportPurpose(erpt);
         })
       )
