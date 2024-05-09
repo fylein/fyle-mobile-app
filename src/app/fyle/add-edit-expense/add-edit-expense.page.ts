@@ -190,7 +190,7 @@ export class AddEditExpensePage implements OnInit {
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
 
-  platformExpense$: Observable<PlatformExpense | {}>;
+  platformExpense$: Observable<PlatformExpense>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -2868,13 +2868,6 @@ export class AddEditExpensePage implements OnInit {
       this.clusterDomain = clusterDomain;
     });
 
-    if (this.activatedRoute.snapshot.params.id) {
-      const id = this.activatedRoute.snapshot.params.id as string;
-      this.platformExpense$ = this.expensesService.getExpenseById(id);
-    } else {
-      this.platformExpense$ = of({});
-    }
-
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.formBuilder.group({
@@ -3076,7 +3069,7 @@ export class AddEditExpensePage implements OnInit {
      */
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
-      // this.platformExpense$ = this.expensesService.getExpenseById(id);
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
       const pendingTxnRestrictionEnabled$ = this.orgSettingsService
         .get()
         .pipe(
@@ -3108,9 +3101,10 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of([]))),
-          switchMap((expense: PlatformExpense) => {
-            return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
+          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
+          switchMap((fileObjs) => {
+            const fileIds = fileObjs.map((file) => file.id);
+            return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
           }),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
