@@ -1,6 +1,5 @@
 import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
