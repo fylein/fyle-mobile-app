@@ -26,6 +26,7 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -143,7 +144,8 @@ export class ExpensesCardComponent implements OnInit {
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get isSelected(): boolean {
@@ -280,11 +282,14 @@ export class ExpensesCardComponent implements OnInit {
     this.isPerDiem = this.category === 'per diem';
 
     this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
-    this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
     this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
     this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
+    });
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      const isManuallyFlaggedWithLD = ldFlag && this.expense.is_manually_flagged;
+      this.isPolicyViolated = isManuallyFlaggedWithLD || this.expense.is_policy_flagged;
     });
 
     this.currencyService

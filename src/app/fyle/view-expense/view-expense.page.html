@@ -19,7 +19,9 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
+      <ng-container
+        *ngIf="view === ExpenseView.team && (isManualFlaggingFeatureEnabled$|async) && (canFlagOrUnflag$|async)"
+      >
         <ng-container *ngIf="expense$|async as expense">
           <ion-button
             class="view-expense--header-btn-container__btn"
