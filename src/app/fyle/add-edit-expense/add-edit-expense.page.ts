@@ -135,6 +135,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 
 type FormValue = {
   currencyObj: {
@@ -188,7 +190,7 @@ export class AddEditExpensePage implements OnInit {
 
   etxn$: Observable<Partial<UnflattenedTransaction>>;
 
-  platformExpense$: Observable<PlatformExpense>;
+  platformExpense$: Observable<PlatformExpense | {}>;
 
   paymentModes$: Observable<AccountOption[]>;
 
@@ -445,6 +447,7 @@ export class AddEditExpensePage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private fileService: FileService,
+    private spenderFileService: SpenderFileService,
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -2865,6 +2868,13 @@ export class AddEditExpensePage implements OnInit {
       this.clusterDomain = clusterDomain;
     });
 
+    if (this.activatedRoute.snapshot.params.id) {
+      const id = this.activatedRoute.snapshot.params.id as string;
+      this.platformExpense$ = this.expensesService.getExpenseById(id);
+    } else {
+      this.platformExpense$ = of({});
+    }
+
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
     this.expenseStartTime = new Date().getTime();
     this.fg = this.formBuilder.group({
@@ -3066,7 +3076,7 @@ export class AddEditExpensePage implements OnInit {
      */
     if (this.activatedRoute.snapshot.params.id) {
       const id = this.activatedRoute.snapshot.params.id as string;
-      this.platformExpense$ = this.expensesService.getExpenseById(id);
+      // this.platformExpense$ = this.expensesService.getExpenseById(id);
       const pendingTxnRestrictionEnabled$ = this.orgSettingsService
         .get()
         .pipe(
@@ -3078,15 +3088,17 @@ export class AddEditExpensePage implements OnInit {
         );
 
       forkJoin({
-        platformExpenses: this.platformExpense$,
+        platformExpense: this.platformExpense$,
         pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
       })
         .pipe(take(1))
         .subscribe((config) => {
+          console.log('hellow: ', config.platformExpense);
+          const platformExpense = config.platformExpense as PlatformExpense;
           if (
             config.pendingTxnRestrictionEnabled &&
-            config.platformExpenses.matched_corporate_card_transactions?.length &&
-            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            platformExpense.matched_corporate_card_transactions?.length &&
+            platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
@@ -3096,20 +3108,26 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          switchMap((fileObjs) => from(fileObjs)),
-          concatMap((fileObj: FileObject) =>
-            this.fileService.downloadUrl(fileObj.id).pipe(
-              map((downloadUrl) => {
-                fileObj.url = downloadUrl;
-                const details = this.getReceiptDetails(fileObj);
-                fileObj.type = details.type;
-                fileObj.thumbnail = details.thumbnail;
-                return fileObj;
-              })
-            )
-          ),
-          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of([]))),
+          switchMap((expense: PlatformExpense) => {
+            return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
+          }),
+          map((response: PlatformFileGenerateUrlsResponse[]) => {
+            const files = response.filter((file) => file.content_type !== 'text/html');
+            const fileObjs = files.map((file) => {
+              const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+              const fileObj: FileObject = {
+                url: file.download_url,
+                type: details.type,
+                thumbnail: details.thumbnail,
+              };
+
+              return fileObj;
+            });
+
+            return fileObjs;
+          })
         )
       )
     );
@@ -3218,19 +3236,26 @@ export class AddEditExpensePage implements OnInit {
       );
     } else {
       return this.fileService.findByTransactionId(txnId).pipe(
-        switchMap((fileObjs: FileObject[]) => from(fileObjs)),
-        concatMap((fileObj: FileObject) =>
-          this.fileService.downloadUrl(fileObj.id).pipe(
-            map((downloadUrl: string) => {
-              fileObj.url = downloadUrl;
-              const details = this.getReceiptDetails(fileObj);
-              fileObj.type = details.type;
-              fileObj.thumbnail = details.thumbnail;
-              return fileObj;
-            })
-          )
-        ),
-        reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+        switchMap((fileObjs) => {
+          const fileIds = fileObjs.map((file) => file.id);
+          return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+        }),
+        map((response: PlatformFileGenerateUrlsResponse[]) => {
+          const files = response.filter((file) => file.content_type !== 'text/html');
+          const fileObjs = files.map((file) => {
+            const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+            const fileObj: FileObject = {
+              url: file.download_url,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return fileObj;
+          });
+
+          return fileObjs;
+        })
       );
     }
   }
