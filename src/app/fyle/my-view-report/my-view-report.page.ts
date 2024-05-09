@@ -1,5 +1,4 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -35,7 +34,8 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
+
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -225,7 +225,7 @@ export class MyViewReportPage {
     );
 
     this.erpt$.pipe(take(1)).subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
+      this.reportCurrencySymbol = getCurrencySymbol(erpt?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
       if (erpt?.state === 'APPROVER_INQUIRY') {
@@ -341,7 +341,7 @@ export class MyViewReportPage {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.rp_purpose,
+              reportName: erpt.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });
@@ -364,7 +364,7 @@ export class MyViewReportPage {
     this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  getDeleteReportPopupParams(erpt: ExtendedReport): {
+  getDeleteReportPopupParams(erpt: Report): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -383,7 +383,7 @@ export class MyViewReportPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
-          erpt.rp_state === 'DRAFT' && erpt.rp_num_transactions === 0
+          erpt.state === ReportState.DRAFT && erpt.num_expenses === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
@@ -392,7 +392,7 @@ export class MyViewReportPage {
     };
   }
 
-  async deleteReportPopup(erpt: ExtendedReport): Promise<void> {
+  async deleteReportPopup(erpt: Report): Promise<void> {
     const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
 
     await deleteReportPopover.present();
@@ -470,7 +470,7 @@ export class MyViewReportPage {
             {
               id: expense.id,
               navigate_back: true,
-              remove_from_report: erpt.rp_num_transactions > 1,
+              remove_from_report: erpt.num_expenses > 1,
             },
           ])
         );

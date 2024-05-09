@@ -1,4 +1,5 @@
 import { ReportApprovals } from '../report-approvals.model';
+import { Level } from './level.model';
 
 export interface Report {
   id: string;
@@ -42,7 +43,10 @@ export interface Report {
     };
     code: string;
     org_id: string;
+    org_name?: string;
     department_id: string;
+    level?: Level;
+    mobile?: string;
     department: {
       id: string;
       code: string;

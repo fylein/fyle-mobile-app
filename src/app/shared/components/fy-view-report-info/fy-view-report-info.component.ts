@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, combineLatest } from 'rxjs';
@@ -12,6 +12,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -35,7 +36,7 @@ type PaymentMode = {
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
 export class FyViewReportInfoComponent implements OnInit {
-  @Input() erpt$: Observable<ExtendedReport>;
+  @Input() erpt$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
 
@@ -80,12 +81,12 @@ export class FyViewReportInfoComponent implements OnInit {
   ionViewWillEnter() {
     this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
       this.reportDetails = {
-        'Report Name': erpt.rp_purpose,
-        Owner: erpt.us_full_name,
-        'Report Number': erpt.rp_claim_number,
-        'Created On': this.datePipe.transform(erpt.rp_created_at, 'MMM d, y'),
+        'Report Name': erpt.purpose,
+        Owner: erpt.employee.user.full_name,
+        'Report Number': erpt.seq_num,
+        'Created On': this.datePipe.transform(erpt.created_at, 'MMM d, y'),
       };
-      this.reportCurrency = erpt.rp_currency;
+      this.reportCurrency = erpt.currency;
 
       if (this.view === ExpenseView.team) {
         this.createEmployeeDetails(erpt);
@@ -96,7 +97,7 @@ export class FyViewReportInfoComponent implements OnInit {
     combineLatest([this.expenses$, this.erpt$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
-        'Total Amount': erpt.rp_amount,
+        'Total Amount': erpt.amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
       };
       if (orgSettings) {
@@ -179,22 +180,22 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  async createEmployeeDetails(erpt: ExtendedReport) {
+  async createEmployeeDetails(erpt: Report) {
     this.employeeDetails = {
-      'Employee ID': erpt.ou_employee_id,
-      Organization: erpt.ou_org_name,
-      Department: erpt.ou_department,
-      'Sub Department': erpt.ou_sub_department,
-      Location: erpt.ou_location,
-      Level: erpt.ou_level,
-      'Employee Title': erpt.ou_title,
-      'Business Unit': erpt.ou_business_unit,
-      Mobile: erpt.ou_mobile,
+      'Employee ID': erpt.employee.id,
+      Organization: erpt.employee.org_name,
+      Department: erpt.employee.department.name,
+      'Sub Department': erpt.employee.department.name,
+      Location: erpt.employee.location,
+      Level: erpt.employee.level.name,
+      'Employee Title': erpt.employee.title,
+      'Business Unit': erpt.employee.business_unit,
+      Mobile: erpt.employee.mobile,
     };
     try {
       const orgUser = await this.authService.getEou();
-      if (erpt.ou_org_id === orgUser.ou.org_id) {
-        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
+      if (erpt.org_id === orgUser.ou.org_id) {
+        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.employee.id).subscribe((costCenters) => {
           const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
           this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
         });
