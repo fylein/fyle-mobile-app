@@ -32,7 +32,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -474,7 +474,7 @@ export class TasksComponent implements OnInit {
   onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        state: 'eq.APPROVER_INQUIRY',
+        state: `eq.${ReportState.APPROVER_INQUIRY}`,
         offset: 0,
         limit: 1,
       };
@@ -524,7 +524,7 @@ export class TasksComponent implements OnInit {
       from(this.authService.getEou()).subscribe((eou) => {
         const queryParams = {
           next_approver_user_ids: `cs.[${eou.us.id}]`,
-          state: 'eq.APPROVER_PENDING',
+          state: `eq.${ReportState.APPROVER_PENDING}`,
         };
         return from(this.loaderService.showLoader('Opening your report...'))
           .pipe(
@@ -547,7 +547,7 @@ export class TasksComponent implements OnInit {
   onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        state: 'eq.DRAFT',
+        state: `eq.${ReportState.DRAFT}`,
         offset: 0,
         limit: 1,
       };
