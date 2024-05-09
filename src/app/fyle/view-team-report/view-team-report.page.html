@@ -29,9 +29,9 @@
             <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{erpt.rp_purpose | ellipsis: 35}}
+                  {{erpt.purpose | ellipsis: 35}}
                   <ion-icon
-                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'APPROVER_PENDING')"
+                    *ngIf="(canEdit$|async) && erpt && (erpt.state === 'APPROVER_PENDING')"
                     [src]="'../../../../assets/svg/edit.svg'"
                     slot="icon-only"
                     (click)="editReportName()"
@@ -44,7 +44,7 @@
               <div class="view-reports--amount">
                 <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
                 <span class="view-reports--purpose-amount-block__amount">
-                  {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:true }}
+                  {{ erpt.amount || 0 | humanizeCurrency: erpt.currency:true }}
                 </span>
               </div>
             </ion-col>
@@ -54,8 +54,8 @@
             <ion-col size="5"> </ion-col>
             <ion-col size="7">
               <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
-                <div class="view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}">
-                  {{erpt.rp_state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                <div class="view-reports--report-state-pill state-pill state-{{erpt.state | reportState}}">
+                  {{erpt.state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
                 </div>
               </ng-container>
             </ion-col>
@@ -78,9 +78,7 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text">Submitted on: </span>
-                    <span class="view-reports--submitted-date__date"
-                      >{{erpt.rp_submitted_at | date: 'MMM dd, YYYY'}}</span
-                    >
+                    <span class="view-reports--submitted-date__date">{{erpt.submitted_at | date: 'MMM dd, YYYY'}}</span>
                   </div>
                 </div>
               </div>
@@ -97,7 +95,7 @@
 
       <div
         class="view-reports--approvers-section"
-        *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
+        *ngIf="(erpt.state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
       >
         <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
           <div class="view-reports--approvers-title-block">
@@ -106,7 +104,7 @@
               <app-fy-approver
                 *ngIf="actions.can_add_approver"
                 [approverEmailsList]="getApproverEmails(reportApprovals)"
-                [id]="erpt.rp_id"
+                [id]="erpt.id"
                 [ownerEmail]="erpt.us_email"
                 [type]="'TEAM_REPORT'"
                 (notify)="onUpdateApprover($event)"
@@ -157,7 +155,7 @@
         <!-- Expenses Section -->
         <div *ngIf="isExpensesView">
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
-          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
+          <div *ngIf="!isExpensesLoading && erpt.num_expenses > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports-expense-card-block">
               <div *ngFor="let expense of expenses$|async as list; let i = index;">
@@ -177,7 +175,7 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.num_expenses === 0">
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
             </div>

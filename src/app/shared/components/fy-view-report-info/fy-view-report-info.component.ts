@@ -184,10 +184,10 @@ export class FyViewReportInfoComponent implements OnInit {
     this.employeeDetails = {
       'Employee ID': erpt.employee.id,
       Organization: erpt.employee.org_name,
-      Department: erpt.employee.department.name,
-      'Sub Department': erpt.employee.department.name,
+      Department: erpt.employee.department?.name,
+      'Sub Department': erpt.employee.department?.sub_department,
       Location: erpt.employee.location,
-      Level: erpt.employee.level.name,
+      Level: erpt.employee.level?.name,
       'Employee Title': erpt.employee.title,
       'Business Unit': erpt.employee.business_unit,
       Mobile: erpt.employee.mobile,

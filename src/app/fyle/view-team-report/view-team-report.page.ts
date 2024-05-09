@@ -1,6 +1,5 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, Subject, concat, forkJoin, BehaviorSubject } from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -32,6 +31,8 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expe
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -42,7 +43,7 @@ export class ViewTeamReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<ExtendedReport>;
+  erpt$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -148,7 +149,8 @@ export class ViewTeamReportPage {
     private refinerService: RefinerService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
   ionViewWillLeave() {
@@ -174,12 +176,12 @@ export class ViewTeamReportPage {
     return reportApprovals.map((approver) => approver.approver_email);
   }
 
-  loadReports(): Observable<ExtendedReport> {
+  loadReports(): Observable<Report> {
     return this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService
-          .getReport(this.activatedRoute.snapshot.params.id)
+        this.approverReportsService
+          .getReportById(this.activatedRoute.snapshot.params.id)
           .pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       shareReplay(1)
@@ -262,23 +264,23 @@ export class ViewTeamReportPage {
     this.erpt$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.reportService.getTeamReport(this.activatedRoute.snapshot.params.id))
+          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id))
         )
       ),
       shareReplay(1),
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt: ExtendedReport) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt.rp_currency, 'wide');
-      this.reportName = erpt.rp_purpose;
+    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt: Report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(erpt.currency, 'wide');
+      this.reportName = erpt.purpose;
       /**
        * if current user is remove from approver, erpt call will go again to fetch current report details
        * so checking if report details are available in erpt than continue execution
        * else redirect them to team reports
        */
       if (erpt) {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.rp_state) > -1;
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.state) > -1;
       }
     });
 
@@ -387,7 +389,7 @@ export class ViewTeamReportPage {
       const erpt = await this.erpt$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(erpt.rp_amount, erpt.rp_currency, false);
+      const rpAmount = this.humanizeCurrency.transform(erpt.amount, erpt.currency, false);
       const flaggedExpensesCount = expenses.filter(
         (expense) => expense.is_policy_flagged || expense.is_manually_flagged
       ).length;
@@ -395,7 +397,7 @@ export class ViewTeamReportPage {
         componentProps: {
           flaggedExpensesCount,
           title: 'Approve Report',
-          message: erpt.rp_num_transactions + ' expenses of amount ' + rpAmount + ' will be approved',
+          message: erpt.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -414,7 +416,7 @@ export class ViewTeamReportPage {
       const { data } = await popover.onWillDismiss();
 
       if (data && data.action === 'approve') {
-        this.reportService.approve(erpt.rp_id).subscribe(() => {
+        this.reportService.approve(erpt.id).subscribe(() => {
           this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
         });
@@ -588,7 +590,7 @@ export class ViewTeamReportPage {
       .pipe(
         take(1),
         switchMap((erpt) => {
-          erpt.rp_purpose = reportName;
+          erpt.purpose = reportName;
           return this.reportService.approverUpdateReportPurpose(erpt);
         })
       )
@@ -608,7 +610,7 @@ export class ViewTeamReportPage {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.rp_purpose,
+              reportName: erpt.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });
