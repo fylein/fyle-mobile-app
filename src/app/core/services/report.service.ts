@@ -20,7 +20,7 @@ import { ReportV1 } from '../models/report-v1.model';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { ExtendedReport } from '../models/report.model';
 import { Approver } from '../models/v1/approver.model';
-import { Datum, StatsResponse } from '../models/v2/stats-response.model';
+import { Datum } from '../models/v2/stats-response.model';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
 import { AuthService } from './auth.service';
@@ -583,20 +583,6 @@ export class ReportService {
           )
         );
       })
-    );
-  }
-
-  getReportStats(params: Partial<StatsResponse>): Observable<StatsResponse> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports/stats', {
-          params: {
-            rp_org_user_id: `eq.${eou.ou.id}`,
-            ...params,
-          },
-        })
-      ),
-      map((rawStatsResponse: StatsResponse) => new StatsResponse(rawStatsResponse))
     );
   }
 

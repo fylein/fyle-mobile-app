@@ -14,8 +14,6 @@ export const apiResponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: [null, 145429, 122269, 122271],
   },
   {
@@ -28,8 +26,6 @@ export const apiResponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Sage Project 8, Id - 1178',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: [null, 145429, 122269, 122271],
   },
   {
@@ -42,8 +38,6 @@ export const apiResponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Fyle Team Integrations, Id - 1183',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: null,
   },
 ]);
@@ -59,8 +53,6 @@ export const expectedReponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: [null, 145429, 122269, 122271],
   },
   {
@@ -73,8 +65,6 @@ export const expectedReponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Sage Project 8, Id - 1178',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: [null, 145429, 122269, 122271],
   },
   {
@@ -87,8 +77,6 @@ export const expectedReponseActiveOnly = deepFreeze([
     org_id: 'orFdTTTNcyye',
     description: 'Sage Intacct Project - Fyle Team Integrations, Id - 1183',
     active: true,
-    approver1_id: null,
-    approver2_id: null,
     org_category_ids: null,
   },
 ]);

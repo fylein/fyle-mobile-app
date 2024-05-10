@@ -8,11 +8,11 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CreateDraftParams } from 'src/app/core/models/platform/v1/create-draft-params.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
-import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
+import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -101,7 +101,7 @@ export class SpenderReportsService {
     return this.getReportsByParams(params).pipe(map((res) => res.count));
   }
 
-  getReportsByParams(queryParams: ReportsQueryParams = {}): Observable<PlatformApiResponse<Report[]>> {
+  getReportsByParams(queryParams: ReportsQueryParams): Observable<PlatformApiResponse<Report[]>> {
     const config = {
       params: {
         ...queryParams,
@@ -121,14 +121,14 @@ export class SpenderReportsService {
       .pipe(map((res) => res.data));
   }
 
-  getReportsStats(params: PlatformStatsRequestParams): Observable<StatsResponse> {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
     const queryParams = {
       data: {
         query_params: `state=${params.state}`,
       },
     };
     return this.spenderPlatformV1ApiService
-      .post<{ data: StatsResponse }>('/reports/stats', queryParams)
+      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }
