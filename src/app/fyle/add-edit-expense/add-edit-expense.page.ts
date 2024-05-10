@@ -32,7 +32,6 @@ import {
   filter,
   finalize,
   map,
-  reduce,
   shareReplay,
   startWith,
   switchMap,
@@ -137,6 +136,7 @@ import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/cor
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 type FormValue = {
   currencyObj: {
@@ -3100,25 +3100,25 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() =>
         this.etxn$.pipe(
           switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          switchMap((fileObjs) => {
-            const fileIds = fileObjs.map((file) => file.id);
+          switchMap((fileObjs: FileObject[]) => {
+            const fileIds: string[] = fileObjs.map((file) => file.id);
             return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
           }),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
-            const fileObjs = files.map((file) => {
+            const receiptObjs: ReceiptInfo[] = files.map((file) => {
               const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
 
-              const fileObj: FileObject = {
+              const receipt: ReceiptInfo = {
                 url: file.download_url,
                 type: details.type,
                 thumbnail: details.thumbnail,
               };
 
-              return fileObj;
+              return receipt;
             });
 
-            return fileObjs;
+            return receiptObjs;
           })
         )
       )
@@ -3234,19 +3234,19 @@ export class AddEditExpensePage implements OnInit {
         }),
         map((response: PlatformFileGenerateUrlsResponse[]) => {
           const files = response.filter((file) => file.content_type !== 'text/html');
-          const fileObjs = files.map((file) => {
+          const receiptObjs: ReceiptInfo[] = files.map((file) => {
             const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
 
-            const fileObj: FileObject = {
+            const receipt: ReceiptInfo = {
               url: file.download_url,
               type: details.type,
               thumbnail: details.thumbnail,
             };
 
-            return fileObj;
+            return receipt;
           });
 
-          return fileObjs;
+          return receiptObjs;
         })
       );
     }
