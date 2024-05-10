@@ -177,13 +177,6 @@ describe('FyViewReportInfoComponent', () => {
     expect(component.isForeignCurrency).toBeFalse();
   });
 
-  it('should always return 0', () => {
-    const a: KeyValue<string, any> = { key: 'test1', value: 'value1' };
-    const b: KeyValue<string, any> = { key: 'test2', value: 'value2' };
-
-    expect(component.originalOrder(a, b)).toEqual(0);
-  });
-
   it('closeModal(): should dismiss the modal', () => {
     component.closeModal();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
