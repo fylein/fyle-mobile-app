@@ -42,6 +42,7 @@ describe('SpenderReportsService', () => {
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
   });
 
   it('should be created', () => {
@@ -140,7 +141,6 @@ describe('SpenderReportsService', () => {
 
   it('addExpenses(): should add an expense to a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
-    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -200,7 +200,6 @@ describe('SpenderReportsService', () => {
 
   it('ejectExpenses(): should remove an expense from a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
-    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -221,7 +220,6 @@ describe('SpenderReportsService', () => {
 
   it('createDraft(): should create a draft report and return the report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: allReportsPaginated1.data[0] }));
-    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportParam = {
       data: {
@@ -233,7 +231,7 @@ describe('SpenderReportsService', () => {
     spenderReportsService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
-      spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });

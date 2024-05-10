@@ -499,6 +499,9 @@ describe('ViewPerDiemPage', () => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
       approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
+      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
+      mockReport.num_expenses = 1;
+      approverReportsService.getReportById.and.returnValue(of(mockReport));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
         expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');

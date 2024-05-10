@@ -17,16 +17,7 @@ import { orgData1 } from 'src/app/core/mock-data/org.data';
 import { expenseFieldsMapResponse2 } from 'src/app/core/mock-data/expense-fields-map.data';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
-import {
-  apiExpenseRes,
-  expenseData1,
-  splitExpData,
-  expenseList2,
-  expenseList,
-} from 'src/app/core/mock-data/expense.data';
 import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
-import { Expense } from 'src/app/core/models/expense.model';
-import { reportUnflattenedData, reportUnflattenedData2 } from 'src/app/core/mock-data/report-v1.data';
 import { apiExpenses1, nonReimbursableExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
@@ -203,7 +194,7 @@ describe('CreateNewReportComponent', () => {
 
     it('should create a new draft report with the title and add transactions', fakeAsync(() => {
       component.reportTitle = '#3 : Mar 2023';
-      const reportID = 'rp5eUkeNm9wB';
+      const reportID = 'rprAfNrce73O';
       const txns = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
       const reportParam = {
         data: {
@@ -213,7 +204,7 @@ describe('CreateNewReportComponent', () => {
       };
       const Expense_Count = txns.length;
       const Report_Value = 0;
-      const report = reportUnflattenedData2;
+      const report = expectedReportsSinglePage[0];
       spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
       spenderReportsService.addExpenses.and.returnValue(of(undefined));
       component.ctaClickedEvent('create_draft_report');
@@ -243,7 +234,7 @@ describe('CreateNewReportComponent', () => {
       };
       const Expense_Count = tnxs.length;
       const Report_Value = 0;
-      const report = reportUnflattenedData2;
+      const report = expectedReportsSinglePage[0];
       spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
       component.ctaClickedEvent('create_draft_report');
       fixture.detectChanges();
@@ -267,7 +258,7 @@ describe('CreateNewReportComponent', () => {
       };
 
       const txnIds = ['txDDLtRaflUW', 'tx5WDG9lxBDT'];
-      const report = reportUnflattenedData2;
+      const report = expectedReportsSinglePage[0];
       reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.ctaClickedEvent('submit_report');
       fixture.detectChanges();
