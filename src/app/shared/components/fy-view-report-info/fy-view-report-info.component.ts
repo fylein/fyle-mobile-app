@@ -1,5 +1,5 @@
 import { Component, Input, ElementRef } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
@@ -117,7 +117,7 @@ export class FyViewReportInfoComponent {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event): void {
+  segmentChanged(event: SegmentCustomEvent): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -141,9 +141,8 @@ export class FyViewReportInfoComponent {
     }
   }
 
-  onSwipeReport(event): void {
+  onSwipeReport(event: { direction: number }): void {
     this.isSwipe = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 2) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
@@ -180,9 +179,8 @@ export class FyViewReportInfoComponent {
     });
   }
 
-  onSwipeEmployee(event): void {
+  onSwipeEmployee(event: { direction: number }): void {
     this.isSwipe = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
