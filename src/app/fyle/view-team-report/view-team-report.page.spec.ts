@@ -11,7 +11,6 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { expectedAllReports, expectedReportSingleResponse, newReportParam } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -43,7 +42,11 @@ import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-export.data';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
-import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expectedReportsSinglePage,
+  platformReportData,
+  reportWithExpenses,
+} from 'src/app/core/mock-data/platform-report.data';
 import {
   expenseData,
   expenseResponseData,
@@ -53,6 +56,7 @@ import {
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -75,6 +79,7 @@ describe('ViewTeamReportPageV2', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -114,6 +119,7 @@ describe('ViewTeamReportPageV2', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportById']);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
@@ -200,6 +206,10 @@ describe('ViewTeamReportPageV2', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: ApproverReportsService,
+          useValue: approverReportsServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -224,6 +234,7 @@ describe('ViewTeamReportPageV2', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
 
     fixture.detectChanges();
   }));
@@ -241,7 +252,7 @@ describe('ViewTeamReportPageV2', () => {
 
   it('loadReports(): should load reports', (done) => {
     loaderService.showLoader.and.resolveTo();
-    reportService.getReport.and.returnValue(of(expectedAllReports[0]));
+    approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
     loaderService.hideLoader.and.resolveTo();
 
     component
@@ -252,9 +263,9 @@ describe('ViewTeamReportPageV2', () => {
         })
       )
       .subscribe((res) => {
-        expect(res).toEqual(expectedAllReports[0]);
+        expect(res).toEqual(expectedReportsSinglePage[0]);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-        expect(reportService.getReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+        expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
         done();
       });
   });
@@ -305,14 +316,14 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
-      spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
+      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
       reportService.getExports.and.returnValue(
         of({
@@ -347,7 +358,7 @@ describe('ViewTeamReportPageV2', () => {
         });
       });
 
-      expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
 
       component.totalCommentsCount$.subscribe((res) => {
@@ -355,7 +366,7 @@ describe('ViewTeamReportPageV2', () => {
       });
 
       component.erpt$.subscribe((res) => {
-        expect(res).toEqual(expectedAllReports[0]);
+        expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
       expect(component.eou).toEqual(apiEouRes);
@@ -418,14 +429,14 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
-      spyOn(component, 'loadReports').and.returnValue(of(expectedAllReports[0]));
+      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getTeamReport.and.returnValue(of(expectedAllReports[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData2);
       reportService.getExports.and.returnValue(
         of({
@@ -461,7 +472,7 @@ describe('ViewTeamReportPageV2', () => {
         });
       });
 
-      expect(reportService.getTeamReport).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
+      expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
 
       component.totalCommentsCount$.subscribe((res) => {
@@ -469,7 +480,7 @@ describe('ViewTeamReportPageV2', () => {
       });
 
       component.erpt$.subscribe((res) => {
-        expect(res).toEqual(expectedAllReports[0]);
+        expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
       expect(component.systemComments).toEqual(systemComments1);
@@ -615,7 +626,7 @@ describe('ViewTeamReportPageV2', () => {
       reportService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
-      component.erpt$ = of(expectedReportSingleResponse);
+      component.erpt$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
       fixture.detectChanges();
 
@@ -639,11 +650,11 @@ describe('ViewTeamReportPageV2', () => {
         cssClass: 'pop-up-in-center',
       });
       expect(humanizeCurrency.transform).toHaveBeenCalledOnceWith(
-        expectedReportSingleResponse.rp_amount,
-        expectedReportSingleResponse.rp_currency,
+        reportWithExpenses.amount,
+        reportWithExpenses.currency,
         false
       );
-      expect(reportService.approve).toHaveBeenCalledOnceWith(expectedReportSingleResponse.rp_id);
+      expect(reportService.approve).toHaveBeenCalledOnceWith(platformReportData.id);
       expect(refinerService.startSurvey).toHaveBeenCalledOnceWith({ actionName: 'Approve Report' });
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports']);
     });
@@ -959,17 +970,17 @@ describe('ViewTeamReportPageV2', () => {
 
   it('should show report information correctly', () => {
     spyOn(component, 'openViewReportInfoModal');
-    component.erpt$ = of(expectedAllReports[0]);
+    component.erpt$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
-      expectedAllReports[0].us_full_name
+      expectedReportsSinglePage[0].employee.user.full_name
     );
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--submitted-date__date'))).toEqual(
       'Feb 01, 2023'
     );
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--purpose-amount-block__amount'))).toEqual(
-      '0.00'
+      '100.00'
     );
 
     const openButton = getElementBySelector(fixture, '.view-reports--view-info') as HTMLElement;
@@ -979,7 +990,7 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    const mockErpt = cloneDeep(newReportParam);
+    const mockErpt = cloneDeep(platformReportData);
     component.erpt$ = of(mockErpt);
     fixture.detectChanges();
     reportService.approverUpdateReportPurpose.and.returnValue(of(platformReportData));
@@ -992,7 +1003,7 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('editReportName(): ', () => {
     beforeEach(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0] }));
+      component.erpt$ = of(cloneDeep({ ...expectedReportsSinglePage[0] }));
       spyOn(component, 'updateReportName').and.returnValue(null);
     });
 
@@ -1007,7 +1018,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
         componentProps: {
-          reportName: expectedAllReports[0].rp_purpose,
+          reportName: expectedReportsSinglePage[0].purpose,
         },
         cssClass: 'fy-dialog-popover',
       });
@@ -1025,7 +1036,7 @@ describe('ViewTeamReportPageV2', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
         componentProps: {
-          reportName: expectedAllReports[0].rp_purpose,
+          reportName: expectedReportsSinglePage[0].purpose,
         },
         cssClass: 'fy-dialog-popover',
       });

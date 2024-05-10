@@ -36,7 +36,7 @@ export const platformReportData: Report = deepFreeze({
       state: ApprovalState.APPROVAL_DONE,
     },
   ],
-  created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  created_at: new Date('2023-07-11T16:24:01.335Z'),
   currency: 'USD',
   employee: {
     ach_account: {
@@ -147,7 +147,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       last_approved_at: null,
       last_paid_at: null,
       last_resubmitted_at: null,
-      last_submitted_at: null,
+      last_submitted_at: new Date('2023-02-01T13:02:35.097839+00:00'),
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
@@ -731,6 +731,14 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
 export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);
 
 export const expectedReportsSinglePage: Report[] = deepFreeze([...allReportsPaginated1.data]);
+
+export const sentBackReportData: Report = deepFreeze({ ...submittedReportData, state: 'APPROVER_INQUIRY' });
+
+export const reportWithExpenses: Report = deepFreeze({
+  ...platformReportData,
+  num_expenses: 3,
+  amount: 100,
+});
 
 export const expectedReportsSinglePageWithApproval: Report[] = deepFreeze([...allReportsPaginatedWithApproval.data]);
 

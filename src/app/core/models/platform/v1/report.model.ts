@@ -4,7 +4,7 @@ import { Level } from './level.model';
 export interface Report {
   id: string;
   org_id: string;
-  created_at: Date;
+  created_at: Date | string;
   updated_at: Date;
   user_id: string;
   user: {

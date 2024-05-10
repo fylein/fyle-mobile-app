@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ElementRef } from '@angular/core';
+import { Component, Input, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
@@ -12,6 +12,8 @@ import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.mod
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { Swiper, SwiperEvents } from 'swiper/types';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -34,7 +36,7 @@ type PaymentMode = {
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
-export class FyViewReportInfoComponent implements OnInit {
+export class FyViewReportInfoComponent {
   @Input() erpt$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
@@ -71,19 +73,18 @@ export class FyViewReportInfoComponent implements OnInit {
     private authService: AuthService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  ngOnInit(): void {}
-
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
+      const createdDate = this.datePipe.transform(erpt.created_at, 'MMM d, y');
       this.reportDetails = {
         'Report Name': erpt.purpose,
         Owner: erpt.employee.user.full_name,
         'Report Number': erpt.seq_num,
-        'Created On': this.datePipe.transform(erpt.created_at, 'MMM d, y'),
+        'Created On': createdDate,
       };
       this.reportCurrency = erpt.currency;
 
@@ -110,13 +111,11 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>): number => 0;
-
-  closeModal() {
+  closeModal(): void {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event) {
+  segmentChanged(event): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -140,9 +139,11 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  onSwipeReport(event) {
+  onSwipeReport(event): void {
     this.isSwipe = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
       this.trackingService.viewReportInfo({
         view: this.view,
@@ -152,12 +153,16 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  onSwipeAmount(event) {
+  onSwipeAmount(event): void {
     this.isSwipe = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
     }
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (this.view === ExpenseView.team && event && event.direction === 2) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
     }
     this.trackingService.viewReportInfo({
@@ -167,9 +172,11 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  onSwipeEmployee(event) {
+  onSwipeEmployee(event): void {
     this.isSwipe = true;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
       this.trackingService.viewReportInfo({
         view: this.view,
@@ -179,7 +186,7 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  async createEmployeeDetails(erpt: Report) {
+  async createEmployeeDetails(erpt: Report): Promise<void> {
     this.employeeDetails = {
       'Employee ID': erpt.employee.id,
       Organization: erpt.employee.org_name,
@@ -204,7 +211,7 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: any) {
+  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: OrgSettings): void {
     if (orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled) {
       this.amountComponentWiseDetails.CCC = paymentModeWiseData.ccc?.amount || 0;
     }

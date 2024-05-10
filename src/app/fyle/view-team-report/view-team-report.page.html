@@ -66,7 +66,7 @@
               <div class="view-reports--employee-name">
                 <div>
                   <span class="view-reports--employee-name__text">Employee : </span>
-                  <span class="view-reports--employee-name__name">{{erpt.us_full_name | ellipsis: 30}}</span>
+                  <span class="view-reports--employee-name__name">{{erpt.employee.user.full_name | ellipsis: 30}}</span>
                 </div>
               </div>
             </ion-col>
@@ -78,7 +78,9 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text">Submitted on: </span>
-                    <span class="view-reports--submitted-date__date">{{erpt.submitted_at | date: 'MMM dd, YYYY'}}</span>
+                    <span class="view-reports--submitted-date__date"
+                      >{{erpt.last_submitted_at | date: 'MMM dd, YYYY'}}</span
+                    >
                   </div>
                 </div>
               </div>
