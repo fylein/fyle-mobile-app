@@ -110,7 +110,7 @@ export class FyViewReportInfoComponent {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>): number => 0;
 
   closeModal(): void {
