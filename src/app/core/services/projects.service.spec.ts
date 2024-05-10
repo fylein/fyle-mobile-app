@@ -17,7 +17,10 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformProjectSingleRes } from '../mock-data/platform/v1/platform-project.data';
+import {
+  platformAPIResponseActiveOnly,
+  platformProjectSingleRes,
+} from '../mock-data/platform/v1/platform-project.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -83,16 +86,17 @@ describe('ProjectsService', () => {
   });
 
   it('should be able to fetch all active projects', (done) => {
-    apiService.get.and.returnValue(of(apiResponseActiveOnly));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
+    const transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
     projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+        params: {
+          is_enabled: `eq.true`,
+        },
+      });
+      expect(transformToV1ResponseSpy).toHaveBeenCalled();
       done();
-    });
-
-    expect(apiService.get).toHaveBeenCalledWith('/projects', {
-      params: {
-        active_only: true,
-      },
     });
   });
 
@@ -130,7 +134,7 @@ describe('ProjectsService', () => {
   });
 
   it('should get project count restricted by a set of category IDs', (done) => {
-    apiService.get.and.returnValue(of(apiResponseActiveOnly));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
 
     const result = projectsService.getProjectCount({ categoryIds: testCategoryIds });
     result.subscribe((res) => {
@@ -140,7 +144,7 @@ describe('ProjectsService', () => {
   });
 
   it('should get project count not restricted by a set of category IDs', (done) => {
-    apiService.get.and.returnValue(of(apiResponseActiveOnly));
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
 
     const resultWithOutParam = projectsService.getProjectCount();
     const resultWithParam = projectsService.getProjectCount({ categoryIds: null });
