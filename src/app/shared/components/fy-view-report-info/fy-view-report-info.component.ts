@@ -13,7 +13,6 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Swiper, SwiperEvents } from 'swiper/types';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -110,6 +109,9 @@ export class FyViewReportInfoComponent {
       this.isForeignCurrency = expenses.some((expense) => !!expense.foreign_currency);
     });
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, never>): number => 0;
 
   closeModal(): void {
     this.modalController.dismiss();
