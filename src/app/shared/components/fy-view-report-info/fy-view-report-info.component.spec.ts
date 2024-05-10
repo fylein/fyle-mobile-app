@@ -299,56 +299,95 @@ describe('FyViewReportInfoComponent', () => {
     expect(btnSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('createEmployeeDetails(): should update employee details', fakeAsync(() => {
-    const expectedEmployeeDetails = {
-      'Employee ID': platformReportData.employee.id,
-      Organization: platformReportData.employee.org_name,
-      Department: platformReportData.employee.department.name,
-      'Sub Department': platformReportData.employee.department.sub_department,
-      Location: platformReportData.employee.location,
-      Level: platformReportData.employee.level,
-      'Employee Title': platformReportData.employee.title,
-      'Business Unit': platformReportData.employee.business_unit,
-      Mobile: platformReportData.employee.mobile,
-    };
+  describe('createEmployeeDetails():', () => {
+    it('should update employee details', fakeAsync(() => {
+      const expectedEmployeeDetails = {
+        'Employee ID': platformReportData.employee.id,
+        Organization: platformReportData.employee.org_name,
+        Department: platformReportData.employee.department.name,
+        'Sub Department': platformReportData.employee.department.sub_department,
+        Location: platformReportData.employee.location,
+        Level: platformReportData.employee.level,
+        'Employee Title': platformReportData.employee.title,
+        'Business Unit': platformReportData.employee.business_unit,
+        Mobile: platformReportData.employee.mobile,
+      };
 
-    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
-    authService.getEou.and.resolveTo(apiEouRes);
-    orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
-    component.createEmployeeDetails(platformReportData);
-    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
-    tick(1000);
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(platformReportData.employee.id);
-    expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
-  }));
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      component.createEmployeeDetails(platformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+        platformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
+    }));
 
-  it('createEmployeeDetails(): should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
-    const expectedEmployeeDetails = {
-      'Employee ID': platformReportData.employee.id,
-      Organization: platformReportData.employee.org_name,
-      Department: platformReportData.employee.department?.name,
-      'Sub Department': platformReportData.employee.department.sub_department,
-      Location: platformReportData.employee.location,
-      Level: platformReportData.employee.level?.name,
-      'Employee Title': platformReportData.employee.title,
-      'Business Unit': platformReportData.employee.business_unit,
-      Mobile: platformReportData.employee.mobile,
-    };
+    it('should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
+      const expectedEmployeeDetails = {
+        'Employee ID': platformReportData.employee.id,
+        Organization: platformReportData.employee.org_name,
+        Department: platformReportData.employee.department?.name,
+        'Sub Department': platformReportData.employee.department.sub_department,
+        Location: platformReportData.employee.location,
+        Level: platformReportData.employee.level?.name,
+        'Employee Title': platformReportData.employee.title,
+        'Business Unit': platformReportData.employee.business_unit,
+        Mobile: platformReportData.employee.mobile,
+      };
 
-    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
-    authService.getEou.and.throwError('An Error Occured');
-    component.createEmployeeDetails(platformReportData);
-    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
-    tick(1000);
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(
-      platformReportData.employee.id
-    );
-    expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
-  }));
+      authService.getEou.and.throwError('An Error Occured');
+      component.createEmployeeDetails(platformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(
+        platformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
+    }));
+
+    it('should have undefined when employee department and level values are undefined', fakeAsync(() => {
+      const modifiedPlatformReportData = {
+        ...platformReportData,
+        employee: {
+          ...platformReportData.employee,
+          level: null,
+          department: null,
+        },
+      };
+      const expectedEmployeeDetails = {
+        'Employee ID': modifiedPlatformReportData.employee.id,
+        Organization: modifiedPlatformReportData.employee.org_name,
+        Department: undefined,
+        'Sub Department': undefined,
+        Location: modifiedPlatformReportData.employee.location,
+        Level: undefined,
+        'Employee Title': modifiedPlatformReportData.employee.title,
+        'Business Unit': modifiedPlatformReportData.employee.business_unit,
+        Mobile: modifiedPlatformReportData.employee.mobile,
+      };
+
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      component.createEmployeeDetails(modifiedPlatformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+        modifiedPlatformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
+    }));
+  });
 
   it('getCCCAdvanceSummary(): should update amountComponentWiseDetails', () => {
     const paymentModeSummaryMock = {
