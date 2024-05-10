@@ -145,8 +145,10 @@ export class FyViewReportInfoComponent {
     this.isSwipe = true;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 2) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
@@ -159,13 +161,17 @@ export class FyViewReportInfoComponent {
     this.isSwipe = true;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[0] as HTMLElement;
+      elementRef.click();
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (this.view === ExpenseView.team && event && event.direction === 2) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[2] as HTMLElement;
+      elementRef.click();
     }
     this.trackingService.viewReportInfo({
       view: this.view,
@@ -178,8 +184,10 @@ export class FyViewReportInfoComponent {
     this.isSwipe = true;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
