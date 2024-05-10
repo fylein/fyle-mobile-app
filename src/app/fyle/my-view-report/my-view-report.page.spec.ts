@@ -43,6 +43,7 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
   expectedReportsSinglePage,
+  paidReportData,
   platformReportData,
   sentBackReportData,
 } from 'src/app/core/mock-data/platform-report.data';
@@ -571,7 +572,7 @@ describe('MyViewReportPage', () => {
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
       reportService.delete.and.returnValue(of(undefined));
-      const props = component.getDeleteReportPopupParams(expectedReportsSinglePage[0]);
+      const props = component.getDeleteReportPopupParams(paidReportData);
       props.componentProps.deleteMethod().subscribe(() => {
         expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
