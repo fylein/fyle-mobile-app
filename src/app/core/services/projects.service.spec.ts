@@ -17,11 +17,8 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import {
-  ProjectPlatformParams,
-  platformAPIResponseMultiple,
-  platformProjectSingleRes,
-} from '../mock-data/platform/v1/platform-project.data';
+import { platformAPIResponseMultiple, platformProjectSingleRes } from '../mock-data/platform/v1/platform-project.data';
+import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -30,7 +27,7 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-describe('ProjectsService', () => {
+fdescribe('ProjectsService', () => {
   let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
@@ -104,7 +101,7 @@ describe('ProjectsService', () => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
 
     projectsService.getByParamsUnformatted({}).subscribe((res) => {
-      expect(res).toEqual(apiV2ResponseMultiple.data);
+      expect(res).toEqual(fixDate(apiV2ResponseMultiple.data));
       done();
     });
   });

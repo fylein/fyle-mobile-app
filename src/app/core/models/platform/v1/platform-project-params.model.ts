@@ -5,12 +5,9 @@ export interface PlatformProjectParams {
   sortDirection?: string;
   sortOrder?: string;
   searchNameText?: string;
-  active?: boolean;
   is_enabled?: string;
   id?: string;
   category_ids?: string;
   org_id?: string;
   name?: string;
-  orgCategoryIds?: string[];
-  projectIds?: number[];
 }
