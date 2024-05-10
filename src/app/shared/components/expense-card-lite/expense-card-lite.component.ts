@@ -18,8 +18,8 @@ export class ExpenseCardLiteComponent implements OnInit {
     this.getReceipt();
   }
 
-  getReceipt() {
-    this.expensesService.getExpenseById(this.expense.id).subscribe((expense: Expense) => {
+  getReceipt(): void {
+    this.expensesService.getExpenseById(this.expense.id as string).subscribe((expense: Expense) => {
       this.isReceiptPresent = expense.file_ids?.length > 0;
     });
   }
