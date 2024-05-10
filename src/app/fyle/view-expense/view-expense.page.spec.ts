@@ -53,6 +53,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import {
   expectedReportsSinglePage,
   expectedReportsSinglePageSubmitted,
+  paidReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 
 describe('ViewExpensePage', () => {
@@ -680,7 +681,7 @@ describe('ViewExpensePage', () => {
         custom_fields: null,
       };
 
-      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;

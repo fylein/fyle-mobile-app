@@ -239,7 +239,7 @@ describe('MyCreateReportPage', () => {
         Expense_Count: 1,
         Report_Value: component.selectedTotalAmount,
       });
-      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
+      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0].id, [
         readyToReportExpensesData[0].id,
       ]);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
