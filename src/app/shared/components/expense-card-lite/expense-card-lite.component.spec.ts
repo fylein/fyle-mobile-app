@@ -1,5 +1,4 @@
 import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
-import { FileService } from 'src/app/core/services/file.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ExpenseCardLiteComponent } from './expense-card-lite.component';
 import { IonicModule } from '@ionic/angular';
