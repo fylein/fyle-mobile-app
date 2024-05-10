@@ -267,7 +267,7 @@ export class MyViewReportPage {
       .pipe(
         map(
           (orgSetting) =>
-            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
         ),
         switchMap((filterPendingTxn: boolean) => {
           if (filterPendingTxn) {
