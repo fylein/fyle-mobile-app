@@ -111,7 +111,7 @@ export class FyViewReportInfoComponent {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, never>): number => 0;
+  originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>): number => 0;
 
   closeModal(): void {
     this.modalController.dismiss();
