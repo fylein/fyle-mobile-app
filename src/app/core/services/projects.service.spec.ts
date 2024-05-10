@@ -90,7 +90,7 @@ describe('ProjectsService', () => {
     const transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
     projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
-      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/projects', {
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
         params: {
           is_enabled: `eq.true`,
         },
