@@ -397,7 +397,10 @@ describe('MergeExpensesService', () => {
       expect(res).toEqual(receiptInfoData2);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.file_ids);
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith('invoice.pdf', 'https://sampledownloadurl.com');
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+        generateUrlsBulkData1[0].name,
+        generateUrlsBulkData1[0].download_url
+      );
       done();
     });
   });
