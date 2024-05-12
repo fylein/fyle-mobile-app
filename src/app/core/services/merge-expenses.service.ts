@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
