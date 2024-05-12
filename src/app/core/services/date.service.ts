@@ -122,11 +122,6 @@ export class DateService {
       data.to_dt = this.getUTCDate(new Date(data.to_dt));
     }
 
-    // needed for company reports filters
-    if (data.physical_bill_at) {
-      data.physical_bill_at = new Date(data.physical_bill_at);
-    }
-
     return data;
   }
 
