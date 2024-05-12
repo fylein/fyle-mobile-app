@@ -48,6 +48,8 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -73,6 +75,8 @@ describe('ViewMileagePage', () => {
   let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -115,6 +119,8 @@ describe('ViewMileagePage', () => {
       'getApproverMileageRateById',
     ]);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -201,6 +207,14 @@ describe('ViewMileagePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+        },
+        {
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -237,6 +251,8 @@ describe('ViewMileagePage', () => {
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();

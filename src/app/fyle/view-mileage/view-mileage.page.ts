@@ -110,7 +110,7 @@ export class ViewMileagePage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  mapAttachment$: Observable<ReceiptInfo>;
+  mapAttachment$: Observable<FileObject>;
 
   mileageRate$: Observable<PlatformMileageRates>;
 
@@ -317,19 +317,31 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((expense: PlatformExpense) =>
-        expense.file_ids.length > 0 ? this.spenderFileService.generateUrls(expense.file_ids[0]) : of({})
-      ),
+      switchMap((expense: PlatformExpense) => {
+        if (expense.file_ids.length > 0) {
+          if (this.view === ExpenseView.individual) {
+            return this.spenderFileService.generateUrls(expense.file_ids[0]);
+          } else {
+            return this.approverFileService.generateUrls(expense.file_ids[0]);
+          }
+        } else {
+          return of(null);
+        }
+      }),
       map((response: PlatformFileGenerateUrlsResponse) => {
-        const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
+        if (response !== null) {
+          const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
-        const receipt: ReceiptInfo = {
-          url: response.download_url,
-          type: details.type,
-          thumbnail: details.thumbnail,
-        };
+          const receipt: FileObject = {
+            url: response.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
 
-        return receipt;
+          return receipt;
+        } else {
+          return null;
+        }
       })
     );
 
