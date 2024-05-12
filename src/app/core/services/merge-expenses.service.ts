@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
@@ -121,9 +121,9 @@ export class MergeExpensesService {
 
   getAttachements(txnID: string): Observable<FileObject[]> {
     return this.expensesService.getExpenseById(txnID).pipe(
-      switchMap((expense: PlatformExpense) => {
-        return expense.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
-      }),
+      switchMap((expense: PlatformExpense) =>
+        expense.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
+      ),
       map((response: PlatformFileGenerateUrlsResponse[]) => {
         const files = response.filter((file) => file.content_type !== 'text/html');
         const receiptObjs: ReceiptInfo[] = files.map((file) => {

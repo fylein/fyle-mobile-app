@@ -97,6 +97,9 @@ import * as dayjs from 'dayjs';
 import { expectedOrgCategoryByName2, orgCategoryData1 } from '../mock-data/org-category.data';
 import { taxGroupData } from '../mock-data/tax-group.data';
 import { cloneDeep } from 'lodash';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
 
 describe('MergeExpensesService', () => {
   let mergeExpensesService: MergeExpensesService;
@@ -109,6 +112,8 @@ describe('MergeExpensesService', () => {
   let categoriesService: jasmine.SpyObj<CategoriesService>;
   let dateService: jasmine.SpyObj<DateService>;
   let taxGroupService: jasmine.SpyObj<TaxGroupService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['post']);
@@ -126,6 +131,8 @@ describe('MergeExpensesService', () => {
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
     const dateServiceSpy = jasmine.createSpyObj('DateService', ['isValidDate']);
     const taxGroupServiceSpy = jasmine.createSpyObj('TaxGroupService', ['get']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -139,6 +146,8 @@ describe('MergeExpensesService', () => {
         { provide: CategoriesService, useValue: categoriesServiceSpy },
         { provide: DateService, useValue: dateServiceSpy },
         { provide: TaxGroupService, useValue: taxGroupServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
+        { provide: SpenderFileService, useValue: spenderFileServiceSpy },
       ],
     });
     mergeExpensesService = TestBed.inject(MergeExpensesService);
@@ -153,6 +162,8 @@ describe('MergeExpensesService', () => {
     categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     dateService = TestBed.inject(DateService) as jasmine.SpyObj<DateService>;
     taxGroupService = TestBed.inject(TaxGroupService) as jasmine.SpyObj<TaxGroupService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
   });
 
   it('should be created', () => {
@@ -373,19 +384,35 @@ describe('MergeExpensesService', () => {
 
   it('getAttachements(): should return the attachments', (done) => {
     const mockFileObject = cloneDeep(fileObject5);
-    fileService.findByTransactionId.and.returnValue(of(mockFileObject));
-    fileService.downloadUrl.and.returnValue(of('mock-url'));
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+    spenderFileService.generateUrlsBulk.and.returnValue(
+      of([
+        {
+          name: 'invoice.pdf',
+          id: '1',
+          content_type: 'application/pdf',
+          download_url: 'https://sampledownloadurl.com',
+          upload_url: 'https://sampleuploadurl.com',
+        },
+      ])
+    );
     fileService.getReceiptsDetails.and.returnValue({
-      thumbnail: mockFileObject[0].thumbnail,
-      type: mockFileObject[0].type,
+      type: 'pdf',
+      thumbnail: 'img/fy-pdf.svg',
     });
 
     const transactionId = 'txz2vohKxBXu';
     mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
-      expect(res).toEqual(mockFileObject);
-      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
-      expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(mockFileObject[0].id);
-      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(mockFileObject[0].name, 'mock-url');
+      expect(res).toEqual([
+        {
+          type: 'pdf',
+          url: 'https://sampledownloadurl.com',
+          thumbnail: 'img/fy-pdf.svg',
+        },
+      ]);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
+      expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.file_ids);
+      expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith('invoice.pdf', 'https://sampledownloadurl.com');
       done();
     });
   });
