@@ -38,6 +38,11 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -105,7 +110,7 @@ export class ViewMileagePage {
 
   costCenterDependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  mapAttachment$: Observable<FileObject>;
+  mapAttachment$: Observable<ReceiptInfo>;
 
   mileageRate$: Observable<PlatformMileageRates>;
 
@@ -132,7 +137,9 @@ export class ViewMileagePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService,
     private mileageRatesService: MileageRatesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderFileService: SpenderFileService,
+    private approverFileService: ApproverFileService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -310,21 +317,20 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((expense) => from(expense.files)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
-            const fileObjWithDetails: FileObject = {
-              url: downloadUrl,
-              type: details.type,
-              thumbnail: details.thumbnail,
-            };
+      switchMap((expense: PlatformExpense) =>
+        expense.file_ids.length > 0 ? this.spenderFileService.generateUrls(expense.file_ids[0]) : of({})
+      ),
+      map((response: PlatformFileGenerateUrlsResponse) => {
+        const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
-            return fileObjWithDetails;
-          })
-        )
-      )
+        const receipt: ReceiptInfo = {
+          url: response.download_url,
+          type: details.type,
+          thumbnail: details.thumbnail,
+        };
+
+        return receipt;
+      })
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
