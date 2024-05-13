@@ -46,7 +46,7 @@ export class ViewTeamReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<Report>;
+  reports$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -205,7 +205,7 @@ export class ViewTeamReportPage {
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
 
-    this.erpt$ = this.loadReports();
+    this.reports$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
 
     this.eou$.subscribe((eou) => (this.eou = eou));
@@ -260,7 +260,7 @@ export class ViewTeamReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$ = this.refreshApprovals$.pipe(
+    this.reports$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
@@ -270,16 +270,16 @@ export class ViewTeamReportPage {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt: Report) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt.currency, 'wide');
-      this.reportName = erpt.purpose;
+    this.reports$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
+      this.reportName = report.purpose;
       /**
-       * if current user is remove from approver, erpt call will go again to fetch current report details
-       * so checking if report details are available in erpt than continue execution
+       * if current user is remove from approver, report call will go again to fetch current report details
+       * so checking if report details are available in report than continue execution
        * else redirect them to team reports
        */
-      if (erpt) {
-        this.isReportReported = ['APPROVER_PENDING'].indexOf(erpt.state) > -1;
+      if (report) {
+        this.isReportReported = ['APPROVER_PENDING'].indexOf(report.state) > -1;
       }
     });
 
@@ -385,10 +385,10 @@ export class ViewTeamReportPage {
     if (!this.canApprove) {
       this.toggleTooltip();
     } else {
-      const erpt = await this.erpt$.pipe(take(1)).toPromise();
+      const report = await this.reports$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
-      const rpAmount = this.humanizeCurrency.transform(erpt.amount, erpt.currency, false);
+      const rpAmount = this.humanizeCurrency.transform(report.amount, report.currency, false);
       const flaggedExpensesCount = expenses.filter(
         (expense) => expense.is_policy_flagged || expense.is_manually_flagged
       ).length;
@@ -396,7 +396,7 @@ export class ViewTeamReportPage {
         componentProps: {
           flaggedExpensesCount,
           title: 'Approve Report',
-          message: erpt.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
+          message: report.num_expenses + ' expenses of amount ' + rpAmount + ' will be approved',
           primaryCta: {
             text: 'Approve',
             action: 'approve',
@@ -415,7 +415,7 @@ export class ViewTeamReportPage {
       const { data } = (await popover.onWillDismiss()) as { data: { action: string } };
 
       if (data && data.action === 'approve') {
-        this.reportService.approve(erpt.id).subscribe(() => {
+        this.reportService.approve(report.id).subscribe(() => {
           this.refinerService.startSurvey({ actionName: 'Approve Report' });
           this.router.navigate(['/', 'enterprise', 'team_reports']);
         });
@@ -514,7 +514,7 @@ export class ViewTeamReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: this.erpt$,
+        reports$: this.reports$,
         expenses$: this.expenses$,
         view: ExpenseView.team,
       },
@@ -587,12 +587,12 @@ export class ViewTeamReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.erpt$
+    this.reports$
       .pipe(
         take(1),
-        switchMap((erpt) => {
-          erpt.purpose = reportName;
-          return this.reportService.approverUpdateReportPurpose(erpt);
+        switchMap((report) => {
+          report.purpose = reportName;
+          return this.reportService.approverUpdateReportPurpose(report);
         })
       )
       .subscribe(() => {
@@ -604,14 +604,14 @@ export class ViewTeamReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.erpt$
+    this.reports$
       .pipe(take(1))
       .pipe(
-        switchMap((erpt) => {
+        switchMap((report) => {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.purpose,
+              reportName: report.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });

@@ -35,7 +35,7 @@ type PaymentMode = {
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
 export class FyViewReportInfoComponent implements OnInit {
-  @Input() erpt$: Observable<Report>;
+  @Input() reports$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
 
@@ -78,7 +78,7 @@ export class FyViewReportInfoComponent implements OnInit {
   ngOnInit(): void {}
 
   ionViewWillEnter() {
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
+    this.reports$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
       this.reportDetails = {
         'Report Name': erpt.purpose,
         Owner: erpt.employee.user.full_name,
@@ -93,7 +93,7 @@ export class FyViewReportInfoComponent implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    combineLatest([this.expenses$, this.erpt$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
+    combineLatest([this.expenses$, this.reports$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
         'Total Amount': erpt.amount,
