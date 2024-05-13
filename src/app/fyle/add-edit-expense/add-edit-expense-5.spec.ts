@@ -1752,12 +1752,12 @@ export function TestCases5(getTestBed) {
         expect(expensesService.getExpenseById).not.toHaveBeenCalled();
 
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(mockFileObject);
+          expect(res).toEqual([]);
         });
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(undefined);
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
+        expect(fileService.findByTransactionId).not.toHaveBeenCalled();
+        expect(fileService.downloadUrl).not.toHaveBeenCalled();
+        expect(component.getReceiptDetails).not.toHaveBeenCalled();
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
