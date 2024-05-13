@@ -579,7 +579,7 @@ export class TasksService {
     return this.orgSettingsService.get().pipe(
       map(
         (orgSetting) =>
-          orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+          orgSetting.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
       ),
       switchMap((filterPendingTxn: boolean) => {
         if (filterPendingTxn) {
@@ -660,7 +660,7 @@ export class TasksService {
       return [
         {
           amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
-          count: aggregate.total_amount,
+          count: aggregate.count,
           header: `Report${aggregate.count === 1 ? '' : 's'} sent back!`,
           subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
             aggregate.total_amount,

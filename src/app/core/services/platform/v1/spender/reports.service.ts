@@ -73,7 +73,7 @@ export class SpenderReportsService {
     );
   }
 
-  getAllReportsByParams(queryParams: ReportsQueryParams, order?: string): Observable<Report[]> {
+  getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
         count = count > this.paginationSize ? count / this.paginationSize : 1;
