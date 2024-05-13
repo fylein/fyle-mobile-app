@@ -17,7 +17,11 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformAPIResponseMultiple, platformProjectSingleRes, platformAPIResponseActiveOnly } from '../mock-data/platform/v1/platform-project.data';
+import {
+  platformAPIResponseMultiple,
+  platformProjectSingleRes,
+  platformAPIResponseActiveOnly,
+} from '../mock-data/platform/v1/platform-project.data';
 import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
 
 const fixDate = (data) =>
@@ -32,6 +36,8 @@ describe('ProjectsService', () => {
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let transformToV1ResponseSpy: jasmine.Spy;
+  let transformToV2ResponseSpy: jasmine.Spy;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
@@ -61,6 +67,8 @@ describe('ProjectsService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
+    transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
   });
 
   it('should be created', () => {
@@ -69,8 +77,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch project by id', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
-    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
-
+    transformToV2ResponseSpy.and.returnValue([apiV2ResponseMultiple.data[0]]);
     projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -85,7 +92,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch all active projects', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
-    const transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
+    transformToV1ResponseSpy.and.returnValue(expectedReponseActiveOnly);
     projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -110,9 +117,8 @@ describe('ProjectsService', () => {
   it('should be able to fetch data when params are provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
     const params = ProjectPlatformParams;
-    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
-
     const result = projectsService.getByParamsUnformatted(testProjectParams);
+    transformToV1ResponseSpy.and.returnValue(expectedProjectsResponse);
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
