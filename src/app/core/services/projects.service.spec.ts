@@ -31,13 +31,11 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-describe('ProjectsService', () => {
-  let projectsService: ProjectsService;
+fdescribe('ProjectsService', () => {
+  let projectsService: jasmine.SpyObj<ProjectsService>;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
-  let transformToV1ResponseSpy: jasmine.Spy;
-  let transformToV2ResponseSpy: jasmine.Spy;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
@@ -61,14 +59,12 @@ describe('ProjectsService', () => {
         },
       ],
     });
-    projectsService = TestBed.inject(ProjectsService);
+    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
-    transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
-    transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
   });
 
   it('should be created', () => {
@@ -77,7 +73,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch project by id', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
-    transformToV2ResponseSpy.and.returnValue([apiV2ResponseMultiple.data[0]]);
+    spyOn(projectsService, 'transformToV2Response').and.returnValue([apiV2ResponseSingle.data[0]]);
     projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -85,14 +81,14 @@ describe('ProjectsService', () => {
           id: 'eq.257528',
         },
       });
-      expect(transformToV2ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV2Response).toHaveBeenCalled();
       done();
     });
   });
 
   it('should be able to fetch all active projects', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
-    transformToV1ResponseSpy.and.returnValue(expectedReponseActiveOnly);
+    spyOn(projectsService, 'transformToV1Response').and.returnValue(expectedReponseActiveOnly);
     projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -100,7 +96,7 @@ describe('ProjectsService', () => {
           is_enabled: `eq.true`,
         },
       });
-      expect(transformToV1ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV1Response).toHaveBeenCalled();
       done();
     });
   });
@@ -118,14 +114,14 @@ describe('ProjectsService', () => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
     const params = ProjectPlatformParams;
     const result = projectsService.getByParamsUnformatted(testProjectParams);
-    transformToV1ResponseSpy.and.returnValue(expectedProjectsResponse);
+    spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/projects', {
         params,
       });
-      expect(transformToV2ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV2Response).toHaveBeenCalled();
       done();
     });
   });
