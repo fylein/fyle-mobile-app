@@ -31,8 +31,8 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-describe('ProjectsService', () => {
-  let projectsService: jasmine.SpyObj<ProjectsService>;
+fdescribe('ProjectsService', () => {
+  let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
@@ -59,7 +59,7 @@ describe('ProjectsService', () => {
         },
       ],
     });
-    projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    projectsService = TestBed.inject(ProjectsService);
     apiService = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
     apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
     spenderPlatformV1ApiService = TestBed.inject(
