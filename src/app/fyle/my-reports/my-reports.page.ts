@@ -189,6 +189,7 @@ export class MyReportsPage {
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
               return this.spenderReportsService.getAllReportsByParams({
+                ...queryParams,
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
                 order: orderByParams,
@@ -349,7 +350,7 @@ export class MyReportsPage {
     });
   }
 
-  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }): void {
+  generateCustomDateParams(newQueryParams: { and?: string }): void {
     if (this.filters.date === DateFilters.custom) {
       const startDate = this.filters.customDateStart?.toISOString();
       const endDate = this.filters.customDateEnd?.toISOString();
@@ -363,7 +364,7 @@ export class MyReportsPage {
     }
   }
 
-  generateDateParams(newQueryParams: { or: string[]; and?: string }): void {
+  generateDateParams(newQueryParams: { and?: string }): void {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -386,43 +387,43 @@ export class MyReportsPage {
     }
   }
 
-  generateStateFilters(newQueryParams: { or: string[]; and?: string }): void {
+  generateStateFilters(newQueryParams: { and?: string; state?: string }): void {
     const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('DRAFT')) {
-        stateOrFilter.push('state.in.(DRAFT)');
+        stateOrFilter.push('DRAFT');
       }
 
       if (this.filters.state.includes('APPROVER_PENDING')) {
-        stateOrFilter.push('state.in.(APPROVER_PENDING)');
+        stateOrFilter.push('APPROVER_PENDING)');
       }
 
       if (this.filters.state.includes('APPROVER_INQUIRY')) {
-        stateOrFilter.push('state.in.(APPROVER_INQUIRY)');
+        stateOrFilter.push('APPROVER_INQUIRY)');
       }
 
       if (this.filters.state.includes('APPROVED')) {
-        stateOrFilter.push('state.in.(APPROVED)');
+        stateOrFilter.push('APPROVED');
       }
 
       if (this.filters.state.includes('PAYMENT_PENDING')) {
-        stateOrFilter.push('state.in.(PAYMENT_PENDING)');
+        stateOrFilter.push('PAYMENT_PENDING');
       }
 
       if (this.filters.state.includes('PAYMENT_PROCESSING')) {
-        stateOrFilter.push('state.in.(PAYMENT_PROCESSING)');
+        stateOrFilter.push('PAYMENT_PROCESSING');
       }
 
       if (this.filters.state.includes('PAID')) {
-        stateOrFilter.push('state.in.(PAID)');
+        stateOrFilter.push('PAID');
       }
     }
 
     if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
+      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `"${param1}","${param2}"`);
+      combinedStateOrFilter = `${combinedStateOrFilter}`;
+      newQueryParams.state = `in.(${combinedStateOrFilter})`;
     }
   }
 
@@ -453,9 +454,10 @@ export class MyReportsPage {
   }> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: { or: string[]; and?: string } = {
-      or: [],
-    };
+    const newQueryParams: {
+      and?: string;
+      state?: string;
+    } = {};
 
     this.generateDateParams(newQueryParams);
 

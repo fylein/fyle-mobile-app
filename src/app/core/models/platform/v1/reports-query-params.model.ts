@@ -7,4 +7,5 @@ export interface ReportsQueryParams {
   next_approver_user_ids?: string;
   q?: string;
   or?: string | string[];
+  and?: string | string[];
 }
