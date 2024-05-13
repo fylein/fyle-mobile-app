@@ -1,7 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 
 @Component({
   selector: 'app-reports-card',
