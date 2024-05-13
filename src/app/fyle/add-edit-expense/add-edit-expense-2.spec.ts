@@ -114,6 +114,7 @@ import {
   transformedExpenseWithExtractedData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -174,6 +175,7 @@ export function TestCases2(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let reportsService: jasmine.SpyObj<SpenderReportsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -230,6 +232,7 @@ export function TestCases2(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      reportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -1220,7 +1223,7 @@ export function TestCases2(getTestBed) {
 
     describe('getDeleteReportParams():', () => {
       it('should return modal params and method to remove expense from report', () => {
-        reportService.removeTransaction.and.returnValue(of());
+        reportsService.ejectExpenses.and.returnValue(of());
 
         component
           .getDeleteReportParams(
@@ -1229,7 +1232,7 @@ export function TestCases2(getTestBed) {
             'rpId'
           )
           .componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
+        expect(reportsService.ejectExpenses).toHaveBeenCalledTimes(1);
       });
 
       it('should  return modal params and method to delete expense', () => {

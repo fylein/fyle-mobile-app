@@ -47,23 +47,23 @@ describe('DashboardPage', () => {
   let navController: jasmine.SpyObj<NavController>;
 
   beforeEach(waitForAsync(() => {
-    let networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
-    let currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
-    let routerSpy = jasmine.createSpyObj('Router', ['navigate', 'url']);
-    let trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
+    const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
+    const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
+    const routerSpy = jasmine.createSpyObj('Router', ['navigate', 'url']);
+    const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'tasksPageOpened',
       'footerHomeTabClicked',
       'dashboardActionSheetButtonClicked',
       'dashboardActionSheetOpened',
     ]);
-    let actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
-    let tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
-    let smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
-    let orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    let orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
+    const actionSheetControllerSpy = jasmine.createSpyObj('ActionSheetController', ['create']);
+    const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTotalTaskCount']);
+    const smartlookServiceSpy = jasmine.createSpyObj('SmartlookService', ['init']);
+    const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getMileageOrPerDiemCategories']);
-    let backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
-    let navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
+    const backButtonServiceSpy = jasmine.createSpyObj('BackButtonService', ['showAppCloseAlert']);
+    const navControllerSpy = jasmine.createSpyObj('NavController', ['back']);
 
     TestBed.configureTestingModule({
       declarations: [DashboardPage],
@@ -152,6 +152,12 @@ describe('DashboardPage', () => {
     const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', [], { filterPills: creditTxnFilterPill });
     component.tasksComponent = tasksComponentSpy;
     expect(component.filterPills).toEqual(creditTxnFilterPill);
+  });
+
+  it('get filterPills(): should return undefined when filter pills are undefined', () => {
+    const tasksComponentSpy = jasmine.createSpyObj('TasksComponent', [], { taskCount: 1 });
+    component.tasksComponent = tasksComponentSpy;
+    expect(component.filterPills).toBeUndefined();
   });
 
   it('ionViewWillLeave(): should call unsubscribe hardware back button and set onPageExit to null', () => {
