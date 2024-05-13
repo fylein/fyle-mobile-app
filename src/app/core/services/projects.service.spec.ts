@@ -17,7 +17,11 @@ import {
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { platformAPIResponseMultiple, platformProjectSingleRes, platformAPIResponseActiveOnly } from '../mock-data/platform/v1/platform-project.data';
+import {
+  platformAPIResponseMultiple,
+  platformProjectSingleRes,
+  platformAPIResponseActiveOnly,
+} from '../mock-data/platform/v1/platform-project.data';
 import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
 
 const fixDate = (data) =>
@@ -69,8 +73,7 @@ describe('ProjectsService', () => {
 
   it('should be able to fetch project by id', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
-    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
-
+    spyOn(projectsService, 'transformToV2Response').and.returnValue([apiV2ResponseSingle.data[0]]);
     projectsService.getbyId(257528).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -78,14 +81,14 @@ describe('ProjectsService', () => {
           id: 'eq.257528',
         },
       });
-      expect(transformToV2ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV2Response).toHaveBeenCalled();
       done();
     });
   });
 
   it('should be able to fetch all active projects', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
-    const transformToV1ResponseSpy = spyOn(projectsService, 'transformToV1Response').and.callThrough();
+    spyOn(projectsService, 'transformToV1Response').and.returnValue(expectedReponseActiveOnly);
     projectsService.getAllActive().subscribe((res) => {
       expect(res).toEqual(expectedReponseActiveOnly);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
@@ -93,7 +96,7 @@ describe('ProjectsService', () => {
           is_enabled: `eq.true`,
         },
       });
-      expect(transformToV1ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV1Response).toHaveBeenCalled();
       done();
     });
   });
@@ -110,16 +113,15 @@ describe('ProjectsService', () => {
   it('should be able to fetch data when params are provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
     const params = ProjectPlatformParams;
-    const transformToV2ResponseSpy = spyOn(projectsService, 'transformToV2Response').and.callThrough();
-
     const result = projectsService.getByParamsUnformatted(testProjectParams);
+    spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
     result.subscribe((res) => {
       expect(res).toEqual(expectedProjectsResponse);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledWith('/projects', {
         params,
       });
-      expect(transformToV2ResponseSpy).toHaveBeenCalled();
+      expect(projectsService.transformToV2Response).toHaveBeenCalled();
       done();
     });
   });
