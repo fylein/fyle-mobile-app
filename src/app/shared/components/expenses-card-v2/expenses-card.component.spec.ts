@@ -368,7 +368,7 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('handleScanStatus():', () => {
-    it('should handle status when the syncing is in progress and the extracted data is present', fakeAsync(() => {
+    it('should handle status when the syncing is in progress and the extracted data is present', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
       component.expense.id = 'txO6d6eiB4JF';
@@ -382,23 +382,21 @@ describe('ExpensesCardComponent', () => {
       });
 
       transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-      tick(500);
+
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txO6d6eiB4JF');
       expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
-      tick(500);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
       expect(component.expense.extracted_data).toEqual(transformedExpenseWithExtractedData.tx.extracted_data);
-    }));
+    });
 
-    it('should handle status when the sync is in progress and there is no extracted data present', fakeAsync(() => {
+    it('should handle status when the sync is in progress and there is no extracted data present', () => {
       component.isOutboxExpense = false;
       component.expense.id = 'txvslh8aQMbu';
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
@@ -411,23 +409,21 @@ describe('ExpensesCardComponent', () => {
       });
 
       transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-      tick(500);
+
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(pollDataSpy).toHaveBeenCalledTimes(1);
-      tick(500);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.isScanCompleted).toBeFalse();
       expect(component.isScanInProgress).toBeFalse();
-    }));
+    });
 
-    it('should handle status when the scanning is not in progress', fakeAsync(() => {
+    it('should handle status when the scanning is not in progress', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'USD';
       const orguserSettRes = {
@@ -441,12 +437,10 @@ describe('ExpensesCardComponent', () => {
       };
       orgUserSettingsService.get.and.returnValue(of(orguserSettRes));
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
-    }));
+    });
   });
 
   describe('canShowPaymentModeIcon', () => {

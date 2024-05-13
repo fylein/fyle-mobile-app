@@ -1627,7 +1627,7 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
+      switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
       map((fileObjs) => (fileObjs && fileObjs.length) || 0)
     );
   }
@@ -3096,7 +3096,7 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
+          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
           switchMap((fileObjs) => from(fileObjs)),
           concatMap((fileObj: FileObject) =>
             this.fileService.downloadUrl(fileObj.id).pipe(
@@ -4421,8 +4421,8 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-          map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
+          map((fileObjs) => fileObjs?.length || 0)
         );
 
         this.attachmentUploadInProgress = true;
