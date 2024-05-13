@@ -35,7 +35,6 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportActions } from 'src/app/core/models/report-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { Approval } from 'src/app/core/models/approval.model';
 @Component({
   selector: 'app-view-team-report',
@@ -51,9 +50,9 @@ export class ViewTeamReportPage {
 
   expenses$: Observable<Expense[]>;
 
-  sharedWith$: Observable<any[]>;
+  sharedWith$: Observable<string[]>;
 
-  reportApprovals$: Observable<any>;
+  reportApprovals$: Observable<Approver[]>;
 
   refreshApprovals$ = new Subject();
 
