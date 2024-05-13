@@ -98,7 +98,7 @@
         <div *ngFor="let erpt of myReports$ | async as list; let i = index">
           <app-reports-card
             [erpt]="erpt"
-            [prevDate]="list[i-1]?.rp_created_at"
+            [prevDate]="list[i-1]?.created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
             (gotoReport)="onReportClick($event)"
             (deleteReport)="onDeleteReportClick($event)"

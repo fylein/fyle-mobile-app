@@ -103,7 +103,7 @@ export class SpenderReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };
