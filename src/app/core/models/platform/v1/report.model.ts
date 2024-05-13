@@ -43,10 +43,10 @@ export interface Report {
     };
     code: string;
     org_id: string;
-    org_name?: string;
+    org_name: string;
     department_id: string;
-    level?: Level;
-    mobile?: string;
+    level: Level;
+    mobile: string;
     department: {
       id: string;
       code: string;
