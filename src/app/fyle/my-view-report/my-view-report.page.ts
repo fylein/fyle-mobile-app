@@ -46,7 +46,7 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  reports$: Observable<Report>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -168,7 +168,7 @@ export class MyViewReportPage {
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 
-    this.reports$ = this.loadReportDetails$.pipe(
+    this.report$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
@@ -224,7 +224,7 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.reports$.pipe(take(1)).subscribe((report) => {
+    this.report$.pipe(take(1)).subscribe((report) => {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
@@ -317,7 +317,7 @@ export class MyViewReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.reports$
+    this.report$
       .pipe(
         take(1),
         switchMap((report) => {
@@ -334,7 +334,7 @@ export class MyViewReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.reports$
+    this.report$
       .pipe(take(1))
       .pipe(
         switchMap((report) => {
@@ -361,7 +361,7 @@ export class MyViewReportPage {
   }
 
   deleteReport(): void {
-    this.reports$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
+    this.report$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
   getDeleteReportPopupParams(report: Report): {
@@ -464,7 +464,7 @@ export class MyViewReportPage {
       const route = this.getTransactionRoute(category, canEdit);
 
       if (canEdit) {
-        this.reports$.pipe(take(1)).subscribe((report) =>
+        this.report$.pipe(take(1)).subscribe((report) =>
           this.router.navigate([
             route,
             {
@@ -523,7 +523,7 @@ export class MyViewReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        reports$: this.reports$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.individual,
       },

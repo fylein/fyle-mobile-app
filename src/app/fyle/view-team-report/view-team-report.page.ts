@@ -46,7 +46,7 @@ export class ViewTeamReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  reports$: Observable<Report>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -205,7 +205,7 @@ export class ViewTeamReportPage {
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
 
-    this.reports$ = this.loadReports();
+    this.report$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
 
     this.eou$.subscribe((eou) => (this.eou = eou));
@@ -260,7 +260,7 @@ export class ViewTeamReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.reports$ = this.refreshApprovals$.pipe(
+    this.report$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
@@ -270,7 +270,7 @@ export class ViewTeamReportPage {
       finalize(() => from(this.loaderService.hideLoader()))
     );
 
-    this.reports$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
+    this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
       this.reportCurrencySymbol = getCurrencySymbol(report.currency, 'wide');
       this.reportName = report.purpose;
       /**
@@ -385,7 +385,7 @@ export class ViewTeamReportPage {
     if (!this.canApprove) {
       this.toggleTooltip();
     } else {
-      const report = await this.reports$.pipe(take(1)).toPromise();
+      const report = await this.report$.pipe(take(1)).toPromise();
       const expenses = await this.expenses$.toPromise();
 
       const rpAmount = this.humanizeCurrency.transform(report.amount, report.currency, false);
@@ -514,7 +514,7 @@ export class ViewTeamReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        reports$: this.reports$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.team,
       },
@@ -587,7 +587,7 @@ export class ViewTeamReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.reports$
+    this.report$
       .pipe(
         take(1),
         switchMap((report) => {
@@ -604,7 +604,7 @@ export class ViewTeamReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.reports$
+    this.report$
       .pipe(take(1))
       .pipe(
         switchMap((report) => {
