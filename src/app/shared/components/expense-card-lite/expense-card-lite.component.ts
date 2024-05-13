@@ -9,7 +9,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
   styleUrls: ['./expense-card-lite.component.scss'],
 })
 export class ExpenseCardLiteComponent implements OnInit {
-  @Input() expense: MatchedExpense;
+  @Input() expense: Partial<MatchedExpense>;
 
   isReceiptPresent: boolean;
 
