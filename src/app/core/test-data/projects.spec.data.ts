@@ -315,8 +315,8 @@ export const expectedProjectsResponse: ProjectV2[] = deepFreeze([
 ]);
 
 export const testProjectParams = deepFreeze({
-  org_id: 'orNVthTo2Zyo',
-  is_enabled: true,
+  orgId: 'orNVthTo2Zyo',
+  isEnabled: true,
   sortDirection: 'asc',
   sortOrder: 'name',
   orgCategoryIds: [null, '122269', '122270', '122271', '122272', '122273'],

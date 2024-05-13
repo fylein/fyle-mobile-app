@@ -27,8 +27,8 @@ export class ProjectsService {
   @Cacheable()
   getByParamsUnformatted(
     projectParams: Partial<{
-      org_id: string;
-      is_enabled: boolean;
+      orgId: string;
+      isEnabled: boolean;
       orgCategoryIds: string[];
       searchNameText: string;
       limit: number;
@@ -39,20 +39,20 @@ export class ProjectsService {
     }>
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
-    let { org_id, is_enabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
+    let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
     sortOrder = sortOrder || 'project_updated_at';
     sortDirection = sortDirection || 'desc';
 
     const params: PlatformProjectParams = {
-      org_id: 'eq.' + org_id,
+      org_id: 'eq.' + orgId,
       order: sortOrder + '.' + sortDirection,
       limit: limit || 200,
       offset: offset || 0,
     };
 
     // `active` can be optional
-    this.addActiveFilter(is_enabled, params);
+    this.addActiveFilter(isEnabled, params);
 
     // `orgCategoryIds` can be optional
     this.addOrgCategoryIdsFilter(orgCategoryIds, params);
@@ -105,9 +105,9 @@ export class ProjectsService {
     }
   }
 
-  addActiveFilter(is_enabled: boolean, params: PlatformProjectParams): void {
-    if (typeof is_enabled !== 'undefined' && is_enabled !== null) {
-      params.is_enabled = 'eq.' + is_enabled;
+  addActiveFilter(isEnabled: boolean, params: PlatformProjectParams): void {
+    if (typeof isEnabled !== 'undefined' && isEnabled !== null) {
+      params.is_enabled = 'eq.' + isEnabled;
     }
   }
 
@@ -151,8 +151,8 @@ export class ProjectsService {
   transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
     const projectV1 = platformProject.map((platformProject) => ({
       id: platformProject.id,
-      created_at: platformProject.created_at,
-      updated_at: platformProject.updated_at,
+      created_at: new Date(platformProject.created_at),
+      updated_at: new Date(platformProject.updated_at),
       name: platformProject.name,
       sub_project: platformProject.sub_project,
       code: platformProject.code,
@@ -169,13 +169,13 @@ export class ProjectsService {
     const projectV2 = platformProject.map((platformProject) => ({
       project_active: platformProject.is_enabled,
       project_code: platformProject.code,
-      project_created_at: platformProject.created_at,
+      project_created_at: new Date(platformProject.created_at),
       project_description: platformProject.description,
       project_id: platformProject.id,
       project_name: platformProject.display_name,
       project_org_category_ids: platformProject.category_ids,
       project_org_id: platformProject.org_id,
-      project_updated_at: platformProject.updated_at,
+      project_updated_at: new Date(platformProject.updated_at),
       projectv2_name: platformProject.name,
       sub_project_name: platformProject.sub_project,
     }));

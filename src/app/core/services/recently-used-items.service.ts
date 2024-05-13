@@ -32,8 +32,8 @@ export class RecentlyUsedItemsService {
     ) {
       return this.projectsService
         .getByParamsUnformatted({
-          org_id: config.eou.ou.org_id,
-          is_enabled: true,
+          orgId: config.eou.ou.org_id,
+          isEnabled: true,
           sortDirection: 'asc',
           sortOrder: 'name',
           orgCategoryIds: config.categoryIds,

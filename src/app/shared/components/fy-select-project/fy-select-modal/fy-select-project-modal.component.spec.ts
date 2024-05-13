@@ -148,8 +148,8 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          org_id: 'orNVthTo2Zyo',
-          is_enabled: true,
+          orgId: 'orNVthTo2Zyo',
+          isEnabled: true,
           sortDirection: 'asc',
           sortOrder: 'name',
           orgCategoryIds: undefined,
@@ -174,8 +174,8 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          org_id: 'orNVthTo2Zyo',
-          is_enabled: true,
+          orgId: 'orNVthTo2Zyo',
+          isEnabled: true,
           sortDirection: 'asc',
           sortOrder: 'name',
           orgCategoryIds: undefined,
@@ -200,8 +200,8 @@ describe('FyProjectSelectModalComponent', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          org_id: 'orNVthTo2Zyo',
-          is_enabled: true,
+          orgId: 'orNVthTo2Zyo',
+          isEnabled: true,
           sortDirection: 'asc',
           sortOrder: 'name',
           orgCategoryIds: undefined,
