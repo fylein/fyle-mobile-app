@@ -313,7 +313,7 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to return dummy team reports tasks is role is not approver', (done) => {
+  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
