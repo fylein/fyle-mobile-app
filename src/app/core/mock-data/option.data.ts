@@ -11,6 +11,9 @@ export const optionData1: Option[] = deepFreeze([
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -77,6 +80,9 @@ export const optionData1: Option[] = deepFreeze([
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,

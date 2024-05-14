@@ -37,6 +37,7 @@ import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Filters = Partial<{
   state: string | string[];
@@ -110,6 +111,8 @@ export class MyReportsPage {
 
   nonReimbursableOrg$: Observable<boolean>;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -125,7 +128,8 @@ export class MyReportsPage {
     private modalController: ModalController,
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -142,6 +146,7 @@ export class MyReportsPage {
     });
 
     this.isLoading = true;
+    this.setManualFlagFeatureEnabled();
     this.setupNetworkWatcher();
 
     this.searchText = '';
@@ -312,6 +317,12 @@ export class MyReportsPage {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
+    });
+  }
+
+  setManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
     });
   }
 

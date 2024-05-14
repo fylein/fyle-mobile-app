@@ -10,8 +10,9 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -41,6 +42,8 @@ export class CreateNewReportComponent implements OnInit {
 
   showReportNameError: boolean;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private modalController: ModalController,
     private reportService: ReportService,
@@ -48,7 +51,8 @@ export class CreateNewReportComponent implements OnInit {
     private refinerService: RefinerService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   getReportTitle(): Subscription {
@@ -77,8 +81,15 @@ export class CreateNewReportComponent implements OnInit {
     });
   }
 
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
+  }
+
   ionViewWillEnter(): void {
     this.getReportTitle();
+    this.setIsManualFlagFeatureEnabled();
   }
 
   selectExpense(expense: Expense): void {
@@ -120,8 +131,8 @@ export class CreateNewReportComponent implements OnInit {
     const txnIds = this.selectedElements.map((expense) => expense.id);
     if (reportActionType === 'create_draft_report') {
       this.saveDraftReportLoader = true;
-      return this.reportService
-        .createDraft(report)
+      return this.spenderReportsService
+        .createDraft({ data: report })
         .pipe(
           tap(() =>
             this.trackingService.createReport({
@@ -129,7 +140,7 @@ export class CreateNewReportComponent implements OnInit {
               Report_Value: this.selectedTotalAmount,
             })
           ),
-          switchMap((report: ReportV1) => {
+          switchMap((report: Report) => {
             if (txnIds.length > 0) {
               return this.spenderReportsService.addExpenses(report.id, txnIds).pipe(map(() => report));
             } else {
