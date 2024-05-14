@@ -325,7 +325,6 @@ describe('TasksService', () => {
       .and.returnValue('₹733.48K');
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
-      console.log(teamReportsTasks);
       done();
     });
   });
