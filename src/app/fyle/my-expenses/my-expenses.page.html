@@ -192,7 +192,6 @@
           [previousExpenseCreatedAt]="list[i-1]?.created_at"
           [isSelectionModeEnabled]="selectionMode"
           [selectedElements]="selectedElements"
-          [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
           (goToTransaction)="goToTransaction($event)"
           (setMultiselectMode)="switchSelectionMode($event)"
           (cardClickedForSelection)="selectExpense($event)"
