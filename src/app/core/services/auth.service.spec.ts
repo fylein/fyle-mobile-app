@@ -73,7 +73,7 @@ describe('AuthService', () => {
   });
 
   it('getEou(): should get extended org user', (done) => {
-    storageService.get.and.returnValue(Promise.resolve(apiEouRes));
+    storageService.get.and.resolveTo(apiEouRes);
 
     authService.getEou().then((res) => {
       expect(res).toEqual(apiEouRes);
@@ -85,7 +85,7 @@ describe('AuthService', () => {
   it('refreshEou(): should refresh extended org user in memory', (done) => {
     apiService.get.and.returnValue(of(eouFlattended));
     dataTransformService.unflatten.and.returnValue(eouRes3);
-    storageService.set.and.returnValue(Promise.resolve(null));
+    storageService.set.and.resolveTo(null);
 
     authService.refreshEou().subscribe((res) => {
       expect(res).toEqual(eouRes3);
@@ -99,7 +99,7 @@ describe('AuthService', () => {
   describe('getRoles():', () => {
     it('should get roles from access token', (done) => {
       const roles = ['ADMIN', 'APPROVER', 'FYLER', 'HOP', 'HOD', 'OWNER'];
-      tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+      tokenService.getAccessToken.and.resolveTo(access_token);
       jwtHelperService.decodeToken.and.returnValue(apiAccessTokenRes);
       spyOn(JSON, 'parse').and.returnValue(roles);
 
@@ -113,7 +113,7 @@ describe('AuthService', () => {
     });
 
     it('return empty array if token no received', (done) => {
-      tokenService.getAccessToken.and.returnValue(Promise.resolve(null));
+      tokenService.getAccessToken.and.resolveTo(null);
 
       authService.getRoles().subscribe((res) => {
         expect(res).toEqual([]);
@@ -122,7 +122,7 @@ describe('AuthService', () => {
     });
 
     it('should return empty array if roles not present', (done) => {
-      tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+      tokenService.getAccessToken.and.resolveTo(access_token);
       jwtHelperService.decodeToken.and.returnValue(apiTokenWithoutRoles);
 
       authService.getRoles().subscribe((res) => {
@@ -177,15 +177,13 @@ describe('AuthService', () => {
   });
 
   it('newRefreshToken(): should refresh new token', (done) => {
-    storageService.delete.withArgs('user').and.returnValue(Promise.resolve(null));
-    storageService.delete.withArgs('role').and.returnValue(Promise.resolve(null));
-    tokenService.resetAccessToken.and.returnValue(Promise.resolve({ value: true }));
-    tokenService.setRefreshToken.withArgs(access_token_2).and.returnValue(Promise.resolve({ value: true }));
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+    storageService.delete.withArgs('user').and.resolveTo(null);
+    storageService.delete.withArgs('role').and.resolveTo(null);
+    tokenService.resetAccessToken.and.resolveTo({ value: true });
+    tokenService.setRefreshToken.withArgs(access_token_2).and.resolveTo({ value: true });
+    tokenService.getAccessToken.and.resolveTo(access_token);
     apiService.post.and.returnValue(of(apiAuthResponseRes));
-    tokenService.setAccessToken
-      .withArgs(apiAuthResponseRes.access_token)
-      .and.returnValue(Promise.resolve({ value: true }));
+    tokenService.setAccessToken.withArgs(apiAuthResponseRes.access_token).and.resolveTo({ value: true });
     spyOn(authService, 'refreshEou').and.returnValue(of(eouRes3));
 
     authService.newRefreshToken(access_token_2).subscribe((res) => {
