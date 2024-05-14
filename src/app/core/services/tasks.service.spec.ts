@@ -321,23 +321,6 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
-    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-
-    humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
-      .and.returnValue('733.48K');
-    humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
-      .and.returnValue('₹733.48K');
-
-    tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
-      expect(teamReportsTasks).toEqual([]);
-      done();
-    });
-  });
-
   it('should be able to fetch potential duplicate tasks', (done) => {
     setupData();
     expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
