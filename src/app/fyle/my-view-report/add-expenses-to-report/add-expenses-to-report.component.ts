@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { Router } from '@angular/router';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-add-expenses-to-report',
@@ -29,10 +30,13 @@ export class AddExpensesToReportComponent implements OnInit {
 
   homeCurrency: string;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private modalController: ModalController,
     private currencyService: CurrencyService,
-    private router: Router
+    private router: Router,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   close() {
@@ -82,12 +86,19 @@ export class AddExpensesToReportComponent implements OnInit {
   ionViewWillEnter() {
     this.isSelectedAll = true;
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
+    this.setIsManualFlagFeatureEnabled();
     const selectedExpenses = [];
     this.unreportedExpenses.forEach((expense, i) => {
       selectedExpenses.push(this.unreportedExpenses[i]);
     });
     this.selectedElements = selectedExpenses;
     this.updateSelectedExpenses();
+  }
+
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
   }
 
   addNewExpense() {

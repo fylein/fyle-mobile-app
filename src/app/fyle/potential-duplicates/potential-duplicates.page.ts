@@ -8,6 +8,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Expenses = Expense[];
 
@@ -29,16 +30,20 @@ export class PotentialDuplicatesPage {
 
   isLoading = true;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private expensesService: ExpensesService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ionViewWillEnter(): void {
     this.selectedSet = 0;
+    this.setIsManualFlagFeatureEnabled();
 
     this.duplicateSets$ = this.loadData$.pipe(
       switchMap(() =>
@@ -79,6 +84,12 @@ export class PotentialDuplicatesPage {
     );
     this.duplicateSets$.subscribe((duplicateExpenses) => {
       this.duplicateExpenses = duplicateExpenses;
+    });
+  }
+
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
     });
   }
 
