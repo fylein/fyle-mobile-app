@@ -37,7 +37,6 @@ import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.mod
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
@@ -1319,7 +1318,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report: Report | ReportV1 }): void {
+  showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
