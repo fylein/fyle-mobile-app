@@ -10,6 +10,8 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
 export class ReportsCardComponent implements OnInit {
   @Input() erpt: ExtendedReport;
 
+  @Input() isManualFlagFeatureEnabled: boolean;
+
   @Input() prevDate: Date;
 
   @Input() simplifyReportsEnabled: boolean;

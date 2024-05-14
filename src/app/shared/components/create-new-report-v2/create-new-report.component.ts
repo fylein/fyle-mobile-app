@@ -12,6 +12,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-create-new-report',
@@ -41,6 +42,8 @@ export class CreateNewReportComponent implements OnInit {
 
   showReportNameError: boolean;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private modalController: ModalController,
     private reportService: ReportService,
@@ -48,7 +51,8 @@ export class CreateNewReportComponent implements OnInit {
     private refinerService: RefinerService,
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   getReportTitle(): Subscription {
@@ -77,8 +81,15 @@ export class CreateNewReportComponent implements OnInit {
     });
   }
 
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
+  }
+
   ionViewWillEnter(): void {
     this.getReportTitle();
+    this.setIsManualFlagFeatureEnabled();
   }
 
   selectExpense(expense: Expense): void {
