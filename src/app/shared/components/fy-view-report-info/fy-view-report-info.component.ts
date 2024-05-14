@@ -35,7 +35,7 @@ type PaymentMode = {
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
-export class FyViewReportInfoComponent implements OnInit {
+export class FyViewReportInfoComponent {
   @Input() report$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;

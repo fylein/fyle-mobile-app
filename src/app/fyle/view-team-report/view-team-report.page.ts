@@ -52,8 +52,6 @@ export class ViewTeamReportPage {
 
   sharedWith$: Observable<string[]>;
 
-  reportApprovals$: Observable<Approver[]>;
-
   refreshApprovals$ = new Subject();
 
   actions$: Observable<ReportActions>;
@@ -292,16 +290,6 @@ export class ViewTeamReportPage {
       )
     );
 
-    this.reportApprovals$ = this.refreshApprovals$.pipe(
-      startWith(true),
-      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id as string)),
-      map((reportApprovals) =>
-        reportApprovals
-          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => approval)
-      )
-    );
-
     this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
@@ -320,14 +308,10 @@ export class ViewTeamReportPage {
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
-      approvals: this.reportApprovals$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, approvals, orgSettings }) => {
+    }).subscribe(({ expenses, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
-      this.canApprove = this.isSequentialApprovalEnabled
-        ? this.isUserActiveInCurrentSeqApprovalQueue(eou, approvals)
-        : true;
       this.canShowTooltip = true;
     });
 
