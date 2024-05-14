@@ -88,6 +88,7 @@ describe('TasksService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'getAllExtendedReports',
+      'getReportStatsData',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
@@ -289,23 +290,30 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks is role is APPROVER', (done) => {
+  it('should be able to fetch team reports tasks', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
       .and.returnValue('733.48K');
     humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
       .and.returnValue('₹733.48K');
 
-    approverReportsService.getReportsStats
-      .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
-        state: 'eq.APPROVER_PENDING',
-      })
-      .and.returnValue(of(expectedReportStats.report));
+    reportService.getReportStatsData
+      .withArgs(
+        {
+          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+          sequential_approval_turn: ['in.(true)'],
+          aggregates: 'count(rp_id),sum(rp_amount)',
+          scalar: true,
+        },
+        false
+      )
+      .and.returnValue(of(teamReportResponse));
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);
@@ -663,9 +671,9 @@ describe('TasksService', () => {
 
     const tasks2 = tasksService.mapAggregateToTeamReportTask(
       {
-        total_amount: 0,
-        count: 0,
-      } as PlatformReportsStatsResponse,
+        totalAmount: unsubmittedReportsResponse[0].aggregates[1].function_value,
+        totalCount: 1,
+      },
       homeCurrency
     );
 
@@ -986,9 +994,9 @@ describe('TasksService', () => {
 
     const tasks = tasksService.mapAggregateToTeamReportTask(
       {
-        total_amount: teamReportResponse[0].aggregates[1].function_value,
-        count: 1,
-      } as PlatformReportsStatsResponse,
+        totalAmount: teamReportResponse[0].aggregates[1].function_value,
+        totalCount: 1,
+      },
       homeCurrency
     );
 
