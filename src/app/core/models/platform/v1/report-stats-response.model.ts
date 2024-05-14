@@ -1,4 +1,4 @@
-export interface ReportsStatsResponsePlatform {
+export interface PlatformReportsStatsResponse {
   count: number;
   failed_amount: number;
   failed_count: number;
