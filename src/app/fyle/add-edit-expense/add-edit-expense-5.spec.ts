@@ -109,9 +109,6 @@ import { apiExpenses2, expenseData, splitExpensesData } from 'src/app/core/mock-
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
 import { cloneDeep } from 'lodash';
-import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
-import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
-import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 
 export function TestCases5(getTestBed) {
   return describe('AddEditExpensePage-5', () => {
@@ -136,7 +133,6 @@ export function TestCases5(getTestBed) {
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
     let fileService: jasmine.SpyObj<FileService>;
-    let spenderFileService: jasmine.SpyObj<SpenderFileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -189,7 +185,6 @@ export function TestCases5(getTestBed) {
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
-      spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -1352,11 +1347,6 @@ export function TestCases5(getTestBed) {
         const mockFileObject = cloneDeep(expectedFileData1);
         fileService.findByTransactionId.and.returnValue(of(mockFileObject));
         fileService.downloadUrl.and.returnValue(of('url'));
-        fileService.getReceiptsDetails.and.returnValue({
-          type: 'pdf',
-          thumbnail: 'img/fy-pdf.svg',
-        });
-        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
         spyOn(component, 'getReceiptDetails').and.returnValue({
           type: 'jpeg',
           thumbnail: 'thumbnail',
@@ -1477,15 +1467,12 @@ export function TestCases5(getTestBed) {
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
 
         component.attachments$.subscribe((res) => {
-          expect(res).toEqual(receiptInfoData2);
+          expect(res).toEqual(mockFileObject);
         });
 
         expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(['fiV1gXpyCcbU']);
-        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
-          generateUrlsBulkData1[0].name,
-          generateUrlsBulkData1[0].download_url
-        );
+        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
+        expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(mockFileObject[0]);
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
