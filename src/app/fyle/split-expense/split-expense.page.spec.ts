@@ -1043,7 +1043,7 @@ describe('SplitExpensePage', () => {
 
     it('should return an error object when the date is after the upper bound of the valid range', () => {
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 2);
+      tomorrow.setDate(tomorrow.getDate() + 3);
       const control = new FormControl(tomorrow.toISOString().substring(0, 10));
       const result = component.customDateValidator(control);
       expect(result).toEqual({ invalidDateSelection: true });

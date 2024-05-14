@@ -32,6 +32,7 @@ import {
   filter,
   finalize,
   map,
+  reduce,
   shareReplay,
   startWith,
   switchMap,
@@ -3100,26 +3101,19 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() =>
         this.etxn$.pipe(
           switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          switchMap((fileObjs: FileObject[]) => {
-            const fileIds: string[] = fileObjs.map((file) => file.id);
-            return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
-          }),
-          map((response: PlatformFileGenerateUrlsResponse[]) => {
-            const files = response.filter((file) => file.content_type !== 'text/html');
-            const receiptObjs: ReceiptInfo[] = files.map((file) => {
-              const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
-
-              const receipt: ReceiptInfo = {
-                url: file.download_url,
-                type: details.type,
-                thumbnail: details.thumbnail,
-              };
-
-              return receipt;
-            });
-
-            return receiptObjs;
-          })
+          switchMap((fileObjs) => from(fileObjs)),
+          concatMap((fileObj: FileObject) =>
+            this.fileService.downloadUrl(fileObj.id).pipe(
+              map((downloadUrl) => {
+                fileObj.url = downloadUrl;
+                const details = this.getReceiptDetails(fileObj);
+                fileObj.type = details.type;
+                fileObj.thumbnail = details.thumbnail;
+                return fileObj;
+              })
+            )
+          ),
+          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
         )
       )
     );
