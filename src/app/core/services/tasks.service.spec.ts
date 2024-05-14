@@ -7,6 +7,7 @@ import { TaskIcon } from '../models/task-icon.enum';
 import {
   allExtendedReportsResponse,
   extendedOrgUserResponse,
+  extendedOrgUserResponseSpender,
   incompleteExpensesResponse,
   potentialDuplicatesApiResponse,
   sentBackAdvancesResponse,
@@ -288,7 +289,7 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks', (done) => {
+  it('should be able to fetch team reports tasks is role is APPROVER', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -308,6 +309,23 @@ describe('TasksService', () => {
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to return dummy team reports tasks is role is not approver', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
+      .and.returnValue('733.48K');
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
+      .and.returnValue('₹733.48K');
+
+    tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
+      console.log(teamReportsTasks);
       done();
     });
   });
