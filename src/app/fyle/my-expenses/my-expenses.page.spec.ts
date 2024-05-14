@@ -521,8 +521,8 @@ describe('MyExpensesV2Page', () => {
     }));
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are disabled', fakeAsync(() => {
-      const mockOrgUserSettingsData = orgUserSettingsData;
-      const mockOrgSettingsData = orgSettingsRes;
+      const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
+      const mockOrgSettingsData = cloneDeep(orgSettingsRes);
       mockOrgUserSettingsData.insta_fyle_settings.enabled = false;
       mockOrgUserSettingsData.bulk_fyle_settings.enabled = false;
       mockOrgSettingsData.mileage.enabled = false;
@@ -552,7 +552,7 @@ describe('MyExpensesV2Page', () => {
     }));
 
     it('should set isNewReportsFlowEnabled, isInstaFyleEnabled, isBulkFyleEnabled, isMileageEnabled and isPerDiemEnabled to false if orgSettings and orgUserSettings properties are not allowed', fakeAsync(() => {
-      const mockOrgUserSettingsData = orgUserSettingsData;
+      const mockOrgUserSettingsData = cloneDeep(orgUserSettingsData);
       mockOrgUserSettingsData.insta_fyle_settings.allowed = false;
       mockOrgUserSettingsData.bulk_fyle_settings.allowed = false;
       orgUserSettingsService.get.and.returnValue(of(mockOrgUserSettingsData));
@@ -1445,8 +1445,8 @@ describe('MyExpensesV2Page', () => {
   });
 
   it('syncOutboxExpenses(): should call transactionoutboxService and do a refresh', fakeAsync(() => {
-    const mockFormattedTransactions = apiExpenseRes;
-    const mockPendingTransactions = txnList;
+    const mockFormattedTransactions = cloneDeep(apiExpenseRes);
+    const mockPendingTransactions = cloneDeep(txnList);
     spyOn(component, 'formatTransactions').and.returnValues(mockFormattedTransactions, []);
     transactionOutboxService.getPendingTransactions.and.returnValues(mockPendingTransactions, []);
     transactionOutboxService.sync.and.resolveTo(undefined);
@@ -1741,7 +1741,7 @@ describe('MyExpensesV2Page', () => {
 
   describe('openFilters(): ', () => {
     beforeEach(() => {
-      myExpenseService.getFilters.and.returnValue(filterOptions1);
+      myExpenseService.getFilters.and.returnValue(cloneDeep(filterOptions1));
       const filterPopoverSpy = jasmine.createSpyObj('filterPopover', ['present', 'onWillDismiss']);
       filterPopoverSpy.onWillDismiss.and.resolveTo({ data: selectedFilters2 });
       modalController.create.and.resolveTo(filterPopoverSpy);
@@ -1866,7 +1866,7 @@ describe('MyExpensesV2Page', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       component.allExpensesCount = 2;
       spyOn(component, 'setExpenseStatsOnSelect');
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
       sharedExpenseService.isMergeAllowed.and.returnValue(true);
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
     });
@@ -1874,7 +1874,7 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedElements if it is present in selectedElements', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue([]);
       const expense = apiExpenses1[0];
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
 
       component.selectExpense(expense);
 
@@ -1890,7 +1890,7 @@ describe('MyExpensesV2Page', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 3;
 
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(cloneDeep(apiExpenses1));
 
       component.selectExpense(expenseData);
 
@@ -1905,7 +1905,7 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedElements if it is present in selectedElements and allExpenseCount is not equal to length of selectedElements', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue([]);
 
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
 
       component.selectExpense(apiExpenses1[0]);
 
@@ -1919,7 +1919,7 @@ describe('MyExpensesV2Page', () => {
 
     it('should update expenseToBeDeleted if selectedElements is an array of atleast 1', () => {
       sharedExpenseService.excludeCCCExpenses.and.returnValue([apiExpenses1[1]]);
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
       component.selectExpense(apiExpenses1[0]);
 
       expect(component.selectedElements).toEqual([apiExpenses1[1]]);
@@ -1931,9 +1931,9 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedElements if it is present in selectedElements and tx_id is not present in expense', () => {
       sharedExpenseService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 0;
-      const expense = apiExpenses1[0];
+      const expense = cloneDeep(apiExpenses1[0]);
       expense.id = undefined;
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
       component.selectedElements[0].id = undefined;
 
       component.selectExpense(expense);
@@ -2076,7 +2076,7 @@ describe('MyExpensesV2Page', () => {
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
-        const expenses = apiExpenses1;
+        const expenses = cloneDeep(apiExpenses1);
         component.selectedElements = expenses.map((expense) => {
           return { ...expense, id: null };
         });
@@ -2091,7 +2091,7 @@ describe('MyExpensesV2Page', () => {
       }));
 
       it('should call unreportableExpenseExceptionHandler if none of the reportable expenses are selected', fakeAsync(() => {
-        component.selectedElements = apiExpenses1;
+        component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
         component.openCreateReportWithSelectedIds('oldReport');
@@ -2110,7 +2110,7 @@ describe('MyExpensesV2Page', () => {
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is oldReport', fakeAsync(() => {
-        component.selectedElements = apiExpenses1;
+        component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
@@ -2121,7 +2121,7 @@ describe('MyExpensesV2Page', () => {
       }));
 
       it('should call showOldReportsMatBottomSheet if reportType is newReport', fakeAsync(() => {
-        component.selectedElements = apiExpenses1;
+        component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, false);
@@ -2132,7 +2132,7 @@ describe('MyExpensesV2Page', () => {
       }));
 
       it('should call reportableExpenseDialogHandler if totalUnreportableCount greater than 0', fakeAsync(() => {
-        component.selectedElements = apiExpenses1;
+        component.selectedElements = cloneDeep(apiExpenses1);
         component.isReportableExpensesSelected = true;
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(false, false);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
@@ -2149,7 +2149,7 @@ describe('MyExpensesV2Page', () => {
       });
 
       it('should call showNonReportableExpenseSelectedToast and return if selectedElement length is zero', fakeAsync(() => {
-        const expenses = apiExpenses1;
+        const expenses = cloneDeep(apiExpenses1);
         component.selectedElements = expenses.map((expense) => {
           return { ...expense, id: null };
         });
@@ -2164,7 +2164,7 @@ describe('MyExpensesV2Page', () => {
       }));
 
       it('should call doesExpenseHavePendingCardTransaction', fakeAsync(() => {
-        component.selectedElements = apiExpenses1;
+        component.selectedElements = cloneDeep(apiExpenses1);
         sharedExpenseService.isCriticalPolicyViolatedExpense.and.returnValues(true, true);
         sharedExpenseService.isExpenseInDraft.and.returnValues(false, true);
         component.restrictPendingTransactionsEnabled = true;
@@ -2533,7 +2533,7 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', () => {
-      const mockReportData = expectedReportsSinglePage;
+      const mockReportData = cloneDeep(expectedReportsSinglePage);
       mockReportData[0].state = 'DRAFT';
       component.openReports$ = of(mockReportData);
       spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReportData[0]));
@@ -2610,7 +2610,7 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should not call deleteBulk method if tx_id is not present in expensesToBeDeleted', () => {
-      const mockExpensesWithoutId = [apiExpenses1[0]];
+      const mockExpensesWithoutId = cloneDeep([apiExpenses1[0]]);
       mockExpensesWithoutId[0].id = undefined;
       component.expensesToBeDeleted = mockExpensesWithoutId;
       component.deleteSelectedExpenses(null);
@@ -2641,8 +2641,8 @@ describe('MyExpensesV2Page', () => {
       transactionService.deleteBulk.and.returnValue(of(txnList));
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes3);
       spyOn(component, 'doRefresh');
-      component.expensesToBeDeleted = apiExpenses1;
-      component.selectedElements = apiExpenses1;
+      component.expensesToBeDeleted = cloneDeep(apiExpenses1);
+      component.selectedElements = cloneDeep(apiExpenses1);
     });
 
     it('should open a popover and get data of expenses on dismiss', fakeAsync(() => {
@@ -2744,8 +2744,8 @@ describe('MyExpensesV2Page', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      component.expensesToBeDeleted = apiExpenses1;
-      component.selectedElements = [apiExpenses1[0]];
+      component.expensesToBeDeleted = cloneDeep(apiExpenses1);
+      component.selectedElements = cloneDeep([apiExpenses1[0]]);
 
       component.openDeleteExpensesPopover();
       tick(100);
@@ -2769,8 +2769,8 @@ describe('MyExpensesV2Page', () => {
       const deletePopOverSpy = jasmine.createSpyObj('deletePopover', ['present', 'onDidDismiss']);
       deletePopOverSpy.onDidDismiss.and.resolveTo({ data: { status: 'failure' } });
       popoverController.create.and.resolveTo(deletePopOverSpy);
-      component.expensesToBeDeleted = apiExpenses1;
-      component.selectedElements = [apiExpenses1[0]];
+      component.expensesToBeDeleted = cloneDeep(apiExpenses1);
+      component.selectedElements = cloneDeep([apiExpenses1[0]]);
 
       component.openDeleteExpensesPopover();
       tick(100);
@@ -2794,7 +2794,7 @@ describe('MyExpensesV2Page', () => {
 
   describe('onSelectAll(): ', () => {
     beforeEach(() => {
-      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
       sharedExpenseService.excludeCCCExpenses.and.returnValue(apiExpenses1);
       sharedExpenseService.getReportableExpenses.and.returnValue(apiExpenses1);
       spyOn(component, 'setExpenseStatsOnSelect');
@@ -2802,7 +2802,7 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should set selectedElement to empty array if checked is false', () => {
-      component.selectedElements = apiExpenses1;
+      component.selectedElements = cloneDeep(apiExpenses1);
       component.isReportableExpensesSelected = false;
       component.onSelectAll(false);
       expect(component.selectedElements).toEqual([]);
@@ -2824,7 +2824,7 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
-      expensesService.getAllExpenses.and.returnValue(of(apiExpenses1));
+      expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
       component.outboxExpensesToBeDeleted = apiExpenseRes;
       component.pendingTransactions = cloneDeep([]);
       component.onSelectAll(true);
@@ -3005,7 +3005,7 @@ describe('MyExpensesV2Page', () => {
       component.allExpensesCount = 1;
       spyOn(component, 'setExpenseStatsOnSelect');
       spyOn(component, 'setOutboxExpenseStatsOnSelect');
-      component.selectedOutboxExpenses = apiExpenseRes;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       transactionService.isMergeAllowed.and.returnValue(true);
       transactionService.excludeCCCExpenses.and.returnValue(apiExpenseRes);
     });
@@ -3013,7 +3013,7 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       const expense = apiExpenseRes[0];
-      component.selectedOutboxExpenses = apiExpenseRes;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
 
       component.selectOutboxExpense(expense);
 
@@ -3029,7 +3029,7 @@ describe('MyExpensesV2Page', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 4;
       const expense = apiExpenseRes[0];
-      component.selectedOutboxExpenses = expenseList4;
+      component.selectedOutboxExpenses = cloneDeep(cloneDeep(expenseList4));
 
       component.selectOutboxExpense(expense);
 
@@ -3044,7 +3044,7 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and allExpenseCount is not equal to length of selectedOutboxExpenses', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       const expense = apiExpenseRes[0];
-      component.selectedOutboxExpenses = apiExpenseRes;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
 
       component.selectOutboxExpense(expense);
 
@@ -3057,7 +3057,7 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should update expenseToBeDeleted if selectedOutboxExpenses is an array of atleast 1', () => {
-      component.selectedOutboxExpenses = apiExpenseRes;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       component.selectOutboxExpense(expenseData2);
 
       const expectedSelectedElements = [...apiExpenseRes, expenseData2];
@@ -3070,9 +3070,9 @@ describe('MyExpensesV2Page', () => {
     it('should remove an expense from selectedOutboxExpenses if it is present in selectedOutboxExpenses and tx_id is not present in expense', () => {
       transactionService.getReportableExpenses.and.returnValue([]);
       component.allExpensesCount = 0;
-      const expense = apiExpenseRes[0];
+      const expense = cloneDeep(apiExpenseRes[0]);
       expense.tx_id = undefined;
-      component.selectedOutboxExpenses = apiExpenseRes;
+      component.selectedOutboxExpenses = cloneDeep(apiExpenseRes);
       component.selectedOutboxExpenses[0].tx_id = undefined;
 
       component.selectOutboxExpense(expense);
