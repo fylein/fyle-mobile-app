@@ -30,8 +30,6 @@ export class ReportsCardComponent implements OnInit {
 
   reportCurrencySymbol = '';
 
-  isManuallyFlaggedWithLD: boolean;
-
   constructor() {}
 
   ngOnInit() {
