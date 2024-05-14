@@ -118,7 +118,7 @@ export function TestCases3(getTestBed) {
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
 
       const message = 'Expenses added to report successfully';
-      component.showAddToReportSuccessToast({ message, report: expectedReportsSinglePageSubmitted[0] });
+      component.showAddToReportSuccessToast({ message, report: expectedReportsSinglePage[0] });
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarPropertiesRes2,
         panelClass: ['msb-success-with-camera-icon'],

@@ -31,6 +31,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { orgSettingsPendingRestrictions } from 'src/app/core/mock-data/org-settings.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expectedReportsSinglePage } from '../../core/mock-data/platform-report.data';
 
 describe('MyCreateReportPage', () => {
   let component: MyCreateReportPage;
@@ -65,7 +66,7 @@ describe('MyCreateReportPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
 
     TestBed.configureTestingModule({
       declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
@@ -216,7 +217,7 @@ describe('MyCreateReportPage', () => {
   describe('ctaClickedEvent():', () => {
     beforeEach(() => {
       spyOn(component, 'sendFirstReportCreated');
-      reportService.createDraft.and.returnValue(of(reportUnflattenedData));
+      spenderReportsService.createDraft.and.returnValue(of(expectedReportsSinglePage[0]));
     });
 
     it('should create a draft report and add transactions to it, if there are any selected expenses', () => {
@@ -228,15 +229,17 @@ describe('MyCreateReportPage', () => {
       component.ctaClickedEvent('create_draft_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith({
-        purpose: component.reportTitle,
-        source: 'MOBILE',
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({
+        data: {
+          purpose: component.reportTitle,
+          source: 'MOBILE',
+        },
       });
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
         Expense_Count: 1,
         Report_Value: component.selectedTotalAmount,
       });
-      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(reportUnflattenedData.id, [
+      expect(spenderReportsService.addExpenses).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0].id, [
         readyToReportExpensesData[0].id,
       ]);
       expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
@@ -249,9 +252,11 @@ describe('MyCreateReportPage', () => {
       component.ctaClickedEvent('create_draft_report');
 
       expect(component.sendFirstReportCreated).toHaveBeenCalledTimes(1);
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith({
-        purpose: component.reportTitle,
-        source: 'MOBILE',
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({
+        data: {
+          purpose: component.reportTitle,
+          source: 'MOBILE',
+        },
       });
       expect(trackingService.createReport).toHaveBeenCalledOnceWith({
         Expense_Count: 0,
@@ -261,7 +266,7 @@ describe('MyCreateReportPage', () => {
     });
 
     it('should create report', () => {
-      reportService.create.and.returnValue(of(reportUnflattenedData));
+      reportService.create.and.returnValue(of(expectedReportsSinglePage[0]));
       component.selectedElements = cloneDeep(readyToReportExpensesData);
       fixture.detectChanges();
 
