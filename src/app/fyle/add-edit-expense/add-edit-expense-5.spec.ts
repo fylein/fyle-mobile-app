@@ -1769,8 +1769,8 @@ export function TestCases5(getTestBed) {
         });
 
         expect(fileService.findByTransactionId).not.toHaveBeenCalled();
-        expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
-        expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
+        expect(fileService.downloadUrl).not.toHaveBeenCalled();
+        expect(component.getReceiptDetails).not.toHaveBeenCalled();
 
         component.flightJourneyTravelClassOptions$.subscribe((res) => {
           expect(res).toBeUndefined();
