@@ -5,7 +5,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ModalController, RefresherEventDetail } from '@ionic/angular';
 import { Observable, BehaviorSubject, forkJoin, from, of, concat, combineLatest } from 'rxjs';
 import { finalize, map, shareReplay, switchMap } from 'rxjs/operators';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { TaskCta } from 'src/app/core/models/task-cta.model';
 import { TASKEVENT } from 'src/app/core/models/task-event.enum';
 import { TaskFilters } from 'src/app/core/models/task-filters.model';
@@ -32,6 +31,9 @@ import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-tasks',
@@ -65,6 +67,8 @@ export class TasksComponent implements OnInit {
     private taskService: TasksService,
     private transactionService: TransactionService,
     private reportService: ReportService,
+    private spenderReportsService: SpenderReportsService,
+    private approverReportsService: ApproverReportsService,
     private expensesService: ExpensesService,
     private advanceRequestService: AdvanceRequestService,
     private modalController: ModalController,
@@ -77,7 +81,7 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private authService: AuthService
   ) {}
 
   ngOnInit(): void {
@@ -470,16 +474,18 @@ export class TasksComponent implements OnInit {
   onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        rp_state: 'in.(APPROVER_INQUIRY)',
+        state: `eq.${ReportState.APPROVER_INQUIRY}`,
+        offset: 0,
+        limit: 1,
       };
 
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
-          switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
@@ -515,19 +521,20 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
-      const queryParams = {
-        rp_approval_state: ['in.(APPROVAL_PENDING)'],
-        rp_state: ['in.(APPROVER_PENDING)'],
-        sequential_approval_turn: ['in.(true)'],
-      };
-      from(this.loaderService.showLoader('Opening your report...'))
-        .pipe(
-          switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
-        )
-        .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
-        });
+      from(this.authService.getEou()).subscribe((eou) => {
+        const queryParams = {
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
+          state: `eq.${ReportState.APPROVER_PENDING}`,
+        };
+        return from(this.loaderService.showLoader('Opening your report...'))
+          .pipe(
+            switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe((res) => {
+            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+          });
+      });
     } else {
       this.router.navigate(['/', 'enterprise', 'team_reports'], {
         queryParams: {
@@ -540,16 +547,18 @@ export class TasksComponent implements OnInit {
   onOpenDraftReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        rp_state: 'in.(DRAFT)',
+        state: `eq.${ReportState.DRAFT}`,
+        offset: 0,
+        limit: 1,
       };
 
       from(this.loaderService.showLoader('Opening your report...'))
         .pipe(
-          switchMap(() => this.reportService.getMyReports({ queryParams, offset: 0, limit: 1 })),
+          switchMap(() => this.spenderReportsService.getAllReportsByParams(queryParams)),
           finalize(() => this.loaderService.hideLoader())
         )
         .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res.data[0].rp_id }]);
+          this.router.navigate(['/', 'enterprise', 'my_view_report', { id: res[0].id }]);
         });
     } else {
       this.router.navigate(['/', 'enterprise', 'my_reports'], {
@@ -565,14 +574,14 @@ export class TasksComponent implements OnInit {
     this.router.navigate(['/', 'enterprise', 'potential-duplicates']);
   }
 
-  addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
+  addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.spenderReportsService.addExpenses(report.rp_id, selectedExpensesId).pipe(map(() => report))),
+      switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }
 
-  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport }): void {
+  showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -586,7 +595,7 @@ export class TasksComponent implements OnInit {
     this.doRefresh();
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
-      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.rp_id, navigateBack: true }]);
+      this.router.navigate(['/', 'enterprise', 'my_view_report', { id: config.report.id, navigateBack: true }]);
     });
   }
 
@@ -618,17 +627,16 @@ export class TasksComponent implements OnInit {
       })
     );
 
-    this.reportService
-      .getAllExtendedReports({ queryParams: { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' } })
+    this.spenderReportsService
+      .getAllReportsByParams({ state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' })
       .pipe(
         map((openReports) =>
           openReports.filter(
             (openReport) =>
-              // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-              // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
-              !openReport.report_approvals ||
-              (openReport.report_approvals &&
-                !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+              // (JSON.stringify(openReport.approvals.map((approval) => approval.state)) -> Filter report if any approver approved this report.
+              !openReport.approvals ||
+              (openReport.approvals &&
+                !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
           )
         ),
         switchMap((openReports) => {
@@ -638,7 +646,7 @@ export class TasksComponent implements OnInit {
           });
           return addTxnToReportDialog.afterDismissed();
         }),
-        switchMap((data: { report: ExtendedReport }) => {
+        switchMap((data: { report: Report }) => {
           if (data && data.report) {
             return readyToReportExpenses$.pipe(
               switchMap((selectedExpensesId) => this.addTransactionsToReport(data.report, selectedExpensesId))
@@ -648,10 +656,10 @@ export class TasksComponent implements OnInit {
           }
         })
       )
-      .subscribe((report: ExtendedReport) => {
+      .subscribe((report: Report) => {
         if (report) {
           let message = '';
-          if (report.rp_state.toLowerCase() === 'draft') {
+          if (report.state.toLowerCase() === 'draft') {
             message = 'Expenses added to an existing draft report';
           } else {
             message = 'Expenses added to report successfully';
