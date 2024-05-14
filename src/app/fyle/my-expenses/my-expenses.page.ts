@@ -77,7 +77,6 @@ import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-tx
 import { MyExpensesService } from './my-expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-my-expenses',
@@ -195,8 +194,6 @@ export class MyExpensesPage implements OnInit {
 
   restrictPendingTransactionsEnabled = false;
 
-  isManualFlagFeatureEnabled: { value: boolean };
-
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -228,8 +225,7 @@ export class MyExpensesPage implements OnInit {
     private navController: NavController,
     private expenseService: ExpensesService,
     private sharedExpenseService: SharedExpenseService,
-    private spenderReportsService: SpenderReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -252,15 +248,8 @@ export class MyExpensesPage implements OnInit {
     this.isSearchBarFocused = true;
   }
 
-  setIsManualFlagFeatureEnabled() {
-    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
-      this.isManualFlagFeatureEnabled = ldFlag;
-    });
-  }
-
   ngOnInit(): void {
     this.setupNetworkWatcher();
-    this.setIsManualFlagFeatureEnabled();
   }
 
   formatTransactions(transactions: Partial<Transaction>[]): Partial<Expense>[] {

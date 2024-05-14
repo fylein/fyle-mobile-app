@@ -162,10 +162,9 @@
                   [expenseIndex]="i"
                   [previousExpenseTxnDate]="list[i-1]?.spent_at"
                   [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                  (goToTransaction)="goToTransaction($event)"
                   [isFromReports]="true"
                   [isFromViewReports]="true"
-                  [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
-                  (goToTransaction)="goToTransaction($event)"
                 >
                 </app-expense-card-v2>
               </div>

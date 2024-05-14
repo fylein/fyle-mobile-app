@@ -36,7 +36,6 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -59,8 +58,6 @@ export class ViewExpensePage {
   expenseWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
-
-  isManualFlaggingFeatureEnabled$: Observable<{ value: boolean }>;
 
   canDelete$: Observable<boolean>;
 
@@ -155,8 +152,7 @@ export class ViewExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -363,8 +359,6 @@ export class ViewExpensePage {
     );
 
     this.comments$ = this.statusService.find('transactions', this.expenseId);
-
-    this.isManualFlaggingFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
