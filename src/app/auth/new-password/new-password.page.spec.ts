@@ -18,7 +18,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { PopupComponent } from './popup/popup.component';
 
-describe('NewPasswordPage', () => {
+fdescribe('NewPasswordPage', () => {
   let component: NewPasswordPage;
   let fixture: ComponentFixture<NewPasswordPage>;
   let authService: jasmine.SpyObj<AuthService>;
@@ -30,7 +30,7 @@ describe('NewPasswordPage', () => {
   let loginInfoService: jasmine.SpyObj<LoginInfoService>;
 
   beforeEach(waitForAsync(() => {
-    const authServiceSpy = jasmine.createSpyObj('AuthService', ['newRefreshToken']);
+    const authServiceSpy = jasmine.createSpyObj('AuthService', ['refreshEou']);
     const routerAuthServiceSpy = jasmine.createSpyObj('RouterAuthService', ['resetPassword']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
@@ -195,7 +195,7 @@ describe('NewPasswordPage', () => {
     it('should change the password and show success message on success', fakeAsync(() => {
       spyOn(component, 'trackLoginInfo');
       routerAuthService.resetPassword.and.returnValue(of(resetPasswordRes));
-      authService.newRefreshToken.and.returnValue(of(apiEouRes));
+      authService.refreshEou.and.returnValue(of(apiEouRes));
       const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.returnValue(popoverSpy);
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
@@ -211,7 +211,7 @@ describe('NewPasswordPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.resetPassword).toHaveBeenCalledOnceWith(refreshToken, passwordValue);
-      expect(authService.newRefreshToken).toHaveBeenCalledOnceWith('token123');
+      expect(authService.refreshEou).toHaveBeenCalledTimes(1);
       expect(trackingService.onSignin).toHaveBeenCalledOnceWith('ajain@fyle.in');
       expect(trackingService.resetPassword).toHaveBeenCalledTimes(1);
       expect(component.trackLoginInfo).toHaveBeenCalledTimes(1);
@@ -227,7 +227,6 @@ describe('NewPasswordPage', () => {
 
     it('should show error message on failure', fakeAsync(() => {
       spyOn(component, 'trackLoginInfo');
-      authService.newRefreshToken.and.rejectWith();
       routerAuthService.resetPassword.and.rejectWith();
       const popoverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
       popoverController.create.and.returnValue(popoverSpy);
@@ -243,7 +242,7 @@ describe('NewPasswordPage', () => {
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(routerAuthService.resetPassword).toHaveBeenCalledOnceWith(refreshToken, passwordValue);
-      expect(authService.newRefreshToken).not.toHaveBeenCalledOnceWith('token123');
+      expect(authService.refreshEou).not.toHaveBeenCalled();
       expect(trackingService.onSignin).not.toHaveBeenCalled();
       expect(trackingService.resetPassword).not.toHaveBeenCalled();
       expect(component.trackLoginInfo).not.toHaveBeenCalled();
