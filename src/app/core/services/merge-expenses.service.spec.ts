@@ -99,7 +99,7 @@ import { taxGroupData } from '../mock-data/tax-group.data';
 import { cloneDeep } from 'lodash';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
-import { platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
 import { receiptInfoData2 } from '../mock-data/receipt-info.data';
 import { generateUrlsBulkData1 } from '../mock-data/generate-urls-bulk-response.data';
 
@@ -401,6 +401,19 @@ describe('MergeExpensesService', () => {
         generateUrlsBulkData1[0].name,
         generateUrlsBulkData1[0].download_url
       );
+      done();
+    });
+  });
+
+  it('getAttachements(): should return empty array when there are no attachments', (done) => {
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
+
+    const transactionId = 'txz2vohKxBXu';
+    mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
+      expect(res).toEqual([]);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
+      expect(spenderFileService.generateUrlsBulk).not.toHaveBeenCalled();
+      expect(fileService.getReceiptsDetails).not.toHaveBeenCalled();
       done();
     });
   });
