@@ -85,9 +85,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           switchMap((eou) =>
             this.projectsService.getByParamsUnformatted({
               orgId: eou.ou.org_id,
-              active: true,
+              isEnabled: true,
               sortDirection: 'asc',
-              sortOrder: 'project_name',
+              sortOrder: 'name',
               orgCategoryIds: this.categoryIds,
               projectIds: allowedProjectIds,
               searchNameText,

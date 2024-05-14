@@ -174,8 +174,8 @@ describe('RouterAuthService', () => {
   });
 
   it('isLoggedIn(): should check if user is logged in', (done) => {
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
-    tokenService.getRefreshToken.and.returnValue(Promise.resolve(refresh_token));
+    tokenService.getAccessToken.and.resolveTo(access_token);
+    tokenService.getRefreshToken.and.resolveTo(refresh_token);
 
     routerAuthService.isLoggedIn().then((res) => {
       expect(res).toBeTrue();
@@ -186,7 +186,7 @@ describe('RouterAuthService', () => {
   });
 
   it('newRefreshToken(): should set new refresh token', async () => {
-    tokenService.setRefreshToken.and.returnValue(Promise.resolve(null));
+    tokenService.setRefreshToken.and.resolveTo(null);
     const deleteUser = await storageService.delete('user');
     const deleteRole = await storageService.delete('role');
 
@@ -198,7 +198,7 @@ describe('RouterAuthService', () => {
   });
 
   it('newAccessToken(): should set new access token', fakeAsync(() => {
-    tokenService.setAccessToken.and.returnValue(Promise.resolve(null));
+    tokenService.setAccessToken.and.resolveTo(null);
 
     tick();
     routerAuthService.newAccessToken(access_token).then((res) => {
@@ -211,7 +211,7 @@ describe('RouterAuthService', () => {
 
   it('fetchAccessToken(): should fetch access token', fakeAsync(() => {
     routerApiService.post.and.returnValue(of(apiAuthRes));
-    tokenService.getAccessToken.and.returnValue(Promise.resolve(access_token));
+    tokenService.getAccessToken.and.resolveTo(access_token);
 
     tick();
 
@@ -227,7 +227,7 @@ describe('RouterAuthService', () => {
   it('handleSignInResponse(): should handle sign in response', (done) => {
     spyOn(routerAuthService, 'newRefreshToken').and.callThrough();
     spyOn(routerAuthService, 'setClusterDomain').and.callThrough();
-    spyOn(routerAuthService, 'fetchAccessToken').and.returnValue(Promise.resolve(apiAuthRes));
+    spyOn(routerAuthService, 'fetchAccessToken').and.resolveTo(apiAuthRes);
     spyOn(routerAuthService, 'newAccessToken').and.callThrough();
 
     routerAuthService.handleSignInResponse(authResData1).then((res) => {
@@ -258,7 +258,7 @@ describe('RouterAuthService', () => {
 
   it('basicSignin(): should sign in the user with email and password', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
     const password = 'KalaChashma';
 
     routerAuthService.basicSignin(email, password).subscribe((res) => {
@@ -274,7 +274,7 @@ describe('RouterAuthService', () => {
 
   it('googleSignin(): should sign in the user with google', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     routerAuthService.googleSignin(access_token).subscribe((res) => {
       expect(res).toEqual(authResData1);
@@ -288,7 +288,7 @@ describe('RouterAuthService', () => {
 
   it('resetPassword(): should reset user passord', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     const newPassword = 'New_Password';
 
@@ -305,7 +305,7 @@ describe('RouterAuthService', () => {
 
   it('emailVerify(): should verify email', (done) => {
     routerApiService.post.and.returnValue(of(authResData1));
-    spyOn(routerAuthService, 'handleSignInResponse').and.returnValue(Promise.resolve(authResData1));
+    spyOn(routerAuthService, 'handleSignInResponse').and.resolveTo(authResData1);
 
     const verification_code = 'orNVthTo2Zyo';
 
