@@ -365,7 +365,7 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(3);
       });
 
-      component.erpt$.subscribe((res) => {
+      component.report$.subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
@@ -479,7 +479,7 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(3);
       });
 
-      component.erpt$.subscribe((res) => {
+      component.report$.subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
@@ -626,7 +626,7 @@ describe('ViewTeamReportPageV2', () => {
       reportService.approve.and.returnValue(of(undefined));
       refinerService.startSurvey.and.returnValue(null);
 
-      component.erpt$ = of(reportWithExpenses);
+      component.report$ = of(reportWithExpenses);
       component.expenses$ = of(expenseResponseData);
       fixture.detectChanges();
 
@@ -852,7 +852,7 @@ describe('ViewTeamReportPageV2', () => {
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: component.erpt$,
+        report$: component.report$,
         expenses$: component.expenses$,
         view: ExpenseView.team,
       },
@@ -970,7 +970,7 @@ describe('ViewTeamReportPageV2', () => {
 
   it('should show report information correctly', () => {
     spyOn(component, 'openViewReportInfoModal');
-    component.erpt$ = of(expectedReportsSinglePage[0]);
+    component.report$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
 
     expect(getTextContent(getElementBySelector(fixture, '.view-reports--employee-name__name'))).toEqual(
@@ -990,20 +990,20 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    const mockErpt = cloneDeep(platformReportData);
-    component.erpt$ = of(mockErpt);
+    const mockReport = cloneDeep(platformReportData);
+    component.report$ = of(mockReport);
     fixture.detectChanges();
     reportService.approverUpdateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(mockErpt);
+    expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(mockReport);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
   describe('editReportName(): ', () => {
     beforeEach(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedReportsSinglePage[0] }));
+      component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0] }));
       spyOn(component, 'updateReportName').and.returnValue(null);
     });
 

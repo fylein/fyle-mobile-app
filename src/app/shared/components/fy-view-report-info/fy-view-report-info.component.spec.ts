@@ -103,7 +103,7 @@ describe('FyViewReportInfoComponent', () => {
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable according to paymentModeData', () => {
     component.view = ExpenseView.team;
-    const erpt = {
+    const report = {
       'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
       'Report Number': 'C/2023/07/R/17',
@@ -122,11 +122,11 @@ describe('FyViewReportInfoComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
-    component.erpt$ = of({ ...platformReportData, amount: 46040 });
+    component.report$ = of({ ...platformReportData, amount: 46040 });
     component.expenses$ = of(expenseResponseData);
     fixture.detectChanges();
     component.ionViewWillEnter();
-    expect(component.reportDetails).toEqual(erpt);
+    expect(component.reportDetails).toEqual(report);
     expect(component.reportCurrency).toEqual('USD');
     expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith({ ...platformReportData, amount: 46040 });
     expect(component.amountComponentWiseDetails).toEqual({
@@ -141,7 +141,7 @@ describe('FyViewReportInfoComponent', () => {
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable amount', () => {
     component.view = ExpenseView.team;
-    const erpt = {
+    const report = {
       'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
       'Report Number': 'C/2023/07/R/17',
@@ -160,11 +160,11 @@ describe('FyViewReportInfoComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
-    component.erpt$ = of(platformReportData);
+    component.report$ = of(platformReportData);
     component.expenses$ = of(expenseResponseData2);
     fixture.detectChanges();
     component.ionViewWillEnter();
-    expect(component.reportDetails).toEqual(erpt);
+    expect(component.reportDetails).toEqual(report);
     expect(component.reportCurrency).toEqual('USD');
     expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith(platformReportData);
     expect(component.amountComponentWiseDetails).toEqual({
