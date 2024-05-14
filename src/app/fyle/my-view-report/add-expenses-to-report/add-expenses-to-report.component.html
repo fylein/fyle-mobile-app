@@ -44,8 +44,9 @@
         [previousExpenseCreatedAt]="list[i - 1]?.created_at"
         [isSelectionModeEnabled]="true"
         [selectedElements]="selectedElements"
-        (cardClickedForSelection)="toggleExpense(expense)"
         [isFromViewReports]="true"
+        [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
+        (cardClickedForSelection)="toggleExpense(expense)"
       >
       </app-expense-card-v2>
     </div>

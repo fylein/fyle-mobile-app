@@ -67,8 +67,9 @@
           [showDt]="checkShowDt(etxn,i)"
           [isSelectionModeEnabled]="true"
           [selectedElements]="selectedElements"
-          (cardClickedForSelection)="selectExpense($event)"
           [isFromReports]="true"
+          [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
+          (cardClickedForSelection)="selectExpense($event)"
         >
         </app-expense-card-v2>
       </div>
