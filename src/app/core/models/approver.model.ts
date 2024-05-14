@@ -1,6 +1,6 @@
 export interface Approver {
-  full_name: string | null;
-  email: string | null;
+  full_name: string;
+  email: string;
 }
 export interface AdvanceApprover {
   added_by: string;
