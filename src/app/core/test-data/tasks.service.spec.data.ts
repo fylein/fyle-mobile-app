@@ -172,6 +172,14 @@ export const extendedOrgUserResponse: ExtendedOrgUser = deepFreeze({
   },
 });
 
+export const extendedOrgUserResponseSpender: ExtendedOrgUser = deepFreeze({
+  ...extendedOrgUserResponse,
+  ou: {
+    ...extendedOrgUserResponse.ou,
+    roles: ['FYLER'],
+  },
+});
+
 export const teamReportResponse = deepFreeze([
   {
     aggregates: [
