@@ -366,6 +366,14 @@ describe('TasksService', () => {
       });
   });
 
+  it('should make sure that stats don't fail even if aggregates are not present in response', () => {
+    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
+    expect(mappedStatsReponse).toEqual({
+      totalCount: 0,
+      totalAmount: 0,
+    });
+  });
+
   it('should be able to fetch expensesTaskCount', (done) => {
     tasksService.expensesTaskCount$.next(10);
     tasksService
