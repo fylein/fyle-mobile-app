@@ -1786,7 +1786,7 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (etxn.tx.tax_group_id) {
-            const tg = taxGroups.find((tg) => tg.id === etxn.tx.tax_group_id);
+            const tg = taxGroups?.find((tg) => tg.id === etxn.tx.tax_group_id);
             this.fg.patchValue({
               tax_group: tg,
             });
