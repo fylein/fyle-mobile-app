@@ -66,6 +66,7 @@ import {
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -322,7 +323,7 @@ describe('TasksService', () => {
   });
 
   it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(apiEouRes)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     humanizeCurrencyPipe.transform
@@ -755,12 +756,19 @@ describe('TasksService', () => {
       .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    approverReportsService.getReportsStats
-      .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
-        state: 'eq.APPROVER_PENDING',
-      })
-      .and.returnValue(of(expectedReportStats.report));
+    reportService.getReportStatsData
+      .withArgs(
+        {
+          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+          sequential_approval_turn: ['in.(true)'],
+          aggregates: 'count(rp_id),sum(rp_amount)',
+          scalar: true,
+        },
+        false
+      )
+      .and.returnValue(of(teamReportResponse));
     expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     expensesService.getExpenseStats
       .withArgs({
