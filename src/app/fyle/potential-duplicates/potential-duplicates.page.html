@@ -32,7 +32,6 @@
               [isFromPotentialDuplicates]="true"
               [expense]="expense"
               [isDismissable]="duplicatesSet?.length > 2"
-              [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
               (dismissed)="dismiss($event)"
               (goToTransaction)="goToTransaction($event)"
             >
