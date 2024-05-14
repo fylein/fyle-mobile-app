@@ -16,6 +16,7 @@ import { Expense as PlatformExpense } from '../../core/models/platform/v1/expens
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -50,6 +51,8 @@ export class MyCreateReportPage implements OnInit {
 
   emptyInput = false;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
@@ -62,7 +65,8 @@ export class MyCreateReportPage implements OnInit {
     private refinerService: RefinerService,
     private expensesService: ExpensesService,
     private orgSettingsService: OrgSettingsService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   detectTitleChange(): void {
@@ -209,11 +213,18 @@ export class MyCreateReportPage implements OnInit {
     this.selectedExpenseIDs = (expenseIDs ? JSON.parse(expenseIDs) : []) as string[];
   }
 
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
+  }
+
   ionViewWillEnter(): void {
     this.isSelectedAll = true;
     this.selectedElements = [];
 
     this.checkTxnIds();
+    this.setIsManualFlagFeatureEnabled();
 
     let queryParams = {
       report_id: 'is.null',

@@ -21,7 +21,7 @@
 
       <ng-container *ngIf="isManualFlaggingFeatureEnabled$|async as isManualFlaggingFeatureEnabled">
         <ng-container *ngIf="canFlagOrUnflag$|async as canFlagOrUnflag">
-          <ng-container *ngIf="view === ExpenseView.team && isManualFlaggingFeatureEnabled && canFlagOrUnflag">
+          <ng-container *ngIf="view === ExpenseView.team && isManualFlaggingFeatureEnabled.value && canFlagOrUnflag">
             <ng-container *ngIf="expense$|async as expense">
               <ion-button
                 class="view-expense--header-btn-container__btn"

@@ -60,7 +60,7 @@ export class ViewExpensePage {
 
   canFlagOrUnflag$: Observable<boolean>;
 
-  isManualFlaggingFeatureEnabled$: Observable<boolean>;
+  isManualFlaggingFeatureEnabled$: Observable<{ value: boolean }>;
 
   canDelete$: Observable<boolean>;
 

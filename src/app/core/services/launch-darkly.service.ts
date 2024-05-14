@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { UserEventService } from './user-event.service';
 import { StorageService } from './storage.service';
-import { from, Observable, map, shareReplay } from 'rxjs';
+import { from, Observable, map } from 'rxjs';
 import { isEqual } from 'lodash';
 import * as LDClient from 'launchdarkly-js-client-sdk';
 
@@ -74,8 +74,8 @@ export class LaunchDarklyService {
     return this.getVariation('android-numeric-keypad', false);
   }
 
-  checkIfManualFlaggingFeatureIsEnabled(): Observable<boolean> {
-    return this.getVariation('deprecate_manual_flagging', false);
+  checkIfManualFlaggingFeatureIsEnabled(): Observable<{ value: boolean }> {
+    return this.getVariation('deprecate_manual_flagging', false).pipe(map((value) => ({ value })));
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

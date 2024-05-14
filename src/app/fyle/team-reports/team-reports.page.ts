@@ -48,7 +48,7 @@ export class TeamReportsPage implements OnInit {
 
   isLoading = false;
 
-  isManualFlagFeatureEnabled: boolean;
+  isManualFlagFeatureEnabled: { value: boolean };
 
   isLoadingDataInInfiniteScroll: boolean;
 

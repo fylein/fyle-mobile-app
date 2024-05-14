@@ -111,7 +111,7 @@ export class MyReportsPage {
 
   nonReimbursableOrg$: Observable<boolean>;
 
-  isManualFlagFeatureEnabled: boolean;
+  isManualFlagFeatureEnabled: { value: boolean };
 
   constructor(
     private networkService: NetworkService,

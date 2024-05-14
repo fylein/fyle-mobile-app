@@ -26,7 +26,6 @@ import { TrackingService } from '../../../core/services/tracking.service';
 import { PopupAlertComponent } from '../popup-alert/popup-alert.component';
 import { ExpensesService as SharedExpenseService } from 'src/app/core/services/platform/v1/shared/expenses.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type ReceiptDetail = {
   dataUrl: string;
@@ -68,6 +67,8 @@ export class ExpensesCardComponent implements OnInit {
   @Input() isDismissable: boolean;
 
   @Input() showDt = true;
+
+  @Input() isManualFlagFeatureEnabled = false;
 
   @Output() goToTransaction: EventEmitter<{ expense: Expense; expenseIndex: number }> = new EventEmitter<{
     expense: Expense;
@@ -144,8 +145,7 @@ export class ExpensesCardComponent implements OnInit {
     private currencyService: CurrencyService,
     private expenseFieldsService: ExpenseFieldsService,
     private orgSettingsService: OrgSettingsService,
-    private expensesService: ExpensesService,
-    private launchDarklyService: LaunchDarklyService
+    private expensesService: ExpensesService
   ) {}
 
   get isSelected(): boolean {
@@ -269,6 +269,11 @@ export class ExpensesCardComponent implements OnInit {
       this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
   }
 
+  setIsPolicyViolated() {
+    const isManualFlagEnabledAndFlagged = this.isManualFlagFeatureEnabled && this.expense.is_manually_flagged;
+    this.isPolicyViolated = isManualFlagEnabledAndFlagged || this.expense.is_policy_flagged;
+  }
+
   ngOnInit(): void {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -287,10 +292,7 @@ export class ExpensesCardComponent implements OnInit {
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
-    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
-      const isManuallyFlaggedWithLD = ldFlag && this.expense.is_manually_flagged;
-      this.isPolicyViolated = isManuallyFlaggedWithLD || this.expense.is_policy_flagged;
-    });
+    this.setIsPolicyViolated();
 
     this.currencyService
       .getHomeCurrency()
