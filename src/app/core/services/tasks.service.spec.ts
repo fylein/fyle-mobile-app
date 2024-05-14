@@ -66,6 +66,7 @@ import {
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -88,6 +89,7 @@ describe('TasksService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'getAllExtendedReports',
+      'getReportStatsData',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
@@ -289,43 +291,33 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks is role is APPROVER', (done) => {
+  it('should be able to fetch team reports tasks', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
       .and.returnValue('733.48K');
     humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
+      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
       .and.returnValue('₹733.48K');
 
-    approverReportsService.getReportsStats
-      .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
-        state: 'eq.APPROVER_PENDING',
-      })
-      .and.returnValue(of(expectedReportStats.report));
+    reportService.getReportStatsData
+      .withArgs(
+        {
+          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+          sequential_approval_turn: ['in.(true)'],
+          aggregates: 'count(rp_id),sum(rp_amount)',
+          scalar: true,
+        },
+        false
+      )
+      .and.returnValue(of(teamReportResponse));
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);
-      done();
-    });
-  });
-
-  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
-    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
-    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-
-    humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
-      .and.returnValue('733.48K');
-    humanizeCurrencyPipe.transform
-      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
-      .and.returnValue('₹733.48K');
-
-    tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
-      expect(teamReportsTasks).toEqual([]);
       done();
     });
   });
@@ -372,6 +364,14 @@ describe('TasksService', () => {
         expect(taskTotal).toEqual(10);
         done();
       });
+  });
+
+  it('should make sure that stats dont fail even if aggregates are not present in response', () => {
+    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
+    expect(mappedStatsReponse).toEqual({
+      totalCount: 0,
+      totalAmount: 0,
+    });
   });
 
   it('should be able to fetch expensesTaskCount', (done) => {
@@ -663,9 +663,9 @@ describe('TasksService', () => {
 
     const tasks2 = tasksService.mapAggregateToTeamReportTask(
       {
-        total_amount: 0,
-        count: 0,
-      } as PlatformReportsStatsResponse,
+        totalAmount: 0,
+        totalCount: 0,
+      },
       homeCurrency
     );
 
@@ -747,12 +747,19 @@ describe('TasksService', () => {
       .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    approverReportsService.getReportsStats
-      .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
-        state: 'eq.APPROVER_PENDING',
-      })
-      .and.returnValue(of(expectedReportStats.report));
+    reportService.getReportStatsData
+      .withArgs(
+        {
+          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+          rp_approval_state: ['in.(APPROVAL_PENDING)'],
+          rp_state: ['in.(APPROVER_PENDING)'],
+          sequential_approval_turn: ['in.(true)'],
+          aggregates: 'count(rp_id),sum(rp_amount)',
+          scalar: true,
+        },
+        false
+      )
+      .and.returnValue(of(teamReportResponse));
     expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     expensesService.getExpenseStats
       .withArgs({
@@ -986,9 +993,9 @@ describe('TasksService', () => {
 
     const tasks = tasksService.mapAggregateToTeamReportTask(
       {
-        total_amount: teamReportResponse[0].aggregates[1].function_value,
-        count: 1,
-      } as PlatformReportsStatsResponse,
+        totalAmount: teamReportResponse[0].aggregates[1].function_value,
+        totalCount: 1,
+      },
       homeCurrency
     );
 
