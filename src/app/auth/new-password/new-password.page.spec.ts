@@ -18,7 +18,7 @@ import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { PopupComponent } from './popup/popup.component';
 
-fdescribe('NewPasswordPage', () => {
+describe('NewPasswordPage', () => {
   let component: NewPasswordPage;
   let fixture: ComponentFixture<NewPasswordPage>;
   let authService: jasmine.SpyObj<AuthService>;
