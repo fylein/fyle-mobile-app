@@ -16,6 +16,7 @@ import { Expense as PlatformExpense } from '../../core/models/platform/v1/expens
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from '../../core/models/platform/v1/report.model';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -123,8 +124,8 @@ export class MyCreateReportPage implements OnInit {
 
       if (reportActionType === 'create_draft_report') {
         this.saveDraftReportLoading = true;
-        return this.reportService
-          .createDraft(report)
+        return this.spenderReportsService
+          .createDraft({ data: report })
           .pipe(
             tap(() =>
               this.trackingService.createReport({
@@ -132,7 +133,7 @@ export class MyCreateReportPage implements OnInit {
                 Report_Value: this.selectedTotalAmount,
               })
             ),
-            switchMap((report: ReportV1) => {
+            switchMap((report: Report) => {
               if (expenseIDs.length) {
                 return this.spenderReportsService.addExpenses(report.id, expenseIDs).pipe(map(() => report));
               } else {

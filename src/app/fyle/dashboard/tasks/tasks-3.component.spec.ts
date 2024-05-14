@@ -28,7 +28,10 @@ import { commuteDetailsResponseData } from 'src/app/core/mock-data/commute-detai
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import {
   expectedReportsSinglePage,
+  expectedReportsSinglePageFiltered,
   expectedReportsSinglePageSubmitted,
+  expectedReportsSinglePageSubmittedWithApproval,
+  expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
@@ -115,7 +118,7 @@ export function TestCases3(getTestBed) {
       snackbarProperties.setSnackbarProperties.and.returnValue(snackbarPropertiesRes2);
 
       const message = 'Expenses added to report successfully';
-      component.showAddToReportSuccessToast({ message, report: expectedReportsSinglePageSubmitted[0] });
+      component.showAddToReportSuccessToast({ message, report: expectedReportsSinglePage[0] });
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
         ...snackbarPropertiesRes2,
         panelClass: ['msb-success-with-camera-icon'],
@@ -139,7 +142,7 @@ export function TestCases3(getTestBed) {
 
     describe('showOldReportsMatBottomSheet(): ', () => {
       beforeEach(() => {
-        spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+        spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePageWithApproval));
         expensesService.getAllExpenses.and.returnValue(of([expenseData]));
         spyOn(component, 'showAddToReportSuccessToast');
         orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
@@ -150,7 +153,39 @@ export function TestCases3(getTestBed) {
         matBottomSheet.open.and.returnValue({
           afterDismissed: () =>
             of({
-              report: expectedReportsSinglePage[0],
+              report: expectedReportsSinglePageFiltered[0],
+            }),
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: expectedReportsSinglePageFiltered },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
+        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePageFiltered[0], [
+          'txcSFe6efB6R',
+        ]);
+        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+          message: 'Expenses added to an existing draft report',
+          report: expectedReportsSinglePage[0],
+        });
+      }));
+
+      it('should call matBottomSheet.open and call showAddToReportSuccessToast if report.approvals is defined and report is pending', fakeAsync(() => {
+        const mockReport = cloneDeep(expectedReportsSinglePageSubmittedWithApproval);
+        spenderReportsService.getAllReportsByParams.and.returnValue(of(mockReport));
+        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReport[1]));
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: mockReport[1],
             }),
         } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
 
@@ -161,76 +196,46 @@ export function TestCases3(getTestBed) {
           data: { openReports: expectedReportsSinglePage },
           panelClass: ['mat-bottom-sheet-1'],
         });
-        expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
         expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
         expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
           state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
         });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0], [
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReport[1], ['txcSFe6efB6R']);
+        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
+          message: 'Expenses added to an existing draft report',
+          report: mockReport[1],
+        });
+      }));
+
+      it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and report.state is draft', fakeAsync(() => {
+        const mockExtendedReportRes = cloneDeep(expectedReportsSinglePageWithApproval);
+        mockExtendedReportRes[0].state = 'DRAFT';
+        spenderReportsService.getAllReportsByParams.and.returnValue(of(mockExtendedReportRes));
+        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockExtendedReportRes[1]));
+        matBottomSheet.open.and.returnValue({
+          afterDismissed: () =>
+            of({
+              report: mockExtendedReportRes[1],
+            }),
+        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
+
+        component.showOldReportsMatBottomSheet();
+        tick(100);
+
+        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
+          data: { openReports: expectedReportsSinglePageFiltered },
+          panelClass: ['mat-bottom-sheet-1'],
+        });
+        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
+        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        });
+        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(expectedReportsSinglePage[1], [
           'txcSFe6efB6R',
         ]);
         expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
           message: 'Expenses added to an existing draft report',
-          report: expectedReportsSinglePage[0],
-        });
-      }));
-
-      it('should call matBottomSheet.open and call showAddToReportSuccessToast if report_approvals is defined and report is pending', fakeAsync(() => {
-        const mockReport = cloneDeep(expectedReportsSinglePageSubmitted);
-        spenderReportsService.getAllReportsByParams.and.returnValue(of(mockReport));
-        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockReport[2]));
-        matBottomSheet.open.and.returnValue({
-          afterDismissed: () =>
-            of({
-              report: mockReport[2],
-            }),
-        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
-
-        component.showOldReportsMatBottomSheet();
-        tick(100);
-
-        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
-          data: { openReports: mockReport },
-          panelClass: ['mat-bottom-sheet-1'],
-        });
-        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
-        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
-          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockReport[2], ['txcSFe6efB6R']);
-        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
-          message: 'Expenses added to report successfully',
-          report: mockReport[2],
-        });
-      }));
-
-      it('should call matBottomSheet.open and call showAddToReportSuccessToast if data.report is defined and rp_state is draft', fakeAsync(() => {
-        const mockExtendedReportRes = cloneDeep(expectedReportsSinglePage);
-        mockExtendedReportRes[0].state = 'DRAFT';
-        spenderReportsService.getAllReportsByParams.and.returnValue(of(mockExtendedReportRes));
-        spyOn(component, 'addTransactionsToReport').and.returnValue(of(mockExtendedReportRes[0]));
-        matBottomSheet.open.and.returnValue({
-          afterDismissed: () =>
-            of({
-              report: mockExtendedReportRes[0],
-            }),
-        } as MatBottomSheetRef<AddTxnToReportDialogComponent>);
-
-        component.showOldReportsMatBottomSheet();
-        tick(100);
-
-        expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
-          data: { openReports: mockExtendedReportRes },
-          panelClass: ['mat-bottom-sheet-1'],
-        });
-        expect(expensesService.getAllExpenses).toHaveBeenCalledOnceWith(unreportedExpensesQueryParams);
-        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
-          state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        });
-        expect(component.addTransactionsToReport).toHaveBeenCalledOnceWith(mockExtendedReportRes[0], ['txcSFe6efB6R']);
-        expect(component.showAddToReportSuccessToast).toHaveBeenCalledOnceWith({
-          message: 'Expenses added to an existing draft report',
-          report: mockExtendedReportRes[0],
+          report: expectedReportsSinglePageFiltered[0],
         });
       }));
 
@@ -248,7 +253,7 @@ export function TestCases3(getTestBed) {
         tick(100);
 
         expect(matBottomSheet.open).toHaveBeenCalledOnceWith(AddTxnToReportDialogComponent as any, {
-          data: { openReports: expectedReportsSinglePage },
+          data: { openReports: expectedReportsSinglePageFiltered },
           panelClass: ['mat-bottom-sheet-1'],
         });
         expect(expensesService.getAllExpenses).not.toHaveBeenCalled();

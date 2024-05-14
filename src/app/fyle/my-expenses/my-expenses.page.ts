@@ -38,7 +38,6 @@ import { PlatformCategory } from 'src/app/core/models/platform/platform-category
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
 import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
@@ -472,7 +471,7 @@ export class MyExpensesPage implements OnInit {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.restrictPendingTransactionsEnabled =
         (orgSettings?.corporate_credit_card_settings?.enabled &&
-          orgSettings?.pending_cct_expense_restriction?.enabled) ||
+          orgSettings.pending_cct_expense_restriction?.enabled) ||
         false;
     });
 
@@ -1338,7 +1337,7 @@ export class MyExpensesPage implements OnInit {
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       // Mixed data type as CREATE report and GET report API returns different responses
-      const reportId = (config.report as Report).id || (config.report as ReportV1).id;
+      const reportId = config.report.id;
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
   }
