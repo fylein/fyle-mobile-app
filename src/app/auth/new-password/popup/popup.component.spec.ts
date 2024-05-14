@@ -51,7 +51,7 @@ describe('ErrorComponent', () => {
     // @ts-ignore
     component.popoverController.dismiss.and.returnValue(of(null));
     // @ts-ignore
-    component.router.navigate.and.returnValue(Promise.resolve(true));
+    component.router.navigate.and.resolveTo(true);
     component.closeClicked();
     // @ts-ignore
     expect(component.popoverController.dismiss).toHaveBeenCalledTimes(1);
