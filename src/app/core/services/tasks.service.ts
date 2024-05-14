@@ -770,11 +770,11 @@ export class TasksService {
         {
           amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
           count: aggregate.totalCount,
-          header: `Report${aggregate.totalAmount === 1 ? '' : 's'} to be approved`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalAmount === 1 ? '' : 's'}${this.getAmountString(
+          header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
+          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
             aggregate.totalAmount,
             homeCurrency
-          )} require${aggregate.totalAmount === 1 ? 's' : ''} your approval`,
+          )} require${aggregate.totalCount === 1 ? 's' : ''} your approval`,
           icon: TaskIcon.REPORT,
           ctas: [
             {

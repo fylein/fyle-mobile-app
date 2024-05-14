@@ -35,6 +35,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -111,6 +112,8 @@ export class MyViewReportPage {
 
   hardwareBackButtonAction: Subscription;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -129,7 +132,8 @@ export class MyViewReportPage {
     private refinerService: RefinerService,
     private orgSettingsService: OrgSettingsService,
     private platformHandlerService: PlatformHandlerService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get Segment(): typeof ReportPageSegment {
@@ -160,8 +164,15 @@ export class MyViewReportPage {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+    this.setIsManualFlagFeatureEnabled();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;
 

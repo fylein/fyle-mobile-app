@@ -32,6 +32,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/approver/expe
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -130,6 +131,8 @@ export class ViewTeamReportPage {
 
   timeSpentOnEditingReportName: number;
 
+  isManualFlagFeatureEnabled: { value: boolean };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -148,7 +151,8 @@ export class ViewTeamReportPage {
     private refinerService: RefinerService,
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ionViewWillLeave() {
@@ -197,6 +201,7 @@ export class ViewTeamReportPage {
   ionViewWillEnter() {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
+    this.setIsManualFlagFeatureEnabled();
 
     this.navigateBack = this.activatedRoute.snapshot.params.navigate_back;
 
@@ -331,6 +336,12 @@ export class ViewTeamReportPage {
     });
 
     this.refreshApprovals$.next(null);
+  }
+
+  setIsManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
+    });
   }
 
   toggleTooltip() {

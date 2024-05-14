@@ -19,15 +19,19 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ng-container *ngIf="expense$|async as expense">
-          <ion-button
-            class="view-expense--header-btn-container__btn"
-            (click)="flagUnflagExpense(expense.is_manually_flagged)"
-            [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
-          >
-            <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
-          </ion-button>
+      <ng-container *ngIf="isManualFlaggingFeatureEnabled$|async as isManualFlaggingFeatureEnabled">
+        <ng-container *ngIf="canFlagOrUnflag$|async as canFlagOrUnflag">
+          <ng-container *ngIf="view === ExpenseView.team && isManualFlaggingFeatureEnabled.value && canFlagOrUnflag">
+            <ng-container *ngIf="expense$|async as expense">
+              <ion-button
+                class="view-expense--header-btn-container__btn"
+                (click)="flagUnflagExpense(expense.is_manually_flagged)"
+                [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
+              >
+                <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ng-container>
+          </ng-container>
         </ng-container>
       </ng-container>
 
