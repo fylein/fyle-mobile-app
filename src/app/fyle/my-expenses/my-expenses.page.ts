@@ -37,8 +37,6 @@ import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.mod
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
@@ -78,6 +76,7 @@ import { HeaderState } from '../../shared/components/fy-header/header-state.enum
 import { AddTxnToReportDialogComponent } from './add-txn-to-report-dialog/add-txn-to-report-dialog.component';
 import { MyExpensesService } from './my-expenses.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Component({
   selector: 'app-my-expenses',
@@ -161,7 +160,7 @@ export class MyExpensesPage implements OnInit {
 
   isSearchBarFocused = false;
 
-  openReports$: Observable<ExtendedReport[]>;
+  openReports$: Observable<Report[]>;
 
   homeCurrencySymbol: string;
 
@@ -471,7 +470,7 @@ export class MyExpensesPage implements OnInit {
       this.isNewReportsFlowEnabled = orgSettings?.simplified_report_closure_settings?.enabled || false;
       this.restrictPendingTransactionsEnabled =
         (orgSettings?.corporate_credit_card_settings?.enabled &&
-          orgSettings?.pending_cct_expense_restriction?.enabled) ||
+          orgSettings.pending_cct_expense_restriction?.enabled) ||
         false;
     });
 
@@ -693,17 +692,16 @@ export class MyExpensesPage implements OnInit {
       this.isLoading = false;
     }, 500);
 
-    const queryParams = { rp_state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
+    const queryParams = { state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)' };
 
-    this.openReports$ = this.reportService.getAllExtendedReports({ queryParams }).pipe(
+    this.openReports$ = this.spenderReportsService.getAllReportsByParams(queryParams).pipe(
       map((openReports) =>
         openReports.filter(
           (openReport) =>
             // JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') -> Filter report if any approver approved this report.
-            // Converting this object to string and checking If `APPROVAL_DONE` is present in the string, removing the report from the list
-            !openReport.report_approvals ||
-            (openReport.report_approvals &&
-              !(JSON.stringify(openReport.report_approvals).indexOf('APPROVAL_DONE') > -1))
+            !openReport.approvals ||
+            (openReport.approvals &&
+              !(JSON.stringify(openReport.approvals.map((approval) => approval.state)).indexOf('APPROVAL_DONE') > -1))
         )
       )
     );
@@ -1186,7 +1184,7 @@ export class MyExpensesPage implements OnInit {
     await addExpenseToNewReportModal.present();
 
     const { data } = (await addExpenseToNewReportModal.onDidDismiss()) as {
-      data: { report: ExtendedReport; message: string };
+      data: { report: Report; message: string };
     };
 
     if (data && data.report) {
@@ -1320,7 +1318,7 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  showAddToReportSuccessToast(config: { message: string; report: ExtendedReport | ReportV1 }): void {
+  showAddToReportSuccessToast(config: { message: string; report: Report }): void {
     const toastMessageData = {
       message: config.message,
       redirectionText: 'View Report',
@@ -1338,14 +1336,14 @@ export class MyExpensesPage implements OnInit {
 
     expensesAddedToReportSnackBar.onAction().subscribe(() => {
       // Mixed data type as CREATE report and GET report API returns different responses
-      const reportId = (config.report as ExtendedReport).rp_id || (config.report as ReportV1).id;
+      const reportId = config.report.id;
       this.router.navigate(['/', 'enterprise', 'my_view_report', { id: reportId, navigateBack: true }]);
     });
   }
 
-  addTransactionsToReport(report: ExtendedReport, selectedExpensesId: string[]): Observable<ExtendedReport> {
+  addTransactionsToReport(report: Report, selectedExpensesId: string[]): Observable<Report> {
     return from(this.loaderService.showLoader('Adding transaction to report')).pipe(
-      switchMap(() => this.spenderReportsService.addExpenses(report.rp_id, selectedExpensesId).pipe(map(() => report))),
+      switchMap(() => this.spenderReportsService.addExpenses(report.id, selectedExpensesId).pipe(map(() => report))),
       finalize(() => this.loaderService.hideLoader())
     );
   }
@@ -1364,7 +1362,7 @@ export class MyExpensesPage implements OnInit {
             data: { openReports, isNewReportsFlowEnabled: this.isNewReportsFlowEnabled },
             panelClass: ['mat-bottom-sheet-1'],
           });
-          return addTxnToReportDialog.afterDismissed() as Observable<{ report: ExtendedReport }>;
+          return addTxnToReportDialog.afterDismissed() as Observable<{ report: Report }>;
         }),
         switchMap((data) => {
           if (data && data.report) {
@@ -1374,10 +1372,10 @@ export class MyExpensesPage implements OnInit {
           }
         })
       )
-      .subscribe((report: ExtendedReport) => {
+      .subscribe((report: Report) => {
         if (report) {
           let message = '';
-          if (report.rp_state.toLowerCase() === 'draft') {
+          if (report.state.toLowerCase() === 'draft') {
             message = 'Expenses added to an existing draft report';
           } else {
             message = 'Expenses added to report successfully';
