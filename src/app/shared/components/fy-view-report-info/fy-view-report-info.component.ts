@@ -78,7 +78,7 @@ export class FyViewReportInfoComponent implements OnInit {
   ngOnInit(): void {}
 
   ionViewWillEnter() {
-    this.reports$.pipe(filter((report) => !!report)).subscribe((report) => {
+    this.report$.pipe(filter((report) => !!report)).subscribe((report) => {
       this.reportDetails = {
         'Report Name': report.purpose,
         Owner: report.employee.user.full_name,
@@ -93,7 +93,7 @@ export class FyViewReportInfoComponent implements OnInit {
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    combineLatest([this.expenses$, this.reports$, orgSettings$]).subscribe(([expenses, report, orgSettings]) => {
+    combineLatest([this.expenses$, this.report$, orgSettings$]).subscribe(([expenses, report, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
         'Total Amount': report.amount,
