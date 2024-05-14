@@ -75,7 +75,7 @@ export class LaunchDarklyService {
   }
 
   checkIfManualFlaggingFeatureIsEnabled(): Observable<boolean> {
-    return this.getVariation('deprecate_manual_flagging', false).pipe(shareReplay(1));
+    return this.getVariation('deprecate_manual_flagging', false);
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

@@ -26,6 +26,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import { TeamReportsFilters } from 'src/app/core/models/team-reports-filters.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -46,6 +47,8 @@ export class TeamReportsPage implements OnInit {
   isInfiniteScrollRequired$: Observable<boolean>;
 
   isLoading = false;
+
+  isManualFlagFeatureEnabled: boolean;
 
   isLoadingDataInInfiniteScroll: boolean;
 
@@ -95,7 +98,8 @@ export class TeamReportsPage implements OnInit {
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
     private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState
+    private reportStatePipe: ReportState,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState() {
@@ -104,6 +108,7 @@ export class TeamReportsPage implements OnInit {
 
   ngOnInit() {
     this.setupNetworkWatcher();
+    this.setManualFlagFeatureEnabled();
   }
 
   ionViewWillLeave() {
@@ -230,6 +235,12 @@ export class TeamReportsPage implements OnInit {
       if (!isOnline) {
         this.router.navigate(['/', 'enterprise', 'my_dashboard']);
       }
+    });
+  }
+
+  setManualFlagFeatureEnabled() {
+    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
+      this.isManualFlagFeatureEnabled = ldFlag;
     });
   }
 

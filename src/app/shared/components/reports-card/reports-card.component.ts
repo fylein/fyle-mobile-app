@@ -1,7 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { ExtendedReport } from 'src/app/core/models/report.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-reports-card',
@@ -10,6 +9,8 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
 })
 export class ReportsCardComponent implements OnInit {
   @Input() erpt: ExtendedReport;
+
+  @Input() isManualFlagFeatureEnabled: boolean;
 
   @Input() prevDate: Date;
 
@@ -31,7 +32,7 @@ export class ReportsCardComponent implements OnInit {
 
   isManuallyFlaggedWithLD: boolean;
 
-  constructor(private launchDarklyService: LaunchDarklyService) {}
+  constructor() {}
 
   ngOnInit() {
     this.showDate =
@@ -39,10 +40,6 @@ export class ReportsCardComponent implements OnInit {
       (this.prevDate && new Date(this.prevDate).toDateString());
 
     this.reportCurrencySymbol = getCurrencySymbol(this.erpt.rp_currency, 'wide');
-
-    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
-      this.isManuallyFlaggedWithLD = this.erpt.rp_manual_flag && ldFlag;
-    });
   }
 
   onDeleteReport() {

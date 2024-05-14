@@ -79,6 +79,7 @@
             [erpt]="erpt"
             [prevDate]="list[i-1]?.rp_created_at"
             [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+            [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled"
             (gotoReport)="onReportClick($event)"
           >
           </app-reports-card>
