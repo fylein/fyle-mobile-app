@@ -15,6 +15,7 @@ import {
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { ReportState } from '../../../../models/platform/v1/report.model';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -56,6 +57,15 @@ describe('ApproverReportsService', () => {
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
       done();
     });
+  });
+
+  it('generateStatsQueryParams(): should generate stats query params', () => {
+    const queryParams = {
+      state: `eq.${ReportState.DRAFT}`,
+    };
+
+    const result = approverReportsService.generateStatsQueryParams(queryParams);
+    expect(result).toEqual('state=eq.DRAFT');
   });
 
   it('getReportsCount(): should get a count of reports', (done) => {
@@ -158,14 +168,10 @@ describe('ApproverReportsService', () => {
   });
 
   it('getReportsStats(): should get advance request stats', (done) => {
-    const statsResponse: StatsResponse = {
-      count: 2,
-      total_amount: 1200,
-    };
     approverPlatformApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
 
     const params = {
-      state: 'eq.DRAFT',
+      state: `eq.${ReportState.DRAFT}`,
     };
 
     approverReportsService.getReportsStats(params).subscribe((res) => {
