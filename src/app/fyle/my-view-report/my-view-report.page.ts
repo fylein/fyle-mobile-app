@@ -50,8 +50,6 @@ export class MyViewReportPage {
 
   expenses$: Observable<Expense[]>;
 
-  reportApprovals$: Observable<Approver[]>;
-
   canEdit$: Observable<boolean>;
 
   canDelete$: Observable<boolean>;
@@ -232,10 +230,6 @@ export class MyViewReportPage {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
-
-    this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.reportId)
-      .pipe(map((reportApprovals) => reportApprovals));
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),

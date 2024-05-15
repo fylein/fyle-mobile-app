@@ -359,9 +359,6 @@ describe('MyViewReportPage', () => {
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
 
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -452,9 +449,6 @@ describe('MyViewReportPage', () => {
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
