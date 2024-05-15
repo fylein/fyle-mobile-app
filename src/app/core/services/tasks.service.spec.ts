@@ -7,6 +7,7 @@ import { TaskIcon } from '../models/task-icon.enum';
 import {
   allExtendedReportsResponse,
   extendedOrgUserResponse,
+  extendedOrgUserResponseSpender,
   incompleteExpensesResponse,
   potentialDuplicatesApiResponse,
   sentBackAdvancesResponse,
@@ -65,6 +66,7 @@ import {
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
+import { apiEouRes } from '../mock-data/extended-org-user.data';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -87,6 +89,7 @@ describe('TasksService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'getAllExtendedReports',
+      'getReportStatsData',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
@@ -354,6 +357,14 @@ describe('TasksService', () => {
         expect(taskTotal).toEqual(10);
         done();
       });
+  });
+
+  it('should make sure that stats dont fail even if aggregates are not present in response', () => {
+    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
+    expect(mappedStatsReponse).toEqual({
+      totalCount: 0,
+      totalAmount: 0,
+    });
   });
 
   it('should be able to fetch expensesTaskCount', (done) => {
