@@ -35,11 +35,11 @@ describe('ReportsCardComponent', () => {
   });
 
   it('should display information correctly', () => {
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--date'))).toEqual('Jan 21, 2023');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--date'))).toEqual('Jul 11, 2023');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--purpose'))).toEqual('#8:  Jan 2023');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--currency'))).toEqual('$');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('116.90');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('1 Expense');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('100.00');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
   });
 
   it('onDeleteReport(): should delete report event', () => {

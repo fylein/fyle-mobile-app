@@ -228,7 +228,7 @@ describe('MyReportsPage', () => {
     expect(component).toBeTruthy();
   });
 
-  fdescribe('ionViewWillEnter(): ', () => {
+  describe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       const homeCurrency = 'USD';
@@ -406,16 +406,7 @@ describe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
-      });
-      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
-      });
-      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
-      });
-      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -564,7 +555,7 @@ describe('MyReportsPage', () => {
         offset: 0,
         limit: 10,
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
-        order: null,
+        order: 'created_at.desc,id.desc',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
@@ -805,10 +796,10 @@ describe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledTimes(3);
 
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         offset: 0,
         limit: 10,
-        state: 'eq.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        order: null,
+        order: 'created_at.desc,id.desc',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
@@ -944,7 +935,20 @@ describe('MyReportsPage', () => {
         offset: 0,
         limit: 10,
         state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
-        order: null,
+        order: 'created_at.desc,id.desc',
+      });
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
+        q: 'example:*',
+      });
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
+        offset: 0,
+        limit: 10,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
