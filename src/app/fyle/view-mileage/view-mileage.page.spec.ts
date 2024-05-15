@@ -4,7 +4,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -34,7 +33,6 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
@@ -48,6 +46,11 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageSubmitted,
+  paidReportData,
+} from '../../core/mock-data/platform-report.data';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
@@ -60,7 +63,6 @@ describe('ViewMileagePage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -83,7 +85,6 @@ describe('ViewMileagePage', () => {
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -124,7 +125,10 @@ describe('ViewMileagePage', () => {
       'getSpenderMileageRateById',
       'getApproverMileageRateById',
     ]);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
     const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
     const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
@@ -139,10 +143,6 @@ describe('ViewMileagePage', () => {
         {
           useValue: transactionServiceSpy,
           provide: TransactionService,
-        },
-        {
-          useValue: reportServiceSpy,
-          provide: ReportService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -239,7 +239,6 @@ describe('ViewMileagePage', () => {
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -874,7 +873,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -895,7 +894,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -916,7 +915,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
