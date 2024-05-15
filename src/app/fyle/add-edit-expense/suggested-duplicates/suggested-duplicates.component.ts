@@ -4,7 +4,6 @@ import { Router } from '@angular/router';
 import { ModalController } from '@ionic/angular';
 import { Observable, map, noop } from 'rxjs';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-properties.service';
@@ -20,16 +19,13 @@ export class SuggestedDuplicatesComponent {
 
   duplicateExpenses: Expense[] = [];
 
-  isManualFlagFeatureEnabled: { value: boolean };
-
   constructor(
     private modalController: ModalController,
     private expensesService: ExpensesService,
     private router: Router,
     private snackbarProperties: SnackbarPropertiesService,
     private matSnackBar: MatSnackBar,
-    private orgSettingsService: OrgSettingsService,
-    private launchDarklyService: LaunchDarklyService
+    private orgSettingsService: OrgSettingsService
   ) {}
 
   ionViewWillEnter(): void {
@@ -38,17 +34,10 @@ export class SuggestedDuplicatesComponent {
       id: `in.(${txnIds})`,
     };
 
-    this.setIsManualFlagFeatureEnabled();
     this.expensesService
       .getExpenses({ offset: 0, limit: 10, ...queryParams })
       .pipe(map((expenses) => (this.duplicateExpenses = expenses)))
       .subscribe(noop);
-  }
-
-  setIsManualFlagFeatureEnabled() {
-    this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((ldFlag) => {
-      this.isManualFlagFeatureEnabled = ldFlag;
-    });
   }
 
   dismissDuplicates(duplicateExpenseIds: string[], targetExpenseIds: string[]): Observable<void> {

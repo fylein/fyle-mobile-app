@@ -1,6 +1,6 @@
 import deepFreeze from 'deep-freeze-strict';
 
-import { Report } from '../models/platform/v1/report.model';
+import { Report, ReportState } from '../models/platform/v1/report.model';
 import { ReportsQueryParams } from '../models/platform/v1/reports-query-params.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { ApprovalState } from '../models/platform/report-approvals.model';
@@ -731,7 +731,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
 export const paidReportData: Report = deepFreeze({
   ...submittedReportDataWithApproval,
   num_expenses: 1,
-  state: 'PAID',
+  state: ReportState.PAID,
 });
 
 export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);

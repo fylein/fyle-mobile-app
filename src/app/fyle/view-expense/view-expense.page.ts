@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -36,7 +35,6 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -59,8 +57,6 @@ export class ViewExpensePage {
   expenseWithoutCustomProperties$: Observable<Expense>;
 
   canFlagOrUnflag$: Observable<boolean>;
-
-  isManualFlaggingFeatureEnabled$: Observable<{ value: boolean }>;
 
   canDelete$: Observable<boolean>;
 
@@ -138,7 +134,6 @@ export class ViewExpensePage {
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
@@ -155,8 +150,7 @@ export class ViewExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
-    private approverReportsService: ApproverReportsService,
-    private launchDarklyService: LaunchDarklyService
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -364,8 +358,6 @@ export class ViewExpensePage {
 
     this.comments$ = this.statusService.find('transactions', this.expenseId);
 
-    this.isManualFlaggingFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
     this.canFlagOrUnflag$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       map((expense) =>
@@ -381,10 +373,10 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report?.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )
