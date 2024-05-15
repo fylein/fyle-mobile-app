@@ -107,7 +107,7 @@
                 *ngIf="actions.can_add_approver"
                 [approverEmailsList]="getApproverEmails(reportApprovals)"
                 [id]="report.id"
-                [ownerEmail]="report.us_email"
+                [ownerEmail]="report.employee.user.email"
                 [type]="'TEAM_REPORT'"
                 (notify)="onUpdateApprover($event)"
               >
