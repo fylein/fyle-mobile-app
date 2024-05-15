@@ -60,10 +60,24 @@ export const teamReportTaskSample = deepFreeze({
 });
 
 export const sentBackReportTaskSample = deepFreeze({
-  amount: '44.53',
+  amount: '4.5K',
+  count: 2,
+  header: 'Reports sent back!',
+  subheader: '2 reports worth ₹4.5K  were sent back by your approver',
+  icon: TaskIcon.REPORT,
+  ctas: [
+    {
+      content: 'View Reports',
+      event: TASKEVENT.openSentBackReport,
+    },
+  ],
+});
+
+export const sentBackReportTaskSingularSample = deepFreeze({
+  amount: '4.5K',
   count: 1,
   header: 'Report sent back!',
-  subheader: '1 report worth ₹44.53  was sent back by your approver',
+  subheader: '1 report worth ₹4.5K  was sent back by your approver',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -102,10 +116,10 @@ export const unreportedExpenseTaskSample2 = deepFreeze({
 });
 
 export const unsubmittedReportTaskSample = deepFreeze({
-  amount: '0.00',
+  amount: '93.17K',
   count: 2,
   header: 'Unsubmitted reports',
-  subheader: '2 reports remain in draft state',
+  subheader: '2 reports worth ₹93.17K  remain in draft state',
   icon: TaskIcon.REPORT,
   ctas: [
     {
