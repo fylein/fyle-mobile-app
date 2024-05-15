@@ -302,12 +302,19 @@ describe('TasksService', () => {
       .withArgs(expectedReportStats.report.total_amount, homeCurrency)
       .and.returnValue('₹733.48K');
 
-    approverReportsService.getReportsStats
-      .withArgs({
-        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
-        state: 'eq.APPROVER_PENDING',
-      })
-      .and.returnValue(of(expectedReportStats.report));
+    reportService.getReportStatsData
+    .withArgs(
+      {
+        approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
+        rp_approval_state: ['in.(APPROVAL_PENDING)'],
+        rp_state: ['in.(APPROVER_PENDING)'],
+        sequential_approval_turn: ['in.(true)'],
+        aggregates: 'count(rp_id),sum(rp_amount)',
+        scalar: true,
+      },
+      false
+    )
+    .and.returnValue(of(teamReportResponse));
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);

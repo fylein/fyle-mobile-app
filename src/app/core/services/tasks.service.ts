@@ -475,13 +475,20 @@ export class TasksService {
     );
   }
 
-  getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
+  getTeamReportsStats(): Observable<Datum[]> {
     return from(this.authService.getEou()).pipe(
       switchMap((eou) =>
-        this.approverReportsService.getReportsStats({
-          next_approver_user_ids: `cs.[${eou.us.id}]`,
-          state: `eq.${ReportState.APPROVER_PENDING}`,
-        })
+        this.reportService.getReportStatsData(
+          {
+            approved_by: 'cs.{' + eou.ou.id + '}',
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: ['in.(true)'],
+            aggregates: 'count(rp_id),sum(rp_amount)',
+            scalar: true,
+          },
+          false
+        )
       )
     );
   }
@@ -491,9 +498,8 @@ export class TasksService {
       reportsStats: this.getTeamReportsStats(),
       homeCurrency: this.currencyService.getHomeCurrency(),
     }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
-        this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
-      )
+      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
+        this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
     );
   }
 
