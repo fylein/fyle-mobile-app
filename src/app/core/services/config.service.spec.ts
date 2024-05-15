@@ -40,14 +40,14 @@ describe('ConfigService', () => {
   describe('loadConfigurationData', () => {
     it('should call setClusterDomain if clusterDomain is present', async () => {
       const clusterDomain = 'https://staging.fyle.tech';
-      tokenService.getClusterDomain.and.returnValue(Promise.resolve(clusterDomain));
+      tokenService.getClusterDomain.and.resolveTo(clusterDomain);
       await configService.loadConfigurationData();
       expect(routerAuthService.setClusterDomain).toHaveBeenCalledOnceWith(clusterDomain);
       expect(tokenService.getClusterDomain).toHaveBeenCalledTimes(1);
     });
 
     it('should clear all stored data if clusterDomain is not present', async () => {
-      tokenService.getClusterDomain.and.returnValue(Promise.resolve(null));
+      tokenService.getClusterDomain.and.resolveTo(null);
       await configService.loadConfigurationData();
       expect(storageService.clearAll).toHaveBeenCalledTimes(1);
       expect(secureStorageService.clearAll).toHaveBeenCalledTimes(1);

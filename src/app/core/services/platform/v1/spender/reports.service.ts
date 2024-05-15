@@ -12,7 +12,7 @@ import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/plat
 import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -73,6 +73,16 @@ export class SpenderReportsService {
     );
   }
 
+  @CacheBuster({
+    cacheBusterNotifier: reportsCacheBuster$,
+  })
+  createDraft(data: CreateDraftParams): Observable<Report> {
+    return this.spenderPlatformV1ApiService.post<PlatformApiPayload<Report>>('/reports', data).pipe(
+      tap(() => this.clearTransactionCache()),
+      map((res: PlatformApiPayload<Report>) => res.data)
+    );
+  }
+
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
     return this.getReportsCount(queryParams).pipe(
       switchMap((count) => {
@@ -94,7 +104,7 @@ export class SpenderReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };
@@ -115,20 +125,14 @@ export class SpenderReportsService {
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
   }
 
-  createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(map((res) => res.data));
-  }
-
-  getReportsStats(params: PlatformStatsRequestParams): Observable<ReportsStatsResponsePlatform> {
+  getReportsStats(params: PlatformStatsRequestParams): Observable<PlatformReportsStatsResponse> {
     const queryParams = {
       data: {
         query_params: `state=${params.state}`,
       },
     };
     return this.spenderPlatformV1ApiService
-      .post<{ data: ReportsStatsResponsePlatform }>('/reports/stats', queryParams)
+      .post<{ data: PlatformReportsStatsResponse }>('/reports/stats', queryParams)
       .pipe(map((res) => res.data));
   }
 }

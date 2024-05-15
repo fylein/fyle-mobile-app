@@ -48,7 +48,7 @@ describe('CurrencyService', () => {
   });
 
   it('getAll(): should return all currencies', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiService.get.and.returnValue(of(apiAllCurrencies));
 
     currencyService.getAll().subscribe((res) => {
