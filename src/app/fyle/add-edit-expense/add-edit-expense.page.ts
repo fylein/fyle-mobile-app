@@ -3075,8 +3075,7 @@ export class AddEditExpensePage implements OnInit {
         .pipe(
           map(
             (orgSetting) =>
-              orgSetting?.corporate_credit_card_settings?.enabled &&
-              orgSetting?.pending_cct_expense_restriction?.enabled
+              orgSetting.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
           )
         );
 
@@ -3102,7 +3101,7 @@ export class AddEditExpensePage implements OnInit {
           switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
           switchMap((fileObjs: FileObject[]) => {
             const fileIds: string[] = fileObjs.map((file) => file.id);
-            return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+            return fileIds.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
           }),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
