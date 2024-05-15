@@ -63,7 +63,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;

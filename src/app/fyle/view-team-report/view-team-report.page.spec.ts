@@ -43,6 +43,7 @@ import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-expor
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
 import {
+  allReportsPaginatedWithApproval,
   expectedReportsSinglePage,
   platformReportData,
   reportWithExpenses,
@@ -58,7 +59,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
-fdescribe('ViewTeamReportPageV2', () => {
+describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -311,7 +312,7 @@ fdescribe('ViewTeamReportPageV2', () => {
     });
   });
 
-  fdescribe('ionViewWillEnter():', () => {
+  describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
@@ -533,9 +534,9 @@ fdescribe('ViewTeamReportPageV2', () => {
   });
 
   it('getApproverEmails(): should get approver emails', () => {
-    const result = component.getApproverEmails(approversData1);
+    const result = component.getApproverEmails(allReportsPaginatedWithApproval.data[0].approvals);
 
-    expect(result).toEqual(['ashutosh.m@fyle.in', '123@fye.in', 'chethan.m+90@fyle.in']);
+    expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fye.in']);
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {
