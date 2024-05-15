@@ -474,7 +474,7 @@ export class TasksComponent implements OnInit {
   onSentBackReportTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
       const queryParams = {
-        state: 'eq.APPROVER_INQUIRY',
+        state: `eq.${ReportState.APPROVER_INQUIRY}`,
         offset: 0,
         limit: 1,
       };
