@@ -86,7 +86,7 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { report } from 'process';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -228,7 +228,7 @@ fdescribe('MyReportsPage', () => {
     expect(component).toBeTruthy();
   });
 
-  describe('ionViewWillEnter(): ', () => {
+  fdescribe('ionViewWillEnter(): ', () => {
     it('should initialize component properties and load data', fakeAsync(() => {
       tasksService.getReportsTaskCount.and.returnValue(of(5));
       const homeCurrency = 'USD';
@@ -408,6 +408,15 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
+      expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
+        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY,APPROVED,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+      });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
@@ -431,8 +440,8 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
-        order: null,
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        order: 'created_at.desc,id.desc',
       });
 
       expect(component.acc).toEqual(expectedReportsSinglePage);
@@ -529,7 +538,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(4);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -554,7 +563,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         order: null,
       });
 
@@ -655,7 +664,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 2 times, 1 time in this test case
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -773,7 +782,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -909,7 +918,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledTimes(6);
       // It is called 6 times because loadData$ is behaviorSubject and next() is called 1 times
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledWith({
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
       });
 
       component.expensesAmountStats$.subscribe((expenseAmountStates) => {
@@ -934,7 +943,7 @@ fdescribe('MyReportsPage', () => {
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith({
         offset: 0,
         limit: 10,
-        state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         order: null,
       });
 
