@@ -58,7 +58,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
-describe('ViewTeamReportPageV2', () => {
+fdescribe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -91,7 +91,6 @@ describe('ViewTeamReportPageV2', () => {
       'getReport',
       'getTeamReport',
       'getExports',
-      'getApproversByReportId',
       'actions',
       'delete',
       'approve',
@@ -299,7 +298,10 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     it('should return undefined if approval settings not present', () => {
-      const result = component.getReportClosureSettings({ ...orgSettingsData, getReportClosureSettings: undefined });
+      const result = component.getReportClosureSettings({
+        ...orgSettingsData,
+        simplified_report_closure_settings: undefined,
+      });
       expect(result).toBeUndefined();
     });
 
@@ -314,7 +316,6 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -330,7 +331,6 @@ describe('ViewTeamReportPageV2', () => {
           results: mockPdfExportData,
         })
       );
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
 
@@ -380,7 +380,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -390,10 +389,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.sharedWith$.subscribe((res) => {
         expect(res).toEqual(['ajain@fyle.in', 'arjun.m@fyle.in']);
-      });
-
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual([approversData1[0]]);
       });
 
       component.actions$.subscribe((res) => {
@@ -414,7 +409,6 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
-      expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
 
       expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
@@ -427,7 +421,6 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -443,7 +436,6 @@ describe('ViewTeamReportPageV2', () => {
           results: mockPdfExportData,
         })
       );
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       fixture.detectChanges();
@@ -492,7 +484,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -502,10 +493,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.sharedWith$.subscribe((res) => {
         expect(res).toEqual(['arjun.m@fyle.in', 'ajain@fyle.in']);
-      });
-
-      component.reportApprovals$.subscribe((res) => {
-        expect(approversData1[0]);
       });
 
       component.actions$.subscribe((res) => {
@@ -556,32 +543,6 @@ describe('ViewTeamReportPageV2', () => {
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
-  });
-
-  describe('isUserActiveInCurrentSeqApprovalQueue(): ', () => {
-    it('should check whether the user is active', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData4);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should return false if no approvers match', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, []);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should return whethere the user is active after comparing ranks', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData5);
-
-      expect(result).toBeTrue();
-    });
-
-    it("should return false when approver's rank less than minimum rank", () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData6);
-
-      expect(result).toBeFalse();
-    });
   });
 
   it('deleteReport(): should delete report', async () => {

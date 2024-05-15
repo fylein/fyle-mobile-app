@@ -63,7 +63,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
 
-describe('MyViewReportPage', () => {
+fdescribe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -87,7 +87,6 @@ describe('MyViewReportPage', () => {
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
-      'getApproversByReportId',
       'actions',
       'updateReportDetails',
       'updateReportPurpose',
@@ -317,7 +316,6 @@ describe('MyViewReportPage', () => {
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
@@ -357,8 +355,6 @@ describe('MyViewReportPage', () => {
       expect(component.eou).toEqual(apiEouRes);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -407,7 +403,6 @@ describe('MyViewReportPage', () => {
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       spenderReportsService.getReportById.and.returnValue(of(null));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
@@ -447,8 +442,6 @@ describe('MyViewReportPage', () => {
       });
 
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 

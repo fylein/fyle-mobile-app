@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -23,7 +23,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
@@ -36,7 +35,6 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportActions } from 'src/app/core/models/report-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approval } from 'src/app/core/models/approval.model';
-import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -503,7 +501,7 @@ export class ViewTeamReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
   }
 
-  segmentChanged(event: SegmentCustomEvent): void {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'expenses') {
         this.isExpensesView = true;
