@@ -36,6 +36,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportActions } from 'src/app/core/models/report-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approval } from 'src/app/core/models/approval.model';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -308,10 +309,16 @@ export class ViewTeamReportPage {
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
+      report: this.report$,
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, orgSettings }) => {
+    }).subscribe(({ expenses, eou, report, orgSettings }) => {
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
+      this.canApprove = this.isSequentialApprovalEnabled
+        ? report.next_approver_user_ids &&
+          report.next_approver_user_ids.length > 0 &&
+          report.next_approver_user_ids.includes(eou.us.id)
+        : true;
       this.canShowTooltip = true;
     });
 
@@ -320,21 +327,6 @@ export class ViewTeamReportPage {
 
   toggleTooltip(): void {
     this.canShowTooltip = !this.canShowTooltip;
-  }
-
-  isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
-    const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
-
-    const approverRanks = approvers
-      .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank);
-
-    if (approverRanks.length > 0) {
-      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
-      return currentApproverRank === minRank;
-    }
-
-    return false;
   }
 
   async deleteReport(): Promise<void> {
