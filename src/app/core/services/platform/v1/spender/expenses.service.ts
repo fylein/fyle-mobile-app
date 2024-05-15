@@ -164,4 +164,17 @@ export class ExpensesService {
 
     return this.getAllExpenses(params);
   }
+
+  attachReceiptToExpense(expenseId: string, fileId: string): Observable<Expense> {
+    const payload = {
+      data: {
+        id: expenseId,
+        file_id: fileId,
+      },
+    };
+
+    return this.spenderService
+      .post<PlatformApiResponse<Expense>>('/expenses/attach_receipt', payload)
+      .pipe(map((res) => res.data));
+  }
 }
