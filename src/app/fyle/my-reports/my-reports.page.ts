@@ -39,6 +39,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 type Filters = Partial<{
   state: string | string[];
@@ -188,7 +189,7 @@ export class MyReportsPage {
         return this.spenderReportsService.getReportsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
-              return this.spenderReportsService.getAllReportsByParams({
+              return this.spenderReportsService.getReportsByParams({
                 ...queryParams,
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
@@ -202,12 +203,12 @@ export class MyReportsPage {
           })
         );
       }),
-      map((res: Report[]) => {
+      map((res: PlatformApiResponse<Report[]>) => {
         this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
         }
-        this.acc = this.acc.concat(res);
+        this.acc = this.acc.concat(res.data);
         return this.acc;
       })
     );
@@ -396,11 +397,11 @@ export class MyReportsPage {
       }
 
       if (this.filters.state.includes('APPROVER_PENDING')) {
-        stateOrFilter.push('APPROVER_PENDING)');
+        stateOrFilter.push('APPROVER_PENDING');
       }
 
       if (this.filters.state.includes('APPROVER_INQUIRY')) {
-        stateOrFilter.push('APPROVER_INQUIRY)');
+        stateOrFilter.push('APPROVER_INQUIRY');
       }
 
       if (this.filters.state.includes('APPROVED')) {
@@ -421,7 +422,8 @@ export class MyReportsPage {
     }
 
     if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `"${param1}","${param2}"`);
+      let combinedStateOrFilter = stateOrFilter.join();
+      console.log(combinedStateOrFilter);
       combinedStateOrFilter = `${combinedStateOrFilter}`;
       newQueryParams.state = `in.(${combinedStateOrFilter})`;
     }

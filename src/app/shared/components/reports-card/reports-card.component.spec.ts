@@ -3,7 +3,6 @@ import { IonicModule } from '@ionic/angular';
 import { ReportsCardComponent } from './reports-card.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
@@ -11,6 +10,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 describe('ReportsCardComponent', () => {
   let component: ReportsCardComponent;
@@ -25,7 +25,7 @@ describe('ReportsCardComponent', () => {
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;
-    component.erpt = apiExtendedReportRes[0];
+    component.erpt = expectedReportsSinglePage[0];
     component.prevDate = new Date();
     fixture.detectChanges();
   }));
