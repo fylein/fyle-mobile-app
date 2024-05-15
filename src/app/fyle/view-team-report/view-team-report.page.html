@@ -104,7 +104,7 @@
             <div *ngIf="actions$|async as actions">
               <app-fy-approver
                 *ngIf="actions.can_add_approver"
-                [approverEmailsList]="getApproverEmails(reportApprovals)"
+                [approverEmailsList]="getApproverEmails(report.approvals)"
                 [id]="report.id"
                 [ownerEmail]="report.us_email"
                 [type]="'TEAM_REPORT'"
@@ -118,7 +118,7 @@
               <div>{{ approver.approver_user.full_name }}</div>
               <div class="view-reports--approver-state-section">
                 <div
-                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
+                  class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
                 ></div>
                 <span
                   >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |

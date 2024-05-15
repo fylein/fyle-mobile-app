@@ -35,6 +35,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportActions } from 'src/app/core/models/report-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approval } from 'src/app/core/models/approval.model';
+import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -172,8 +173,8 @@ export class ViewTeamReportPage {
     });
   }
 
-  getApproverEmails(reportApprovals: Approval[]): string[] {
-    return reportApprovals.map((approver) => approver.approver_email);
+  getApproverEmails(reportApprovals: ReportApprovals[]): string[] {
+    return reportApprovals.map((approver) => approver.approver_user.email);
   }
 
   loadReports(): Observable<Report> {
@@ -304,6 +305,7 @@ export class ViewTeamReportPage {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
+    console.log('here');
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,

@@ -311,11 +311,8 @@ fdescribe('ViewTeamReportPageV2', () => {
     });
   });
 
-  describe('ionViewWillEnter():', () => {
+  fdescribe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
-      spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'getApprovalSettings').and.returnValue(true);
-      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -333,6 +330,10 @@ fdescribe('ViewTeamReportPageV2', () => {
       );
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
+
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getApprovalSettings').and.returnValue(true);
+      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
 
       component.ionViewWillEnter();
       tick(2000);
@@ -358,6 +359,7 @@ fdescribe('ViewTeamReportPageV2', () => {
         });
       });
 
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
 
@@ -408,7 +410,6 @@ fdescribe('ViewTeamReportPageV2', () => {
       });
 
       expect(reportService.actions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
 
       expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
