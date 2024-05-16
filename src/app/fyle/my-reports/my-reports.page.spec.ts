@@ -84,7 +84,6 @@ import {
 import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { report } from 'process';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;

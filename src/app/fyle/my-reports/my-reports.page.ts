@@ -423,7 +423,6 @@ export class MyReportsPage {
 
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.join();
-      console.log(combinedStateOrFilter);
       combinedStateOrFilter = `${combinedStateOrFilter}`;
       newQueryParams.state = `in.(${combinedStateOrFilter})`;
     }
