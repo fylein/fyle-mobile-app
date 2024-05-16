@@ -314,15 +314,18 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
-      loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
+      spyOn(component, 'setupNetworkWatcher');
+      spyOn(component, 'getApprovalSettings').and.returnValue(true);
+      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
+      loaderService.showLoader.and.resolveTo();
       loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
       reportService.getExports.and.returnValue(
         of({
@@ -331,10 +334,6 @@ describe('ViewTeamReportPageV2', () => {
       );
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
-
-      spyOn(component, 'setupNetworkWatcher');
-      spyOn(component, 'getApprovalSettings').and.returnValue(true);
-      spyOn(component, 'getReportClosureSettings').and.returnValue(true);
 
       component.ionViewWillEnter();
       tick(2000);
@@ -392,6 +391,10 @@ describe('ViewTeamReportPageV2', () => {
 
       component.sharedWith$.subscribe((res) => {
         expect(res).toEqual(['ajain@fyle.in', 'arjun.m@fyle.in']);
+      });
+
+      component.report$.subscribe((res) => {
+        expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
       component.actions$.subscribe((res) => {
