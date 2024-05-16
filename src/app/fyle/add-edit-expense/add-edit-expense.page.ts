@@ -4656,7 +4656,6 @@ export class AddEditExpensePage implements OnInit {
                 map((expense: PlatformExpense) => expense.file_ids?.length || 0)
               )
               .subscribe((attachedReceipts) => {
-                console.log('view attachments');
                 this.loadAttachments$.next();
                 if (this.attachedReceiptsCount === attachedReceipts) {
                   this.trackingService.viewAttachment();

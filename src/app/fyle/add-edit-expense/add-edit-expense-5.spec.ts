@@ -1355,7 +1355,6 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getExpenseById.and.returnValue(of(expenseData));
-        // expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
