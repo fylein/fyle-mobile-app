@@ -794,6 +794,17 @@ export function TestCases5(getTestBed) {
           done();
         });
       });
+
+      it('should return 0 if new expense is being created', (done) => {
+        component.etxn$ = of({ tx: {} });
+        fixture.detectChanges();
+
+        component.getReceiptCount().subscribe((res) => {
+          expect(res).toEqual(0);
+          expect(expensesService.getExpenseById).not.toHaveBeenCalled();
+          done();
+        });
+      });
     });
 
     it('setCategoryOnValueChange(): should change category value if vendor changes', fakeAsync(() => {

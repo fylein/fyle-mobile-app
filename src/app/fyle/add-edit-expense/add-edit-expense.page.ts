@@ -3099,9 +3099,9 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() =>
         this.etxn$.pipe(
           switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
-          switchMap((expense: PlatformExpense) => {
-            return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
-          }),
+          switchMap((expense: PlatformExpense) =>
+            expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
+          ),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
             const receiptObjs: ReceiptInfo[] = files.map((file) => {
@@ -3226,9 +3226,9 @@ export class AddEditExpensePage implements OnInit {
       );
     } else {
       return this.expensesService.getExpenseById(txnId).pipe(
-        switchMap((expense: PlatformExpense) => {
-          return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
-        }),
+        switchMap((expense: PlatformExpense) =>
+          expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
+        ),
         map((response: PlatformFileGenerateUrlsResponse[]) => {
           const files = response.filter((file) => file.content_type !== 'text/html');
           const receiptObjs: ReceiptInfo[] = files.map((file) => {
