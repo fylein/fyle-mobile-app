@@ -10,18 +10,12 @@ import { ProjectParams } from '../models/project-params.model';
 import { intersection } from 'lodash';
 import { OrgCategory } from '../models/v1/org-category.model';
 import { PlatformProject } from '../models/platform/platform-project.model';
-import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProjectsService {
-  constructor(
-    private apiService: ApiService,
-    private apiV2Service: ApiV2Service,
-    private spenderPlatformV1ApiService: SpenderPlatformV1ApiService
-  ) {}
+  constructor(private apiService: ApiService, private apiV2Service: ApiV2Service) {}
 
   @Cacheable()
   getByParamsUnformatted(
@@ -152,13 +146,22 @@ export class ProjectsService {
   }
 
   getbyId(projectId: number | string): Observable<ProjectV2> {
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
+    return this.apiV2Service
+      .get<ProjectV2, {}>('/projects', {
         params: {
-          id: `eq.${projectId}`,
+          project_id: `eq.${projectId}`,
         },
       })
-      .pipe(map((res) => this.transformToV2Response(res.data)[0]));
+      .pipe(
+        map(
+          (res) =>
+            res.data.map((datum) => ({
+              ...datum,
+              project_created_at: new Date(datum.project_created_at),
+              project_updated_at: new Date(datum.project_updated_at),
+            }))[0]
+        )
+      );
   }
 
   transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
@@ -185,11 +188,11 @@ export class ProjectsService {
       project_created_at: platformProject.created_at,
       project_description: platformProject.description,
       project_id: platformProject.id,
-      project_name: platformProject.display_name,
+      project_name: platformProject.name,
       project_org_category_ids: platformProject.category_ids,
       project_org_id: platformProject.org_id,
       project_updated_at: platformProject.updated_at,
-      projectv2_name: platformProject.name,
+      projectv2_name: platformProject.display_name,
       sub_project_name: platformProject.sub_project,
     }));
 
