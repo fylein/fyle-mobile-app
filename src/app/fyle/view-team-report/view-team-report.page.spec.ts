@@ -539,7 +539,7 @@ describe('ViewTeamReportPageV2', () => {
   it('getApproverEmails(): should get approver emails', () => {
     const result = component.getApproverEmails(allReportsPaginatedWithApproval.data[0].approvals);
 
-    expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fye.in']);
+    expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fyle.in']);
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {
