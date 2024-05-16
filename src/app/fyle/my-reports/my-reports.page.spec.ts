@@ -1338,15 +1338,15 @@ describe('MyReportsPage', () => {
   });
 
   it('onReportClick(): should navigate to the view report page', () => {
-    const erpt = expectedReportsSinglePage[0];
+    const report = expectedReportsSinglePage[0];
 
-    component.onReportClick(erpt);
+    component.onReportClick(report);
 
     expect(router.navigate).toHaveBeenCalledWith([
       '/',
       'enterprise',
       'my_view_report',
-      { id: erpt.id, navigateBack: true },
+      { id: report.id, navigateBack: true },
     ]);
   });
 
@@ -1380,9 +1380,9 @@ describe('MyReportsPage', () => {
         'onWillDismiss',
       ]);
       popoverController.create.and.resolveTo(cannotDeleteReportPopOverSpy);
-      const mockErpt = cloneDeep({ ...expectedReportsSinglePage[0], state: 'APPROVED' });
+      const mockReport = cloneDeep({ ...expectedReportsSinglePage[0], state: 'APPROVED' });
 
-      component.onDeleteReportClick(mockErpt);
+      component.onDeleteReportClick(mockReport);
       tick(200);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith(popoverControllerParams);
