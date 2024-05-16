@@ -222,10 +222,10 @@ export class TeamReportsPage implements OnInit {
         });
       });
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
       this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
+      const params = this.addNewFiltersToParams(eou);
       this.loadData$.next(params);
       this.filterPills = this.generateFilterPills(this.filters);
 
@@ -303,7 +303,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>): void {
+  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>, eou: ExtendedOrgUser): void {
     const stateOrFilter = [];
 
     if (this.filters.state) {
@@ -323,22 +323,19 @@ export class TeamReportsPage implements OnInit {
         stateOrFilter.push('PAID');
       }
     }
-
-    this.eou$.subscribe((eou) => {
-      if (stateOrFilter.length > 0) {
-        /* By default, displays the reports in `MY` queue
-         * Report state - APPROVER_PENDING
-         * sequential_approval_turn - true
-         * If any other state filter is applied, it will be considered as reports under `ALL` queue
-         */
-        if (this.filters.state.includes('APPROVER_PENDING') && this.filters.state.length === 1) {
-          newQueryParams.next_approver_user_ids = `cs.[${eou.us.id}]`;
-        }
-        let combinedStateOrFilter = stateOrFilter.join();
-        combinedStateOrFilter = `in.(${combinedStateOrFilter})`;
-        newQueryParams.state = combinedStateOrFilter;
+    if (stateOrFilter.length > 0) {
+      /* By default, displays the reports in `MY` queue
+       * Report state - APPROVER_PENDING
+       * sequential_approval_turn - true
+       * If any other state filter is applied, it will be considered as reports under `ALL` queue
+       */
+      if (this.filters.state.includes('APPROVER_PENDING') && this.filters.state.length === 1) {
+        newQueryParams.next_approver_user_ids = `cs.[${eou.us.id}]`;
       }
-    });
+      let combinedStateOrFilter = stateOrFilter.join();
+      combinedStateOrFilter = `in.(${combinedStateOrFilter})`;
+      newQueryParams.state = combinedStateOrFilter;
+    }
   }
 
   setSortParams(currentParams: Partial<GetTasksQueryParamsWithFilters>): void {
@@ -351,7 +348,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
+  addNewFiltersToParams(eou: ExtendedOrgUser): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
     const newQueryParams: Partial<GetTasksQueryParams> = {
@@ -360,10 +357,9 @@ export class TeamReportsPage implements OnInit {
 
     this.generateDateParams(newQueryParams);
 
-    this.generateStateFilters(newQueryParams);
-
     this.setSortParams(currentParams);
 
+    this.generateStateFilters(newQueryParams, eou);
     currentParams.queryParams = newQueryParams;
 
     return currentParams;
@@ -372,9 +368,11 @@ export class TeamReportsPage implements OnInit {
   clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.eou$.subscribe((eou) => {
+      const params = this.addNewFiltersToParams(eou);
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+    });
   }
 
   onReportClick(report: Report): void {
@@ -446,9 +444,11 @@ export class TeamReportsPage implements OnInit {
       delete this.filters[filterType];
     }
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.eou$.subscribe((eou) => {
+      const params = this.addNewFiltersToParams(eou);
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+    });
   }
 
   searchClick(): void {
@@ -862,11 +862,13 @@ export class TeamReportsPage implements OnInit {
     if (data) {
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-      this.trackingService.TeamReportsFilterApplied({
-        ...this.filters,
+      this.eou$.subscribe((eou) => {
+        const params = this.addNewFiltersToParams(eou);
+        this.loadData$.next(params);
+        this.filterPills = this.generateFilterPills(this.filters);
+        this.trackingService.TeamReportsFilterApplied({
+          ...this.filters,
+        });
       });
     }
   }
