@@ -136,13 +136,19 @@ export class ProjectsService {
   getAllActive(): Observable<ProjectV1[]> {
     const data = {
       params: {
-        is_enabled: `eq.true`,
+        active_only: true,
       },
     };
 
-    return this.spenderPlatformV1ApiService
-      .get<PlatformApiResponse<PlatformProject[]>>('/projects', data)
-      .pipe(map((res) => this.transformToV1Response(res.data)));
+    return this.apiService.get<ProjectV1[]>('/projects', data).pipe(
+      map((res) =>
+        res.map((datum) => ({
+          ...datum,
+          created_at: new Date(datum.created_at),
+          updated_at: new Date(datum.updated_at),
+        }))
+      )
+    );
   }
 
   getbyId(projectId: number | string): Observable<ProjectV2> {
