@@ -7,7 +7,7 @@ export const tasksQueryParamsWithFiltersData: Partial<GetTasksQueryParamsWithFil
   sortDir: 'asc',
   searchString: 'example',
   queryParams: {
-    rp_state: 'in.(APPROVER_PENDING)',
+    state: 'in.(APPROVER_PENDING)',
   },
 });
 
@@ -23,7 +23,7 @@ export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFi
   searchString: 'example',
   sortParam: 'rp_submitted_at',
   queryParams: {
-    or: ['(rp_state.in.(APPROVER_INQUIRY))'],
+    state: 'in.(APPROVER_INQUIRY)',
     and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
   },
 });
