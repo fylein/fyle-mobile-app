@@ -304,7 +304,6 @@ export class ViewTeamReportPage {
     this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
     this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
 
-    console.log('here');
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
