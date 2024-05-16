@@ -1481,10 +1481,10 @@ export function TestCases5(getTestBed) {
 
         component.attachments$.subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
+          expect(expensesService.getExpenseById).toHaveBeenCalledWith('tx3qHxFNgRcZ');
+          expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         });
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledWith('tx3qHxFNgRcZ');
-        expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           generateUrlsBulkData1[0].name,
           generateUrlsBulkData1[0].download_url
