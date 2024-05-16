@@ -1488,11 +1488,11 @@ export function TestCases5(getTestBed) {
 
         expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledWith('txyeiYbLDSOy');
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith(activatedRoute.snapshot.params.id);
 
         component.attachments$.subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
-          expect(expensesService.getExpenseById).toHaveBeenCalledWith('tx3qHxFNgRcZ');
+          expect(expensesService.getExpenseById).toHaveBeenCalledWith(unflattenedTxnData.tx.id);
           expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         });
 
