@@ -108,6 +108,8 @@ import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expen
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -157,6 +159,7 @@ export function TestCases3(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -213,6 +216,7 @@ export function TestCases3(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -410,18 +414,19 @@ export function TestCases3(getTestBed) {
 
     describe('getExpenseAttachments():', () => {
       it('should return file observables in edit mode', (done) => {
-        const mockFileObject = cloneDeep(fileObject4);
-        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
         });
         spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
 
-        component.getExpenseAttachments('edit', 'tx1vdITUXIzf').subscribe((res) => {
+        component.getExpenseAttachments('edit', platformExpenseWithExtractedData.id).subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
-          expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(['fiV1gXpyCcbU']);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.id);
+          expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(
+            platformExpenseWithExtractedData.file_ids
+          );
           expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
             'invoice.pdf',
             'https://sampledownloadurl.com'
@@ -986,7 +991,7 @@ export function TestCases3(getTestBed) {
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
-        fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component.loadAttachments$, 'next');
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -1005,7 +1010,7 @@ export function TestCases3(getTestBed) {
         tick(500);
 
         expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -1415,7 +1420,7 @@ export function TestCases3(getTestBed) {
         component.etxn$ = of(unflattenedExpData);
         component.isConnected$ = of(true);
         const mockFileData = cloneDeep(fileObjectData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
         activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
         fileService.post.and.returnValue(of(fileData1[0]));
@@ -1429,7 +1434,7 @@ export function TestCases3(getTestBed) {
         });
         tick(1000);
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
         expect(fileService.post).toHaveBeenCalledOnceWith(mockFileData[0]);
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
