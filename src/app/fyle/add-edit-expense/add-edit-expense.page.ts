@@ -32,7 +32,6 @@ import {
   filter,
   finalize,
   map,
-  reduce,
   shareReplay,
   startWith,
   switchMap,
@@ -135,6 +134,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 type FormValue = {
   currencyObj: {
@@ -445,6 +447,7 @@ export class AddEditExpensePage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private fileService: FileService,
+    private spenderFileService: SpenderFileService,
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -1785,7 +1788,7 @@ export class AddEditExpensePage implements OnInit {
             });
           }
 
-          if (etxn.tx.tax_group_id) {
+          if (etxn.tx.tax_group_id && taxGroups) {
             const tg = taxGroups.find((tg) => tg.id === etxn.tx.tax_group_id);
             this.fg.patchValue({
               tax_group: tg,
@@ -3072,21 +3075,20 @@ export class AddEditExpensePage implements OnInit {
         .pipe(
           map(
             (orgSetting) =>
-              orgSetting?.corporate_credit_card_settings?.enabled &&
-              orgSetting?.pending_cct_expense_restriction?.enabled
+              orgSetting.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
           )
         );
 
       forkJoin({
-        platformExpenses: this.platformExpense$,
+        platformExpense: this.platformExpense$,
         pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
       })
         .pipe(take(1))
         .subscribe((config) => {
           if (
             config.pendingTxnRestrictionEnabled &&
-            config.platformExpenses.matched_corporate_card_transactions?.length &&
-            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.platformExpense.matched_corporate_card_transactions?.length &&
+            config.platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
@@ -3097,19 +3099,26 @@ export class AddEditExpensePage implements OnInit {
       switchMap(() =>
         this.etxn$.pipe(
           switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          switchMap((fileObjs) => from(fileObjs)),
-          concatMap((fileObj: FileObject) =>
-            this.fileService.downloadUrl(fileObj.id).pipe(
-              map((downloadUrl) => {
-                fileObj.url = downloadUrl;
-                const details = this.getReceiptDetails(fileObj);
-                fileObj.type = details.type;
-                fileObj.thumbnail = details.thumbnail;
-                return fileObj;
-              })
-            )
-          ),
-          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+          switchMap((fileObjs: FileObject[]) => {
+            const fileIds: string[] = fileObjs.map((file) => file.id);
+            return fileIds.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+          }),
+          map((response: PlatformFileGenerateUrlsResponse[]) => {
+            const files = response.filter((file) => file.content_type !== 'text/html');
+            const receiptObjs: ReceiptInfo[] = files.map((file) => {
+              const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+              const receipt: ReceiptInfo = {
+                url: file.download_url,
+                type: details.type,
+                thumbnail: details.thumbnail,
+              };
+
+              return receipt;
+            });
+
+            return receiptObjs;
+          })
         )
       )
     );
@@ -3218,19 +3227,26 @@ export class AddEditExpensePage implements OnInit {
       );
     } else {
       return this.fileService.findByTransactionId(txnId).pipe(
-        switchMap((fileObjs: FileObject[]) => from(fileObjs)),
-        concatMap((fileObj: FileObject) =>
-          this.fileService.downloadUrl(fileObj.id).pipe(
-            map((downloadUrl: string) => {
-              fileObj.url = downloadUrl;
-              const details = this.getReceiptDetails(fileObj);
-              fileObj.type = details.type;
-              fileObj.thumbnail = details.thumbnail;
-              return fileObj;
-            })
-          )
-        ),
-        reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+        switchMap((fileObjs) => {
+          const fileIds = fileObjs.map((file) => file.id);
+          return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+        }),
+        map((response: PlatformFileGenerateUrlsResponse[]) => {
+          const files = response.filter((file) => file.content_type !== 'text/html');
+          const receiptObjs: ReceiptInfo[] = files.map((file) => {
+            const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+            const receipt: ReceiptInfo = {
+              url: file.download_url,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return receipt;
+          });
+
+          return receiptObjs;
+        })
       );
     }
   }

@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -135,7 +134,6 @@ export class ViewExpensePage {
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
@@ -375,10 +373,10 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report?.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )

@@ -15,7 +15,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgService } from 'src/app/core/services/org.service';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { ReportStatsData } from 'src/app/core/models/report-stats-data.model';
-import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 
 @Component({
   selector: 'app-stats',
@@ -23,13 +23,13 @@ import { ReportsStatsResponsePlatform } from 'src/app/core/models/platform/v1/re
   styleUrls: ['./stats.component.scss'],
 })
 export class StatsComponent implements OnInit {
-  draftStats$: Observable<ReportsStatsResponsePlatform>;
+  draftStats$: Observable<PlatformReportsStatsResponse>;
 
-  approvedStats$: Observable<ReportsStatsResponsePlatform>;
+  approvedStats$: Observable<PlatformReportsStatsResponse>;
 
-  paymentPendingStats$: Observable<ReportsStatsResponsePlatform>;
+  paymentPendingStats$: Observable<PlatformReportsStatsResponse>;
 
-  processingStats$: Observable<ReportsStatsResponsePlatform>;
+  processingStats$: Observable<PlatformReportsStatsResponse>;
 
   homeCurrency$: Observable<string>;
 
@@ -195,8 +195,10 @@ export class StatsComponent implements OnInit {
       },
     });
 
-    this.trackingService.dashboardOnReportPillClick({
-      State: state.toString(),
+    const reportState = this.dashboardService.getReportStateMapping(state);
+
+    this.trackingService.statsClicked({
+      event: `Clicked On ${reportState} Reports`,
     });
   }
 
@@ -207,13 +209,18 @@ export class StatsComponent implements OnInit {
         queryParams,
       });
 
-      this.trackingService.dashboardOnUnreportedExpensesClick();
+      this.trackingService.statsClicked({
+        event: 'Clicked On Unreported Expenses',
+      });
     } else {
       const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
-      this.trackingService.dashboardOnIncompleteExpensesClick();
+
+      this.trackingService.statsClicked({
+        event: 'Clicked On Incomplete Expenses',
+      });
     }
   }
 
