@@ -1630,8 +1630,8 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-      map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+      map((expense: PlatformExpense) => expense.file_ids?.length || 0)
     );
   }
 
@@ -3098,10 +3098,9 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          switchMap((fileObjs: FileObject[]) => {
-            const fileIds: string[] = fileObjs.map((file) => file.id);
-            return fileIds.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          switchMap((expense: PlatformExpense) => {
+            return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
           }),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
@@ -3226,10 +3225,9 @@ export class AddEditExpensePage implements OnInit {
         })
       );
     } else {
-      return this.fileService.findByTransactionId(txnId).pipe(
-        switchMap((fileObjs) => {
-          const fileIds = fileObjs.map((file) => file.id);
-          return fileIds?.length > 0 ? this.spenderFileService.generateUrlsBulk(fileIds) : of([]);
+      return this.expensesService.getExpenseById(txnId).pipe(
+        switchMap((expense: PlatformExpense) => {
+          return expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([]);
         }),
         map((response: PlatformFileGenerateUrlsResponse[]) => {
           const files = response.filter((file) => file.content_type !== 'text/html');
@@ -4437,8 +4435,8 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.fileService.findByTransactionId(etxn.tx.id) : of([]))),
-          map((fileObjs) => fileObjs?.length || 0)
+          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          map((expense: PlatformExpense) => expense.file_ids?.length || 0)
         );
 
         this.attachmentUploadInProgress = true;
@@ -4654,10 +4652,11 @@ export class AddEditExpensePage implements OnInit {
           if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
             this.etxn$
               .pipe(
-                switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-                map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+                switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id)),
+                map((expense: PlatformExpense) => expense.file_ids?.length || 0)
               )
               .subscribe((attachedReceipts) => {
+                console.log('view attachments');
                 this.loadAttachments$.next();
                 if (this.attachedReceiptsCount === attachedReceipts) {
                   this.trackingService.viewAttachment();

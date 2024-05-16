@@ -105,7 +105,13 @@ import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/te
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
-import { apiExpenses2, expenseData, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import {
+  apiExpenses2,
+  expenseData,
+  platformExpenseData,
+  platformExpenseWithExtractedData,
+  splitExpensesData,
+} from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { matchedCCTransactionData } from 'src/app/core/mock-data/matchedCCTransaction.data';
 import { cloneDeep } from 'lodash';
@@ -767,24 +773,24 @@ export function TestCases5(getTestBed) {
     describe('getReceiptCount():', () => {
       it('should get receipt count', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(1);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
 
       it('should return 0 if no receipts are returned', (done) => {
         component.etxn$ = of(unflattenedTxnData);
-        fileService.findByTransactionId.and.returnValue(of(null));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
         fixture.detectChanges();
 
         component.getReceiptCount().subscribe((res) => {
           expect(res).toEqual(0);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
           done();
         });
       });
@@ -1349,9 +1355,7 @@ export function TestCases5(getTestBed) {
         spyOn(component, 'getNewExpenseObservable').and.returnValue(of(expectedExpenseObservable));
         spyOn(component, 'getEditExpenseObservable').and.returnValue(of(expectedUnflattendedTxnData1));
         expensesService.getExpenseById.and.returnValue(of(expenseData));
-        const mockFileObject = cloneDeep(expectedFileData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileObject));
-        fileService.downloadUrl.and.returnValue(of('url'));
+        // expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         fileService.getReceiptsDetails.and.returnValue({
           type: 'pdf',
           thumbnail: 'img/fy-pdf.svg',
@@ -1474,14 +1478,14 @@ export function TestCases5(getTestBed) {
 
         expect(component.pendingTransactionAllowedToReportAndSplit).toBeTrue();
 
-        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith('txyeiYbLDSOy');
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith('txyeiYbLDSOy');
 
         component.attachments$.subscribe((res) => {
           expect(res).toEqual(receiptInfoData2);
         });
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx3qHxFNgRcZ');
-        expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(['fiV1gXpyCcbU']);
+        expect(expensesService.getExpenseById).toHaveBeenCalledWith('tx3qHxFNgRcZ');
+        expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expenseData.file_ids);
         expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
           generateUrlsBulkData1[0].name,
           generateUrlsBulkData1[0].download_url
