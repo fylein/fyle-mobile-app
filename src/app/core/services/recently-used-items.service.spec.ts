@@ -65,9 +65,9 @@ describe('RecentlyUsedItemsService', () => {
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith({
           orgId: config.eou.ou.org_id,
-          isEnabled: true,
+          active: true,
           sortDirection: 'asc',
-          sortOrder: 'name',
+          sortOrder: 'project_name',
           orgCategoryIds: config.categoryIds,
           projectIds: config.recentValues.recent_project_ids,
           offset: 0,
