@@ -5,4 +5,5 @@ export interface GetTasksQueryParams {
   last_submitted_at?: string;
   or?: [];
   and?: string;
+  q?: string;
 }

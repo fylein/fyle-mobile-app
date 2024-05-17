@@ -169,8 +169,14 @@ export class TeamReportsPage implements OnInit {
 
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
-          let queryParams = params.queryParams;
+          const queryParams = params.queryParams;
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+          if (params.searchString) {
+            queryParams.q = params.searchString;
+            queryParams.q = queryParams.q + ':*';
+          } else if (params.searchString === '') {
+            delete queryParams.q;
+          }
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
@@ -193,7 +199,13 @@ export class TeamReportsPage implements OnInit {
 
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
-          let queryParams = params.queryParams;
+          const queryParams = params.queryParams;
+          if (params.searchString) {
+            queryParams.q = params.searchString;
+            queryParams.q = queryParams.q + ':*';
+          } else if (params.searchString === '') {
+            delete queryParams.q;
+          }
           return this.approverReportsService.getReportsCount(queryParams);
         }),
         shareReplay(1)
