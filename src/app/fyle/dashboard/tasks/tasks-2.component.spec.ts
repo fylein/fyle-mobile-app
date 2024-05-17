@@ -45,6 +45,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -362,7 +363,7 @@ export function TestCases2(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
         authService.getEou.and.resolveTo(apiEouRes);
-        approverReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+        reportService.getTeamReports.and.returnValue(of(apiReportRes));
       });
 
       it('should get all team reports and navigate to my view report page if task count is 1', fakeAsync(() => {

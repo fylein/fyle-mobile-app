@@ -195,8 +195,10 @@ export class StatsComponent implements OnInit {
       },
     });
 
-    this.trackingService.dashboardOnReportPillClick({
-      State: state.toString(),
+    const reportState = this.dashboardService.getReportStateMapping(state);
+
+    this.trackingService.statsClicked({
+      event: `Clicked On ${reportState} Reports`,
     });
   }
 
@@ -207,13 +209,18 @@ export class StatsComponent implements OnInit {
         queryParams,
       });
 
-      this.trackingService.dashboardOnUnreportedExpensesClick();
+      this.trackingService.statsClicked({
+        event: 'Clicked On Unreported Expenses',
+      });
     } else {
       const queryParams: Params = { filters: JSON.stringify({ state: ['DRAFT'] }) };
       this.router.navigate(['/', 'enterprise', 'my_expenses'], {
         queryParams,
       });
-      this.trackingService.dashboardOnIncompleteExpensesClick();
+
+      this.trackingService.statsClicked({
+        event: 'Clicked On Incomplete Expenses',
+      });
     }
   }
 

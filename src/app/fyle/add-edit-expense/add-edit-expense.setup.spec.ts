@@ -59,6 +59,7 @@ import { TestCases5 } from './add-edit-expense-5.spec';
 import { TestCases6 } from './add-edit-expense-6.spec';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 
 export function setFormValid(component) {
   Object.defineProperty(component.fg, 'valid', {
@@ -138,7 +139,9 @@ describe('AddEditExpensePage', () => {
       'post',
       'readFile',
       'getImageTypeFromDataUrl',
+      'getReceiptsDetails',
     ]);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', [
       'getAmountWithCurrencyFraction',
@@ -305,6 +308,10 @@ describe('AddEditExpensePage', () => {
         {
           provide: FileService,
           useValue: fileServiceSpy,
+        },
+        {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
         },
         {
           provide: PopoverController,

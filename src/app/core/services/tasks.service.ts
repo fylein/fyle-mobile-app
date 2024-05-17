@@ -23,6 +23,7 @@ import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportState } from '../models/platform/v1/report.model';
+import { Datum } from '../models/v2/stats-response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -526,6 +527,23 @@ export class TasksService {
       },
     ];
     return task;
+  }
+
+  getStatsFromResponse(
+    statsResponse: Datum[],
+    countName: string,
+    sumName: string
+  ): { totalCount: number; totalAmount: number } {
+    const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
+    const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
+    return {
+      totalCount: countAggregate && countAggregate.function_value,
+      totalAmount: amountAggregate && amountAggregate.function_value,
+    };
+  }
+
+  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
+    return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {

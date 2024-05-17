@@ -10,7 +10,6 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { ExpenseFieldsService } from 'src/app/core/services/expense-fields.service';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 
