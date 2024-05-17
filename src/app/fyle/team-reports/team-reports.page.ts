@@ -171,7 +171,6 @@ export class TeamReportsPage implements OnInit {
         switchMap((params) => {
           let queryParams = params.queryParams;
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
@@ -195,7 +194,6 @@ export class TeamReportsPage implements OnInit {
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
           return this.approverReportsService.getReportsCount(queryParams);
         }),
         shareReplay(1)
@@ -351,9 +349,7 @@ export class TeamReportsPage implements OnInit {
   addNewFiltersToParams(eou: ExtendedOrgUser): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: Partial<GetTasksQueryParams> = {
-      or: [],
-    };
+    const newQueryParams: Partial<GetTasksQueryParams> = {};
 
     this.generateDateParams(newQueryParams);
 

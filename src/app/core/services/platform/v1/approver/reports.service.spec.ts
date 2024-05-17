@@ -78,7 +78,7 @@ describe('ApproverReportsService', () => {
       offset: 0,
     };
 
-    approverReportsService.getReportsCount(mockQueryParams).subscribe((res) => {
+    approverReportsService.getReportsCount(mockQueryParamsForCount).subscribe((res) => {
       // Verify
       expect(res).toEqual(4); // Check if the count is as expected
       expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params

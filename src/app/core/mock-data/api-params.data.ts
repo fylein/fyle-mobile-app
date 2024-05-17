@@ -23,17 +23,15 @@ export const getMyReportsParam2: ReportApiParams = deepFreeze({
 export const getTeamReportsParams1: ReportApiParams = deepFreeze({
   offset: 0,
   limit: 10,
-  queryParams: {
-    rp_state: 'in.(APPROVER_PENDING)',
-  },
+  state: 'in.(APPROVER_PENDING)',
+  next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
   order: null,
 });
 
 export const getTeamReportsParams2: ReportApiParams = deepFreeze({
   offset: 0,
   limit: 10,
-  queryParams: {
-    rp_state: 'in.(APPROVER_PENDING)',
-  },
-  order: 'approvalDate.asc',
+  state: 'in.(APPROVER_PENDING)',
+  next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
+  order: null,
 });
