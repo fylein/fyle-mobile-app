@@ -48,6 +48,9 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -139,7 +142,8 @@ export class SplitExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
     private projectsService: ProjectsService,
-    private timezoneService: TimezoneService
+    private timezoneService: TimezoneService,
+    private expensesService: ExpensesService
   ) {}
 
   goBack(): void {
@@ -540,10 +544,10 @@ export class SplitExpensePage {
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
-  getAttachedFiles(transactionId: string): Observable<FileObject[]> {
-    return this.fileService.findByTransactionId(transactionId).pipe(
-      map((uploadedFiles) => {
-        this.fileObjs = uploadedFiles;
+  getAttachedFiles(transactionId: string): Observable<Partial<PlatformFile>[]> {
+    return this.expensesService.getExpenseById(transactionId).pipe(
+      map((expense: PlatformExpense) => {
+        this.fileObjs = expense.files;
         return this.fileObjs;
       })
     );
