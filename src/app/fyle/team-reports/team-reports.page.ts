@@ -38,7 +38,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   pageTitle = 'Team Reports';
 
@@ -151,11 +151,14 @@ export class TeamReportsPage implements OnInit {
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       this.simpleSearchInput.nativeElement.value = '';
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
-          map((event: any) => event.srcElement.value as string),
+          map((event) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+            const value = event.srcElement.value;
+            return value as string;
+          }),
           debounceTime(1000),
           distinctUntilChanged()
         )
@@ -403,7 +406,7 @@ export class TeamReportsPage implements OnInit {
 
   clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -453,7 +456,7 @@ export class TeamReportsPage implements OnInit {
 
   searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
