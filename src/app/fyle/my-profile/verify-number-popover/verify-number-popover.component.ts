@@ -31,12 +31,29 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   disableResendOtp = false;
 
+  otp = '12';
+
   constructor(
     private popoverController: PopoverController,
     private mobileNumberVerificationService: MobileNumberVerificationService
   ) {}
 
   ngOnInit(): void {
+    if (window.navigator) {
+      navigator.credentials
+        .get({
+          //@ts-ignore
+          otp: {
+            transport: ['sms'],
+          },
+        })
+        .then((res) => {
+          console.log(res);
+          // @ts-ignore
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          this.otp = res.code;
+        });
+    }
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
     this.value = '';
     this.resendOtp('INITIAL');
