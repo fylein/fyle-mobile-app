@@ -36,7 +36,7 @@ type PaymentMode = {
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
 export class FyViewReportInfoComponent {
-  @Input() erpt$: Observable<Report>;
+  @Input() report$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
 
@@ -77,26 +77,26 @@ export class FyViewReportInfoComponent {
   }
 
   ionViewWillEnter(): void {
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
-      const createdDate = this.datePipe.transform(erpt.created_at, 'MMM d, y');
+    this.report$.pipe(filter((report) => !!report)).subscribe((report) => {
+      const createdDate = this.datePipe.transform(report.created_at, 'MMM d, y');
       this.reportDetails = {
-        'Report Name': erpt.purpose,
-        Owner: erpt.employee.user.full_name,
-        'Report Number': erpt.seq_num,
+        'Report Name': report.purpose,
+        Owner: report.employee.user.full_name,
+        'Report Number': report.seq_num,
         'Created On': createdDate,
       };
-      this.reportCurrency = erpt.currency;
+      this.reportCurrency = report.currency;
 
       if (this.view === ExpenseView.team) {
-        this.createEmployeeDetails(erpt);
+        this.createEmployeeDetails(report);
       }
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    combineLatest([this.expenses$, this.erpt$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
+    combineLatest([this.expenses$, this.report$, orgSettings$]).subscribe(([expenses, report, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
-        'Total Amount': erpt.amount,
+        'Total Amount': report.amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
       };
       if (orgSettings) {
@@ -194,22 +194,22 @@ export class FyViewReportInfoComponent {
     }
   }
 
-  async createEmployeeDetails(erpt: Report): Promise<void> {
+  async createEmployeeDetails(report: Report) {
     this.employeeDetails = {
-      'Employee ID': erpt.employee.id,
-      Organization: erpt.employee.org_name,
-      Department: erpt.employee.department?.name,
-      'Sub Department': erpt.employee.department?.sub_department,
-      Location: erpt.employee.location,
-      Level: erpt.employee.level?.name,
-      'Employee Title': erpt.employee.title,
-      'Business Unit': erpt.employee.business_unit,
-      Mobile: erpt.employee.mobile,
+      'Employee ID': report.employee.id,
+      Organization: report.employee.org_name,
+      Department: report.employee.department?.name,
+      'Sub Department': report.employee.department?.sub_department,
+      Location: report.employee.location,
+      Level: report.employee.level?.name,
+      'Employee Title': report.employee.title,
+      'Business Unit': report.employee.business_unit,
+      Mobile: report.employee.mobile,
     };
     try {
       const orgUser = await this.authService.getEou();
-      if (erpt.org_id === orgUser.ou.org_id) {
-        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.employee.id).subscribe((costCenters) => {
+      if (report.org_id === orgUser.ou.org_id) {
+        this.orgUserSettingsService.getAllowedCostCentersByOuId(report.employee.id).subscribe((costCenters) => {
           const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
           this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
         });

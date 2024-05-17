@@ -25,7 +25,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
@@ -46,11 +45,9 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<Report>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
-
-  reportApprovals$: Observable<Approver[]>;
 
   canEdit$: Observable<boolean>;
 
@@ -168,7 +165,7 @@ export class MyViewReportPage {
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 
-    this.erpt$ = this.loadReportDetails$.pipe(
+    this.report$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
@@ -224,18 +221,14 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$.pipe(take(1)).subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt?.currency, 'wide');
+    this.report$.pipe(take(1)).subscribe((report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (erpt?.state === 'APPROVER_INQUIRY') {
+      if (report?.state === 'APPROVER_INQUIRY') {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
-
-    this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.reportId)
-      .pipe(map((reportApprovals) => reportApprovals));
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
@@ -317,12 +310,12 @@ export class MyViewReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.erpt$
+    this.report$
       .pipe(
         take(1),
-        switchMap((erpt) => {
-          erpt.purpose = reportName;
-          return this.reportService.updateReportPurpose(erpt);
+        switchMap((report) => {
+          report.purpose = reportName;
+          return this.reportService.updateReportPurpose(report);
         })
       )
       .subscribe(() => {
@@ -334,14 +327,14 @@ export class MyViewReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.erpt$
+    this.report$
       .pipe(take(1))
       .pipe(
-        switchMap((erpt) => {
+        switchMap((report) => {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.purpose,
+              reportName: report.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });
@@ -361,10 +354,10 @@ export class MyViewReportPage {
   }
 
   deleteReport(): void {
-    this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
+    this.report$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  getDeleteReportPopupParams(erpt: Report): {
+  getDeleteReportPopupParams(report: Report): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -383,7 +376,7 @@ export class MyViewReportPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
-          erpt.state === ReportState.DRAFT && erpt.num_expenses === 0
+          report.state === ReportState.DRAFT && report.num_expenses === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
@@ -392,8 +385,8 @@ export class MyViewReportPage {
     };
   }
 
-  async deleteReportPopup(erpt: Report): Promise<void> {
-    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
+  async deleteReportPopup(report: Report): Promise<void> {
+    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(report));
 
     await deleteReportPopover.present();
 
@@ -464,13 +457,13 @@ export class MyViewReportPage {
       const route = this.getTransactionRoute(category, canEdit);
 
       if (canEdit) {
-        this.erpt$.pipe(take(1)).subscribe((erpt) =>
+        this.report$.pipe(take(1)).subscribe((report) =>
           this.router.navigate([
             route,
             {
               id: expense.id,
               navigate_back: true,
-              remove_from_report: erpt.num_expenses > 1,
+              remove_from_report: report.num_expenses > 1,
             },
           ])
         );
@@ -523,7 +516,7 @@ export class MyViewReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: this.erpt$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.individual,
       },
