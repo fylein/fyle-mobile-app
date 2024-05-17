@@ -524,7 +524,7 @@ export class TasksComponent implements OnInit {
       from(this.authService.getEou()).subscribe((eou) => {
         const queryParams = {
           next_approver_user_ids: `cs.[${eou.us.id}]`,
-          state: 'eq.APPROVER_PENDING',
+          state: `eq.${ReportState.APPROVER_PENDING}`,
         };
         return from(this.loaderService.showLoader('Opening your report...'))
           .pipe(
