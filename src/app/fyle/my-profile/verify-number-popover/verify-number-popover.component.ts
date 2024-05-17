@@ -4,6 +4,7 @@ import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { ErrorType } from './error-type.model';
+import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -31,12 +32,20 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   disableResendOtp = false;
 
+  apphash = 'hello';
+
   constructor(
     private popoverController: PopoverController,
-    private mobileNumberVerificationService: MobileNumberVerificationService
+    private mobileNumberVerificationService: MobileNumberVerificationService,
+    private smsRetriever: SmsRetriever
   ) {}
 
   ngOnInit(): void {
+    this.smsRetriever.getAppHash().then((res) => {
+      console.log(res);
+      this.apphash = res;
+    });
+
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
     this.value = '';
     this.resendOtp('INITIAL');

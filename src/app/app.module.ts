@@ -21,6 +21,7 @@ import { HAMMER_GESTURE_CONFIG, HammerGestureConfig } from '@angular/platform-br
 import { PAGINATION_SIZE, DEVICE_PLATFORM } from './constants';
 import { Smartlook } from '@awesome-cordova-plugins/smartlook/ngx';
 import { Capacitor } from '@capacitor/core';
+import { SmsRetriever } from '@ionic-native/sms-retriever/ngx';
 
 export class MyHammerConfig extends HammerGestureConfig {
   overrides = <any>{
@@ -95,6 +96,7 @@ export const MIN_SCREEN_WIDTH = new InjectionToken<number>(
       useValue: Capacitor.getPlatform(),
     },
     TitleCasePipe,
+    SmsRetriever,
   ],
   bootstrap: [AppComponent],
 })
