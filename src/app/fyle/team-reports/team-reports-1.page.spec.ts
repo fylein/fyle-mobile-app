@@ -16,7 +16,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -28,6 +27,9 @@ import {
 import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -46,6 +48,7 @@ export function TestCases1(getTestBed) {
     let apiV2Service: jasmine.SpyObj<ApiV2Service>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
     let inputElement: HTMLInputElement;
 
     beforeEach(waitForAsync(() => {
@@ -100,9 +103,9 @@ export function TestCases1(getTestBed) {
           sequential_approval_turn: 'in.(true)',
         });
         component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
-        reportService.getTeamReports.and.returnValue(of(paginatedPipeValue));
-        reportService.getTeamReportsCount.and.returnValue(of(20));
+        const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
+        approverReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
+        approverReportsService.getReportsCount.and.returnValue(of(20));
         mockAddNewFiltersToParams = spyOn(component, 'addNewFiltersToParams');
         const mockTasksQuery = cloneDeep(tasksQueryParamsWithFiltersData);
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
@@ -219,9 +222,9 @@ export function TestCases1(getTestBed) {
         expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams1);
         expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams2);
         expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-        expect(component.acc).toEqual(apiExtendedReportRes);
+        expect(component.acc).toEqual(expectedReportsSinglePage);
         component.teamReports$.subscribe((teamReports) => {
-          expect(teamReports).toEqual(apiExtendedReportRes);
+          expect(teamReports).toEqual(expectedReportsSinglePage);
         });
       });
 

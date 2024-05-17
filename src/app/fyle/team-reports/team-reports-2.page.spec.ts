@@ -16,7 +16,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiExtendedReportRes, reportParam } from 'src/app/core/mock-data/report.data';
+import { reportParam } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -37,6 +37,8 @@ import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-qu
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import * as dayjs from 'dayjs';
 import { popupConfigData, popupConfigData2 } from 'src/app/core/mock-data/popup.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 export function TestCases2(getTestBed) {
   return describe('test cases set 2', () => {
@@ -201,9 +203,9 @@ export function TestCases2(getTestBed) {
         const queryParams: Partial<GetTasksQueryParams> = {
           or: [],
         };
-        component.generateStateFilters(queryParams);
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVER_PENDING), rp_state.in.(APPROVER_INQUIRY))'],
+          state: 'in.(APPROVER_PENDING,APPROVER_INQUIRY)',
         });
       });
 
@@ -212,10 +214,9 @@ export function TestCases2(getTestBed) {
         const queryParams: Partial<GetTasksQueryParams> = {
           or: [],
         };
-        component.generateStateFilters(queryParams);
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVER_PENDING))'],
-          sequential_approval_turn: 'in.(true)',
+          state: 'in.(APPROVER_PENDING)',
         });
       });
 
@@ -224,9 +225,9 @@ export function TestCases2(getTestBed) {
         const queryParams: Partial<GetTasksQueryParams> = {
           or: [],
         };
-        component.generateStateFilters(queryParams);
+        component.generateStateFilters(queryParams, apiEouRes);
         expect(queryParams).toEqual({
-          or: ['(rp_state.in.(APPROVED), rp_state.in.(PAID))'],
+          state: 'in.(APPROVED,PAID)',
         });
       });
     });
@@ -279,7 +280,7 @@ export function TestCases2(getTestBed) {
       spyOn(component, 'generateStateFilters').and.callThrough();
       spyOn(component, 'setSortParams').and.callThrough();
 
-      const result = component.addNewFiltersToParams();
+      const result = component.addNewFiltersToParams(apiEouRes);
 
       expect(component.generateDateParams).toHaveBeenCalledTimes(1);
       expect(component.generateStateFilters).toHaveBeenCalledTimes(1);
@@ -304,15 +305,15 @@ export function TestCases2(getTestBed) {
     });
 
     it('onReportClick(): should navigate to the view report page', () => {
-      const erpt = apiExtendedReportRes[0];
+      const report = expectedReportsSinglePage[0];
 
-      component.onReportClick(erpt);
+      component.onReportClick(report);
 
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
         'view_team_report',
-        { id: erpt.rp_id, navigate_back: true },
+        { id: report.id, navigate_back: true },
       ]);
     });
 

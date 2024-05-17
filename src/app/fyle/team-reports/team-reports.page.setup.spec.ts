@@ -18,6 +18,7 @@ import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { TestCases2 } from './team-reports-2.page.spec';
 import { TestCases3 } from './team-reports-3.page.spec';
 import { TestCases4 } from './team-reports-4.page.spec';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('TeamReportsPage', () => {
   const getTestBed = () => {
@@ -49,6 +50,10 @@ describe('TeamReportsPage', () => {
     const apiV2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['extendQueryParamsForTextSearch']);
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getTeamReportsTaskCount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'getReportsByParams',
+      'getReportsCount',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [TeamReportsPage, ReportState],
@@ -67,6 +72,7 @@ describe('TeamReportsPage', () => {
         { provide: ApiV2Service, useValue: apiV2ServiceSpy },
         { provide: TasksService, useValue: tasksServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
