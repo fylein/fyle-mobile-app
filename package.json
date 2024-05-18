@@ -74,6 +74,7 @@
     "cordova-plugin-ionic": "^5.5.3",
     "cordova-plugin-native-spinner": "^1.1.4",
     "cordova-plugin-smartlook": "github:smartlook/cordova-smartlook",
+    "cordova-plugin-sms-retriever-manager": "^1.0.5",
     "cordova-plugin-telerik-imagepicker": "github:VerianMobile/ImagePicker",
     "dayjs": "^1.11.7",
     "deep-freeze-strict": "^1.1.1",

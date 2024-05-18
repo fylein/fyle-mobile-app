@@ -24,6 +24,10 @@
     <param name="android-package" value="com.smartlook.cordovaplugin.SmartlookPlugin"/>
   </feature>
 
+  <feature name="AndroidSmsRetriever">
+    <param name="android-package" value="com.codingsans.ionic.smsRetriever.AndroidSmsRetriever"/>
+  </feature>
+
   <feature name="ImagePicker">
     <param name="android-package" value="com.synconset.ImagePicker"/>
   </feature>
