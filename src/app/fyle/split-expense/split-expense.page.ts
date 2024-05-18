@@ -544,8 +544,8 @@ export class SplitExpensePage {
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
-  getAttachedFiles(transactionId: string): Observable<Partial<PlatformFile>[]> {
-    return this.expensesService.getExpenseById(transactionId).pipe(
+  getAttachedFiles(expenseId: string): Observable<Partial<PlatformFile>[]> {
+    return this.expensesService.getExpenseById(expenseId).pipe(
       map((expense: PlatformExpense) => {
         this.fileObjs = expense.files;
         return this.fileObjs;

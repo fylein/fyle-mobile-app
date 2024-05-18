@@ -750,12 +750,12 @@ describe('SplitExpensePage', () => {
   });
 
   it('getAttachedFiles(): should get all the attached files', (done) => {
-    const transactionId = 'fizBwnXhyZTp';
+    const expenseId = 'fizBwnXhyZTp';
     expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-    component.getAttachedFiles(transactionId).subscribe((result) => {
+    component.getAttachedFiles(expenseId).subscribe((result) => {
       expect(result).toEqual(platformExpenseWithExtractedData.files);
       expect(component.fileObjs).toEqual(platformExpenseWithExtractedData.files);
-      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseId);
       done();
     });
   });
