@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
-import { PopoverController } from '@ionic/angular';
+import { Platform, PopoverController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { ErrorType } from './error-type.model';
+import { SmsRetriever } from '@awesome-cordova-plugins/sms-retriever/ngx';
 
 @Component({
   selector: 'app-verify-number-popover',
@@ -33,10 +34,25 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
 
   constructor(
     private popoverController: PopoverController,
-    private mobileNumberVerificationService: MobileNumberVerificationService
+    private mobileNumberVerificationService: MobileNumberVerificationService,
+    private smsRetriever: SmsRetriever,
+    private platform: Platform
   ) {}
 
   ngOnInit(): void {
+    if (this.platform.is('android')) {
+      this.smsRetriever.getAppHash().then((hash) => {
+        console.log('App hash is', hash);
+      });
+      this.smsRetriever
+        .startWatching()
+        .then((res) => {
+          console.log(res);
+          this.value = res.Message;
+        })
+        .catch((error) => console.error(error));
+    }
+
     this.infoBoxText = `Please verify your mobile number using the 6-digit OTP sent to ${this.extendedOrgUser.ou.mobile}`;
     this.value = '';
     this.resendOtp('INITIAL');
