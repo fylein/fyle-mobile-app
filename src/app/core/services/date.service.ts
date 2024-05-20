@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import * as dayjs from 'dayjs';
 import { DateParams } from '../models/date-parameters.model';
+import { OrgSettingsService } from './org-settings.service';
+import { OrgSettingsResponse } from '../models/org-settings.model';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 @Injectable({
   providedIn: 'root',
@@ -41,6 +44,8 @@ export class DateService {
 
   meridians = ['AM', 'PM'];
 
+  constructor(private launchDarklyService: LaunchDarklyService) {}
+
   firstOfThisMonth(): Date {
     return new Date(this.year, this.month, 1);
   }
@@ -62,21 +67,25 @@ export class DateService {
   // unovoidable right now
   // eslint-disable-next-line complexity
   fixDates<T>(data: T & Partial<DateParams>): T {
-    if (data.txn_dt) {
-      data.txn_dt = this.getUTCDate(new Date(data.txn_dt));
-    }
+    this.launchDarklyService.getVariation('timezone_fix', true).subscribe({
+      next: (timezoneFixEnabled: boolean) => {
+        if (data.txn_dt) {
+          data.txn_dt = timezoneFixEnabled ? new Date(data.txn_dt) : this.getUTCDate(new Date(data.txn_dt));
+        }
 
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = this.getUTCDate(new Date(data.tx_txn_dt));
-    }
+        if (data.tx_txn_dt) {
+          data.tx_txn_dt = timezoneFixEnabled ? new Date(data.tx_txn_dt) : this.getUTCDate(new Date(data.tx_txn_dt));
+        }
 
-    if (data.created_at) {
-      data.created_at = this.getUTCDate(new Date(data.created_at));
-    }
+        if (data.created_at) {
+          data.created_at = timezoneFixEnabled ? new Date(data.created_at) : this.getUTCDate(new Date(data.created_at));
+        }
 
-    if (data.joining_dt) {
-      data.joining_dt = this.getUTCDate(new Date(data.joining_dt));
-    }
+        if (data.joining_dt) {
+          data.joining_dt = timezoneFixEnabled ? new Date(data.joining_dt) : this.getUTCDate(new Date(data.joining_dt));
+        }
+      },
+    });
 
     if (data.due_at) {
       data.due_at = new Date(data.due_at);
