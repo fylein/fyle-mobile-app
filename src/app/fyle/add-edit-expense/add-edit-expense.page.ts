@@ -4448,13 +4448,13 @@ export class AddEditExpensePage implements OnInit {
         from(this.transactionOutboxService.fileUpload(data.dataUrl as string, attachmentType))
           .pipe(
             switchMap((fileObj: FileObject) => {
-              fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
+              const expenseId = this.activatedRoute.snapshot.params.id as string;
               this.trackingService.fileUploadComplete({
                 mode: 'edit',
                 'File ID': fileObj?.id,
                 'Txn ID': fileObj?.transaction_id,
               });
-              return this.fileService.post(fileObj);
+              return this.expensesService.attachReceiptToExpense(expenseId, fileObj.id);
             }),
             switchMap(() =>
               editExpenseAttachments$.pipe(
