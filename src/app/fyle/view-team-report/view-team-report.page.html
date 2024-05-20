@@ -66,7 +66,7 @@
               <div class="view-reports--employee-name">
                 <div>
                   <span class="view-reports--employee-name__text">Employee : </span>
-                  <span class="view-reports--employee-name__name">{{report.us_full_name | ellipsis: 30}}</span>
+                  <span class="view-reports--employee-name__name">{{ report.employee.user.full_name | ellipsis: 30}}</span>
                 </div>
               </div>
             </ion-col>
@@ -107,7 +107,7 @@
                 *ngIf="actions.can_add_approver"
                 [approverEmailsList]="getApproverEmails(reportApprovals)"
                 [id]="report.id"
-                [ownerEmail]="report.us_email"
+                [ownerEmail]="report.employee.user.email"
                 [type]="'TEAM_REPORT'"
                 (notify)="onUpdateApprover($event)"
               >
