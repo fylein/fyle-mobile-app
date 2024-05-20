@@ -109,7 +109,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
