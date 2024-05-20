@@ -317,9 +317,9 @@ export class ViewTeamReportPage {
       .permissions(this.activatedRoute.snapshot.params.id as string)
       .pipe(shareReplay(1));
 
-    this.canEdit$ = this.permissions$.pipe(map((actions) => actions.can_edit));
-    this.canDelete$ = this.permissions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = this.permissions$.pipe(map((actions) => actions.can_resubmit));
+    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     forkJoin({
       expenses: this.expenses$,
