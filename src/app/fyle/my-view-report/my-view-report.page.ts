@@ -276,7 +276,7 @@ export class MyViewReportPage {
           if (filterPendingTxn) {
             queryParams = {
               ...queryParams,
-              and: '(or(matched_corporate_card_transpermissions.eq.[],matched_corporate_card_transpermissions->0->status.neq.PENDING))',
+              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
             };
           }
           return this.expensesService.getAllExpenses({ queryParams });
