@@ -205,7 +205,7 @@ export class TeamReportsPage implements OnInit {
       );
 
       const paginatedScroll$ = this.teamReports$.pipe(
-        switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
+        switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
       );
 
       this.isInfiniteScrollRequired$ = this.loadData$.pipe(
