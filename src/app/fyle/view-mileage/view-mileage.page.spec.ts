@@ -36,7 +36,7 @@ import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spe
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { mileageExpense, platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
@@ -51,6 +51,10 @@ import {
   expectedReportsSinglePageSubmitted,
   paidReportData,
 } from '../../core/mock-data/platform-report.data';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
+import { receiptInfoData1 } from 'src/app/core/mock-data/receipt-info.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -75,6 +79,8 @@ describe('ViewMileagePage', () => {
   let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -108,7 +114,11 @@ describe('ViewMileagePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', [
+      'findByTransactionId',
+      'downloadUrl',
+      'getReceiptsDetails',
+    ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', [
@@ -119,6 +129,8 @@ describe('ViewMileagePage', () => {
       'ejectExpenses',
       'getReportById',
     ]);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -201,6 +213,14 @@ describe('ViewMileagePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+        },
+        {
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -236,6 +256,8 @@ describe('ViewMileagePage', () => {
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -1048,6 +1070,43 @@ describe('ViewMileagePage', () => {
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(2);
+    });
+
+    it('should call spender file service to get map attachment details', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      component.view = ExpenseView.individual;
+      spenderFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(spenderFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
+    });
+
+    it('should call approver file service to get map attachments', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      approverFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(approverFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
     });
   });
 
