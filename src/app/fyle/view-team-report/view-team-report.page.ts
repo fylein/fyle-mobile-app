@@ -34,7 +34,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportActions } from 'src/app/core/models/report-actions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -130,6 +130,8 @@ export class ViewTeamReportPage {
   reportNameChangeEndTime: number;
 
   timeSpentOnEditingReportName: number;
+
+  approvals: ReportApprovals[];
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -310,6 +312,9 @@ export class ViewTeamReportPage {
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
+      this.approvals = report.approvals.filter(
+        (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].indexOf(approval.state) > -1
+      );
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled

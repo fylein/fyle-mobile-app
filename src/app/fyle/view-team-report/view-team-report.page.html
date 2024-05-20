@@ -98,13 +98,13 @@
       </div>
 
       <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
-        <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
+        <div *ngIf="approvals.length > 0" class="view-reports--approval-state-block">
           <div class="view-reports--approvers-title-block">
             <div class="view-reports--approvers">Approvers</div>
             <div *ngIf="actions$|async as actions">
               <app-fy-approver
                 *ngIf="actions.can_add_approver"
-                [approverEmailsList]="getApproverEmails(report.approvals)"
+                [approverEmailsList]="getApproverEmails(approvals)"
                 [id]="report.id"
                 [ownerEmail]="report.us_email"
                 [type]="'TEAM_REPORT'"
@@ -113,7 +113,7 @@
               </app-fy-approver>
             </div>
           </div>
-          <div *ngFor="let approver of report.approvals">
+          <div *ngFor="let approver of approvals">
             <div class="view-reports--approvers-list">
               <div>{{ approver.approver_user.full_name }}</div>
               <div class="view-reports--approver-state-section">
