@@ -372,16 +372,21 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
-        expect(approverReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
-          state: 'eq.APPROVER_PENDING',
-          next_approver_user_ids: `cs.[${apiEouRes.us.id}]`,
+        expect(reportService.getTeamReports).toHaveBeenCalledOnceWith({
+          queryParams: {
+            rp_approval_state: ['in.(APPROVAL_PENDING)'],
+            rp_state: ['in.(APPROVER_PENDING)'],
+            sequential_approval_turn: ['in.(true)'],
+          },
+          offset: 0,
+          limit: 1,
         });
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'view_team_report',
-          { id: expectedReportsSinglePage[0].id, navigate_back: true },
+          { id: apiReportRes.data[0].rp_id, navigate_back: true },
         ]);
       }));
 
@@ -389,7 +394,7 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(approverReportsService.getAllReportsByParams).not.toHaveBeenCalled();
+        expect(reportService.getTeamReports).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
           queryParams: { filters: JSON.stringify({ state: ['APPROVER_PENDING'] }) },
