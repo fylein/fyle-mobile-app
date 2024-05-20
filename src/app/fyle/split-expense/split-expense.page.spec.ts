@@ -17,6 +17,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import {
   AbstractControlOptions,
   FormArray,
@@ -169,6 +170,7 @@ import {
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -180,6 +182,7 @@ describe('SplitExpensePage', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let fileService: jasmine.SpyObj<FileService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let navController: jasmine.SpyObj<NavController>;
   let router: jasmine.SpyObj<Router>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
@@ -218,6 +221,7 @@ describe('SplitExpensePage', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
@@ -274,6 +278,7 @@ describe('SplitExpensePage', () => {
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
@@ -327,6 +332,7 @@ describe('SplitExpensePage', () => {
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
@@ -744,12 +750,12 @@ describe('SplitExpensePage', () => {
   });
 
   it('getAttachedFiles(): should get all the attached files', (done) => {
-    const transactionId = 'fizBwnXhyZTp';
-    fileService.findByTransactionId.and.returnValue(of(fileObject8));
-    component.getAttachedFiles(transactionId).subscribe((result) => {
-      expect(result).toEqual(fileObject8);
-      expect(component.fileObjs).toEqual(fileObject8);
-      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+    const expenseId = 'fizBwnXhyZTp';
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+    component.getAttachedFiles(expenseId).subscribe((result) => {
+      expect(result).toEqual(platformExpenseWithExtractedData.files);
+      expect(component.fileObjs).toEqual(platformExpenseWithExtractedData.files);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseId);
       done();
     });
   });
@@ -1043,7 +1049,7 @@ describe('SplitExpensePage', () => {
 
     it('should return an error object when the date is after the upper bound of the valid range', () => {
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 2);
+      tomorrow.setDate(tomorrow.getDate() + 3);
       const control = new FormControl(tomorrow.toISOString().substring(0, 10));
       const result = component.customDateValidator(control);
       expect(result).toEqual({ invalidDateSelection: true });

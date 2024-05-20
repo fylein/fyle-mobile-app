@@ -362,7 +362,7 @@ export function TestCases2(getTestBed) {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
         authService.getEou.and.resolveTo(apiEouRes);
-        approverReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
+        reportService.getTeamReports.and.returnValue(of(apiReportRes));
       });
 
       it('should get all team reports and navigate to my view report page if task count is 1', fakeAsync(() => {
