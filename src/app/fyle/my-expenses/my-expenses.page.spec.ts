@@ -2447,7 +2447,7 @@ describe('MyExpensesV2Page', () => {
     it('should navigate to my_view_report with newly created report id in case of adding it to new report and open matSnackbar', () => {
       component.showAddToReportSuccessToast({
         message: 'Expense added to report successfully',
-        report: reportUnflattenedData,
+        report: expectedReportsSinglePage[0],
       });
 
       expect(matSnackBar.openFromComponent).toHaveBeenCalledOnceWith(ToastMessageComponent, {
@@ -2470,7 +2470,7 @@ describe('MyExpensesV2Page', () => {
         '/',
         'enterprise',
         'my_view_report',
-        { id: 'rp6LK3ghVatB', navigateBack: true },
+        { id: 'rprAfNrce73O', navigateBack: true },
       ]);
     });
   });

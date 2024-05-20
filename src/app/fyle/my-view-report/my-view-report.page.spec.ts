@@ -239,7 +239,7 @@ describe('MyViewReportPage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
-    component.erpt$ = of(platformReportData);
+    component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
     component.canDelete$ = of(true);
 
@@ -309,7 +309,7 @@ describe('MyViewReportPage', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should load report and report status', fakeAsync(() => {
-      const erpt = cloneDeep(sentBackReportData);
+      const report = cloneDeep(sentBackReportData);
       spyOn(component, 'setupNetworkWatcher');
       loaderService.showLoader.and.resolveTo();
       spenderReportsService.getReportById.and.returnValue(of(sentBackReportData));
@@ -334,8 +334,8 @@ describe('MyViewReportPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
-      component.erpt$.subscribe((res) => {
-        expect(res).toEqual(erpt);
+      component.report$.subscribe((res) => {
+        expect(res).toEqual(report);
       });
 
       component.estatuses$.subscribe((res) => {
@@ -428,7 +428,7 @@ describe('MyViewReportPage', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
-      component.erpt$.subscribe((res) => {
+      component.report$.subscribe((res) => {
         expect(res).toBeNull();
       });
 
@@ -494,20 +494,20 @@ describe('MyViewReportPage', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    const mockErpt = cloneDeep(platformReportData);
-    component.erpt$ = of(mockErpt);
+    const mockReport = cloneDeep(platformReportData);
+    component.report$ = of(mockReport);
     fixture.detectChanges();
     reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(mockErpt);
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(mockReport);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
   describe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
@@ -533,7 +533,7 @@ describe('MyViewReportPage', () => {
     }));
 
     it('should not edit report name if data does not contain name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
+      component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
@@ -560,7 +560,7 @@ describe('MyViewReportPage', () => {
   });
 
   it('deleteReport(): should delete report', () => {
-    component.erpt$ = of(expectedReportsSinglePage[0]);
+    component.report$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
     spyOn(component, 'deleteReportPopup').and.returnValue(null);
 
@@ -611,7 +611,7 @@ describe('MyViewReportPage', () => {
 
   it('resubmitReport(): should resubmit report', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
     component.canResubmitReport$ = of(true);
     fixture.detectChanges();
 
@@ -647,7 +647,7 @@ describe('MyViewReportPage', () => {
 
   it('submitReport(): should submit report', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
     fixture.detectChanges();
 
     const properties = {
@@ -710,7 +710,7 @@ describe('MyViewReportPage', () => {
 
     it('should go to edit expense page if canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(platformReportData);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -755,7 +755,7 @@ describe('MyViewReportPage', () => {
 
     it('should go to edit mileage page if category is mileage and canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(platformReportData);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -800,7 +800,7 @@ describe('MyViewReportPage', () => {
 
     it('should go to edit per diem page if category is per diem and canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(platformReportData);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -878,7 +878,7 @@ describe('MyViewReportPage', () => {
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: component.erpt$,
+        report$: component.report$,
         expenses$: component.expenses$,
         view: ExpenseView.individual,
       },
@@ -939,7 +939,7 @@ describe('MyViewReportPage', () => {
 
   it('addExpense(): should navigate to expense page', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
     fixture.detectChanges();
 
     const addExpenseButton = getElementBySelector(fixture, '.view-reports--add-more-container') as HTMLElement;
@@ -958,7 +958,7 @@ describe('MyViewReportPage', () => {
     const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
     it('should show modal to add expense to report', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
-      component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
@@ -995,7 +995,7 @@ describe('MyViewReportPage', () => {
 
     it('should not add txns to report if there is no data', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
-      component.erpt$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 

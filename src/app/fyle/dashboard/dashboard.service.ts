@@ -7,6 +7,7 @@ import { CorporateCreditCardExpenseService } from 'src/app/core/services/corpora
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { Stats } from '../../core/models/stats.model';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportStates } from './stat-badge/report-states';
 
 @Injectable()
 export class DashboardService {
@@ -74,5 +75,20 @@ export class DashboardService {
 
   getCCCDetails(): Observable<CCCDetails> {
     return this.corporateCreditCardExpenseService.getAssignedCards();
+  }
+
+  getReportStateMapping(state: ReportStates): string {
+    switch (state) {
+      case ReportStates.DRAFT:
+        return 'Draft';
+      case ReportStates.APPROVER_PENDING:
+        return 'Reported';
+      case ReportStates.APPROVED:
+        return 'Approved';
+      case ReportStates.PAYMENT_PENDING:
+        return 'Payment Pending';
+      case ReportStates.PAYMENT_PROCESSING:
+        return 'Processing';
+    }
   }
 }

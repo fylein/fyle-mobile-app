@@ -428,7 +428,7 @@ export function TestCases3(getTestBed) {
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense that has already been submitted.'
         );
-        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call mergeExpensesService.isMoreThanOneAdvancePresent once and modify showReceiptSelection and expenseToKeepInfoText', () => {
@@ -466,7 +466,7 @@ export function TestCases3(getTestBed) {
         expect(component.expenseToKeepInfoText).toEqual(
           'You are required to keep the expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.'
         );
-        expect(component.fg.controls.target_txn_id.value).toEqual('txB1rVZJ4Pxl');
+        expect(component.fg.controls.target_txn_id.value).toEqual('txLgXPnTDOGf');
       });
 
       it('should call setAdvanceOrApprovedAndAbove once', () => {

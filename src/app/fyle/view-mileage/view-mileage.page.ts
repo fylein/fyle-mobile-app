@@ -37,6 +37,10 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -130,7 +134,9 @@ export class ViewMileagePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService,
     private mileageRatesService: MileageRatesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderFileService: SpenderFileService,
+    private approverFileService: ApproverFileService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -308,21 +314,32 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((expense) => from(expense.files)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
-            const fileObjWithDetails: FileObject = {
-              url: downloadUrl,
-              type: details.type,
-              thumbnail: details.thumbnail,
-            };
+      switchMap((expense: PlatformExpense) => {
+        if (expense.file_ids.length > 0) {
+          if (this.view === ExpenseView.individual) {
+            return this.spenderFileService.generateUrls(expense.file_ids[0]);
+          } else {
+            return this.approverFileService.generateUrls(expense.file_ids[0]);
+          }
+        } else {
+          return of(null);
+        }
+      }),
+      map((response: PlatformFileGenerateUrlsResponse) => {
+        if (response !== null) {
+          const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
-            return fileObjWithDetails;
-          })
-        )
-      )
+          const receipt: FileObject = {
+            url: response.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
+
+          return receipt;
+        } else {
+          return null;
+        }
+      })
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
