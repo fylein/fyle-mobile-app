@@ -59,7 +59,7 @@ describe('SpenderReportsService', () => {
       offset: 0,
     };
 
-    spenderReportsService.getReportsCount(mockQueryParams).subscribe((res) => {
+    spenderReportsService.getReportsCount(mockQueryParamsForCount).subscribe((res) => {
       // Verify
       expect(res).toEqual(4); // Check if the count is as expected
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params

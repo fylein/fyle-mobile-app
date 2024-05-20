@@ -53,7 +53,6 @@ describe('MyCreateReportPage', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['getAllExpenses']);
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
-      'getMyReportsCount',
       'createDraft',
       'addTransactions',
       'create',
@@ -66,7 +65,11 @@ describe('MyCreateReportPage', () => {
     const storageServiceSpy = jasmine.createSpyObj('StorageService', ['get', 'set']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getAllExpenses']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'createDraft']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'createDraft',
+      'getReportsCount',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyCreateReportPage, HumanizeCurrencyPipe],
@@ -195,7 +198,7 @@ describe('MyCreateReportPage', () => {
 
   it('sendFirstReportCreated(): should set a new report if first report not created', fakeAsync(() => {
     storageService.get.and.resolveTo(false);
-    reportService.getMyReportsCount.and.returnValue(of(0));
+    spenderReportsService.getReportsCount.and.returnValue(of(0));
     spyOn(component, 'getTotalSelectedExpensesAmount').and.returnValue(150);
     component.readyToReportExpenses = [...readyToReportExpensesData, expenseData];
     component.selectedElements = readyToReportExpensesData;
@@ -204,7 +207,7 @@ describe('MyCreateReportPage', () => {
     component.sendFirstReportCreated();
     tick(1000);
 
-    expect(reportService.getMyReportsCount).toHaveBeenCalledOnceWith({});
+    expect(spenderReportsService.getReportsCount).toHaveBeenCalledOnceWith({});
     expect(trackingService.createFirstReport).toHaveBeenCalledOnceWith({
       Expense_Count: 2,
       Report_Value: 150,

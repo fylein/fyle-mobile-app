@@ -528,6 +528,23 @@ export class TasksService {
     return task;
   }
 
+  getStatsFromResponse(
+    statsResponse: Datum[],
+    countName: string,
+    sumName: string
+  ): { totalCount: number; totalAmount: number } {
+    const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
+    const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
+    return {
+      totalCount: countAggregate && countAggregate.function_value,
+      totalAmount: amountAggregate && amountAggregate.function_value,
+    };
+  }
+
+  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
+    return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
+  }
+
   mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {
     if (duplicateSets.length > 0) {
       const duplicateIds = duplicateSets.reduce((acc, curVal) => acc.concat(curVal), []);

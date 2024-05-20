@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, from, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -89,7 +88,7 @@ export class MyCreateReportPage implements OnInit {
     const isFirstReportCreated = await this.storageService.get('isFirstReportCreated');
 
     if (!isFirstReportCreated) {
-      this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
+      this.spenderReportsService.getReportsCount({}).subscribe(async (allReportsCount) => {
         if (allReportsCount === 0) {
           const expenses = this.readyToReportExpenses.filter((expense) => this.selectedElements.includes(expense));
           const expenesIDs = expenses.map((expense) => expense.id);

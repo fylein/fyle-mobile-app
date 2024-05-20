@@ -77,9 +77,10 @@ export class SpenderReportsService {
     cacheBusterNotifier: reportsCacheBuster$,
   })
   createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res.data))));
+    return this.spenderPlatformV1ApiService.post<PlatformApiPayload<Report>>('/reports', data).pipe(
+      tap(() => this.clearTransactionCache()),
+      map((res: PlatformApiPayload<Report>) => res.data)
+    );
   }
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
@@ -103,7 +104,7 @@ export class SpenderReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };

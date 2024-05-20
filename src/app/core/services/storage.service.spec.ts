@@ -21,7 +21,7 @@ describe('StorageService', () => {
     it('should set a key-value pair', async () => {
       const key = 'etxncCount';
       const value = 150;
-      spyOn(Preferences, 'set').and.returnValue(Promise.resolve());
+      spyOn(Preferences, 'set').and.resolveTo();
 
       await storageService.set(key, value);
 
@@ -39,10 +39,10 @@ describe('StorageService', () => {
       const key = 'isFirstReportCreated';
       const value = true;
       // Setting the value to fetch it later
-      spyOn(Preferences, 'set').and.returnValue(Promise.resolve());
+      spyOn(Preferences, 'set').and.resolveTo();
       await storageService.set(key, value);
 
-      spyOn(Preferences, 'get').and.returnValue(Promise.resolve({ value: JSON.stringify(value) }));
+      spyOn(Preferences, 'get').and.resolveTo({ value: JSON.stringify(value) });
 
       const result = await storageService.get(key);
 
@@ -64,7 +64,7 @@ describe('StorageService', () => {
   describe('delete():', () => {
     it('should delete a value for a given key', async () => {
       const key = 'user';
-      spyOn(Preferences, 'remove').and.returnValue(Promise.resolve());
+      spyOn(Preferences, 'remove').and.resolveTo();
 
       await storageService.delete(key);
 
@@ -75,7 +75,7 @@ describe('StorageService', () => {
 
   describe('clearAll():', () => {
     it('should clear all key-value pairs', async () => {
-      spyOn(Preferences, 'clear').and.returnValue(Promise.resolve());
+      spyOn(Preferences, 'clear').and.resolveTo();
 
       await storageService.clearAll();
 
