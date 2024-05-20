@@ -247,9 +247,10 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      it('should update filters, filterPills and loadData$ as per queryParams.filters', fakeAsync(() => {
+      it('should update filters, filterPills and loadData$ as per queryParams.filters', () => {
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
+          expect(eou).toEqual(apiEouRes);
           expect(component.isLoading).toBeTrue();
           expect(component.filters).toEqual({
             state: ['APPROVER_PENDING'],
@@ -262,10 +263,9 @@ export function TestCases1(getTestBed) {
             state: ['APPROVER_PENDING'],
           });
           expect(component.filterPills).toEqual(creditTxnFilterPill);
-          tick(500);
           expect(component.isLoading).toBeFalse();
         });
-      }));
+      });
     });
 
     describe('setupNetworkWatcher(): ', () => {

@@ -8,6 +8,7 @@ export const tasksQueryParamsWithFiltersData: Partial<GetTasksQueryParamsWithFil
   searchString: 'example',
   queryParams: {
     state: 'in.(APPROVER_PENDING)',
+    q: 'example:*',
   },
 });
 
