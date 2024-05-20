@@ -67,7 +67,7 @@ export class DateService {
   // unovoidable right now
   // eslint-disable-next-line complexity
   fixDates<T>(data: T & Partial<DateParams>): T {
-    this.launchDarklyService.getVariation('timezone_fix', true).subscribe({
+    this.launchDarklyService.getVariation('timezone_fix', false).subscribe({
       next: (timezoneFixEnabled: boolean) => {
         if (data.txn_dt) {
           data.txn_dt = timezoneFixEnabled ? new Date(data.txn_dt) : this.getUTCDate(new Date(data.txn_dt));
