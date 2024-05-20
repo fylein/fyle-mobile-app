@@ -36,7 +36,8 @@ export class ProjectsService {
       sortOrder: string;
       sortDirection: string;
       projectIds: number[];
-    }>
+    }>,
+    activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
@@ -67,7 +68,7 @@ export class ProjectsService {
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params,
       })
-      .pipe(map((res) => this.transformToV2Response(res.data)));
+      .pipe(map((res) => this.transformToV2Response(res.data, activeCategoryList)));
   }
 
   @Cacheable()
@@ -126,7 +127,7 @@ export class ProjectsService {
   }
 
   // TODO: We should remove this from being used and replace with transform
-  getAllActive(): Observable<ProjectV1[]> {
+  getAllActive(activeCategoryList?: OrgCategory[]): Observable<ProjectV1[]> {
     const data = {
       params: {
         is_enabled: `eq.true`,
@@ -135,20 +136,22 @@ export class ProjectsService {
 
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', data)
-      .pipe(map((res) => this.transformToV1Response(res.data)));
+      .pipe(map((res) => this.transformToV1Response(res.data, activeCategoryList)));
   }
 
-  getbyId(projectId: number | string): Observable<ProjectV2> {
+  getbyId(projectId: number | string, activeCategoryList?: OrgCategory[]): Observable<ProjectV2> {
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params: {
           id: `eq.${projectId}`,
         },
       })
-      .pipe(map((res) => this.transformToV2Response(res.data)[0]));
+      .pipe(map((res) => this.transformToV2Response(res.data, activeCategoryList)[0]));
   }
 
-  transformToV1Response(platformProject: PlatformProject[]): ProjectV1[] {
+  transformToV1Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV1[] {
+    const allCategoryIDs = activeCategoryList?.map((category) => category.id);
+
     const projectV1 = platformProject.map((platformProject) => ({
       id: platformProject.id,
       created_at: new Date(platformProject.created_at),
@@ -159,13 +162,15 @@ export class ProjectsService {
       org_id: platformProject.org_id,
       description: platformProject.description,
       active: platformProject.is_enabled,
-      org_category_ids: platformProject.category_ids,
+      org_category_ids: platformProject.category_ids === null ? allCategoryIDs : platformProject.category_ids,
     }));
 
     return projectV1;
   }
 
-  transformToV2Response(platformProject: PlatformProject[]): ProjectV2[] {
+  transformToV2Response(platformProject: PlatformProject[], activeCategoryList?: OrgCategory[]): ProjectV2[] {
+    const allCategoryIDs = activeCategoryList?.map((category) => category.id);
+
     const projectV2 = platformProject.map((platformProject) => ({
       project_active: platformProject.is_enabled,
       project_code: platformProject.code,
@@ -173,7 +178,7 @@ export class ProjectsService {
       project_description: platformProject.description,
       project_id: platformProject.id,
       project_name: platformProject.display_name,
-      project_org_category_ids: platformProject.category_ids,
+      project_org_category_ids: platformProject.category_ids === null ? allCategoryIDs : platformProject.category_ids,
       project_org_id: platformProject.org_id,
       project_updated_at: new Date(platformProject.updated_at),
       projectv2_name: platformProject.name,

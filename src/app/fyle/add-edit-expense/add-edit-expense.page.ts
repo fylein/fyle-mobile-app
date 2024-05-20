@@ -992,17 +992,20 @@ export class AddEditExpensePage implements OnInit {
     this.trackingService.spenderTriedSplittingExpenseWithPendingTxn();
   }
 
-  getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
+  getActionSheetOptions(
+    activeCategories$: Observable<OrgCategory[]>
+  ): Observable<{ text: string; handler: () => void }[]> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
-      projects: this.projectsService.getAllActive(),
+      projects: activeCategories$.pipe(switchMap((categories) => this.projectsService.getAllActive(categories))),
       txnFields: this.txnFields$.pipe(take(1)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
         'show_project_mapped_categories_in_split_expense',
         false
       ),
+      activeCategories: activeCategories$.pipe(take(1)),
     }).pipe(
       map(
         ({
@@ -1444,7 +1447,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedProjects(): Observable<ProjectV2> {
+  getSelectedProjects(activeCategories$: Observable<OrgCategory[]>): Observable<ProjectV2> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1464,7 +1467,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return activeCategories$.pipe(switchMap((categories) => this.projectsService.getbyId(projectId, categories)));
         } else {
           return of(null);
         }
@@ -1547,7 +1550,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects(): Observable<ProjectV2[]> {
+  getRecentProjects(activeCategories$: Observable<OrgCategory[]>): Observable<ProjectV2[]> {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -1555,11 +1558,16 @@ export class AddEditExpensePage implements OnInit {
       switchMap(({ recentValues, eou }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
-        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
-          recentValues,
-          eou,
-          categoryIds: categoryId,
-        });
+        return activeCategories$.pipe(
+          switchMap((categories) =>
+            this.recentlyUsedItemsService.getRecentlyUsedProjects({
+              recentValues,
+              eou,
+              categoryIds: categoryId,
+              activeCategoryList: categories,
+            })
+          )
+        );
       })
     );
   }
@@ -1643,8 +1651,8 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  setupFormInit(): void {
-    const selectedProject$ = this.getSelectedProjects();
+  setupFormInit(activeCategories$: Observable<OrgCategory[]>): void {
+    const selectedProject$ = this.getSelectedProjects(activeCategories$);
 
     const selectedCategory$ = this.getSelectedCategory();
 
@@ -1656,7 +1664,7 @@ export class AddEditExpensePage implements OnInit {
 
     const defaultPaymentMode$ = this.getDefaultPaymentModes();
 
-    this.recentlyUsedProjects$ = this.getRecentProjects();
+    this.recentlyUsedProjects$ = this.getRecentProjects(activeCategories$);
 
     this.recentlyUsedCurrencies$ = this.getRecentCurrencies();
 
@@ -2532,9 +2540,15 @@ export class AddEditExpensePage implements OnInit {
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
-          return this.projectsService.getbyId(etxn.tx.project_id);
+          return activeCategories$.pipe(
+            switchMap((activeCategories) => this.projectsService.getbyId(etxn.tx.project_id, activeCategories))
+          );
         } else if (projectControl?.value?.project_id) {
-          return this.projectsService.getbyId(projectControl.value.project_id);
+          return activeCategories$.pipe(
+            switchMap((activeCategories) =>
+              this.projectsService.getbyId(projectControl.value.project_id, activeCategories)
+            )
+          );
         } else {
           return of(null);
         }
@@ -3180,7 +3194,7 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupFormInit();
+    this.setupFormInit(activeCategories$);
 
     this.setupCustomFields();
 
@@ -3209,7 +3223,7 @@ export class AddEditExpensePage implements OnInit {
     //Clear all category dependent fields when user changes the category
     this.clearCategoryOnValueChange();
 
-    this.actionSheetOptions$ = this.getActionSheetOptions();
+    this.actionSheetOptions$ = this.getActionSheetOptions(activeCategories$);
 
     this.getPolicyDetails();
     this.getDuplicateExpenses();
