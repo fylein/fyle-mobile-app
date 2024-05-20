@@ -1,5 +1,5 @@
 import { Component, Input, ElementRef } from '@angular/core';
-import { ModalController, Platform } from '@ionic/angular';
+import { ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
@@ -110,14 +110,14 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>): number => 0;
 
   closeModal(): void {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event): void {
+  segmentChanged(event: SegmentCustomEvent): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -141,12 +141,13 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  onSwipeReport(event): void {
+  onSwipeReport(event: { direction: number }): void {
     this.isSwipe = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 2) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
@@ -159,13 +160,17 @@ export class FyViewReportInfoComponent implements OnInit {
     this.isSwipe = true;
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[0] as HTMLElement;
+      elementRef.click();
     }
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (this.view === ExpenseView.team && event && event.direction === 2) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[2] as HTMLElement;
+      elementRef.click();
     }
     this.trackingService.viewReportInfo({
       view: this.view,
@@ -174,12 +179,13 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  onSwipeEmployee(event): void {
+  onSwipeEmployee(event: { direction: number }): void {
     this.isSwipe = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (event && event.direction === 4) {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
