@@ -4920,18 +4920,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   uploadMultipleFiles(fileObjs: FileObject[], txnId: string): Observable<unknown> {
-    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txnId)));
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndAttachToExpense(file, txnId)));
   }
 
-  postToFileService(fileObj: FileObject, txnId: string): Observable<FileObject | unknown> {
-    const fileObjCopy = cloneDeep(fileObj);
-    fileObjCopy.transaction_id = txnId;
-    return this.fileService.post(fileObjCopy);
-  }
-
-  uploadFileAndPostToFileService(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
+  uploadFileAndAttachToExpense(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
-      switchMap((fileObj: FileObject) => this.postToFileService(fileObj, txnId))
+      switchMap((fileObj: FileObject) => this.expensesService.attachReceiptToExpense(txnId, fileObj.id))
     );
   }
 
