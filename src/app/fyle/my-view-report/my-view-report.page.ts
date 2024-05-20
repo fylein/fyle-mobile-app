@@ -349,7 +349,7 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
@@ -397,7 +397,7 @@ export class MyViewReportPage {
 
     await deleteReportPopover.present();
 
-    const { data } = (await deleteReportPopover?.onDidDismiss()) as { data: { status: string } };
+    const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -501,7 +501,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = (await shareReportModal?.onWillDismiss()) as { data: { email: string } };
+    const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
       const params = {
@@ -531,7 +531,7 @@ export class MyViewReportPage {
     });
 
     await viewInfoModal.present();
-    await viewInfoModal?.onWillDismiss();
+    await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
@@ -584,7 +584,7 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
         )
       )
       .subscribe((addExpensesToReportModalDetails) => {
