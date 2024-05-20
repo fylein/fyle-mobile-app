@@ -17,6 +17,7 @@ import {
 } from '../../core/mock-data/stats.data';
 import { DashboardService } from './dashboard.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportStates } from './stat-badge/report-states';
 
 describe('DashboardService', () => {
   let dashboardService: DashboardService;
@@ -195,6 +196,28 @@ describe('DashboardService', () => {
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(apiV2Service.getStats).toHaveBeenCalledOnceWith(apiParams, {});
       done();
+    });
+  });
+
+  describe('getReportStateMapping():', () => {
+    it('should return "Approved" if report state is APPROVED', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.APPROVED)).toEqual('Approved');
+    });
+
+    it('should return "Draft" if report state is DRAFT', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.DRAFT)).toEqual('Draft');
+    });
+
+    it('should return "Payment Pending" if report state is PAYMENT_PENDING', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.PAYMENT_PENDING)).toEqual('Payment Pending');
+    });
+
+    it('should return "Processing" if report state is PAYMENT_PROCESSING', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.PAYMENT_PROCESSING)).toEqual('Processing');
+    });
+
+    it('should return "Reported" if report state is APPROVER_PENDING', () => {
+      expect(dashboardService.getReportStateMapping(ReportStates.APPROVER_PENDING)).toEqual('Reported');
     });
   });
 });

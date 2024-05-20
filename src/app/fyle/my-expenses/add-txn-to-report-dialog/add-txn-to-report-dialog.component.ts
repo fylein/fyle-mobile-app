@@ -22,20 +22,20 @@ export class AddTxnToReportDialogComponent implements OnInit {
     private router: Router
   ) {}
 
-  closeAddToReportModal() {
+  closeAddToReportModal(): void {
     this.matBottomsheet.dismiss();
   }
 
-  onClickCreateReportTask() {
+  onClickCreateReportTask(): void {
     this.matBottomsheet.dismiss();
     this.router.navigate(['/', 'enterprise', 'my_create_report']);
   }
 
-  addTransactionToReport(report: Report) {
+  addTransactionToReport(report: Report): void {
     this.matBottomsheet.dismiss({ report });
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.currencyService.getHomeCurrency().subscribe((homeCurrency) => {
       this.reportCurrencySymbol = getCurrencySymbol(homeCurrency, 'wide');
     });

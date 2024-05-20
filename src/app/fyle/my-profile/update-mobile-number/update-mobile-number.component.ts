@@ -11,7 +11,7 @@ import { OrgUserService } from 'src/app/core/services/org-user.service';
   styleUrls: ['./update-mobile-number.component.scss'],
 })
 export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
-  @ViewChild('input') inputEl: ElementRef;
+  @ViewChild('input') inputEl: ElementRef<HTMLInputElement>;
 
   @Input() title: string;
 
@@ -39,15 +39,15 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
     this.inputValue = this.extendedOrgUser.ou.mobile || '';
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     setTimeout(() => this.inputEl.nativeElement.focus(), 400);
   }
 
-  closePopover() {
+  closePopover(): void {
     this.popoverController.dismiss();
   }
 
-  validateInput() {
+  validateInput(): void {
     if (!this.inputValue?.length) {
       this.error = 'Please enter a Mobile Number';
     } else if (!this.inputValue.match(/[+]\d{7,}$/)) {
@@ -55,11 +55,11 @@ export class UpdateMobileNumberComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onFocus() {
+  onFocus(): void {
     this.error = null;
   }
 
-  saveValue() {
+  saveValue(): void {
     //If user has not changed the verified mobile number, close the popover
     if (this.inputValue === this.extendedOrgUser.ou.mobile && this.extendedOrgUser.ou.mobile_verified) {
       this.popoverController.dismiss();

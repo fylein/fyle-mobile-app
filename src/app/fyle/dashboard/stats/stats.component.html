@@ -1,5 +1,36 @@
 <div class="stats">
   <ion-grid class="stats--body">
+    <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
+      <ion-col class="stats--expenses-stats-col">
+        <div class="stats--header">ALL EXPENSES</div>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="isConnected$ | async">
+      <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
+        <app-stat-badge
+          [currency]="homeCurrency$ | async"
+          [currencySymbol]="currencySymbol$ | async"
+          [name]="'Incomplete'"
+          [expenseState]="'DRAFT'"
+          [count]="(incompleteExpensesStats$ | async)?.count"
+          [value]="(incompleteExpensesStats$ | async)?.sum"
+          [loading]="isIncompleteExpensesStatsLoading"
+          (badgeClicked)="goToExpensesPage($event)"
+        ></app-stat-badge>
+      </ion-col>
+      <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
+        <app-stat-badge
+          [currency]="homeCurrency$ | async"
+          [currencySymbol]="currencySymbol$ | async"
+          [name]="'Complete'"
+          [expenseState]="'COMPLETE'"
+          [count]="(unreportedExpensesStats$ | async)?.count"
+          [value]="(unreportedExpensesStats$ | async)?.sum"
+          [loading]="isUnreportedExpensesStatsLoading"
+          (badgeClicked)="goToExpensesPage($event)"
+        ></app-stat-badge>
+      </ion-col>
+    </ion-row>
     <ion-row class="stats--report-stats-row" *ngIf="isConnected$ | async">
       <ion-col class="stats--report-stats-col">
         <div class="stats--header">EXPENSE REPORTS</div>
@@ -102,38 +133,6 @@
         </ion-row>
       </ng-template>
     </ng-container>
-
-    <ion-row class="stats--expenses-stats-row" *ngIf="isConnected$ | async">
-      <ion-col class="stats--expenses-stats-col">
-        <div class="stats--header">ALL EXPENSES</div>
-      </ion-col>
-    </ion-row>
-    <ion-row *ngIf="isConnected$ | async">
-      <ion-col class="stats--report-badge-col stats--report-badge-col__left stats--report-badge-col__top" size="6">
-        <app-stat-badge
-          [currency]="homeCurrency$ | async"
-          [currencySymbol]="currencySymbol$ | async"
-          [name]="'Incomplete'"
-          [expenseState]="'DRAFT'"
-          [count]="(incompleteExpensesStats$ | async)?.count"
-          [value]="(incompleteExpensesStats$ | async)?.sum"
-          [loading]="isIncompleteExpensesStatsLoading"
-          (badgeClicked)="goToExpensesPage($event)"
-        ></app-stat-badge>
-      </ion-col>
-      <ion-col class="stats--report-badge-col stats--report-badge-col__right stats--report-badge-col__top" size="6">
-        <app-stat-badge
-          [currency]="homeCurrency$ | async"
-          [currencySymbol]="currencySymbol$ | async"
-          [name]="'Complete'"
-          [expenseState]="'COMPLETE'"
-          [count]="(unreportedExpensesStats$ | async)?.count"
-          [value]="(unreportedExpensesStats$ | async)?.sum"
-          [loading]="isUnreportedExpensesStatsLoading"
-          (badgeClicked)="goToExpensesPage($event)"
-        ></app-stat-badge>
-      </ion-col>
-    </ion-row>
   </ion-grid>
 
   <ng-container *ngIf="!(isConnected$ | async)">
