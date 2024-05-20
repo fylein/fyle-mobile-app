@@ -427,6 +427,8 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
+  timezoneFixEnabled = false;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -1093,6 +1095,11 @@ export class AddEditExpensePage implements OnInit {
   ngOnInit(): void {
     this.isRedirectedFromReport = this.activatedRoute.snapshot.params.remove_from_report ? true : false;
     this.canRemoveFromReport = this.activatedRoute.snapshot.params.remove_from_report === 'true';
+    this.launchDarklyService.getVariation('timezone_fix', false).subscribe({
+      next: (timezoneFixEnabled: boolean) => {
+        this.timezoneFixEnabled = timezoneFixEnabled;
+      },
+    });
   }
 
   setupCostCenters(): void {
@@ -1408,11 +1415,11 @@ export class AddEditExpensePage implements OnInit {
             }
 
             if (extractedData.date) {
-              etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.date));
+              etxn.tx.txn_dt = this.getFixedUTCTimeZone(extractedData.date);
             }
 
             if (extractedData.invoice_dt) {
-              etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(extractedData.invoice_dt));
+              etxn.tx.txn_dt = this.getFixedUTCTimeZone(extractedData.invoice_dt);
             }
 
             if (extractedData.vendor) {
@@ -2604,11 +2611,11 @@ export class AddEditExpensePage implements OnInit {
           }
 
           if (etxn.tx.extracted_data.date && !etxn.tx.txn_dt) {
-            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.date));
+            etxn.tx.txn_dt = this.getFixedUTCTimeZone(etxn.tx.extracted_data.date);
           }
 
           if (etxn.tx.extracted_data.invoice_dt && !etxn.tx.txn_dt) {
-            etxn.tx.txn_dt = this.dateService.getUTCDate(new Date(etxn.tx.extracted_data.invoice_dt));
+            etxn.tx.txn_dt = this.getFixedUTCTimeZone(etxn.tx.extracted_data.invoice_dt);
           }
 
           if (etxn.tx.extracted_data.vendor && !etxn.tx.vendor) {
@@ -3265,7 +3272,7 @@ export class AddEditExpensePage implements OnInit {
 
   getTxnDate(): Date {
     const formValue = this.getFormValues();
-    return formValue?.dateOfSpend && this.dateService.getUTCDate(new Date(formValue.dateOfSpend));
+    return formValue?.dateOfSpend && this.getFixedUTCTimeZone(formValue.dateOfSpend);
   }
 
   getCurrency(): string {
@@ -3309,11 +3316,11 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getFromDt(): Date {
-    return this.getFormValues()?.from_dt && this.dateService.getUTCDate(new Date(this.getFormValues().from_dt));
+    return this.getFormValues()?.from_dt && this.getFixedUTCTimeZone(this.getFormValues().from_dt);
   }
 
   getToDt(): Date {
-    return this.getFormValues()?.to_dt && this.dateService.getUTCDate(new Date(this.getFormValues().to_dt));
+    return this.getFormValues()?.to_dt && this.getFixedUTCTimeZone(this.getFormValues().to_dt);
   }
 
   getFlightJourneyClass(): string {
@@ -5054,5 +5061,13 @@ export class AddEditExpensePage implements OnInit {
     });
 
     await popover.present();
+  }
+
+  getFixedUTCTimeZone(date: Date): Date {
+    if (this.timezoneFixEnabled) {
+      return new Date(date);
+    } else {
+      return this.dateService.getUTCDate(new Date(date));
+    }
   }
 }
