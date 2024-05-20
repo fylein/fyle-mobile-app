@@ -14,7 +14,7 @@ import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
-import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { expectedAllReports } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -88,7 +88,6 @@ describe('MyViewReportPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
       'getApproversByReportId',
-      'actions',
       'updateReportDetails',
       'updateReportPurpose',
       'delete',
@@ -124,7 +123,11 @@ describe('MyViewReportPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'getReportById']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'getReportById',
+      'permissions',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -319,7 +322,7 @@ describe('MyViewReportPage', () => {
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
-      reportService.actions.and.returnValue(of(apiReportActions));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
@@ -365,7 +368,7 @@ describe('MyViewReportPage', () => {
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.permissions).toHaveBeenCalledOnceWith(component.reportId);
 
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -413,7 +416,7 @@ describe('MyViewReportPage', () => {
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       spenderReportsService.getReportById.and.returnValue(of(null));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
-      reportService.actions.and.returnValue(of(apiReportActions));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       fixture.detectChanges();
@@ -458,7 +461,7 @@ describe('MyViewReportPage', () => {
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.permissions).toHaveBeenCalledOnceWith(component.reportId);
 
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();

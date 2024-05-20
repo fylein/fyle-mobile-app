@@ -16,6 +16,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
@@ -64,6 +65,18 @@ describe('SpenderReportsService', () => {
       expect(res).toEqual(4); // Check if the count is as expected
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params
       done(); // Call 'done' to indicate the end of the asynchronous test
+    });
+  });
+
+  it('permissions(): should get report permissions', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of(apiReportPermissions));
+
+    const id = 'rpxtbiLXQZUm';
+
+    spenderReportsService.permissions(id).subscribe((res) => {
+      expect(res).toEqual(apiReportPermissions);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/permissions', { data: { id } });
+      done();
     });
   });
 

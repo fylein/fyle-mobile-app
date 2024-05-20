@@ -102,9 +102,9 @@
         <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
           <div class="view-reports--approvers-title-block">
             <div class="view-reports--approvers">Approvers</div>
-            <div *ngIf="actions$|async as actions">
+            <div *ngIf="permissions$|async as permissions">
               <app-fy-approver
-                *ngIf="actions.can_add_approver"
+                *ngIf="permissions.can_add_approver"
                 [approverEmailsList]="getApproverEmails(reportApprovals)"
                 [id]="erpt.id"
                 [ownerEmail]="erpt.us_email"
@@ -295,8 +295,8 @@
   </div>
 </ion-content>
 
-<ng-container *ngIf="actions$|async as actions">
-  <ion-footer *ngIf="!isCommentsView && isReportReported && actions.can_approve" class="cta-footer">
+<ng-container *ngIf="permissions$|async as permissions">
+  <ion-footer *ngIf="!isCommentsView && isReportReported && permissions.can_approve" class="cta-footer">
     <div *ngIf="canShowTooltip && !canApprove" class="view-reports--disabled-info text-center">
       <div class="view-reports--disabled-info-content">
         Waiting for other approvers to approve this expense report

@@ -26,7 +26,7 @@ import {
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsRes } from '../mock-data/org-settings.data';
-import { apiReportActions } from '../mock-data/report-actions.data';
+import { apiReportPermissions } from '../mock-data/report-permissions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   expectedErpt,
@@ -480,18 +480,6 @@ describe('ReportService', () => {
     reportService.getTeamReport(reportID).subscribe((res) => {
       expect(res).toEqual(apiTeamRptSingleRes.data[0]);
       expect(reportService.getTeamReports).toHaveBeenCalledOnceWith(params);
-      done();
-    });
-  });
-
-  it('actions(): should get report actions', (done) => {
-    apiService.get.and.returnValue(of(apiReportActions));
-
-    const reportID = 'rpxtbiLXQZUm';
-
-    reportService.actions(reportID).subscribe((res) => {
-      expect(res).toEqual(apiReportActions);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/actions`);
       done();
     });
   });

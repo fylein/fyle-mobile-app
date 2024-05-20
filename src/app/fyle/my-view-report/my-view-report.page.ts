@@ -35,6 +35,7 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 
 @Component({
   selector: 'app-my-view-report',
@@ -245,12 +246,14 @@ export class MyViewReportPage {
       shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
+    const permissions$: Observable<ReportPermissions> = this.spenderReportsService
+      .permissions(this.reportId)
+      .pipe(shareReplay(1));
 
-    this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
+    this.canEdit$ = permissions$.pipe(map((permissions) => permissions.can_edit));
 
-    this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
+    this.canDelete$ = permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
@@ -273,7 +276,7 @@ export class MyViewReportPage {
           if (filterPendingTxn) {
             queryParams = {
               ...queryParams,
-              and: '(or(matched_corporate_card_transactions.eq.[],matched_corporate_card_transactions->0->status.neq.PENDING))',
+              and: '(or(matched_corporate_card_transpermissions.eq.[],matched_corporate_card_transpermissions->0->status.neq.PENDING))',
             };
           }
           return this.expensesService.getAllExpenses({ queryParams });

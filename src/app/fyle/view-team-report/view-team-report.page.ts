@@ -33,6 +33,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -53,7 +54,7 @@ export class ViewTeamReportPage {
 
   refreshApprovals$ = new Subject();
 
-  actions$: Observable<any>;
+  permissions$: Observable<ReportPermissions>;
 
   hideAllExpenses = true;
 
@@ -312,11 +313,13 @@ export class ViewTeamReportPage {
       map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0))
     );
 
-    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id).pipe(shareReplay(1));
+    this.permissions$ = this.approverReportsService
+      .permissions(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
 
-    this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
-    this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
+    this.canEdit$ = this.permissions$.pipe(map((actions) => actions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((actions) => actions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((actions) => actions.can_resubmit));
 
     forkJoin({
       expenses: this.expenses$,

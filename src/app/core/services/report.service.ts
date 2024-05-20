@@ -8,7 +8,7 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
-import { ReportActions } from '../models/report-actions.model';
+import { ReportPermissions } from '../models/report-permissions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportParams } from '../models/report-params.model';
@@ -419,10 +419,6 @@ export class ReportService {
         rp_id: `eq.${id}`,
       },
     }).pipe(map((res) => res.data[0]));
-  }
-
-  actions(rptId: string): Observable<ReportActions> {
-    return this.apiService.get('/reports/' + rptId + '/actions');
   }
 
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {

@@ -16,6 +16,7 @@ import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-quer
 import { StatsResponse } from 'src/app/core/models/platform/v1/stats-response.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 import { ReportState } from '../../../../models/platform/v1/report.model';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 
 describe('ApproverReportsService', () => {
   let approverReportsService: ApproverReportsService;
@@ -113,6 +114,18 @@ describe('ApproverReportsService', () => {
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
       expect(getReportsByParams).toHaveBeenCalledTimes(2);
+      done();
+    });
+  });
+
+  it('permissions(): should get report permissions', (done) => {
+    approverPlatformApiService.post.and.returnValue(of(apiReportPermissions));
+
+    const id = 'rpxtbiLXQZUm';
+
+    approverReportsService.permissions(id).subscribe((res) => {
+      expect(res).toEqual(apiReportPermissions);
+      expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports/permissions', { data: { id } });
       done();
     });
   });
