@@ -1,7 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 
 @Component({
   selector: 'app-reports-card',
@@ -9,7 +8,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
   styleUrls: ['./reports-card.component.scss'],
 })
 export class ReportsCardComponent implements OnInit {
-  @Input() erpt: Report;
+  @Input() report: Report;
 
   @Input() prevDate: Date;
 
@@ -37,21 +36,21 @@ export class ReportsCardComponent implements OnInit {
 
   ngOnInit(): void {
     this.showDate =
-      (this.erpt && new Date(this.erpt.created_at as string).toDateString()) !==
+      (this.report && new Date(this.report.created_at as string).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());
 
-    this.reportCurrencySymbol = getCurrencySymbol(this.erpt.currency, 'wide');
+    this.reportCurrencySymbol = getCurrencySymbol(this.report.currency, 'wide');
   }
 
   onDeleteReport(): void {
-    this.deleteReport.emit(this.erpt);
+    this.deleteReport.emit(this.report);
   }
 
   onGoToReport(): void {
-    this.gotoReport.emit(this.erpt);
+    this.gotoReport.emit(this.report);
   }
 
   onViewComments(): void {
-    this.viewComments.emit(this.erpt);
+    this.viewComments.emit(this.report);
   }
 }

@@ -85,8 +85,8 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ];
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.resolveTo();
+    loaderService.showLoader.and.resolveTo();
 
     component.attachments = mockAttachments;
     fixture.detectChanges();

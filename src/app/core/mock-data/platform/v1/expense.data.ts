@@ -497,7 +497,7 @@ export const mileageExpense: Expense = deepFreeze({
   expense_rule_data: null,
   expense_rule_id: null,
   extracted_data: null,
-  file_ids: [],
+  file_ids: ['fi1w2IE6JeqS'],
   files: [],
   foreign_amount: null,
   foreign_currency: null,
