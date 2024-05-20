@@ -70,7 +70,7 @@ describe('ExpensesCardComponent', () => {
       'getIsCriticalPolicyViolated',
       'getVendorDetails',
     ]);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'attachReceiptToExpense']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', [
       'downloadUrl',
@@ -648,7 +648,7 @@ describe('ExpensesCardComponent', () => {
 
       fileService.getAttachmentType.and.returnValue(attachmentType);
       transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
-      fileService.post.and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
 
@@ -658,7 +658,7 @@ describe('ExpensesCardComponent', () => {
       expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(component.expense.tx_id, fileObj.id);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));
