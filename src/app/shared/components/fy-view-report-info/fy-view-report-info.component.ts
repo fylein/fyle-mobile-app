@@ -194,7 +194,7 @@ export class FyViewReportInfoComponent {
     }
   }
 
-  async createEmployeeDetails(report: Report) {
+  async createEmployeeDetails(report: Report): void {
     this.employeeDetails = {
       'Employee ID': report.employee.id,
       Organization: report.employee.org_name,
