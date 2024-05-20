@@ -1,8 +1,6 @@
 import { Injectable } from '@angular/core';
 import * as dayjs from 'dayjs';
 import { DateParams } from '../models/date-parameters.model';
-import { OrgSettingsService } from './org-settings.service';
-import { OrgSettingsResponse } from '../models/org-settings.model';
 import { LaunchDarklyService } from './launch-darkly.service';
 
 @Injectable({
@@ -67,7 +65,7 @@ export class DateService {
   // unovoidable right now
   // eslint-disable-next-line complexity
   fixDates<T>(data: T & Partial<DateParams>): T {
-    this.launchDarklyService.getVariation('timezone_fix', false).subscribe({
+    this.launchDarklyService.getVariation('timezone_fix', true).subscribe({
       next: (timezoneFixEnabled: boolean) => {
         if (data.txn_dt) {
           data.txn_dt = timezoneFixEnabled ? new Date(data.txn_dt) : this.getUTCDate(new Date(data.txn_dt));
