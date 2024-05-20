@@ -177,4 +177,17 @@ export class ExpensesService {
       .post<PlatformApiResponse<Expense>>('/expenses/attach_receipt', payload)
       .pipe(map((res) => res.data));
   }
+
+  attachReceipts(expenseId: string, fileIds: string[]): Observable<Expense[]> {
+    const payload = {
+      data: {
+        id: expenseId,
+        file_ids: fileIds,
+      },
+    };
+
+    return this.spenderService
+      .post<PlatformApiResponse<Expense[]>>('/expenses/attach_files/bulk', payload)
+      .pipe(map((res) => res.data));
+  }
 }

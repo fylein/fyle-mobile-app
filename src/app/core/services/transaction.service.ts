@@ -41,6 +41,8 @@ import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { ExpenseFilters } from '../models/expense-filters.model';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -77,7 +79,8 @@ export class TransactionService {
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private expensesService: ExpensesService
   ) {
     expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -276,23 +279,12 @@ export class TransactionService {
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
-    return fileUploads$.pipe(
-      switchMap((fileObjs: FileObject[]) =>
-        this.upsert(txn).pipe(
-          switchMap((transaction) =>
-            from(
-              fileObjs.map((fileObj) => {
-                fileObj.transaction_id = transaction.id;
-                return fileObj;
-              })
-            ).pipe(
-              concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
-              map(() => transaction)
-            )
-          )
-        )
-      )
+    const upsertTxn$ = this.upsert(txn);
+    return forkJoin([fileUploads$, upsertTxn$]).pipe(
+      switchMap(([fileObjs, transaction]) => {
+        const fileIds = fileObjs.map((fileObj) => fileObj.id);
+        return this.expensesService.attachReceipts(transaction.id, fileIds).pipe(map(() => transaction));
+      })
     );
   }
 
