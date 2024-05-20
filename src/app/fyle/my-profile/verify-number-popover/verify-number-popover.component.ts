@@ -48,7 +48,7 @@ export class VerifyNumberPopoverComponent implements OnInit, AfterViewInit {
         .startWatching()
         .then((res) => {
           console.log(res);
-          this.value = res.Message;
+          this.value = res.Message.slice(0, 6);
         })
         .catch((error) => console.error(error));
     }
