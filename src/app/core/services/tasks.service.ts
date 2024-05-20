@@ -23,6 +23,7 @@ import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportState } from '../models/platform/v1/report.model';
+import { Datum } from '../models/v2/stats-response.model';
 
 @Injectable({
   providedIn: 'root',

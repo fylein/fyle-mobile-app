@@ -7,7 +7,7 @@ import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, SegmentCustomEvent } from '@ionic/angular';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -190,7 +190,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should set the view based on the selected segment', () => {
-    const event = { detail: { value: 'report' } };
+    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
     component.view = ExpenseView.team;
     fixture.detectChanges();
 
@@ -213,7 +213,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should track report info when segment is clicked', () => {
-    const event = { detail: { value: 'report' } };
+    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
 
     component.segmentChanged(event);
 
@@ -225,7 +225,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should not track report info on swipe', () => {
-    const event = { detail: { value: 'report' } };
+    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
     component.isSwipe = true;
 
     component.segmentChanged(event);

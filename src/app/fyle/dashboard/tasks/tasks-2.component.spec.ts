@@ -45,6 +45,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {

@@ -5,7 +5,13 @@ import { FormsModule } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { By } from '@angular/platform-browser';
 import { ActivatedRoute, Router } from '@angular/router';
-import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
+import {
+  IonicModule,
+  ModalController,
+  PopoverController,
+  SegmentChangeEventDetail,
+  SegmentCustomEvent,
+} from '@ionic/angular';
 import { finalize, of } from 'rxjs';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { approversData1, approversData4, approversData5, approversData6 } from 'src/app/core/mock-data/approver.data';
@@ -299,7 +305,10 @@ describe('ViewTeamReportPageV2', () => {
     });
 
     it('should return undefined if approval settings not present', () => {
-      const result = component.getReportClosureSettings({ ...orgSettingsData, getReportClosureSettings: undefined });
+      const result = component.getReportClosureSettings({
+        ...orgSettingsData,
+        simplified_report_closure_settings: undefined,
+      });
       expect(result).toBeUndefined();
     });
 
@@ -868,7 +877,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'expenses',
         },
-      });
+      } as SegmentCustomEvent);
 
       expect(component.isExpensesView).toBeTrue();
       expect(component.isCommentsView).toBeFalse();
@@ -884,7 +893,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'comments',
         },
-      });
+      } as SegmentCustomEvent);
 
       tick(1000);
       expect(component.isExpensesView).toBeFalse();
@@ -901,7 +910,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'history',
         },
-      });
+      } as SegmentCustomEvent);
 
       expect(component.isExpensesView).toBeFalse();
       expect(component.isCommentsView).toBeFalse();
