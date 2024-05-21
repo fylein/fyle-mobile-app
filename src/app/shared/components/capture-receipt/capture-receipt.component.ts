@@ -115,7 +115,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }
         const transaction = {
           source,
-          txn_dt: new Date(),
           currency: eou?.org?.currency,
         };
 

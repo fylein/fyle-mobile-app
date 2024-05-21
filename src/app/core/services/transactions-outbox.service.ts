@@ -156,7 +156,10 @@ export class TransactionsOutboxService {
                 };
 
                 entry.transaction.extracted_data = extractedData;
-                entry.transaction.txn_dt = new Date();
+                entry.transaction.txn_dt =
+                  (entry.transaction.txn_dt ?? new Date(entry.transaction.txn_dt)) ||
+                  (extractedData.date ?? new Date(extractedData.date)) ||
+                  new Date();
 
                 // TODO: add this to allow amout addtion to extracted expense
                 // let transactionUpsertPromise;
