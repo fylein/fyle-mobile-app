@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -308,7 +308,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
+  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
     spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
@@ -319,10 +319,12 @@ describe('FyProjectSelectModalComponent', () => {
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
+    tick(300);
     component.recentrecentlyUsedItems$.subscribe((res) => {
       expect(res).toEqual(expectedProjects4);
     });
 
+    tick(300);
     component.filteredOptions$.subscribe((res) => {
       expect(res).toEqual(expectedLabelledProjects);
     });
@@ -330,8 +332,9 @@ describe('FyProjectSelectModalComponent', () => {
     expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
-    done();
-  });
+
+    discardPeriodicTasks();
+  }));
 
   it('should show label on the screen', () => {
     component.label = 'Projects';
