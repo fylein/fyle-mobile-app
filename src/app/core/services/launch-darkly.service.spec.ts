@@ -46,7 +46,7 @@ describe('LaunchDarklyService', () => {
   describe('getVariation():', () => {
     it('should get variation', (done) => {
       const key = 'keyboard_plugin_enabled';
-      storageService.get.and.returnValue(Promise.resolve(ldAllFlagsRes));
+      storageService.get.and.resolveTo(ldAllFlagsRes);
 
       launchDarklyService.getVariation(key, true).subscribe((res) => {
         expect(res).toBeTrue();
@@ -56,7 +56,7 @@ describe('LaunchDarklyService', () => {
 
     it('should return default value when flags are not available', (done) => {
       const key = 'keyboard_plugin_enabled';
-      storageService.get.and.returnValue(Promise.resolve(null));
+      storageService.get.and.resolveTo(null);
 
       launchDarklyService.getVariation(key, true).subscribe((res) => {
         expect(res).toBeTrue();

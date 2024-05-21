@@ -47,7 +47,7 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<Report>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
 
@@ -169,7 +169,7 @@ export class MyViewReportPage {
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 
-    this.erpt$ = this.loadReportDetails$.pipe(
+    this.report$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
@@ -225,11 +225,11 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$.pipe(take(1)).subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt?.currency, 'wide');
+    this.report$.pipe(take(1)).subscribe((report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (erpt?.state === 'APPROVER_INQUIRY') {
+      if (report?.state === 'APPROVER_INQUIRY') {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
@@ -320,12 +320,12 @@ export class MyViewReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.erpt$
+    this.report$
       .pipe(
         take(1),
-        switchMap((erpt) => {
-          erpt.purpose = reportName;
-          return this.reportService.updateReportPurpose(erpt);
+        switchMap((report) => {
+          report.purpose = reportName;
+          return this.reportService.updateReportPurpose(report);
         })
       )
       .subscribe(() => {
@@ -337,14 +337,14 @@ export class MyViewReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.erpt$
+    this.report$
       .pipe(take(1))
       .pipe(
-        switchMap((erpt) => {
+        switchMap((report) => {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.purpose,
+              reportName: report.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });
@@ -352,7 +352,7 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
@@ -364,10 +364,10 @@ export class MyViewReportPage {
   }
 
   deleteReport(): void {
-    this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
+    this.report$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  getDeleteReportPopupParams(erpt: Report): {
+  getDeleteReportPopupParams(report: Report): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -386,7 +386,7 @@ export class MyViewReportPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
-          erpt.state === ReportState.DRAFT && erpt.num_expenses === 0
+          report.state === ReportState.DRAFT && report.num_expenses === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
@@ -395,12 +395,12 @@ export class MyViewReportPage {
     };
   }
 
-  async deleteReportPopup(erpt: Report): Promise<void> {
-    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
+  async deleteReportPopup(report: Report): Promise<void> {
+    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(report));
 
     await deleteReportPopover.present();
 
-    const { data } = (await deleteReportPopover?.onDidDismiss()) as { data: { status: string } };
+    const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -467,13 +467,13 @@ export class MyViewReportPage {
       const route = this.getTransactionRoute(category, canEdit);
 
       if (canEdit) {
-        this.erpt$.pipe(take(1)).subscribe((erpt) =>
+        this.report$.pipe(take(1)).subscribe((report) =>
           this.router.navigate([
             route,
             {
               id: expense.id,
               navigate_back: true,
-              remove_from_report: erpt.num_expenses > 1,
+              remove_from_report: report.num_expenses > 1,
             },
           ])
         );
@@ -504,7 +504,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = (await shareReportModal?.onWillDismiss()) as { data: { email: string } };
+    const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
       const params = {
@@ -526,7 +526,7 @@ export class MyViewReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: this.erpt$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.individual,
       },
@@ -534,7 +534,7 @@ export class MyViewReportPage {
     });
 
     await viewInfoModal.present();
-    await viewInfoModal?.onWillDismiss();
+    await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
@@ -587,7 +587,7 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
         )
       )
       .subscribe((addExpensesToReportModalDetails) => {

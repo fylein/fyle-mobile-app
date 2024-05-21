@@ -25,7 +25,7 @@ describe('ReportsCardComponent', () => {
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;
-    component.erpt = expectedReportsSinglePage[0];
+    component.report = expectedReportsSinglePage[0];
     component.prevDate = new Date();
     fixture.detectChanges();
   }));

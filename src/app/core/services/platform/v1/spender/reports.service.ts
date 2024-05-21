@@ -78,9 +78,10 @@ export class SpenderReportsService {
     cacheBusterNotifier: reportsCacheBuster$,
   })
   createDraft(data: CreateDraftParams): Observable<Report> {
-    return this.spenderPlatformV1ApiService
-      .post<PlatformApiPayload<Report>>('/reports', data)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res.data))));
+    return this.spenderPlatformV1ApiService.post<PlatformApiPayload<Report>>('/reports', data).pipe(
+      tap(() => this.clearTransactionCache()),
+      map((res: PlatformApiPayload<Report>) => res.data)
+    );
   }
 
   permissions(id: string): Observable<ReportPermissions> {

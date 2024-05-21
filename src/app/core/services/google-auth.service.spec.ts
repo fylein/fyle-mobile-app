@@ -29,8 +29,8 @@ describe('GoogleAuthService', () => {
 
   describe('login():', () => {
     it('should login in a user via goolge', (done) => {
-      googlePlus.login.and.returnValue(Promise.resolve(apiAuthRes));
-      googlePlus.logout.and.returnValue(Promise.resolve(apiLogoutRes));
+      googlePlus.login.and.resolveTo(apiAuthRes);
+      googlePlus.logout.and.resolveTo(apiLogoutRes);
 
       googleAuthService.login().then((res) => {
         expect(res).toEqual(apiAuthRes);
@@ -44,7 +44,7 @@ describe('GoogleAuthService', () => {
     });
 
     it('should throw an error', (done) => {
-      googlePlus.login.and.returnValue(Promise.reject(new Error()));
+      googlePlus.login.and.rejectWith(new Error());
 
       googleAuthService.login().then((res) => {
         expect(res).toEqual(new Error());
