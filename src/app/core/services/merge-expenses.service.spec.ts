@@ -87,7 +87,7 @@ import {
   optionsData8,
   optionsData9,
 } from '../mock-data/merge-expenses-options-data.data';
-import { fileObject5 } from '../mock-data/file-object.data';
+import { fileObject11, fileObject5 } from '../mock-data/file-object.data';
 import { mergeExpenesesCustomInputsData } from '../mock-data/merge-expenses-custom-inputs.data';
 import * as lodash from 'lodash';
 import { projectsV1Data } from '../test-data/projects.spec.data';
@@ -100,7 +100,6 @@ import { cloneDeep } from 'lodash';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { SpenderFileService } from './platform/v1/spender/file.service';
 import { platformExpenseData, platformExpenseWithExtractedData } from '../mock-data/platform/v1/expense.data';
-import { receiptInfoData2 } from '../mock-data/receipt-info.data';
 import { generateUrlsBulkData1 } from '../mock-data/generate-urls-bulk-response.data';
 
 describe('MergeExpensesService', () => {
@@ -394,7 +393,7 @@ describe('MergeExpensesService', () => {
 
     const transactionId = 'txz2vohKxBXu';
     mergeExpensesService.getAttachements(transactionId).subscribe((res) => {
-      expect(res).toEqual(receiptInfoData2);
+      expect(res).toEqual(fileObject11);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(transactionId);
       expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.file_ids);
       expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
