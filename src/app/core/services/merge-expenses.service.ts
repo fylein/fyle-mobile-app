@@ -125,9 +125,9 @@ export class MergeExpensesService {
         expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
       ),
       map((response: PlatformFileGenerateUrlsResponse[]) => {
-        const receiptObjs: FileObject[] = response.map((file) => {
+        const fileObjs: FileObject[] = response.map((file) => {
           const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
-          const receipt: FileObject = {
+          const fileObj: FileObject = {
             id: file.id,
             name: file.name,
             url: file.download_url,
@@ -135,10 +135,10 @@ export class MergeExpensesService {
             thumbnail: details.thumbnail,
           };
 
-          return receipt;
+          return fileObj;
         });
 
-        return receiptObjs;
+        return fileObjs;
       })
     );
   }
