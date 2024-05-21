@@ -122,14 +122,14 @@ export class MergeExpensesService {
   getAttachements(txnID: string): Observable<FileObject[]> {
     return this.expensesService.getExpenseById(txnID).pipe(
       switchMap((expense: PlatformExpense) =>
-        expense.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
+        expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
       ),
       map((response: PlatformFileGenerateUrlsResponse[]) => {
-        const files = response.filter((file) => file.content_type !== 'text/html');
-        const receiptObjs: ReceiptInfo[] = files.map((file) => {
+        const receiptObjs: FileObject[] = response.map((file) => {
           const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
-
-          const receipt: ReceiptInfo = {
+          const receipt: FileObject = {
+            id: file.id,
+            name: file.name,
             url: file.download_url,
             type: details.type,
             thumbnail: details.thumbnail,
