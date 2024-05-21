@@ -427,6 +427,8 @@ export class AddEditExpensePage implements OnInit {
 
   pendingTransactionAllowedToReportAndSplit = true;
 
+  allActiveCategories: OrgCategory[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private accountsService: AccountsService,
@@ -992,20 +994,17 @@ export class AddEditExpensePage implements OnInit {
     this.trackingService.spenderTriedSplittingExpenseWithPendingTxn();
   }
 
-  getActionSheetOptions(
-    activeCategories$: Observable<OrgCategory[]>
-  ): Observable<{ text: string; handler: () => void }[]> {
+  getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
-      projects: activeCategories$.pipe(switchMap((categories) => this.projectsService.getAllActive(categories))),
+      projects: this.projectsService.getAllActive(this.allActiveCategories),
       txnFields: this.txnFields$.pipe(take(1)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
         'show_project_mapped_categories_in_split_expense',
         false
       ),
-      activeCategories: activeCategories$.pipe(take(1)),
     }).pipe(
       map(
         ({
@@ -1447,7 +1446,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedProjects(activeCategories$: Observable<OrgCategory[]>): Observable<ProjectV2> {
+  getSelectedProjects(): Observable<ProjectV2> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1467,7 +1466,7 @@ export class AddEditExpensePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return activeCategories$.pipe(switchMap((categories) => this.projectsService.getbyId(projectId, categories)));
+          return this.projectsService.getbyId(projectId, this.allActiveCategories);
         } else {
           return of(null);
         }
@@ -1550,7 +1549,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects(activeCategories$: Observable<OrgCategory[]>): Observable<ProjectV2[]> {
+  getRecentProjects(): Observable<ProjectV2[]> {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -1558,16 +1557,12 @@ export class AddEditExpensePage implements OnInit {
       switchMap(({ recentValues, eou }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
-        return activeCategories$.pipe(
-          switchMap((categories) =>
-            this.recentlyUsedItemsService.getRecentlyUsedProjects({
-              recentValues,
-              eou,
-              categoryIds: categoryId,
-              activeCategoryList: categories,
-            })
-          )
-        );
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          recentValues,
+          eou,
+          categoryIds: categoryId,
+          activeCategoryList: this.allActiveCategories,
+        });
       })
     );
   }
@@ -1651,8 +1646,8 @@ export class AddEditExpensePage implements OnInit {
     });
   }
 
-  setupFormInit(activeCategories$: Observable<OrgCategory[]>): void {
-    const selectedProject$ = this.getSelectedProjects(activeCategories$);
+  setupFormInit(): void {
+    const selectedProject$ = this.getSelectedProjects();
 
     const selectedCategory$ = this.getSelectedCategory();
 
@@ -1664,7 +1659,7 @@ export class AddEditExpensePage implements OnInit {
 
     const defaultPaymentMode$ = this.getDefaultPaymentModes();
 
-    this.recentlyUsedProjects$ = this.getRecentProjects(activeCategories$);
+    this.recentlyUsedProjects$ = this.getRecentProjects();
 
     this.recentlyUsedCurrencies$ = this.getRecentCurrencies();
 
@@ -2540,15 +2535,9 @@ export class AddEditExpensePage implements OnInit {
     this.filteredCategories$ = this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
-          return activeCategories$.pipe(
-            switchMap((activeCategories) => this.projectsService.getbyId(etxn.tx.project_id, activeCategories))
-          );
+          return this.projectsService.getbyId(etxn.tx.project_id, this.allActiveCategories);
         } else if (projectControl?.value?.project_id) {
-          return activeCategories$.pipe(
-            switchMap((activeCategories) =>
-              this.projectsService.getbyId(projectControl.value.project_id, activeCategories)
-            )
-          );
+          return this.projectsService.getbyId(projectControl.value.project_id, this.allActiveCategories);
         } else {
           return of(null);
         }
@@ -3050,6 +3039,10 @@ export class AddEditExpensePage implements OnInit {
 
     const activeCategories$ = this.getActiveCategories();
 
+    activeCategories$.subscribe((activeCategories) => {
+      this.allActiveCategories = activeCategories;
+    });
+
     this.paymentAccount$ = accounts$.pipe(
       map((accounts) => {
         if (!this.activatedRoute.snapshot.params.id && this.activatedRoute.snapshot.params.bankTxn) {
@@ -3194,7 +3187,7 @@ export class AddEditExpensePage implements OnInit {
       )
     );
 
-    this.setupFormInit(activeCategories$);
+    this.setupFormInit();
 
     this.setupCustomFields();
 
@@ -3223,7 +3216,7 @@ export class AddEditExpensePage implements OnInit {
     //Clear all category dependent fields when user changes the category
     this.clearCategoryOnValueChange();
 
-    this.actionSheetOptions$ = this.getActionSheetOptions(activeCategories$);
+    this.actionSheetOptions$ = this.getActionSheetOptions();
 
     this.getPolicyDetails();
     this.getDuplicateExpenses();
