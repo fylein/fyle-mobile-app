@@ -161,7 +161,7 @@ describe('AppVersionService', () => {
     beforeEach(() => {
       spyOn(appVersionService, 'isSupported').and.returnValue(of({ supported: true }));
       loginInfoService.getLastLoggedInVersion.and.returnValue(of('5.50.0'));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
     });
 
     it("getUserAppVersionDetails(): should get user's app version details", (done) => {

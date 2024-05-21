@@ -233,7 +233,7 @@ export class MyReportsPage {
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
+      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
@@ -423,7 +423,6 @@ export class MyReportsPage {
 
     if (stateOrFilter.length > 0) {
       let combinedStateOrFilter = stateOrFilter.join();
-      console.log(combinedStateOrFilter);
       combinedStateOrFilter = `${combinedStateOrFilter}`;
       newQueryParams.state = `in.(${combinedStateOrFilter})`;
     }
@@ -480,11 +479,11 @@ export class MyReportsPage {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onReportClick(erpt: Report): void {
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.id, navigateBack: true }]);
+  onReportClick(report: Report): void {
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.id, navigateBack: true }]);
   }
 
-  getDeleteReportPopoverParams(erpt: Report): DeletePopoverParams {
+  getDeleteReportPopoverParams(report: Report): DeletePopoverParams {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -493,18 +492,18 @@ export class MyReportsPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<void> => this.reportService.delete(erpt.id),
+        deleteMethod: (): Observable<void> => this.reportService.delete(report.id),
       },
     };
   }
 
-  async onDeleteReportClick(erpt: Report): Promise<void> {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.state) === -1) {
+  async onDeleteReportClick(report: Report): Promise<void> {
+    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(report.state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
           title: 'Cannot Delete Report',
-          message: `${capitalize(replace(erpt.state, '_', ' '))} report cannot be deleted.`,
+          message: `${capitalize(replace(report.state, '_', ' '))} report cannot be deleted.`,
           primaryCta: {
             text: 'Close',
             action: 'continue',
@@ -515,7 +514,7 @@ export class MyReportsPage {
 
       await cannotDeleteReportPopOver.present();
     } else {
-      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
+      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(report));
 
       await deleteReportPopover.present();
       const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };

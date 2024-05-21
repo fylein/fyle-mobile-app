@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { FileObject } from 'src/app/core/models/file-obj.model';
-import { FileService } from 'src/app/core/services/file.service';
+import { MatchedExpense } from 'src/app/core/models/matched-expense.model';
+import { Expense } from 'src/app/core/models/platform/v1/expense.model';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 
 @Component({
   selector: 'app-expense-card-lite',
@@ -8,19 +9,19 @@ import { FileService } from 'src/app/core/services/file.service';
   styleUrls: ['./expense-card-lite.component.scss'],
 })
 export class ExpenseCardLiteComponent implements OnInit {
-  @Input() expense;
+  @Input() expense: Partial<MatchedExpense>;
 
   isReceiptPresent: boolean;
 
-  constructor(private fileService: FileService) {}
+  constructor(private expensesService: ExpensesService) {}
 
   ngOnInit(): void {
     this.getReceipt();
   }
 
-  getReceipt() {
-    this.fileService.findByTransactionId(this.expense.id).subscribe((files: FileObject[]) => {
-      this.isReceiptPresent = files.length > 0;
+  getReceipt(): void {
+    this.expensesService.getExpenseById(this.expense.id).subscribe((expense: Expense) => {
+      this.isReceiptPresent = expense.file_ids?.length > 0;
     });
   }
 }

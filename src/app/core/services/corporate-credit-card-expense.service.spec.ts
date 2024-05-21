@@ -123,7 +123,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiV2Service.getStats.and.returnValue(of(new StatsResponse(apiAssignedCardDetailsRes)));
     spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 

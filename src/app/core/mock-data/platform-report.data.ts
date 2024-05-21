@@ -39,6 +39,9 @@ export const platformReportData: Report = deepFreeze({
   created_at: new Date('2023-07-11T16:24:01.335Z'),
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: undefined,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
@@ -108,9 +111,15 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
     {
       amount: 100,
       approvals: [],
+      org_name: 'Staging Loaded',
+      level: null,
+      mobile: '123456098',
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -173,6 +182,9 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -261,6 +273,9 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -323,6 +338,9 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -392,6 +410,9 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -461,6 +482,9 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -523,6 +547,9 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -589,6 +616,9 @@ export const submittedReportData: Report = deepFreeze({
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: null,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
@@ -671,6 +701,9 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: null,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
