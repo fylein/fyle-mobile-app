@@ -28,7 +28,6 @@ import { DependentFieldsMapping } from '../models/dependent-field-mapping.model'
 import { CustomInput } from '../models/custom-input.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
-import { ReceiptInfo } from '../models/receipt-info.model';
 
 type CardTransactionsConfig = {
   queryParams: {
