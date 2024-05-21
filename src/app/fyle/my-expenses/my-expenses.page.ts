@@ -335,8 +335,17 @@ export class MyExpensesPage implements OnInit {
         queryParams.report_id = (queryParams.report_id || 'is.null') as string;
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        if (queryParams['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = queryParams['matched_corporate_card_transactions->0->corporate_card_number'] as string;
+        if (queryParams.or) {
+          const hasState = Array.isArray(queryParams.or) && queryParams.or.some((element) => element.includes('state'));
+          if (hasState) {
+            delete queryParams.state;
+          }
+        }
+
+        if (queryParams.or && queryParams.or['matched_corporate_card_transactions->0->corporate_card_number']) {
+          const cardParamsCopy = queryParams.or[
+            'matched_corporate_card_transactions->0->corporate_card_number'
+          ] as string;
 
           queryParams.or = (queryParams.or || []) as string[];
           queryParams.or.push('(matched_corporate_card_transactions->0->corporate_card_number.' + cardParamsCopy + ')');
