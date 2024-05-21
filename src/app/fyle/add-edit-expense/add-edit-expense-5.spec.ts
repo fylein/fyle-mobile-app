@@ -419,7 +419,10 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+          unflattenedTxnData.tx.project_id,
+          component.allActiveCategories
+        );
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
 
@@ -436,7 +439,7 @@ export function TestCases5(getTestBed) {
         fixture.detectChanges();
         tick(500);
 
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, component.allActiveCategories);
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
@@ -553,7 +556,10 @@ export function TestCases5(getTestBed) {
 
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            unflattenedTxnData.tx.project_id,
+            component.allActiveCategories
+          );
           done();
         });
       });
@@ -568,7 +574,10 @@ export function TestCases5(getTestBed) {
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(orgUserSettingsData.preferences.default_project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            orgUserSettingsData.preferences.default_project_id,
+            component.allActiveCategories
+          );
           done();
         });
       });
@@ -697,6 +706,7 @@ export function TestCases5(getTestBed) {
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
           categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
+          activeCategoryList: component.allActiveCategories,
         });
         done();
       });
