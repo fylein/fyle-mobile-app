@@ -342,16 +342,6 @@ export class MyExpensesPage implements OnInit {
           }
         }
 
-        if (queryParams.or && queryParams.or['matched_corporate_card_transactions->0->corporate_card_number']) {
-          const cardParamsCopy = queryParams.or[
-            'matched_corporate_card_transactions->0->corporate_card_number'
-          ] as string;
-
-          queryParams.or = (queryParams.or || []) as string[];
-          queryParams.or.push('(matched_corporate_card_transactions->0->corporate_card_number.' + cardParamsCopy + ')');
-          delete queryParams['matched_corporate_card_transactions->0->corporate_card_number'];
-        }
-
         return this.expenseService.getExpenseStats(queryParams).pipe(
           map((stats) => ({
             count: stats.data.count,

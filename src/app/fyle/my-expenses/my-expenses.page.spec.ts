@@ -1153,7 +1153,7 @@ describe('MyExpensesV2Page', () => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
           state: 'in.(COMPLETE,DRAFT)',
-          or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
+          'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         });
         expect(allExpenseStats).toEqual({
           count: 3,
@@ -1196,7 +1196,7 @@ describe('MyExpensesV2Page', () => {
       expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
         report_id: 'is.null',
         state: 'in.(COMPLETE,DRAFT)',
-        or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
+        'matched_corporate_card_transactions->0->corporate_card_number': '8698',
       });
     });
   });
