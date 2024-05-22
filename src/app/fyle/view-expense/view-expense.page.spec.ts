@@ -223,6 +223,7 @@ describe('ViewExpensePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: ActivatedRoute,
           useValue: {
             snapshot: {
               params: {
