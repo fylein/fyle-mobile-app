@@ -177,7 +177,7 @@ export class MyViewReportPage {
         isOthersComment: comment.isOthersComment,
         st_created_at: comment.created_at,
         st_id: comment.id,
-        us_full_name: comment.creator_user.full_name,
+        us_full_name: comment.creator_user?.full_name,
       };
       return status;
     });
@@ -576,7 +576,7 @@ export class MyViewReportPage {
         .post(this.objectType, this.reportId, data)
         .pipe()
         .subscribe(() => {
-          this.refreshEstatuses$.next();
+          this.loadReportDetails$.next();
           setTimeout(() => {
             this.content.scrollToBottom(500);
           }, 500);
