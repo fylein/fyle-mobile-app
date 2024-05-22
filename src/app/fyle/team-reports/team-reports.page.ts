@@ -38,7 +38,8 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<any>;
 
   pageTitle = 'Team Reports';
 
@@ -151,13 +152,15 @@ export class TeamReportsPage implements OnInit {
 
       this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       this.simpleSearchInput.nativeElement.value = '';
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
-          map((event) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          map((event: { srcElement: { value: string } }) => {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
             const value = event.srcElement.value;
-            return value as string;
+            return value;
           }),
           debounceTime(1000),
           distinctUntilChanged()
