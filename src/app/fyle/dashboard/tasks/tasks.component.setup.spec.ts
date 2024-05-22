@@ -21,6 +21,8 @@ import { TestCases2 } from './tasks-2.component.spec';
 import { TestCases3 } from './tasks-3.component.spec';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -44,7 +46,6 @@ describe('TasksComponent', () => {
       'getMyReports',
       'getTeamReports',
       'addTransactions',
-      'getAllExtendedReports',
     ]);
     const advanceRequestServiceSpy = jasmine.createSpyObj('AdvanceRequestService', ['getSpenderAdvanceRequests']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
@@ -62,6 +63,11 @@ describe('TasksComponent', () => {
     ]);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['showLoader', 'hideLoader']);
     const matBottomSheetSpy = jasmine.createSpyObj('MatBottomSheet', ['open']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'getAllReportsByParams',
+    ]);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getAllReportsByParams']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
@@ -95,6 +101,8 @@ describe('TasksComponent', () => {
         { provide: NetworkService, useValue: networkServiceSpy },
         { provide: OrgSettingsService, useValue: orgSettingsServiceSpy },
         { provide: ExpensesService, useValue: expensesServiceSpy },
+        { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
+        { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();

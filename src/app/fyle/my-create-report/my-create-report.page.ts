@@ -4,7 +4,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Observable, Subscription, from, noop, of } from 'rxjs';
 import { finalize, map, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { Expense } from 'src/app/core/models/expense.model';
-import { ReportV1 } from 'src/app/core/models/report-v1.model';
 import { CurrencyService } from 'src/app/core/services/currency.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { RefinerService } from 'src/app/core/services/refiner.service';
@@ -15,6 +14,8 @@ import { TrackingService } from '../../core/services/tracking.service';
 import { Expense as PlatformExpense } from '../../core/models/platform/v1/expense.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report } from '../../core/models/platform/v1/report.model';
 @Component({
   selector: 'app-my-create-report',
   templateUrl: './my-create-report.page.html',
@@ -60,7 +61,8 @@ export class MyCreateReportPage implements OnInit {
     private storageService: StorageService,
     private refinerService: RefinerService,
     private expensesService: ExpensesService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   detectTitleChange(): void {
@@ -86,7 +88,7 @@ export class MyCreateReportPage implements OnInit {
     const isFirstReportCreated = await this.storageService.get('isFirstReportCreated');
 
     if (!isFirstReportCreated) {
-      this.reportService.getMyReportsCount({}).subscribe(async (allReportsCount) => {
+      this.spenderReportsService.getReportsCount({}).subscribe(async (allReportsCount) => {
         if (allReportsCount === 0) {
           const expenses = this.readyToReportExpenses.filter((expense) => this.selectedElements.includes(expense));
           const expenesIDs = expenses.map((expense) => expense.id);
@@ -121,8 +123,8 @@ export class MyCreateReportPage implements OnInit {
 
       if (reportActionType === 'create_draft_report') {
         this.saveDraftReportLoading = true;
-        return this.reportService
-          .createDraft(report)
+        return this.spenderReportsService
+          .createDraft({ data: report })
           .pipe(
             tap(() =>
               this.trackingService.createReport({
@@ -130,9 +132,9 @@ export class MyCreateReportPage implements OnInit {
                 Report_Value: this.selectedTotalAmount,
               })
             ),
-            switchMap((report: ReportV1) => {
+            switchMap((report: Report) => {
               if (expenseIDs.length) {
-                return this.reportService.addTransactions(report.id, expenseIDs).pipe(map(() => report));
+                return this.spenderReportsService.addExpenses(report.id, expenseIDs).pipe(map(() => report));
               } else {
                 return of(report);
               }

@@ -269,7 +269,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should fill dependent field properties', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(authRespone));
+    authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
     const result = customInputsService.fillDependantFieldProperties(expensesWithDependentFields[0]);
     result.subscribe((res) => {
@@ -279,7 +279,7 @@ describe('CustomInputsService', () => {
   });
 
   it('should fill custom properties', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(authRespone));
+    authService.getEou.and.resolveTo(authRespone);
     spenderPlatformV1ApiService.get.and.returnValue(of(platformApiResponse));
     const result = customInputsService.fillCustomProperties(orgCatId, customProperties, false);
     result.subscribe((res) => {

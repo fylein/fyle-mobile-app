@@ -114,6 +114,7 @@ import {
   transformedExpenseWithExtractedData2,
 } from 'src/app/core/mock-data/transformed-expense.data';
 import { apiExpenses1, apiExpenses2, splitExpensesData } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 
 const properties = {
   cssClass: 'fy-modal',
@@ -174,6 +175,7 @@ export function TestCases2(getTestBed) {
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
     let expensesService: jasmine.SpyObj<ExpensesService>;
+    let reportsService: jasmine.SpyObj<SpenderReportsService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -230,6 +232,7 @@ export function TestCases2(getTestBed) {
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
       expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
+      reportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -1220,7 +1223,7 @@ export function TestCases2(getTestBed) {
 
     describe('getDeleteReportParams():', () => {
       it('should return modal params and method to remove expense from report', () => {
-        reportService.removeTransaction.and.returnValue(of());
+        reportsService.ejectExpenses.and.returnValue(of());
 
         component
           .getDeleteReportParams(
@@ -1229,7 +1232,7 @@ export function TestCases2(getTestBed) {
             'rpId'
           )
           .componentProps.deleteMethod();
-        expect(reportService.removeTransaction).toHaveBeenCalledTimes(1);
+        expect(reportsService.ejectExpenses).toHaveBeenCalledTimes(1);
       });
 
       it('should  return modal params and method to delete expense', () => {
@@ -1452,35 +1455,27 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('postToFileService(): should post files to file service', () => {
-      fileService.post.and.returnValue(of(null));
-
-      component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
-
-      expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
-    });
-
-    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+    it('uploadFileAndAttachToExpense(): should upload to file service', (done) => {
       transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
-      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
 
-      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+      component.uploadFileAndAttachToExpense(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
-        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith('tx5fBcPBAxLv', fileObjectData.id);
         done();
       });
     });
 
     it('uploadMultipleFiles(): should upload multiple files', (done) => {
-      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      const uploadSpy = spyOn(component, 'uploadFileAndAttachToExpense');
       uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
       uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
 
       component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
         expect(res).toEqual(fileObject7);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
         done();
       });
     });

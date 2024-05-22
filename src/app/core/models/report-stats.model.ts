@@ -1,9 +1,8 @@
-import { Stats } from './stats.model';
-
+import { PlatformReportsStatsResponse } from './platform/v1/report-stats-response.model';
 export interface ReportStats {
-  draft: Stats;
-  report: Stats;
-  approved: Stats;
-  paymentPending: Stats;
-  processing: Stats;
+  draft: PlatformReportsStatsResponse;
+  report: PlatformReportsStatsResponse;
+  approved: PlatformReportsStatsResponse;
+  paymentPending: PlatformReportsStatsResponse;
+  processing: PlatformReportsStatsResponse;
 }

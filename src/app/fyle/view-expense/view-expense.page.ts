@@ -6,7 +6,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -38,6 +37,7 @@ import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -137,7 +137,6 @@ export class ViewExpensePage {
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
@@ -155,7 +154,8 @@ export class ViewExpensePage {
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
     private spenderFileService: SpenderFileService,
-    private approverFileService: ApproverFileService
+    private approverFileService: ApproverFileService,
+    private approverReportsService: ApproverReportsService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -378,10 +378,10 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report?.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )
@@ -481,7 +481,7 @@ export class ViewExpensePage {
         infoMessage: 'The report amount will be adjusted accordingly.',
         ctaText: 'Remove',
         ctaLoadingText: 'Removing',
-        deleteMethod: (): Observable<void> => this.reportService.removeTransaction(this.reportId, this.expenseId),
+        deleteMethod: (): Observable<void> => this.approverReportsService.ejectExpenses(this.reportId, this.expenseId),
       },
     };
   }

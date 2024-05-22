@@ -37,16 +37,15 @@ describe('StatsComponent', () => {
       'getReportsStats',
       'getUnreportedExpensesStats',
       'getIncompleteExpensesStats',
+      'getReportStateMapping',
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const trackingServiceSpy = jasmine.createSpyObj('TrackingService', [
       'appLaunchTime',
-      'dashboardOnReportPillClick',
-      'dashboardOnUnreportedExpensesClick',
-      'dashboardOnIncompleteExpensesClick',
       'dashboardLaunchTime',
+      'statsClicked',
     ]);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs']);
@@ -342,6 +341,8 @@ describe('StatsComponent', () => {
   });
 
   it('goToReportsPage(): should navigate to reports page with query params', () => {
+    dashboardService.getReportStateMapping.and.returnValue('Approved');
+
     component.goToReportsPage(ReportStates.APPROVED);
 
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
@@ -349,8 +350,8 @@ describe('StatsComponent', () => {
         filters: JSON.stringify({ state: [ReportStates.APPROVED.toString()] }),
       },
     });
-    expect(trackingService.dashboardOnReportPillClick).toHaveBeenCalledOnceWith({
-      State: ReportStates.APPROVED.toString(),
+    expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+      event: 'Clicked On Approved Reports',
     });
   });
 
@@ -363,7 +364,9 @@ describe('StatsComponent', () => {
           filters: JSON.stringify({ state: ['READY_TO_REPORT'] }),
         },
       });
-      expect(trackingService.dashboardOnUnreportedExpensesClick).toHaveBeenCalledTimes(1);
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Unreported Expenses',
+      });
     });
 
     it('goToExpensesPage(): should navigate to expenses page with query params', () => {
@@ -374,7 +377,9 @@ describe('StatsComponent', () => {
           filters: JSON.stringify({ state: ['DRAFT'] }),
         },
       });
-      expect(trackingService.dashboardOnIncompleteExpensesClick).toHaveBeenCalledTimes(1);
+      expect(trackingService.statsClicked).toHaveBeenCalledOnceWith({
+        event: 'Clicked On Incomplete Expenses',
+      });
     });
   });
 

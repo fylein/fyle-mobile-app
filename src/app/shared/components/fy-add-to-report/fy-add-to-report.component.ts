@@ -7,7 +7,7 @@ import { isEqual } from 'lodash';
 import { FyAddToReportModalComponent } from './fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { FyInputPopoverComponent } from '../fy-input-popover/fy-input-popover.component';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
@@ -65,7 +65,7 @@ export class FyAddToReportComponent implements OnInit, OnChanges, ControlValueAc
     private injector: Injector,
     private popoverController: PopoverController,
     private reportService: ReportService,
-    private platformReportService: ReportsService,
+    private platformReportService: SpenderReportsService,
     private trackingService: TrackingService
   ) {}
 
