@@ -102,7 +102,7 @@ export class ProjectsService {
 
   addOrgCategoryIdsFilter(orgCategoryIds: string[], params: PlatformProjectParams): void {
     if (typeof orgCategoryIds !== 'undefined' && orgCategoryIds !== null) {
-      params.category_ids = 'ov.{' + orgCategoryIds.join(',') + '}';
+      params.or = '(category_ids.is.null, ' + 'category_ids.ov.{' + orgCategoryIds.join(',') + '}' + ')';
     }
   }
 

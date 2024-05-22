@@ -10,4 +10,5 @@ export interface PlatformProjectParams {
   category_ids?: string;
   org_id?: string;
   name?: string;
+  or?: string;
 }
