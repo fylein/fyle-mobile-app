@@ -336,8 +336,9 @@ export class MyExpensesPage implements OnInit {
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
         if (queryParams.or) {
-          const hasState = Array.isArray(queryParams.or) && queryParams.or.some((element) => element.includes('state'));
-          if (hasState) {
+          const hasExpenseState =
+            Array.isArray(queryParams.or) && queryParams.or.some((element) => element.includes('state'));
+          if (hasExpenseState) {
             delete queryParams.state;
           }
         }
