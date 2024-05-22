@@ -72,9 +72,12 @@ export class ProjectsService {
   }
 
   @Cacheable()
-  getProjectCount(params: { categoryIds: string[] } = { categoryIds: [] }): Observable<number> {
+  getProjectCount(
+    params: { categoryIds: string[] } = { categoryIds: [] },
+    activeCategoryList?: OrgCategory[]
+  ): Observable<number> {
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
-    return this.getAllActive().pipe(
+    return this.getAllActive(activeCategoryList).pipe(
       map((projects) => {
         const filterdProjects = projects.filter((project) => {
           if (categoryIds?.length) {

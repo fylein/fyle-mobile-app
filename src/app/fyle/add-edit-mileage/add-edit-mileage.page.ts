@@ -282,6 +282,8 @@ export class AddEditMileagePage implements OnInit {
 
   existingCommuteDeduction: string;
 
+  allActiveCategories: OrgCategory[];
+
   private _isExpandedView = false;
 
   constructor(
@@ -1160,7 +1162,7 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId);
+          return this.projectsService.getbyId(projectId, this.allActiveCategories);
         } else {
           return of(null);
         }
@@ -1567,10 +1569,15 @@ export class AddEditMileagePage implements OnInit {
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
     this.subCategories$ = this.getSubCategories();
+    this.subCategories$.subscribe((subCategories) => {
+      this.allActiveCategories = subCategories;
+    });
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
-      switchMap((projectCategoryIds) => this.projectsService.getProjectCount({ categoryIds: projectCategoryIds })),
+      switchMap((projectCategoryIds) =>
+        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, this.allActiveCategories)
+      ),
       map((projectCount) => projectCount > 0)
     );
     this.comments$ = this.statusService.find('transactions', this.activatedRoute.snapshot.params.id as string);
