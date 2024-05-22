@@ -242,17 +242,6 @@ export class MyViewReportPage {
 
     this.eou$.subscribe((eou) => (this.eou = eou));
 
-    // this.estatuses$ = this.refreshEstatuses$.pipe(
-    //   switchMap(() => eou$),
-    //   switchMap((eou) =>
-    //     this.report$.pipe(
-    //       map((report) => {
-    //         console.log(eou);
-    //         return
-    //       }
-    //     ),
-    // )));
-
     this.report$.pipe(take(1)).subscribe((report) => {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
