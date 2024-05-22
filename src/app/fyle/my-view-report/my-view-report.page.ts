@@ -1,8 +1,8 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription, forkJoin } from 'rxjs';
+import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
