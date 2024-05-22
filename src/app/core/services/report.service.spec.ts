@@ -70,10 +70,11 @@ import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
-import { platformReportData } from '../mock-data/platform-report.data';
+import { expectedReportsSinglePage, platformReportData } from '../mock-data/platform-report.data';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -89,6 +90,7 @@ describe('ReportService', () => {
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: LaunchDarklyService;
 
   const apiReportStatParams: Partial<StatsResponse> = {
@@ -196,6 +198,7 @@ describe('ReportService', () => {
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
   });
 
   it('should be created', () => {
@@ -218,23 +221,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('createDraft(): should create a draft report and return the report', (done) => {
-    apiService.post.and.returnValue(of(reportUnflattenedData));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportParam = {
-      purpose: 'A draft Report',
-      source: 'MOBILE',
-    };
-
-    reportService.createDraft(reportParam).subscribe((res) => {
-      expect(res).toEqual(reportUnflattenedData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('submit(): should submit a report', (done) => {
     spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
     apiService.post.and.returnValue(of(null));
@@ -243,26 +229,6 @@ describe('ReportService', () => {
 
     reportService.submit(reportID).subscribe(() => {
       expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/submit`);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
-  it('removeTransaction(): should remove a transaction from report', (done) => {
-    apiService.post.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpvcIMRMyM3A';
-    const txnID = 'txTQVBx7W8EO';
-
-    const params = {
-      status: {
-        comment: null,
-      },
-    };
-
-    reportService.removeTransaction(reportID, txnID, null).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns/${txnID}/remove`, params);
       expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
@@ -518,20 +484,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('addTransactions(): should add a transaction to a report', (done) => {
-    apiService.post.and.returnValue(of(null));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportID = 'rpvcIMRMyM3A';
-    const tnxs = ['txTQVBx7W8EO'];
-
-    reportService.addTransactions(reportID, tnxs).subscribe(() => {
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, { ids: tnxs });
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
   it('actions(): should get report actions', (done) => {
     apiService.get.and.returnValue(of(apiReportActions));
 
@@ -556,24 +508,27 @@ describe('ReportService', () => {
   });
 
   it('create(): should create a new report', (done) => {
-    spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
-    apiService.post.and.returnValue(of(null));
+    spyOn(spenderReportsService, 'createDraft').and.returnValue(of(expectedReportsSinglePage[0]));
+    spenderPlatformV1ApiService.post.and.returnValue(of(null));
     spyOn(reportService, 'submit').and.returnValue(of(null));
 
     const reportPurpose = {
       purpose: 'A new report',
       source: 'MOBILE',
     };
-    const txnIds = ['tx6Oe6FaYDZl'];
-    const reportID = 'rp5eUkeNm9wB';
-    const txnParam = {
-      ids: txnIds,
+    const expenseIds = ['tx6Oe6FaYDZl'];
+    const reportID = 'rprAfNrce73O';
+    const payload = {
+      data: {
+        id: reportID,
+        expense_ids: expenseIds,
+      },
     };
 
-    reportService.create(reportPurpose, txnIds).subscribe((res) => {
-      expect(res).toEqual(reportUnflattenedData2);
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
-      expect(apiService.post).toHaveBeenCalledOnceWith(`/reports/${reportID}/txns`, txnParam);
+    reportService.create(reportPurpose, expenseIds).subscribe((res) => {
+      expect(res).toEqual(expectedReportsSinglePage[0]);
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({ data: reportPurpose });
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
       expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
     });
@@ -1116,20 +1071,6 @@ describe('ReportService', () => {
         expect(authService.getEou).toHaveBeenCalledTimes(1);
         done();
       });
-    });
-  });
-
-  it('getReportStats(): should get report stats', (done) => {
-    authService.getEou.and.resolveTo(apiEouRes);
-    apiv2Service.get.and.returnValue(of(new StatsResponse(apiReportStatsRes)));
-
-    reportService.getReportStats(apiReportStatParams).subscribe((res) => {
-      expect(res).toEqual(new StatsResponse(apiReportStatsRes));
-      expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports/stats', {
-        params: { rp_org_user_id: `eq.ouX8dwsbLCLv`, ...apiReportStatParams },
-      });
-      expect(authService.getEou).toHaveBeenCalledTimes(1);
-      done();
     });
   });
 });
