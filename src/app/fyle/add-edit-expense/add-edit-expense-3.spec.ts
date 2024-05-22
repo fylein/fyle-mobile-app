@@ -1423,7 +1423,7 @@ export function TestCases3(getTestBed) {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
         activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
-        fileService.post.and.returnValue(of(fileData1[0]));
+        expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
         fixture.detectChanges();
@@ -1436,7 +1436,10 @@ export function TestCases3(getTestBed) {
 
         expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
-        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileData[0]);
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
+          mockFileData[0].transaction_id,
+          mockFileData[0].id
+        );
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
           mode: 'edit',
