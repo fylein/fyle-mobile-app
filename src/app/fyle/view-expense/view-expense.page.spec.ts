@@ -263,6 +263,9 @@ describe('ViewExpensePage', () => {
     spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    activateRouteMock = TestBed.inject(ActivatedRoute);
+
+    fixture.detectChanges();
   }));
 
   it('should create', () => {
