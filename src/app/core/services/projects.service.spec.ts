@@ -1,4 +1,4 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed, discardPeriodicTasks, fakeAsync, tick } from '@angular/core/testing';
 import { of } from 'rxjs/internal/observable/of';
 import { ApiV2Service } from './api-v2.service';
 import { ApiService } from './api.service';
@@ -23,6 +23,8 @@ import {
   platformAPIResponseActiveOnly,
 } from '../mock-data/platform/v1/platform-project.data';
 import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
+import { CategoriesService } from './categories.service';
+import { orgCategoryPaginated1 } from '../mock-data/org-category.data';
 
 const fixDate = (data) =>
   data.map((datum) => ({
@@ -31,16 +33,18 @@ const fixDate = (data) =>
     project_updated_at: new Date(datum.project_updated_at),
   }));
 
-describe('ProjectsService', () => {
+fdescribe('ProjectsService', () => {
   let projectsService: ProjectsService;
   let apiService: jasmine.SpyObj<ApiService>;
   let apiV2Service: jasmine.SpyObj<ApiV2Service>;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
 
   beforeEach(() => {
     const apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
     const apiv2ServiceSpy = jasmine.createSpyObj('ApiV2Service', ['get']);
     const spenderPlatformApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -57,6 +61,10 @@ describe('ProjectsService', () => {
           provide: SpenderPlatformV1ApiService,
           useValue: spenderPlatformApiServiceSpy,
         },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
       ],
     });
     projectsService = TestBed.inject(ProjectsService);
@@ -65,16 +73,25 @@ describe('ProjectsService', () => {
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
   });
 
   it('should be created', () => {
     expect(projectsService).toBeTruthy();
   });
 
-  it('should be able to fetch project by id', (done) => {
+  it('should be able to fetch project by id', fakeAsync(() => {
+    categoriesService.getAll.and.returnValue(of(orgCategoryPaginated1));
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
+
+    let activeCategories;
+    categoriesService.getAll().subscribe((categories) => {
+      activeCategories = categories;
+    });
+    tick();
+
     spyOn(projectsService, 'transformToV2Response').and.returnValue([apiV2ResponseSingle.data[0]]);
-    projectsService.getbyId(257528).subscribe((res) => {
+    projectsService.getbyId(257528, activeCategories).subscribe((res) => {
       expect(res).toEqual(apiV2ResponseSingle.data[0]);
       expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
         params: {
@@ -82,9 +99,10 @@ describe('ProjectsService', () => {
         },
       });
       expect(projectsService.transformToV2Response).toHaveBeenCalled();
-      done();
     });
-  });
+
+    discardPeriodicTasks();
+  }));
 
   it('should be able to fetch all active projects', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));

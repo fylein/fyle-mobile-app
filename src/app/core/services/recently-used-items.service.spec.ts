@@ -71,6 +71,7 @@ describe('RecentlyUsedItemsService', () => {
       categoriesService.getAll().subscribe((categories) => {
         activeCategories = categories;
       });
+      tick();
 
       const config = {
         recentValues: recentlyUsedRes,
