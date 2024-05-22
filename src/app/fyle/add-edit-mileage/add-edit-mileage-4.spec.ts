@@ -499,7 +499,10 @@ export function TestCases4(getTestBed) {
 
         component.getProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            unflattenedTxnData.tx.project_id,
+            component.allActiveCategories
+          );
           done();
         });
       });
@@ -515,7 +518,10 @@ export function TestCases4(getTestBed) {
           expect(res).toEqual(expectedProjectsResponse[0]);
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(orgUserSettingsData.preferences.default_project_id);
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
+            orgUserSettingsData.preferences.default_project_id,
+            component.allActiveCategories
+          );
           done();
         });
       });

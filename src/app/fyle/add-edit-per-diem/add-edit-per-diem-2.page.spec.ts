@@ -620,9 +620,12 @@ export function TestCases2(getTestBed) {
         });
 
         component.isProjectVisible$.subscribe((res) => {
-          expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith({
-            categoryIds: ['129140', '129112', '16582', '201952'],
-          });
+          expect(projectsService.getProjectCount).toHaveBeenCalledOnceWith(
+            {
+              categoryIds: ['129140', '129112', '16582', '201952'],
+            },
+            component.allActiveCategories
+          );
           expect(res).toBeTrue();
         });
 
