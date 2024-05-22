@@ -74,15 +74,18 @@
 
     <ng-container *ngIf="!isLoading; else loading">
       <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings; else loading">
-        <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
-          <app-reports-card
-            [erpt]="erpt"
-            [prevDate]="list[i-1]?.rp_created_at"
-            [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
-            (gotoReport)="onReportClick($event)"
-          >
-          </app-reports-card>
-        </div>
+        <ng-container *ngIf="(isManualFlagFeatureEnabled$ | async) as isManualFlagFeatureEnabled; else loading">
+          <div *ngFor="let erpt of teamReports$ | async as list; let i = index">
+            <app-reports-card
+              [erpt]="erpt"
+              [prevDate]="list[i-1]?.rp_created_at"
+              [simplifyReportsEnabled]="simplifyReportsSettings.enabled"
+              [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
+              (gotoReport)="onReportClick($event)"
+            >
+            </app-reports-card>
+          </div>
+        </ng-container>
       </ng-container>
     </ng-container>
 

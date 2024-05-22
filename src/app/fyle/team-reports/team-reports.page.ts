@@ -26,6 +26,7 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import { TeamReportsFilters } from 'src/app/core/models/team-reports-filters.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-team-reports',
@@ -81,6 +82,8 @@ export class TeamReportsPage implements OnInit {
 
   simplifyReportsSettings$: Observable<{ enabled: boolean }>;
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -95,7 +98,8 @@ export class TeamReportsPage implements OnInit {
     private apiV2Service: ApiV2Service,
     private tasksService: TasksService,
     private orgSettingsService: OrgSettingsService,
-    private reportStatePipe: ReportState
+    private reportStatePipe: ReportState,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState() {
@@ -113,6 +117,8 @@ export class TeamReportsPage implements OnInit {
   ionViewWillEnter() {
     this.isLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
+
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;

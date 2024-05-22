@@ -156,18 +156,23 @@
           <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports--expenses-card-block">
-              <div *ngFor="let expense of expenses$|async as list; let i = index;">
-                <app-expense-card-v2
-                  [expense]="expense"
-                  [expenseIndex]="i"
-                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
-                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
-                  (goToTransaction)="goToTransaction($event)"
-                  [isFromReports]="true"
-                  [isFromViewReports]="true"
-                >
-                </app-expense-card-v2>
-              </div>
+              <ng-container
+                *ngIf="(isManualFlagFeatureEnabled$ | async) as isManualFlagFeatureEnabled; else ExpensesLoader"
+              >
+                <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                  <app-expense-card-v2
+                    [expense]="expense"
+                    [expenseIndex]="i"
+                    [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                    [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                    (goToTransaction)="goToTransaction($event)"
+                    [isFromReports]="true"
+                    [isFromViewReports]="true"
+                    [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
+                  >
+                  </app-expense-card-v2>
+                </div>
+              </ng-container>
             </div>
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>

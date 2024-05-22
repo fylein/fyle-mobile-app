@@ -14,6 +14,8 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() simplifyReportsEnabled: boolean;
 
+  @Input() isManualFlagFeatureEnabled = false;
+
   @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
 
   @Output() gotoReport: EventEmitter<ExtendedReport> = new EventEmitter();

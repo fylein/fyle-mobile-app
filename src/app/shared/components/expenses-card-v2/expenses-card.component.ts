@@ -68,6 +68,8 @@ export class ExpensesCardComponent implements OnInit {
 
   @Input() showDt = true;
 
+  @Input() isManualFlagFeatureEnabled = false;
+
   @Output() goToTransaction: EventEmitter<{ expense: Expense; expenseIndex: number }> = new EventEmitter<{
     expense: Expense;
     expenseIndex: number;
@@ -267,6 +269,11 @@ export class ExpensesCardComponent implements OnInit {
       this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
   }
 
+  setIsPolicyViolated() {
+    const isManualFlagEnabledAndFlagged = this.isManualFlagFeatureEnabled && this.expense.is_manually_flagged;
+    this.isPolicyViolated = isManualFlagEnabledAndFlagged || this.expense.is_policy_flagged;
+  }
+
   ngOnInit(): void {
     this.setupNetworkWatcher();
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
@@ -280,12 +287,12 @@ export class ExpensesCardComponent implements OnInit {
     this.isPerDiem = this.category === 'per diem';
 
     this.isDraft = this.sharedExpenseService.isExpenseInDraft(this.expense);
-    this.isPolicyViolated = this.expense.is_manually_flagged || this.expense.is_policy_flagged;
     this.isCriticalPolicyViolated = this.sharedExpenseService.isCriticalPolicyViolatedExpense(this.expense);
     this.vendorDetails = this.sharedExpenseService.getVendorDetails(this.expense);
     this.expenseFieldsService.getAllMap().subscribe((expenseFields) => {
       this.expenseFields = expenseFields;
     });
+    this.setIsPolicyViolated();
 
     this.currencyService
       .getHomeCurrency()
