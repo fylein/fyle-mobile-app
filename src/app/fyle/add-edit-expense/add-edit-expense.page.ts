@@ -2991,7 +2991,7 @@ export class AddEditExpensePage implements OnInit {
     this.isProjectsVisible$ = forkJoin({
       individualProjectIds: this.individualProjectIds$,
       isIndividualProjectsEnabled: this.isIndividualProjectsEnabled$,
-      projectsCount: this.projectsService.getProjectCount(),
+      projectsCount: this.projectsService.getProjectCount({ categoryIds: [] }, this.allActiveCategories),
     }).pipe(
       map(({ individualProjectIds, isIndividualProjectsEnabled, projectsCount }) => {
         if (!isIndividualProjectsEnabled) {
