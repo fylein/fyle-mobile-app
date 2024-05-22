@@ -85,8 +85,6 @@ export class MyViewReportPage {
 
   userComments: ExtendedComment[];
 
-  totalCommentsCount$: Observable<number>;
-
   totalCommentsCount: number;
 
   newComment: string;
@@ -198,7 +196,7 @@ export class MyViewReportPage {
       this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 
       this.systemComments = this.estatuses.filter(
-        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
       );
 
       this.type =
