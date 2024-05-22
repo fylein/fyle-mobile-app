@@ -209,28 +209,28 @@
                 <ion-grid class="view-comment--card view-comment--self-comment text-right">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                      <div class="view-comment--name-container">{{ estatus.creator_user.full_name }}</div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
                       <div
-                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                       <div
-                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -249,7 +249,7 @@
                 <ion-grid class="view-comment--card view-comment--others-comment text-left">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                      <div class="view-comment--name-container">{{ estatus.creator_user.full_name }}</div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
@@ -258,19 +258,19 @@
                         *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                       <div
-                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
