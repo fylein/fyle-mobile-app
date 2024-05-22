@@ -53,6 +53,7 @@ import {
 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as ApproverExpensesService } from 'src/app/core/services/platform/v1/approver/expenses.service';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
@@ -75,6 +76,7 @@ describe('ViewTeamReportPageV2', () => {
   let statusService: jasmine.SpyObj<StatusService>;
   let humanizeCurrency: jasmine.SpyObj<HumanizeCurrencyPipe>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', [
@@ -114,6 +116,9 @@ describe('ViewTeamReportPageV2', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
@@ -200,6 +205,10 @@ describe('ViewTeamReportPageV2', () => {
           provide: OrgSettingsService,
           useValue: orgSettingsServiceSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -224,6 +233,7 @@ describe('ViewTeamReportPageV2', () => {
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     humanizeCurrency = TestBed.inject(HumanizeCurrencyPipe) as jasmine.SpyObj<HumanizeCurrencyPipe>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -322,12 +332,17 @@ describe('ViewTeamReportPageV2', () => {
       reportService.getApproversByReportId.and.returnValue(of(approversData1));
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       component.ionViewWillEnter();
       tick(2000);
 
       component.eou$.subscribe((res) => {
         expect(res).toEqual(apiEouRes);
+      });
+
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
       });
 
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);

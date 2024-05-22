@@ -83,6 +83,7 @@ import {
   expectedFilterPill9,
 } from 'src/app/core/mock-data/my-reports-filterpills.data';
 import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -103,6 +104,7 @@ describe('MyReportsPage', () => {
   let trackingService: jasmine.SpyObj<TrackingService>;
   let modalController: jasmine.SpyObj<ModalController>;
   let inputElement: HTMLInputElement;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const tasksServiceSpy = jasmine.createSpyObj('TasksService', ['getReportsTaskCount']);
@@ -139,6 +141,9 @@ describe('MyReportsPage', () => {
       'myReportsFilterApplied',
     ]);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['create']);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [MyReportsPage, ReportState],
@@ -184,6 +189,10 @@ describe('MyReportsPage', () => {
           provide: ModalController,
           useValue: modalControllerSpy,
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
         ReportState,
       ],
       schemas: [NO_ERRORS_SCHEMA],
@@ -210,6 +219,7 @@ describe('MyReportsPage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
   }));
 
   it('should create', () => {
@@ -237,6 +247,7 @@ describe('MyReportsPage', () => {
       reportService.getMyReports.and.returnValue(of(paginatedPipeValue));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       expensesService.getExpenseStats.and.returnValue(of(completeStats1));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
 
       component.simpleSearchInput = fixture.debugElement.query(By.css('.my-reports--simple-search-input'));
 
@@ -260,6 +271,10 @@ describe('MyReportsPage', () => {
 
       component.homeCurrency$.subscribe((currency) => {
         expect(currency).toEqual('USD');
+      });
+
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toEqual(true);
       });
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');

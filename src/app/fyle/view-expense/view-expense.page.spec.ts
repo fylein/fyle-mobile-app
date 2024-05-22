@@ -55,6 +55,7 @@ import {
   expectedReportsSinglePageSubmitted,
   paidReportData,
 } from 'src/app/core/mock-data/platform-report.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
@@ -79,6 +80,7 @@ describe('ViewExpensePage', () => {
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
@@ -125,6 +127,9 @@ describe('ViewExpensePage', () => {
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
       'ejectExpenses',
       'getReportById',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
     ]);
 
     TestBed.configureTestingModule({
@@ -220,6 +225,10 @@ describe('ViewExpensePage', () => {
             },
           },
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -246,6 +255,7 @@ describe('ViewExpensePage', () => {
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -491,6 +501,15 @@ describe('ViewExpensePage', () => {
         thumbnail: 'mock-thumbnail',
       });
       approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
+    });
+
+    it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+      });
     });
 
     it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {

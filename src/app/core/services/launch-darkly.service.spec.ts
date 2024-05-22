@@ -86,4 +86,15 @@ describe('LaunchDarklyService', () => {
       done();
     });
   });
+
+  it('checkIfManualFlaggingFeatureIsEnabled(): should check if manual flagging feature is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'deprecate_manual_flagging';
+
+    launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((res) => {
+      expect(res.value).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      done();
+    });
+  });
 });

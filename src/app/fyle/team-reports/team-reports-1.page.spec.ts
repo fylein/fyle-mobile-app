@@ -28,6 +28,7 @@ import {
 import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -47,6 +48,7 @@ export function TestCases1(getTestBed) {
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let inputElement: HTMLInputElement;
+    let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -65,6 +67,7 @@ export function TestCases1(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
     }));
 
     it('should create', () => {
@@ -108,12 +111,20 @@ export function TestCases1(getTestBed) {
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
         spyOn(component, 'generateFilterPills').and.returnValue(creditTxnFilterPill);
         spyOn(component, 'clearFilters');
+        launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       });
 
       it('should set navigateBack to true if navigate_back is defined in activatedRoute.snapshot.params', () => {
         component.navigateBack = false;
         component.ionViewWillEnter();
         expect(component.navigateBack).toBeTrue();
+      });
+
+      it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
+        component.ionViewWillEnter();
+        component.isManualFlagFeatureEnabled$.subscribe((res) => {
+          expect(res.value).toBeTrue();
+        });
       });
 
       it('should set navigateBack to false if navigate_back is undefined in activatedRoute.snapshot.params', () => {
