@@ -1010,6 +1010,24 @@ describe('ViewTeamReportPageV2', () => {
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
+  it('trackReportNameChange(): should track report name change', () => {
+    component.eou = null;
+    component.trackReportNameChange();
+    expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
+      Time_spent: component.timeSpentOnEditingReportName,
+      Roles: undefined,
+    });
+  });
+
+  it('trackReportNameChange(): should track report name change', () => {
+    component.eou = apiEouRes;
+    component.trackReportNameChange();
+    expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
+      Time_spent: component.timeSpentOnEditingReportName,
+      Roles: apiEouRes.ou.roles,
+    });
+  });
+
   describe('editReportName(): ', () => {
     beforeEach(() => {
       component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0] }));

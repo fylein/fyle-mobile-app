@@ -266,8 +266,8 @@ export class ViewTeamReportPage {
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
         )
       ),
-      shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
