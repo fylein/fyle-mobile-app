@@ -40,7 +40,7 @@ export const platformReportData: Report = deepFreeze({
   currency: 'USD',
   employee: {
     org_name: 'Staging Loaded',
-    level: null,
+    level: undefined,
     mobile: '123456098',
     ach_account: {
       added: true,
