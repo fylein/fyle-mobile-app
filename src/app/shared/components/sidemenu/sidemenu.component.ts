@@ -5,7 +5,6 @@ import { map, shareReplay } from 'rxjs/operators';
 import { DeviceService } from 'src/app/core/services/device.service';
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
-import { FreshChatService } from 'src/app/core/services/fresh-chat.service';
 import { SidemenuService } from 'src/app/core/services/sidemenu.service';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
@@ -53,9 +52,7 @@ export class SidemenuComponent implements OnInit {
 
   deviceInfo: Observable<ExtendedDeviceInfo>;
 
-  activeOrg$: Observable<Org>;
-
-  primaryOrg$: Observable<Org>;
+  primaryOrg: Org;
 
   constructor(
     private deviceService: DeviceService,
@@ -106,6 +103,7 @@ export class SidemenuComponent implements OnInit {
     }
     const orgs$ = this.orgService.getOrgs();
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
+    const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
     const delegatedAccounts$ = this.orgUserService
@@ -119,6 +117,7 @@ export class SidemenuComponent implements OnInit {
       forkJoin({
         orgs: orgs$,
         currentOrg: currentOrg$,
+        primaryOrg: primaryOrg$,
         orgSettings: orgSettings$,
         orgUserSettings: orgUserSettings$,
         delegatedAccounts: delegatedAccounts$,
@@ -133,6 +132,7 @@ export class SidemenuComponent implements OnInit {
         {
           orgs,
           currentOrg,
+          primaryOrg,
           orgSettings,
           orgUserSettings,
           delegatedAccounts,
@@ -144,6 +144,7 @@ export class SidemenuComponent implements OnInit {
         isConnected,
       ]) => {
         this.activeOrg = currentOrg;
+        this.primaryOrg = primaryOrg;
         this.orgSettings = orgSettings;
         this.orgUserSettings = orgUserSettings;
         const isDelegatee = delegatedAccounts?.length > 0;
@@ -193,7 +194,8 @@ export class SidemenuComponent implements OnInit {
     return cardOptions.filter((cardOption) => cardOption.isVisible);
   }
 
-  getTeamOptions(showTeamReportsPage: boolean) {
+  getTeamOptions(): Partial<SidemenuItem>[] {
+    const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
@@ -210,81 +212,74 @@ export class SidemenuComponent implements OnInit {
     return teamOptions.filter((teamOption) => teamOption.isVisible);
   }
 
-  getPrimarySidemenuOptions(isConnected: boolean): Observable<Partial<SidemenuItem>[]> {
-    this.activeOrg$ = this.orgService.getCurrentOrg();
-    this.primaryOrg$ = this.orgService.getPrimaryOrg();
-    return forkJoin([this.activeOrg$, this.primaryOrg$]).pipe(
-      map(([activeOrg, primaryOrg]) => {
-        const showTeamReportsPage = primaryOrg.id === activeOrg.id;
-        const teamOptions = this.getTeamOptions(showTeamReportsPage);
-        const cardOptions = this.getCardOptions();
+  getPrimarySidemenuOptions(isConnected: boolean): Partial<SidemenuItem>[] {
+    const teamOptions = this.getTeamOptions();
+    const cardOptions = this.getCardOptions();
 
-        const primaryOptions = [
-          {
-            title: 'Dashboard',
-            isVisible: true,
-            icon: 'dashboard',
-            route: ['/', 'enterprise', 'my_dashboard'],
-          },
-          {
-            title: 'Expenses',
-            isVisible: true,
-            icon: 'list',
-            route: ['/', 'enterprise', 'my_expenses'],
-          },
-          {
-            title: 'Cards',
-            isVisible: cardOptions.length ? true : false,
-            icon: 'card',
-            disabled: !isConnected,
-            isDropdownOpen: false,
-            dropdownOptions: cardOptions,
-          },
-          {
-            title: 'Reports',
-            isVisible: true,
-            icon: 'folder',
-            route: ['/', 'enterprise', 'my_reports'],
-            disabled: !isConnected,
-          },
-          {
-            title: 'Advances',
-            isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
-            icon: 'wallet',
-            route: ['/', 'enterprise', 'my_advances'],
-            disabled: !isConnected,
-          },
-          {
-            title: 'Team',
-            isVisible: teamOptions.length ? true : false,
-            icon: 'user-three',
-            isDropdownOpen: false,
-            disabled: !isConnected,
-            dropdownOptions: teamOptions,
-          },
-        ].filter((sidemenuItem) => sidemenuItem.isVisible);
+    const primaryOptions = [
+      {
+        title: 'Dashboard',
+        isVisible: true,
+        icon: 'dashboard',
+        route: ['/', 'enterprise', 'my_dashboard'],
+      },
+      {
+        title: 'Expenses',
+        isVisible: true,
+        icon: 'list',
+        route: ['/', 'enterprise', 'my_expenses'],
+      },
+      {
+        title: 'Cards',
+        isVisible: cardOptions.length ? true : false,
+        icon: 'card',
+        disabled: !isConnected,
+        isDropdownOpen: false,
+        dropdownOptions: cardOptions,
+      },
+      {
+        title: 'Reports',
+        isVisible: true,
+        icon: 'folder',
+        route: ['/', 'enterprise', 'my_reports'],
+        disabled: !isConnected,
+      },
+      {
+        title: 'Advances',
+        isVisible: this.orgSettings.advances.enabled || this.orgSettings.advance_requests.enabled,
+        icon: 'wallet',
+        route: ['/', 'enterprise', 'my_advances'],
+        disabled: !isConnected,
+      },
+      {
+        title: 'Team',
+        isVisible: teamOptions.length ? true : false,
+        icon: 'user-three',
+        isDropdownOpen: false,
+        disabled: !isConnected,
+        dropdownOptions: teamOptions,
+      },
+    ].filter((sidemenuItem) => sidemenuItem.isVisible);
 
-        this.primaryOptionsCount = primaryOptions.length;
+    this.primaryOptionsCount = primaryOptions.length;
 
-        if (cardOptions.length === 1) {
-          this.updateSidemenuOption(primaryOptions, 'Cards', {
-            ...cardOptions[0],
-            icon: 'card',
-            disabled: !isConnected,
-          });
-        }
+    if (cardOptions.length === 1) {
+      this.updateSidemenuOption(primaryOptions, 'Cards', {
+        ...cardOptions[0],
+        icon: 'card',
+        disabled: !isConnected,
+      });
+    }
 
-        if (teamOptions.length === 1) {
-          this.updateSidemenuOption(primaryOptions, 'Team', {
-            ...teamOptions[0],
-            icon: 'user-three',
-            disabled: !isConnected,
-          });
-        }
+    if (teamOptions.length === 1) {
+      this.updateSidemenuOption(primaryOptions, 'Team', {
+        ...teamOptions[0],
+        icon: 'user-three',
+        disabled: !isConnected,
+      });
+    }
 
-        return primaryOptions;
-      })
-    );
+    return primaryOptions;
   }
 
   updateSidemenuOption(
@@ -381,12 +376,10 @@ export class SidemenuComponent implements OnInit {
 
   setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean) {
     if (isConnected) {
-      this.getPrimarySidemenuOptions(isConnected).subscribe((primarySidemenuOptions) => {
-        this.filteredSidemenuList = [
-          ...primarySidemenuOptions,
-          ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
-        ];
-      });
+      this.filteredSidemenuList = [
+        ...this.getPrimarySidemenuOptions(isConnected),
+        ...this.getSecondarySidemenuOptions(orgs, isDelegatee, isConnected),
+      ];
     } else {
       this.filteredSidemenuList = [...this.getPrimarySidemenuOptionsOffline()];
     }
