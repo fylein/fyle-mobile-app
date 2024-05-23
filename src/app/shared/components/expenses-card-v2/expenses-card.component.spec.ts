@@ -548,6 +548,78 @@ describe('ExpensesCardComponent', () => {
       expect(component.isPerDiem).toBeTrue();
     });
 
+    it('should set isPolicyViolated correctly on ngOnInit', () => {
+      spyOn(component, 'setIsPolicyViolated').and.callThrough();
+      component.ngOnInit();
+      expect(component.setIsPolicyViolated).toHaveBeenCalled();
+    });
+
+    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is false and expense is not flagged', () => {
+      component.isManualFlagFeatureEnabled = false;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: false,
+        is_policy_flagged: false,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeFalse();
+    });
+
+    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is false but expense is policy flagged', () => {
+      component.isManualFlagFeatureEnabled = false;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: false,
+        is_policy_flagged: true,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeTrue();
+    });
+
+    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is true but expense is not manually flagged and not policy flagged', () => {
+      component.isManualFlagFeatureEnabled = true;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: false,
+        is_policy_flagged: false,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeFalse();
+    });
+
+    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is manually flagged', () => {
+      component.isManualFlagFeatureEnabled = true;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: true,
+        is_policy_flagged: false,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeTrue();
+    });
+
+    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is policy flagged but not manually flagged', () => {
+      component.isManualFlagFeatureEnabled = true;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: false,
+        is_policy_flagged: true,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeTrue();
+    });
+
+    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is true and expense is both manually flagged and policy flagged', () => {
+      component.isManualFlagFeatureEnabled = true;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: true,
+        is_policy_flagged: true,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeTrue();
+    });
+
     it('should call other methods', fakeAsync(() => {
       component.isIos = true;
       spyOn(component, 'canShowPaymentModeIcon');

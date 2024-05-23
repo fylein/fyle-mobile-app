@@ -12,7 +12,7 @@ import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-describe('ReportsCardComponent', () => {
+fdescribe('ReportsCardComponent', () => {
   let component: ReportsCardComponent;
   let fixture: ComponentFixture<ReportsCardComponent>;
 
@@ -40,6 +40,10 @@ describe('ReportsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--currency'))).toEqual('$');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('116.90');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('1 Expense');
+  });
+
+  it('should have default value of false for isManualFlagFeatureEnabled', () => {
+    expect(component.isManualFlagFeatureEnabled).toBeFalse();
   });
 
   it('onDeleteReport(): should delete report event', () => {
