@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@angular/core';
 import { ApiService } from './api.service';
 import { DateService } from './date.service';
-import { map, switchMap, tap, concatMap, reduce } from 'rxjs/operators';
+import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
 import { NetworkService } from './network.service';
-import { from, Observable, range, forkJoin, Subject, of } from 'rxjs';
+import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
 import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
@@ -42,7 +42,6 @@ import { Expense as PlatformExpense } from '../models/platform/v1/expense.model'
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
-import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 
 enum FilterState {
