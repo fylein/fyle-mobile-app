@@ -106,7 +106,7 @@ describe('ProjectsService', () => {
     });
   });
 
-  it('should be able to fetch project by id and activeCategoryList is not defined', (done) => {
+  it('should be able to fetch project by id and activeCategoryList is not provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformProjectSingleRes));
 
     spyOn(projectsService, 'transformToV2Response').and.returnValue([apiV2ResponseSingle.data[0]]);
@@ -157,7 +157,26 @@ describe('ProjectsService', () => {
     });
   });
 
-  it('should be able to fetch data when no params provided and no activeCategoryList', (done) => {
+  it('should be able to fetch all active projects with activeCategoryList not provided', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
+    spyOn(projectsService, 'transformToV1Response').and.returnValue(expectedReponseActiveOnly);
+
+    projectsService.getAllActive().subscribe((res) => {
+      expect(res).toEqual(expectedReponseActiveOnly);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+        params: {
+          is_enabled: `eq.true`,
+        },
+      });
+      expect(projectsService.transformToV1Response).toHaveBeenCalledOnceWith(
+        platformAPIResponseActiveOnly.data,
+        undefined
+      );
+      done();
+    });
+  });
+
+  it('should be able to fetch data when no params provided and activeCategoryList not provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
     spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
@@ -196,7 +215,7 @@ describe('ProjectsService', () => {
     });
   });
 
-  it('should be able to fetch data when params are provided and no activeCategoryList is provided', (done) => {
+  it('should be able to fetch data when params are provided and null activeCategoryList is provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
     spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
@@ -210,9 +229,25 @@ describe('ProjectsService', () => {
     });
   });
 
+  it('should be able to fetch data when params are provided and no activeCategoryList is provided', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
+    spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
+
+    projectsService.getByParamsUnformatted(testProjectParams).subscribe((res) => {
+      expect(res).toEqual(expectedProjectsResponse);
+      expect(spenderPlatformV1ApiService.get).toHaveBeenCalledOnceWith('/projects', {
+        params: ProjectPlatformParams,
+      });
+      expect(projectsService.transformToV2Response).toHaveBeenCalledOnceWith(
+        platformAPIResponseMultiple.data,
+        undefined
+      );
+      done();
+    });
+  });
+
   it('should be able to fetch data when params and activeCategoryList are provided', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
-
     spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
 
     projectsService.getByParamsUnformatted(testProjectParams, testActiveCategoryList).subscribe((res) => {
@@ -241,8 +276,16 @@ describe('ProjectsService', () => {
   it('should get project count restricted by a set of category IDs and null activeCategoryList', (done) => {
     spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
 
-    const result = projectsService.getProjectCount({ categoryIds: testCategoryIds }, null);
-    result.subscribe((res) => {
+    projectsService.getProjectCount({ categoryIds: testCategoryIds }, null).subscribe((res) => {
+      expect(res).toEqual(2);
+      done();
+    });
+  });
+
+  it('should get project count restricted by a set of category IDs and activeCategoryList not provided', (done) => {
+    spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseActiveOnly));
+
+    projectsService.getProjectCount({ categoryIds: testCategoryIds }).subscribe((res) => {
       expect(res).toEqual(2);
       done();
     });
