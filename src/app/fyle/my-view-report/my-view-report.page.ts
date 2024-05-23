@@ -181,13 +181,14 @@ export class MyViewReportPage {
 
   setupComments(report: Report): void {
     this.eou$.subscribe((eou) => {
-      this.estatuses = report.comments.map((comment: Comment) => {
-        const extendedComment: ExtendedComment = { ...comment };
-        extendedComment.isBotComment = comment && ['SYSTEM', 'POLICY'].indexOf(comment.creator_user_id) > -1;
-        extendedComment.isSelfComment = comment && eou && eou.ou && comment.creator_user_id === eou.us.id;
-        extendedComment.isOthersComment = comment && eou && eou.ou && comment.creator_user_id !== eou.us.id;
-        return extendedComment;
-      });
+      this.estatuses =
+        report?.comments?.map((comment: Comment) => {
+          const extendedComment: ExtendedComment = { ...comment };
+          extendedComment.isBotComment = comment && ['SYSTEM', 'POLICY'].indexOf(comment.creator_user_id) > -1;
+          extendedComment.isSelfComment = comment && eou && eou.ou && comment.creator_user_id === eou.us.id;
+          extendedComment.isOthersComment = comment && eou && eou.ou && comment.creator_user_id !== eou.us.id;
+          return extendedComment;
+        }) || [];
 
       this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
 

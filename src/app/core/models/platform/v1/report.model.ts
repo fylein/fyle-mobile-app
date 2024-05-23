@@ -8,7 +8,7 @@ export interface Report {
   created_at: Date | string;
   updated_at: Date;
   user_id: string;
-  comments?: Comment[];
+  comments: Comment[];
   user: {
     id: string;
     email: string;

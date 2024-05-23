@@ -16,6 +16,7 @@ export const mockQueryParamsForCount: ReportsQueryParams = deepFreeze({
 
 export const platformReportData: Report = deepFreeze({
   amount: 0,
+  comments: [],
   approvals: [
     {
       approver_user: {
@@ -110,6 +111,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 100,
+      comments: [],
       approvals: [],
       org_name: 'Staging Loaded',
       level: null,
@@ -179,6 +181,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
     {
       amount: 200,
       approvals: [],
+      comments: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
@@ -250,6 +253,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
   data: [
     {
       amount: 100,
+      comments: [],
       approvals: [
         {
           approver_user: {
@@ -334,6 +338,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
     },
     {
       amount: 200,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
@@ -406,6 +411,7 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 200,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
@@ -478,6 +484,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 300,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
@@ -543,6 +550,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
     },
     {
       amount: 400,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
@@ -614,6 +622,7 @@ export const submittedReportData: Report = deepFreeze({
   amount: 300,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  comments: [],
   currency: 'USD',
   employee: {
     org_name: 'Staging Loaded',
@@ -678,6 +687,7 @@ export const submittedReportData: Report = deepFreeze({
 
 export const submittedReportDataWithApproval: Report = deepFreeze({
   amount: 300,
+  comments: [],
   approvals: [
     {
       approver_user: {
