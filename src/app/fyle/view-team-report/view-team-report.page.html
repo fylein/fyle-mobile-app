@@ -29,7 +29,7 @@
             <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{report.purpose | ellipsis: 35}}
+                  {{report.purpose | ellipsis: 1}}
                   <ion-icon
                     *ngIf="(canEdit$|async) && report && (report.state === 'APPROVER_PENDING')"
                     [src]="'../../../../assets/svg/edit.svg'"
@@ -190,7 +190,7 @@
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
           <div *ngFor="let estatus of userComments">
             <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
+              <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
             </div>
             <div
               class="view-comment--block"
@@ -206,22 +206,22 @@
                 <ion-row>
                   <ion-col size="12">
                     <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                     <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -240,28 +240,28 @@
               <ion-grid class="view-comment--card view-comment--others-comment text-left">
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
                     <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                     <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>

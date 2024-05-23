@@ -36,6 +36,8 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { Approval } from 'src/app/core/models/approval.model';
+import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -86,19 +88,19 @@ export class ViewTeamReportPage {
 
   isExpensesView = true;
 
-  estatuses$: Observable<ExtendedStatus[]>;
+  estatuses: ExtendedComment[];
 
   refreshEstatuses$: Subject<void> = new Subject();
 
-  systemComments: ExtendedStatus[];
+  systemComments: ExtendedComment[];
 
   type: string;
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: ExtendedStatus[];
+  userComments: ExtendedComment[];
 
-  totalCommentsCount$: Observable<number>;
+  totalCommentsCount: number;
 
   newComment: string;
 
@@ -199,6 +201,58 @@ export class ViewTeamReportPage {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
+  convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    return comments.map((comment) => {
+      const status: ExtendedStatus = {
+        st_comment: comment.comment,
+        isSelfComment: comment.isSelfComment,
+        isBotComment: comment.isBotComment,
+        isOthersComment: comment.isOthersComment,
+        st_created_at: comment.created_at,
+        st_id: comment.id,
+        us_full_name: comment.creator_user?.full_name,
+      };
+      return status;
+    });
+  }
+
+  setupComments(report: Report): void {
+    this.eou$.subscribe((eou) => {
+      this.estatuses = report.comments.map((comment: Comment) => {
+        const extendedComment: ExtendedComment = { ...comment };
+        extendedComment.isBotComment = comment && ['SYSTEM', 'POLICY'].indexOf(comment.creator_user_id) > -1;
+        extendedComment.isSelfComment = comment && eou && eou.ou && comment.creator_user_id === eou.us.id;
+        extendedComment.isOthersComment = comment && eou && eou.ou && comment.creator_user_id !== eou.us.id;
+        return extendedComment;
+      });
+
+      this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
+
+      this.systemComments = this.estatuses.filter(
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+      );
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
+
+      this.userComments = this.estatuses.filter((status) => status.creator_user?.full_name);
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
+        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+  }
+
   ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
@@ -210,54 +264,9 @@ export class ViewTeamReportPage {
 
     this.eou$.subscribe((eou) => (this.eou = eou));
 
-    this.estatuses$ = this.refreshEstatuses$.pipe(
-      startWith(0),
-      switchMap(() => this.eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
-          map((estatus) =>
-            estatus.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
-              return status;
-            })
-          ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
-    );
-
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
-    );
-
-    this.estatuses$.subscribe((estatuses) => {
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
-
-      this.type =
-        this.objectType.toLowerCase() === 'transactions'
-          ? 'Expense'
-          : this.objectType.substring(0, this.objectType.length - 1);
-
-      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
-
-      this.userComments = estatuses.filter((status) => status.us_full_name);
-
-      for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
-        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
-          this.userComments[i].show_dt = false;
-        } else {
-          this.userComments[i].show_dt = true;
-        }
-      }
-    });
-
-    this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
     this.report$ = this.refreshApprovals$.pipe(
@@ -266,8 +275,12 @@ export class ViewTeamReportPage {
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
         )
       ),
-      shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
+      map((report) => {
+        this.setupComments(report);
+        return report;
+      }),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
