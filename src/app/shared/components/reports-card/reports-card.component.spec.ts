@@ -12,7 +12,7 @@ import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('ReportsCardComponent', () => {
+describe('ReportsCardComponent', () => {
   let component: ReportsCardComponent;
   let fixture: ComponentFixture<ReportsCardComponent>;
 
