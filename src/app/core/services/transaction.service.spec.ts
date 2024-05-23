@@ -1256,14 +1256,12 @@ describe('TransactionService', () => {
 
   it('createTxnWithFiles(): should create transaction with files', (done) => {
     spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-    // fileService.post.and.returnValue(of(fileObjectData2));
     expensesService.attachReceiptsToExpense.and.returnValue(of([expenseData]));
 
     const mockFileObject = cloneDeep(fileObjectData1);
     transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
       expect(res).toEqual(txnData2);
       expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
-      // expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
       expect(expensesService.attachReceiptsToExpense).toHaveBeenCalledOnceWith(mockFileObject[0].transaction_id, [
         mockFileObject[0].id,
       ]);
