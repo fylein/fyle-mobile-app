@@ -172,7 +172,6 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           const queryParams = params.queryParams;
-          console.log(params);
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           if (params.searchString) {
             queryParams.q = params.searchString;
