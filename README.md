@@ -43,8 +43,16 @@ ionic serve -c staging
   - Run `npm run test:no-parallel` to run tests without sharding (without parallel browsers). This is useful to avoid parallel execution and to prevent excessive CPU utilization and memory hogging.
 
 ## Viewing coverage report
+  After running the tests, you can view the test coverage report by following these steps:
 
   - Open generated `index.html` file present in the `app/coverage/index.html`.
+  - Metrics Explanation:
+  In this file you would see 4 metrics for the files you have changed
+    - Statements: Percentage of executed statements.
+    - Branches: Percentage of executed branches (e.g., conditions in if, else, switch statements, `&&`, `||`, `?` operators used).
+    - Functions: Percentage of executed functions.
+    - Lines: Percentage of executed lines of code.
+  - To increase code coverage write additional test cases to cover the missing Metrics. 
 
 ## For running app directly in android device for staging
 
