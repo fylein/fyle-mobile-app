@@ -90,8 +90,6 @@ export class ViewTeamReportPage {
 
   estatuses: ExtendedComment[];
 
-  refreshEstatuses$: Subject<void> = new Subject();
-
   systemComments: ExtendedComment[];
 
   type: string;
@@ -573,9 +571,8 @@ export class ViewTeamReportPage {
       (this.commentInput.nativeElement as HTMLElement).focus();
       this.isCommentAdded = true;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
-        this.refreshEstatuses$.next(null);
+      this.statusService.post(this.objectType, this.objectId, data).subscribe(() => {
+        this.loadReports().subscribe();
         setTimeout(() => {
           this.content.scrollToBottom(500);
         }, 500);

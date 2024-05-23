@@ -71,11 +71,7 @@ export class MyViewReportPage {
 
   reportCurrencySymbol = '';
 
-  estatuses$: Observable<ExtendedComment[]>;
-
   estatuses: ExtendedComment[];
-
-  refreshEstatuses$: Subject<void> = new Subject();
 
   systemComments: ExtendedComment[];
 
