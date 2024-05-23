@@ -282,7 +282,7 @@ export class TransactionService {
     return forkJoin([fileUploads$, upsertTxn$]).pipe(
       switchMap(([fileObjs, transaction]) => {
         const fileIds = fileObjs.map((fileObj) => fileObj.id);
-        return this.expensesService.attachReceipts(transaction.id, fileIds).pipe(map(() => transaction));
+        return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
       })
     );
   }

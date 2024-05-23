@@ -178,12 +178,14 @@ export class ExpensesService {
       .pipe(map((res) => res.data));
   }
 
-  attachReceipts(expenseId: string, fileIds: string[]): Observable<Expense[]> {
+  attachReceiptsToExpense(expenseId: string, fileIds: string[]): Observable<Expense[]> {
     const payload = {
-      data: {
-        id: expenseId,
-        file_ids: fileIds,
-      },
+      data: [
+        {
+          id: expenseId,
+          file_ids: fileIds,
+        },
+      ],
     };
 
     return this.spenderService
