@@ -38,7 +38,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<any>;
 
   pageTitle = 'Team Reports';
 
@@ -154,10 +154,9 @@ export class TeamReportsPage implements OnInit {
       this.simpleSearchInput.nativeElement.value = '';
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
-          map((event) => {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          map((event: { srcElement: { value: string } }) => {
             const value = event.srcElement.value;
-            return value as string;
+            return value;
           }),
           debounceTime(1000),
           distinctUntilChanged()
@@ -173,11 +172,12 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           const queryParams = params.queryParams;
+          console.log(params);
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           if (params.searchString) {
             queryParams.q = params.searchString;
             queryParams.q = queryParams.q + ':*';
-          } else if (params.searchString === '') {
+          } else {
             delete queryParams.q;
           }
           this.isLoadingDataInInfiniteScroll = true;
@@ -206,7 +206,7 @@ export class TeamReportsPage implements OnInit {
           if (params.searchString) {
             queryParams.q = params.searchString;
             queryParams.q = queryParams.q + ':*';
-          } else if (params.searchString === '') {
+          } else {
             delete queryParams.q;
           }
           return this.approverReportsService.getReportsCount(queryParams);
@@ -414,8 +414,11 @@ export class TeamReportsPage implements OnInit {
 
   clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const searchInput = this.simpleSearchInput.nativeElement;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     searchInput.value = '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
       this.isSearchBarFocused = !this.isSearchBarFocused;
