@@ -19,6 +19,7 @@ import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { ParsedResponse } from '../models/parsed_response.model';
 
 @Injectable({
   providedIn: 'root',
@@ -128,6 +129,16 @@ export class TransactionsOutboxService {
     await this.saveDataExtractionQueue();
   }
 
+  getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
+    if (entry.transaction.txn_dt) {
+      return new Date(entry.transaction.txn_dt);
+    } else if (extractedData.date) {
+      return new Date(extractedData.date);
+    } else {
+      return new Date();
+    }
+  }
+
   async processDataExtractionEntry(): Promise<void> {
     const that = this;
     const clonedQueue = cloneDeep(this.dataExtractionQueue);
@@ -156,10 +167,7 @@ export class TransactionsOutboxService {
                 };
 
                 entry.transaction.extracted_data = extractedData;
-                entry.transaction.txn_dt =
-                  (entry.transaction.txn_dt ?? new Date(entry.transaction.txn_dt)) ||
-                  (extractedData.date ?? new Date(extractedData.date)) ||
-                  new Date();
+                entry.transaction.txn_dt = this.getExpenseDate(entry, parsedResponse);
 
                 // TODO: add this to allow amout addtion to extracted expense
                 // let transactionUpsertPromise;
