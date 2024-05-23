@@ -64,7 +64,7 @@ import { ExpensesService as ApproverExpensesService } from 'src/app/core/service
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
-fdescribe('ViewTeamReportPageV2', () => {
+describe('ViewTeamReportPageV2', () => {
   let component: ViewTeamReportPage;
   let fixture: ComponentFixture<ViewTeamReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;

@@ -32,6 +32,7 @@ import {
   systemComments1,
   systemCommentsWithSt,
   systemExtendedComments,
+  userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
@@ -64,7 +65,7 @@ import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
 
-fdescribe('MyViewReportPage', () => {
+describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
   let fixture: ComponentFixture<MyViewReportPage>;
   let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
@@ -348,11 +349,7 @@ fdescribe('MyViewReportPage', () => {
       );
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(component.userComments).toEqual([
-        sentBackReportData.comments[2],
-        sentBackReportData.comments[3],
-        sentBackReportData.comments[4],
-      ]);
+      expect(component.userComments).toEqual(userComments);
 
       // component.totalCommentsCount$.subscribe((res) => {
       //   expect(res).toEqual(3);

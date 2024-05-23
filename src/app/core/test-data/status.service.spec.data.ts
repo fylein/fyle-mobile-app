@@ -1984,10 +1984,9 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     creator_user: null,
     creator_user_id: 'SYSTEM',
     id: 'styBS6Mt3srX',
-    isBotComment: false,
+    isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
-    show_dt: false,
   },
   {
     comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -1995,10 +1994,57 @@ export const systemExtendedComments: ExtendedComment[] = deepFreeze([
     creator_user: null,
     creator_user_id: 'SYSTEM',
     id: 'stI6NDy8La7b',
+    isBotComment: true,
+    isSelfComment: false,
+    isOthersComment: true,
+  },
+]);
+
+export const userComments: ExtendedComment[] = deepFreeze([
+  {
+    comment: 'aaab',
+    created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+    creator_user: {
+      email: 'aastha.b@fyle.in',
+      full_name: 'Aastha',
+      id: 'usaTtklUXVZn',
+    },
+    creator_user_id: 'usaTtklUXVZn',
+    id: 'stVFdDpz1LAi',
+    isBotComment: false,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: true,
+  },
+  {
+    comment: 'aaac',
+    created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+    creator_user: {
+      email: 'aastha.b@fyle.in',
+      full_name: 'Aastha',
+      id: 'usaTtklUXVZn',
+    },
+    creator_user_id: 'usaTtklUXVZn',
+    id: 'stVFdDpz1LAd',
     isBotComment: false,
     isSelfComment: false,
     isOthersComment: true,
     show_dt: false,
+  },
+  {
+    comment: 'aaa',
+    created_at: new Date('2024-05-23T07:32:19.199048+00:00'),
+    creator_user: {
+      email: 'aastha.b@fyle.in',
+      full_name: 'Aastha',
+      id: 'usaTtklUXVZn',
+    },
+    creator_user_id: 'usaTtklUXVZn',
+    id: 'stVFdDpz1LAL',
+    isBotComment: false,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: true,
   },
 ]);
 
