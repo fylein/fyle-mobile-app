@@ -76,14 +76,14 @@ export class SidemenuComponent implements OnInit {
     });
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = this.networkService.connectivityWatcher(new EventEmitter<boolean>());
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
       shareReplay(1)
     );
   }
 
-  showSideMenuOffline() {
+  showSideMenuOffline(): void {
     this.deviceService
       .getDeviceInfo()
       .pipe(shareReplay(1))
@@ -96,7 +96,7 @@ export class SidemenuComponent implements OnInit {
       });
   }
 
-  async showSideMenuOnline() {
+  async showSideMenuOnline(): Promise<void | number> {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return 0;
@@ -180,7 +180,7 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getCardOptions() {
+  getCardOptions(): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
         title: 'Personal Cards',
@@ -286,7 +286,7 @@ export class SidemenuComponent implements OnInit {
     primaryOptions: Partial<SidemenuItem>[],
     dropdownTitle: string,
     updatedOption: Partial<SidemenuItem>
-  ) {
+  ): Partial<SidemenuItem>[] {
     return primaryOptions.splice(
       primaryOptions.findIndex((option) => option.title === dropdownTitle),
       1,
@@ -294,7 +294,7 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getPrimarySidemenuOptionsOffline() {
+  getPrimarySidemenuOptionsOffline(): Partial<SidemenuItem>[] {
     return [
       {
         title: 'Dashboard',
@@ -317,7 +317,7 @@ export class SidemenuComponent implements OnInit {
     ];
   }
 
-  getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean) {
+  getSecondarySidemenuOptions(orgs: Org[], isDelegatee: boolean, isConnected: boolean): Partial<SidemenuItem>[] {
     return [
       {
         title: 'Delegated Accounts',
@@ -367,14 +367,14 @@ export class SidemenuComponent implements OnInit {
     ].filter((sidemenuItem) => sidemenuItem.isVisible);
   }
 
-  goToProfile(event: Event) {
+  goToProfile(event: Event): void {
     if (event.isTrusted) {
       this.router.navigate(['/', 'enterprise', 'my_profile']);
       this.menuController.close();
     }
   }
 
-  setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean) {
+  setupSideMenu(isConnected?: boolean, orgs?: Org[], isDelegatee?: boolean): void {
     if (isConnected) {
       this.filteredSidemenuList = [
         ...this.getPrimarySidemenuOptions(isConnected),
