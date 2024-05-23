@@ -43,6 +43,7 @@ import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-car
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -50,8 +51,6 @@ enum FilterState {
   CANNOT_REPORT = 'CANNOT_REPORT',
   DRAFT = 'DRAFT',
 }
-
-export const expensesCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;

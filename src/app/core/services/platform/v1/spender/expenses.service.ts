@@ -6,7 +6,6 @@ import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesQueryParams } from 'src/app/core/models/platform/v1/expenses-query-params.model';
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { CacheBuster, Cacheable } from 'ts-cacheable';
-import { expensesCacheBuster$ } from '../../../transaction.service';
 import {
   ExpenseDuplicateSet,
   ExpenseDuplicateSetsResponse,
@@ -16,6 +15,7 @@ import { SplitPayload } from 'src/app/core/models/platform/v1/split-payload.mode
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
+import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
 
 @Injectable({
   providedIn: 'root',
