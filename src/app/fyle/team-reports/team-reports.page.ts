@@ -38,7 +38,7 @@ import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<any>;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   pageTitle = 'Team Reports';
 
@@ -154,8 +154,8 @@ export class TeamReportsPage implements OnInit {
       this.simpleSearchInput.nativeElement.value = '';
       fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
         .pipe(
-          map((event: { srcElement: { value: string } }) => {
-            const value = event.srcElement.value;
+          map((event: Event) => {
+            const value = (event.target as HTMLInputElement).value;
             return value;
           }),
           debounceTime(1000),
