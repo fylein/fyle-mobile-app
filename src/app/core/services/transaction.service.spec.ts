@@ -35,7 +35,6 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import { expensesCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
@@ -59,6 +58,7 @@ import {
   unmatchCCCExpenseResponseData,
 } from '../mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
