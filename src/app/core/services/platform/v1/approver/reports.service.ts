@@ -8,10 +8,7 @@ import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
-import { CacheBuster } from 'ts-cacheable';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
-
-const reportsCacheBuster$ = new Subject<void>();
 
 @Injectable({
   providedIn: 'root',
