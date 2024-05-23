@@ -910,6 +910,7 @@ fdescribe('ViewTeamReportPageV2', () => {
 
   it('addComment(): should add a comment', () => {
     statusService.post.and.returnValue(of(txnStatusData));
+    spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
     spyOn(component.content, 'scrollToBottom');
     // spyOn(component.refreshEstatuses$, 'next');
     component.isCommentsView = true;
@@ -924,8 +925,8 @@ fdescribe('ViewTeamReportPageV2', () => {
     });
     expect(component.isCommentAdded).toBeTrue();
     expect(component.newComment).toBeNull();
+    expect(component.loadReports).toHaveBeenCalledTimes(1);
     expect(component.commentInput.nativeElement.focus).toHaveBeenCalledTimes(1);
-    // expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
   });
 
   it('should send back the report on clicking the SEND BACK button', () => {
