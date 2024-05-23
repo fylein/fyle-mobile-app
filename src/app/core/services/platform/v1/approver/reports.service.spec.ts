@@ -118,7 +118,7 @@ describe('ApproverReportsService', () => {
     });
   });
 
-  fit('permissions(): should get report permissions', (done) => {
+  it('permissions(): should get report permissions', (done) => {
     approverPlatformApiService.post.and.returnValue(of({ data: apiReportPermissions }));
 
     const id = 'rpxtbiLXQZUm';
