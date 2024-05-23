@@ -15,7 +15,7 @@ export interface ExtendedStatus {
   st_state?: string;
   st_transaction_id?: string;
   us_email?: string;
-  us_full_name: string;
+  us_full_name?: string;
   st?: StatusCategory;
   show_dt?: boolean;
 }

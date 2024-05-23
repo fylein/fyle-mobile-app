@@ -31,6 +31,7 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  systemExtendedComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
@@ -338,13 +339,20 @@ fdescribe('MyViewReportPage', () => {
       component.report$.subscribe((res) => {
         expect(res).toEqual(report);
       });
-      // expect(component.systemComments).toEqual(systemComments1);
+      expect(component.systemComments).toEqual(systemExtendedComments);
       expect(component.type).toEqual(component.objectType.substring(0, component.objectType.length - 1));
 
-      expect(statusService.createStatusMap).toHaveBeenCalledWith([], 'report');
+      expect(statusService.createStatusMap).toHaveBeenCalledWith(
+        component.convertToEstatus(component.systemComments),
+        'report'
+      );
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      // expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+      expect(component.userComments).toEqual([
+        sentBackReportData.comments[2],
+        sentBackReportData.comments[3],
+        sentBackReportData.comments[4],
+      ]);
 
       // component.totalCommentsCount$.subscribe((res) => {
       //   expect(res).toEqual(3);
@@ -426,18 +434,13 @@ fdescribe('MyViewReportPage', () => {
         expect(res).toBeNull();
       });
 
-      // expect(component.systemComments).toEqual(systemComments1);
       expect(component.type).toEqual('Expense');
       expect(component.reportCurrencySymbol).toBeUndefined();
 
       expect(statusService.createStatusMap).toHaveBeenCalledWith([], 'Expense');
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      // expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
-
-      // component.totalCommentsCount$.subscribe((res) => {
-      //   expect(res).toEqual(3);
-      // });
+      expect(component.userComments).toEqual([]);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 

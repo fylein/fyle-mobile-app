@@ -361,11 +361,10 @@ fdescribe('ViewTeamReportPageV2', () => {
       });
 
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      // expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
-
-      // component.totalCommentsCount$.subscribe((res) => {
-      //   expect(res).toEqual(3);
-      // });
+      expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
+        component.convertToEstatus(component.systemComments),
+        component.type
+      );
 
       component.report$.subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
@@ -373,7 +372,7 @@ fdescribe('ViewTeamReportPageV2', () => {
 
       expect(component.eou).toEqual(apiEouRes);
 
-      // expect(component.systemComments).toEqual(systemComments1);
+      expect(component.convertToEstatus(component.systemComments)).toEqual(systemComments1);
 
       expect(component.objectType).toEqual('reports');
 
@@ -469,17 +468,18 @@ fdescribe('ViewTeamReportPageV2', () => {
       });
 
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      // expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
+      expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(
+        component.convertToEstatus(component.systemComments),
+        component.type
+      );
 
-      // component.totalCommentsCount$.subscribe((res) => {
-      //   expect(res).toEqual(3);
-      // });
+      expect(component.totalCommentsCount).toEqual(3);
 
       component.report$.subscribe((res) => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
-      // expect(component.systemComments).toEqual(systemComments1);
+      // expect(component.convertToEstatus(component.systemComments)).toEqual(systemComments1);
 
       expect(component.objectType).toEqual('Transactions');
 

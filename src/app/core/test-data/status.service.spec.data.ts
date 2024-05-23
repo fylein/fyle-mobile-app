@@ -1,6 +1,7 @@
 import deepFreeze from 'deep-freeze-strict';
 
 import { ExtendedStatus } from '../models/extended_status.model';
+import { ExtendedComment } from '../models/platform/v1/extended-comment.model';
 
 export const getApiResponse = deepFreeze([
   {
@@ -1959,70 +1960,45 @@ export const expectedNewStatusData: ExtendedStatus[] = deepFreeze([
 
 export const systemComments1: ExtendedStatus[] = deepFreeze([
   {
-    st_id: 'stIwoMKmTqeM',
-    st_created_at: new Date('2022-09-21T15:33:50.409Z'),
-    st_org_user_id: 'SYSTEM',
-    st_comment: 'created by Abhishek (ajain@fyle.in)',
-    st_diff: {
-      'non-reimbursable': false,
-      'sub-category': 'Food',
-      'breakfast provided': false,
-      'cost-center name': '11',
-      'project name': 'testing 5',
-      'text-field': '111',
-      'user entered amount': 100,
-      custom: 'null',
-      'transaction date': 'Wednesday, September 21, 2022',
-      currency: 'INR',
-      category: 'Food',
-    },
-    st_state: null,
-    st_transaction_id: 'tx1oTNwgRdRq',
-    st_report_id: null,
-    st_advance_request_id: null,
-    us_full_name: null,
-    us_email: null,
+    st_comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+    st_created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+    st_id: 'styBS6Mt3srX',
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
   },
   {
-    st_id: 'st7ak7UoeTDH',
-    st_created_at: new Date('2022-09-23T15:33:52.696Z'),
-    st_org_user_id: 'POLICY',
-    st_comment: 'food expenses are limited to rs 200 only',
-    st_diff: {
-      'Violating Transactions': [
-        'E/2022/09/T/28 (INR 200, Food, testing 5)\n',
-        'E/2022/09/T/29 (INR 0, Food, testing 5)\n',
-      ],
-    },
-    st_state: null,
-    st_transaction_id: 'tx1oTNwgRdRq',
-    st_report_id: null,
-    st_advance_request_id: null,
-    us_full_name: null,
-    us_email: null,
+    st_comment: 'submitted by Suyash (suyash.p@fyle.in)',
+    st_created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+    st_id: 'stI6NDy8La7b',
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
   },
+]);
+
+export const systemExtendedComments: ExtendedComment[] = deepFreeze([
   {
-    st_id: 'st8dHUhDzXxr',
-    st_created_at: new Date('2022-11-07T10:58:24.975Z'),
-    st_org_user_id: 'POLICY',
-    st_comment: 'Flagged as per policy',
-    st_diff: null,
-    st_state: null,
-    st_transaction_id: 'tx1oTNwgRdRq',
-    st_report_id: null,
-    st_advance_request_id: null,
-    us_full_name: 'some',
-    us_email: null,
-    isBotComment: true,
+    comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+    created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+    creator_user: null,
+    creator_user_id: 'SYSTEM',
+    id: 'styBS6Mt3srX',
+    isBotComment: false,
     isSelfComment: false,
     isOthersComment: true,
-    show_dt: true,
+    show_dt: false,
+  },
+  {
+    comment: 'submitted by Suyash (suyash.p@fyle.in)',
+    created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+    creator_user: null,
+    creator_user_id: 'SYSTEM',
+    id: 'stI6NDy8La7b',
+    isBotComment: false,
+    isSelfComment: false,
+    isOthersComment: true,
+    show_dt: false,
   },
 ]);
 

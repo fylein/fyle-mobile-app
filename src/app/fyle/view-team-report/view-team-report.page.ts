@@ -208,7 +208,6 @@ export class ViewTeamReportPage {
         isOthersComment: comment.isOthersComment,
         st_created_at: comment.created_at,
         st_id: comment.id,
-        us_full_name: comment.creator_user?.full_name,
       };
       return status;
     });
