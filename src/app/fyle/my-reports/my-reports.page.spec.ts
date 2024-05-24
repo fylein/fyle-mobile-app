@@ -13,7 +13,6 @@ import { BehaviorSubject, of } from 'rxjs';
 import { By } from '@angular/platform-browser';
 import { RouterTestingModule } from '@angular/router/testing';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
-import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { orgSettingsRes, orgSettingsParamsWithSimplifiedReport } from 'src/app/core/mock-data/org-settings.data';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { cardAggregateStatParam, cardAggregateStatParam2 } from 'src/app/core/mock-data/card-aggregate-stats.data';
@@ -84,6 +83,7 @@ import {
 import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportState } from 'src/app/core/models/platform/v1/report.model';
 
 describe('MyReportsPage', () => {
   let component: MyReportsPage;
@@ -359,7 +359,7 @@ describe('MyReportsPage', () => {
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
       component.filters = {
-        state: [AdvancesStates.paid, AdvancesStates.cancelled],
+        state: [ReportState.PAID],
       };
 
       const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
@@ -453,7 +453,7 @@ describe('MyReportsPage', () => {
       expect(router.navigate).toHaveBeenCalledTimes(2);
       expect(router.navigate).toHaveBeenCalledWith([], {
         relativeTo: activatedRoute,
-        queryParams: { filters: '{"state":["PAID","CANCELLED"]}' },
+        queryParams: { filters: '{"state":["PAID"]}' },
         replaceUrl: true,
       });
 
