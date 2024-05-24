@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { ReportService } from 'src/app/core/services/report.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
+import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
 import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
@@ -23,7 +23,6 @@ import { ExtendedStatus } from 'src/app/core/models/extended_status.model';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PdfExport } from 'src/app/core/models/pdf-exports.model';
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
@@ -35,7 +34,7 @@ import { ApproverReportsService } from 'src/app/core/services/platform/v1/approv
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Approval } from 'src/app/core/models/approval.model';
+import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -51,8 +50,6 @@ export class ViewTeamReportPage {
   expenses$: Observable<Expense[]>;
 
   sharedWith$: Observable<string[]>;
-
-  reportApprovals$: Observable<Approver[]>;
 
   refreshApprovals$ = new Subject();
 
@@ -134,6 +131,8 @@ export class ViewTeamReportPage {
 
   timeSpentOnEditingReportName: number;
 
+  approvals: ReportApprovals[];
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -175,8 +174,8 @@ export class ViewTeamReportPage {
     });
   }
 
-  getApproverEmails(reportApprovals: Approval[]): string[] {
-    return reportApprovals.map((approver) => approver.approver_email);
+  getApproverEmails(reportApprovals: ReportApprovals[]): string[] {
+    return reportApprovals.map((approver) => approver.approver_user.email);
   }
 
   loadReports(): Observable<Report> {
@@ -266,8 +265,8 @@ export class ViewTeamReportPage {
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
         )
       ),
-      shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
@@ -292,16 +291,6 @@ export class ViewTeamReportPage {
       )
     );
 
-    this.reportApprovals$ = this.refreshApprovals$.pipe(
-      startWith(true),
-      switchMap(() => this.reportService.getApproversByReportId(this.activatedRoute.snapshot.params.id as string)),
-      map((reportApprovals) =>
-        reportApprovals
-          .filter((approval) => ['APPROVAL_PENDING', 'APPROVAL_DONE'].indexOf(approval.state) > -1)
-          .map((approval) => approval)
-      )
-    );
-
     this.expenses$ = this.expensesService.getReportExpenses(this.activatedRoute.snapshot.params.id as string).pipe(
       shareReplay(1),
       finalize(() => (this.isExpensesLoading = false))
@@ -322,13 +311,18 @@ export class ViewTeamReportPage {
     forkJoin({
       expenses: this.expenses$,
       eou: this.eou$,
-      approvals: this.reportApprovals$.pipe(take(1)),
+      report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
-    }).subscribe(({ expenses, eou, approvals, orgSettings }) => {
+    }).subscribe(({ expenses, eou, report, orgSettings }) => {
+      this.approvals = report.approvals.filter(
+        (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].indexOf(approval.state) > -1
+      );
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
-        ? this.isUserActiveInCurrentSeqApprovalQueue(eou, approvals)
+        ? report.next_approver_user_ids &&
+          report.next_approver_user_ids.length > 0 &&
+          report.next_approver_user_ids.includes(eou.us.id)
         : true;
       this.canShowTooltip = true;
     });
@@ -338,21 +332,6 @@ export class ViewTeamReportPage {
 
   toggleTooltip(): void {
     this.canShowTooltip = !this.canShowTooltip;
-  }
-
-  isUserActiveInCurrentSeqApprovalQueue(eou: ExtendedOrgUser, approvers: Approver[]): boolean {
-    const currentApproverRank = approvers.find((approver) => approver.approver_id === eou.ou.id)?.rank;
-
-    const approverRanks = approvers
-      .filter((approver) => approver.state === 'APPROVAL_PENDING')
-      .map((approver) => approver.rank);
-
-    if (approverRanks.length > 0) {
-      const minRank = approverRanks.reduce((prev, curr) => (prev < curr ? prev : curr));
-      return currentApproverRank === minRank;
-    }
-
-    return false;
   }
 
   async deleteReport(): Promise<void> {
@@ -529,7 +508,7 @@ export class ViewTeamReportPage {
     this.trackingService.clickViewReportInfo({ view: ExpenseView.team });
   }
 
-  segmentChanged(event: SegmentCustomEvent): void {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'expenses') {
         this.isExpensesView = true;
