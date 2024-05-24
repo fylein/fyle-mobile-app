@@ -40,6 +40,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 @Component({
   selector: 'app-my-profile',
@@ -406,8 +407,8 @@ export class MyProfilePage {
   }
 
   async updateMobileNumber(eou: ExtendedOrgUser): Promise<void> {
-    const updateMobileNumberPopover = await this.popoverController.create({
-      component: UpdateMobileNumberComponent,
+    const updateMobileNumberPopover = await this.modalController.create({
+      component: FyOptInComponent,
       componentProps: {
         title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
         ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
@@ -415,7 +416,7 @@ export class MyProfilePage {
         extendedOrgUser: eou,
         placeholder: 'Enter mobile number e.g. +129586736556',
       },
-      cssClass: 'fy-dialog-popover',
+      mode: 'ios',
     });
 
     await updateMobileNumberPopover.present();
