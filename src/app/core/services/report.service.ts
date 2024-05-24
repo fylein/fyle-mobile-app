@@ -579,12 +579,12 @@ export class ReportService {
     );
   }
 
-  approverUpdateReportPurpose(erpt: Report): Observable<Report> {
+  approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
-        id: erpt.id,
-        source: erpt.source,
-        purpose: erpt.purpose,
+        id: report.id,
+        source: report.source,
+        purpose: report.purpose,
       },
     };
     return this.approverPlatformApiService.post('/reports', params);
