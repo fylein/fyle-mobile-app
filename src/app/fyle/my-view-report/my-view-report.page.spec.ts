@@ -90,6 +90,7 @@ describe('MyViewReportPage', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
       'getApproversByReportId',
+      'actions',
       'updateReportDetails',
       'updateReportPurpose',
       'delete',
@@ -321,7 +322,6 @@ describe('MyViewReportPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
@@ -356,11 +356,6 @@ describe('MyViewReportPage', () => {
       expect(component.eou).toEqual(apiEouRes);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -408,7 +403,6 @@ describe('MyViewReportPage', () => {
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       spenderReportsService.getReportById.and.returnValue(of(null));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
@@ -438,11 +432,6 @@ describe('MyViewReportPage', () => {
       expect(component.userComments).toEqual([]);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
