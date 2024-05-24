@@ -25,7 +25,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
@@ -49,8 +48,6 @@ export class MyViewReportPage {
   report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
-
-  reportApprovals$: Observable<Approver[]>;
 
   canEdit$: Observable<boolean>;
 
@@ -232,10 +229,6 @@ export class MyViewReportPage {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
-
-    this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.reportId)
-      .pipe(map((reportApprovals) => reportApprovals));
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
