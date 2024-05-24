@@ -9,6 +9,7 @@ import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/plat
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
 import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
 import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -83,6 +84,12 @@ export class ApproverReportsService {
   permissions(id: string): Observable<ReportPermissions> {
     return this.approverPlatformApiService
       .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
+      .pipe(map((res) => res.data));
+  }
+
+  postComment(id: string, comment: string): Observable<Comment> {
+    return this.approverPlatformApiService
+      .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
       .pipe(map((res) => res.data));
   }
 

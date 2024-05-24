@@ -44,6 +44,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
+  allReportsPaginated1,
   expectedReportsSinglePage,
   paidReportData,
   platformReportData,
@@ -130,6 +131,7 @@ describe('MyViewReportPage', () => {
       'addExpenses',
       'getReportById',
       'permissions',
+      'postComment',
     ]);
 
     TestBed.configureTestingModule({
@@ -905,7 +907,7 @@ describe('MyViewReportPage', () => {
     component.segmentValue = ReportPageSegment.COMMENTS;
     fixture.detectChanges();
 
-    statusService.post.and.returnValue(of(txnStatusData));
+    spenderReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
     spyOn(component.content, 'scrollToBottom');
     component.newComment = 'comment';
     component.segmentValue = ReportPageSegment.COMMENTS;
@@ -919,9 +921,7 @@ describe('MyViewReportPage', () => {
     component.addComment();
     fixture.detectChanges();
 
-    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.reportId, {
-      comment: 'comment',
-    });
+    expect(spenderReportsService.postComment).toHaveBeenCalledOnceWith(component.reportId, 'comment');
     expect(component.newComment).toBeNull();
     expect(component.isCommentAdded).toBeTrue();
   });

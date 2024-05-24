@@ -542,15 +542,13 @@ export class ViewTeamReportPage {
 
   addComment(): void {
     if (this.newComment) {
-      const data = {
-        comment: this.newComment,
-      };
+      const comment = this.newComment;
 
       this.newComment = null;
       (this.commentInput.nativeElement as HTMLElement).focus();
       this.isCommentAdded = true;
 
-      this.statusService.post(this.objectType, this.objectId, data).subscribe(() => {
+      this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
         this.loadReports().subscribe();
         setTimeout(() => {
           this.content.scrollToBottom(500);

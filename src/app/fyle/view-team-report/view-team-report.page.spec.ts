@@ -33,6 +33,7 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
@@ -49,6 +50,7 @@ import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-expor
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
 import {
+  allReportsPaginated1,
   allReportsPaginatedWithApproval,
   expectedReportsSinglePage,
   platformReportData,
@@ -126,7 +128,11 @@ describe('ViewTeamReportPageV2', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const humanizeCurrencySpy = jasmine.createSpyObj('HumanizeCurrencyPipe', ['transform']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportById', 'permissions']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'getReportById',
+      'permissions',
+      'postComment',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [ViewTeamReportPage, EllipsisPipe, HumanizeCurrencyPipe],
@@ -886,7 +892,7 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('addComment(): should add a comment', () => {
-    statusService.post.and.returnValue(of(txnStatusData));
+    approverReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
     spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
     spyOn(component.content, 'scrollToBottom');
     // spyOn(component.refreshEstatuses$, 'next');
@@ -897,9 +903,7 @@ describe('ViewTeamReportPageV2', () => {
     spyOn(component.commentInput.nativeElement, 'focus');
 
     component.addComment();
-    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.objectId, {
-      comment: 'comment',
-    });
+    expect(approverReportsService.postComment).toHaveBeenCalledOnceWith(component.objectId, 'comment');
     expect(component.isCommentAdded).toBeTrue();
     expect(component.newComment).toBeNull();
     expect(component.loadReports).toHaveBeenCalledTimes(1);

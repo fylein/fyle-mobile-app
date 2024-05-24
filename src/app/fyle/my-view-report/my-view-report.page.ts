@@ -554,16 +554,14 @@ export class MyViewReportPage {
 
   addComment(): void {
     if (this.newComment) {
-      const data = {
-        comment: this.newComment,
-      };
+      const comment = this.newComment;
 
       this.newComment = null;
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService
-        .post(this.objectType, this.reportId, data)
+      this.spenderReportsService
+        .postComment(this.reportId, comment)
         .pipe()
         .subscribe(() => {
           this.loadReportDetails$.next();
