@@ -28,10 +28,6 @@ describe('SpenderFileService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('createFiles(): create a file', () => {
-    spenderPlatformV1ApiService.post.and.returnValue(of(platformFileData1));
-  });
-
   it('generateUrls(): should generate upload and download urls for the given file', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of({ data: generateUrlsBulkData1[0] }));
 
