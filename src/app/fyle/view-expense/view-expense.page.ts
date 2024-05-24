@@ -417,7 +417,7 @@ export class ViewExpensePage {
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
       switchMap((expense) => {
-        if (expense.file_ids?.length > 0) {
+        if (expense.file_ids.length > 0) {
           if (this.view === ExpenseView.individual) {
             return this.spenderFileService.generateUrlsBulk(expense.file_ids);
           } else {
