@@ -25,7 +25,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
@@ -49,8 +48,6 @@ export class MyViewReportPage {
   report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
-
-  reportApprovals$: Observable<Approver[]>;
 
   canEdit$: Observable<boolean>;
 
@@ -233,10 +230,6 @@ export class MyViewReportPage {
       }
     });
 
-    this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.reportId)
-      .pipe(map((reportApprovals) => reportApprovals));
-
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
       switchMap(() =>
@@ -267,7 +260,7 @@ export class MyViewReportPage {
       .pipe(
         map(
           (orgSetting) =>
-            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
         ),
         switchMap((filterPendingTxn: boolean) => {
           if (filterPendingTxn) {
@@ -349,7 +342,7 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
@@ -397,7 +390,7 @@ export class MyViewReportPage {
 
     await deleteReportPopover.present();
 
-    const { data } = (await deleteReportPopover?.onDidDismiss()) as { data: { status: string } };
+    const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -501,7 +494,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = (await shareReportModal?.onWillDismiss()) as { data: { email: string } };
+    const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
       const params = {
@@ -531,7 +524,7 @@ export class MyViewReportPage {
     });
 
     await viewInfoModal.present();
-    await viewInfoModal?.onWillDismiss();
+    await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
@@ -584,7 +577,7 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
         )
       )
       .subscribe((addExpensesToReportModalDetails) => {

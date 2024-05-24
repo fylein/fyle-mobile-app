@@ -36,11 +36,11 @@ export const platformReportData: Report = deepFreeze({
       state: ApprovalState.APPROVAL_DONE,
     },
   ],
-  created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  created_at: new Date('2023-07-11T16:24:01.335Z'),
   currency: 'USD',
   employee: {
     org_name: 'Staging Loaded',
-    level: null,
+    level: undefined,
     mobile: '123456098',
     ach_account: {
       added: true,
@@ -156,7 +156,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       last_approved_at: null,
       last_paid_at: null,
       last_resubmitted_at: null,
-      last_submitted_at: null,
+      last_submitted_at: new Date('2023-02-01T13:02:35.097839+00:00'),
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
@@ -413,225 +413,6 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
         org_name: 'Staging Loaded',
         level: null,
         mobile: '123456098',
-        ach_account: {
-          added: true,
-          verified: null,
-        },
-        business_unit:
-          'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
-        department: {
-          code: null,
-          display_name: '0000000 / arun',
-          id: 'dept7HJ9C4wvtX',
-          name: '0000000',
-          sub_department: 'arun',
-        },
-        department_id: 'dept7HJ9C4wvtX',
-        id: 'ouX8dwsbLCLv',
-        location: 'Mumbai',
-        org_id: 'orNVthTo2Zyo',
-        title: 'director',
-        user: {
-          email: 'ajain@fyle.in',
-          full_name: 'Abhishek Jain',
-          id: 'usvKA4X8Ugcr',
-        },
-        user_id: 'usvKA4X8Ugcr',
-      },
-      employee_id: 'ouX8dwsbLCLv',
-      id: 'rpLMyvYSXgJy',
-      is_exported: false,
-      is_manually_flagged: false,
-      is_physical_bill_submitted: false,
-      is_policy_flagged: false,
-      is_verified: false,
-      last_approved_at: null,
-      last_paid_at: null,
-      last_resubmitted_at: null,
-      last_submitted_at: null,
-      next_approver_user_ids: null,
-      num_expenses: 0,
-      org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
-      purpose: '#7:  Jan 2023',
-      seq_num: 'C/2023/07/R/17',
-      settlement_id: null,
-      source: 'WEBAPP',
-      state: 'DRAFT',
-      state_display_name: 'Draft',
-      tax: null,
-      updated_at: new Date('2023-08-09T13:02:35.097839+00:00'),
-      user: {
-        email: 'ajain@fyle.in',
-        full_name: 'Abhishek Jain',
-        id: 'usvKA4X8Ugcr',
-      },
-      user_id: 'usvKA4X8Ugcr',
-    },
-  ],
-  offset: 0,
-});
-
-export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = deepFreeze({
-  count: 4,
-  data: [
-    {
-      amount: 100,
-      approvals: [
-        {
-          approver_user: {
-            email: 'aditya.b@fyle.in',
-            full_name: 'AB',
-            id: 'usJzTy7lqHSI',
-          },
-          approver_user_id: 'usJzTy7lqHSI',
-          state: ApprovalState.APPROVAL_PENDING,
-        },
-        {
-          approver_user: {
-            email: 'aastha.b@fyle.in',
-            full_name: 'Aastha',
-            id: 'usRjTPO4r69K',
-          },
-          approver_user_id: 'usRjTPO4r69K',
-          state: ApprovalState.APPROVAL_DONE,
-        },
-      ],
-      created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
-      currency: 'USD',
-      employee: {
-        ach_account: {
-          added: true,
-          verified: null,
-        },
-        business_unit:
-          'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
-        department: {
-          code: null,
-          display_name: '0000000 / arun',
-          id: 'dept7HJ9C4wvtX',
-          name: '0000000',
-          sub_department: 'arun',
-        },
-        department_id: 'dept7HJ9C4wvtX',
-        id: 'ouX8dwsbLCLv',
-        location: 'Mumbai',
-        org_id: 'orNVthTo2Zyo',
-        title: 'director',
-        user: {
-          email: 'ajain@fyle.in',
-          full_name: 'Abhishek Jain',
-          id: 'usvKA4X8Ugcr',
-        },
-        user_id: 'usvKA4X8Ugcr',
-      },
-      employee_id: 'ouX8dwsbLCLv',
-      id: 'rprAfNrce73O',
-      is_exported: false,
-      is_manually_flagged: false,
-      is_physical_bill_submitted: false,
-      is_policy_flagged: false,
-      is_verified: false,
-      last_approved_at: null,
-      last_paid_at: null,
-      last_resubmitted_at: null,
-      last_submitted_at: null,
-      next_approver_user_ids: null,
-      num_expenses: 0,
-      org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
-      purpose: '#8:  Jan 2023',
-      seq_num: 'C/2023/07/R/17',
-      settlement_id: null,
-      source: 'WEBAPP',
-      state: 'DRAFT',
-      state_display_name: 'Draft',
-      tax: null,
-      updated_at: new Date('2023-08-09T13:02:35.097839+00:00'),
-      user: {
-        email: 'ajain@fyle.in',
-        full_name: 'Abhishek Jain',
-        id: 'usvKA4X8Ugcr',
-      },
-      user_id: 'usvKA4X8Ugcr',
-    },
-    {
-      amount: 200,
-      approvals: [],
-      created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
-      currency: 'USD',
-      employee: {
-        ach_account: {
-          added: true,
-          verified: null,
-        },
-        business_unit:
-          'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
-        department: {
-          code: null,
-          display_name: '0000000 / arun',
-          id: 'dept7HJ9C4wvtX',
-          name: '0000000',
-          sub_department: 'arun',
-        },
-        department_id: 'dept7HJ9C4wvtX',
-        id: 'ouX8dwsbLCLv',
-        location: 'Mumbai',
-        org_id: 'orNVthTo2Zyo',
-        title: 'director',
-        user: {
-          email: 'ajain@fyle.in',
-          full_name: 'Abhishek Jain',
-          id: 'usvKA4X8Ugcr',
-        },
-        user_id: 'usvKA4X8Ugcr',
-      },
-      employee_id: 'ouX8dwsbLCLv',
-      id: 'rpLMyvYSXgJy',
-      is_exported: false,
-      is_manually_flagged: false,
-      is_physical_bill_submitted: false,
-      is_policy_flagged: false,
-      is_verified: false,
-      last_approved_at: null,
-      last_paid_at: null,
-      last_resubmitted_at: null,
-      last_submitted_at: null,
-      next_approver_user_ids: null,
-      num_expenses: 0,
-      org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
-      purpose: '#7:  Jan 2023',
-      seq_num: 'C/2023/07/R/17',
-      settlement_id: null,
-      source: 'WEBAPP',
-      state: 'DRAFT',
-      state_display_name: 'Draft',
-      tax: null,
-      updated_at: new Date('2023-08-09T13:02:35.097839+00:00'),
-      user: {
-        email: 'ajain@fyle.in',
-        full_name: 'Abhishek Jain',
-        id: 'usvKA4X8Ugcr',
-      },
-      user_id: 'usvKA4X8Ugcr',
-    },
-  ],
-  offset: 0,
-});
-
-export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
-  count: 4,
-  data: [
-    {
-      amount: 200,
-      approvals: [],
-      created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
-      currency: 'USD',
-      employee: {
         ach_account: {
           added: true,
           verified: null,
@@ -989,6 +770,14 @@ export const paidReportData: Report = deepFreeze({
 export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);
 
 export const expectedReportsSinglePage: Report[] = deepFreeze([...allReportsPaginated1.data]);
+
+export const sentBackReportData: Report = deepFreeze({ ...submittedReportData, state: 'APPROVER_INQUIRY' });
+
+export const reportWithExpenses: Report = deepFreeze({
+  ...platformReportData,
+  num_expenses: 3,
+  amount: 100,
+});
 
 export const expectedReportsSinglePageWithApproval: Report[] = deepFreeze([...allReportsPaginatedWithApproval.data]);
 
