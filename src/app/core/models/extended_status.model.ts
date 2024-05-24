@@ -8,6 +8,7 @@ export interface ExtendedStatus {
   st_advance_request_id?: string;
   st_comment: string;
   st_created_at: Date;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   st_diff?: any;
   st_id: string;
   st_org_user_id?: string;
