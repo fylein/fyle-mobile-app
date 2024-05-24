@@ -69,7 +69,7 @@ describe('SpenderReportsService', () => {
   });
 
   it('permissions(): should get report permissions', (done) => {
-    spenderPlatformV1ApiService.post.and.returnValue(of(apiReportPermissions));
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: apiReportPermissions }));
 
     const id = 'rpxtbiLXQZUm';
 
