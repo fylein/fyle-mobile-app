@@ -12,6 +12,8 @@ export class FyOptInComponent implements OnInit {
 
   mobileNumberError: string;
 
+  sendCodeLoading = false;
+
   ngOnInit(): void {
     console.log('working');
   }
