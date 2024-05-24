@@ -378,8 +378,6 @@ describe('ViewTeamReportPageV2', () => {
 
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      // expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
-
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -479,7 +477,7 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
-      // expect(component.convertToEstatus(component.systemComments)).toEqual(systemComments1);
+      expect(component.convertToEstatus(component.systemComments)).toEqual(systemComments1);
 
       expect(component.objectType).toEqual('Transactions');
 
@@ -528,6 +526,20 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.canApprove).toBeTrue();
       expect(component.canShowTooltip).toBeTrue();
     }));
+  });
+
+  describe('setupComments():', () => {
+    it('should set estatuses to an empty array in case of a null report', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments(null);
+      expect(component.estatuses).toEqual([]);
+    });
+
+    it('should set estatuses to an empty array in case of a null comments', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments({ ...platformReportData, comments: null });
+      expect(component.estatuses).toEqual([]);
+    });
   });
 
   it('setupNetworkWatcher(): should setup network watcher', () => {

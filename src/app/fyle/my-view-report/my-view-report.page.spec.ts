@@ -351,9 +351,7 @@ describe('MyViewReportPage', () => {
 
       expect(component.userComments).toEqual(userComments);
 
-      // component.totalCommentsCount$.subscribe((res) => {
-      //   expect(res).toEqual(3);
-      // });
+      expect(component.totalCommentsCount).toEqual(3);
 
       expect(component.eou).toEqual(apiEouRes);
 
@@ -481,6 +479,20 @@ describe('MyViewReportPage', () => {
       });
       expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
     }));
+  });
+
+  describe('setupComments():', () => {
+    it('should set estatuses to an empty array in case of a null report', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments(null);
+      expect(component.estatuses).toEqual([]);
+    });
+
+    it('should set estatuses to an empty array in case of a null comments', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments({ ...platformReportData, comments: null });
+      expect(component.estatuses).toEqual([]);
+    });
   });
 
   it('updateReportName(): should update report name', () => {
