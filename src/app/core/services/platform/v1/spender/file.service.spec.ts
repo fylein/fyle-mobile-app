@@ -1,9 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { SpenderFileService } from './file.service';
 import { SpenderPlatformV1ApiService } from '../../../spender-platform-v1-api.service';
-import { platformFileData1 } from 'src/app/core/mock-data/platform/platform-file.data';
 import { of } from 'rxjs';
-import { urlsBulkData } from 'src/app/core/mock-data/platform-file.data';
 import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
 
 describe('SpenderFileService', () => {
