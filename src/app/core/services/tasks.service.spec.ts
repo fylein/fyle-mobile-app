@@ -88,7 +88,6 @@ describe('TasksService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'getAllExtendedReports',
-      'getReportStatsData',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
@@ -290,7 +289,7 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks', (done) => {
+  it('should be able to fetch team reports tasks is role is APPROVER', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -310,6 +309,23 @@ describe('TasksService', () => {
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
+      .and.returnValue('733.48K');
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
+      .and.returnValue('₹733.48K');
+
+    tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
+      expect(teamReportsTasks).toEqual([]);
       done();
     });
   });
@@ -356,14 +372,6 @@ describe('TasksService', () => {
         expect(taskTotal).toEqual(10);
         done();
       });
-  });
-
-  it('should make sure that stats dont fail even if aggregates are not present in response', () => {
-    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
-    expect(mappedStatsReponse).toEqual({
-      totalCount: 0,
-      totalAmount: 0,
-    });
   });
 
   it('should be able to fetch expensesTaskCount', (done) => {
