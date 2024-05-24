@@ -334,7 +334,7 @@ export function TestCases2(getTestBed) {
         expect(component.simpleSearchText).toEqual('');
         expect(inputElement.value).toEqual('');
         expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-        expect(component.isSearchBarFocused).toEqual(true);
+        expect(component.isSearchBarFocused).toBeTrue();
       });
 
       it('should clear the search text, input value, dispatch keyup event, and toggle search bar focus when called from onSimpleSearchCancel', () => {
@@ -350,7 +350,7 @@ export function TestCases2(getTestBed) {
         expect(component.simpleSearchText).toEqual('');
         expect(inputElement.value).toEqual('');
         expect(dispatchEventSpy).toHaveBeenCalledOnceWith(new Event('keyup'));
-        expect(component.isSearchBarFocused).toEqual(false);
+        expect(component.isSearchBarFocused).toBeFalse();
       });
     });
   });

@@ -49,6 +49,7 @@ import { pdfExportData1, pdfExportData2 } from 'src/app/core/mock-data/pdf-expor
 import { EditReportNamePopoverComponent } from '../my-view-report/edit-report-name-popover/edit-report-name-popover.component';
 import { cloneDeep } from 'lodash';
 import {
+  allReportsPaginatedWithApproval,
   expectedReportsSinglePage,
   platformReportData,
   reportWithExpenses,
@@ -98,6 +99,7 @@ describe('ViewTeamReportPageV2', () => {
       'getTeamReport',
       'getExports',
       'getApproversByReportId',
+      'actions',
       'delete',
       'approve',
       'downloadSummaryPdfUrl',
@@ -319,26 +321,24 @@ describe('ViewTeamReportPageV2', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should initialize the variables and load reports and statuses', fakeAsync(() => {
+      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(true);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
-      spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatus = cloneDeep(newEstatusData1);
       statusService.find.and.returnValue(of(mockStatus));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+      approverReportsService.getReportById.and.returnValues(of(expectedReportsSinglePage[0]));
       const mockPdfExportData = cloneDeep(pdfExportData1);
       reportService.getExports.and.returnValue(
         of({
           results: mockPdfExportData,
         })
       );
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       approverReportsService.permissions.and.returnValue(of(apiReportPermissions));
 
@@ -366,6 +366,7 @@ describe('ViewTeamReportPageV2', () => {
         });
       });
 
+      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
       expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
       expect(statusService.createStatusMap).toHaveBeenCalledOnceWith(component.systemComments, component.type);
 
@@ -388,7 +389,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -400,8 +400,8 @@ describe('ViewTeamReportPageV2', () => {
         expect(res).toEqual(['ajain@fyle.in', 'arjun.m@fyle.in']);
       });
 
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual([approversData1[0]]);
+      component.report$.subscribe((res) => {
+        expect(res).toEqual(expectedReportsSinglePage[0]);
       });
 
       component.permissions$.subscribe((res) => {
@@ -421,8 +421,6 @@ describe('ViewTeamReportPageV2', () => {
       });
 
       expect(approverReportsService.permissions).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(component.getApprovalSettings).toHaveBeenCalledOnceWith(orgSettingsData);
-      expect(component.isUserActiveInCurrentSeqApprovalQueue).toHaveBeenCalledOnceWith(apiEouRes, [approversData1[0]]);
 
       expect(component.reportExpensesIds).toEqual(['txcSFe6efB6R', 'txcSFe6efB6R']);
       expect(component.isSequentialApprovalEnabled).toBeTrue();
@@ -435,7 +433,6 @@ describe('ViewTeamReportPageV2', () => {
       spyOn(component, 'setupNetworkWatcher');
       spyOn(component, 'getApprovalSettings').and.returnValue(false);
       spyOn(component, 'getReportClosureSettings').and.returnValue(true);
-      spyOn(component, 'isUserActiveInCurrentSeqApprovalQueue').and.returnValue(null);
       loaderService.showLoader.and.resolveTo();
       spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
       loaderService.hideLoader.and.resolveTo();
@@ -451,7 +448,6 @@ describe('ViewTeamReportPageV2', () => {
           results: mockPdfExportData,
         })
       );
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       approverExpensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       approverReportsService.permissions.and.returnValue(of(apiReportPermissions));
       fixture.detectChanges();
@@ -500,7 +496,6 @@ describe('ViewTeamReportPageV2', () => {
       expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
 
       expect(reportService.getExports).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
       expect(approverExpensesService.getReportExpenses).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
 
@@ -510,10 +505,6 @@ describe('ViewTeamReportPageV2', () => {
 
       component.sharedWith$.subscribe((res) => {
         expect(res).toEqual(['arjun.m@fyle.in', 'ajain@fyle.in']);
-      });
-
-      component.reportApprovals$.subscribe((res) => {
-        expect(approversData1[0]);
       });
 
       component.permissions$.subscribe((res) => {
@@ -553,9 +544,9 @@ describe('ViewTeamReportPageV2', () => {
   });
 
   it('getApproverEmails(): should get approver emails', () => {
-    const result = component.getApproverEmails(approversData1);
+    const result = component.getApproverEmails(allReportsPaginatedWithApproval.data[0].approvals);
 
-    expect(result).toEqual(['ashutosh.m@fyle.in', '123@fye.in', 'chethan.m+90@fyle.in']);
+    expect(result).toEqual(['aditya.b@fyle.in', 'aastha.b@fyle.in']);
   });
 
   it('toggleTooltip(): should toggle tooltip', () => {
@@ -564,32 +555,6 @@ describe('ViewTeamReportPageV2', () => {
 
     component.toggleTooltip();
     expect(component.canShowTooltip).toBeTrue();
-  });
-
-  describe('isUserActiveInCurrentSeqApprovalQueue(): ', () => {
-    it('should check whether the user is active', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData4);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should return false if no approvers match', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, []);
-
-      expect(result).toBeFalse();
-    });
-
-    it('should return whethere the user is active after comparing ranks', () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData5);
-
-      expect(result).toBeTrue();
-    });
-
-    it("should return false when approver's rank less than minimum rank", () => {
-      const result = component.isUserActiveInCurrentSeqApprovalQueue(apiEouRes, approversData6);
-
-      expect(result).toBeFalse();
-    });
   });
 
   it('deleteReport(): should delete report', async () => {
@@ -876,7 +841,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'expenses',
         },
-      } as SegmentCustomEvent);
+      });
 
       expect(component.isExpensesView).toBeTrue();
       expect(component.isCommentsView).toBeFalse();
@@ -892,7 +857,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'comments',
         },
-      } as SegmentCustomEvent);
+      });
 
       tick(1000);
       expect(component.isExpensesView).toBeFalse();
@@ -909,7 +874,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'history',
         },
-      } as SegmentCustomEvent);
+      });
 
       expect(component.isExpensesView).toBeFalse();
       expect(component.isCommentsView).toBeFalse();
@@ -1007,6 +972,24 @@ describe('ViewTeamReportPageV2', () => {
     component.updateReportName('#3:  Jul 2023 - Office expense');
     expect(reportService.approverUpdateReportPurpose).toHaveBeenCalledOnceWith(mockReport);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
+  });
+
+  it('trackReportNameChange(): should track report name change', () => {
+    component.eou = null;
+    component.trackReportNameChange();
+    expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
+      Time_spent: component.timeSpentOnEditingReportName,
+      Roles: undefined,
+    });
+  });
+
+  it('trackReportNameChange(): should track report name change', () => {
+    component.eou = apiEouRes;
+    component.trackReportNameChange();
+    expect(trackingService.reportNameChange).toHaveBeenCalledOnceWith({
+      Time_spent: component.timeSpentOnEditingReportName,
+      Roles: apiEouRes.ou.roles,
+    });
   });
 
   describe('editReportName(): ', () => {

@@ -88,7 +88,7 @@ export function TestCases3(getTestBed) {
 
       inputElement.dispatchEvent(new Event('focus'));
 
-      expect(component.isSearchBarFocused).toEqual(true);
+      expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('onFilterPillsClearAll(): should call clearFilters', () => {
