@@ -158,14 +158,14 @@ export class FyViewReportInfoComponent {
 
   onSwipeAmount(event): void {
     this.isSwipe = true;
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     if (event && event.direction === 4) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
       )[0] as HTMLElement;
       elementRef.click();
     }
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+
     if (this.view === ExpenseView.team && event && event.direction === 2) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
