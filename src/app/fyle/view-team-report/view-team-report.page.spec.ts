@@ -840,7 +840,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'expenses',
         },
-      } as SegmentCustomEvent);
+      });
 
       expect(component.isExpensesView).toBeTrue();
       expect(component.isCommentsView).toBeFalse();
@@ -856,7 +856,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'comments',
         },
-      } as SegmentCustomEvent);
+      });
 
       tick(1000);
       expect(component.isExpensesView).toBeFalse();
@@ -873,7 +873,7 @@ describe('ViewTeamReportPageV2', () => {
         detail: {
           value: 'history',
         },
-      } as SegmentCustomEvent);
+      });
 
       expect(component.isExpensesView).toBeFalse();
       expect(component.isCommentsView).toBeFalse();

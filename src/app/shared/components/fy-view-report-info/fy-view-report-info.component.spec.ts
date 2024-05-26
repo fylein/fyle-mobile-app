@@ -190,7 +190,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should set the view based on the selected segment', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
     component.view = ExpenseView.team;
     fixture.detectChanges();
 
@@ -213,7 +213,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should track report info when segment is clicked', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
 
     component.segmentChanged(event);
 
@@ -225,7 +225,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should not track report info on swipe', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
     component.isSwipe = true;
 
     component.segmentChanged(event);

@@ -117,7 +117,7 @@ export class FyViewReportInfoComponent {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event: SegmentCustomEvent): void {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -156,7 +156,7 @@ export class FyViewReportInfoComponent {
     }
   }
 
-  onSwipeAmount(event): void {
+  onSwipeAmount(event: { direction: number }): void {
     this.isSwipe = true;
 
     if (event && event.direction === 4) {
