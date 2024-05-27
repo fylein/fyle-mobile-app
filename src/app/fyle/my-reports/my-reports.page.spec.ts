@@ -274,7 +274,7 @@ describe('MyReportsPage', () => {
       });
 
       component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toEqual(true);
+        expect(res.value).toBeTrue();
       });
 
       expect(component.simpleSearchInput.nativeElement.value).toBe('');

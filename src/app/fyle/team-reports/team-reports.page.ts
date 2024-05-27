@@ -1,14 +1,14 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, from, iif, of, noop, concat, Subject } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, iif, of, noop, concat, Subject } from 'rxjs';
 import { ExtendedReport } from 'src/app/core/models/report.model';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
-import { ModalController, PopoverController, RefresherCustomEvent, RefresherEventDetail } from '@ionic/angular';
+import { ModalController } from '@ionic/angular';
 import { DateService } from 'src/app/core/services/date.service';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { CurrencyService } from 'src/app/core/services/currency.service';
-import { map, distinctUntilChanged, debounceTime, switchMap, finalize, shareReplay } from 'rxjs/operators';
+import { map, distinctUntilChanged, debounceTime, switchMap, shareReplay } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
 import { HeaderState } from '../../shared/components/fy-header/header-state.enum';
@@ -62,10 +62,6 @@ export class TeamReportsPage implements OnInit {
 
   searchText = '';
 
-  orgSettings$: Observable<string>;
-
-  orgSettings: any;
-
   onPageExit = new Subject();
 
   headerState: HeaderState = HeaderState.base;
@@ -102,11 +98,11 @@ export class TeamReportsPage implements OnInit {
     private launchDarklyService: LaunchDarklyService
   ) {}
 
-  get HeaderState() {
+  get HeaderState(): typeof HeaderState {
     return HeaderState;
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
   }
 

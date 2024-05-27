@@ -345,7 +345,7 @@ describe('MyViewReportPage', () => {
       });
 
       component.isManualFlagFeatureEnabled$.subscribe((res) => {
-        expect(res.value).toEqual(true);
+        expect(res.value).toBeTrue();
       });
 
       expect(component.systemComments).toEqual(systemComments1);

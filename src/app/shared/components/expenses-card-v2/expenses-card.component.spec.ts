@@ -551,9 +551,25 @@ describe('ExpensesCardComponent', () => {
     it('should set isPolicyViolated correctly on ngOnInit', () => {
       spyOn(component, 'setIsPolicyViolated').and.callThrough();
       component.ngOnInit();
-      expect(component.setIsPolicyViolated).toHaveBeenCalled();
+      expect(component.setIsPolicyViolated).toHaveBeenCalledTimes(1);
     });
 
+    it('should call other methods', fakeAsync(() => {
+      component.isIos = true;
+      spyOn(component, 'canShowPaymentModeIcon');
+      spyOn(component, 'getReceipt');
+      spyOn(component, 'handleScanStatus');
+      spyOn(component, 'setOtherData');
+      component.ngOnInit();
+      tick(500);
+      expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
+      expect(component.getReceipt).toHaveBeenCalledTimes(1);
+      expect(component.handleScanStatus).toHaveBeenCalledTimes(1);
+      expect(component.setOtherData).toHaveBeenCalledTimes(1);
+    }));
+  });
+
+  describe('setIsPolicyViolated()', () => {
     it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is false and expense is not flagged', () => {
       component.isManualFlagFeatureEnabled = false;
       component.expense = {
@@ -619,20 +635,6 @@ describe('ExpensesCardComponent', () => {
       component.setIsPolicyViolated();
       expect(component.isPolicyViolated).toBeTrue();
     });
-
-    it('should call other methods', fakeAsync(() => {
-      component.isIos = true;
-      spyOn(component, 'canShowPaymentModeIcon');
-      spyOn(component, 'getReceipt');
-      spyOn(component, 'handleScanStatus');
-      spyOn(component, 'setOtherData');
-      component.ngOnInit();
-      tick(500);
-      expect(component.canShowPaymentModeIcon).toHaveBeenCalledTimes(1);
-      expect(component.getReceipt).toHaveBeenCalledTimes(1);
-      expect(component.handleScanStatus).toHaveBeenCalledTimes(1);
-      expect(component.setOtherData).toHaveBeenCalledTimes(1);
-    }));
   });
 
   describe('setOtherData():', () => {
