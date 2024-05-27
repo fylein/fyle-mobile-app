@@ -8,6 +8,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { MobileNumberVerificationService } from 'src/app/core/services/mobile-number-verification.service';
 import { OrgUserService } from 'src/app/core/services/org-user.service';
 import { ErrorType } from 'src/app/fyle/my-profile/verify-number-popover/error-type.model';
+import { NgOtpInputConfig, NgOtpInputComponent } from 'ng-otp-input';
 
 @Component({
   selector: 'app-fy-opt-in',
@@ -16,6 +17,8 @@ import { ErrorType } from 'src/app/fyle/my-profile/verify-number-popover/error-t
 })
 export class FyOptInComponent implements OnInit, AfterViewInit {
   @ViewChild('mobileInput') mobileInputEl: ElementRef<HTMLInputElement>;
+
+  @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
   @Input() optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
 
@@ -35,6 +38,21 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   disableResendOtp = false;
 
+  otpConfig: NgOtpInputConfig = {
+    allowNumbersOnly: true,
+    length: 6,
+    isPasswordInput: false,
+    disableAutoFocus: false,
+    placeholder: '',
+    inputClass: 'opt-in--otp-input',
+    inputStyles: {
+      width: '48px',
+      height: '48px',
+      boxShadow: '0px 0px 8px 0px rgba(44, 48, 78, 0.1)',
+      border: 'none',
+    },
+  };
+
   constructor(
     private modalController: ModalController,
     private orgUserService: OrgUserService,
@@ -51,7 +69,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    setTimeout(() => this.mobileInputEl.nativeElement.focus(), 400);
+    setTimeout(() => {
+      this.mobileInputEl.nativeElement.focus();
+    }, 400);
   }
 
   onFocus(): void {

@@ -39,11 +39,16 @@
             [maxlength]="15"
             [minlength]="7"
           />
-          <span *ngIf="mobileNumberError?.length" class="opt-in--mobile-input-container__error">Error</span>
+          <span *ngIf="mobileNumberError?.length" class="opt-in--mobile-input-container__error">{{
+            mobileNumberError
+          }}</span>
         </div>
       </ng-container>
       <ng-container *ngIf="optInFlowState === OptInFlowState.OTP_VERIFICATION">
         <div class="opt-in--description">Enter 6 digit code sent to your phone {{ mobileNumberInputValue }}</div>
+        <div class="opt-in--otp-container">
+          <ng-otp-input [config]="otpConfig"></ng-otp-input>
+        </div>
       </ng-container>
     </div>
   </ng-container>

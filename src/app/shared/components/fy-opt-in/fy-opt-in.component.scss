@@ -90,4 +90,10 @@
       min-height: 47px;
     }
   }
+
+  &--otp-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 }

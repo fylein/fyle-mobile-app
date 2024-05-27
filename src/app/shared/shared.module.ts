@@ -146,6 +146,7 @@ import { TransactionStatusInfoPopoverComponent } from './components/transaction-
 import { TransactionStatusComponent } from './components/transaction-status/transaction-status.component';
 import { FySelectCommuteDetailsComponent } from './components/fy-select-commute-details/fy-select-commute-details.component';
 import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
+import { NgOtpInputModule } from 'ng-otp-input';
 
 @NgModule({
   declarations: [
@@ -295,6 +296,7 @@ import { FyOptInComponent } from './components/fy-opt-in/fy-opt-in.component';
     MatBottomSheetModule,
     ImageCropperModule,
     ScrollingModule,
+    NgOtpInputModule,
   ],
   exports: [
     EllipsisPipe,
