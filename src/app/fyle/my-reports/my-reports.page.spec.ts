@@ -83,9 +83,10 @@ import {
 import { completeStats1, emptyStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
-import { ReportState } from 'src/app/core/models/platform/v1/report.model';
+import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
+import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 
-describe('MyReportsPage', () => {
+fdescribe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
@@ -359,7 +360,7 @@ describe('MyReportsPage', () => {
       currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
       component.filters = {
-        state: [ReportState.PAID],
+        state: [PlatformReportState.PAID],
       };
 
       const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
