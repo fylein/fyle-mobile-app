@@ -10,10 +10,10 @@ import {
 import { PAGINATION_SIZE } from 'src/app/constants';
 import { expensesResponse } from 'src/app/core/mock-data/platform/v1/expenses-response.data';
 import { getExpensesQueryParams } from 'src/app/core/mock-data/platform/v1/expenses-query-params.data';
-import { expensesCacheBuster$ } from '../../../transaction.service';
 import { expenseDuplicateSets } from 'src/app/core/mock-data/platform/v1/expense-duplicate-sets.data';
 import { completeStats } from 'src/app/core/mock-data/platform/v1/expenses-stats.data';
 import { ExpensesService as SharedExpenseService } from '../shared/expenses.service';
+import { expensesCacheBuster$ } from 'src/app/core/cache-buster/expense-cache-buster';
 
 describe('ExpensesService', () => {
   let service: ExpensesService;
