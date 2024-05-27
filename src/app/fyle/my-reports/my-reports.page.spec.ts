@@ -86,7 +86,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportState as PlatformReportState } from 'src/app/core/models/platform/v1/report.model';
 import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 
-fdescribe('MyReportsPage', () => {
+describe('MyReportsPage', () => {
   let component: MyReportsPage;
   let fixture: ComponentFixture<MyReportsPage>;
   let tasksService: jasmine.SpyObj<TasksService>;
