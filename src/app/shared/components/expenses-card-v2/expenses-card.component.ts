@@ -269,7 +269,7 @@ export class ExpensesCardComponent implements OnInit {
       this.expense.source_account?.type === AccountType.PERSONAL_CASH_ACCOUNT && this.expense.is_reimbursable;
   }
 
-  setIsPolicyViolated() {
+  setIsPolicyViolated(): void {
     const isManualFlagEnabledAndFlagged = this.isManualFlagFeatureEnabled && this.expense.is_manually_flagged;
     this.isPolicyViolated = isManualFlagEnabledAndFlagged || this.expense.is_policy_flagged;
   }

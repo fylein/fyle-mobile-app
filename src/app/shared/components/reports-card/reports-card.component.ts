@@ -16,11 +16,11 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() isManualFlagFeatureEnabled = false;
 
-  @Output() deleteReport: EventEmitter<ExtendedReport> = new EventEmitter();
+  @Output() deleteReport = new EventEmitter<ExtendedReport>();
 
-  @Output() gotoReport: EventEmitter<ExtendedReport> = new EventEmitter();
+  @Output() gotoReport = new EventEmitter<ExtendedReport>();
 
-  @Output() viewComments: EventEmitter<ExtendedReport> = new EventEmitter();
+  @Output() viewComments = new EventEmitter<ExtendedReport>();
 
   creationFullDate: string;
 
@@ -30,9 +30,7 @@ export class ReportsCardComponent implements OnInit {
 
   reportCurrencySymbol = '';
 
-  constructor() {}
-
-  ngOnInit() {
+  ngOnInit(): void {
     this.showDate =
       (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());
@@ -40,15 +38,15 @@ export class ReportsCardComponent implements OnInit {
     this.reportCurrencySymbol = getCurrencySymbol(this.erpt.rp_currency, 'wide');
   }
 
-  onDeleteReport() {
+  onDeleteReport(): void {
     this.deleteReport.emit(this.erpt);
   }
 
-  onGoToReport() {
+  onGoToReport(): void {
     this.gotoReport.emit(this.erpt);
   }
 
-  onViewComments() {
+  onViewComments(): void {
     this.viewComments.emit(this.erpt);
   }
 }
