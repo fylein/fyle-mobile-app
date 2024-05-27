@@ -80,41 +80,6 @@ export class ReportService {
   @Cacheable({
     cacheBusterObserver: reportsCacheBuster$,
   })
-  getMyReportsCount(queryParams = {}): Observable<number> {
-    return this.getMyReports({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$,
-  })
-  getPaginatedERptc(
-    offset: number,
-    limit: number,
-    params: { state?: string[]; order?: string }
-  ): Observable<UnflattenedReport[]> {
-    const data = {
-      params: {
-        offset,
-        limit,
-      },
-    };
-
-    Object.keys(params).forEach((param) => {
-      data.params[param] = params[param] as string | string[];
-    });
-
-    return this.apiService
-      .get<UnflattenedReport[]>('/erpts', data)
-      .pipe(map((erptcs) => erptcs.map((erptc) => this.dataTransformService.unflatten(erptc))));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$,
-  })
   getERpt(rptId: string): Observable<UnflattenedReport> {
     return this.apiService.get('/erpts/' + rptId).pipe(
       map((data) => {
@@ -299,127 +264,6 @@ export class ReportService {
     return stateMap[state];
   }
 
-  getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline: boolean) => {
-        if (isOnline) {
-          return this.apiService.get<{ count: number }>('/erpts/count', { params }).pipe(
-            tap((res) => {
-              this.storageService.set('erpts-count' + JSON.stringify(params), res);
-            })
-          );
-        } else {
-          return from(this.storageService.get<{ count: number }>('erpts-count' + JSON.stringify(params)));
-        }
-      })
-    );
-  }
-
-  getMyReports(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: ReportQueryParams;
-    }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<ExtendedReport>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            rp_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedReport[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum) => this.dateService.fixDates(datum)),
-      }))
-    );
-  }
-
-  getTeamReportsCount(queryParams = {}): Observable<number> {
-    return this.getTeamReports({
-      offset: 0,
-      limit: 1,
-      queryParams,
-    }).pipe(map((res) => res.count));
-  }
-
-  getTeamReports<T>(
-    config: Partial<{ offset: number; limit: number; order: string; queryParams: Partial<T> }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<ExtendedReport>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            approved_by: 'cs.{' + eou.ou.id + '}',
-            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedReport[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum) => this.dateService.fixDates(datum)),
-      }))
-    );
-  }
-
-  getReport(id: string): Observable<ExtendedReport> {
-    return this.getMyReports({
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        rp_id: `eq.${id}`,
-      },
-    }).pipe(map((res) => res.data[0]));
-  }
-
-  getTeamReport(id: string): Observable<ExtendedReport> {
-    return this.getTeamReports({
-      offset: 0,
-      limit: 1,
-      queryParams: {
-        rp_id: `eq.${id}`,
-      },
-    }).pipe(map((res) => res.data[0]));
-  }
-
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
@@ -436,27 +280,6 @@ export class ReportService {
 
   downloadSummaryPdfUrl(data: { report_ids: string[]; email: string }): Observable<{ report_url: string }> {
     return this.apiService.post('/reports/summary/download', data);
-  }
-
-  getAllExtendedReports(
-    config: Partial<{ order: string; queryParams: ReportQueryParams }>
-  ): Observable<ExtendedReport[]> {
-    return this.getMyReportsCount(config.queryParams).pipe(
-      switchMap((count) => {
-        count = count > this.paginationSize ? count / this.paginationSize : 1;
-        return range(0, count);
-      }),
-      concatMap((page) =>
-        this.getMyReports({
-          offset: this.paginationSize * page,
-          limit: this.paginationSize,
-          queryParams: config.queryParams,
-          order: config.order,
-        })
-      ),
-      map((res) => res.data),
-      reduce((acc, curr) => acc.concat(curr), [] as ExtendedReport[])
-    );
   }
 
   addOrderByParams(
@@ -532,46 +355,6 @@ export class ReportService {
       erpt.rp.approvals = reportApprovalsMap[erpt.rp.id];
       return erpt;
     });
-  }
-
-  getReportStatsData(params: {}, defaultOwnStats: boolean = true): Observable<Datum[]> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) => {
-        const defaultStats = defaultOwnStats ? { rp_org_user_id: `eq.${eou.ou.id}` } : {};
-        return this.apiv2Service.get<Datum, { params: { rp_org_user_id?: undefined | string } }>('/reports/stats', {
-          params: {
-            ...defaultStats,
-            ...params,
-          },
-        });
-      }),
-      map((rawStatsResponse) => rawStatsResponse.data)
-    );
-  }
-
-  getFilteredPendingReports(searchParams: { state: keyof ReportStateMap }): Observable<UnflattenedReport[]> {
-    const params = this.searchParamsGenerator(searchParams);
-
-    return this.getPaginatedERptcCount(params).pipe(
-      switchMap((results: { count: number }) =>
-        // getting all results -> offset = 0, limit = count
-        this.getPaginatedERptc(0, results.count, params)
-      ),
-      switchMap((erpts) => {
-        const rptIds = erpts.map((erpt) => erpt.rp.id);
-
-        return this.getApproversInBulk(rptIds).pipe(
-          map((approvals) =>
-            this.addApprovers(erpts, approvals).filter(
-              (erpt) =>
-                !erpt.rp.approvals ||
-                (erpt.rp.approvals &&
-                  !(erpt.rp.approvals as Approver[]).some((approval) => approval.state === 'APPROVAL_DONE'))
-            )
-          )
-        );
-      })
-    );
   }
 
   approverUpdateReportPurpose(report: Report): Observable<Report> {
