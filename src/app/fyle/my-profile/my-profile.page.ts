@@ -417,6 +417,7 @@ export class MyProfilePage {
         placeholder: 'Enter mobile number e.g. +129586736556',
       },
       mode: 'ios',
+      cssClass: 'fy-opt-in-modal',
     });
 
     await updateMobileNumberPopover.present();

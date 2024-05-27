@@ -936,6 +936,11 @@ ion-modal.flag-unflag-modal {
   padding-top: 0 !important;
 }
 
+.fy-opt-in-modal {
+  --ion-background-color: #{$grey-9};
+  background: #{$grey-9};
+}
+
 ion-popover.delete-dialog {
   --width: 296px;
   --max-height: 346px;
