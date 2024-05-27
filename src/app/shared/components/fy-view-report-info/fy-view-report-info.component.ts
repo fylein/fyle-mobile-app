@@ -196,7 +196,7 @@ export class FyViewReportInfoComponent {
 
   async createEmployeeDetails(report: Report): Promise<void> {
     this.employeeDetails = {
-      'Employee ID': report.employee.id,
+      'Employee ID': report.employee.code,
       Organization: report.employee.org_name,
       Department: report.employee.department?.name,
       'Sub Department': report.employee.department?.sub_department,
