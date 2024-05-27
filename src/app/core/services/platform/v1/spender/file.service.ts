@@ -42,7 +42,7 @@ export class SpenderFileService {
       .pipe(map((response) => response.data));
   }
 
-  downloadFile(id: string): {} {
+  downloadFile(id: string): Observable<{}> {
     return this.spenderPlatformV1ApiService.get('/files/download?id=' + id);
   }
 }
