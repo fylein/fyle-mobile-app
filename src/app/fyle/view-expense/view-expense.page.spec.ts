@@ -49,6 +49,9 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { urlsBulkData } from 'src/app/core/mock-data/platform-file.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import {
   expectedReportsSinglePage,
@@ -78,6 +81,8 @@ describe('ViewExpensePage', () => {
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
@@ -131,6 +136,9 @@ describe('ViewExpensePage', () => {
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
       'checkIfManualFlaggingFeatureIsEnabled',
     ]);
+
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
       declarations: [ViewExpensePage],
@@ -209,6 +217,14 @@ describe('ViewExpensePage', () => {
           provide: SpenderExpensesService,
         },
         {
+          useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
+        },
+        {
+          useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
+        },
+        {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
         },
@@ -253,6 +269,8 @@ describe('ViewExpensePage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
@@ -901,26 +919,30 @@ describe('ViewExpensePage', () => {
 
     it('should be able to edit expense attachments', fakeAsync(() => {
       spyOn(component.updateFlag$, 'next');
+      component.view = ExpenseView.team;
 
-      fileService.getReceiptsDetails.and.returnValue({
+      const details = {
+        url: 'mock-url',
         type: 'image',
         thumbnail: 'mock-thumbnail',
-      });
-
-      const mockDownloadUrl = {
-        url: 'mock-url',
       };
-      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+
+      fileService.getReceiptsDetails.and.returnValue(details);
+      approverFileService.generateUrlsBulk.and.returnValue(of(urlsBulkData));
+
       component.ionViewWillEnter();
       tick(500);
       component.expense$.subscribe((expense) => {
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
-        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObjectData.name, fileObjectData.url);
+        expect(approverFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expense.file_ids);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          urlsBulkData[0].name,
+          urlsBulkData[0].download_url
+        );
       });
       tick(500);
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       component.attachments$.subscribe((attachments) => {
-        expect(attachments).toEqual([fileObjectData]);
+        expect(attachments).toEqual([details]);
         expect(component.isLoading).toBeFalse();
       });
     }));

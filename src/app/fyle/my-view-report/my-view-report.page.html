@@ -8,8 +8,8 @@
     </ion-buttons>
     <ion-title mode="md" class="page-title"> View Report </ion-title>
     <ion-buttons mode="md" slot="end">
-      <ng-container *ngIf="erpt$|async as erpt">
-        <ng-container *ngIf="erpt.rp_num_transactions">
+      <ng-container *ngIf="report$|async as report">
+        <ng-container *ngIf="report.num_expenses">
           <ion-button class="view-reports--btn-container__btn" (click)="shareReport()">
             <mat-icon svgIcon="share"></mat-icon>
           </ion-button>
@@ -25,7 +25,7 @@
 </ion-header>
 
 <ion-content class="view-reports--container">
-  <div class="view-reports--body full-height" *ngIf="erpt$|async as erpt">
+  <div class="view-reports--body full-height" *ngIf="report$|async as report">
     <div class="view-reports--wrapper">
       <div class="view-reports--card">
         <ion-grid>
@@ -33,9 +33,9 @@
             <ion-col size="8">
               <div class="view-reports--purpose-amount-block">
                 <div class="view-reports--purpose-amount-block__purpose">
-                  {{erpt.rp_purpose | ellipsis: 35}}
+                  {{report.purpose | ellipsis: 35}}
                   <ion-icon
-                    *ngIf="(canEdit$|async) && erpt && (erpt.rp_state === 'DRAFT' || erpt.rp_state === 'APPROVER_INQUIRY' || erpt.rp_state === 'APPROVER_PENDING')"
+                    *ngIf="(canEdit$|async) && report && (report.state === 'DRAFT' || report.state === 'APPROVER_INQUIRY' || report.state === 'APPROVER_PENDING')"
                     [src]="'../../../../assets/svg/edit.svg'"
                     slot="icon-only"
                     (click)="editReportName()"
@@ -48,7 +48,7 @@
               <div class="view-reports--amount ion-text-nowrap">
                 <span class="view-reports--purpose-amount-block__currency">{{ reportCurrencySymbol }}</span>
                 <span class="view-reports--purpose-amount-block__amount">
-                  {{ erpt.rp_amount || 0 | humanizeCurrency: erpt.rp_currency:true }}
+                  {{ report.amount || 0 | humanizeCurrency: report.currency:true }}
                 </span>
               </div>
             </ion-col>
@@ -58,8 +58,8 @@
             <ion-col size="5"> </ion-col>
             <ion-col size="7">
               <ng-container *ngIf="(simplifyReportsSettings$ | async) as simplifyReportsSettings">
-                <div class="view-reports--report-state-pill state-pill state-{{erpt.rp_state | reportState}}">
-                  {{erpt.rp_state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
+                <div class="view-reports--report-state-pill state-pill state-{{report.state | reportState}}">
+                  {{report.state | reportState : simplifyReportsSettings.enabled | snakeCaseToSpaceCase}}
                 </div>
               </ng-container>
             </ion-col>
@@ -71,13 +71,13 @@
                 <div class="view-reports--submitted-date">
                   <div>
                     <span class="view-reports--submitted-date__text"
-                      >{{erpt.rp_state === "DRAFT" ? "Created on : " : "Submitted on : " }}
+                      >{{report.state === "DRAFT" ? "Created on : " : "Submitted on : " }}
                     </span>
-                    <span *ngIf="erpt.rp_state === 'DRAFT'" class="view-reports--submitted-date__date"
-                      >{{erpt.rp_created_at | date: 'MMM dd, YYYY'}}</span
+                    <span *ngIf="report.state === 'DRAFT'" class="view-reports--submitted-date__date"
+                      >{{report.created_at | date: 'MMM dd, YYYY'}}</span
                     >
-                    <span *ngIf="erpt.rp_state !== 'DRAFT'" class="view-reports--submitted-date__date"
-                      >{{erpt.rp_submitted_at | date: 'MMM dd, YYYY'}}</span
+                    <span *ngIf="report.state !== 'DRAFT'" class="view-reports--submitted-date__date"
+                      >{{report.last_submitted_at | date: 'MMM dd, YYYY'}}</span
                     >
                   </div>
                 </div>
@@ -94,24 +94,18 @@
       </div>
 
       <div class="view-reports--approvers-wrapper">
-        <div
-          class="view-reports--approvers-section"
-          *ngIf="(erpt.rp_state !== 'DRAFT') && (reportApprovals$|async) as reportApprovals"
-        >
-          <div *ngIf="reportApprovals.length > 0" class="view-reports--approval-state-block">
+        <div class="view-reports--approvers-section" *ngIf="(report.state !== 'DRAFT')">
+          <div *ngIf="report.approvals.length > 0" class="view-reports--approval-state-block">
             <div class="view-reports--approvers">Approvers</div>
-            <div *ngFor="let ap of reportApprovals">
+            <div *ngFor="let approver of report.approvals">
               <div class="view-reports--approvers-list">
-                <div>{{ ap.approver_name }}</div>
+                <div>{{ approver.approver_user.full_name }}</div>
                 <div class="view-reports--approver-state-section">
-                  <div class="view-reports--approver-state-section__date" *ngIf="ap.state === 'APPROVAL_DONE'">
-                    <span>{{ap.updated_at | date: 'MMM dd, YYYY'}}</span>
-                  </div>
                   <div
-                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{ap.state | lowercase}}"
+                    class="view-reports--approver-state-pill view-reports--approver-state-pill__{{approver.state | lowercase}}"
                   ></div>
                   <span
-                    >{{ ap.state === 'APPROVAL_DONE' ? 'Approved' : (ap.state | titlecase |
+                    >{{ approver.state === 'APPROVAL_DONE' ? 'Approved' : (approver.state | titlecase |
                     snakeCaseToSpaceCase)}}</span
                   >
                 </div>
@@ -153,7 +147,7 @@
         <!-- Expenses section -->
         <ng-container *ngIf="segmentValue === Segment.EXPENSES">
           <app-fy-loading-screen *ngIf="isExpensesLoading"></app-fy-loading-screen>
-          <div *ngIf="!isExpensesLoading && erpt.rp_num_transactions > 0">
+          <div *ngIf="!isExpensesLoading && report.num_expenses > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports--expenses-card-block">
               <ng-container
@@ -178,7 +172,7 @@
               <ion-spinner name="crescent"></ion-spinner>
             </ng-template>
           </div>
-          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && erpt.rp_num_transactions === 0">
+          <div class="view-reports--expenses-zero-state" *ngIf="!isExpensesLoading && report.num_expenses === 0">
             <div class="text-center">
               <img src="../../../assets/images/zero-states/expenses.png" alt="No expense in this report" />
               <div class="view-reports--zero-state-header">Looks like this report is empty.</div>
@@ -313,7 +307,7 @@
 </ion-content>
 
 <ion-footer
-  *ngIf="segmentValue !== Segment.COMMENTS && (((erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0) || (canResubmitReport$ | async))"
+  *ngIf="segmentValue !== Segment.COMMENTS && (((report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0) || (canResubmitReport$ | async))"
 >
   <ion-toolbar class="cta-footer fy-footer-cta-container" mode="md">
     <div class="view-reports--cta-container">
@@ -336,7 +330,7 @@
       </ion-button>
       <ion-button
         class="fy-footer-cta fy-footer-cta--primary"
-        *ngIf="(erpt$|async)?.rp_state === 'DRAFT' && (erpt$|async)?.rp_num_transactions !== 0"
+        *ngIf="(report$|async)?.state === 'DRAFT' && (report$|async)?.num_expenses !== 0"
         (click)="submitReport()"
       >
         Submit Report
@@ -347,7 +341,7 @@
 
 <ion-footer
   class="view-reports--add-expense-footer"
-  *ngIf="segmentValue === Segment.EXPENSES && ((erpt$|async)?.rp_state === 'APPROVER_PENDING') && unreportedExpenses"
+  *ngIf="segmentValue === Segment.EXPENSES && ((report$|async)?.state === 'APPROVER_PENDING') && unreportedExpenses"
 >
   <div class="view-reports--add-expense-footer__block">
     <div class="view-reports--add-expense-footer__cta" (click)="showAddExpensesToReportModal()">
