@@ -4448,13 +4448,13 @@ export class AddEditExpensePage implements OnInit {
         from(this.transactionOutboxService.fileUpload(data.dataUrl as string, attachmentType))
           .pipe(
             switchMap((fileObj: FileObject) => {
-              fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
+              const expenseId = this.activatedRoute.snapshot.params.id as string;
               this.trackingService.fileUploadComplete({
                 mode: 'edit',
                 'File ID': fileObj?.id,
                 'Txn ID': fileObj?.transaction_id,
               });
-              return this.fileService.post(fileObj);
+              return this.expensesService.attachReceiptToExpense(expenseId, fileObj.id);
             }),
             switchMap(() =>
               editExpenseAttachments$.pipe(
@@ -4920,18 +4920,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   uploadMultipleFiles(fileObjs: FileObject[], txnId: string): Observable<unknown> {
-    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txnId)));
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndAttachToExpense(file, txnId)));
   }
 
-  postToFileService(fileObj: FileObject, txnId: string): Observable<FileObject | unknown> {
-    const fileObjCopy = cloneDeep(fileObj);
-    fileObjCopy.transaction_id = txnId;
-    return this.fileService.post(fileObjCopy);
-  }
-
-  uploadFileAndPostToFileService(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
+  uploadFileAndAttachToExpense(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
-      switchMap((fileObj: FileObject) => this.postToFileService(fileObj, txnId))
+      switchMap((fileObj: FileObject) => this.expensesService.attachReceiptToExpense(txnId, fileObj.id))
     );
   }
 
