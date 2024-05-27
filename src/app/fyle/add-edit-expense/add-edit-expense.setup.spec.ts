@@ -222,6 +222,7 @@ describe('AddEditExpensePage', () => {
       'getDuplicatesByExpense',
       'getAllExpenses',
       'getSplitExpenses',
+      'attachReceiptToExpense',
     ]);
 
     TestBed.configureTestingModule({
