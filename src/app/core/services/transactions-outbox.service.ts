@@ -205,7 +205,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string, receiptCoordinates?: string): Promise<FileObject> {
+  async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -226,14 +226,14 @@ export class TransactionsOutboxService {
           // check from here
           return fetch(dataUrl)
             .then((res) => res.blob())
-            .then((blob) => {
-              return this.uploadData(uploadUrl, blob, contentType)
+            .then((blob) =>
+              this.uploadData(uploadUrl, blob, contentType)
                 .toPromise()
                 .then(() => resolve(fileObj))
                 .catch((err) => {
                   reject(err);
-                });
-            });
+                })
+            );
         })
         .catch((err) => {
           reject(err);
@@ -322,7 +322,7 @@ export class TransactionsOutboxService {
     if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type);
 
           fileObjPromiseArray.push(fileObjPromise);
         });
