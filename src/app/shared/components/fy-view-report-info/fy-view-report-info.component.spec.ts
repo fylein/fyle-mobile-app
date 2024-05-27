@@ -1,14 +1,13 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 
 import { FyViewReportInfoComponent } from './fy-view-report-info.component';
-import { reportParam } from 'src/app/core/mock-data/report.data';
 import { of } from 'rxjs';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
-import { ModalController } from '@ionic/angular';
+import { ModalController, SegmentCustomEvent } from '@ionic/angular';
 import { DatePipe, KeyValue } from '@angular/common';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { orgSettingsRes } from 'src/app/core/mock-data/org-settings.data';
@@ -18,6 +17,7 @@ import { costCentersData } from 'src/app/core/mock-data/cost-centers.data';
 import { cloneDeep } from 'lodash';
 import { expenseResponseData, expenseResponseData2 } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
 
 describe('FyViewReportInfoComponent', () => {
   let component: FyViewReportInfoComponent;
@@ -103,11 +103,11 @@ describe('FyViewReportInfoComponent', () => {
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable according to paymentModeData', () => {
     component.view = ExpenseView.team;
-    const erpt = {
-      'Report Name': 'My Testing Report',
+    const report = {
+      'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
-      'Report Number': 'C/2022/10/R/37',
-      'Created On': datePipe.transform(new Date('2022-10-31T13:54:46.317208'), 'MMM d, y'),
+      'Report Number': 'C/2023/07/R/17',
+      'Created On': datePipe.transform(new Date('2023-07-11T13:54:46.317208'), 'MMM d, y'),
     };
     const paymentModeSummaryMock = {
       reimbursable: {
@@ -122,13 +122,13 @@ describe('FyViewReportInfoComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
-    component.erpt$ = of(reportParam);
+    component.report$ = of({ ...platformReportData, amount: 46040 });
     component.expenses$ = of(expenseResponseData);
     fixture.detectChanges();
     component.ionViewWillEnter();
-    expect(component.reportDetails).toEqual(erpt);
+    expect(component.reportDetails).toEqual(report);
     expect(component.reportCurrency).toEqual('USD');
-    expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith(reportParam);
+    expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith({ ...platformReportData, amount: 46040 });
     expect(component.amountComponentWiseDetails).toEqual({
       'Total Amount': 46040,
       Reimbursable: 4600,
@@ -136,16 +136,16 @@ describe('FyViewReportInfoComponent', () => {
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
     expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(false);
+    expect(component.isForeignCurrency).toBeFalse();
   });
 
   it('ionViewWillEnter(): should update report details and currency and set Reimbursable amount', () => {
     component.view = ExpenseView.team;
-    const erpt = {
-      'Report Name': 'My Testing Report',
+    const report = {
+      'Report Name': '#3:  Jul 2023 - Office expense',
       Owner: 'Abhishek Jain',
-      'Report Number': 'C/2022/10/R/37',
-      'Created On': datePipe.transform(new Date('2022-10-31T13:54:46.317208'), 'MMM d, y'),
+      'Report Number': 'C/2023/07/R/17',
+      'Created On': datePipe.transform(new Date('2023-07-11T16:24:01.335Z'), 'MMM d, y'),
     };
     const paymentModeSummaryMock = {
       reimbursable: {
@@ -160,21 +160,21 @@ describe('FyViewReportInfoComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsRes));
     sharedExpensesService.getCurrenyWiseSummary.and.returnValue(currencySummaryData);
     sharedExpensesService.getPaymentModeWiseSummary.and.returnValue(paymentModeSummaryMock);
-    component.erpt$ = of(reportParam);
+    component.report$ = of(platformReportData);
     component.expenses$ = of(expenseResponseData2);
     fixture.detectChanges();
     component.ionViewWillEnter();
-    expect(component.reportDetails).toEqual(erpt);
+    expect(component.reportDetails).toEqual(report);
     expect(component.reportCurrency).toEqual('USD');
-    expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith(reportParam);
+    expect(component.createEmployeeDetails).toHaveBeenCalledOnceWith(platformReportData);
     expect(component.amountComponentWiseDetails).toEqual({
-      'Total Amount': 46040,
+      'Total Amount': 0,
       Reimbursable: 207000.78,
     });
     expect(component.getCCCAdvanceSummary).toHaveBeenCalledOnceWith(paymentModeSummaryMock, orgSettingsRes);
     expect(sharedExpensesService.getCurrenyWiseSummary).toHaveBeenCalledOnceWith(expenseResponseData2);
     expect(component.amountCurrencyWiseDetails).toEqual(currencySummaryData);
-    expect(component.isForeignCurrency).toBe(false);
+    expect(component.isForeignCurrency).toBeFalse();
   });
 
   it('should always return 0', () => {
@@ -299,54 +299,95 @@ describe('FyViewReportInfoComponent', () => {
     expect(btnSpy).toHaveBeenCalledTimes(1);
   });
 
-  it('createEmployeeDetails(): should update employee details', fakeAsync(() => {
-    const expectedEmployeeDetails = {
-      'Employee ID': reportParam.ou_employee_id,
-      Organization: reportParam.ou_org_name,
-      Department: reportParam.ou_department,
-      'Sub Department': reportParam.ou_sub_department,
-      Location: reportParam.ou_location,
-      Level: reportParam.ou_level,
-      'Employee Title': reportParam.ou_title,
-      'Business Unit': reportParam.ou_business_unit,
-      Mobile: reportParam.ou_mobile,
-    };
+  describe('createEmployeeDetails():', () => {
+    it('should update employee details', fakeAsync(() => {
+      const expectedEmployeeDetails = {
+        'Employee ID': platformReportData.employee.code,
+        Organization: platformReportData.employee.org_name,
+        Department: platformReportData.employee.department.name,
+        'Sub Department': platformReportData.employee.department.sub_department,
+        Location: platformReportData.employee.location,
+        Level: platformReportData.employee.level,
+        'Employee Title': platformReportData.employee.title,
+        'Business Unit': platformReportData.employee.business_unit,
+        Mobile: platformReportData.employee.mobile,
+      };
 
-    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
-    orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
-    component.createEmployeeDetails(reportParam);
-    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
-    tick(1000);
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(reportParam.ou_id);
-    expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
-  }));
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      component.createEmployeeDetails(platformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+        platformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
+    }));
 
-  it('createEmployeeDetails(): should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
-    const expectedEmployeeDetails = {
-      'Employee ID': reportParam.ou_employee_id,
-      Organization: reportParam.ou_org_name,
-      Department: reportParam.ou_department,
-      'Sub Department': reportParam.ou_sub_department,
-      Location: reportParam.ou_location,
-      Level: reportParam.ou_level,
-      'Employee Title': reportParam.ou_title,
-      'Business Unit': reportParam.ou_business_unit,
-      Mobile: reportParam.ou_mobile,
-    };
+    it('should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
+      const expectedEmployeeDetails = {
+        'Employee ID': platformReportData.employee.code,
+        Organization: platformReportData.employee.org_name,
+        Department: platformReportData.employee.department?.name,
+        'Sub Department': platformReportData.employee.department.sub_department,
+        Location: platformReportData.employee.location,
+        Level: platformReportData.employee.level?.name,
+        'Employee Title': platformReportData.employee.title,
+        'Business Unit': platformReportData.employee.business_unit,
+        Mobile: platformReportData.employee.mobile,
+      };
 
-    const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
 
-    authService.getEou.and.throwError('An Error Occured');
-    component.createEmployeeDetails(reportParam);
-    expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
-    tick(1000);
-    expect(authService.getEou).toHaveBeenCalledTimes(1);
-    expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(reportParam.ou_id);
-    expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
-  }));
+      authService.getEou.and.throwError('An Error Occured');
+      component.createEmployeeDetails(platformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).not.toHaveBeenCalledOnceWith(
+        platformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).not.toEqual(expectedAllowedCostCenters);
+    }));
+
+    it('should have undefined when employee department and level values are undefined', fakeAsync(() => {
+      const modifiedPlatformReportData = {
+        ...platformReportData,
+        employee: {
+          ...platformReportData.employee,
+          level: null,
+          department: null,
+        },
+      };
+      const expectedEmployeeDetails = {
+        'Employee ID': modifiedPlatformReportData.employee.code,
+        Organization: modifiedPlatformReportData.employee.org_name,
+        Department: undefined,
+        'Sub Department': undefined,
+        Location: modifiedPlatformReportData.employee.location,
+        Level: undefined,
+        'Employee Title': modifiedPlatformReportData.employee.title,
+        'Business Unit': modifiedPlatformReportData.employee.business_unit,
+        Mobile: modifiedPlatformReportData.employee.mobile,
+      };
+
+      const expectedAllowedCostCenters = 'SMS1, test cost, cost centers mock data 1, cost center service 2';
+
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgUserSettingsService.getAllowedCostCentersByOuId.and.returnValue(of(costCentersData));
+      component.createEmployeeDetails(modifiedPlatformReportData);
+      expect(component.employeeDetails).toEqual(expectedEmployeeDetails);
+      tick(1000);
+      expect(authService.getEou).toHaveBeenCalledTimes(1);
+      expect(orgUserSettingsService.getAllowedCostCentersByOuId).toHaveBeenCalledOnceWith(
+        modifiedPlatformReportData.employee.id
+      );
+      expect(component.employeeDetails['Allowed Cost Centers']).toEqual(expectedAllowedCostCenters);
+    }));
+  });
 
   it('getCCCAdvanceSummary(): should update amountComponentWiseDetails', () => {
     const paymentModeSummaryMock = {
@@ -364,7 +405,7 @@ describe('FyViewReportInfoComponent', () => {
       },
     };
     component.amountComponentWiseDetails = {
-      'Total Amount': reportParam.rp_amount,
+      'Total Amount': platformReportData.amount,
       Reimbursable: 0,
     };
     component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
@@ -382,7 +423,7 @@ describe('FyViewReportInfoComponent', () => {
       },
     };
     component.amountComponentWiseDetails = {
-      'Total Amount': reportParam.rp_amount,
+      'Total Amount': platformReportData.amount,
       Reimbursable: 0,
     };
     component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
@@ -393,7 +434,7 @@ describe('FyViewReportInfoComponent', () => {
   it('getCCCAdvanceSummary(): should update amountComponentWiseDetails if paymentModeWiseData dont have amount in advance', () => {
     const paymentModeSummaryMock = {};
     component.amountComponentWiseDetails = {
-      'Total Amount': reportParam.rp_amount,
+      'Total Amount': platformReportData.amount,
       Reimbursable: 0,
     };
     component.getCCCAdvanceSummary(paymentModeSummaryMock, orgSettingsRes);
@@ -417,7 +458,7 @@ describe('FyViewReportInfoComponent', () => {
       },
     };
     component.amountComponentWiseDetails = {
-      'Total Amount': reportParam.rp_amount,
+      'Total Amount': platformReportData.amount,
       Reimbursable: 0,
     };
     const orgSettingsRes2 = cloneDeep(orgSettingsRes);
