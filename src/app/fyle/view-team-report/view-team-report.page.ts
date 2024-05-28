@@ -265,7 +265,7 @@ export class ViewTeamReportPage {
           switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
           map((report) => {
             this.approvals = report.approvals.filter(
-              (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].indexOf(approval.state) > -1
+              (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state) > -1
             );
             return report;
           })
