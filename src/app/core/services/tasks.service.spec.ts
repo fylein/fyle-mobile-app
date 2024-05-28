@@ -69,7 +69,7 @@ import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
 
-fdescribe('TasksService', () => {
+describe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
@@ -180,6 +180,7 @@ fdescribe('TasksService', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
   });
 
@@ -297,7 +298,7 @@ fdescribe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks is role is APPROVER', (done) => {
+  it('should be able to fetch team reports tasks is role is APPROVER, and the current org is primary', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
@@ -315,7 +316,7 @@ fdescribe('TasksService', () => {
       })
       .and.returnValue(of(expectedReportStats.report));
 
-    tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
+    tasksService.getTeamReportsTasks(true).subscribe((teamReportsTasks) => {
       expect(teamReportsTasks).toEqual([teamReportTaskSample]);
       done();
     });
@@ -778,7 +779,7 @@ fdescribe('TasksService', () => {
 
   it('should be able to fetch tasks with no filters', (done) => {
     setupData();
-    tasksService.getTasks().subscribe((tasks) => {
+    tasksService.getTasks(false, undefined, true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
         'Reports sent back!',
@@ -817,7 +818,6 @@ fdescribe('TasksService', () => {
         '34 Potential Duplicates',
         'Reports sent back!',
         'Incomplete expenses',
-        'Reports to be approved',
         'Advances sent back!',
       ]);
       done();

@@ -66,7 +66,7 @@ export class TasksService {
       ]).subscribe(([autoSubmissionReportDetails, currentOrg, primaryOrg]) => {
         const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
         const showTeamReportTask = currentOrg.id === primaryOrg.id;
-        this.getTasks(isReportAutoSubmissionScheduled, {}, showTeamReportTask).subscribe(noop);
+        this.getTasks(isReportAutoSubmissionScheduled, undefined, showTeamReportTask).subscribe(noop);
       });
     });
   }
@@ -306,7 +306,7 @@ export class TasksService {
     filters?: TaskFilters,
     showTeamReportTask?: boolean
   ): Observable<DashboardTask[]> {
-    const dashboardTasks = {
+    return forkJoin({
       mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
@@ -315,9 +315,8 @@ export class TasksService {
       draftExpenses: this.getDraftExpensesTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
-      teamReports: showTeamReportTask ? this.getTeamReportsTasks() : of(),
-    };
-    return forkJoin(dashboardTasks).pipe(
+      teamReports: this.getTeamReportsTasks(showTeamReportTask),
+    }).pipe(
       map(
         ({
           mobileNumberVerification,
@@ -509,15 +508,19 @@ export class TasksService {
     );
   }
 
-  getTeamReportsTasks(): Observable<DashboardTask[]> {
-    return forkJoin({
-      reportsStats: this.getTeamReportsStats(),
-      homeCurrency: this.currencyService.getHomeCurrency(),
-    }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
-        this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
-      )
-    );
+  getTeamReportsTasks(showTeamReportTask?: boolean): Observable<DashboardTask[]> {
+    if (showTeamReportTask) {
+      return forkJoin({
+        reportsStats: this.getTeamReportsStats(),
+        homeCurrency: this.currencyService.getHomeCurrency(),
+      }).pipe(
+        map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
+          this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
+        )
+      );
+    }
+
+    return of([] as DashboardTask[]);
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
