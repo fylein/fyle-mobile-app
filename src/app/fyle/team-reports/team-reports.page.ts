@@ -161,8 +161,8 @@ export class TeamReportsPage implements OnInit {
             const value = (event.target as HTMLInputElement).value;
             return value;
           }),
-          debounceTime(1000),
-          distinctUntilChanged()
+          distinctUntilChanged(),
+          debounceTime(1000)
         )
         .subscribe((searchString) => {
           const currentParams = this.loadData$.getValue();

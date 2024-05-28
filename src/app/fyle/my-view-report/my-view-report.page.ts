@@ -203,7 +203,9 @@ export class MyViewReportPage {
 
       this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
 
-      this.userComments = this.estatuses.filter((status) => status.creator_user?.full_name);
+      this.userComments = this.estatuses.filter(
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+      );
 
       for (let i = 0; i < this.userComments.length; i++) {
         const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
