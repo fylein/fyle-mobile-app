@@ -19,7 +19,7 @@ import { recentUsedCategoriesRes } from '../mock-data/org-category-list-item.dat
 import { CategoriesService } from './categories.service';
 import { orgCategoryPaginated1 } from '../mock-data/org-category.data';
 import { testActiveCategoryList } from '../test-data/projects.spec.data';
-import { platformProjectsArgs1 } from '../mock-data/platform/v1/Platform-project-args.data';
+import { platformProjectsArgs1 } from '../mock-data/platform/v1/platform-project-args.data';
 
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
