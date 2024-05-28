@@ -132,9 +132,7 @@ describe('DateService', () => {
           outgoingDate.setSeconds(0);
           outgoingDate.setMilliseconds(0);
           const transformedOutgoingDate = dateService.getUTCMidAfternoonDate(outgoingDate);
-          transformedOutgoingDate.setUTCDate(outgoingDate.getDate());
-          transformedOutgoingDate.setUTCMonth(outgoingDate.getMonth());
-          transformedOutgoingDate.setUTCFullYear(outgoingDate.getFullYear());
+
           const date = new Date().getDate();
           const month = new Date().getMonth() + 1; // js month is 0 - 11
           const year = new Date().getFullYear();
@@ -151,9 +149,7 @@ describe('DateService', () => {
           outgoingDate.setSeconds(0);
           outgoingDate.setMilliseconds(0);
           const transformedOutgoingDate = dateService.getUTCMidAfternoonDate(outgoingDate);
-          transformedOutgoingDate.setUTCDate(outgoingDate.getDate());
-          transformedOutgoingDate.setUTCMonth(outgoingDate.getMonth());
-          transformedOutgoingDate.setUTCFullYear(outgoingDate.getFullYear());
+
           const date = new Date().getDate();
           const month = new Date().getMonth() + 1; // js month is 0 - 11
           const year = new Date().getFullYear();
@@ -166,15 +162,12 @@ describe('DateService', () => {
         it('date edited in new zealand', () => {
           const newDate = dayjs(new Date('2024-05-14T00:00:00.000Z')).tz(newZeaLandTimezone).toDate();
           newDate.setDate(16);
-          const outgoingDate = dateService.getUTCMidAfternoonDate(newDate);
+          newDate.setHours(12);
+          newDate.setMinutes(0);
+          newDate.setSeconds(0);
+          newDate.setMilliseconds(0);
 
-          outgoingDate.setHours(12);
-          outgoingDate.setMinutes(0);
-          outgoingDate.setSeconds(0);
-          outgoingDate.setMilliseconds(0);
-          outgoingDate.setUTCDate(newDate.getDate());
-          outgoingDate.setUTCMonth(newDate.getMonth());
-          outgoingDate.setUTCFullYear(newDate.getFullYear());
+          const outgoingDate = dateService.getUTCMidAfternoonDate(newDate);
 
           expect(outgoingDate.toISOString().split('T')[0]).toBe('2024-05-16');
         });
@@ -182,15 +175,11 @@ describe('DateService', () => {
         it('date edited in america', () => {
           const newDate = dayjs(new Date('2024-05-14T00:00:00.000Z')).tz(americaTimezone).toDate();
           newDate.setDate(16);
+          newDate.setHours(12);
+          newDate.setMinutes(0);
+          newDate.setSeconds(0);
+          newDate.setMilliseconds(0);
           const outgoingDate = dateService.getUTCMidAfternoonDate(newDate);
-
-          outgoingDate.setHours(12);
-          outgoingDate.setMinutes(0);
-          outgoingDate.setSeconds(0);
-          outgoingDate.setMilliseconds(0);
-          outgoingDate.setUTCDate(newDate.getDate());
-          outgoingDate.setUTCMonth(newDate.getMonth());
-          outgoingDate.setUTCFullYear(newDate.getFullYear());
 
           expect(outgoingDate.toISOString().split('T')[0]).toBe('2024-05-16');
         });
