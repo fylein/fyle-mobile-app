@@ -358,14 +358,15 @@ describe('FyLocationModalComponent', () => {
       component.onDoneClick();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: null });
     });
+
     it('should call recentLocalStorageItemsService and dismiss modal with currentSelection undefined and value is undefined', () => {
-      component.currentSelection = '';
-      component.value = 'selection1';
+      component.currentSelection = undefined;
+      component.value = undefined;
       component.cacheName = 'cache1';
       fixture.detectChanges();
       component.onDoneClick();
-      expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('cache1', { display: 'selection1' });
-      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'selection1' } });
+
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: null });
     });
   });
 

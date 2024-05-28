@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
-import { from, concat, Observable, noop } from 'rxjs';
-import { switchMap, shareReplay, filter } from 'rxjs/operators';
+import { from, concat, Observable, noop, forkJoin } from 'rxjs';
+import { switchMap, shareReplay, filter, take } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -101,9 +101,12 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
-      await StatusBar.setStyle({
-        style: Style.Default,
-      });
+      if (!this.platform.is('mobileweb')) {
+        await StatusBar.setStyle({
+          style: Style.Default,
+        });
+      }
+
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
       /*
@@ -111,7 +114,9 @@ export class AppComponent implements OnInit {
        * This is to ensure that the app's UI is consistent across devices.
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
-      await TextZoom.set({ value: 1 });
+      if (!this.platform.is('mobileweb')) {
+        await TextZoom.set({ value: 1 });
+      }
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(
@@ -158,10 +163,13 @@ export class AppComponent implements OnInit {
       this.isOnline = isOnline;
     });
 
-    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+    forkJoin({
+      loggedInStatus: this.routerAuthService.isLoggedIn(),
+      isOnline: this.isConnected$.pipe(take(1)),
+    }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        if (this.isOnline) {
+        if (isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();

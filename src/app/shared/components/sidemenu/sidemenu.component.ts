@@ -33,7 +33,7 @@ export class SidemenuComponent implements OnInit {
 
   activeOrg: Org | { name: string };
 
-  isConnected$: Observable<any>;
+  isConnected$: Observable<boolean>;
 
   isSwitchedToDelegator: boolean;
 

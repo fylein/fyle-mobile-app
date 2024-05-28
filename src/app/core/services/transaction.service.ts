@@ -43,6 +43,7 @@ import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-car
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -62,23 +63,21 @@ type PaymentMode = {
 export class TransactionService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private dateService: DateService,
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
-    private fileService: FileService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private ldService: LaunchDarklyService
   ) {
     expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -239,7 +238,12 @@ export class TransactionService {
           transaction.txn_dt.setMinutes(0);
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
-          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+
+          if (!this.ldService.getImmediate('timezone_fix', false)) {
+            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+          } else {
+            transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
+          }
         }
 
         if (transaction.from_dt) {
@@ -835,7 +839,7 @@ export class TransactionService {
         org_id: expense.employee?.org_id,
       },
     };
-    this.dateService.fixDates(updatedExpense.tx);
+
     return updatedExpense;
   }
 
@@ -941,24 +945,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private fixDates(data: Expense): Expense {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {

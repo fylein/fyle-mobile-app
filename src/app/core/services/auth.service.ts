@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { StorageService } from './storage.service';
 import { TokenService } from './token.service';
 import { ApiService } from './api.service';
-import { switchMap, map, finalize } from 'rxjs/operators';
+import { switchMap, map, finalize, tap } from 'rxjs/operators';
 import { DataTransformService } from './data-transform.service';
 import { forkJoin, Observable, from, iif } from 'rxjs';
 import { ExtendedOrgUser } from '../models/extended-org-user.model';
@@ -10,6 +10,7 @@ import { JwtHelperService } from './jwt-helper.service';
 import { ResendEmailVerification } from '../models/resend-email-verification.model';
 import { AuthResponse } from '../models/auth-response.model';
 import { AccessTokenData } from '../models/access-token-data.model';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 @Injectable({
   providedIn: 'root',
@@ -20,7 +21,8 @@ export class AuthService {
     private tokenService: TokenService,
     private apiService: ApiService,
     private dataTransformService: DataTransformService,
-    private jwtHelperService: JwtHelperService
+    private jwtHelperService: JwtHelperService,
+    private ldService: LaunchDarklyService
   ) {}
 
   getEou(): Promise<ExtendedOrgUser> {

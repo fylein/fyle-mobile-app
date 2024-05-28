@@ -283,5 +283,122 @@ describe('DateService', () => {
       expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-13T01:00:00.000Z'));
     });
+
+    describe('date ingestion methods should work as expected', () => {
+      const americaTimezone = 'US/Pacific';
+      const newZeaLandTimezone = 'Etc/GMT-12'; // ETC timezones are opposite of what they show.
+
+      // describe('samples of timezone based date testing', () => {
+      //   it('timezone mock is working as expected', () => {
+      //     const df = dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone);
+      //     const dateAheadOfUTC = df.get('date');
+
+      //     const dl = dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone);
+      //     const dateBehindUtc = dl.get('date');
+
+      //     expect(dateAheadOfUTC).toEqual(dateBehindUtc + 1);
+      //   });
+      // });
+
+      describe('GET:', () => {
+        it('date is viewed in new zealand', () => {
+          const incomingDate = dateService.getUTCMidAfternoonDate(
+            dayjs('2024-05-14T00:00:00.000Z').tz(newZeaLandTimezone).toDate()
+          );
+          const date = incomingDate.getDate();
+          const month = incomingDate.getMonth() + 1; // js month is 0 - 11
+          const year = incomingDate.getFullYear();
+
+          expect(date).toBe(14);
+          expect(month).toBe(5);
+          expect(year).toBe(2024);
+        });
+
+        it('date is viewed in america', () => {
+          const incomingDate = dateService.getUTCMidAfternoonDate(
+            dayjs('2024-05-14T00:00:00.000Z').tz(americaTimezone).toDate()
+          );
+          const date = incomingDate.getDate();
+          const month = incomingDate.getMonth() + 1; // js month is 0 - 11
+          const year = incomingDate.getFullYear();
+
+          expect(date).toBe(14);
+          expect(month).toBe(5);
+          expect(year).toBe(2024);
+        });
+      });
+
+      describe('POST:', () => {
+        it('new date created from new zealand', () => {
+          const outgoingDate = dayjs(new Date()).tz(newZeaLandTimezone).toDate();
+          outgoingDate.setHours(12);
+          outgoingDate.setMinutes(0);
+          outgoingDate.setSeconds(0);
+          outgoingDate.setMilliseconds(0);
+          const transformedOutgoingDate = dateService.getUTCMidAfternoonDate(outgoingDate);
+          transformedOutgoingDate.setUTCDate(outgoingDate.getDate());
+          transformedOutgoingDate.setUTCMonth(outgoingDate.getMonth());
+          transformedOutgoingDate.setUTCFullYear(outgoingDate.getFullYear());
+          const date = new Date().getDate();
+          const month = new Date().getMonth() + 1; // js month is 0 - 11
+          const year = new Date().getFullYear();
+
+          expect(transformedOutgoingDate.toISOString().split('T')[0]).toBe(
+            `${year}-${month < 10 ? `0${month}` : month}-${date}`
+          );
+        });
+
+        it('new date created from america', () => {
+          const outgoingDate = dayjs(new Date()).tz(americaTimezone).toDate();
+          outgoingDate.setHours(12);
+          outgoingDate.setMinutes(0);
+          outgoingDate.setSeconds(0);
+          outgoingDate.setMilliseconds(0);
+          const transformedOutgoingDate = dateService.getUTCMidAfternoonDate(outgoingDate);
+          transformedOutgoingDate.setUTCDate(outgoingDate.getDate());
+          transformedOutgoingDate.setUTCMonth(outgoingDate.getMonth());
+          transformedOutgoingDate.setUTCFullYear(outgoingDate.getFullYear());
+          const date = new Date().getDate();
+          const month = new Date().getMonth() + 1; // js month is 0 - 11
+          const year = new Date().getFullYear();
+
+          expect(transformedOutgoingDate.toISOString().split('T')[0]).toBe(
+            `${year}-${month < 10 ? `0${month}` : month}-${date}`
+          );
+        });
+
+        it('date edited in new zealand', () => {
+          const newDate = dayjs(new Date('2024-05-14T00:00:00.000Z')).tz(newZeaLandTimezone).toDate();
+          newDate.setDate(16);
+          const outgoingDate = dateService.getUTCMidAfternoonDate(newDate);
+
+          outgoingDate.setHours(12);
+          outgoingDate.setMinutes(0);
+          outgoingDate.setSeconds(0);
+          outgoingDate.setMilliseconds(0);
+          outgoingDate.setUTCDate(newDate.getDate());
+          outgoingDate.setUTCMonth(newDate.getMonth());
+          outgoingDate.setUTCFullYear(newDate.getFullYear());
+
+          expect(outgoingDate.toISOString().split('T')[0]).toBe('2024-05-16');
+        });
+
+        it('date edited in america', () => {
+          const newDate = dayjs(new Date('2024-05-14T00:00:00.000Z')).tz(americaTimezone).toDate();
+          newDate.setDate(16);
+          const outgoingDate = dateService.getUTCMidAfternoonDate(newDate);
+
+          outgoingDate.setHours(12);
+          outgoingDate.setMinutes(0);
+          outgoingDate.setSeconds(0);
+          outgoingDate.setMilliseconds(0);
+          outgoingDate.setUTCDate(newDate.getDate());
+          outgoingDate.setUTCMonth(newDate.getMonth());
+          outgoingDate.setUTCFullYear(newDate.getFullYear());
+
+          expect(outgoingDate.toISOString().split('T')[0]).toBe('2024-05-16');
+        });
+      });
+    });
   });
 });
