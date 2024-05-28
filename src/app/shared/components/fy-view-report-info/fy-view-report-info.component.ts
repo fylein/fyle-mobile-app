@@ -1,5 +1,6 @@
 import { Component, Input, ElementRef } from '@angular/core';
-import { ModalController, Platform, SegmentCustomEvent } from '@ionic/angular';
+import { ModalController, Platform } from '@ionic/angular';
+
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
@@ -117,7 +118,7 @@ export class FyViewReportInfoComponent {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event: SegmentCustomEvent): void {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -158,12 +159,14 @@ export class FyViewReportInfoComponent {
 
   onSwipeAmount(event: { direction: number }): void {
     this.isSwipe = true;
+
     if (event && event.direction === 4) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
       )[0] as HTMLElement;
       elementRef.click();
     }
+
     if (this.view === ExpenseView.team && event && event.direction === 2) {
       const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
         'view-info--segment-block-container__btn'
@@ -194,7 +197,7 @@ export class FyViewReportInfoComponent {
 
   async createEmployeeDetails(report: Report): Promise<void> {
     this.employeeDetails = {
-      'Employee ID': report.employee.id,
+      'Employee ID': report.employee.code,
       Organization: report.employee.org_name,
       Department: report.employee.department?.name,
       'Sub Department': report.employee.department?.sub_department,

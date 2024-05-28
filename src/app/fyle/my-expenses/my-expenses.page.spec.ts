@@ -1153,7 +1153,7 @@ describe('MyExpensesV2Page', () => {
         expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
           report_id: 'is.null',
           state: 'in.(COMPLETE,DRAFT)',
-          or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
+          'matched_corporate_card_transactions->0->corporate_card_number': '8698',
         });
         expect(allExpenseStats).toEqual({
           count: 3,
@@ -1196,7 +1196,31 @@ describe('MyExpensesV2Page', () => {
       expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
         report_id: 'is.null',
         state: 'in.(COMPLETE,DRAFT)',
-        or: ['(matched_corporate_card_transactions->0->corporate_card_number.8698)'],
+        'matched_corporate_card_transactions->0->corporate_card_number': '8698',
+      });
+    });
+
+    it('should delete queryParams.state if queryParams.or contains an element with state', () => {
+      component.loadExpenses$ = new BehaviorSubject({
+        queryParams: {
+          or: ['state->DRAFT'],
+          'matched_corporate_card_transactions->0->corporate_card_number': '8698',
+          state: 'in.(COMPLETE,DRAFT)',
+        },
+      });
+
+      expensesService.getExpenseStats.and.returnValue(of(completeStats));
+      component.setAllExpensesCountAndAmount();
+      component.allExpensesStats$.subscribe((allExpenseStats) => {
+        expect(expensesService.getExpenseStats).toHaveBeenCalledOnceWith({
+          report_id: 'is.null',
+          or: ['state->DRAFT'],
+          'matched_corporate_card_transactions->0->corporate_card_number': '8698',
+        });
+        expect(allExpenseStats).toEqual({
+          count: 3,
+          amount: 30,
+        });
       });
     });
   });

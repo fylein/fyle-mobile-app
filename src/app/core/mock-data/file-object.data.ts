@@ -369,3 +369,13 @@ export const fileObject10: FileObject[] = deepFreeze([
     thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
   },
 ]);
+
+export const fileObject11: FileObject[] = deepFreeze([
+  {
+    id: '1',
+    name: 'invoice.pdf',
+    type: 'pdf',
+    url: 'https://sampledownloadurl.com',
+    thumbnail: 'img/fy-pdf.svg',
+  },
+]);

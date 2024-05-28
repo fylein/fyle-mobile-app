@@ -1,4 +1,4 @@
-import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, TestBed, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule } from '@ionic/angular';
 import { ModalController } from '@ionic/angular';
 import { ProjectsService } from 'src/app/core/services/projects.service';
@@ -117,7 +117,7 @@ describe('FyProjectSelectModalComponent', () => {
     projectsService.getbyId.and.returnValue(of(singleProjects1));
 
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
 
     projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
@@ -125,7 +125,7 @@ describe('FyProjectSelectModalComponent', () => {
     component.cacheName = 'projects';
     component.defaultValue = true;
     component.searchBarRef = fixture.debugElement.query(By.css('.selection-modal--search-input'));
-    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve([testProjectV2]));
+    recentLocalStorageItemsService.get.and.resolveTo([testProjectV2]);
     utilityService.searchArrayStream.and.returnValue(() => of([{ label: '', value: '' }]));
 
     fixture.detectChanges();
@@ -140,7 +140,7 @@ describe('FyProjectSelectModalComponent', () => {
     it('should get projects when current selection is not defined', (done) => {
       projectsService.getByParamsUnformatted.and.returnValue(of(projects));
       projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
 
       component.getProjects('projects').subscribe((res) => {
         expect(res).toEqual(expectedProjects);
@@ -251,14 +251,12 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should get project from recently used storage if not already present', (done) => {
-      recentLocalStorageItemsService.get.and.returnValue(
-        Promise.resolve([
-          {
-            label: 'label',
-            value: testProjectV2,
-          },
-        ])
-      );
+      recentLocalStorageItemsService.get.and.resolveTo([
+        {
+          label: 'label',
+          value: testProjectV2,
+        },
+      ]);
       component.recentlyUsed = null;
       component.cacheName = 'project';
       fixture.detectChanges();
@@ -278,7 +276,7 @@ describe('FyProjectSelectModalComponent', () => {
   });
 
   it('onDoneClick(): should dimiss the modal on clicking the done CTA', () => {
-    modalController.dismiss.and.returnValue(Promise.resolve(true));
+    modalController.dismiss.and.resolveTo(true);
 
     component.onDoneClick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
@@ -286,7 +284,7 @@ describe('FyProjectSelectModalComponent', () => {
 
   describe('onElementSelect():', () => {
     it('should dismiss the modal with selected option', () => {
-      modalController.dismiss.and.returnValue(Promise.resolve(true));
+      modalController.dismiss.and.resolveTo(true);
 
       component.onElementSelect({ label: '', value: null });
       expect(modalController.dismiss).toHaveBeenCalledWith({ label: '', value: null });
@@ -294,7 +292,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
 
     it('should cache the selected option and dismiss the modal', () => {
-      modalController.dismiss.and.returnValue(Promise.resolve(true));
+      modalController.dismiss.and.resolveTo(true);
       recentLocalStorageItemsService.post.and.returnValue(null);
       component.cacheName = 'cache';
       fixture.detectChanges();
@@ -310,7 +308,7 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', (done) => {
+  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
     spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
@@ -321,10 +319,12 @@ describe('FyProjectSelectModalComponent', () => {
     inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
+    tick(300);
     component.recentrecentlyUsedItems$.subscribe((res) => {
       expect(res).toEqual(expectedProjects4);
     });
 
+    tick(300);
     component.filteredOptions$.subscribe((res) => {
       expect(res).toEqual(expectedLabelledProjects);
     });
@@ -332,8 +332,9 @@ describe('FyProjectSelectModalComponent', () => {
     expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
     expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
-    done();
-  });
+
+    discardPeriodicTasks();
+  }));
 
   it('should show label on the screen', () => {
     component.label = 'Projects';

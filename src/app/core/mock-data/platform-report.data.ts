@@ -49,7 +49,7 @@ export const platformReportData: Report = deepFreeze({
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
@@ -176,7 +176,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -242,7 +242,7 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -334,7 +334,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -400,7 +400,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -473,7 +473,7 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -546,7 +546,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -612,7 +612,7 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -730,7 +730,7 @@ export const submittedReportData: Report = deepFreeze({
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
@@ -816,7 +816,7 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
