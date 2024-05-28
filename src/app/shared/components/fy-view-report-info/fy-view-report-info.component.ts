@@ -1,6 +1,5 @@
-import { Component, OnInit, Input, ViewChild, ElementRef } from '@angular/core';
+import { Component, Input, ElementRef } from '@angular/core';
 import { ModalController, Platform } from '@ionic/angular';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, combineLatest } from 'rxjs';
 import { filter } from 'rxjs/operators';
 import { KeyValue, DatePipe } from '@angular/common';
@@ -12,6 +11,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { PaymentModeSummary } from 'src/app/core/models/payment-mode-summary.model';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpensesService as SharedExpensesService } from 'src/app/core/services/platform/v1/shared/expenses.service';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
 
 type AmountDetails = {
   'Total Amount': number;
@@ -34,8 +35,8 @@ type PaymentMode = {
   templateUrl: './fy-view-report-info.component.html',
   styleUrls: ['./fy-view-report-info.component.scss'],
 })
-export class FyViewReportInfoComponent implements OnInit {
-  @Input() erpt$: Observable<ExtendedReport>;
+export class FyViewReportInfoComponent {
+  @Input() report$: Observable<Report>;
 
   @Input() expenses$: Observable<Expense[]>;
 
@@ -71,32 +72,31 @@ export class FyViewReportInfoComponent implements OnInit {
     private authService: AuthService
   ) {}
 
-  get ExpenseView() {
+  get ExpenseView(): typeof ExpenseView {
     return ExpenseView;
   }
 
-  ngOnInit(): void {}
-
-  ionViewWillEnter() {
-    this.erpt$.pipe(filter((erpt) => !!erpt)).subscribe((erpt) => {
+  ionViewWillEnter(): void {
+    this.report$.pipe(filter((report) => !!report)).subscribe((report) => {
+      const createdDate = this.datePipe.transform(report.created_at, 'MMM d, y');
       this.reportDetails = {
-        'Report Name': erpt.rp_purpose,
-        Owner: erpt.us_full_name,
-        'Report Number': erpt.rp_claim_number,
-        'Created On': this.datePipe.transform(erpt.rp_created_at, 'MMM d, y'),
+        'Report Name': report.purpose,
+        Owner: report.employee.user.full_name,
+        'Report Number': report.seq_num,
+        'Created On': createdDate,
       };
-      this.reportCurrency = erpt.rp_currency;
+      this.reportCurrency = report.currency;
 
       if (this.view === ExpenseView.team) {
-        this.createEmployeeDetails(erpt);
+        this.createEmployeeDetails(report);
       }
     });
 
     const orgSettings$ = this.orgSettingsService.get();
-    combineLatest([this.expenses$, this.erpt$, orgSettings$]).subscribe(([expenses, erpt, orgSettings]) => {
+    combineLatest([this.expenses$, this.report$, orgSettings$]).subscribe(([expenses, report, orgSettings]) => {
       const paymentModeWiseData: PaymentModeSummary = this.sharedExpensesService.getPaymentModeWiseSummary(expenses);
       this.amountComponentWiseDetails = {
-        'Total Amount': erpt.rp_amount,
+        'Total Amount': report.amount,
         Reimbursable: paymentModeWiseData.reimbursable?.amount || 0,
       };
       if (orgSettings) {
@@ -110,13 +110,14 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
   originalOrder = (a: KeyValue<string, any>, b: KeyValue<string, any>): number => 0;
 
-  closeModal() {
+  closeModal(): void {
     this.modalController.dismiss();
   }
 
-  segmentChanged(event) {
+  segmentChanged(event: { detail: { value: string } }): void {
     if (event && event.detail && event.detail.value) {
       if (event.detail.value === 'report') {
         this.isReportView = true;
@@ -140,10 +141,13 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  onSwipeReport(event) {
+  onSwipeReport(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 2) {
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
@@ -152,13 +156,21 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  onSwipeAmount(event) {
+  onSwipeAmount(event: { direction: number }): void {
     this.isSwipe = true;
+
     if (event && event.direction === 4) {
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[0].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[0] as HTMLElement;
+      elementRef.click();
     }
+
     if (this.view === ExpenseView.team && event && event.direction === 2) {
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[2].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[2] as HTMLElement;
+      elementRef.click();
     }
     this.trackingService.viewReportInfo({
       view: this.view,
@@ -167,10 +179,13 @@ export class FyViewReportInfoComponent implements OnInit {
     });
   }
 
-  onSwipeEmployee(event) {
+  onSwipeEmployee(event: { direction: number }): void {
     this.isSwipe = true;
     if (event && event.direction === 4) {
-      this.elementRef.nativeElement.getElementsByClassName('view-info--segment-block-container__btn')[1].click();
+      const elementRef: HTMLElement = (this.elementRef.nativeElement as HTMLElement).getElementsByClassName(
+        'view-info--segment-block-container__btn'
+      )[1] as HTMLElement;
+      elementRef.click();
       this.trackingService.viewReportInfo({
         view: this.view,
         action: 'swipe',
@@ -179,22 +194,22 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  async createEmployeeDetails(erpt: ExtendedReport) {
+  async createEmployeeDetails(report: Report): Promise<void> {
     this.employeeDetails = {
-      'Employee ID': erpt.ou_employee_id,
-      Organization: erpt.ou_org_name,
-      Department: erpt.ou_department,
-      'Sub Department': erpt.ou_sub_department,
-      Location: erpt.ou_location,
-      Level: erpt.ou_level,
-      'Employee Title': erpt.ou_title,
-      'Business Unit': erpt.ou_business_unit,
-      Mobile: erpt.ou_mobile,
+      'Employee ID': report.employee.code,
+      Organization: report.employee.org_name,
+      Department: report.employee.department?.name,
+      'Sub Department': report.employee.department?.sub_department,
+      Location: report.employee.location,
+      Level: report.employee.level?.name,
+      'Employee Title': report.employee.title,
+      'Business Unit': report.employee.business_unit,
+      Mobile: report.employee.mobile,
     };
     try {
       const orgUser = await this.authService.getEou();
-      if (erpt.ou_org_id === orgUser.ou.org_id) {
-        this.orgUserSettingsService.getAllowedCostCentersByOuId(erpt.ou_id).subscribe((costCenters) => {
+      if (report.org_id === orgUser.ou.org_id) {
+        this.orgUserSettingsService.getAllowedCostCentersByOuId(report.employee.id).subscribe((costCenters) => {
           const allowedCostCenters = costCenters.map((costCenter) => costCenter.name).join(', ');
           this.employeeDetails['Allowed Cost Centers'] = allowedCostCenters;
         });
@@ -204,7 +219,7 @@ export class FyViewReportInfoComponent implements OnInit {
     }
   }
 
-  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: any) {
+  getCCCAdvanceSummary(paymentModeWiseData: PaymentMode, orgSettings: OrgSettings): void {
     if (orgSettings.corporate_credit_card_settings && orgSettings.corporate_credit_card_settings.enabled) {
       this.amountComponentWiseDetails.CCC = paymentModeWiseData.ccc?.amount || 0;
     }

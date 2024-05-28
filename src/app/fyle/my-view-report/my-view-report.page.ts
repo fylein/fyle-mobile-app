@@ -1,5 +1,4 @@
 import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -26,7 +25,6 @@ import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
-import { Approver } from 'src/app/core/models/v1/approver.model';
 import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expenses-to-report.component';
@@ -35,6 +33,8 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { PlatformHandlerService } from 'src/app/core/services/platform-handler.service';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
+
 @Component({
   selector: 'app-my-view-report',
   templateUrl: './my-view-report.page.html',
@@ -45,11 +45,9 @@ export class MyViewReportPage {
 
   @ViewChild(IonContent, { static: false }) content: IonContent;
 
-  erpt$: Observable<ExtendedReport>;
+  report$: Observable<Report>;
 
   expenses$: Observable<Expense[]>;
-
-  reportApprovals$: Observable<Approver[]>;
 
   canEdit$: Observable<boolean>;
 
@@ -167,10 +165,10 @@ export class MyViewReportPage {
 
     this.segmentValue = ReportPageSegment.EXPENSES;
 
-    this.erpt$ = this.loadReportDetails$.pipe(
+    this.report$ = this.loadReportDetails$.pipe(
       tap(() => this.loaderService.showLoader()),
       switchMap(() =>
-        this.reportService.getReport(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
+        this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
       ),
       shareReplay(1)
     );
@@ -223,18 +221,14 @@ export class MyViewReportPage {
       map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
     );
 
-    this.erpt$.pipe(take(1)).subscribe((erpt) => {
-      this.reportCurrencySymbol = getCurrencySymbol(erpt?.rp_currency, 'wide');
+    this.report$.pipe(take(1)).subscribe((report) => {
+      this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
 
       //For sent back reports, show the comments section instead of expenses when opening the report
-      if (erpt?.rp_state === 'APPROVER_INQUIRY') {
+      if (report?.state === 'APPROVER_INQUIRY') {
         this.segmentValue = ReportPageSegment.COMMENTS;
       }
     });
-
-    this.reportApprovals$ = this.reportService
-      .getApproversByReportId(this.reportId)
-      .pipe(map((reportApprovals) => reportApprovals));
 
     this.expenses$ = this.loadReportTxns$.pipe(
       tap(() => (this.isExpensesLoading = true)),
@@ -266,7 +260,7 @@ export class MyViewReportPage {
       .pipe(
         map(
           (orgSetting) =>
-            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting?.pending_cct_expense_restriction?.enabled
+            orgSetting?.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
         ),
         switchMap((filterPendingTxn: boolean) => {
           if (filterPendingTxn) {
@@ -316,12 +310,12 @@ export class MyViewReportPage {
   }
 
   updateReportName(reportName: string): void {
-    this.erpt$
+    this.report$
       .pipe(
         take(1),
-        switchMap((erpt) => {
-          erpt.rp_purpose = reportName;
-          return this.reportService.updateReportPurpose(erpt);
+        switchMap((report) => {
+          report.purpose = reportName;
+          return this.reportService.updateReportPurpose(report);
         })
       )
       .subscribe(() => {
@@ -333,14 +327,14 @@ export class MyViewReportPage {
 
   editReportName(): void {
     this.reportNameChangeStartTime = new Date().getTime();
-    this.erpt$
+    this.report$
       .pipe(take(1))
       .pipe(
-        switchMap((erpt) => {
+        switchMap((report) => {
           const editReportNamePopover = this.popoverController.create({
             component: EditReportNamePopoverComponent,
             componentProps: {
-              reportName: erpt.rp_purpose,
+              reportName: report.purpose,
             },
             cssClass: 'fy-dialog-popover',
           });
@@ -348,7 +342,7 @@ export class MyViewReportPage {
         }),
         tap((editReportNamePopover) => editReportNamePopover.present()),
         switchMap(
-          (editReportNamePopover) => editReportNamePopover?.onWillDismiss() as Promise<{ data: { reportName: string } }>
+          (editReportNamePopover) => editReportNamePopover.onWillDismiss() as Promise<{ data: { reportName: string } }>
         )
       )
       .subscribe((editReportNamePopoverDetails) => {
@@ -360,10 +354,10 @@ export class MyViewReportPage {
   }
 
   deleteReport(): void {
-    this.erpt$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
+    this.report$.pipe(take(1)).subscribe((res) => this.deleteReportPopup(res));
   }
 
-  getDeleteReportPopupParams(erpt: ExtendedReport): {
+  getDeleteReportPopupParams(report: Report): {
     component: typeof FyDeleteDialogComponent;
     cssClass: string;
     backdropDismiss: boolean;
@@ -382,7 +376,7 @@ export class MyViewReportPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage:
-          erpt.rp_state === 'DRAFT' && erpt.rp_num_transactions === 0
+          report.state === ReportState.DRAFT && report.num_expenses === 0
             ? null
             : 'Deleting the report will not delete any of the expenses.',
         deleteMethod: (): Observable<void> =>
@@ -391,12 +385,12 @@ export class MyViewReportPage {
     };
   }
 
-  async deleteReportPopup(erpt: ExtendedReport): Promise<void> {
-    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(erpt));
+  async deleteReportPopup(report: Report): Promise<void> {
+    const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopupParams(report));
 
     await deleteReportPopover.present();
 
-    const { data } = (await deleteReportPopover?.onDidDismiss()) as { data: { status: string } };
+    const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
 
     if (data && data.status === 'success') {
       this.router.navigate(['/', 'enterprise', 'my_reports']);
@@ -463,13 +457,13 @@ export class MyViewReportPage {
       const route = this.getTransactionRoute(category, canEdit);
 
       if (canEdit) {
-        this.erpt$.pipe(take(1)).subscribe((erpt) =>
+        this.report$.pipe(take(1)).subscribe((report) =>
           this.router.navigate([
             route,
             {
               id: expense.id,
               navigate_back: true,
-              remove_from_report: erpt.rp_num_transactions > 1,
+              remove_from_report: report.num_expenses > 1,
             },
           ])
         );
@@ -500,7 +494,7 @@ export class MyViewReportPage {
 
     await shareReportModal.present();
 
-    const { data } = (await shareReportModal?.onWillDismiss()) as { data: { email: string } };
+    const { data } = (await shareReportModal.onWillDismiss()) as { data: { email: string } };
 
     if (data && data.email) {
       const params = {
@@ -522,7 +516,7 @@ export class MyViewReportPage {
     const viewInfoModal = await this.modalController.create({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: this.erpt$,
+        report$: this.report$,
         expenses$: this.expenses$,
         view: ExpenseView.individual,
       },
@@ -530,7 +524,7 @@ export class MyViewReportPage {
     });
 
     await viewInfoModal.present();
-    await viewInfoModal?.onWillDismiss();
+    await viewInfoModal.onWillDismiss();
 
     this.trackingService.clickViewReportInfo({ view: ExpenseView.individual });
   }
@@ -583,7 +577,7 @@ export class MyViewReportPage {
         tap((addExpensesToReportModal) => addExpensesToReportModal.present()),
         switchMap(
           (addExpensesToReportModal) =>
-            addExpensesToReportModal?.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
+            addExpensesToReportModal.onWillDismiss() as Promise<{ data: { selectedExpenseIds: string[] } }>
         )
       )
       .subscribe((addExpensesToReportModalDetails) => {
