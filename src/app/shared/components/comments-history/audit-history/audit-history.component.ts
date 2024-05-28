@@ -46,7 +46,7 @@ export class AuditHistoryComponent implements OnInit {
   hasDetails() {
     this.estatuses = this.estatuses.map(function (estatus) {
       if (estatus) {
-        estatus.has_details = estatus.st_diff !== null && Object.keys(estatus.st_diff).length > 0;
+        estatus.has_details = estatus.st_diff && Object.keys(estatus.st_diff).length > 0;
       }
       return estatus;
     });
