@@ -1966,6 +1966,7 @@ export const systemComments1: ExtendedStatus[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
+    st_diff: null,
   },
   {
     st_comment: 'submitted by Suyash (suyash.p@fyle.in)',
@@ -1974,6 +1975,7 @@ export const systemComments1: ExtendedStatus[] = deepFreeze([
     isBotComment: true,
     isSelfComment: false,
     isOthersComment: true,
+    st_diff: null,
   },
 ]);
 
