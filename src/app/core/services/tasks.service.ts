@@ -518,9 +518,9 @@ export class TasksService {
           this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
         )
       );
+    } else {
+      return of([] as DashboardTask[]);
     }
-
-    return of([] as DashboardTask[]);
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {

@@ -34,6 +34,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-tasks',
@@ -81,7 +82,8 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private orgService: OrgService
   ) {}
 
   ngOnInit(): void {
@@ -105,10 +107,13 @@ export class TasksComponent implements OnInit {
     this.tasks$ = combineLatest({
       taskFilters: this.loadData$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
+      currentOrg: this.orgService.getCurrentOrg(),
+      primaryOrg: this.orgService.getPrimaryOrg(),
     }).pipe(
-      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
-        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
-      ),
+      switchMap(({ taskFilters, autoSubmissionReportDate, currentOrg, primaryOrg }) => {
+        const showTeamReportTask = currentOrg.id === primaryOrg.id;
+        return this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters, showTeamReportTask);
+      }),
       shareReplay(1)
     );
 
