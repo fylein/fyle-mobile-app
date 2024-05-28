@@ -12,7 +12,7 @@ export class PermissionsService {
   // can check roleActionMap[role]['company']['view'] for whether he is allowed company view.
   roleActionMap: Record<string, Record<string, Record<string, boolean>>> = {
     owner: {
-      expenses: {x
+      expenses: {
         create: false,
         bulkCreate: false,
         view: true,
