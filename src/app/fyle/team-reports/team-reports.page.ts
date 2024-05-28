@@ -34,7 +34,7 @@ import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service
   styleUrls: ['./team-reports.page.scss'],
 })
 export class TeamReportsPage implements OnInit {
-  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef;
+  @ViewChild('simpleSearchInput') simpleSearchInput: ElementRef<HTMLInputElement>;
 
   pageTitle = 'Team Reports';
 
@@ -54,7 +54,7 @@ export class TeamReportsPage implements OnInit {
 
   currentPageNumber = 1;
 
-  acc = [];
+  acc: ExtendedReport[] = [];
 
   filters: Partial<TeamReportsFilters>;
 
@@ -106,11 +106,11 @@ export class TeamReportsPage implements OnInit {
     this.setupNetworkWatcher();
   }
 
-  ionViewWillLeave() {
+  ionViewWillLeave(): void {
     this.onPageExit.next(null);
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.isLoading = true;
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
@@ -144,9 +144,9 @@ export class TeamReportsPage implements OnInit {
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
 
     this.simpleSearchInput.nativeElement.value = '';
-    fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
       .pipe(
-        map((event: any) => event.srcElement.value as string),
+        map((event) => event.srcElement.value),
         debounceTime(1000),
         distinctUntilChanged()
       )
@@ -213,7 +213,11 @@ export class TeamReportsPage implements OnInit {
       });
     });
 
-    this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+    let queryParams: Partial<TeamReportsFilters> = {};
+    if (typeof this.activatedRoute.snapshot.queryParams.filters === 'string') {
+      queryParams = JSON.parse(this.activatedRoute.snapshot.queryParams.filters) as Partial<TeamReportsFilters>;
+    }
+    this.filters = Object.assign({}, this.filters, queryParams);
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
     this.loadData$.next(params);
@@ -224,7 +228,7 @@ export class TeamReportsPage implements OnInit {
     }, 500);
   }
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isConnected$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable());
@@ -235,7 +239,7 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  loadData(event: { target: HTMLIonInfiniteScrollElement }) {
+  loadData(event: { target: HTMLIonInfiniteScrollElement }): void {
     this.currentPageNumber = this.currentPageNumber + 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -245,7 +249,7 @@ export class TeamReportsPage implements OnInit {
     }, 1000);
   }
 
-  doRefresh(event?: { target: HTMLIonRefresherElement }) {
+  doRefresh(event?: { target: HTMLIonRefresherElement }): void {
     this.currentPageNumber = 1;
     const params = this.loadData$.getValue();
     params.pageNumber = this.currentPageNumber;
@@ -255,7 +259,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateCustomDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
+  generateCustomDateParams(newQueryParams: Partial<GetTasksQueryParams>): void {
     if (this.filters.date === DateFilters.custom) {
       const startDate = this.filters.customDateStart?.toISOString();
       const endDate = this.filters.customDateEnd?.toISOString();
@@ -269,7 +273,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateDateParams(newQueryParams: Partial<GetTasksQueryParams>) {
+  generateDateParams(newQueryParams: Partial<GetTasksQueryParams>): void {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
@@ -292,8 +296,8 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>) {
-    const stateOrFilter = [];
+  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>): void {
+    const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('APPROVER_PENDING')) {
@@ -328,7 +332,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  setSortParams(currentParams: Partial<GetTasksQueryParamsWithFilters>) {
+  setSortParams(currentParams: Partial<GetTasksQueryParamsWithFilters>): void {
     if (this.filters.sortParam && this.filters.sortDir) {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
@@ -338,7 +342,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  addNewFiltersToParams() {
+  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
     const newQueryParams: Partial<GetTasksQueryParams> = {
@@ -356,7 +360,7 @@ export class TeamReportsPage implements OnInit {
     return currentParams;
   }
 
-  clearFilters() {
+  clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
     const params = this.addNewFiltersToParams();
@@ -364,11 +368,11 @@ export class TeamReportsPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onReportClick(erpt: ExtendedReport) {
+  onReportClick(erpt: ExtendedReport): void {
     this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id, navigate_back: true }]);
   }
 
-  onHomeClicked() {
+  onHomeClicked(): void {
     const queryParams: Params = { state: 'home' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
@@ -379,20 +383,20 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  onTaskClicked() {
+  onTaskClicked(): void {
     const queryParams: Params = { state: 'tasks', tasksFilters: 'team_reports' };
     this.router.navigate(['/', 'enterprise', 'my_dashboard'], {
       queryParams,
     });
   }
 
-  onCameraClicked() {
+  onCameraClicked(): void {
     this.router.navigate(['/', 'enterprise', 'camera_overlay', { navigate_back: true }]);
   }
 
-  clearText(isFromCancel: string) {
+  clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     searchInput.value = '';
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
@@ -402,20 +406,20 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  onSimpleSearchCancel() {
+  onSimpleSearchCancel(): void {
     this.headerState = HeaderState.base;
     this.clearText('onSimpleSearchCancel');
   }
 
-  onSearchBarFocus() {
+  onSearchBarFocus(): void {
     this.isSearchBarFocused = true;
   }
 
-  onFilterPillsClearAll() {
+  onFilterPillsClearAll(): void {
     this.clearFilters();
   }
 
-  async onFilterClick(filterType: string) {
+  async onFilterClick(filterType: string): Promise<void> {
     if (filterType === 'state') {
       await this.openFilters('State');
     } else if (filterType === 'date') {
@@ -425,7 +429,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  onFilterClose(filterType: string) {
+  onFilterClose(filterType: string): void {
     if (filterType === 'sort') {
       delete this.filters.sortDir;
       delete this.filters.sortParam;
@@ -438,9 +442,9 @@ export class TeamReportsPage implements OnInit {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  searchClick() {
+  searchClick(): void {
     this.headerState = HeaderState.simpleSearch;
-    const searchInput = this.simpleSearchInput.nativeElement as HTMLInputElement;
+    const searchInput = this.simpleSearchInput.nativeElement;
     setTimeout(() => {
       searchInput.focus();
     }, 300);
@@ -449,7 +453,7 @@ export class TeamReportsPage implements OnInit {
   convertRptDtSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -466,7 +470,7 @@ export class TeamReportsPage implements OnInit {
   addSortToGeneratedFilters(
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
-  ) {
+  ): void {
     this.convertRptDtSortToSelectedFilters(filter, generatedFilters);
 
     this.convertAmountSortToSelectedFilters(filter, generatedFilters);
@@ -505,7 +509,7 @@ export class TeamReportsPage implements OnInit {
   convertNameSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -519,7 +523,10 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  convertSelectedSortFiltersToFilters(sortBy: SelectedFilters<string>, generatedFilters: Partial<TeamReportsFilters>) {
+  convertSelectedSortFiltersToFilters(
+    sortBy: SelectedFilters<string>,
+    generatedFilters: Partial<TeamReportsFilters>
+  ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
         generatedFilters.sortParam = 'rp_submitted_at';
@@ -565,7 +572,7 @@ export class TeamReportsPage implements OnInit {
     return generatedFilters;
   }
 
-  generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>) {
+  generateStateFilterPills(filterPills: FilterPill[], filter: Partial<TeamReportsFilters>): void {
     this.simplifyReportsSettings$.subscribe((simplifyReportsSettings) => {
       filterPills.push({
         label: 'State',
@@ -577,7 +584,7 @@ export class TeamReportsPage implements OnInit {
     });
   }
 
-  generateCustomDatePill(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateCustomDatePill(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     const startDate = filter.customDateStart && dayjs(filter.customDateStart).format('YYYY-MM-D');
     const endDate = filter.customDateEnd && dayjs(filter.customDateEnd).format('YYYY-MM-D');
 
@@ -602,7 +609,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateDateFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateDateFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.date === DateFilters.thisWeek) {
       filterPills.push({
         label: 'Submitted Date',
@@ -640,7 +647,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortRptDatePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateSortRptDatePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -656,7 +663,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortAmountPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateSortAmountPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
@@ -672,7 +679,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortNamePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateSortNamePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
@@ -688,7 +695,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  generateSortFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]) {
+  generateSortFilterPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
     this.generateSortRptDatePills(filter, filterPills);
 
     this.generateSortAmountPills(filter, filterPills);
@@ -696,7 +703,7 @@ export class TeamReportsPage implements OnInit {
     this.generateSortNamePills(filter, filterPills);
   }
 
-  generateFilterPills(filter: Partial<TeamReportsFilters>) {
+  generateFilterPills(filter: Partial<TeamReportsFilters>): FilterPill[] {
     const filterPills: FilterPill[] = [];
 
     if (filter.state && filter.state.length) {
@@ -717,7 +724,7 @@ export class TeamReportsPage implements OnInit {
   convertAmountSortToSelectedFilters(
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
-  ) {
+  ): void {
     if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
@@ -731,7 +738,7 @@ export class TeamReportsPage implements OnInit {
     }
   }
 
-  async openFilters(activeFilterInitialName?: string) {
+  async openFilters(activeFilterInitialName?: string): Promise<void> {
     const filterPopover = await this.modalController.create({
       component: FyFiltersComponent,
       componentProps: {
@@ -842,7 +849,7 @@ export class TeamReportsPage implements OnInit {
 
     await filterPopover.present();
 
-    const { data } = await filterPopover.onWillDismiss();
+    const { data }: { data?: SelectedFilters<string>[] } = await filterPopover.onWillDismiss();
     if (data) {
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
