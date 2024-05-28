@@ -1,4 +1,5 @@
 export interface ReportPermissions {
+  id: string;
   can_resubmit: boolean;
   can_approve: boolean;
   can_delete: boolean;

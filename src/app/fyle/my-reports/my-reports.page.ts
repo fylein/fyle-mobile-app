@@ -178,9 +178,8 @@ export class MyReportsPage {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
         if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
-        } else if (params.searchString === '') {
+          queryParams.q = params.searchString + ':*';
+        } else {
           delete queryParams.q;
         }
         const orderByParams =
@@ -221,9 +220,8 @@ export class MyReportsPage {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
         if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
-        } else if (params.searchString === '') {
+          queryParams.q = params.searchString + ':*';
+        } else {
           delete queryParams.q;
         }
         this.isLoadingDataInInfiniteScroll = true;

@@ -179,7 +179,9 @@ export class TeamReportsPage implements OnInit {
           if (params.searchString) {
             queryParams.q = params.searchString + ':*';
           } else {
-            delete queryParams.q;
+            if (queryParams && queryParams.q) {
+              delete queryParams.q;
+            }
           }
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
@@ -207,7 +209,9 @@ export class TeamReportsPage implements OnInit {
           if (params.searchString) {
             queryParams.q = params.searchString + ':*';
           } else {
-            delete queryParams.q;
+            if (queryParams && queryParams.q) {
+              delete queryParams.q;
+            }
           }
           return this.approverReportsService.getReportsCount(queryParams);
         }),
