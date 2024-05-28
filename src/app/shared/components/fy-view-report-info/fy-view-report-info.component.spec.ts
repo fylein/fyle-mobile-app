@@ -225,7 +225,7 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should not track report info on swipe', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
     component.isSwipe = true;
 
     component.segmentChanged(event);
