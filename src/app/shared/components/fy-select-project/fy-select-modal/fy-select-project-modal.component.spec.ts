@@ -275,12 +275,14 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('onDoneClick(): should dimiss the modal on clicking the done CTA', async () => {
+  it('onDoneClick(): should dismiss the modal on clicking the done CTA', fakeAsync(() => {
     modalController.dismiss.and.resolveTo(true);
 
-    await component.onDoneClick();
+    component.onDoneClick();
+    tick();
     expect(modalController.dismiss).toHaveBeenCalledTimes(1);
-  });
+    discardPeriodicTasks();
+  }));
 
   describe('onElementSelect():', () => {
     it('should dismiss the modal with selected option', () => {

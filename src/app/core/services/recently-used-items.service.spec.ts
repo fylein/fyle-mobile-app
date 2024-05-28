@@ -18,6 +18,8 @@ import { of } from 'rxjs';
 import { recentUsedCategoriesRes } from '../mock-data/org-category-list-item.data';
 import { CategoriesService } from './categories.service';
 import { orgCategoryPaginated1 } from '../mock-data/org-category.data';
+import { testActiveCategoryList } from '../test-data/projects.spec.data';
+import { platformProjectsArgs1 } from '../mock-data/platform/v1/Platform-project-args.data';
 
 describe('RecentlyUsedItemsService', () => {
   let recentlyUsedItemsService: RecentlyUsedItemsService;
@@ -63,62 +65,41 @@ describe('RecentlyUsedItemsService', () => {
   });
 
   describe('getRecentlyUsedProjects():', () => {
-    it('should get all the recently used projects', fakeAsync(() => {
+    it('should get all the recently used projects', (done) => {
       categoriesService.getAll.and.returnValue(of(orgCategoryPaginated1));
       projectsService.getByParamsUnformatted.and.returnValue(of(recentlyUsedProjectRes));
-
-      let activeCategories;
-      categoriesService.getAll().subscribe((categories) => {
-        activeCategories = categories;
-      });
-      tick();
 
       const config = {
         recentValues: recentlyUsedRes,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
-        activeCategoryList: activeCategories,
+        activeCategoryList: testActiveCategoryList,
       };
 
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(projectsService.getByParamsUnformatted).toHaveBeenCalledOnceWith(
-          {
-            orgId: config.eou.ou.org_id,
-            isEnabled: true,
-            sortDirection: 'asc',
-            sortOrder: 'name',
-            orgCategoryIds: config.categoryIds,
-            projectIds: config.recentValues.recent_project_ids,
-            offset: 0,
-            limit: 10,
-          },
-          config.activeCategoryList
+          platformProjectsArgs1,
+          testActiveCategoryList
         );
         expect(res).toEqual(recentlyUsedProjectRes);
+        done();
       });
-      discardPeriodicTasks();
-    }));
+    });
 
-    it('should return null when there are no recently used projects', fakeAsync(() => {
+    it('should return null when there are no recently used projects', (done) => {
       categoriesService.getAll.and.returnValue(of(orgCategoryPaginated1));
 
-      let activeCategories;
-      categoriesService.getAll().subscribe((categories) => {
-        activeCategories = categories;
-      });
-
-      tick();
       const config = {
         recentValues: null,
         eou: apiEouRes,
         categoryIds: ['16558', '16559', '16560', '16561', '16562'],
-        activeCategoryList: activeCategories,
+        activeCategoryList: testActiveCategoryList,
       };
       recentlyUsedItemsService.getRecentlyUsedProjects(config).subscribe((res) => {
         expect(res).toBeNull();
+        done();
       });
-      discardPeriodicTasks();
-    }));
+    });
   });
 
   describe('getRecentCurrencies():', () => {

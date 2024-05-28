@@ -13,7 +13,7 @@ import { PlatformProject } from '../models/platform/platform-project.model';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 import { PlatformProjectParams } from '../models/platform/v1/platform-project-params.model';
-
+import { PlatformProjectArgs } from '../models/platform/v1/platform-project-args.model';
 @Injectable({
   providedIn: 'root',
 })
@@ -26,17 +26,7 @@ export class ProjectsService {
 
   @Cacheable()
   getByParamsUnformatted(
-    projectParams: Partial<{
-      orgId: string;
-      isEnabled: boolean;
-      orgCategoryIds: string[];
-      searchNameText: string;
-      limit: number;
-      offset: number;
-      sortOrder: string;
-      sortDirection: string;
-      projectIds: number[];
-    }>,
+    projectParams: PlatformProjectArgs,
     activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
     // eslint-disable-next-line prefer-const
@@ -129,7 +119,6 @@ export class ProjectsService {
     return categoryList;
   }
 
-  // TODO: We should remove this from being used and replace with transform
   getAllActive(activeCategoryList?: OrgCategory[]): Observable<ProjectV1[]> {
     const data = {
       params: {
