@@ -1613,11 +1613,9 @@ export class PermissionsService {
         if (this.allowedAccess(resource, orgSettings)) {
           for (const currentRole of filteredRoles) {
             const role = currentRole.toLowerCase();
-            console.log(actions, allowedActions, role, resource);
             this.setAllowedActions(actions, allowedActions, role, resource);
           }
         }
-        console.log(allowedActions);
         return allowedActions;
       }),
       switchMap((currentAllowedActions) => {
@@ -1643,7 +1641,6 @@ export class PermissionsService {
     for (const action of actions) {
       if (!allowedActions.hasOwnProperty(action) || !allowedActions[action]) {
         allowedActions[action] = this.roleActionMap[role][resource][action];
-        console.log(role, resource, action, this.roleActionMap[role][resource][action]);
         if (allowedActions[action]) {
           allowedActions.allowedRouteAccess = true;
         }
