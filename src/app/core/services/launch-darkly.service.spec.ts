@@ -93,7 +93,7 @@ describe('LaunchDarklyService', () => {
 
     launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((res) => {
       expect(res.value).toBeTrue();
-      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, true);
       done();
     });
   });
