@@ -1455,35 +1455,27 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('postToFileService(): should post files to file service', () => {
-      fileService.post.and.returnValue(of(null));
-
-      component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
-
-      expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
-    });
-
-    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+    it('uploadFileAndAttachToExpense(): should upload to file service', (done) => {
       transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
-      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
 
-      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+      component.uploadFileAndAttachToExpense(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
-        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith('tx5fBcPBAxLv', fileObjectData.id);
         done();
       });
     });
 
     it('uploadMultipleFiles(): should upload multiple files', (done) => {
-      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      const uploadSpy = spyOn(component, 'uploadFileAndAttachToExpense');
       uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
       uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
 
       component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
         expect(res).toEqual(fileObject7);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
         done();
       });
     });
