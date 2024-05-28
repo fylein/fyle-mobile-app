@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ModalController, RefresherCustomEvent } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
@@ -179,11 +179,12 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      it('should set filters in queryParams if filters is not defined in activatedRoute.snapshot.queryParams', () => {
+      it('should set filters in queryParams if filters is not defined in activatedRoute.snapshot.queryParams', (done) => {
         activatedRoute.snapshot.queryParams = {};
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
           expect(activatedRoute.snapshot.queryParams.filters).toEqual(JSON.stringify({ state: ['APPROVER_PENDING'] }));
+          done();
         });
       });
 
@@ -208,7 +209,7 @@ export function TestCases1(getTestBed) {
         expect(component.currentPageNumber).toBe(1);
       }));
 
-      it('should call approverReporsService.getReportsByParams and update acc', () => {
+      it('should call approverReporsService.getReportsByParams and update acc', (done) => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
@@ -220,11 +221,12 @@ export function TestCases1(getTestBed) {
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);
+            done();
           });
         });
       });
 
-      it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', () => {
+      it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', (done) => {
         mockAddNewFiltersToParams.and.returnValue({
           pageNumber: 1,
           searchString: '',
@@ -244,10 +246,11 @@ export function TestCases1(getTestBed) {
             queryParams: { filters: JSON.stringify(component.filters) },
             replaceUrl: true,
           });
+          done();
         });
       });
 
-      it('should update filters, filterPills and loadData$ as per queryParams.filters', () => {
+      it('should update filters, filterPills and loadData$ as per queryParams.filters', fakeAsync((done) => {
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
           expect(eou).toEqual(apiEouRes);
@@ -263,9 +266,12 @@ export function TestCases1(getTestBed) {
             state: ['APPROVER_PENDING'],
           });
           expect(component.filterPills).toEqual(creditTxnFilterPill);
+          tick(500);
           expect(component.isLoading).toBeFalse();
+
+          discardPeriodicTasks();
         });
-      });
+      }));
     });
 
     describe('setupNetworkWatcher(): ', () => {
