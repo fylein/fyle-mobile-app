@@ -190,32 +190,32 @@ describe('FyViewReportInfoComponent', () => {
   });
 
   it('segmentChanged(): should set the view based on the selected segment', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
     component.view = ExpenseView.team;
     fixture.detectChanges();
 
-    component.segmentChanged(event as SegmentCustomEvent);
+    component.segmentChanged(event);
 
     expect(component.isReportView).toBeTrue();
     expect(component.isEmployeeView).toBeFalse();
 
     event.detail.value = 'amount';
-    component.segmentChanged(event as SegmentCustomEvent);
+    component.segmentChanged(event);
 
     expect(component.isReportView).toBeFalse();
     expect(component.isEmployeeView).toBeFalse();
 
     event.detail.value = 'employee';
-    component.segmentChanged(event as SegmentCustomEvent);
+    component.segmentChanged(event);
 
     expect(component.isReportView).toBeFalse();
     expect(component.isEmployeeView).toBeTrue();
   });
 
   it('segmentChanged(): should track report info when segment is clicked', () => {
-    const event = { detail: { value: 'report' } } as SegmentCustomEvent;
+    const event = { detail: { value: 'report' } };
 
-    component.segmentChanged(event as SegmentCustomEvent);
+    component.segmentChanged(event);
 
     expect(trackingService.viewReportInfo).toHaveBeenCalledOnceWith({
       view: component.view,
