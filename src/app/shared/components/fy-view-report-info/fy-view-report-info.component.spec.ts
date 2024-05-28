@@ -302,7 +302,7 @@ describe('FyViewReportInfoComponent', () => {
   describe('createEmployeeDetails():', () => {
     it('should update employee details', fakeAsync(() => {
       const expectedEmployeeDetails = {
-        'Employee ID': platformReportData.employee.id,
+        'Employee ID': platformReportData.employee.code,
         Organization: platformReportData.employee.org_name,
         Department: platformReportData.employee.department.name,
         'Sub Department': platformReportData.employee.department.sub_department,
@@ -329,7 +329,7 @@ describe('FyViewReportInfoComponent', () => {
 
     it('should update employee details but not update the cost centers when API throw an error', fakeAsync(() => {
       const expectedEmployeeDetails = {
-        'Employee ID': platformReportData.employee.id,
+        'Employee ID': platformReportData.employee.code,
         Organization: platformReportData.employee.org_name,
         Department: platformReportData.employee.department?.name,
         'Sub Department': platformReportData.employee.department.sub_department,
@@ -363,7 +363,7 @@ describe('FyViewReportInfoComponent', () => {
         },
       };
       const expectedEmployeeDetails = {
-        'Employee ID': modifiedPlatformReportData.employee.id,
+        'Employee ID': modifiedPlatformReportData.employee.code,
         Organization: modifiedPlatformReportData.employee.org_name,
         Department: undefined,
         'Sub Department': undefined,
