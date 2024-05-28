@@ -216,10 +216,12 @@ export class ViewTeamReportPage {
     this.eou$.subscribe((eou) => {
       this.estatuses =
         report?.comments?.map((comment: Comment) => {
-          const extendedComment: ExtendedComment = { ...comment };
-          extendedComment.isBotComment = comment && ['SYSTEM', 'POLICY'].indexOf(comment.creator_user_id) > -1;
-          extendedComment.isSelfComment = comment && eou && eou.ou && comment.creator_user_id === eou.us.id;
-          extendedComment.isOthersComment = comment && eou && eou.ou && comment.creator_user_id !== eou.us.id;
+          const extendedComment: ExtendedComment = {
+            ...comment,
+            isBotComment: ['SYSTEM', 'POLICY'].includes(comment?.creator_user_id),
+            isSelfComment: eou?.us?.id && comment?.creator_user_id === eou.us.id,
+            isOthersComment: eou?.us?.id && comment?.creator_user_id !== eou.us.id,
+          };
           return extendedComment;
         }) || [];
 
