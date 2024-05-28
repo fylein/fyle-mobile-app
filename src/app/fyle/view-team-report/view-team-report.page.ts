@@ -218,9 +218,9 @@ export class ViewTeamReportPage {
         report?.comments?.map((comment: Comment) => {
           const extendedComment: ExtendedComment = {
             ...comment,
-            isBotComment: ['SYSTEM', 'POLICY'].includes(comment?.creator_user_id),
-            isSelfComment: eou?.us?.id && comment?.creator_user_id === eou.us.id,
-            isOthersComment: eou?.us?.id && comment?.creator_user_id !== eou.us.id,
+            isBotComment: ['SYSTEM', 'POLICY'].includes(comment.creator_user_id),
+            isSelfComment: eou && eou.us && eou.us.id && comment.creator_user_id === eou.us.id,
+            isOthersComment: eou && eou.us && eou.us.id && comment.creator_user_id !== eou.us.id,
           };
           return extendedComment;
         }) || [];
