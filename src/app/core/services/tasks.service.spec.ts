@@ -66,8 +66,10 @@ import {
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
+import { OrgService } from './org.service';
+import { orgData1 } from '../mock-data/org.data';
 
-describe('TasksService', () => {
+fdescribe('TasksService', () => {
   let tasksService: TasksService;
   let reportService: jasmine.SpyObj<ReportService>;
   let userEventService: jasmine.SpyObj<UserEventService>;
@@ -81,6 +83,7 @@ describe('TasksService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgService: jasmine.SpyObj<OrgService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -102,6 +105,7 @@ describe('TasksService', () => {
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -153,6 +157,10 @@ describe('TasksService', () => {
         {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
+        },
+        {
+          provide: OrgService,
+          useValue: orgServiceSpy,
         },
       ],
     });
@@ -746,6 +754,8 @@ describe('TasksService', () => {
       })
       .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
     approverReportsService.getReportsStats
       .withArgs({

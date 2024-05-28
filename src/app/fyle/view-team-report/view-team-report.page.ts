@@ -549,7 +549,7 @@ export class ViewTeamReportPage {
       this.isCommentAdded = true;
 
       this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
-        this.loadReports().subscribe();
+        this.refreshApprovals$.next(null);
         setTimeout(() => {
           this.content.scrollToBottom(500);
         }, 500);

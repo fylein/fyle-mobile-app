@@ -23,6 +23,7 @@ import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportState } from '../models/platform/v1/report.model';
+import { OrgService } from './org.service';
 
 @Injectable({
   providedIn: 'root',
@@ -50,16 +51,22 @@ export class TasksService {
     private orgSettingsService: OrgSettingsService,
     private employeesService: EmployeesService,
     private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private orgService: OrgService
   ) {
     this.refreshOnTaskClear();
   }
 
   refreshOnTaskClear(): void {
     this.userEventService.onTaskCacheClear(() => {
-      this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
+      forkJoin([
+        this.reportService.getReportAutoSubmissionDetails(),
+        this.orgService.getCurrentOrg(),
+        this.orgService.getPrimaryOrg(),
+      ]).subscribe(([autoSubmissionReportDetails, currentOrg, primaryOrg]) => {
         const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
-        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
+        const showTeamReportTask = currentOrg.id === primaryOrg.id;
+        this.getTasks(isReportAutoSubmissionScheduled, {}, showTeamReportTask).subscribe(noop);
       });
     });
   }
@@ -294,18 +301,23 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
-    return forkJoin({
+  getTasks(
+    isReportAutoSubmissionScheduled = false,
+    filters?: TaskFilters,
+    showTeamReportTask?: boolean
+  ): Observable<DashboardTask[]> {
+    const dashboardTasks = {
       mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
       sentBackReports: this.getSentBackReportTasks(),
       unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
       unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
-      teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
-    }).pipe(
+      teamReports: showTeamReportTask ? this.getTeamReportsTasks() : of(),
+    };
+    return forkJoin(dashboardTasks).pipe(
       map(
         ({
           mobileNumberVerification,
