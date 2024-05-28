@@ -9,3 +9,9 @@ export const expensesResponse: PlatformApiResponse<Expense[]> = deepFreeze({
   data: [expenseData],
   offset: 0,
 });
+
+export const expenseResponse: PlatformApiResponse<Expense> = deepFreeze({
+  count: 1,
+  data: expenseData,
+  offset: 0,
+});
