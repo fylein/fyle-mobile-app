@@ -10,6 +10,7 @@ import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup
 import { SwiperComponent } from 'swiper/angular';
 import SwiperCore, { Pagination } from 'swiper';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -39,7 +40,8 @@ export class FyViewAttachmentComponent implements OnInit {
     private popupService: PopupService,
     private loaderService: LoaderService,
     private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private spenderFileService: SpenderFileService
   ) {}
 
   ngOnInit() {
@@ -121,7 +123,7 @@ export class FyViewAttachmentComponent implements OnInit {
           .pipe(
             switchMap(() => {
               if (this.attachments[activeIndex].id) {
-                return this.fileService.delete(this.attachments[activeIndex].id);
+                return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
               } else {
                 return of(null);
               }
