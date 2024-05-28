@@ -208,9 +208,9 @@ export class ViewTeamReportPage {
 
     this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
-    const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as boolean;
-    if (navigateBack && typeof navigateBack == 'boolean') {
-      this.navigateBack = navigateBack;
+    const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
+    if (navigateBack && typeof navigateBack == 'string') {
+      this.navigateBack = JSON.parse(navigateBack) as boolean;
     }
 
     this.report$ = this.loadReports();
