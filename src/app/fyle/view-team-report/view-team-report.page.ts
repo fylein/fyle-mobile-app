@@ -262,7 +262,13 @@ export class ViewTeamReportPage {
     this.report$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
+          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
+          map((report) => {
+            this.approvals = report.approvals.filter(
+              (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+            );
+            return report;
+          })
         )
       ),
       shareReplay(1),
@@ -312,9 +318,6 @@ export class ViewTeamReportPage {
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
-      this.approvals = report.approvals.filter(
-        (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].indexOf(approval.state) > -1
-      );
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
