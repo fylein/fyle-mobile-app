@@ -101,11 +101,9 @@ export class AppComponent implements OnInit {
     });
 
     this.platform.ready().then(async () => {
-      if (!this.platform.is('mobileweb')) {
-        await StatusBar.setStyle({
-          style: Style.Default,
-        });
-      }
+      await StatusBar.setStyle({
+        style: Style.Default,
+      });
 
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
@@ -114,9 +112,7 @@ export class AppComponent implements OnInit {
        * This is to ensure that the app's UI is consistent across devices.
        * Ref: https://www.npmjs.com/package/@capacitor/text-zoom
        */
-      if (!this.platform.is('mobileweb')) {
-        await TextZoom.set({ value: 1 });
-      }
+      await TextZoom.set({ value: 1 });
 
       from(this.routerAuthService.isLoggedIn())
         .pipe(

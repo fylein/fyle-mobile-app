@@ -428,12 +428,6 @@ describe('TransactionService', () => {
     expect(transactionService.generateTypeOrFilter(filters)).toEqual(typeOrFilter);
   });
 
-  it('fixDates(): should fix dates', () => {
-    const mockExpenseData = cloneDeep(expenseDataWithDateString);
-    // @ts-ignore
-    expect(transactionService.fixDates(mockExpenseData)).toEqual(expenseData1);
-  });
-
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
     spyOn(transactionService, 'isEtxnInPaymentMode').and.returnValue(true);
     const paymentModeList = [

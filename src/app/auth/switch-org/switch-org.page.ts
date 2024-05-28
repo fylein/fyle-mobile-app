@@ -29,9 +29,7 @@ import { ResendEmailVerification } from 'src/app/core/models/resend-email-verifi
 import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
-import { UnflattenedTransaction } from 'src/app/core/models/unflattened-transaction.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
-import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -86,8 +84,7 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private routerAuthService: RouterAuthService,
     private transactionService: TransactionService,
     private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService,
-    private ldService: LaunchDarklyService
+    private expensesService: ExpensesService
   ) {}
 
   ngOnInit() {
