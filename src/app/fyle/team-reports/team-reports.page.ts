@@ -177,8 +177,7 @@ export class TeamReportsPage implements OnInit {
           const queryParams = params.queryParams;
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           if (params.searchString) {
-            queryParams.q = params.searchString;
-            queryParams.q = queryParams.q + ':*';
+            queryParams.q = params.searchString + ':*';
           } else {
             delete queryParams.q;
           }
@@ -206,8 +205,7 @@ export class TeamReportsPage implements OnInit {
         switchMap((params) => {
           const queryParams = params.queryParams;
           if (params.searchString) {
-            queryParams.q = params.searchString;
-            queryParams.q = queryParams.q + ':*';
+            queryParams.q = params.searchString + ':*';
           } else {
             delete queryParams.q;
           }

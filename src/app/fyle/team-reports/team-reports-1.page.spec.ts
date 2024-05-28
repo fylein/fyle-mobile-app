@@ -208,7 +208,7 @@ export function TestCases1(getTestBed) {
         expect(component.currentPageNumber).toBe(1);
       }));
 
-      it('should call approverReporsService.getReportsByParams and update acc', () => {
+      it('should call approverReporsService.getReportsByParams and update acc', (done) => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
@@ -220,6 +220,7 @@ export function TestCases1(getTestBed) {
           expect(component.acc).toEqual(expectedReportsSinglePage);
           component.teamReports$.subscribe((teamReports) => {
             expect(teamReports).toEqual(expectedReportsSinglePage);
+            done();
           });
         });
       });
