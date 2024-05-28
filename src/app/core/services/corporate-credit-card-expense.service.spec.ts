@@ -6,7 +6,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { AuthService } from './auth.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import { DataTransformService } from './data-transform.service';
-import { apiCardV2Transactions } from '../mock-data/ccc-api-response';
+import { apiCardV2Transactions } from '../mock-data/ccc-api-response.data';
 import { expectedECccResponse } from '../mock-data/corporate-card-expense-unflattened.data';
 import { uniqueCardsParam } from '../mock-data/unique-cards.data';
 import { cardAggregateStatParam } from '../mock-data/card-aggregate-stats.data';
@@ -123,7 +123,7 @@ describe('CorporateCreditCardExpenseService', () => {
 
   it('getAssignedCards(): should get all assigned cards', (done) => {
     const queryParams = 'in.(COMPLETE,DRAFT)';
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     apiV2Service.getStats.and.returnValue(of(new StatsResponse(apiAssignedCardDetailsRes)));
     spyOn(cccExpenseService, 'constructInQueryParamStringForV2').and.returnValue(queryParams);
 

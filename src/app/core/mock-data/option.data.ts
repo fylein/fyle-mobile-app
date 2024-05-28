@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Option } from '../models/option.model';
 
-export const optionData1: Option[] = [
+export const optionData1: Option[] = deepFreeze([
   {
     label: 'report 1',
     value: {
@@ -9,6 +11,9 @@ export const optionData1: Option[] = [
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -75,6 +80,9 @@ export const optionData1: Option[] = [
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -132,4 +140,4 @@ export const optionData1: Option[] = [
       user_id: 'usvKA4X8Ugcr',
     },
   },
-];
+]);

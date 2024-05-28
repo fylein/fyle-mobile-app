@@ -15,7 +15,7 @@ import { approversData1 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
 import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
-import { expectedAllReports, newReportParam } from 'src/app/core/mock-data/report.data';
+import { expectedAllReports } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
@@ -41,7 +41,12 @@ import { SnakeCaseToSpaceCase } from 'src/app/shared/pipes/snake-case-to-space-c
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { platformReportData } from 'src/app/core/mock-data/platform-report.data';
+import {
+  expectedReportsSinglePage,
+  paidReportData,
+  platformReportData,
+  sentBackReportData,
+} from 'src/app/core/mock-data/platform-report.data';
 import {
   expenseData,
   expenseResponseData2,
@@ -56,6 +61,7 @@ import { AddExpensesToReportComponent } from './add-expenses-to-report/add-expen
 import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -81,7 +87,6 @@ describe('MyViewReportPage', () => {
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
-      'getApproversByReportId',
       'actions',
       'updateReportDetails',
       'updateReportPurpose',
@@ -118,7 +123,7 @@ describe('MyViewReportPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'getReportById']);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -233,7 +238,7 @@ describe('MyViewReportPage', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
 
-    component.erpt$ = of(newReportParam);
+    component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
     component.canDelete$ = of(true);
 
@@ -303,14 +308,14 @@ describe('MyViewReportPage', () => {
 
   describe('ionViewWillEnter():', () => {
     it('should load report and report status', fakeAsync(() => {
-      const erpt = cloneDeep({ ...expectedAllReports[0], rp_state: 'APPROVER_INQUIRY' });
+      const report = cloneDeep(sentBackReportData);
       spyOn(component, 'setupNetworkWatcher');
       loaderService.showLoader.and.resolveTo();
-      reportService.getReport.and.returnValue(of(erpt));
+      spenderReportsService.getReportById.and.returnValue(of(sentBackReportData));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
@@ -322,13 +327,13 @@ describe('MyViewReportPage', () => {
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
-      component.erpt$.subscribe((res) => {
-        expect(res).toEqual(erpt);
+      component.report$.subscribe((res) => {
+        expect(res).toEqual(report);
       });
 
       component.estatuses$.subscribe((res) => {
@@ -350,11 +355,6 @@ describe('MyViewReportPage', () => {
       expect(component.eou).toEqual(apiEouRes);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.COMMENTS);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -399,11 +399,11 @@ describe('MyViewReportPage', () => {
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
       component.objectType = 'transactions';
       loaderService.showLoader.and.resolveTo();
-      reportService.getReport.and.returnValue(of(null));
       authService.getEou.and.resolveTo(apiEouRes);
-      statusService.find.and.returnValue(of(newEstatusData1));
+      const mockStatusData = cloneDeep(newEstatusData1);
+      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
-      reportService.getApproversByReportId.and.returnValue(of(approversData1));
+      spenderReportsService.getReportById.and.returnValue(of(null));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
       reportService.actions.and.returnValue(of(apiReportActions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
@@ -415,12 +415,12 @@ describe('MyViewReportPage', () => {
 
       expect(component.setupNetworkWatcher).toHaveBeenCalledTimes(1);
       expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
-      expect(reportService.getReport).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
-      component.erpt$.subscribe((res) => {
+      component.report$.subscribe((res) => {
         expect(res).toBeNull();
       });
 
@@ -442,11 +442,6 @@ describe('MyViewReportPage', () => {
       });
 
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
-
-      expect(reportService.getApproversByReportId).toHaveBeenCalledOnceWith(component.reportId);
-      component.reportApprovals$.subscribe((res) => {
-        expect(res).toEqual(approversData1);
-      });
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
@@ -486,19 +481,20 @@ describe('MyViewReportPage', () => {
   });
 
   it('updateReportName(): should update report name', () => {
-    component.erpt$ = of(newReportParam);
+    const mockReport = cloneDeep(platformReportData);
+    component.report$ = of(mockReport);
     fixture.detectChanges();
     reportService.updateReportPurpose.and.returnValue(of(platformReportData));
     spyOn(component.loadReportDetails$, 'next');
 
     component.updateReportName('#3:  Jul 2023 - Office expense');
-    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(newReportParam);
+    expect(reportService.updateReportPurpose).toHaveBeenCalledOnceWith(mockReport);
     expect(component.loadReportDetails$.next).toHaveBeenCalledTimes(1);
   });
 
   describe('editReportName(): ', () => {
     it('should edit report name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
@@ -507,7 +503,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo({ data: { reportName: 'new name' } });
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -516,7 +512,7 @@ describe('MyViewReportPage', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
         componentProps: {
-          reportName: expectedAllReports[0].rp_purpose,
+          reportName: platformReportData.purpose,
         },
         cssClass: 'fy-dialog-popover',
       });
@@ -524,7 +520,7 @@ describe('MyViewReportPage', () => {
     }));
 
     it('should not edit report name if data does not contain name', fakeAsync(() => {
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
+      component.report$ = of(cloneDeep({ ...expectedReportsSinglePage[0], state: 'DRAFT' }));
       component.canEdit$ = of(true);
       fixture.detectChanges();
 
@@ -533,7 +529,7 @@ describe('MyViewReportPage', () => {
       const editReportNamePopoverSpy = jasmine.createSpyObj('editReportNamePopover', ['present', 'onWillDismiss']);
       editReportNamePopoverSpy.onWillDismiss.and.resolveTo();
 
-      popoverController.create.and.returnValue(Promise.resolve(editReportNamePopoverSpy));
+      popoverController.create.and.resolveTo(editReportNamePopoverSpy);
 
       const editReportButton = getElementBySelector(fixture, '.view-reports--card-header__icon') as HTMLElement;
       click(editReportButton);
@@ -542,7 +538,7 @@ describe('MyViewReportPage', () => {
       expect(popoverController.create).toHaveBeenCalledOnceWith({
         component: EditReportNamePopoverComponent,
         componentProps: {
-          reportName: expectedAllReports[0].rp_purpose,
+          reportName: expectedReportsSinglePage[0].purpose,
         },
         cssClass: 'fy-dialog-popover',
       });
@@ -551,19 +547,19 @@ describe('MyViewReportPage', () => {
   });
 
   it('deleteReport(): should delete report', () => {
-    component.erpt$ = of(expectedAllReports[0]);
+    component.report$ = of(expectedReportsSinglePage[0]);
     fixture.detectChanges();
     spyOn(component, 'deleteReportPopup').and.returnValue(null);
 
     component.deleteReport();
 
-    expect(component.deleteReportPopup).toHaveBeenCalledOnceWith(expectedAllReports[0]);
+    expect(component.deleteReportPopup).toHaveBeenCalledOnceWith(expectedReportsSinglePage[0]);
   });
 
   describe('getDeleteReportPopupParams(): ', () => {
     it('should get delete report popup props', (done) => {
       reportService.delete.and.returnValue(of(undefined));
-      const props = component.getDeleteReportPopupParams(expectedAllReports[0]);
+      const props = component.getDeleteReportPopupParams(paidReportData);
       props.componentProps.deleteMethod().subscribe(() => {
         expect(reportService.delete).toHaveBeenCalledOnceWith(component.reportId);
         expect(trackingService.deleteReport).toHaveBeenCalledTimes(1);
@@ -574,7 +570,7 @@ describe('MyViewReportPage', () => {
     it('should return null info message if number of txns is 0', (done) => {
       reportService.delete.and.returnValue(of(undefined));
       const props = component.getDeleteReportPopupParams(
-        cloneDeep({ ...expectedAllReports[0], rp_num_transactions: 0, rp_state: 'DRAFT' })
+        cloneDeep({ ...expectedReportsSinglePage[0], num_expenses: 0, state: 'DRAFT' })
       );
       expect(props.componentProps.infoMessage).toBeNull();
       props.componentProps.deleteMethod().subscribe(() => {
@@ -590,21 +586,19 @@ describe('MyViewReportPage', () => {
     const deleteReportPopoverSpy = jasmine.createSpyObj('deleteReportPopover', ['present', 'onDidDismiss']);
     deleteReportPopoverSpy.onDidDismiss.and.resolveTo({ data: { status: 'success' } });
 
-    popoverController.create.and.returnValue(Promise.resolve(deleteReportPopoverSpy));
+    popoverController.create.and.resolveTo(deleteReportPopoverSpy);
 
-    component.deleteReportPopup(expectedAllReports[0]);
+    component.deleteReportPopup(platformReportData);
     tick(2000);
 
     expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports']);
-    expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(expectedAllReports[0]);
-    expect(popoverController.create).toHaveBeenCalledOnceWith(
-      component.getDeleteReportPopupParams(expectedAllReports[0])
-    );
+    expect(component.getDeleteReportPopupParams).toHaveBeenCalledOnceWith(platformReportData);
+    expect(popoverController.create).toHaveBeenCalledOnceWith(component.getDeleteReportPopupParams(platformReportData));
   }));
 
   it('resubmitReport(): should resubmit report', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
     component.canResubmitReport$ = of(true);
     fixture.detectChanges();
 
@@ -640,7 +634,7 @@ describe('MyViewReportPage', () => {
 
   it('submitReport(): should submit report', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
     fixture.detectChanges();
 
     const properties = {
@@ -700,9 +694,10 @@ describe('MyViewReportPage', () => {
         },
       ]);
     });
+
     it('should go to edit expense page if canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(expectedAllReports[0]);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -717,7 +712,7 @@ describe('MyViewReportPage', () => {
         {
           id: expenseData.id,
           navigate_back: true,
-          remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
+          remove_from_report: platformReportData.num_expenses > 1,
         },
       ]);
     });
@@ -747,7 +742,7 @@ describe('MyViewReportPage', () => {
 
     it('should go to edit mileage page if category is mileage and canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(expectedAllReports[0]);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -762,7 +757,7 @@ describe('MyViewReportPage', () => {
         {
           id: mileageExpense.id,
           navigate_back: true,
-          remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
+          remove_from_report: platformReportData.num_expenses > 1,
         },
       ]);
     });
@@ -792,7 +787,7 @@ describe('MyViewReportPage', () => {
 
     it('should go to edit per diem page if category is per diem and canEdit is true', () => {
       component.canEdit$ = of(true);
-      component.erpt$ = of(expectedAllReports[0]);
+      component.report$ = of(platformReportData);
 
       fixture.detectChanges();
       component.goToTransaction({
@@ -807,7 +802,7 @@ describe('MyViewReportPage', () => {
         {
           id: perDiemExpense.id,
           navigate_back: true,
-          remove_from_report: expectedAllReports[0].rp_num_transactions > 1,
+          remove_from_report: platformReportData.num_expenses > 1,
         },
       ]);
     });
@@ -828,7 +823,7 @@ describe('MyViewReportPage', () => {
         email: 'aj@fyle.com',
       },
     });
-    modalController.create.and.returnValue(Promise.resolve(shareReportModalSpy));
+    modalController.create.and.resolveTo(shareReportModalSpy);
     reportService.downloadSummaryPdfUrl.and.returnValue(of(null));
     matSnackBar.openFromComponent.and.callThrough();
     modalProperties.getModalDefaultProperties.and.returnValue(shareReportModalProperties);
@@ -863,14 +858,14 @@ describe('MyViewReportPage', () => {
     const viewInfoModalSpy = jasmine.createSpyObj('viewInfoModal', ['onWillDismiss', 'present']);
     viewInfoModalSpy.onWillDismiss.and.resolveTo();
 
-    modalController.create.and.returnValue(Promise.resolve(viewInfoModalSpy));
+    modalController.create.and.resolveTo(viewInfoModalSpy);
     modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
 
     await component.openViewReportInfoModal();
     expect(modalController.create).toHaveBeenCalledOnceWith({
       component: FyViewReportInfoComponent,
       componentProps: {
-        erpt$: component.erpt$,
+        report$: component.report$,
         expenses$: component.expenses$,
         view: ExpenseView.individual,
       },
@@ -931,7 +926,7 @@ describe('MyViewReportPage', () => {
 
   it('addExpense(): should navigate to expense page', () => {
     component.segmentValue = ReportPageSegment.EXPENSES;
-    component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT' }));
+    component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT' }));
     fixture.detectChanges();
 
     const addExpenseButton = getElementBySelector(fixture, '.view-reports--add-more-container') as HTMLElement;
@@ -950,7 +945,7 @@ describe('MyViewReportPage', () => {
     const expense2 = { ...expenseData, id: 'txcSFe6efB62' };
     it('should show modal to add expense to report', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
@@ -964,7 +959,7 @@ describe('MyViewReportPage', () => {
         },
       });
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 
@@ -987,7 +982,7 @@ describe('MyViewReportPage', () => {
 
     it('should not add txns to report if there is no data', fakeAsync(() => {
       component.segmentValue = ReportPageSegment.EXPENSES;
-      component.erpt$ = of(cloneDeep({ ...expectedAllReports[0], rp_state: 'DRAFT', rp_num_transactions: 3 }));
+      component.report$ = of(cloneDeep({ ...platformReportData, state: 'DRAFT', num_expenses: 3 }));
       component.unreportedExpenses = [expense1, expense2];
       fixture.detectChanges();
 
@@ -997,7 +992,7 @@ describe('MyViewReportPage', () => {
       ]);
       addExpensesToReportModalSpy.onWillDismiss.and.resolveTo(null);
 
-      modalController.create.and.returnValue(Promise.resolve(addExpensesToReportModalSpy));
+      modalController.create.and.resolveTo(addExpensesToReportModalSpy);
       modalProperties.getModalDefaultProperties.and.returnValue(fyModalProperties);
       spyOn(component, 'addExpensesToReport').and.returnValue(null);
 

@@ -68,7 +68,7 @@ describe('ExpensesCardComponent', () => {
 
   beforeEach(waitForAsync(() => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
-    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById', 'attachReceiptToExpense']);
     const sharedExpenseServiceSpy = jasmine.createSpyObj('SharedExpenseService', [
       'isExpenseInDraft',
       'isCriticalPolicyViolatedExpense',
@@ -275,7 +275,7 @@ describe('ExpensesCardComponent', () => {
       };
       component.getReceipt();
       fixture.detectChanges();
-      expect(component.isReceiptPresent).toBe(true);
+      expect(component.isReceiptPresent).toBeTrue();
     });
   });
 
@@ -368,7 +368,7 @@ describe('ExpensesCardComponent', () => {
   });
 
   describe('handleScanStatus():', () => {
-    it('should handle status when the syncing is in progress and the extracted data is present', fakeAsync(() => {
+    it('should handle status when the syncing is in progress and the extracted data is present', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'INR';
       component.expense.id = 'txO6d6eiB4JF';
@@ -382,23 +382,21 @@ describe('ExpensesCardComponent', () => {
       });
 
       transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-      tick(500);
+
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txO6d6eiB4JF');
       expect(component.pollDataExtractionStatus).toHaveBeenCalledTimes(1);
-      tick(500);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
       expect(component.expense.extracted_data).toEqual(transformedExpenseWithExtractedData.tx.extracted_data);
-    }));
+    });
 
-    it('should handle status when the sync is in progress and there is no extracted data present', fakeAsync(() => {
+    it('should handle status when the sync is in progress and there is no extracted data present', () => {
       component.isOutboxExpense = false;
       component.expense.id = 'txvslh8aQMbu';
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
@@ -411,23 +409,21 @@ describe('ExpensesCardComponent', () => {
       });
 
       transactionsOutboxService.isDataExtractionPending.and.returnValue(true);
-      tick(500);
+
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
+
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.checkIfScanIsCompleted).toHaveBeenCalledTimes(1);
       expect(isScanCompletedSpy).toHaveBeenCalledTimes(1);
       expect(transactionsOutboxService.isDataExtractionPending).toHaveBeenCalledOnceWith('txvslh8aQMbu');
       expect(pollDataSpy).toHaveBeenCalledTimes(1);
-      tick(500);
       expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(component.expense.id);
       expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
       expect(component.isScanCompleted).toBeFalse();
       expect(component.isScanInProgress).toBeFalse();
-    }));
+    });
 
-    it('should handle status when the scanning is not in progress', fakeAsync(() => {
+    it('should handle status when the scanning is not in progress', () => {
       component.isOutboxExpense = false;
       component.homeCurrency = 'USD';
       const orguserSettRes = {
@@ -441,12 +437,10 @@ describe('ExpensesCardComponent', () => {
       };
       orgUserSettingsService.get.and.returnValue(of(orguserSettRes));
       component.handleScanStatus();
-      fixture.detectChanges();
-      tick(500);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(component.isScanCompleted).toBeTrue();
       expect(component.isScanInProgress).toBeFalse();
-    }));
+    });
   });
 
   describe('canShowPaymentModeIcon', () => {
@@ -629,10 +623,11 @@ describe('ExpensesCardComponent', () => {
   });
 
   it('matchReceiptWithEtxn(): match the receipt with the transactions', () => {
-    component.matchReceiptWithEtxn(fileObjectData);
+    const mockFileObject = cloneDeep(fileObjectData);
+    component.matchReceiptWithEtxn(mockFileObject);
     expect(component.expense.file_ids).toBeDefined();
-    expect(component.expense.file_ids).toContain(fileObjectData.id);
-    expect(fileObjectData.transaction_id).toBe(component.expense.id);
+    expect(component.expense.file_ids).toContain(mockFileObject.id);
+    expect(mockFileObject.transaction_id).toBe(component.expense.id);
   });
 
   describe('canAddAttchment():', () => {
@@ -679,8 +674,8 @@ describe('ExpensesCardComponent', () => {
       };
 
       fileService.getAttachmentType.and.returnValue(attachmentType);
-      transactionsOutboxService.fileUpload.and.returnValue(Promise.resolve(fileObj));
-      fileService.post.and.returnValue(of(fileObjectData));
+      transactionsOutboxService.fileUpload.and.resolveTo(fileObj);
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseData));
 
       spyOn(component, 'matchReceiptWithEtxn').and.callThrough();
 
@@ -690,7 +685,7 @@ describe('ExpensesCardComponent', () => {
       expect(fileService.getAttachmentType).toHaveBeenCalledOnceWith(receiptDetailsaRes.type);
       expect(transactionsOutboxService.fileUpload).toHaveBeenCalledOnceWith(dataUrl, attachmentType);
       expect(component.matchReceiptWithEtxn).toHaveBeenCalledOnceWith(fileObj);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObj);
+      expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(component.expense.id, fileObj.id);
       expect(component.attachmentUploadInProgress).toBeFalse();
       tick(500);
     }));
@@ -700,7 +695,7 @@ describe('ExpensesCardComponent', () => {
     it('should add attachment when file is selected', fakeAsync(() => {
       const dataUrl = 'data:image/jpeg;base64,/9j/4AAQSkZJRg...';
       const mockFile = new File(['file contents'], 'test.png', { type: 'image/png' });
-      fileService.readFile.and.returnValue(Promise.resolve(dataUrl));
+      fileService.readFile.and.resolveTo(dataUrl);
       const mockNativeElement = {
         files: [mockFile],
       };
@@ -735,7 +730,7 @@ describe('ExpensesCardComponent', () => {
 
   it('showSizeLimitExceededPopover', fakeAsync(() => {
     const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present']);
-    popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
+    popoverController.create.and.resolveTo(popOverSpy);
     component.showSizeLimitExceededPopover();
 
     tick(500);
@@ -794,8 +789,8 @@ describe('ExpensesCardComponent', () => {
       };
       spyOn(component, 'canAddAttachment').and.returnValue(true);
       const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
-      popOverSpy.onWillDismiss.and.returnValue(Promise.resolve(receiptDetails));
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(receiptDetails);
 
       component.addAttachments(event as any);
       fixture.detectChanges();
@@ -833,11 +828,11 @@ describe('ExpensesCardComponent', () => {
       spyOn(component, 'attachReceipt');
       spyOn(component, 'canAddAttachment').and.returnValue(true);
       const popOverSpy = jasmine.createSpyObj('HTMLIonPopoverElement', ['present', 'onWillDismiss']);
-      popoverController.create.and.returnValue(Promise.resolve(popOverSpy));
-      popOverSpy.onWillDismiss.and.returnValue(Promise.resolve(dataRes));
+      popoverController.create.and.resolveTo(popOverSpy);
+      popOverSpy.onWillDismiss.and.resolveTo(dataRes);
       const captureReceiptModalSpy = jasmine.createSpyObj('HTMLIonModalElement', ['present', 'onWillDismiss']);
-      modalController.create.and.returnValue(Promise.resolve(captureReceiptModalSpy));
-      captureReceiptModalSpy.onWillDismiss.and.returnValue(Promise.resolve(dataRes));
+      modalController.create.and.resolveTo(captureReceiptModalSpy);
+      captureReceiptModalSpy.onWillDismiss.and.resolveTo(dataRes);
       fileService.getImageTypeFromDataUrl.and.returnValue('png');
 
       component.addAttachments(event as any);
@@ -878,7 +873,7 @@ describe('ExpensesCardComponent', () => {
 
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toEqual(true);
+      expect(connectionStatus).toBeTrue();
     });
   }));
 

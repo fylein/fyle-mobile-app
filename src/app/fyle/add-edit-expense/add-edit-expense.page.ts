@@ -32,7 +32,6 @@ import {
   filter,
   finalize,
   map,
-  reduce,
   shareReplay,
   startWith,
   switchMap,
@@ -83,7 +82,7 @@ import { OrgCategory, OrgCategoryListItem } from 'src/app/core/models/v1/org-cat
 import { RecentlyUsed } from 'src/app/core/models/v1/recently_used.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { DuplicateSet } from 'src/app/core/models/v2/duplicate-sets.model';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { AccountsService } from 'src/app/core/services/accounts.service';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CategoriesService } from 'src/app/core/services/categories.service';
@@ -135,6 +134,9 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/corporate-card-transaction-res.model';
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 type FormValue = {
   currencyObj: {
@@ -144,7 +146,7 @@ type FormValue = {
     orig_amount: number;
   };
   paymentMode: ExtendedAccount;
-  project: ExtendedProject;
+  project: ProjectV2;
   category: OrgCategory;
   dateOfSpend: Date;
   vendor_id: {
@@ -333,13 +335,13 @@ export class AddEditExpensePage implements OnInit {
 
   orgUserSettings$: Observable<OrgUserSettings>;
 
-  recentProjects: { label: string; value: ExtendedProject; selected?: boolean }[];
+  recentProjects: { label: string; value: ProjectV2; selected?: boolean }[];
 
   recentCurrencies: Currency[];
 
   presetProjectId: number | string;
 
-  recentlyUsedProjects$: Observable<ExtendedProject[]>;
+  recentlyUsedProjects$: Observable<ProjectV2[]>;
 
   recentlyUsedCurrencies$: Observable<Currency[]>;
 
@@ -411,7 +413,7 @@ export class AddEditExpensePage implements OnInit {
 
   dependentFields$: Observable<ExpenseField[]>;
 
-  selectedProject$: BehaviorSubject<ExtendedProject | null>;
+  selectedProject$: BehaviorSubject<ProjectV2 | null>;
 
   selectedCostCenter$: BehaviorSubject<CostCenter | null>;
 
@@ -445,6 +447,7 @@ export class AddEditExpensePage implements OnInit {
     private modalController: ModalController,
     private statusService: StatusService,
     private fileService: FileService,
+    private spenderFileService: SpenderFileService,
     private popoverController: PopoverController,
     private currencyService: CurrencyService,
     private networkService: NetworkService,
@@ -1441,7 +1444,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getSelectedProjects(): Observable<ExtendedProject> {
+  getSelectedProjects(): Observable<ProjectV2> {
     return this.etxn$.pipe(
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
@@ -1544,7 +1547,7 @@ export class AddEditExpensePage implements OnInit {
     );
   }
 
-  getRecentProjects(): Observable<ExtendedProject[]> {
+  getRecentProjects(): Observable<ProjectV2[]> {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
@@ -1627,8 +1630,8 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-      map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+      map((expense: PlatformExpense) => expense.file_ids?.length || 0)
     );
   }
 
@@ -1785,7 +1788,7 @@ export class AddEditExpensePage implements OnInit {
             });
           }
 
-          if (etxn.tx.tax_group_id) {
+          if (etxn.tx.tax_group_id && taxGroups) {
             const tg = taxGroups.find((tg) => tg.id === etxn.tx.tax_group_id);
             this.fg.patchValue({
               tax_group: tg,
@@ -2546,7 +2549,7 @@ export class AddEditExpensePage implements OnInit {
             }
           }),
           startWith(initialProject),
-          concatMap((project: ExtendedProject) =>
+          concatMap((project: ProjectV2) =>
             activeCategories$.pipe(
               map((activeCategories) => this.projectsService.getAllowedOrgCategoryIds(project, activeCategories))
             )
@@ -2715,7 +2718,7 @@ export class AddEditExpensePage implements OnInit {
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
     this.costCenterDependentFieldsRef?.ngOnInit();
-    this.selectedProject$ = new BehaviorSubject<ExtendedProject>(null);
+    this.selectedProject$ = new BehaviorSubject<ProjectV2>(null);
     this.selectedCostCenter$ = new BehaviorSubject<CostCenter>(null);
     const fn = (): void => {
       this.showClosePopup();
@@ -2727,7 +2730,7 @@ export class AddEditExpensePage implements OnInit {
   setupSelectedProjectObservable(): void {
     this.fg.controls.project.valueChanges
       .pipe(takeUntil(this.onPageExit$))
-      .subscribe((project: ExtendedProject) => this.selectedProject$.next(project));
+      .subscribe((project: ProjectV2) => this.selectedProject$.next(project));
   }
 
   setupSelectedCostCenterObservable(): void {
@@ -3072,21 +3075,20 @@ export class AddEditExpensePage implements OnInit {
         .pipe(
           map(
             (orgSetting) =>
-              orgSetting?.corporate_credit_card_settings?.enabled &&
-              orgSetting?.pending_cct_expense_restriction?.enabled
+              orgSetting.corporate_credit_card_settings?.enabled && orgSetting.pending_cct_expense_restriction?.enabled
           )
         );
 
       forkJoin({
-        platformExpenses: this.platformExpense$,
+        platformExpense: this.platformExpense$,
         pendingTxnRestrictionEnabled: pendingTxnRestrictionEnabled$,
       })
         .pipe(take(1))
         .subscribe((config) => {
           if (
             config.pendingTxnRestrictionEnabled &&
-            config.platformExpenses.matched_corporate_card_transactions?.length &&
-            config.platformExpenses.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
+            config.platformExpense.matched_corporate_card_transactions?.length &&
+            config.platformExpense.matched_corporate_card_transactions[0]?.status === TransactionStatus.PENDING
           ) {
             this.pendingTransactionAllowedToReportAndSplit = false;
           }
@@ -3096,20 +3098,26 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-          switchMap((fileObjs) => from(fileObjs)),
-          concatMap((fileObj: FileObject) =>
-            this.fileService.downloadUrl(fileObj.id).pipe(
-              map((downloadUrl) => {
-                fileObj.url = downloadUrl;
-                const details = this.getReceiptDetails(fileObj);
-                fileObj.type = details.type;
-                fileObj.thumbnail = details.thumbnail;
-                return fileObj;
-              })
-            )
+          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          switchMap((expense: PlatformExpense) =>
+            expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
           ),
-          reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+          map((response: PlatformFileGenerateUrlsResponse[]) => {
+            const files = response.filter((file) => file.content_type !== 'text/html');
+            const receiptObjs: ReceiptInfo[] = files.map((file) => {
+              const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+              const receipt: ReceiptInfo = {
+                url: file.download_url,
+                type: details.type,
+                thumbnail: details.thumbnail,
+              };
+
+              return receipt;
+            });
+
+            return receiptObjs;
+          })
         )
       )
     );
@@ -3217,20 +3225,26 @@ export class AddEditExpensePage implements OnInit {
         })
       );
     } else {
-      return this.fileService.findByTransactionId(txnId).pipe(
-        switchMap((fileObjs: FileObject[]) => from(fileObjs)),
-        concatMap((fileObj: FileObject) =>
-          this.fileService.downloadUrl(fileObj.id).pipe(
-            map((downloadUrl: string) => {
-              fileObj.url = downloadUrl;
-              const details = this.getReceiptDetails(fileObj);
-              fileObj.type = details.type;
-              fileObj.thumbnail = details.thumbnail;
-              return fileObj;
-            })
-          )
+      return this.expensesService.getExpenseById(txnId).pipe(
+        switchMap((expense: PlatformExpense) =>
+          expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
         ),
-        reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+        map((response: PlatformFileGenerateUrlsResponse[]) => {
+          const files = response.filter((file) => file.content_type !== 'text/html');
+          const receiptObjs: ReceiptInfo[] = files.map((file) => {
+            const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+
+            const receipt: ReceiptInfo = {
+              url: file.download_url,
+              type: details.type,
+              thumbnail: details.thumbnail,
+            };
+
+            return receipt;
+          });
+
+          return receiptObjs;
+        })
       );
     }
   }
@@ -4421,8 +4435,8 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-          map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          map((expense: PlatformExpense) => expense.file_ids?.length || 0)
         );
 
         this.attachmentUploadInProgress = true;
@@ -4434,13 +4448,13 @@ export class AddEditExpensePage implements OnInit {
         from(this.transactionOutboxService.fileUpload(data.dataUrl as string, attachmentType))
           .pipe(
             switchMap((fileObj: FileObject) => {
-              fileObj.transaction_id = this.activatedRoute.snapshot.params.id as string;
+              const expenseId = this.activatedRoute.snapshot.params.id as string;
               this.trackingService.fileUploadComplete({
                 mode: 'edit',
                 'File ID': fileObj?.id,
                 'Txn ID': fileObj?.transaction_id,
               });
-              return this.fileService.post(fileObj);
+              return this.expensesService.attachReceiptToExpense(expenseId, fileObj.id);
             }),
             switchMap(() =>
               editExpenseAttachments$.pipe(
@@ -4638,8 +4652,8 @@ export class AddEditExpensePage implements OnInit {
           if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
             this.etxn$
               .pipe(
-                switchMap((etxn) => this.fileService.findByTransactionId(etxn.tx.id)),
-                map((fileObjs) => (fileObjs && fileObjs.length) || 0)
+                switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id)),
+                map((expense: PlatformExpense) => expense.file_ids?.length || 0)
               )
               .subscribe((attachedReceipts) => {
                 this.loadAttachments$.next();
@@ -4906,18 +4920,12 @@ export class AddEditExpensePage implements OnInit {
   }
 
   uploadMultipleFiles(fileObjs: FileObject[], txnId: string): Observable<unknown> {
-    return forkJoin(fileObjs.map((file) => this.uploadFileAndPostToFileService(file, txnId)));
+    return forkJoin(fileObjs.map((file) => this.uploadFileAndAttachToExpense(file, txnId)));
   }
 
-  postToFileService(fileObj: FileObject, txnId: string): Observable<FileObject | unknown> {
-    const fileObjCopy = cloneDeep(fileObj);
-    fileObjCopy.transaction_id = txnId;
-    return this.fileService.post(fileObjCopy);
-  }
-
-  uploadFileAndPostToFileService(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
+  uploadFileAndAttachToExpense(file: FileObject, txnId: string): Observable<FileObject[] | unknown> {
     return from(this.transactionOutboxService.fileUpload(file.url, file.type)).pipe(
-      switchMap((fileObj: FileObject) => this.postToFileService(fileObj, txnId))
+      switchMap((fileObj: FileObject) => this.expensesService.attachReceiptToExpense(txnId, fileObj.id))
     );
   }
 

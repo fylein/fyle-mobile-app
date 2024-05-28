@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { Approver } from '../models/v1/approver.model';
 
-export const apiApproverRes: Approver[] = [
+export const apiApproverRes: Approver[] = deepFreeze([
   {
     id: 43776,
     created_at: null,
@@ -33,9 +35,9 @@ export const apiApproverRes: Approver[] = [
     approver_email: 'chethan.m+0@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const apiAllApproverRes1: Approver[] = [
+export const apiAllApproverRes1: Approver[] = deepFreeze([
   {
     id: 45435,
     created_at: null,
@@ -68,9 +70,9 @@ export const apiAllApproverRes1: Approver[] = [
     approver_email: 'aiyush.dhar@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const apiAllApproverRes2: Approver[] = [
+export const apiAllApproverRes2: Approver[] = deepFreeze([
   {
     id: 44024,
     created_at: null,
@@ -103,9 +105,9 @@ export const apiAllApproverRes2: Approver[] = [
     approver_email: 'yash.s@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const expectedApprovers: Approver[] = [
+export const expectedApprovers: Approver[] = deepFreeze([
   {
     id: 44024,
     created_at: null,
@@ -138,9 +140,9 @@ export const expectedApprovers: Approver[] = [
     approver_email: 'yash.s@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const approversData1: Approver[] = [
+export const approversData1: Approver[] = deepFreeze([
   {
     id: 43239,
     created_at: null,
@@ -189,9 +191,9 @@ export const approversData1: Approver[] = [
     approver_email: 'chethan.m+90@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const approversData2: Approver[] = [
+export const approversData2: Approver[] = deepFreeze([
   {
     id: 45435,
     created_at: null,
@@ -256,9 +258,9 @@ export const approversData2: Approver[] = [
     approver_email: 'yash.s@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const approversData3: Approver[] = [
+export const approversData3: Approver[] = deepFreeze([
   {
     id: 43239,
     created_at: null,
@@ -307,9 +309,9 @@ export const approversData3: Approver[] = [
     approver_email: 'chethan.m+90@fyle.in',
     comment: null,
   },
-];
+]);
 
-export const approversData4: Approver[] = [
+export const approversData4: Approver[] = deepFreeze([
   {
     id: 43239,
     created_at: null,
@@ -342,9 +344,9 @@ export const approversData4: Approver[] = [
     approver_email: '123@fye.in',
     comment: null,
   },
-];
+]);
 
-export const approversData5: Approver[] = [
+export const approversData5: Approver[] = deepFreeze([
   {
     id: 43239,
     created_at: null,
@@ -377,9 +379,9 @@ export const approversData5: Approver[] = [
     approver_email: '123@fye.in',
     comment: null,
   },
-];
+]);
 
-export const approversData6: Approver[] = [
+export const approversData6: Approver[] = deepFreeze([
   {
     id: 43239,
     created_at: null,
@@ -412,4 +414,4 @@ export const approversData6: Approver[] = [
     approver_email: '123@fye.in',
     comment: null,
   },
-];
+]);

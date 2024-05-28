@@ -17,6 +17,7 @@ import { CurrencyService } from 'src/app/core/services/currency.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { DependentFieldsService } from 'src/app/core/services/dependent-fields.service';
 import { SplitExpensePage } from './split-expense.page';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
 import {
   AbstractControlOptions,
   FormArray,
@@ -109,7 +110,7 @@ import {
   splitExpenseDataWithCostCenter2,
   splitExpenseDataWithProject,
   splitExpenseDataWithProject2,
-} from 'src/app/core/mock-data/split-expense-data';
+} from 'src/app/core/mock-data/split-expense.data';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { orgUserSettingsData } from 'src/app/core/mock-data/org-user-settings.data';
@@ -169,6 +170,7 @@ import {
 import { splitPolicyExp1 } from 'src/app/core/mock-data/split-expense-policy.data';
 import { SplitExpenseMissingFieldsData } from 'src/app/core/models/split-expense-missing-fields.data';
 import { splitPayloadData1 } from 'src/app/core/mock-data/split-payload.data';
+import { platformExpenseData, platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 describe('SplitExpensePage', () => {
   let component: SplitExpensePage;
@@ -180,6 +182,7 @@ describe('SplitExpensePage', () => {
   let currencyService: jasmine.SpyObj<CurrencyService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let fileService: jasmine.SpyObj<FileService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
   let navController: jasmine.SpyObj<NavController>;
   let router: jasmine.SpyObj<Router>;
   let transactionsOutboxService: jasmine.SpyObj<TransactionsOutboxService>;
@@ -218,6 +221,7 @@ describe('SplitExpensePage', () => {
     ]);
     const currencyServiceSpy = jasmine.createSpyObj('CurrencyService', ['getHomeCurrency']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['delete', 'matchCCCExpense']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const transactionsOutboxServiceSpy = jasmine.createSpyObj('TransactionsOutboxService', ['fileUpload']);
@@ -274,6 +278,7 @@ describe('SplitExpensePage', () => {
         { provide: SplitExpenseService, useValue: splitExpenseServiceSpy },
         { provide: CurrencyService, useValue: currencyServiceSpy },
         { provide: TransactionService, useValue: transactionServiceSpy },
+        { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: FileService, useValue: fileServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: TransactionsOutboxService, useValue: transactionsOutboxServiceSpy },
@@ -327,6 +332,7 @@ describe('SplitExpensePage', () => {
     splitExpenseService = TestBed.inject(SplitExpenseService) as jasmine.SpyObj<SplitExpenseService>;
     currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     transactionsOutboxService = TestBed.inject(TransactionsOutboxService) as jasmine.SpyObj<TransactionsOutboxService>;
@@ -605,12 +611,14 @@ describe('SplitExpensePage', () => {
 
   describe('uploadNewFiles(): ', () => {
     it('should upload new files when the type is an image', (done) => {
+      const mockFileObjectAdv = cloneDeep(fileObjectData5);
       const mockFileObject = {
-        ...fileObjectData5,
+        ...mockFileObjectAdv,
         name: '000.jpeg',
       };
-      const files = fileObjectAdv;
-      const dataUrl = fileObjectAdv[0].url;
+      const mockFile = cloneDeep(fileObjectAdv);
+      const files = mockFile;
+      const dataUrl = mockFile[0].url;
       const attachmentType = 'image';
       transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
 
@@ -622,12 +630,13 @@ describe('SplitExpensePage', () => {
     });
 
     it('should upload new files when the type is a png', (done) => {
+      const mockFileObjectAdv = cloneDeep(fileObjectAdv);
       const mockFile = {
-        ...fileObjectAdv[0],
+        ...mockFileObjectAdv[0],
         type: 'png',
       };
       const files = [mockFile];
-      const dataUrl = fileObjectAdv[0].url;
+      const dataUrl = mockFileObjectAdv[0].url;
       const attachmentType = 'image';
       transactionsOutboxService.fileUpload.and.resolveTo(fileObjectData5);
 
@@ -639,12 +648,13 @@ describe('SplitExpensePage', () => {
     });
 
     it('should upload new files when the type is a pdf', (done) => {
-      const files = [fileObjectAdv1];
+      const files = [cloneDeep(fileObjectAdv1)];
+      const mockFileObjectAdv = cloneDeep(fileObjectData5);
       const mockFileObject = {
-        ...fileObjectData5,
+        ...mockFileObjectAdv,
         name: '000.pdf',
       };
-      const dataUrl = fileObjectAdv1.url;
+      const dataUrl = files[0].url;
       const attachmentType = 'pdf';
       transactionsOutboxService.fileUpload.and.resolveTo(mockFileObject);
       component.uploadNewFiles(files).subscribe((result) => {
@@ -740,12 +750,12 @@ describe('SplitExpensePage', () => {
   });
 
   it('getAttachedFiles(): should get all the attached files', (done) => {
-    const transactionId = 'fizBwnXhyZTp';
-    fileService.findByTransactionId.and.returnValue(of(fileObject8));
-    component.getAttachedFiles(transactionId).subscribe((result) => {
-      expect(result).toEqual(fileObject8);
-      expect(component.fileObjs).toEqual(fileObject8);
-      expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(transactionId);
+    const expenseId = 'fizBwnXhyZTp';
+    expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+    component.getAttachedFiles(expenseId).subscribe((result) => {
+      expect(result).toEqual(platformExpenseWithExtractedData.files);
+      expect(component.fileObjs).toEqual(platformExpenseWithExtractedData.files);
+      expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(expenseId);
       done();
     });
   });
@@ -1039,7 +1049,7 @@ describe('SplitExpensePage', () => {
 
     it('should return an error object when the date is after the upper bound of the valid range', () => {
       const tomorrow = new Date();
-      tomorrow.setDate(tomorrow.getDate() + 2);
+      tomorrow.setDate(tomorrow.getDate() + 3);
       const control = new FormControl(tomorrow.toISOString().substring(0, 10));
       const result = component.customDateValidator(control);
       expect(result).toEqual({ invalidDateSelection: true });
@@ -1499,8 +1509,6 @@ describe('SplitExpensePage', () => {
 
       const txnDateRes = component.setTransactionDate(mockSplitExpenseForm, '-05:00:00');
       expect(txnDateRes).toEqual(mockUTCDate);
-      const today = new Date();
-      expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(today);
       expect(timezoneService.convertToUtc).toHaveBeenCalledOnceWith(mockDate, '-05:00:00');
     });
   });
@@ -2073,12 +2081,10 @@ describe('SplitExpensePage', () => {
       component.unspecifiedCategory = unspecifiedCategory;
       component.expenseFields = expenseFieldResponse;
       const splitEtxns = cloneDeep(txnList);
-      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.returnValue(
-        Promise.resolve({
-          action: 'continue',
-          comments: { '0': 'test comment' },
-        })
-      );
+      spyOn(component, 'showSplitExpensePolicyViolationsAndMissingFields').and.resolveTo({
+        action: 'continue',
+        comments: { '0': 'test comment' },
+      });
       policyService.checkIfViolationsExist.and.returnValue(true);
       splitExpenseService.checkIfMissingFieldsExist.and.returnValue(true);
       splitExpenseService.handlePolicyAndMissingFieldsCheck.and.returnValue(

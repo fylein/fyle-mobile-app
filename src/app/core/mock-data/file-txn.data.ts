@@ -1,3 +1,5 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FileTransaction } from '../models/file-txn.model';
 import {
   splitExpenseTxn1,
@@ -7,7 +9,7 @@ import {
   splitExpenseTxn2_3,
 } from './transaction.data';
 
-export const fileTxns: FileTransaction = {
+export const fileTxns: FileTransaction = deepFreeze({
   txns: [
     {
       created_at: new Date('2023-03-02T14:13:16.734Z'),
@@ -233,9 +235,9 @@ export const fileTxns: FileTransaction = {
       content: 'some content here',
     },
   ],
-};
+});
 
-export const fileTxns2: FileTransaction = {
+export const fileTxns2: FileTransaction = deepFreeze({
   txns: [
     {
       created_at: new Date('2023-06-16T05:37:30.878Z'),
@@ -409,9 +411,9 @@ export const fileTxns2: FileTransaction = {
       content: 'someData',
     },
   ],
-};
+});
 
-export const fileTxns3: FileTransaction = {
+export const fileTxns3: FileTransaction = deepFreeze({
   txns: [splitExpenseTxn1, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
   files: [
     {
@@ -420,13 +422,13 @@ export const fileTxns3: FileTransaction = {
       content: 'someData',
     },
   ],
-};
+});
 
-export const fileTxns4: FileTransaction = {
+export const fileTxns4: FileTransaction = deepFreeze({
   txns: [splitExpenseTxn1, { ...splitExpenseTxn1_1, id: 'tx12SqYytrm' }],
-};
+});
 
-export const fileTxns5: FileTransaction = {
+export const fileTxns5: FileTransaction = deepFreeze({
   txns: [
     splitExpenseTxn2,
     { ...splitExpenseTxn2_2, id: 'tx78mWdbfw1N' },
@@ -439,9 +441,9 @@ export const fileTxns5: FileTransaction = {
       content: 'someContent',
     },
   ],
-};
+});
 
-export const fileTxns6: FileTransaction = {
+export const fileTxns6: FileTransaction = deepFreeze({
   txns: [
     splitExpenseTxn2,
     { ...splitExpenseTxn2_2, id: 'tx78mWdbfw1N' },
@@ -454,9 +456,9 @@ export const fileTxns6: FileTransaction = {
       content: 'someData',
     },
   ],
-};
+});
 
-export const fileTxns7: FileTransaction = {
+export const fileTxns7: FileTransaction = deepFreeze({
   txns: [
     {
       created_at: new Date('2023-06-22T04:13:28.899Z'),
@@ -635,4 +637,4 @@ export const fileTxns7: FileTransaction = {
       locations: [],
     },
   ],
-};
+});

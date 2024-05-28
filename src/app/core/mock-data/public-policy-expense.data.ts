@@ -1,9 +1,11 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpensePolicy } from '../models/platform/platform-expense-policy.model';
 import { PolicyViolation } from '../models/policy-violation.model';
 import { PublicPolicyExpense } from '../models/public-policy-expense.model';
 import { optionsData15 } from './merge-expenses-options-data.data';
 
-export const publicPolicyExpenseData1: PublicPolicyExpense = {
+export const publicPolicyExpenseData1: PublicPolicyExpense = deepFreeze({
   skip_reimbursement: false,
   source: 'MOBILE',
   state: 'COMPLETE',
@@ -121,39 +123,39 @@ export const publicPolicyExpenseData1: PublicPolicyExpense = {
   user_reason_for_duplicate_expenses: '',
   vendor: 'Uber',
   vendor_id: 0,
-};
+});
 
-export const publicPolicyExpenseData2: PublicPolicyExpense = {
+export const publicPolicyExpenseData2: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   fyle_category: 'airlines',
-};
+});
 
-export const publicPolicyExpenseData3: PublicPolicyExpense = {
+export const publicPolicyExpenseData3: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   fyle_category: 'bus',
-};
+});
 
-export const publicPolicyExpenseData4: PublicPolicyExpense = {
+export const publicPolicyExpenseData4: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   fyle_category: 'train',
-};
+});
 
-export const publicPolicyExpenseData5: PublicPolicyExpense = {
+export const publicPolicyExpenseData5: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   skip_reimbursement: null,
-};
+});
 
-export const publicPolicyExpenseData6: PublicPolicyExpense = {
+export const publicPolicyExpenseData6: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   locations: null,
-};
+});
 
-export const publicPolicyExpenseData7: PublicPolicyExpense = {
+export const publicPolicyExpenseData7: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   fyle_category: null,
-};
+});
 
-export const expensePolicyData: ExpensePolicy = {
+export const expensePolicyData: ExpensePolicy = deepFreeze({
   data: {
     final_desired_state: {
       add_approver_user_ids: [],
@@ -192,9 +194,9 @@ export const expensePolicyData: ExpensePolicy = {
       },
     ],
   },
-};
+});
 
-export const policyViolationData: PolicyViolation = {
+export const policyViolationData: PolicyViolation = deepFreeze({
   data: {
     individual_desired_states: [
       {
@@ -238,13 +240,13 @@ export const policyViolationData: PolicyViolation = {
   currency: 'INR',
   name: 'Policy Violation 1',
   type: 'Expense Policy',
-};
+});
 
-export const violations: { [id: string]: PolicyViolation } = {
+export const violations: { [id: string]: PolicyViolation } = deepFreeze({
   txVTmNOp5JEa: policyViolationData,
-};
+});
 
-export const splitPolicyExp: PublicPolicyExpense = {
+export const splitPolicyExp: PublicPolicyExpense = deepFreeze({
   ...publicPolicyExpenseData1,
   id: 'txqhb1IwrujH',
   org_user_id: 'ouX8dwsbLCLv',
@@ -252,9 +254,9 @@ export const splitPolicyExp: PublicPolicyExpense = {
   txn_dt: new Date('2023-02-15T06:30:00.000Z'),
   amount: 20.4,
   user_amount: 20.4,
-};
+});
 
-export const splitTransactionData1: PublicPolicyExpense = {
+export const splitTransactionData1: PublicPolicyExpense = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -356,9 +358,9 @@ export const splitTransactionData1: PublicPolicyExpense = {
   proposed_exchange_rate: 0,
   status_id: '',
   updated_at: undefined,
-};
+});
 
-export const publicPolicyExpenseDataFromTxn: PublicPolicyExpense = {
+export const publicPolicyExpenseDataFromTxn: PublicPolicyExpense = deepFreeze({
   risk_state: null,
   is_duplicate_expense: null,
   duplicates: null,
@@ -486,4 +488,4 @@ export const publicPolicyExpenseDataFromTxn: PublicPolicyExpense = {
   proposed_exchange_rate: 0,
   status_id: '',
   updated_at: undefined,
-};
+});

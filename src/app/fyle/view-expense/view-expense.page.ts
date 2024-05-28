@@ -1,12 +1,11 @@
 import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
-import { Observable, from, Subject, concat, noop, forkJoin } from 'rxjs';
+import { Observable, from, Subject, concat, noop, forkJoin, of } from 'rxjs';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
-import { switchMap, shareReplay, concatMap, map, finalize, reduce, takeUntil, take, filter } from 'rxjs/operators';
+import { switchMap, shareReplay, concatMap, map, finalize, takeUntil, take, filter } from 'rxjs/operators';
 import { StatusService } from 'src/app/core/services/status.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { FileService } from 'src/app/core/services/file.service';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
@@ -35,6 +34,9 @@ import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expe
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 
 @Component({
@@ -135,7 +137,6 @@ export class ViewExpensePage {
     private loaderService: LoaderService,
     private transactionService: TransactionService,
     private activatedRoute: ActivatedRoute,
-    private reportService: ReportService,
     private customInputsService: CustomInputsService,
     private statusService: StatusService,
     private fileService: FileService,
@@ -152,6 +153,8 @@ export class ViewExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private spenderExpensesService: SpenderExpensesService,
     private approverExpensesService: ApproverExpensesService,
+    private spenderFileService: SpenderFileService,
+    private approverFileService: ApproverFileService,
     private approverReportsService: ApproverReportsService
   ) {}
 
@@ -375,10 +378,10 @@ export class ViewExpensePage {
     this.canDelete$ = this.expenseWithoutCustomProperties$.pipe(
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report?.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )
@@ -413,22 +416,33 @@ export class ViewExpensePage {
 
     const editExpenseAttachments = this.expense$.pipe(
       take(1),
-      switchMap((expense) => from(expense.files)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
-            const fileObjWithDetails: FileObject = {
-              url: downloadUrl,
-              type: details.type,
-              thumbnail: details.thumbnail,
-            };
+      switchMap((expense) => {
+        if (expense.file_ids.length > 0) {
+          if (this.view === ExpenseView.individual) {
+            return this.spenderFileService.generateUrlsBulk(expense.file_ids);
+          } else {
+            return this.approverFileService.generateUrlsBulk(expense.file_ids);
+          }
+        } else {
+          return of([]);
+        }
+      }),
+      map((response: PlatformFileGenerateUrlsResponse[]) => {
+        const files = response.filter((file) => file.content_type !== 'text/html');
+        const fileObjs = files.map((obj) => {
+          const details = this.fileService.getReceiptsDetails(obj.name, obj.download_url);
 
-            return fileObjWithDetails;
-          })
-        )
-      ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+          const fileObj: FileObject = {
+            url: obj.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
+
+          return fileObj;
+        });
+
+        return fileObjs;
+      })
     );
 
     this.attachments$ = editExpenseAttachments;

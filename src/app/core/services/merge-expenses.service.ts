@@ -1,10 +1,12 @@
 import { Injectable } from '@angular/core';
 import { from, Observable, of } from 'rxjs';
-import { concatMap, filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
+import { filter, map, mergeMap, reduce, shareReplay, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Expense } from '../models/expense.model';
+import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { ExpensesInfo } from './expenses-info.model';
 import { FileService } from './file.service';
+import { SpenderFileService } from './platform/v1/spender/file.service';
 import { CorporateCreditCardExpenseService } from './corporate-credit-card-expense.service';
 import * as dayjs from 'dayjs';
 import { HumanizeCurrencyPipe } from 'src/app/shared/pipes/humanize-currency.pipe';
@@ -24,6 +26,8 @@ import { GeneratedFormProperties } from '../models/generated-form-properties.mod
 import { Location } from '../models/location.model';
 import { DependentFieldsMapping } from '../models/dependent-field-mapping.model';
 import { CustomInput } from '../models/custom-input.model';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { PlatformFileGenerateUrlsResponse } from '../models/platform/platform-file-generate-urls-response.model';
 
 type CardTransactionsConfig = {
   queryParams: {
@@ -43,10 +47,12 @@ export class MergeExpensesService {
     private corporateCreditCardExpenseService: CorporateCreditCardExpenseService,
     private customInputsService: CustomInputsService,
     private humanizeCurrency: HumanizeCurrencyPipe,
-    private projectService: ProjectsService,
+    private projectsService: ProjectsService,
     private categoriesService: CategoriesService,
     private dateService: DateService,
-    private taxGroupService: TaxGroupService
+    private taxGroupService: TaxGroupService,
+    private expensesService: ExpensesService,
+    private spenderFileService: SpenderFileService
   ) {}
 
   mergeExpenses(
@@ -113,20 +119,26 @@ export class MergeExpensesService {
   }
 
   getAttachements(txnID: string): Observable<FileObject[]> {
-    return this.fileService.findByTransactionId(txnID).pipe(
-      switchMap((fileObjs) => from(fileObjs)),
-      concatMap((fileObj: FileObject) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            fileObj.url = downloadUrl;
-            const details = this.fileService.getReceiptsDetails(fileObj.name, fileObj.url);
-            fileObj.type = details.type;
-            fileObj.thumbnail = details.thumbnail;
-            return fileObj;
-          })
-        )
+    return this.expensesService.getExpenseById(txnID).pipe(
+      switchMap((expense: PlatformExpense) =>
+        expense?.file_ids.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
       ),
-      reduce((acc: FileObject[], curr) => acc.concat(curr), [])
+      map((response: PlatformFileGenerateUrlsResponse[]) => {
+        const fileObjs: FileObject[] = response.map((file) => {
+          const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
+          const fileObj: FileObject = {
+            id: file.id,
+            name: file.name,
+            url: file.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
+
+          return fileObj;
+        });
+
+        return fileObjs;
+      })
     );
   }
 
@@ -748,7 +760,7 @@ export class MergeExpensesService {
   }
 
   private formatProjectOptions(option: MergeExpensesOption<number>): Observable<MergeExpensesOption<number>> {
-    const projects$ = this.projectService.getAllActive().pipe(shareReplay(1));
+    const projects$ = this.projectsService.getAllActive().pipe(shareReplay(1));
     return projects$.pipe(
       map((projects) => {
         const index = projects.map((project) => project.id).indexOf(option.value);

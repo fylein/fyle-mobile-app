@@ -9,6 +9,7 @@ import { FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/fo
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { testProjectV2 } from 'src/app/core/test-data/projects.spec.data';
 
 describe('FySelectProjectComponent', () => {
   let component: FySelectProjectComponent;
@@ -48,8 +49,8 @@ describe('FySelectProjectComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('value(): should set display value to empty string if value is undefined', () => {
-    component.innerValue = 'value';
+  it('value(): should set display value to empty string if value is null', () => {
+    component.innerValue = null;
     component.value = undefined;
     fixture.detectChanges();
     expect(component.displayValue).toEqual('');
@@ -60,7 +61,7 @@ describe('FySelectProjectComponent', () => {
     component.validInParent = false;
 
     const res = component.valid;
-    expect(res).toEqual(true);
+    expect(res).toBeTrue();
   });
 
   it('openModal(): should open select vendor modal', async () => {
@@ -75,14 +76,12 @@ describe('FySelectProjectComponent', () => {
       handle: false,
     });
     const projectModalSpy = jasmine.createSpyObj('projectModal', ['present', 'onWillDismiss']);
-    projectModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: 'value1',
-        },
-      })
-    );
-    modalController.create.and.returnValue(Promise.resolve(projectModalSpy));
+    projectModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: testProjectV2,
+      },
+    });
+    modalController.create.and.resolveTo(projectModalSpy);
 
     await component.openModal();
 
@@ -108,7 +107,7 @@ describe('FySelectProjectComponent', () => {
       handle: false,
     });
     expect(modalProperties.getModalDefaultProperties).toHaveBeenCalledTimes(1);
-    expect(component.value).toEqual('value1');
+    expect(component.value).toEqual(testProjectV2);
   });
 
   it('onBlur(): should call a function when onBlur fires and registerOnTouched to trigger', () => {
@@ -126,15 +125,15 @@ describe('FySelectProjectComponent', () => {
 
   describe('writeValue():', () => {
     it('should overwrite value', () => {
-      component.innerValue = 'value2';
+      component.innerValue = undefined;
       fixture.detectChanges();
 
-      component.writeValue(['value']);
-      expect(component.innerValue).toEqual(['value']);
+      component.writeValue(testProjectV2);
+      expect(component.innerValue).toEqual(testProjectV2);
     });
 
     it('should set display value to empty', () => {
-      component.innerValue = 'value';
+      component.innerValue = null;
       fixture.detectChanges();
 
       component.writeValue(undefined);
@@ -147,14 +146,12 @@ describe('FySelectProjectComponent', () => {
     component.registerOnChange(callbackFn);
 
     const projectModalSpy = jasmine.createSpyObj('projectModal', ['present', 'onWillDismiss']);
-    projectModalSpy.onWillDismiss.and.returnValue(
-      Promise.resolve({
-        data: {
-          value: 'value1',
-        },
-      })
-    );
-    modalController.create.and.returnValue(Promise.resolve(projectModalSpy));
+    projectModalSpy.onWillDismiss.and.resolveTo({
+      data: {
+        value: 'value1',
+      },
+    });
+    modalController.create.and.resolveTo(projectModalSpy);
 
     modalProperties.getModalDefaultProperties.and.callThrough();
 

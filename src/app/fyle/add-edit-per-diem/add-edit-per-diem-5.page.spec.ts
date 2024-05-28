@@ -685,7 +685,7 @@ export function TestCases5(getTestBed) {
           from_dt: '2023-06-27',
         });
         const tomorrow = new Date('2023-06-15');
-        tomorrow.setDate(tomorrow.getDate() + 2);
+        tomorrow.setDate(tomorrow.getDate() + 3);
         const control = new FormControl(tomorrow.toDateString());
         const result = component.customDateValidator(control);
         expect(result).toEqual({ invalidDateSelection: true });

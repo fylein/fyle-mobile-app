@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { FileObject } from '../models/file-obj.model';
 
-export const fileObjectData: FileObject = {
+export const fileObjectData: FileObject = deepFreeze({
   id: 'fiHPZUiichAS',
   org_user_id: 'ouX8dwsbLCLv',
   created_at: new Date('2023-02-01T12:27:28.522Z'),
@@ -14,9 +16,9 @@ export const fileObjectData: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/fiHPZUiichAS/download',
-};
+});
 
-export const fileObjectData1: FileObject[] = [
+export const fileObjectData1: FileObject[] = deepFreeze([
   {
     id: 'fi6PQ6z4w6ET',
     org_user_id: 'ouX8dwsbLCLv',
@@ -32,9 +34,9 @@ export const fileObjectData1: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
   },
-];
+]);
 
-export const fileObjectData2: FileObject = {
+export const fileObjectData2: FileObject = deepFreeze({
   id: 'fi6PQ6z4w6ET',
   org_user_id: 'ouX8dwsbLCLv',
   created_at: new Date('2023-02-08T06:47:44.340Z'),
@@ -48,9 +50,9 @@ export const fileObjectData2: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/fi6PQ6z4w6ET/download',
-};
+});
 
-export const fileObjectData3: FileObject = {
+export const fileObjectData3: FileObject = deepFreeze({
   id: 'finwabtsAZRy',
   org_user_id: 'ouX8dwsbLCLv',
   created_at: new Date('2023-02-23T13:16:15.227Z'),
@@ -64,9 +66,9 @@ export const fileObjectData3: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/finwabtsAZRy/download',
-};
+});
 
-export const fileObjectData5: FileObject = {
+export const fileObjectData5: FileObject = deepFreeze({
   name: '000.png',
   receipt_coordinates: {
     x: 100,
@@ -76,16 +78,16 @@ export const fileObjectData5: FileObject = {
   },
   id: 'fiHPZUiichAS',
   purpose: '',
-};
+});
 
-export const fileUrlMockData: FileObject[] = [
+export const fileUrlMockData: FileObject[] = deepFreeze([
   {
     id: 'fiwJ0nQTBpYH',
     url: 'mock-url-1',
   },
-];
+]);
 
-export const fileObjectAdv: FileObject[] = [
+export const fileObjectAdv: FileObject[] = deepFreeze([
   {
     id: 'fiSSsy2Bf4Se',
     org_user_id: 'ouCI4UQ2G0K1',
@@ -106,9 +108,9 @@ export const fileObjectAdv: FileObject[] = [
     thumbnail:
       'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.jpeg?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
   },
-];
+]);
 
-export const fileObjectAdv1: FileObject = {
+export const fileObjectAdv1: FileObject = deepFreeze({
   ...fileObjectAdv[0],
   name: '000.pdf',
   file_type: 'pdf',
@@ -116,9 +118,9 @@ export const fileObjectAdv1: FileObject = {
   type: 'pdf',
   thumbnail:
     'https://fyle-storage-mumbai-3.s3.amazonaws.com/2023-02-23/orrjqbDbeP9p/receipts/fiSSsy2Bf4Se.000.pdf?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20230223T151537Z&X-Amz-SignedHeaders=host&X-Amz-Expires=604800&X-Amz-Credential=AKIA54Z3LIXTX6CFH4VG%2F20230223%2Fap-south-1%2Fs3%2Faws4_request&X-Amz-Signature=d79c2711892e7cb3f072e223b7b416408c252da38e7df0995e3d256cd8509fee',
-};
+});
 
-export const fileObjectData4: FileObject = {
+export const fileObjectData4: FileObject = deepFreeze({
   id: 'fiXpfkKFhf6w',
   org_user_id: 'ouCI4UQ2G0K1',
   created_at: new Date('2023-02-23T16:22:03.264Z'),
@@ -132,9 +134,9 @@ export const fileObjectData4: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/fiXpfkKFhf6w/download',
-};
+});
 
-export const splitExpFileObj: FileObject[] = [
+export const splitExpFileObj: FileObject[] = deepFreeze([
   {
     id: 'fijCeF0G0jTl',
     org_user_id: 'ouX8dwsbLCLv',
@@ -150,9 +152,9 @@ export const splitExpFileObj: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fijCeF0G0jTl/download',
   },
-];
+]);
 
-export const splitExpFile2: FileObject = {
+export const splitExpFile2: FileObject = deepFreeze({
   id: 'fiebA5W5GLhr',
   org_user_id: 'ouX8dwsbLCLv',
   created_at: new Date('2023-03-02T14:13:19.604Z'),
@@ -166,9 +168,9 @@ export const splitExpFile2: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/fiebA5W5GLhr/download',
-};
+});
 
-export const splitExpFile3: FileObject = {
+export const splitExpFile3: FileObject = deepFreeze({
   id: 'figgpRkIApZE',
   org_user_id: 'ouX8dwsbLCLv',
   created_at: new Date('2023-03-02T14:13:19.587Z'),
@@ -182,9 +184,9 @@ export const splitExpFile3: FileObject = {
   receipt_coordinates: null,
   email_meta_data: null,
   fyle_sub_url: '/api/files/figgpRkIApZE/download',
-};
+});
 
-export const fileObject4: FileObject[] = [
+export const fileObject4: FileObject[] = deepFreeze([
   {
     id: 'fiV1gXpyCcbU',
     org_user_id: 'ouX8dwsbLCLv',
@@ -200,9 +202,9 @@ export const fileObject4: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
   },
-];
+]);
 
-export const fileObject5: FileObject[] = [
+export const fileObject5: FileObject[] = deepFreeze([
   {
     id: 'fixUymqiLnvc',
     org_user_id: 'ouX8dwsbLCLv',
@@ -218,9 +220,9 @@ export const fileObject5: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fixUymqiLnvc/download',
   },
-];
+]);
 
-export const fileObject6: FileObject[] = [
+export const fileObject6: FileObject[] = deepFreeze([
   {
     id: 'fiI9e9ZytdXM',
     org_user_id: 'ou5tyO64Eg0L',
@@ -236,9 +238,9 @@ export const fileObject6: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiI9e9ZytdXM/download',
   },
-];
+]);
 
-export const fileObject7: FileObject[] = [
+export const fileObject7: FileObject[] = deepFreeze([
   {
     id: 'ficaDEJBVhjm',
     org_user_id: 'ou5tyO64Eg0L',
@@ -269,9 +271,9 @@ export const fileObject7: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/firDjjutGXfT/download',
   },
-];
+]);
 
-export const fileObject8: FileObject[] = [
+export const fileObject8: FileObject[] = deepFreeze([
   {
     id: 'fizBwnXhyZTp',
     org_user_id: 'ou5tyO64Eg0L',
@@ -287,9 +289,9 @@ export const fileObject8: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fizBwnXhyZTp/download',
   },
-];
+]);
 
-export const expectedFileData1 = [
+export const expectedFileData1 = deepFreeze([
   {
     id: 'fiV1gXpyCcbU',
     org_user_id: 'ouX8dwsbLCLv',
@@ -308,9 +310,9 @@ export const expectedFileData1 = [
     type: 'jpeg',
     thumbnail: 'thumbnail',
   },
-];
+]);
 
-export const advanceRequestFileUrlData: FileObject[] = [
+export const advanceRequestFileUrlData: FileObject[] = deepFreeze([
   {
     ...fileObjectAdv1,
   },
@@ -319,17 +321,17 @@ export const advanceRequestFileUrlData: FileObject[] = [
     type: 'jpeg',
     id: null,
   },
-];
+]);
 
-export const expectedFileData2: FileObject[] = [
+export const expectedFileData2: FileObject[] = deepFreeze([
   {
     type: 'pdf',
     url: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
     thumbnail: '2023-02-08/orNVthTo2Zyo/receipts/fi6PQ6z4w6ET.000.pdf',
   },
-];
+]);
 
-export const advanceRequestFileUrlData2: FileObject[] = [
+export const advanceRequestFileUrlData2: FileObject[] = deepFreeze([
   {
     ...fileObjectAdv1,
     id: null,
@@ -339,9 +341,9 @@ export const advanceRequestFileUrlData2: FileObject[] = [
     type: 'image',
     id: null,
   },
-];
+]);
 
-export const fileObject9: FileObject[] = [
+export const fileObject9: FileObject[] = deepFreeze([
   {
     id: 'fiV1gXpyCcbU',
     org_user_id: 'ouX8dwsbLCLv',
@@ -357,13 +359,23 @@ export const fileObject9: FileObject[] = [
     email_meta_data: null,
     fyle_sub_url: '/api/files/fiV1gXpyCcbU/download',
   },
-];
+]);
 
-export const fileObject10: FileObject[] = [
+export const fileObject10: FileObject[] = deepFreeze([
   {
     ...fileObjectAdv1,
     url: 'mockdownloadurl.png',
     type: 'pdf',
     thumbnail: 'src/assets/images/pdf-receipt-placeholder.png',
   },
-];
+]);
+
+export const fileObject11: FileObject[] = deepFreeze([
+  {
+    id: '1',
+    name: 'invoice.pdf',
+    type: 'pdf',
+    url: 'https://sampledownloadurl.com',
+    thumbnail: 'img/fy-pdf.svg',
+  },
+]);

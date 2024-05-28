@@ -105,6 +105,11 @@ import { orgSettingsData, orgSettingsWithoutAutofill } from 'src/app/core/test-d
 import { FyViewAttachmentComponent } from 'src/app/shared/components/fy-view-attachment/fy-view-attachment.component';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { optionsData15, optionsData33 } from 'src/app/core/mock-data/merge-expenses-options-data.data';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
+import { receiptInfoData2 } from 'src/app/core/mock-data/receipt-info.data';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { platformExpenseWithExtractedData } from 'src/app/core/mock-data/platform/v1/expense.data';
 
 export function TestCases3(getTestBed) {
   return describe('AddEditExpensePage-3', () => {
@@ -128,6 +133,7 @@ export function TestCases3(getTestBed) {
     let modalController: jasmine.SpyObj<ModalController>;
     let statusService: jasmine.SpyObj<StatusService>;
     let fileService: jasmine.SpyObj<FileService>;
+    let spenderFileService: jasmine.SpyObj<SpenderFileService>;
     let popoverController: jasmine.SpyObj<PopoverController>;
     let currencyService: jasmine.SpyObj<CurrencyService>;
     let networkService: jasmine.SpyObj<NetworkService>;
@@ -153,6 +159,7 @@ export function TestCases3(getTestBed) {
     let orgUserSettingsService: jasmine.SpyObj<OrgUserSettingsService>;
     let storageService: jasmine.SpyObj<StorageService>;
     let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
+    let expensesService: jasmine.SpyObj<ExpensesService>;
 
     beforeEach(() => {
       const TestBed = getTestBed();
@@ -179,6 +186,7 @@ export function TestCases3(getTestBed) {
       modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
       statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
       fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
+      spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
       popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
       currencyService = TestBed.inject(CurrencyService) as jasmine.SpyObj<CurrencyService>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
@@ -208,6 +216,7 @@ export function TestCases3(getTestBed) {
       orgUserSettingsService = TestBed.inject(OrgUserSettingsService) as jasmine.SpyObj<OrgUserSettingsService>;
       storageService = TestBed.inject(StorageService) as jasmine.SpyObj<StorageService>;
       launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+      expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
 
       component.fg = formBuilder.group({
         currencyObj: [, component.currencyObjValidator],
@@ -289,12 +298,12 @@ export function TestCases3(getTestBed) {
 
         expect(component.getParsedReceipt).toHaveBeenCalledOnceWith('url1', 'pdf');
         expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        expect(component.inpageExtractedData).toEqual(null);
+        expect(component.inpageExtractedData).toBeNull();
         expect(component.fg.controls.currencyObj.value).toEqual({
           amount: null,
           currency: 'USD',
         });
-        expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.category.value).toBeNull();
         expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
         expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
@@ -328,7 +337,7 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
         expect(component.fg.controls.dateOfSpend.value).toEqual(new Date('2023-02-24T12:03:57.680Z'));
-        expect(component.fg.controls.category.value).toEqual(null);
+        expect(component.fg.controls.category.value).toBeNull();
         expect(component.fg.controls.vendor_id.value).toEqual('vendor_name');
       });
     });
@@ -374,8 +383,8 @@ export function TestCases3(getTestBed) {
         });
 
         expect(result).toEqual(orgCategoryData);
-        expect(component.recentCategories).toEqual(undefined);
-        expect(component.presetCategoryId).toEqual(undefined);
+        expect(component.recentCategories).toBeUndefined();
+        expect(component.presetCategoryId).toBeUndefined();
       });
 
       it('return auto fill category if recent categories is not present and expense category is empty', () => {
@@ -405,36 +414,43 @@ export function TestCases3(getTestBed) {
 
     describe('getExpenseAttachments():', () => {
       it('should return file observables in edit mode', (done) => {
-        fileService.findByTransactionId.and.returnValue(of(fileObject4));
-        fileService.downloadUrl.and.returnValue(of('url'));
-        spyOn(component, 'getReceiptDetails').and.returnValue({
-          type: 'jpeg',
-          thumbnail: 'thumbnail',
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
+        fileService.getReceiptsDetails.and.returnValue({
+          type: 'pdf',
+          thumbnail: 'img/fy-pdf.svg',
         });
+        spenderFileService.generateUrlsBulk.and.returnValue(of(generateUrlsBulkData1));
 
-        component.getExpenseAttachments('edit', 'tx1vdITUXIzf').subscribe((res) => {
-          expect(res).toEqual(expectedFileData1);
-          expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith('tx1vdITUXIzf');
-          expect(fileService.downloadUrl).toHaveBeenCalledOnceWith('fiV1gXpyCcbU');
-          expect(component.getReceiptDetails).toHaveBeenCalledOnceWith(fileObject4[0]);
+        component.getExpenseAttachments('edit', platformExpenseWithExtractedData.id).subscribe((res) => {
+          expect(res).toEqual(receiptInfoData2);
+          expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData.id);
+          expect(spenderFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(
+            platformExpenseWithExtractedData.file_ids
+          );
+          expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+            'invoice.pdf',
+            'https://sampledownloadurl.com'
+          );
           done();
         });
       });
 
       it('should return new expense file objects in add mode', (done) => {
-        component.newExpenseDataUrls = fileObject4;
+        const mockFileObject = cloneDeep(fileObject4);
+        component.newExpenseDataUrls = mockFileObject;
 
         component.getExpenseAttachments('add').subscribe((res) => {
-          expect(res).toEqual(fileObject4);
+          expect(res).toEqual(mockFileObject);
           done();
         });
       });
 
       it('should return new expense file objects of type pdf in add mode', (done) => {
-        component.newExpenseDataUrls = [fileObjectAdv1];
+        const mockExpenseDataUrls = cloneDeep(fileObjectAdv1);
+        component.newExpenseDataUrls = [mockExpenseDataUrls];
 
         component.getExpenseAttachments('add').subscribe((res) => {
-          expect(res).toEqual([fileObjectAdv1]);
+          expect(res).toEqual([mockExpenseDataUrls]);
           done();
         });
       });
@@ -478,8 +494,11 @@ export function TestCases3(getTestBed) {
         component.inpageExtractedData = extractedData.data;
         fixture.detectChanges();
 
+        const mockCustomFieldData1 = cloneDeep(expectedCustomField[0]);
+        const mockCustomFieldData2 = cloneDeep(expectedCustomField[2]);
+        const mockEtxn = cloneDeep(unflattenedExpData);
         component
-          .generateEtxnFromFg(of(unflattenedExpData), of([expectedCustomField[0], expectedCustomField[2]]))
+          .generateEtxnFromFg(of(mockEtxn), of([mockCustomFieldData1, mockCustomFieldData2]))
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedExpData.tx.id);
@@ -551,7 +570,8 @@ export function TestCases3(getTestBed) {
         });
         fixture.detectChanges();
 
-        component.generateEtxnFromFg(of(unflattenedTxnData2), of(customFieldData2), true).subscribe((res) => {
+        const mockCustomFieldData1 = cloneDeep(customFieldData2);
+        component.generateEtxnFromFg(of(unflattenedTxnData2), of(mockCustomFieldData1), true).subscribe((res) => {
           expect(res).toEqual(newExpFromFg2);
           expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, 'tx3qHxFNgRcZ');
           expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2023-02-23T16:24:01.335Z'));
@@ -619,8 +639,9 @@ export function TestCases3(getTestBed) {
         component.newExpenseDataUrls = [];
         fixture.detectChanges();
 
+        const mockCustomFields = cloneDeep(customFieldData1);
         component
-          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
+          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(mockCustomFields), false)
           .subscribe((res) => {
             expect(res).toEqual(newExpFromFg3);
             expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, null);
@@ -685,40 +706,37 @@ export function TestCases3(getTestBed) {
           currency: 'USD',
         });
 
-        component
-          .generateEtxnFromFg(of(cloneDeep(draftUnflattendedTxn)), of(customFieldData1), false)
-          .subscribe((res) => {
-            expect(res).toEqual(newExpFromFg4);
-            expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(
-              component.mode,
-              draftUnflattendedTxn.tx.id
-            );
-            expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
-            expect(component.getBillable).toHaveBeenCalledTimes(1);
-            expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
-            expect(component.getTxnDate).toHaveBeenCalledTimes(1);
-            expect(component.getCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
-            expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
-            expect(component.getProjectID).toHaveBeenCalledTimes(1);
-            expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
-            expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
-            expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
-            expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
-            expect(component.getDisplayName).toHaveBeenCalledTimes(1);
-            expect(component.getPurpose).toHaveBeenCalledTimes(1);
-            expect(component.getFromDt).toHaveBeenCalledTimes(1);
-            expect(component.getToDt).toHaveBeenCalledTimes(1);
-            expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
-            expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
-            expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
-            expect(component.getDistance).toHaveBeenCalledTimes(1);
-            expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
-            expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
-            expect(component.getAmount).toHaveBeenCalledTimes(1);
-            done();
-          });
+        const mockCustomFields = cloneDeep(customFieldData1);
+        const mockEtxn = cloneDeep(draftUnflattendedTxn);
+        component.generateEtxnFromFg(of(cloneDeep(mockEtxn)), of(mockCustomFields), false).subscribe((res) => {
+          expect(res).toEqual(newExpFromFg4);
+          expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, draftUnflattendedTxn.tx.id);
+          expect(component.getSourceAccID).toHaveBeenCalledTimes(1);
+          expect(component.getBillable).toHaveBeenCalledTimes(1);
+          expect(component.getSkipRemibursement).toHaveBeenCalledTimes(1);
+          expect(component.getTxnDate).toHaveBeenCalledTimes(1);
+          expect(component.getCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalCurrency).toHaveBeenCalledTimes(1);
+          expect(component.getOriginalAmount).toHaveBeenCalledTimes(1);
+          expect(component.getProjectID).toHaveBeenCalledTimes(1);
+          expect(component.getTaxAmount).toHaveBeenCalledTimes(1);
+          expect(component.getTaxGroupID).toHaveBeenCalledTimes(1);
+          expect(component.getOrgCategoryID).toHaveBeenCalledTimes(1);
+          expect(component.getFyleCategory).toHaveBeenCalledTimes(1);
+          expect(component.getDisplayName).toHaveBeenCalledTimes(1);
+          expect(component.getPurpose).toHaveBeenCalledTimes(1);
+          expect(component.getFromDt).toHaveBeenCalledTimes(1);
+          expect(component.getToDt).toHaveBeenCalledTimes(1);
+          expect(component.getFlightJourneyClass).toHaveBeenCalledTimes(1);
+          expect(component.getFlightReturnClass).toHaveBeenCalledTimes(1);
+          expect(component.getTrainTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getBusTravelClass).toHaveBeenCalledTimes(1);
+          expect(component.getDistance).toHaveBeenCalledTimes(1);
+          expect(component.getDistanceUnit).toHaveBeenCalledTimes(1);
+          expect(component.getBreakfastProvided).toHaveBeenCalledTimes(1);
+          expect(component.getAmount).toHaveBeenCalledTimes(1);
+          done();
+        });
       });
     });
 
@@ -973,7 +991,7 @@ export function TestCases3(getTestBed) {
         component.mode = 'edit';
         component.attachedReceiptsCount = 0;
         spyOn(component, 'getExpenseAttachments').and.returnValue(of(fileObject4));
-        fileService.findByTransactionId.and.returnValue(of([fileObjectData]));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component.loadAttachments$, 'next');
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
@@ -992,7 +1010,7 @@ export function TestCases3(getTestBed) {
         tick(500);
 
         expect(component.getExpenseAttachments).toHaveBeenCalledOnceWith(component.mode, unflattenedTxnData.tx.id);
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.id);
         expect(loaderService.showLoader).toHaveBeenCalledTimes(1);
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(modalController.create).toHaveBeenCalledOnceWith({
@@ -1174,6 +1192,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         categoriesService.getCategoryByName.and.returnValue(of(expectedOrgCategoryByName2));
       });
+
       it('should get new expense observable', (done) => {
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         authService.getEou.and.resolveTo(apiEouRes);
@@ -1401,10 +1420,10 @@ export function TestCases3(getTestBed) {
         component.etxn$ = of(unflattenedExpData);
         component.isConnected$ = of(true);
         const mockFileData = cloneDeep(fileObjectData1);
-        fileService.findByTransactionId.and.returnValue(of(mockFileData));
+        expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
         transactionOutboxService.fileUpload.and.resolveTo(mockFileData[0]);
         activatedRoute.snapshot.params.id = mockFileData[0].transaction_id;
-        fileService.post.and.returnValue(of(fileData1[0]));
+        expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
         spyOn(component, 'parseFile').and.returnValue(null);
         spyOn(component.loadAttachments$, 'next');
         fixture.detectChanges();
@@ -1415,9 +1434,12 @@ export function TestCases3(getTestBed) {
         });
         tick(1000);
 
-        expect(fileService.findByTransactionId).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
+        expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(unflattenedExpData.tx.id);
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith('url', 'pdf');
-        expect(fileService.post).toHaveBeenCalledOnceWith(mockFileData[0]);
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith(
+          mockFileData[0].transaction_id,
+          mockFileData[0].id
+        );
         expect(component.loadAttachments$.next).toHaveBeenCalledOnceWith();
         expect(trackingService.fileUploadComplete).toHaveBeenCalledOnceWith({
           mode: 'edit',

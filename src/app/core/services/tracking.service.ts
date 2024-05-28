@@ -386,24 +386,12 @@ export class TrackingService {
     this.eventTrack('dashboard action sheet button clicked', properties);
   }
 
-  dashboardOnUnreportedExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard unreported expenses clicked', properties);
-  }
-
-  dashboardOnIncompleteExpensesClick(properties = {}): void {
-    this.eventTrack('dashboard incomplete expenses clicked', properties);
-  }
-
   dashboardOnIncompleteCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard incomplete corporate card expenses clicked', properties);
   }
 
   dashboardOnTotalCardExpensesClick(properties = {}): void {
     this.eventTrack('dashboard total corporate card expenses clicked', properties);
-  }
-
-  dashboardOnReportPillClick(properties: { State: string }): void {
-    this.eventTrack('dashboard report pill clicked', properties);
   }
 
   //View expenses
@@ -715,5 +703,9 @@ export class TrackingService {
 
   commuteDeductionDetailsError(properties: HttpErrorResponse): void {
     this.eventTrack('Commute Deduction - Details Error', properties);
+  }
+
+  statsClicked(properties: { event: string }): void {
+    this.eventTrack('Dashboard Stats Clicked', properties);
   }
 }

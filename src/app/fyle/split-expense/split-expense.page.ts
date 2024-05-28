@@ -38,7 +38,7 @@ import { SplitExpense } from 'src/app/core/models/split-expense.model';
 import { CurrencyObj } from 'src/app/core/models/currency-obj.model';
 import { SplitExpenseForm } from 'src/app/core/models/split-expense-form.model';
 import { ToastType } from 'src/app/core/enums/toast-type.enum';
-import { ExtendedProject } from 'src/app/core/models/v2/extended-project.model';
+import { ProjectV2 } from 'src/app/core/models/v2/project-v2.model';
 import { ExpenseField } from 'src/app/core/models/v1/expense-field.model';
 import { SplitExpensePolicy } from 'src/app/core/models/platform/v1/split-expense-policy.model';
 import { SplitExpenseMissingFields } from 'src/app/core/models/platform/v1/split-expense-missing-fields.model';
@@ -48,6 +48,9 @@ import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { TxnCustomProperties } from 'src/app/core/models/txn-custom-properties.model';
 import { SplittingExpenseProperties } from 'src/app/core/models/tracking-properties.model';
 import { HttpErrorResponse } from '@angular/common/http';
+import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFile } from 'src/app/core/models/platform/platform-file.model';
 
 @Component({
   selector: 'app-split-expense',
@@ -105,7 +108,7 @@ export class SplitExpensePage {
 
   dependentCustomProperties$: Observable<Partial<CustomInput>[]>;
 
-  selectedProject: ExtendedProject;
+  selectedProject: ProjectV2;
 
   expenseFields: ExpenseField[];
 
@@ -139,7 +142,8 @@ export class SplitExpensePage {
     private dependentFieldsService: DependentFieldsService,
     private launchDarklyService: LaunchDarklyService,
     private projectsService: ProjectsService,
-    private timezoneService: TimezoneService
+    private timezoneService: TimezoneService,
+    private expensesService: ExpensesService
   ) {}
 
   goBack(): void {
@@ -373,7 +377,7 @@ export class SplitExpensePage {
   setSplitExpenseProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ExtendedProject,
+    project: ProjectV2,
     costCenter: ExpenseField
   ): void {
     if (splitFormValue.project?.project_id) {
@@ -410,7 +414,7 @@ export class SplitExpensePage {
   setCategoryAndProjectHelper(
     splitFormValue: SplitExpense,
     splitTxn: Transaction,
-    project: ExtendedProject,
+    project: ProjectV2,
     costCenter: ExpenseField
   ): void {
     splitTxn.cost_center_id = splitFormValue.cost_center?.id || this.transaction.cost_center_id;
@@ -437,7 +441,7 @@ export class SplitExpensePage {
         this.transaction.project_id
       ) {
         //if split_expense or source txn has projectIds, call the method to get project and push to promises
-        let project: ExtendedProject;
+        let project: ProjectV2;
         if (splitFormValue.project) {
           project = splitFormValue.project;
         } else {
@@ -540,10 +544,10 @@ export class SplitExpensePage {
     this.toastWithoutCTA(toastMessage, ToastType.SUCCESS, 'msb-success-with-camera-icon');
   }
 
-  getAttachedFiles(transactionId: string): Observable<FileObject[]> {
-    return this.fileService.findByTransactionId(transactionId).pipe(
-      map((uploadedFiles) => {
-        this.fileObjs = uploadedFiles;
+  getAttachedFiles(expenseId: string): Observable<Partial<PlatformFile>[]> {
+    return this.expensesService.getExpenseById(expenseId).pipe(
+      map((expense: PlatformExpense) => {
+        this.fileObjs = expense.files;
         return this.fileObjs;
       })
     );
@@ -831,7 +835,7 @@ export class SplitExpensePage {
     ) as MatchedCCCTransaction;
     this.reportId = JSON.parse(this.activatedRoute.snapshot.params.selectedReportId as string) as string;
     this.transaction = JSON.parse(this.activatedRoute.snapshot.params.txn as string) as Transaction;
-    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ExtendedProject;
+    this.selectedProject = JSON.parse(this.activatedRoute.snapshot.params.selectedProject as string) as ProjectV2;
     this.expenseFields = JSON.parse(this.activatedRoute.snapshot.params.expenseFields as string) as ExpenseField[];
 
     // Set max and min date for form

@@ -65,8 +65,8 @@ describe('RequestInvitationPage', () => {
   describe('sendRequestInvitation', () => {
     it('should call the upsertRouter method with the correct email', fakeAsync(() => {
       invitationRequestsService.upsertRouter.and.returnValue(of(null));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
       const ipEmail = 'ajain1234@fyle.in';
       component.fg.controls.email.setValue(ipEmail);
 
@@ -85,8 +85,8 @@ describe('RequestInvitationPage', () => {
       };
       component.fg.controls.email.setValue('');
       invitationRequestsService.upsertRouter.and.returnValue(throwError(() => error));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
 
       component.sendRequestInvitation();
       tick(500);
@@ -103,8 +103,8 @@ describe('RequestInvitationPage', () => {
       };
       component.fg.controls.email.setValue('');
       invitationRequestsService.upsertRouter.and.returnValue(throwError(() => error));
-      loaderService.showLoader.and.returnValue(Promise.resolve());
-      loaderService.hideLoader.and.returnValue(Promise.resolve());
+      loaderService.showLoader.and.resolveTo();
+      loaderService.hideLoader.and.resolveTo();
 
       component.sendRequestInvitation();
       tick(500);

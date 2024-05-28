@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { TASKEVENT } from '../models/task-event.enum';
 import { TaskIcon } from '../models/task-icon.enum';
 
-export const draftExpenseTaskSample = {
+export const draftExpenseTaskSample = deepFreeze({
   amount: '132.57B',
   count: 161,
   header: 'Incomplete expenses',
@@ -13,9 +15,9 @@ export const draftExpenseTaskSample = {
       event: TASKEVENT.reviewExpenses,
     },
   ],
-};
+});
 
-export const draftExpenseTaskSample2 = {
+export const draftExpenseTaskSample2 = deepFreeze({
   amount: '132.57B',
   count: 339,
   header: 'Incomplete expenses',
@@ -27,9 +29,9 @@ export const draftExpenseTaskSample2 = {
       event: TASKEVENT.reviewExpenses,
     },
   ],
-};
+});
 
-export const potentailDuplicateTaskSample = {
+export const potentailDuplicateTaskSample = deepFreeze({
   hideAmount: true,
   count: 13,
   header: '34 Potential Duplicates',
@@ -41,9 +43,9 @@ export const potentailDuplicateTaskSample = {
       event: TASKEVENT.openPotentialDuplicates,
     },
   ],
-};
+});
 
-export const teamReportTaskSample = {
+export const teamReportTaskSample = deepFreeze({
   amount: '733.48K',
   count: 2,
   header: 'Reports to be approved',
@@ -55,13 +57,27 @@ export const teamReportTaskSample = {
       event: TASKEVENT.openTeamReport,
     },
   ],
-};
+});
 
-export const sentBackReportTaskSample = {
-  amount: '44.53',
+export const sentBackReportTaskSample = deepFreeze({
+  amount: '4.5K',
+  count: 2,
+  header: 'Reports sent back!',
+  subheader: '2 reports worth ₹4.5K  were sent back by your approver',
+  icon: TaskIcon.REPORT,
+  ctas: [
+    {
+      content: 'View Reports',
+      event: TASKEVENT.openSentBackReport,
+    },
+  ],
+});
+
+export const sentBackReportTaskSingularSample = deepFreeze({
+  amount: '4.5K',
   count: 1,
   header: 'Report sent back!',
-  subheader: '1 report worth ₹44.53  was sent back by your approver',
+  subheader: '1 report worth ₹4.5K  was sent back by your approver',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -69,9 +85,9 @@ export const sentBackReportTaskSample = {
       event: TASKEVENT.openSentBackReport,
     },
   ],
-};
+});
 
-export const unreportedExpenseTaskSample = {
+export const unreportedExpenseTaskSample = deepFreeze({
   amount: '142.26K',
   count: 13,
   header: 'Expenses are ready to report',
@@ -83,9 +99,9 @@ export const unreportedExpenseTaskSample = {
       event: TASKEVENT.expensesAddToReport,
     },
   ],
-};
+});
 
-export const unreportedExpenseTaskSample2 = {
+export const unreportedExpenseTaskSample2 = deepFreeze({
   amount: '142.26K',
   count: 3,
   header: 'Expenses are ready to report',
@@ -97,13 +113,13 @@ export const unreportedExpenseTaskSample2 = {
       event: TASKEVENT.expensesAddToReport,
     },
   ],
-};
+});
 
-export const unsubmittedReportTaskSample = {
-  amount: '0.00',
+export const unsubmittedReportTaskSample = deepFreeze({
+  amount: '93.17K',
   count: 2,
   header: 'Unsubmitted reports',
-  subheader: '2 reports remain in draft state',
+  subheader: '2 reports worth ₹93.17K  remain in draft state',
   icon: TaskIcon.REPORT,
   ctas: [
     {
@@ -111,9 +127,9 @@ export const unsubmittedReportTaskSample = {
       event: TASKEVENT.openDraftReports,
     },
   ],
-};
+});
 
-export const sentBackAdvanceTaskSample = {
+export const sentBackAdvanceTaskSample = deepFreeze({
   amount: '123.37M',
   count: 5,
   header: 'Advances sent back!',
@@ -125,9 +141,9 @@ export const sentBackAdvanceTaskSample = {
       event: TASKEVENT.openSentBackAdvance,
     },
   ],
-};
+});
 
-export const addMobileNumberTask = {
+export const addMobileNumberTask = deepFreeze({
   hideAmount: true,
   header: 'Add Mobile Number',
   subheader: 'Add and verify your mobile number to text the receipts directly',
@@ -138,9 +154,9 @@ export const addMobileNumberTask = {
       event: TASKEVENT.mobileNumberVerification,
     },
   ],
-};
+});
 
-export const verifyMobileNumberTask = {
+export const verifyMobileNumberTask = deepFreeze({
   hideAmount: true,
   header: 'Verify Mobile Number',
   subheader: 'Verify your mobile number to text the receipts directly',
@@ -151,9 +167,9 @@ export const verifyMobileNumberTask = {
       event: TASKEVENT.mobileNumberVerification,
     },
   ],
-};
+});
 
-export const commuteDeductionTask = {
+export const commuteDeductionTask = deepFreeze({
   hideAmount: true,
   header: 'Add Commute Details',
   subheader: 'Add your Home and Work locations to easily deduct commute distance from your mileage expenses',
@@ -164,4 +180,4 @@ export const commuteDeductionTask = {
       event: TASKEVENT.commuteDetails,
     },
   ],
-};
+});

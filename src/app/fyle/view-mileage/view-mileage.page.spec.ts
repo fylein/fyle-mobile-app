@@ -4,7 +4,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -34,11 +33,10 @@ import { expenseFieldsMapResponse, expenseFieldsMapResponse4 } from 'src/app/cor
 import { orgSettingsGetData } from 'src/app/core/test-data/org-settings.service.spec.data';
 import { filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
-import { apiTeamRptSingleRes, expectedReports } from 'src/app/core/mock-data/api-reports.data';
 import { cloneDeep, slice } from 'lodash';
 import { isEmpty } from 'rxjs/operators';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
-import { mileageExpense } from 'src/app/core/mock-data/platform/v1/expense.data';
+import { mileageExpense, platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { Expense } from 'src/app/core/models/platform/v1/expense.model';
 import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
@@ -48,6 +46,15 @@ import { MileageRatesService } from 'src/app/core/services/mileage-rates.service
 import { platformMileageRatesSingleData } from 'src/app/core/mock-data/platform-mileage-rate.data';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageSubmitted,
+  paidReportData,
+} from '../../core/mock-data/platform-report.data';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { generateUrlsBulkData1 } from 'src/app/core/mock-data/generate-urls-bulk-response.data';
+import { receiptInfoData1 } from 'src/app/core/mock-data/receipt-info.data';
 
 describe('ViewMileagePage', () => {
   let component: ViewMileagePage;
@@ -56,7 +63,6 @@ describe('ViewMileagePage', () => {
   let transactionService: jasmine.SpyObj<TransactionService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let popoverController: jasmine.SpyObj<PopoverController>;
   let router: jasmine.SpyObj<Router>;
   let networkService: jasmine.SpyObj<NetworkService>;
@@ -73,11 +79,12 @@ describe('ViewMileagePage', () => {
   let mileageRatesService: jasmine.SpyObj<MileageRatesService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -107,14 +114,23 @@ describe('ViewMileagePage', () => {
     const dependentFieldsServiceSpy = jasmine.createSpyObj('DependentFieldsService', [
       'getDependentFieldValuesForBaseField',
     ]);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['findByTransactionId', 'downloadUrl']);
+    const fileServiceSpy = jasmine.createSpyObj('FileService', [
+      'findByTransactionId',
+      'downloadUrl',
+      'getReceiptsDetails',
+    ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const mileageRatesServiceSpy = jasmine.createSpyObj('MileageRatesService', [
       'getSpenderMileageRateById',
       'getApproverMileageRateById',
     ]);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrls']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrls']);
 
     TestBed.configureTestingModule({
       declarations: [ViewMileagePage],
@@ -127,10 +143,6 @@ describe('ViewMileagePage', () => {
         {
           useValue: transactionServiceSpy,
           provide: TransactionService,
-        },
-        {
-          useValue: reportServiceSpy,
-          provide: ReportService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -201,6 +213,14 @@ describe('ViewMileagePage', () => {
           useValue: approverReportsServiceSpy,
         },
         {
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
+        },
+        {
+          provide: ApproverFileService,
+          useValue: approverFileServiceSpy,
+        },
+        {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
@@ -219,7 +239,6 @@ describe('ViewMileagePage', () => {
     component = fixture.componentInstance;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
@@ -237,6 +256,8 @@ describe('ViewMileagePage', () => {
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     mileageRatesService = TestBed.inject(MileageRatesService) as jasmine.SpyObj<MileageRatesService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
 
     fixture.detectChanges();
@@ -266,12 +287,12 @@ describe('ViewMileagePage', () => {
   describe('isNumber', () => {
     it('should return true for a number', () => {
       const result = component.isNumber(42);
-      expect(result).toBe(true);
+      expect(result).toBeTrue();
     });
 
     it('should return false for a non-number value', () => {
       const result = component.isNumber('42');
-      expect(result).toBe(false);
+      expect(result).toBeFalse();
     });
   });
 
@@ -852,7 +873,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -873,7 +894,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -894,7 +915,7 @@ describe('ViewMileagePage', () => {
         report_id: 'rphNNUiCISkD',
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(expectedReports.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       spenderExpensesService.getExpenseById.and.returnValue(of(mockMileageExpense));
       component.mileageExpense$ = of(mockMileageExpense);
       component.expenseFields$ = of(expenseFieldsMapResponse4);
@@ -1049,6 +1070,43 @@ describe('ViewMileagePage', () => {
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       expect(component.reportExpenseCount).toEqual(3);
       expect(component.activeExpenseIndex).toEqual(2);
+    });
+
+    it('should call spender file service to get map attachment details', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      component.view = ExpenseView.individual;
+      spenderFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(spenderFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
+    });
+
+    it('should call approver file service to get map attachments', (done) => {
+      component.mileageExpense$ = of(mileageExpense);
+      activateRouteMock.snapshot.params.view = ExpenseView.team;
+      approverFileService.generateUrls.and.returnValue(of(generateUrlsBulkData1[0]));
+      fileService.getReceiptsDetails.and.returnValue(receiptInfoData1);
+
+      component.ionViewWillEnter();
+      component.mapAttachment$.subscribe((res) => {
+        expect(res).toEqual(receiptInfoData1);
+        expect(approverFileService.generateUrls).toHaveBeenCalledOnceWith(mileageExpense.file_ids[0]);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          generateUrlsBulkData1[0].name,
+          generateUrlsBulkData1[0].download_url
+        );
+        done();
+      });
     });
   });
 

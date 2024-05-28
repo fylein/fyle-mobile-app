@@ -10,26 +10,39 @@ import {
   platformReportCountData,
   expectedReportsSinglePage,
   mockQueryParams,
+  mockQueryParamsForCount,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
+import { UserEventService } from '../../../user-event.service';
+import { TransactionService } from '../../../transaction.service';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
   let spenderPlatformV1ApiService: jasmine.SpyObj<SpenderPlatformV1ApiService>;
+  let userEventService: jasmine.SpyObj<UserEventService>;
+  let transactionService: jasmine.SpyObj<TransactionService>;
 
   beforeEach(() => {
     const spenderPlatformV1ApiServiceSpy = jasmine.createSpyObj('SpenderPlatformV1ApiService', ['get', 'post']);
+    const userEventServiceSpy = jasmine.createSpyObj('UserEventServive', ['clearTaskCache']);
+    const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['clearCache']);
     TestBed.configureTestingModule({
       providers: [
         SpenderReportsService,
         { provide: PAGINATION_SIZE, useValue: 2 },
         { provide: SpenderPlatformV1ApiService, useValue: spenderPlatformV1ApiServiceSpy },
+        { provide: UserEventService, useValue: userEventServiceSpy },
+        { provide: TransactionService, useValue: transactionServiceSpy },
       ],
     });
     spenderReportsService = TestBed.inject(SpenderReportsService);
     spenderPlatformV1ApiService = TestBed.inject(
       SpenderPlatformV1ApiService
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
+    userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
+    transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
   });
 
   it('should be created', () => {
@@ -41,12 +54,12 @@ describe('SpenderReportsService', () => {
     spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(platformReportCountData));
 
     const expectedParams: ReportsQueryParams = {
-      ...mockQueryParams,
+      ...mockQueryParamsForCount,
       limit: 1,
       offset: 0,
     };
 
-    spenderReportsService.getReportsCount(mockQueryParams).subscribe((res) => {
+    spenderReportsService.getReportsCount(mockQueryParamsForCount).subscribe((res) => {
       // Verify
       expect(res).toEqual(4); // Check if the count is as expected
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params
@@ -76,6 +89,7 @@ describe('SpenderReportsService', () => {
       expect(res).toEqual(expectedReportsPaginated);
       expect(spenderReportsService.getReportsCount).toHaveBeenCalledOnceWith({
         state: 'in.(DRAFT,APPROVER_PENDING,APPROVER_INQUIRY)',
+        order: 'created_at.desc,id.desc',
       });
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams1);
       expect(getReportsByParams).toHaveBeenCalledWith(expectedParams2);
@@ -92,6 +106,7 @@ describe('SpenderReportsService', () => {
       ...mockQueryParams,
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
 
     getReportsByParams.withArgs(expectedParams).and.returnValue(of(allReportsPaginated1));
@@ -109,6 +124,7 @@ describe('SpenderReportsService', () => {
       state: 'DRAFT',
       offset: 0,
       limit: 2,
+      order: 'created_at.desc,id.desc',
     };
     const expectedConfig = {
       params: {
@@ -137,7 +153,48 @@ describe('SpenderReportsService', () => {
     };
     spenderReportsService.addExpenses(reportID, txns).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
+    });
+  });
+
+  it('getReportById(): should get a report by id', () => {
+    spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
+    const queryParams = {
+      id: 'eq.rpvcIMRMyM3A',
+    };
+    spenderReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
+    });
+  });
+
+  it('getReportsStats(): should get advance request stats', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedReportStats.draft }));
+
+    const params = {
+      state: 'eq.DRAFT',
+    };
+
+    spenderReportsService.getReportsStats(params).subscribe((res) => {
+      expect(res).toEqual(expectedReportStats.draft);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/stats', {
+        data: {
+          query_params: `state=${params.state}`,
+        },
+      });
+      done();
+    });
+  });
+
+  it('getReportById(): should get a report by id', () => {
+    spyOn(spenderReportsService, 'getReportsByParams').and.returnValue(of(allReportsPaginated1));
+    const queryParams = {
+      id: 'eq.rpvcIMRMyM3A',
+    };
+    spenderReportsService.getReportById('rpvcIMRMyM3A').subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderReportsService.getReportsByParams).toHaveBeenCalledOnceWith(queryParams);
     });
   });
 
@@ -156,6 +213,25 @@ describe('SpenderReportsService', () => {
     };
     spenderReportsService.ejectExpenses(reportID, txns[0]).subscribe(() => {
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/eject_expenses', payload);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
+      done();
+    });
+  });
+
+  it('createDraft(): should create a draft report and return the report', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: allReportsPaginated1.data[0] }));
+
+    const reportParam = {
+      data: {
+        purpose: 'A draft Report',
+        source: 'MOBILE',
+      },
+    };
+
+    spenderReportsService.createDraft(reportParam).subscribe((res) => {
+      expect(res).toEqual(allReportsPaginated1.data[0]);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });

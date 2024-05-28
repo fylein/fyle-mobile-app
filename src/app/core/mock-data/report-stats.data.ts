@@ -1,47 +1,120 @@
-import { ReportStats } from '../models/report-stats.model';
+import deepFreeze from 'deep-freeze-strict';
 
-export const expectedReportStats: ReportStats = {
+import { ReportStats } from '../models/report-stats.model';
+import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
+
+export const expectedReportStats: ReportStats = deepFreeze({
   draft: {
-    count: 6,
-    sum: 93165.91,
+    count: 2,
+    total_amount: 93165.91,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   report: {
-    count: 45,
-    sum: 5177243929.65219,
+    count: 2,
+    total_amount: 5177243929.65219,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   approved: {
     count: 56,
-    sum: 28758273650702.816,
+    total_amount: 28758273650702.816,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   paymentPending: {
     count: 4,
-    sum: 501602.12,
+    total_amount: 501602.12,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   processing: {
     count: 7,
-    sum: 5012.12,
+    total_amount: 5012.12,
+    failed_amount: null,
+    failed_count: null,
+    processing_amount: 5012.12,
+    processing_count: 7,
+    reimbursable_amount: null,
   },
-};
+});
 
-export const expectedEmptyReportStats: ReportStats = {
+export const expectedEmptyReportStats: ReportStats = deepFreeze({
   draft: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   report: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   approved: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   paymentPending: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
   processing: {
-    sum: 0,
+    total_amount: 0,
     count: 0,
+    failed_amount: 0,
+    failed_count: 0,
+    processing_amount: 0,
+    processing_count: 0,
+    reimbursable_amount: 0,
   },
-};
+});
+
+export const expectedSentBackResponse: PlatformReportsStatsResponse = deepFreeze({
+  total_amount: 4500,
+  count: 2,
+  failed_amount: 0,
+  failed_count: 0,
+  processing_amount: 0,
+  processing_count: 0,
+  reimbursable_amount: 0,
+});
+
+export const expectedSentBackResponseSingularReport: PlatformReportsStatsResponse = deepFreeze({
+  total_amount: 4500,
+  count: 1,
+  failed_amount: 0,
+  failed_count: 0,
+  processing_amount: 0,
+  processing_count: 0,
+  reimbursable_amount: 0,
+});

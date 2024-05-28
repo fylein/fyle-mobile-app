@@ -471,16 +471,17 @@ export function TestCases2(getTestBed) {
     describe('getEditExpenseObservable(): ', () => {
       it('should get editable expense observable if the txn is in DRAFT state', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData);
+        const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
         categoriesService.getCategoryByName.and.returnValue(of(orgCategoryData));
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseWithExtractedData);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData);
           expect(categoriesService.getCategoryByName).toHaveBeenCalledOnceWith(
-            transformedExpenseWithExtractedData.tx.extracted_data.category
+            mockTransformedExpense.tx.extracted_data.category
           );
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
           expect(component.isIncompleteExpense).toBeTrue();
@@ -490,10 +491,11 @@ export function TestCases2(getTestBed) {
 
       it('should return txn if state is not DRAFT', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseData));
-        transactionService.transformExpense.and.returnValue(transformedExpenseData);
+        const mockTransformedExpense = cloneDeep(transformedExpenseData);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseData);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledOnceWith(activatedRoute.snapshot.params.id);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseData);
           done();
@@ -502,11 +504,12 @@ export function TestCases2(getTestBed) {
 
       it('should return txn when the expense or the extracted data does not contain any category', (done) => {
         expensesService.getExpenseById.and.returnValue(of(platformExpenseWithExtractedData2));
-        transactionService.transformExpense.and.returnValue(transformedExpenseWithExtractedData2);
+        const mockTransformedExpense = cloneDeep(transformedExpenseWithExtractedData2);
+        transactionService.transformExpense.and.returnValue(mockTransformedExpense);
         dateService.getUTCDate.and.returnValue(new Date('2023-01-24T11:30:00.000Z'));
 
         component.getEditExpenseObservable().subscribe((res) => {
-          expect(res).toEqual(transformedExpenseWithExtractedData2);
+          expect(res).toEqual(mockTransformedExpense);
           expect(expensesService.getExpenseById).toHaveBeenCalledTimes(1);
           expect(transactionService.transformExpense).toHaveBeenCalledOnceWith(platformExpenseWithExtractedData2);
           expect(dateService.getUTCDate).not.toHaveBeenCalled();
@@ -1151,7 +1154,8 @@ export function TestCases2(getTestBed) {
 
     describe('getParsedReceipt():', () => {
       it('should get parsed receipt', fakeAsync(() => {
-        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData1);
+        const mockParsedReceiptData = cloneDeep(parsedReceiptData1);
+        transactionOutboxService.parseReceipt.and.resolveTo(mockParsedReceiptData);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
         currencyService.getExchangeRate.and.returnValue(of(82));
 
@@ -1171,7 +1175,8 @@ export function TestCases2(getTestBed) {
       }));
 
       it('should get parsed receipt without date', fakeAsync(() => {
-        transactionOutboxService.parseReceipt.and.resolveTo(parsedReceiptData2);
+        const mockParsedReceiptData = cloneDeep(parsedReceiptData2);
+        transactionOutboxService.parseReceipt.and.resolveTo(mockParsedReceiptData);
         currencyService.getHomeCurrency.and.returnValue(of('INR'));
         currencyService.getExchangeRate.and.returnValue(of(82));
 
@@ -1450,35 +1455,27 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    it('postToFileService(): should post files to file service', () => {
-      fileService.post.and.returnValue(of(null));
-
-      component.postToFileService(fileObjectData, 'tx5fBcPBAxLv');
-
-      expect(fileService.post).toHaveBeenCalledOnceWith({ ...fileObjectData, transaction_id: 'tx5fBcPBAxLv' });
-    });
-
-    it('uploadFileAndPostToFileService(): should upload to file service', (done) => {
+    it('uploadFileAndAttachToExpense(): should upload to file service', (done) => {
       transactionOutboxService.fileUpload.and.resolveTo(fileObjectData);
-      spyOn(component, 'postToFileService').and.returnValue(of(fileObjectData));
+      expensesService.attachReceiptToExpense.and.returnValue(of(platformExpenseWithExtractedData));
 
-      component.uploadFileAndPostToFileService(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
+      component.uploadFileAndAttachToExpense(fileObjectData, 'tx5fBcPBAxLv').subscribe(() => {
         expect(transactionOutboxService.fileUpload).toHaveBeenCalledOnceWith(fileObjectData.url, fileObjectData.type);
-        expect(component.postToFileService).toHaveBeenCalledOnceWith(fileObjectData, 'tx5fBcPBAxLv');
+        expect(expensesService.attachReceiptToExpense).toHaveBeenCalledOnceWith('tx5fBcPBAxLv', fileObjectData.id);
         done();
       });
     });
 
     it('uploadMultipleFiles(): should upload multiple files', (done) => {
-      const uploadSpy = spyOn(component, 'uploadFileAndPostToFileService');
+      const uploadSpy = spyOn(component, 'uploadFileAndAttachToExpense');
       uploadSpy.withArgs(fileObject7[0], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[0]));
       uploadSpy.withArgs(fileObject7[1], 'tx5fBcPBAxLv').and.returnValue(of(fileObject7[1]));
 
       component.uploadMultipleFiles(fileObject7, 'tx5fBcPBAxLv').subscribe((res) => {
         expect(res).toEqual(fileObject7);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledTimes(2);
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
-        expect(component.uploadFileAndPostToFileService).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledTimes(2);
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[0], 'tx5fBcPBAxLv');
+        expect(component.uploadFileAndAttachToExpense).toHaveBeenCalledWith(fileObject7[1], 'tx5fBcPBAxLv');
         done();
       });
     });

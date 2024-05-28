@@ -35,7 +35,7 @@ describe('LoginInfoService', () => {
 
   describe('addLoginInfo():', () => {
     it('should add login info', async () => {
-      storageService.get.and.returnValue(Promise.resolve(null));
+      storageService.get.and.resolveTo(null);
       storageService.set.and.callThrough();
 
       loginInfoService.addLoginInfo(version, time);
@@ -51,7 +51,7 @@ describe('LoginInfoService', () => {
         lastLoggedInTime: 'Fri, 17 Mar 2023 12:24:26 GMT',
       };
 
-      storageService.get.and.returnValue(Promise.resolve(newLoginInfo));
+      storageService.get.and.resolveTo(newLoginInfo);
       storageService.set.and.callThrough();
 
       loginInfoService.addLoginInfo(version, newTime);
@@ -62,7 +62,7 @@ describe('LoginInfoService', () => {
 
   describe('getLastLoggedInVersion():', () => {
     it('should get last logged in version', (done) => {
-      storageService.get.and.returnValue(Promise.resolve(null));
+      storageService.get.and.resolveTo(null);
 
       loginInfoService.getLastLoggedInVersion().subscribe((res) => {
         expect(res).toBeUndefined();
@@ -72,7 +72,7 @@ describe('LoginInfoService', () => {
     });
 
     it('should return null if last logged in version not present', (done) => {
-      storageService.get.and.returnValue(Promise.resolve(loginInfo));
+      storageService.get.and.resolveTo(loginInfo);
 
       loginInfoService.getLastLoggedInVersion().subscribe((res) => {
         expect(res).toEqual(loginInfo.lastLoggedInVersion);

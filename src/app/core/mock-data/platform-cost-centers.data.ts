@@ -1,7 +1,9 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { PlatformCostCenter } from '../models/platform/platform-cost-center.model';
 import { PlatformApiResponse } from '../models/platform/platform-api-response.model';
 
-export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter[]> = {
+export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter[]> = deepFreeze({
   count: 1,
   data: [
     {
@@ -16,9 +18,9 @@ export const platformCostCenterSingleRes: PlatformApiResponse<PlatformCostCenter
     },
   ],
   offset: 0,
-};
+});
 
-export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCenter[]> = {
+export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCenter[]> = deepFreeze({
   count: 4,
   data: [
     {
@@ -63,4 +65,4 @@ export const platformCostCenterMultipleRes: PlatformApiResponse<PlatformCostCent
     },
   ],
   offset: 0,
-};
+});

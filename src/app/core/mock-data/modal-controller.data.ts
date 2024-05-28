@@ -1,9 +1,9 @@
+/* eslint-disable custom-rules/prefer-deep-freeze */
 import { FyFiltersComponent } from 'src/app/shared/components/fy-filters/fy-filters.component';
 import { filterOptions1 } from './filter.data';
 import { selectedFilters1, selectedFilters4, taskSelectedFiltersData } from './selected-filters.data';
 import { FilterOptionType } from 'src/app/shared/components/fy-filters/filter-option-type.enum';
 import { CreateNewReportComponent as createReportV2 } from 'src/app/shared/components/create-new-report-v2/create-new-report.component';
-import { CreateNewReportComponent } from 'src/app/shared/components/create-new-report/create-new-report.component';
 import { Mode } from '@ionic/core';
 import { fyModalProperties } from './model-properties.data';
 import { AddTxnToReportDialogComponent as v2 } from 'src/app/fyle/my-expenses/add-txn-to-report-dialog/add-txn-to-report-dialog.component';
@@ -12,7 +12,6 @@ import { FilterOptions } from 'src/app/shared/components/fy-filters/filter-optio
 import { DateFilters } from 'src/app/shared/components/fy-filters/date-filters.enum';
 import { FyAddToReportModalComponent } from 'src/app/shared/components/fy-add-to-report/fy-add-to-report-modal/fy-add-to-report-modal.component';
 import { reportOptionsData } from './report-options.data';
-import { expectedErpt } from './report-unflattened.data';
 import { expectedReportsPaginated } from './platform-report.data';
 import { FyInputPopoverComponent } from 'src/app/shared/components/fy-input-popover/fy-input-popover.component';
 import { CaptureReceiptComponent } from 'src/app/shared/components/capture-receipt/capture-receipt.component';
@@ -21,8 +20,6 @@ import { advanceRequestFileUrlData2, fileObject4 } from './file-object.data';
 import { ViewCommentComponent } from 'src/app/shared/components/comments-history/view-comment/view-comment.component';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
 import { VirtualSelectModalComponent } from 'src/app/shared/components/virtual-select/virtual-select-modal/virtual-select-modal.component';
-
-import { apiExpenseRes } from './expense.data';
 import { apiExpenses1 } from './platform/v1/expense.data';
 
 export const modalControllerParams = {
@@ -55,15 +52,6 @@ export const modalControllerParams2 = {
     activeFilterInitialName: 'approvalDate',
   },
   cssClass: 'dialog-popover',
-};
-
-export const newReportModalParams = {
-  component: CreateNewReportComponent,
-  componentProps: {
-    selectedExpensesToReport: apiExpenseRes,
-  },
-  mode: <Mode>'ios',
-  ...fyModalProperties,
 };
 
 export const newReportModalParams2 = {

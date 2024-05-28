@@ -35,7 +35,6 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import { expensesCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
@@ -58,6 +57,10 @@ import {
   matchCCCExpenseResponseData,
   unmatchCCCExpenseResponseData,
 } from '../mock-data/corporate-card-transaction-response.data';
+import { cloneDeep } from 'lodash';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { expenseData } from '../mock-data/platform/v1/expense.data';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -77,6 +80,7 @@ describe('TransactionService', () => {
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let accountsService: jasmine.SpyObj<AccountsService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
@@ -105,6 +109,7 @@ describe('TransactionService', () => {
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -174,6 +179,10 @@ describe('TransactionService', () => {
           useValue: accountsServiceSpy,
         },
         {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
@@ -199,6 +208,7 @@ describe('TransactionService', () => {
     paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });
 
   it('should be created', () => {
@@ -249,7 +259,7 @@ describe('TransactionService', () => {
 
   it('getDefaultVehicleType(): should get default vehicle type', (done) => {
     const defaultVehicleType = 'two_wheeler';
-    storageService.get.and.returnValue(Promise.resolve(defaultVehicleType));
+    storageService.get.and.resolveTo(defaultVehicleType);
     transactionService.getDefaultVehicleType().subscribe((res) => {
       expect(res).toEqual(defaultVehicleType);
       expect(storageService.get).toHaveBeenCalledTimes(1);
@@ -317,6 +327,7 @@ describe('TransactionService', () => {
     beforeEach(() => {
       spyOn(lodash, 'cloneDeep').and.returnValue(params);
     });
+
     it('should return receipt attached params if receipt attached is YES', () => {
       const filters = { receiptsAttached: 'YES' };
       const receiptsAttachedParams = { or: [], tx_num_files: 'gt.0' };
@@ -412,8 +423,9 @@ describe('TransactionService', () => {
   });
 
   it('fixDates(): should fix dates', () => {
+    const mockExpenseData = cloneDeep(expenseDataWithDateString);
     // @ts-ignore
-    expect(transactionService.fixDates(expenseDataWithDateString)).toEqual(expenseData1);
+    expect(transactionService.fixDates(mockExpenseData)).toEqual(expenseData1);
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
@@ -858,7 +870,7 @@ describe('TransactionService', () => {
   });
 
   it('getMyExpenses(): should return my expenses with order', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
+    authService.getEou.and.resolveTo(eouRes2);
     apiV2Service.get.and.returnValue(of(expenseV2Data));
     dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
 
@@ -891,7 +903,7 @@ describe('TransactionService', () => {
   });
 
   it('getMyExpenses(): should return my expenses without order using default date order', (done) => {
-    authService.getEou.and.returnValue(Promise.resolve(eouRes2));
+    authService.getEou.and.resolveTo(eouRes2);
     apiV2Service.get.and.returnValue(of(expenseV2Data));
     dateService.fixDatesV2.and.returnValue(expenseV2Data.data[0]);
 
@@ -1201,7 +1213,7 @@ describe('TransactionService', () => {
       spyOn(transactionService, 'getIsCriticalPolicyViolated').and.returnValue(false);
       spyOn(transactionService, 'getIsDraft').and.returnValue(false);
 
-      expect(transactionService.getReportableExpenses(null)).toEqual(undefined);
+      expect(transactionService.getReportableExpenses(null)).toBeUndefined();
       expect(transactionService.getIsCriticalPolicyViolated).not.toHaveBeenCalled();
       expect(transactionService.getIsDraft).not.toHaveBeenCalled();
     });
@@ -1231,10 +1243,11 @@ describe('TransactionService', () => {
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData2));
     spenderPlatformV1ApiService.post.and.returnValue(of(expensePolicyData));
 
-    transactionService.checkPolicy(platformPolicyExpenseData1).subscribe((res) => {
+    const mockPlatformExpense = cloneDeep(platformPolicyExpenseData1);
+    transactionService.checkPolicy(mockPlatformExpense).subscribe((res) => {
       expect(res).toEqual(expensePolicyData);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/expenses/check_policies', {
-        data: platformPolicyExpenseData1,
+        data: mockPlatformExpense,
       });
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       done();
@@ -1243,12 +1256,15 @@ describe('TransactionService', () => {
 
   it('createTxnWithFiles(): should create transaction with files', (done) => {
     spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-    fileService.post.and.returnValue(of(fileObjectData2));
+    expensesService.attachReceiptsToExpense.and.returnValue(of([expenseData]));
 
-    transactionService.createTxnWithFiles(txnData, of(fileObjectData1)).subscribe((res) => {
+    const mockFileObject = cloneDeep(fileObjectData1);
+    transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
       expect(res).toEqual(txnData2);
       expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
+      expect(expensesService.attachReceiptsToExpense).toHaveBeenCalledOnceWith(mockFileObject[0].transaction_id, [
+        mockFileObject[0].id,
+      ]);
       done();
     });
   });
@@ -1262,7 +1278,8 @@ describe('TransactionService', () => {
     apiService.post.and.returnValue(of(txnData4));
     utilityService.discardRedundantCharacters.and.returnValue(txnDataPayload);
 
-    transactionService.upsert(upsertTxnParam).subscribe((res) => {
+    const mockUpsertTxnParam = cloneDeep(upsertTxnParam);
+    transactionService.upsert(mockUpsertTxnParam).subscribe((res) => {
       expect(res).toEqual(txnData4);
       expect(apiService.post).toHaveBeenCalledOnceWith('/transactions', txnDataPayload);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);

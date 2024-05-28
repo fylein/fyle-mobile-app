@@ -7,7 +7,6 @@ import { LoaderService } from 'src/app/core/services/loader.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PerDiemService } from 'src/app/core/services/per-diem.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
-import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { StatusService } from 'src/app/core/services/status.service';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
@@ -33,7 +32,6 @@ import { customInputData1 } from 'src/app/core/mock-data/custom-input.data';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
 import { customFieldData1, customFields } from 'src/app/core/mock-data/custom-field.data';
 import { perDiemRatesData1 } from 'src/app/core/mock-data/per-diem-rates.data';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { estatusData1 } from 'src/app/core/test-data/status.service.spec.data';
 import { cloneDeep } from 'lodash';
 import { FyPopoverComponent } from 'src/app/shared/components/fy-popover/fy-popover.component';
@@ -45,6 +43,7 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 describe('ViewPerDiemPage', () => {
   let component: ViewPerDiemPage;
@@ -54,7 +53,6 @@ describe('ViewPerDiemPage', () => {
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let perDiemService: jasmine.SpyObj<PerDiemService>;
   let policyService: jasmine.SpyObj<PolicyService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let router: jasmine.SpyObj<Router>;
   let popoverController: jasmine.SpyObj<PopoverController>;
@@ -81,7 +79,6 @@ describe('ViewPerDiemPage', () => {
       'getApproverExpensePolicyViolations',
       'getSpenderExpensePolicyViolations',
     ]);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'post']);
@@ -100,7 +97,10 @@ describe('ViewPerDiemPage', () => {
     ]);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
     TestBed.configureTestingModule({
       declarations: [ViewPerDiemPage],
       imports: [IonicModule.forRoot()],
@@ -110,7 +110,6 @@ describe('ViewPerDiemPage', () => {
         { provide: CustomInputsService, useValue: customInputsServiceSpy },
         { provide: PerDiemService, useValue: perDiemServiceSpy },
         { provide: PolicyService, useValue: policyServiceSpy },
-        { provide: ReportService, useValue: reportServiceSpy },
         { provide: Router, useValue: routerSpy },
         { provide: PopoverController, useValue: popoverControllerSpy },
         { provide: StatusService, useValue: statusServiceSpy },
@@ -146,7 +145,6 @@ describe('ViewPerDiemPage', () => {
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     perDiemService = TestBed.inject(PerDiemService) as jasmine.SpyObj<PerDiemService>;
     policyService = TestBed.inject(PolicyService) as jasmine.SpyObj<PolicyService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
@@ -296,7 +294,7 @@ describe('ViewPerDiemPage', () => {
       customInputsService.fillCustomProperties.and.returnValue(of(mockCustomFields));
       customInputsService.getCustomPropertyDisplayValue.and.returnValue('customPropertyDisplayValue');
       perDiemService.getRate.and.returnValue(of(perDiemRatesData1));
-      reportService.getTeamReport.and.returnValue(of(apiExtendedReportRes[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
       policyService.getApproverExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData2));
       policyService.getSpenderExpensePolicyViolations.and.returnValue(of(individualExpPolicyStateData3));
       statusService.find.and.returnValue(of(estatusData1));
@@ -372,12 +370,12 @@ describe('ViewPerDiemPage', () => {
 
       component.projectDependentCustomProperties$.subscribe((projectDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
-        expect(projectDependentCustomProperties).toEqual(undefined);
+        expect(projectDependentCustomProperties).toBeUndefined();
       });
 
       component.costCenterDependentCustomProperties$.subscribe((costCenterDependentCustomProperties) => {
         expect(dependentFieldsService.getDependentFieldValuesForBaseField).not.toHaveBeenCalled();
-        expect(costCenterDependentCustomProperties).toEqual(undefined);
+        expect(costCenterDependentCustomProperties).toBeUndefined();
       });
     }));
 
@@ -501,9 +499,12 @@ describe('ViewPerDiemPage', () => {
       activatedRoute.snapshot.params.view = ExpenseView.team;
 
       approverExpensesService.getExpenseById.and.returnValue(of(perDiemExpense));
+      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
+      mockReport.num_expenses = 1;
+      approverReportsService.getReportById.and.returnValue(of(mockReport));
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
-        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
+        expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
         expect(canDelete).toBeFalse();
         done();
       });
@@ -514,15 +515,15 @@ describe('ViewPerDiemPage', () => {
 
       const mockExpense = cloneDeep(perDiemExpense);
       mockExpense.state = ExpenseState.APPROVER_PENDING;
-      const mockReport = cloneDeep(apiExtendedReportRes[0]);
-      mockReport.rp_num_transactions = 2;
+      const mockReport = cloneDeep(expectedReportsSinglePage[0]);
+      mockReport.num_expenses = 2;
 
-      reportService.getTeamReport.and.returnValue(of(mockReport));
+      approverReportsService.getReportById.and.returnValue(of(mockReport));
       approverExpensesService.getExpenseById.and.returnValue(of(mockExpense));
 
       component.ionViewWillEnter();
       component.canDelete$.subscribe((canDelete) => {
-        expect(reportService.getTeamReport).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
+        expect(approverReportsService.getReportById).toHaveBeenCalledOnceWith('rpFvmTgyeBjN');
         expect(canDelete).toBeTrue();
         done();
       });

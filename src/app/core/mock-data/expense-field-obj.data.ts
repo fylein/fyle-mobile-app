@@ -1,6 +1,8 @@
+import deepFreeze from 'deep-freeze-strict';
+
 import { ExpenseFieldsObj } from '../models/v1/expense-fields-obj.model';
 
-export const expenseFieldObjData: Partial<ExpenseFieldsObj> = {
+export const expenseFieldObjData: Partial<ExpenseFieldsObj> = deepFreeze({
   purpose: {
     id: 22,
     created_at: new Date('2018-01-31T23:50:27.221Z'),
@@ -212,9 +214,9 @@ export const expenseFieldObjData: Partial<ExpenseFieldsObj> = {
     ],
     field: 'org_category_id',
   },
-};
+});
 
-export const txnFieldData: Partial<ExpenseFieldsObj> = {
+export const txnFieldData: Partial<ExpenseFieldsObj> = deepFreeze({
   purpose: {
     id: 22,
     code: null,
@@ -375,9 +377,9 @@ export const txnFieldData: Partial<ExpenseFieldsObj> = {
     parent_field_id: null,
     field: 'org_category_id',
   },
-};
+});
 
-export const txnFieldsData2: Partial<ExpenseFieldsObj> = {
+export const txnFieldsData2: Partial<ExpenseFieldsObj> = deepFreeze({
   flight_journey_travel_class: {
     id: 2,
     created_at: new Date('2018-01-31T23:50:27.221Z'),
@@ -425,9 +427,9 @@ export const txnFieldsData2: Partial<ExpenseFieldsObj> = {
     code: null,
     roles_editable: ['FYLER', 'APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN'],
   },
-};
+});
 
-export const txnFieldsData3: Partial<ExpenseFieldsObj> = {
+export const txnFieldsData3: Partial<ExpenseFieldsObj> = deepFreeze({
   billable: {
     id: 188990,
     code: null,
@@ -496,9 +498,9 @@ export const txnFieldsData3: Partial<ExpenseFieldsObj> = {
     roles_editable: ['APPROVER', 'TRAVEL_ADMIN', 'VERIFIER', 'PAYMENT_PROCESSOR', 'FINANCE', 'ADMIN', 'FYLER'],
     field: 'purpose',
   },
-};
+});
 
-export const txnFieldData2: Partial<ExpenseFieldsObj> = {
+export const txnFieldData2: Partial<ExpenseFieldsObj> = deepFreeze({
   purpose: {
     id: 22,
     code: null,
@@ -659,4 +661,4 @@ export const txnFieldData2: Partial<ExpenseFieldsObj> = {
     parent_field_id: null,
     field: 'org_category_id',
   },
-};
+});
