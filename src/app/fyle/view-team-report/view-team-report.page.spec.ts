@@ -893,9 +893,8 @@ describe('ViewTeamReportPageV2', () => {
 
   it('addComment(): should add a comment', () => {
     approverReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
-    spyOn(component, 'loadReports').and.returnValue(of(expectedReportsSinglePage[0]));
     spyOn(component.content, 'scrollToBottom');
-    // spyOn(component.refreshEstatuses$, 'next');
+    spyOn(component.refreshApprovals$, 'next');
     component.isCommentsView = true;
     component.newComment = 'comment';
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));
@@ -906,7 +905,7 @@ describe('ViewTeamReportPageV2', () => {
     expect(approverReportsService.postComment).toHaveBeenCalledOnceWith(component.objectId, 'comment');
     expect(component.isCommentAdded).toBeTrue();
     expect(component.newComment).toBeNull();
-    expect(component.loadReports).toHaveBeenCalledTimes(1);
+    expect(component.refreshApprovals$.next).toHaveBeenCalledOnceWith(null);
     expect(component.commentInput.nativeElement.focus).toHaveBeenCalledTimes(1);
   });
 
