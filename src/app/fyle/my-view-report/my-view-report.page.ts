@@ -171,6 +171,7 @@ export class MyViewReportPage {
         st_created_at: comment.created_at,
         st_id: comment.id,
         us_full_name: comment.creator_user?.full_name,
+        st_diff: null,
       };
       return status;
     });

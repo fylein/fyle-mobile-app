@@ -207,6 +207,7 @@ export class ViewTeamReportPage {
         isOthersComment: comment.isOthersComment,
         st_created_at: comment.created_at,
         st_id: comment.id,
+        st_diff: null,
       };
       return status;
     });
