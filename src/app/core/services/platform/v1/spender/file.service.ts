@@ -12,13 +12,15 @@ import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-r
 export class SpenderFileService {
   constructor(private spenderPlatformV1ApiService: SpenderPlatformV1ApiService) {}
 
-  createFile(payload: PlatformFilePostRequestPayload): Observable<PlatformFile> {
+  createFile(data: PlatformFilePostRequestPayload): Observable<PlatformFile> {
+    const payload = { data };
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformFile>>('/files', payload)
       .pipe(map((response) => response.data));
   }
 
-  createFilesBulk(payload: PlatformFilePostRequestPayload[]): Observable<PlatformFile[]> {
+  createFilesBulk(data: PlatformFilePostRequestPayload[]): Observable<PlatformFile[]> {
+    const payload = { data };
     return this.spenderPlatformV1ApiService
       .post<PlatformApiResponse<PlatformFile[]>>('/files/bulk', payload)
       .pipe(map((response) => response.data));
