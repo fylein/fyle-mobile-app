@@ -78,9 +78,9 @@ describe('SidemenuComponent', () => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['connectivityWatcher', 'isOnline']);
     const sidemenuServiceSpy = jasmine.createSpyObj('SidemenuService', ['getAllowedActions']);
     const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
-    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getOrgs', 'getCurrentOrg', 'getPrimaryOrg']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
-    authServiceSpy.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authServiceSpy.getEou.and.resolveTo(apiEouRes);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
 
     TestBed.configureTestingModule({
@@ -148,12 +148,12 @@ describe('SidemenuComponent', () => {
 
     component.setupNetworkWatcher();
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toEqual(true);
+      expect(connectionStatus).toBeTrue();
     });
     eventEmitterMock.emit(false);
     tick(500);
     component.isConnected$.pipe(take(1)).subscribe((connectionStatus) => {
-      expect(connectionStatus).toEqual(false);
+      expect(connectionStatus).toBeFalse();
     });
   }));
 
@@ -495,7 +495,7 @@ describe('SidemenuComponent', () => {
 
   describe('showSideMenuOnline', () => {
     it('should return false when there is internet connection and the user is not logged in', fakeAsync(() => {
-      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(false));
+      routerAuthService.isLoggedIn.and.resolveTo(false);
       component.showSideMenuOnline();
       tick(500);
       expect(routerAuthService.isLoggedIn).toHaveBeenCalledTimes(1);
@@ -503,14 +503,15 @@ describe('SidemenuComponent', () => {
 
     it('should return true when there is internet connection and the user is logged in', fakeAsync(() => {
       component.isConnected$ = of(true);
-      routerAuthService.isLoggedIn.and.returnValue(Promise.resolve(true));
+      routerAuthService.isLoggedIn.and.resolveTo(true);
       orgService.getOrgs.and.returnValue(of(orgData1));
       orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+      orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
       orgUserService.findDelegatedAccounts.and.returnValue(of([currentEouRes]));
       deviceService.getDeviceInfo.and.returnValue(of(extendedDeviceInfoMockData));
-      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(false));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(false);
       orgUserService.getCurrent.and.returnValue(of(currentEouRes));
 
       sidemenuService.getAllowedActions.and.returnValue(of(sidemenuAllowedActions));
@@ -526,6 +527,7 @@ describe('SidemenuComponent', () => {
       expect(orgUserService.isSwitchedToDelegator).toHaveBeenCalledTimes(1);
       expect(sidemenuService.getAllowedActions).toHaveBeenCalledTimes(1);
       expect(orgService.getCurrentOrg).toHaveBeenCalledTimes(1);
+      expect(orgService.getPrimaryOrg).toHaveBeenCalledTimes(1);
       expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
       expect(orgUserService.findDelegatedAccounts).toHaveBeenCalledTimes(1);

@@ -19,8 +19,9 @@ import { ExtendedDeviceInfo } from 'src/app/core/models/extended-device-info.mod
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { Router } from '@angular/router';
 import { MenuController } from '@ionic/angular';
-import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { SidemenuAllowedActions } from 'src/app/core/models/sidemenu-allowed-actions.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+
 
 @Component({
   selector: 'app-sidemenu',
@@ -51,6 +52,8 @@ export class SidemenuComponent implements OnInit {
   primaryOptionsCount: number;
 
   deviceInfo: Observable<ExtendedDeviceInfo>;
+
+  primaryOrg: Org;
 
   constructor(
     private deviceService: DeviceService,
@@ -95,12 +98,14 @@ export class SidemenuComponent implements OnInit {
   }
 
   async showSideMenuOnline(): Promise<void> {
+
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
       return;
     }
     const orgs$ = this.orgService.getOrgs();
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
+    const primaryOrg$ = this.orgService.getPrimaryOrg().pipe(shareReplay(1));
     const orgSettings$ = this.orgSettingsService.get().pipe(shareReplay(1));
     const orgUserSettings$ = this.orgUserSettingsService.get();
     const delegatedAccounts$ = this.orgUserService
@@ -114,6 +119,7 @@ export class SidemenuComponent implements OnInit {
       forkJoin({
         orgs: orgs$,
         currentOrg: currentOrg$,
+        primaryOrg: primaryOrg$,
         orgSettings: orgSettings$,
         orgUserSettings: orgUserSettings$,
         delegatedAccounts: delegatedAccounts$,
@@ -128,6 +134,7 @@ export class SidemenuComponent implements OnInit {
         {
           orgs,
           currentOrg,
+          primaryOrg,
           orgSettings,
           orgUserSettings,
           delegatedAccounts,
@@ -139,6 +146,7 @@ export class SidemenuComponent implements OnInit {
         isConnected,
       ]) => {
         this.activeOrg = currentOrg;
+        this.primaryOrg = primaryOrg;
         this.orgSettings = orgSettings;
         this.orgUserSettings = orgUserSettings;
         const isDelegatee = delegatedAccounts?.length > 0;
@@ -174,11 +182,8 @@ export class SidemenuComponent implements OnInit {
     );
   }
 
-  getCardOptions(): {
-    title: string;
-    isVisible: boolean;
-    route: string[];
-  }[] {
+
+  getCardOptions(): Partial<SidemenuItem>[] {
     const cardOptions = [
       {
         title: 'Personal Cards',
@@ -192,16 +197,15 @@ export class SidemenuComponent implements OnInit {
     return cardOptions.filter((cardOption) => cardOption.isVisible);
   }
 
-  getTeamOptions(): {
-    title: string;
-    isVisible: boolean;
-    route: string[];
-  }[] {
+
+  getTeamOptions(): Partial<SidemenuItem>[] {
+    const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;
+
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {
         title: 'Team Reports',
-        isVisible: allowedReportsActions && allowedReportsActions.approve,
+        isVisible: allowedReportsActions && allowedReportsActions.approve && showTeamReportsPage,
         route: ['/', 'enterprise', 'team_reports'],
       },
       {

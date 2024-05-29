@@ -1,4 +1,5 @@
 import { ReportApprovals } from '../report-approvals.model';
+import { Comment } from './comment.model';
 import { Level } from './level.model';
 
 export interface Report {
@@ -7,6 +8,7 @@ export interface Report {
   created_at: Date | string;
   updated_at: Date;
   user_id: string;
+  comments: Comment[];
   user: {
     id: string;
     email: string;

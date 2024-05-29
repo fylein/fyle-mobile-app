@@ -101,9 +101,9 @@
         <div *ngIf="approvals.length > 0" class="view-reports--approval-state-block">
           <div class="view-reports--approvers-title-block">
             <div class="view-reports--approvers">Approvers</div>
-            <div *ngIf="actions$|async as actions">
+            <div *ngIf="permissions$|async as permissions">
               <app-fy-approver
-                *ngIf="actions.can_add_approver"
+                *ngIf="permissions.can_add_approver"
                 [approverEmailsList]="getApproverEmails(approvals)"
                 [id]="report.id"
                 [ownerEmail]="report.employee.user.email"
@@ -185,7 +185,7 @@
         <div *ngIf="isCommentsView && userComments && userComments.length > 0" class="view-comment--container">
           <div *ngFor="let estatus of userComments">
             <div *ngIf="estatus.show_dt">
-              <div class="view-comment--date text-center">{{ estatus.st_created_at | dateFormat }}</div>
+              <div class="view-comment--date text-center">{{ estatus.created_at | dateFormat }}</div>
             </div>
             <div
               class="view-comment--block"
@@ -195,28 +195,28 @@
               <ion-grid class="view-comment--card view-comment--self-comment text-right">
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
                     <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                     <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -235,28 +235,28 @@
               <ion-grid class="view-comment--card view-comment--others-comment text-left">
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                    <div class="view-comment--name-container">{{ estatus.creator_user?.full_name }}</div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
                     <div
-                      *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                      *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                     <div
-                      *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                      *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                       class="view-comment--comment-detail"
                     >
-                      {{ estatus.st_comment }}
+                      {{ estatus.comment }}
                     </div>
                   </ion-col>
                 </ion-row>
                 <ion-row>
                   <ion-col size="12">
-                    <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                    <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                   </ion-col>
                 </ion-row>
               </ion-grid>
@@ -292,8 +292,8 @@
   </div>
 </ion-content>
 
-<ng-container *ngIf="actions$|async as actions">
-  <ion-footer *ngIf="!isCommentsView && isReportReported && actions.can_approve" class="cta-footer">
+<ng-container *ngIf="permissions$|async as permissions">
+  <ion-footer *ngIf="!isCommentsView && isReportReported && permissions.can_approve" class="cta-footer">
     <div *ngIf="canShowTooltip && !canApprove" class="view-reports--disabled-info text-center">
       <div class="view-reports--disabled-info-content">
         Waiting for other approvers to approve this expense report
