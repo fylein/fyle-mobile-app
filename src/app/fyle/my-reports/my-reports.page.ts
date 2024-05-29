@@ -40,6 +40,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 type Filters = Partial<{
   state: string | string[];
@@ -112,6 +113,8 @@ export class MyReportsPage {
 
   nonReimbursableOrg$: Observable<boolean>;
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -128,7 +131,8 @@ export class MyReportsPage {
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
     private expensesService: ExpensesService,
-    private spenderReportsService: SpenderReportsService
+    private spenderReportsService: SpenderReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -146,6 +150,8 @@ export class MyReportsPage {
 
     this.isLoading = true;
     this.setupNetworkWatcher();
+
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.searchText = '';
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigateBack;

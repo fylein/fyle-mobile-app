@@ -13,7 +13,7 @@
     <div class="reports-card--purpose-amount-block">
       <div class="reports-card--purpose">
         <span>{{ report.purpose | ellipsis : 40 }}</span>
-        <span *ngIf="report.is_manually_flagged || report.is_policy_flagged">
+        <span *ngIf="(isManualFlagFeatureEnabled && report.is_manually_flagged) || report.is_policy_flagged">
           <mat-icon class="reports-card--icon-policy-violation" svgIcon="warning-fill"></mat-icon>
         </span>
       </div>
