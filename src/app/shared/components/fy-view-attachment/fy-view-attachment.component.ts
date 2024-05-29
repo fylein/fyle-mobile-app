@@ -9,6 +9,7 @@ import { SwiperComponent } from 'swiper/angular';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FileObject } from 'src/app/core/models/file-obj.model';
+import { OverlayEventDetail } from '@ionic/core';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -112,8 +113,8 @@ export class FyViewAttachmentComponent implements OnInit {
     });
 
     await deletePopover.present();
-    const response = await deletePopover.onWillDismiss();
-    const data: { action: string } = response.data;
+    const response: OverlayEventDetail<{ action: string }> = await deletePopover.onWillDismiss();
+    const data = response.data;
 
     if (data?.action === 'remove') {
       from(this.loaderService.showLoader())
