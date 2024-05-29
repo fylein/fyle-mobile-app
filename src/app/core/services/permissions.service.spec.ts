@@ -30,7 +30,7 @@ describe('PermissionsService', () => {
 
   describe('allowedActions():', () => {
     it('should get allowed actions for a user', (done) => {
-      const roles = ['HOP', 'HOD', 'OWNER'];
+      const roles = ['HOD', 'HOP', 'OWNER', 'APPROVER'];
       const actions = ['approve', 'create', 'delete'];
       const resource = 'reports';
 
@@ -39,24 +39,31 @@ describe('PermissionsService', () => {
 
       const setAllowedActionsSpy = spyOn(permissionsService, 'setAllowedActions');
       setAllowedActionsSpy
-        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: true, delete: true }, 'admin', resource)
-        .and.callThrough();
-      setAllowedActionsSpy.withArgs(actions, { allowedRouteAccess: false }, 'hop', resource).and.callThrough();
-      setAllowedActionsSpy
-        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'hod', resource)
+        .withArgs(actions, { allowedRouteAccess: false, approve: false, create: true, delete: true }, 'admin', resource)
         .and.callThrough();
       setAllowedActionsSpy
-        .withArgs(actions, { allowedRouteAccess: true, approve: true, create: false, delete: false }, 'owner', resource)
+        .withArgs(actions, { allowedRouteAccess: false, approve: false, create: false, delete: false }, 'hop', resource)
+        .and.callThrough();
+      setAllowedActionsSpy
+        .withArgs(
+          actions,
+          { allowedRouteAccess: false, approve: false, create: false, delete: false },
+          'owner',
+          resource
+        )
+        .and.callThrough();
+      setAllowedActionsSpy.withArgs(actions, { allowedRouteAccess: false }, 'hod', resource).and.callThrough();
+      setAllowedActionsSpy
+        .withArgs(
+          actions,
+          { allowedRouteAccess: false, approve: false, create: false, delete: false },
+          'approver',
+          resource
+        )
         .and.callThrough();
 
       permissionsService.allowedActions(resource, actions, orgSettingsRes).subscribe((res) => {
         expect(res).toEqual({ allowedRouteAccess: true, approve: true, create: false, delete: false });
-        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
-          actions,
-          { allowedRouteAccess: true, approve: true, create: false, delete: false },
-          'hop',
-          resource
-        );
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
@@ -66,10 +73,22 @@ describe('PermissionsService', () => {
         expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
           actions,
           { allowedRouteAccess: true, approve: true, create: false, delete: false },
+          'hop',
+          resource
+        );
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
+          actions,
+          { allowedRouteAccess: true, approve: true, create: false, delete: false },
           'owner',
           resource
         );
-        expect(permissionsService.setAllowedActions).toHaveBeenCalledTimes(3);
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledWith(
+          actions,
+          { allowedRouteAccess: true, approve: true, create: false, delete: false },
+          'approver',
+          resource
+        );
+        expect(permissionsService.setAllowedActions).toHaveBeenCalledTimes(4);
         expect(authService.getRoles).toHaveBeenCalledTimes(1);
         done();
       });

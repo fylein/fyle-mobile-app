@@ -34,6 +34,7 @@ import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
 import { AuthService } from '../../../core/services/auth.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 @Component({
   selector: 'app-tasks',
@@ -81,7 +82,8 @@ export class TasksComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private networkService: NetworkService,
     private orgSettingsService: OrgSettingsService,
-    private authService: AuthService
+    private authService: AuthService,
+    private orgService: OrgService
   ) {}
 
   ngOnInit(): void {
@@ -105,10 +107,13 @@ export class TasksComponent implements OnInit {
     this.tasks$ = combineLatest({
       taskFilters: this.loadData$,
       autoSubmissionReportDate: this.autoSubmissionReportDate$,
+      currentOrg: this.orgService.getCurrentOrg(),
+      primaryOrg: this.orgService.getPrimaryOrg(),
     }).pipe(
-      switchMap(({ taskFilters, autoSubmissionReportDate }) =>
-        this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters)
-      ),
+      switchMap(({ taskFilters, autoSubmissionReportDate, currentOrg, primaryOrg }) => {
+        const showTeamReportTask = currentOrg.id === primaryOrg.id;
+        return this.taskService.getTasks(!!autoSubmissionReportDate, taskFilters, showTeamReportTask);
+      }),
       shareReplay(1)
     );
 
@@ -521,19 +526,20 @@ export class TasksComponent implements OnInit {
 
   onTeamReportsTaskClick(taskCta: TaskCta, task: DashboardTask): void {
     if (task.count === 1) {
-      const queryParams = {
-        rp_approval_state: ['in.(APPROVAL_PENDING)'],
-        rp_state: ['in.(APPROVER_PENDING)'],
-        sequential_approval_turn: ['in.(true)'],
-      };
-      from(this.loaderService.showLoader('Opening your report...'))
-        .pipe(
-          switchMap(() => this.reportService.getTeamReports({ queryParams, offset: 0, limit: 1 })),
-          finalize(() => this.loaderService.hideLoader())
-        )
-        .subscribe((res) => {
-          this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res.data[0].rp_id, navigate_back: true }]);
-        });
+      from(this.authService.getEou()).subscribe((eou) => {
+        const queryParams = {
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
+          state: `eq.${ReportState.APPROVER_PENDING}`,
+        };
+        return from(this.loaderService.showLoader('Opening your report...'))
+          .pipe(
+            switchMap(() => this.approverReportsService.getAllReportsByParams(queryParams)),
+            finalize(() => this.loaderService.hideLoader())
+          )
+          .subscribe((res) => {
+            this.router.navigate(['/', 'enterprise', 'view_team_report', { id: res[0].id, navigate_back: true }]);
+          });
+      });
     } else {
       this.router.navigate(['/', 'enterprise', 'team_reports'], {
         queryParams: {

@@ -3,7 +3,6 @@ import { IonicModule } from '@ionic/angular';
 import { ReportsCardComponent } from './reports-card.component';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 import { MatIconModule } from '@angular/material/icon';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { EllipsisPipe } from '../../pipes/ellipses.pipe';
 import { HumanizeCurrencyPipe } from '../../pipes/humanize-currency.pipe';
 import { FyCurrencyPipe } from '../../pipes/fy-currency.pipe';
@@ -11,6 +10,7 @@ import { CurrencyPipe } from '@angular/common';
 import { ReportState } from '../../pipes/report-state.pipe';
 import { SnakeCaseToSpaceCase } from '../../pipes/snake-case-to-space-case.pipe';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
 
 describe('ReportsCardComponent', () => {
   let component: ReportsCardComponent;
@@ -25,7 +25,7 @@ describe('ReportsCardComponent', () => {
 
     fixture = TestBed.createComponent(ReportsCardComponent);
     component = fixture.componentInstance;
-    component.erpt = apiExtendedReportRes[0];
+    component.report = expectedReportsSinglePage[0];
     component.prevDate = new Date();
     fixture.detectChanges();
   }));
@@ -35,11 +35,11 @@ describe('ReportsCardComponent', () => {
   });
 
   it('should display information correctly', () => {
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--date'))).toEqual('Jan 21, 2023');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--date'))).toEqual('Jul 11, 2023');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--purpose'))).toEqual('#8:  Jan 2023');
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--currency'))).toEqual('$');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('116.90');
-    expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('1 Expense');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--amount'))).toEqual('100.00');
+    expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
   });
 
   it('onDeleteReport(): should delete report event', () => {

@@ -2,7 +2,6 @@ import { Component, EventEmitter, ViewChild, ElementRef } from '@angular/core';
 import { concat, Observable, Subject, from, noop, BehaviorSubject, fromEvent, of } from 'rxjs';
 import { ActivatedRoute, Params, Router } from '@angular/router';
 import { NetworkService } from 'src/app/core/services/network.service';
-import { ExtendedReport } from 'src/app/core/models/report.model';
 import {
   switchMap,
   finalize,
@@ -37,6 +36,10 @@ import * as dayjs from 'dayjs';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { DeletePopoverParams } from 'src/app/core/models/delete-popover-params.model';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
 
 type Filters = Partial<{
   state: string | string[];
@@ -45,7 +48,6 @@ type Filters = Partial<{
   customDateEnd: Date;
   sortParam: string;
   sortDir: string;
-  rp_state: string;
 }>;
 @Component({
   selector: 'app-my-reports',
@@ -57,7 +59,7 @@ export class MyReportsPage {
 
   isConnected$: Observable<boolean>;
 
-  myReports$: Observable<ExtendedReport[]>;
+  myReports$: Observable<Report[]>;
 
   count$: Observable<number>;
 
@@ -66,7 +68,7 @@ export class MyReportsPage {
   loadData$: BehaviorSubject<
     Partial<{
       pageNumber: number;
-      queryParams: Partial<{ or: string[]; and: string }>;
+      queryParams: ReportsQueryParams;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -75,7 +77,7 @@ export class MyReportsPage {
 
   currentPageNumber = 1;
 
-  acc: ExtendedReport[] = [];
+  acc: Report[] = [];
 
   filters: Filters;
 
@@ -125,7 +127,8 @@ export class MyReportsPage {
     private modalController: ModalController,
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -171,19 +174,24 @@ export class MyReportsPage {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {
-          rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        const queryParams = params.queryParams || {
+          state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
+        if (params.searchString) {
+          queryParams.q = params.searchString + ':*';
+        } else {
+          delete queryParams.q;
+        }
+        const orderByParams =
+          params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;
-        return this.reportService.getMyReportsCount(queryParams).pipe(
+        return this.spenderReportsService.getReportsCount(queryParams).pipe(
           switchMap((count) => {
             if (count > (params.pageNumber - 1) * 10) {
-              return this.reportService.getMyReports({
+              return this.spenderReportsService.getReportsByParams({
+                ...queryParams,
                 offset: (params.pageNumber - 1) * 10,
                 limit: 10,
-                queryParams,
                 order: orderByParams,
               });
             } else {
@@ -194,7 +202,7 @@ export class MyReportsPage {
           })
         );
       }),
-      map((res) => {
+      map((res: PlatformApiResponse<Report[]>) => {
         this.isLoadingDataInInfiniteScroll = false;
         if (this.currentPageNumber === 1) {
           this.acc = [];
@@ -208,17 +216,22 @@ export class MyReportsPage {
 
     this.count$ = this.loadData$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {
-          rp_state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
+        const queryParams = params.queryParams || {
+          state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getMyReportsCount(queryParams);
+        if (params.searchString) {
+          queryParams.q = params.searchString + ':*';
+        } else {
+          delete queryParams.q;
+        }
+        this.isLoadingDataInInfiniteScroll = true;
+        return this.spenderReportsService.getReportsCount(queryParams);
       }),
       shareReplay(1)
     );
 
     const paginatedScroll$ = this.myReports$.pipe(
-      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
+      switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
     );
 
     this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
@@ -282,7 +295,6 @@ export class MyReportsPage {
       this.filterPills = this.generateFilterPills(this.filters);
     } else if (this.activatedRoute.snapshot.params.state) {
       const filters = {
-        rp_state: `in.(${(this.activatedRoute.snapshot.params.state as string).toLowerCase()})`,
         state: (this.activatedRoute.snapshot.params.state as string).toUpperCase(),
       };
 
@@ -337,87 +349,87 @@ export class MyReportsPage {
     });
   }
 
-  generateCustomDateParams(newQueryParams: { or: string[]; and?: string }): void {
+  generateCustomDateParams(newQueryParams: { and?: string }): void {
     if (this.filters.date === DateFilters.custom) {
       const startDate = this.filters.customDateStart?.toISOString();
       const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_created_at.gte.${startDate},rp_created_at.lt.${endDate})`;
+        newQueryParams.and = `(created_at.gte.${startDate},created_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
-        newQueryParams.and = `(rp_created_at.gte.${startDate})`;
+        newQueryParams.and = `(created_at.gte.${startDate})`;
       } else if (this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_created_at.lt.${endDate})`;
+        newQueryParams.and = `(created_at.lt.${endDate})`;
       }
     }
   }
 
-  generateDateParams(newQueryParams: { or: string[]; and?: string }): void {
+  generateDateParams(newQueryParams: { and?: string }): void {
     if (this.filters.date) {
       this.filters.customDateStart = this.filters.customDateStart && new Date(this.filters.customDateStart);
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${thisMonth.from.toISOString()},rp_created_at.lt.${thisMonth.to.toISOString()})`;
+        newQueryParams.and = `(created_at.gte.${thisMonth.from.toISOString()},created_at.lt.${thisMonth.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(rp_created_at.gte.${thisWeek.from.toISOString()},rp_created_at.lt.${thisWeek.to.toISOString()})`;
+        newQueryParams.and = `(created_at.gte.${thisWeek.from.toISOString()},created_at.lt.${thisWeek.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(rp_created_at.gte.${lastMonth.from.toISOString()},rp_created_at.lt.${lastMonth.to.toISOString()})`;
+        newQueryParams.and = `(created_at.gte.${lastMonth.from.toISOString()},created_at.lt.${lastMonth.to.toISOString()})`;
       }
 
       this.generateCustomDateParams(newQueryParams);
     }
   }
 
-  generateStateFilters(newQueryParams: { or: string[]; and?: string }): void {
+  generateStateFilters(newQueryParams: { and?: string; state?: string }): void {
     const stateOrFilter: string[] = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('DRAFT')) {
-        stateOrFilter.push('rp_state.in.(DRAFT)');
+        stateOrFilter.push('DRAFT');
       }
 
       if (this.filters.state.includes('APPROVER_PENDING')) {
-        stateOrFilter.push('rp_state.in.(APPROVER_PENDING)');
+        stateOrFilter.push('APPROVER_PENDING');
       }
 
       if (this.filters.state.includes('APPROVER_INQUIRY')) {
-        stateOrFilter.push('rp_state.in.(APPROVER_INQUIRY)');
+        stateOrFilter.push('APPROVER_INQUIRY');
       }
 
       if (this.filters.state.includes('APPROVED')) {
-        stateOrFilter.push('rp_state.in.(APPROVED)');
+        stateOrFilter.push('APPROVED');
       }
 
       if (this.filters.state.includes('PAYMENT_PENDING')) {
-        stateOrFilter.push('rp_state.in.(PAYMENT_PENDING)');
+        stateOrFilter.push('PAYMENT_PENDING');
       }
 
       if (this.filters.state.includes('PAYMENT_PROCESSING')) {
-        stateOrFilter.push('rp_state.in.(PAYMENT_PROCESSING)');
+        stateOrFilter.push('PAYMENT_PROCESSING');
       }
 
       if (this.filters.state.includes('PAID')) {
-        stateOrFilter.push('rp_state.in.(PAID)');
+        stateOrFilter.push('PAID');
       }
     }
 
     if (stateOrFilter.length > 0) {
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
+      let combinedStateOrFilter = stateOrFilter.join();
+      combinedStateOrFilter = `${combinedStateOrFilter}`;
+      newQueryParams.state = `in.(${combinedStateOrFilter})`;
     }
   }
 
   setSortParams(
     currentParams: Partial<{
       pageNumber: number;
-      queryParams: Partial<{ or: string[]; and: string }>;
+      queryParams: ReportsQueryParams;
       sortParam: string;
       sortDir: string;
       searchString: string;
@@ -427,26 +439,24 @@ export class MyReportsPage {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
     } else {
-      currentParams.sortParam = 'rp_created_at';
+      currentParams.sortParam = 'created_at';
       currentParams.sortDir = 'desc';
     }
   }
 
   addNewFiltersToParams(): Partial<{
     pageNumber: number;
-    queryParams: Partial<{
-      or: string[];
-      and: string;
-    }>;
+    queryParams: ReportsQueryParams;
     sortParam: string;
     sortDir: string;
     searchString: string;
   }> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: { or: string[]; and?: string } = {
-      or: [],
-    };
+    const newQueryParams: {
+      and?: string;
+      state?: string;
+    } = {};
 
     this.generateDateParams(newQueryParams);
 
@@ -467,11 +477,11 @@ export class MyReportsPage {
     this.filterPills = this.generateFilterPills(this.filters);
   }
 
-  onReportClick(erpt: ExtendedReport): void {
-    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: erpt.rp_id, navigateBack: true }]);
+  onReportClick(report: Report): void {
+    this.router.navigate(['/', 'enterprise', 'my_view_report', { id: report.id, navigateBack: true }]);
   }
 
-  getDeleteReportPopoverParams(erpt: ExtendedReport): DeletePopoverParams {
+  getDeleteReportPopoverParams(report: Report): DeletePopoverParams {
     return {
       component: FyDeleteDialogComponent,
       cssClass: 'delete-dialog',
@@ -480,18 +490,18 @@ export class MyReportsPage {
         header: 'Delete Report',
         body: 'Are you sure you want to delete this report?',
         infoMessage: 'Deleting the report will not delete any of the expenses.',
-        deleteMethod: (): Observable<void> => this.reportService.delete(erpt.rp_id),
+        deleteMethod: (): Observable<void> => this.reportService.delete(report.id),
       },
     };
   }
 
-  async onDeleteReportClick(erpt: ExtendedReport): Promise<void> {
-    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(erpt.rp_state) === -1) {
+  async onDeleteReportClick(report: Report): Promise<void> {
+    if (['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'].indexOf(report.state) === -1) {
       const cannotDeleteReportPopOver = await this.popoverController.create({
         component: PopupAlertComponent,
         componentProps: {
           title: 'Cannot Delete Report',
-          message: `${capitalize(replace(erpt.rp_state, '_', ' '))} report cannot be deleted.`,
+          message: `${capitalize(replace(report.state, '_', ' '))} report cannot be deleted.`,
           primaryCta: {
             text: 'Close',
             action: 'continue',
@@ -502,7 +512,7 @@ export class MyReportsPage {
 
       await cannotDeleteReportPopOver.present();
     } else {
-      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(erpt));
+      const deleteReportPopover = await this.popoverController.create(this.getDeleteReportPopoverParams(report));
 
       await deleteReportPopover.present();
       const { data } = (await deleteReportPopover.onDidDismiss()) as { data: { status: string } };
@@ -618,12 +628,12 @@ export class MyReportsPage {
     }>,
     generatedFilters: SelectedFilters<string>[]
   ): void {
-    if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateOldToNew',
       });
-    } else if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateNewToOld',
@@ -688,12 +698,12 @@ export class MyReportsPage {
     }>,
     generatedFilters: SelectedFilters<string>[]
   ): void {
-    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'nameAToZ',
       });
-    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'nameZToA',
@@ -714,22 +724,22 @@ export class MyReportsPage {
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
-        generatedFilters.sortParam = 'rp_created_at';
+        generatedFilters.sortParam = 'created_at';
         generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'dateOldToNew') {
-        generatedFilters.sortParam = 'rp_created_at';
+        generatedFilters.sortParam = 'created_at';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'amountHighToLow') {
-        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortParam = 'amount';
         generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'amountLowToHigh') {
-        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortParam = 'amount';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'nameAToZ') {
-        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortParam = 'purpose';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'nameZToA') {
-        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortParam = 'purpose';
         generatedFilters.sortDir = 'desc';
       }
     }
@@ -833,13 +843,13 @@ export class MyReportsPage {
   }
 
   generateSortRptDatePills(filter: Filters, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'created_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'date - old to new',
       });
-    } else if (filter.sortParam === 'rp_created_at' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'created_at' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -849,13 +859,13 @@ export class MyReportsPage {
   }
 
   generateSortAmountPills(filter: Filters, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+    if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'amount - high to low',
       });
-    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+    } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -865,13 +875,13 @@ export class MyReportsPage {
   }
 
   generateSortNamePills(filter: Filters, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'Name - a to z',
       });
-    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -917,12 +927,12 @@ export class MyReportsPage {
     }>,
     generatedFilters: SelectedFilters<string>[]
   ): void {
-    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+    if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountHighToLow',
       });
-    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+    } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountLowToHigh',

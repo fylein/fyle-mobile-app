@@ -23,6 +23,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { OrgService } from 'src/app/core/services/org.service';
 
 describe('TasksComponent', () => {
   const getTestBed = () => {
@@ -70,6 +71,7 @@ describe('TasksComponent', () => {
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getAllReportsByParams']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getPrimaryOrg', 'getCurrentOrg']);
     const authServiceSpy = jasmine.createSpyObj('AuthService', ['getEou']);
     const routerSpy = jasmine.createSpyObj('Router', ['navigate']);
     const activatedRouteSpy = {
@@ -103,6 +105,7 @@ describe('TasksComponent', () => {
         { provide: ExpensesService, useValue: expensesServiceSpy },
         { provide: SpenderReportsService, useValue: spenderReportsServiceSpy },
         { provide: ApproverReportsService, useValue: approverReportsServiceSpy },
+        { provide: OrgService, useValue: orgServiceSpy },
       ],
       schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
