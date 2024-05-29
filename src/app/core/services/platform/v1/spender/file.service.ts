@@ -26,6 +26,12 @@ export class SpenderFileService {
       .pipe(map((response) => response.data));
   }
 
+  deleteFilesBulk(fileIds: string[]): Observable<{}> {
+    const data = fileIds.map((id) => ({ id }));
+    const payload = { data };
+    return this.spenderPlatformV1ApiService.post('/files/delete/bulk', payload);
+  }
+
   generateUrls(id: string): Observable<PlatformFileGenerateUrlsResponse> {
     const payload = {
       data: { id },
