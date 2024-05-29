@@ -174,14 +174,10 @@ export class MyReportsPage {
 
     const paginatedPipe = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {
+        let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        if (params.searchString) {
-          queryParams.q = params.searchString + ':*';
-        } else {
-          delete queryParams.q;
-        }
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         const orderByParams =
           params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
         this.isLoadingDataInInfiniteScroll = true;

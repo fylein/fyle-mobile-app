@@ -25,7 +25,7 @@ export class ApiV2Service {
     return this.httpClient.get<T>(this.ROOT_ENDPOINT + '/v2' + url, config);
   }
 
-  extendQueryParamsForTextSearch(queryParams = {}, simpleSearchText: string) {
+  extendQueryParamsForTextSearch(queryParams = {}, simpleSearchText: string, isPlatformApi?: boolean) {
     if (simpleSearchText === undefined || simpleSearchText.length < 1) {
       return queryParams;
     }
@@ -39,6 +39,10 @@ export class ApiV2Service {
       .concat(lastElement)
       .concat(':*');
 
-    return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
+    if (isPlatformApi) {
+      return Object.assign({}, queryParams, { q: searchQuery });
+    } else {
+      return Object.assign({}, queryParams, { _search_document: 'fts.' + searchQuery });
+    }
   }
 }
