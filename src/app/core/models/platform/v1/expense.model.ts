@@ -158,6 +158,7 @@ export interface MatchedCorporateCardTransaction {
   merchant: string;
   category: string;
   matched_by: string;
+  corporate_card_nickname?: string;
 }
 
 export enum TransactionStatus {
