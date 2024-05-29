@@ -64,31 +64,31 @@ export class FyViewAttachmentComponent implements OnInit {
     this.zoomScale += 0.25;
   }
 
-  zoomOut() {
+  zoomOut(): void {
     this.zoomScale -= 0.25;
   }
 
-  resetZoom() {
+  resetZoom(): void {
     this.zoomScale = 1;
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss({ attachments: this.attachments });
   }
 
-  goToNextSlide() {
+  goToNextSlide(): void {
     this.imageSlides.swiperRef.slideNext();
   }
 
-  goToPrevSlide() {
+  goToPrevSlide(): void {
     this.imageSlides.swiperRef.slidePrev();
   }
 
-  getActiveIndex() {
+  getActiveIndex(): void {
     this.activeIndex = this.imageSlides.swiperRef.activeIndex;
   }
 
-  async deleteAttachment() {
+  async deleteAttachment(): Promise<void> {
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     try {
       this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
@@ -112,37 +112,36 @@ export class FyViewAttachmentComponent implements OnInit {
     });
 
     await deletePopover.present();
-    const { data } = await deletePopover.onWillDismiss();
+    const response = await deletePopover.onWillDismiss();
+    const data: { action: string } = response.data;
 
-    if (data && data.action) {
-      if (data.action === 'remove') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            switchMap(() => {
-              if (this.attachments[activeIndex].id) {
-                return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
-              } else {
-                return of(null);
-              }
-            }),
-            finalize(() => from(this.loaderService.hideLoader()))
-          )
-          .subscribe(() => {
-            try {
-              this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
-            } catch (error) {}
-            this.attachments.splice(activeIndex, 1);
-            if (this.attachments.length === 0) {
-              this.modalController.dismiss({ attachments: this.attachments });
+    if (data?.action === 'remove') {
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => {
+            if (this.attachments[activeIndex].id) {
+              return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
             } else {
-              if (activeIndex > 0) {
-                this.goToPrevSlide();
-              } else {
-                this.goToNextSlide();
-              }
+              return of(null);
             }
-          });
-      }
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          try {
+            this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
+          } catch (error) {}
+          this.attachments.splice(activeIndex, 1);
+          if (this.attachments.length === 0) {
+            this.modalController.dismiss({ attachments: this.attachments });
+          } else {
+            if (activeIndex > 0) {
+              this.goToPrevSlide();
+            } else {
+              this.goToNextSlide();
+            }
+          }
+        });
     }
   }
 }
