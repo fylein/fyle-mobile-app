@@ -635,6 +635,28 @@ describe('ExpensesCardComponent', () => {
       component.setIsPolicyViolated();
       expect(component.isPolicyViolated).toBeTrue();
     });
+
+    it('should set isPolicyViolated to false when isManualFlagFeatureEnabled is false and expense is manually flagged but not policy flagged', () => {
+      component.isManualFlagFeatureEnabled = false;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: true,
+        is_policy_flagged: false,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeFalse();
+    });
+
+    it('should set isPolicyViolated to true when isManualFlagFeatureEnabled is false and expense is both manually flagged and policy flagged', () => {
+      component.isManualFlagFeatureEnabled = false;
+      component.expense = {
+        ...expenseData,
+        is_manually_flagged: true,
+        is_policy_flagged: true,
+      };
+      component.setIsPolicyViolated();
+      expect(component.isPolicyViolated).toBeTrue();
+    });
   });
 
   describe('setOtherData():', () => {
