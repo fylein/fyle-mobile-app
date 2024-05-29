@@ -38,6 +38,13 @@ describe('LaunchDarklyService', () => {
     expect(launchDarklyService).toBeTruthy();
   });
 
+  it('should call shutDownClient on userEventService logout', () => {
+    spyOn(launchDarklyService, 'shutDownClient');
+
+    userEventService.onLogout.calls.mostRecent().args[0]();
+    expect(launchDarklyService.shutDownClient).toHaveBeenCalledTimes(1);
+  });
+
   it('isTheSameUser(): should check if the user is same', () => {
     //@ts-ignore
     expect(launchDarklyService.isTheSameUser(lDUser)).toBeFalse();
@@ -87,6 +94,17 @@ describe('LaunchDarklyService', () => {
     });
   });
 
+  it('checkIfAndroidNegativeExpensePluginIsEnabled(): should check if android negative expense plugin is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'android-numeric-keypad';
+
+    launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled().subscribe((res) => {
+      expect(res).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      done();
+    });
+  });
+
   it('checkIfManualFlaggingFeatureIsEnabled(): should check if manual flagging feature is enabled', (done) => {
     spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
     const key = 'deprecate_manual_flagging';
@@ -95,6 +113,26 @@ describe('LaunchDarklyService', () => {
       expect(res.value).toBeTrue();
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, true);
       done();
+    });
+  });
+
+  describe('shutDownClient():', () => {
+    beforeEach(() => {
+      ldClient = jasmine.createSpyObj('LDClient', ['off', 'close']);
+      (launchDarklyService as any).ldClient = ldClient;
+    });
+
+    it('should shut down LD client if it exists', () => {
+      launchDarklyService.shutDownClient();
+      expect(ldClient.off).toHaveBeenCalledWith('initialized', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.off).toHaveBeenCalledWith('change', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.close).toHaveBeenCalled();
+      expect((launchDarklyService as any).ldClient).toBeNull();
+    });
+
+    it('should not throw error if LD client does not exist', () => {
+      (launchDarklyService as any).ldClient = null;
+      expect(() => launchDarklyService.shutDownClient()).not.toThrow();
     });
   });
 });
