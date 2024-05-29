@@ -65,6 +65,7 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { EditReportNamePopoverComponent } from './edit-report-name-popover/edit-report-name-popover.component';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { expectedSentBackResponseSingularReport } from 'src/app/core/mock-data/report-stats.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('MyViewReportPage', () => {
   let component: MyViewReportPage;
@@ -86,6 +87,7 @@ describe('MyViewReportPage', () => {
   let refinerService: jasmine.SpyObj<RefinerService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
@@ -132,6 +134,9 @@ describe('MyViewReportPage', () => {
       'getReportById',
       'permissions',
       'postComment',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
     ]);
 
     TestBed.configureTestingModule({
@@ -224,6 +229,7 @@ describe('MyViewReportPage', () => {
           useValue: spenderReportsServiceSpy,
         },
         { provide: NavController, useValue: { push: NavController.prototype.back } },
+        { provide: LaunchDarklyService, useValue: launchDarklyServiceSpy },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
     }).compileComponents();
@@ -246,6 +252,7 @@ describe('MyViewReportPage', () => {
     refinerService = TestBed.inject(RefinerService) as jasmine.SpyObj<RefinerService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     component.report$ = of(platformReportData);
     component.canEdit$ = of(true);
@@ -328,6 +335,7 @@ describe('MyViewReportPage', () => {
       spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
 
       component.ionViewWillEnter();
@@ -341,6 +349,9 @@ describe('MyViewReportPage', () => {
 
       component.report$.subscribe((res) => {
         expect(res).toEqual(report);
+      });
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
       });
       expect(component.systemComments).toEqual(systemExtendedComments);
       expect(component.type).toEqual(component.objectType.substring(0, component.objectType.length - 1));
