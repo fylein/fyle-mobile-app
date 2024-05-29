@@ -3104,10 +3104,12 @@ export class AddEditExpensePage implements OnInit {
           ),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
-            const receiptObjs: ReceiptInfo[] = files.map((file) => {
+            const receiptObjs: FileObject[] = files.map((file) => {
               const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
 
-              const receipt: ReceiptInfo = {
+              const receipt: FileObject = {
+                id: file.id,
+                name: file.name,
                 url: file.download_url,
                 type: details.type,
                 thumbnail: details.thumbnail,
