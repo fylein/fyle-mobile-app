@@ -330,6 +330,8 @@ export class ViewMileagePage {
           const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
           const receipt: FileObject = {
+            id: response.id,
+            name: response.name,
             url: response.download_url,
             type: details.type,
             thumbnail: details.thumbnail,
