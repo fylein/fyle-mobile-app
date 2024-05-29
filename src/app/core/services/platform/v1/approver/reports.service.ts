@@ -7,6 +7,9 @@ import { PAGINATION_SIZE } from 'src/app/constants';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
 import { PlatformStatsRequestParams } from 'src/app/core/models/platform/v1/platform-stats-request-param.model';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { PlatformApiPayload } from 'src/app/core/models/platform/platform-api-payload.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 @Injectable({
   providedIn: 'root',
@@ -37,7 +40,7 @@ export class ApproverReportsService {
 
   getReportsCount(queryParams: ReportsQueryParams): Observable<number> {
     const params = {
-      state: queryParams.state,
+      ...queryParams,
       limit: 1,
       offset: 0,
     };
@@ -76,6 +79,18 @@ export class ApproverReportsService {
   getReportById(id: string): Observable<Report> {
     const queryParams = { id: `eq.${id}` };
     return this.getReportsByParams(queryParams).pipe(map((res: PlatformApiResponse<Report[]>) => res.data[0]));
+  }
+
+  permissions(id: string): Observable<ReportPermissions> {
+    return this.approverPlatformApiService
+      .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
+      .pipe(map((res) => res.data));
+  }
+
+  postComment(id: string, comment: string): Observable<Comment> {
+    return this.approverPlatformApiService
+      .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
+      .pipe(map((res) => res.data));
   }
 
   ejectExpenses(rptId: string, expenseId: string, comment?: string[]): Observable<void> {

@@ -1,4 +1,4 @@
-import { ComponentFixture, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
+import { ComponentFixture, discardPeriodicTasks, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { ModalController, RefresherCustomEvent } from '@ionic/angular';
 
 import { TeamReportsPage } from './team-reports.page';
@@ -16,7 +16,6 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { BehaviorSubject, of } from 'rxjs';
 import { orgSettingsData } from 'src/app/core/test-data/accounts.service.spec.data';
-import { apiExtendedReportRes } from 'src/app/core/mock-data/report.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
@@ -28,6 +27,11 @@ import {
 import { tasksQueryParamsParams } from 'src/app/core/mock-data/get-tasks-query-params.data';
 import { getTeamReportsParams1, getTeamReportsParams2 } from 'src/app/core/mock-data/api-params.data';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases1(getTestBed) {
   return describe('test cases set 1', () => {
@@ -46,6 +50,8 @@ export function TestCases1(getTestBed) {
     let apiV2Service: jasmine.SpyObj<ApiV2Service>;
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+    let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+    let authService: jasmine.SpyObj<AuthService>;
     let inputElement: HTMLInputElement;
 
     beforeEach(waitForAsync(() => {
@@ -65,6 +71,9 @@ export function TestCases1(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+      authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      component.eou$ = of(apiEouRes);
     }));
 
     it('should create', () => {
@@ -93,16 +102,12 @@ export function TestCases1(getTestBed) {
       beforeEach(() => {
         tasksService.getTeamReportsTaskCount.and.returnValue(of(10));
         orgSettingsService.get.and.returnValue(of(orgSettingsParamsWithSimplifiedReport));
+        authService.getEou.and.resolveTo(apiEouRes);
         currencyService.getHomeCurrency.and.returnValue(of('USD'));
-        apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-          rp_approval_state: 'in.(APPROVAL_PENDING)',
-          rp_state: 'in.(APPROVER_PENDING)',
-          sequential_approval_turn: 'in.(true)',
-        });
         component.simpleSearchInput = getElementRef(fixture, '.reports--simple-search-input');
-        const paginatedPipeValue = { count: 2, offset: 0, data: apiExtendedReportRes };
-        reportService.getTeamReports.and.returnValue(of(paginatedPipeValue));
-        reportService.getTeamReportsCount.and.returnValue(of(20));
+        const paginatedPipeValue = { count: 2, offset: 0, data: expectedReportsSinglePage };
+        approverReportsService.getReportsByParams.and.returnValue(of(paginatedPipeValue));
+        approverReportsService.getReportsCount.and.returnValue(of(20));
         mockAddNewFiltersToParams = spyOn(component, 'addNewFiltersToParams');
         const mockTasksQuery = cloneDeep(tasksQueryParamsWithFiltersData);
         mockAddNewFiltersToParams.and.returnValue(mockTasksQuery);
@@ -174,17 +179,24 @@ export function TestCases1(getTestBed) {
         });
       });
 
-      it('should set filters in queryParams if filters is not defined in activatedRoute.snapshot.queryParams', () => {
+      it('should set filters in queryParams if filters is not defined in activatedRoute.snapshot.queryParams', (done) => {
         activatedRoute.snapshot.queryParams = {};
         component.ionViewWillEnter();
-        expect(activatedRoute.snapshot.queryParams.filters).toEqual(JSON.stringify({ state: ['APPROVER_PENDING'] }));
+        component.eou$.subscribe((eou) => {
+          expect(activatedRoute.snapshot.queryParams.filters).toEqual(JSON.stringify({ state: ['APPROVER_PENDING'] }));
+          done();
+        });
       });
 
-      it('should set homeCurrency$ by calling currencyService.getHomeCurrency', () => {
+      it('should set homeCurrency$ by calling currencyService.getHomeCurrency', (done) => {
         component.ionViewWillEnter();
-        expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
-        component.homeCurrency$.subscribe((homeCurrency) => {
-          expect(homeCurrency).toEqual('USD');
+        component.eou$.subscribe((eou) => {
+          expect(eou).toEqual(apiEouRes);
+          expect(currencyService.getHomeCurrency).toHaveBeenCalledTimes(1);
+          component.homeCurrency$.subscribe((homeCurrency) => {
+            expect(homeCurrency).toEqual('USD');
+            done();
+          });
         });
       });
 
@@ -197,70 +209,68 @@ export function TestCases1(getTestBed) {
         expect(component.currentPageNumber).toBe(1);
       }));
 
-      it('should call apiV2Service.extendQueryParamsForTextSearch', () => {
-        component.ionViewWillEnter();
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledTimes(4);
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(tasksQueryParamsParams, undefined);
-        expect(apiV2Service.extendQueryParamsForTextSearch).toHaveBeenCalledWith(
-          {
-            rp_state: 'in.(APPROVER_PENDING)',
-          },
-          'example'
-        );
-      });
-
-      it('should call reportService.getTeamReports and update acc', () => {
-        apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-          rp_state: 'in.(APPROVER_PENDING)',
-        });
+      it('should call approverReporsService.getReportsByParams and update acc', (done) => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
         component.ionViewWillEnter();
-        expect(reportService.getTeamReports).toHaveBeenCalledTimes(2);
-        expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams1);
-        expect(reportService.getTeamReports).toHaveBeenCalledWith(getTeamReportsParams2);
-        expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
-        expect(component.acc).toEqual(apiExtendedReportRes);
-        component.teamReports$.subscribe((teamReports) => {
-          expect(teamReports).toEqual(apiExtendedReportRes);
+        component.eou$.subscribe((eou) => {
+          expect(eou).toEqual(apiEouRes);
+          expect(approverReportsService.getReportsByParams).toHaveBeenCalledTimes(2);
+          expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams1);
+          expect(approverReportsService.getReportsByParams).toHaveBeenCalledWith(getTeamReportsParams2);
+          expect(component.isLoadingDataInInfiniteScroll).toBeFalse();
+          expect(component.acc).toEqual(expectedReportsSinglePage);
+          component.teamReports$.subscribe((teamReports) => {
+            expect(teamReports).toEqual(expectedReportsSinglePage);
+            done();
+          });
         });
       });
 
-      it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', () => {
+      it('should set count$ and isInfiniteScrollRequired$ and navigate relative to activatedRoute', (done) => {
         mockAddNewFiltersToParams.and.returnValue({
           pageNumber: 1,
           searchString: '',
         });
         component.ionViewWillEnter();
-        component.count$.subscribe((count) => {
-          expect(count).toBe(20);
-        });
-        component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollRequired) => {
-          expect(isInfiniteScrollRequired).toBeTrue();
-        });
-        expect(router.navigate).toHaveBeenCalledTimes(2);
-        expect(router.navigate).toHaveBeenCalledWith([], {
-          relativeTo: activatedRoute,
-          queryParams: { filters: JSON.stringify(component.filters) },
-          replaceUrl: true,
+        component.eou$.subscribe((eou) => {
+          expect(eou).toEqual(apiEouRes);
+          component.count$.subscribe((count) => {
+            expect(count).toBe(20);
+          });
+          component.isInfiniteScrollRequired$.subscribe((isInfiniteScrollRequired) => {
+            expect(isInfiniteScrollRequired).toBeTrue();
+          });
+          expect(router.navigate).toHaveBeenCalledTimes(2);
+          expect(router.navigate).toHaveBeenCalledWith([], {
+            relativeTo: activatedRoute,
+            queryParams: { filters: JSON.stringify(component.filters) },
+            replaceUrl: true,
+          });
+          done();
         });
       });
 
-      it('should update filters, filterPills and loadData$ as per queryParams.filters', fakeAsync(() => {
+      it('should update filters, filterPills and loadData$ as per queryParams.filters', fakeAsync((done) => {
         component.ionViewWillEnter();
-        expect(component.isLoading).toBeTrue();
-        expect(component.filters).toEqual({
-          state: ['APPROVER_PENDING'],
+        component.eou$.subscribe((eou) => {
+          expect(eou).toEqual(apiEouRes);
+          expect(component.isLoading).toBeTrue();
+          expect(component.filters).toEqual({
+            state: ['APPROVER_PENDING'],
+          });
+          expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
+          component.loadData$.subscribe((loadData) => {
+            expect(loadData).toEqual(tasksQueryParamsWithFiltersData);
+          });
+          expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
+            state: ['APPROVER_PENDING'],
+          });
+          expect(component.filterPills).toEqual(creditTxnFilterPill);
+          tick(500);
+          expect(component.isLoading).toBeFalse();
+
+          discardPeriodicTasks();
         });
-        expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
-        component.loadData$.subscribe((loadData) => {
-          expect(loadData).toEqual(tasksQueryParamsWithFiltersData);
-        });
-        expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
-          state: ['APPROVER_PENDING'],
-        });
-        expect(component.filterPills).toEqual(creditTxnFilterPill);
-        tick(500);
-        expect(component.isLoading).toBeFalse();
       }));
     });
 

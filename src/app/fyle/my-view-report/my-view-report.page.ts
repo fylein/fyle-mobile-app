@@ -2,7 +2,7 @@ import { Component, ElementRef, EventEmitter, ViewChild } from '@angular/core';
 import { Observable, from, noop, concat, Subject, BehaviorSubject, Subscription } from 'rxjs';
 import { ReportService } from 'src/app/core/services/report.service';
 import { ActivatedRoute, Router } from '@angular/router';
-import { map, switchMap, shareReplay, takeUntil, tap, startWith, take, finalize } from 'rxjs/operators';
+import { map, switchMap, shareReplay, takeUntil, tap, take, finalize } from 'rxjs/operators';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent, SegmentCustomEvent } from '@ionic/angular';
@@ -34,6 +34,9 @@ import { PlatformHandlerService } from 'src/app/core/services/platform-handler.s
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
 import { Report, ReportState } from 'src/app/core/models/platform/v1/report.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 @Component({
   selector: 'app-my-view-report',
@@ -59,23 +62,23 @@ export class MyViewReportPage {
 
   isConnected$: Observable<boolean>;
 
+  eou$: Observable<ExtendedOrgUser>;
+
   onPageExit = new Subject();
 
   reportCurrencySymbol = '';
 
-  estatuses$: Observable<ExtendedStatus[]>;
+  estatuses: ExtendedComment[];
 
-  refreshEstatuses$: Subject<void> = new Subject();
-
-  systemComments: ExtendedStatus[];
+  systemComments: ExtendedComment[];
 
   type: string;
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: ExtendedStatus[];
+  userComments: ExtendedComment[];
 
-  totalCommentsCount$: Observable<number>;
+  totalCommentsCount: number;
 
   newComment: string;
 
@@ -158,6 +161,64 @@ export class MyViewReportPage {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
+  convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    return comments.map((comment) => {
+      const status: ExtendedStatus = {
+        st_comment: comment.comment,
+        isSelfComment: comment.isSelfComment,
+        isBotComment: comment.isBotComment,
+        isOthersComment: comment.isOthersComment,
+        st_created_at: comment.created_at,
+        st_id: comment.id,
+        us_full_name: comment.creator_user?.full_name,
+        st_diff: null,
+      };
+      return status;
+    });
+  }
+
+  setupComments(report: Report): void {
+    this.eou$.subscribe((eou) => {
+      this.estatuses =
+        report?.comments?.map((comment: Comment) => {
+          const extendedComment: ExtendedComment = {
+            ...comment,
+            isBotComment: ['SYSTEM', 'POLICY'].includes(comment.creator_user_id),
+            isSelfComment: eou && eou.us && eou.us.id && comment.creator_user_id === eou.us.id,
+            isOthersComment: eou && eou.us && eou.us.id && comment.creator_user_id !== eou.us.id,
+          };
+          return extendedComment;
+        }) || [];
+
+      this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
+
+      this.systemComments = this.estatuses.filter(
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+      );
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
+
+      this.userComments = this.estatuses.filter(
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+      );
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
+        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+  }
+
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
     this.reportId = this.activatedRoute.snapshot.params.id as string;
@@ -170,56 +231,15 @@ export class MyViewReportPage {
       switchMap(() =>
         this.spenderReportsService.getReportById(this.reportId).pipe(finalize(() => this.loaderService.hideLoader()))
       ),
+      map((report) => {
+        this.setupComments(report);
+        return report;
+      }),
       shareReplay(1)
     );
-    const eou$ = from(this.authService.getEou());
+    this.eou$ = from(this.authService.getEou());
 
-    eou$.subscribe((eou) => (this.eou = eou));
-
-    this.estatuses$ = this.refreshEstatuses$.pipe(
-      startWith(0),
-      switchMap(() => eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.reportId).pipe(
-          map((res) =>
-            res.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
-              return status;
-            })
-          ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
-    );
-
-    this.estatuses$.subscribe((estatuses) => {
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
-
-      this.type =
-        this.objectType.toLowerCase() === 'transactions'
-          ? 'Expense'
-          : this.objectType.substring(0, this.objectType.length - 1);
-
-      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
-
-      this.userComments = estatuses.filter((status) => status.us_full_name);
-
-      for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
-        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
-          this.userComments[i].show_dt = false;
-        } else {
-          this.userComments[i].show_dt = true;
-        }
-      }
-    });
-
-    this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
-    );
+    this.eou$.subscribe((eou) => (this.eou = eou));
 
     this.report$.pipe(take(1)).subscribe((report) => {
       this.reportCurrencySymbol = getCurrencySymbol(report?.currency, 'wide');
@@ -238,12 +258,14 @@ export class MyViewReportPage {
       shareReplay(1)
     );
 
-    const actions$ = this.reportService.actions(this.reportId).pipe(shareReplay(1));
+    const permissions$: Observable<ReportPermissions> = this.spenderReportsService
+      .permissions(this.reportId)
+      .pipe(shareReplay(1));
 
-    this.canEdit$ = actions$.pipe(map((actions) => actions.can_edit));
+    this.canEdit$ = permissions$.pipe(map((permissions) => permissions.can_edit));
 
-    this.canDelete$ = actions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = actions$.pipe(map((actions) => actions.can_resubmit));
+    this.canDelete$ = permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     this.expenses$.subscribe((expenses) => (this.reportExpenseIds = expenses.map((expense) => expense.id)));
 
@@ -537,19 +559,17 @@ export class MyViewReportPage {
 
   addComment(): void {
     if (this.newComment) {
-      const data = {
-        comment: this.newComment,
-      };
+      const comment = this.newComment;
 
       this.newComment = null;
       this.commentInput.nativeElement.focus();
       this.isCommentAdded = true;
 
-      this.statusService
-        .post(this.objectType, this.reportId, data)
+      this.spenderReportsService
+        .postComment(this.reportId, comment)
         .pipe()
         .subscribe(() => {
-          this.refreshEstatuses$.next();
+          this.loadReportDetails$.next();
           setTimeout(() => {
             this.content.scrollToBottom(500);
           }, 500);

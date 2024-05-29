@@ -14,7 +14,7 @@ import { ReportPageSegment } from 'src/app/core/enums/report-page-segment.enum';
 import { approversData1 } from 'src/app/core/mock-data/approver.data';
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { fyModalProperties, shareReportModalProperties } from 'src/app/core/mock-data/model-properties.data';
-import { apiReportActions } from 'src/app/core/mock-data/report-actions.data';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
 import { expectedAllReports } from 'src/app/core/mock-data/report.data';
 import { ExpenseView } from 'src/app/core/models/expense-view.enum';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -31,6 +31,8 @@ import {
   newEstatusData1,
   systemComments1,
   systemCommentsWithSt,
+  systemExtendedComments,
+  userComments,
 } from 'src/app/core/test-data/status.service.spec.data';
 import { ToastMessageComponent } from 'src/app/shared/components/toast-message/toast-message.component';
 import { EllipsisPipe } from 'src/app/shared/pipes/ellipses.pipe';
@@ -42,6 +44,7 @@ import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
 import { txnStatusData } from 'src/app/core/mock-data/transaction-status.data';
 import {
+  allReportsPaginated1,
   expectedReportsSinglePage,
   paidReportData,
   platformReportData,
@@ -87,6 +90,7 @@ describe('MyViewReportPage', () => {
   beforeEach(waitForAsync(() => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReport',
+      'getApproversByReportId',
       'actions',
       'updateReportDetails',
       'updateReportPurpose',
@@ -123,7 +127,12 @@ describe('MyViewReportPage', () => {
     const statusServiceSpy = jasmine.createSpyObj('StatusService', ['find', 'createStatusMap', 'post']);
     const refinerServiceSpy = jasmine.createSpyObj('RefinerService', ['startSurvey']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
-    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['addExpenses', 'getReportById']);
+    const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', [
+      'addExpenses',
+      'getReportById',
+      'permissions',
+      'postComment',
+    ]);
 
     TestBed.configureTestingModule({
       declarations: [
@@ -314,10 +323,9 @@ describe('MyViewReportPage', () => {
       spenderReportsService.getReportById.and.returnValue(of(sentBackReportData));
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
-      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
-      reportService.actions.and.returnValue(of(apiReportActions));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       spyOn(component, 'getSimplifyReportSettings').and.returnValue(true);
@@ -330,27 +338,22 @@ describe('MyViewReportPage', () => {
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.report$.subscribe((res) => {
         expect(res).toEqual(report);
       });
-
-      component.estatuses$.subscribe((res) => {
-        expect(res).toEqual(expectedNewStatusData);
-      });
-
-      expect(component.systemComments).toEqual(systemComments1);
+      expect(component.systemComments).toEqual(systemExtendedComments);
       expect(component.type).toEqual(component.objectType.substring(0, component.objectType.length - 1));
 
-      expect(statusService.createStatusMap).toHaveBeenCalledWith(systemComments1, 'report');
+      expect(statusService.createStatusMap).toHaveBeenCalledWith(
+        component.convertToEstatus(component.systemComments),
+        'report'
+      );
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
+      expect(component.userComments).toEqual(userComments);
 
-      component.totalCommentsCount$.subscribe((res) => {
-        expect(res).toEqual(3);
-      });
+      expect(component.totalCommentsCount).toEqual(3);
 
       expect(component.eou).toEqual(apiEouRes);
 
@@ -358,7 +361,7 @@ describe('MyViewReportPage', () => {
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.permissions).toHaveBeenCalledOnceWith(component.reportId);
 
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -401,11 +404,10 @@ describe('MyViewReportPage', () => {
       loaderService.showLoader.and.resolveTo();
       authService.getEou.and.resolveTo(apiEouRes);
       const mockStatusData = cloneDeep(newEstatusData1);
-      statusService.find.and.returnValue(of(mockStatusData));
       statusService.createStatusMap.and.returnValue(systemCommentsWithSt);
       spenderReportsService.getReportById.and.returnValue(of(null));
       expensesService.getReportExpenses.and.returnValue(of(expenseResponseData2));
-      reportService.actions.and.returnValue(of(apiReportActions));
+      spenderReportsService.permissions.and.returnValue(of(apiReportPermissions));
       expensesService.getAllExpenses.and.returnValue(of([expenseData, expenseData]));
       orgSettingsService.get.and.returnValue(of(orgSettingsData));
       fixture.detectChanges();
@@ -418,34 +420,24 @@ describe('MyViewReportPage', () => {
       expect(spenderReportsService.getReportById).toHaveBeenCalledOnceWith(component.reportId);
       expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
-      expect(statusService.find).toHaveBeenCalledOnceWith(component.objectType, component.reportId);
 
       component.report$.subscribe((res) => {
         expect(res).toBeNull();
       });
 
-      component.estatuses$.subscribe((res) => {
-        expect(res).toEqual(expectedNewStatusData);
-      });
-
-      expect(component.systemComments).toEqual(systemComments1);
       expect(component.type).toEqual('Expense');
       expect(component.reportCurrencySymbol).toBeUndefined();
 
-      expect(statusService.createStatusMap).toHaveBeenCalledWith(systemComments1, 'Expense');
+      expect(statusService.createStatusMap).toHaveBeenCalledWith([], 'Expense');
       expect(component.systemEstatuses).toEqual(systemCommentsWithSt);
 
-      expect(component.userComments).toEqual([expectedNewStatusData[2], expectedNewStatusData[3]]);
-
-      component.totalCommentsCount$.subscribe((res) => {
-        expect(res).toEqual(3);
-      });
+      expect(component.userComments).toEqual([]);
 
       expect(component.segmentValue).toEqual(ReportPageSegment.EXPENSES);
 
       expect(expensesService.getReportExpenses).toHaveBeenCalledOnceWith(component.reportId);
 
-      expect(reportService.actions).toHaveBeenCalledOnceWith(component.reportId);
+      expect(spenderReportsService.permissions).toHaveBeenCalledOnceWith(component.reportId);
 
       component.canEdit$.subscribe((res) => {
         expect(res).toBeTrue();
@@ -478,6 +470,20 @@ describe('MyViewReportPage', () => {
       });
       expect(component.getSimplifyReportSettings).toHaveBeenCalledOnceWith(orgSettingsData);
     }));
+  });
+
+  describe('setupComments():', () => {
+    it('should set estatuses to an empty array in case of a null report', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments(null);
+      expect(component.estatuses).toEqual([]);
+    });
+
+    it('should set estatuses to an empty array in case of a null comments', () => {
+      component.eou$ = of(apiEouRes);
+      component.setupComments({ ...platformReportData, comments: null });
+      expect(component.estatuses).toEqual([]);
+    });
   });
 
   it('updateReportName(): should update report name', () => {
@@ -901,9 +907,8 @@ describe('MyViewReportPage', () => {
     component.segmentValue = ReportPageSegment.COMMENTS;
     fixture.detectChanges();
 
-    statusService.post.and.returnValue(of(txnStatusData));
+    spenderReportsService.postComment.and.returnValue(of(allReportsPaginated1.data[0].comments[0]));
     spyOn(component.content, 'scrollToBottom');
-    spyOn(component.refreshEstatuses$, 'next');
     component.newComment = 'comment';
     component.segmentValue = ReportPageSegment.COMMENTS;
     component.commentInput = fixture.debugElement.query(By.css('.view-comment--text-area'));
@@ -916,12 +921,9 @@ describe('MyViewReportPage', () => {
     component.addComment();
     fixture.detectChanges();
 
-    expect(statusService.post).toHaveBeenCalledOnceWith(component.objectType, component.reportId, {
-      comment: 'comment',
-    });
+    expect(spenderReportsService.postComment).toHaveBeenCalledOnceWith(component.reportId, 'comment');
     expect(component.newComment).toBeNull();
     expect(component.isCommentAdded).toBeTrue();
-    expect(component.refreshEstatuses$.next).toHaveBeenCalledTimes(1);
   });
 
   it('addExpense(): should navigate to expense page', () => {
