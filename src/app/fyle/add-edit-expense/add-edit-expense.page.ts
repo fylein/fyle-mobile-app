@@ -136,7 +136,6 @@ import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/cor
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
-import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 type FormValue = {
   currencyObj: {
