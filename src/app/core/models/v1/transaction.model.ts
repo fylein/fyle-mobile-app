@@ -136,5 +136,6 @@ export interface Transaction {
     orig_amount: number;
     orig_currency: string;
     status: TransactionStatus;
+    corporate_card_nickname?: string;
   }[];
 }
