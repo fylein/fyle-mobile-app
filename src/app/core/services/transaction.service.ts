@@ -236,10 +236,10 @@ export class TransactionService {
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
 
-          if (!this.ldService.getImmediate('timezone_fix', false)) {
-            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
-          } else {
+          if (this.ldService.getImmediate('timezone_fix', false)) {
             transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
+          } else {
+            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
           }
         }
 
