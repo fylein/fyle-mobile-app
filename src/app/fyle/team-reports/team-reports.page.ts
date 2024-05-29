@@ -1,6 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, iif, of, noop, concat, Subject } from 'rxjs';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Observable, BehaviorSubject, fromEvent, iif, of, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -26,6 +25,12 @@ import { ReportState } from 'src/app/shared/pipes/report-state.pipe';
 import { GetTasksQueryParamsWithFilters } from 'src/app/core/models/get-tasks-query-params-with-filters.model';
 import { GetTasksQueryParams } from 'src/app/core/models/get-tasks.query-params.model';
 import { TeamReportsFilters } from 'src/app/core/models/team-reports-filters.model';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { PlatformApiResponse } from 'src/app/core/models/platform/platform-api-response.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
+import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { ExtendedOrgUser } from 'src/app/core/models/extended-org-user.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
@@ -40,7 +45,7 @@ export class TeamReportsPage implements OnInit {
 
   isConnected$: Observable<boolean>;
 
-  teamReports$: Observable<ExtendedReport[]>;
+  teamReports$: Observable<Report[]>;
 
   count$: Observable<number>;
 
@@ -54,13 +59,17 @@ export class TeamReportsPage implements OnInit {
 
   currentPageNumber = 1;
 
-  acc: ExtendedReport[] = [];
+  acc: Report[] = [];
 
   filters: Partial<TeamReportsFilters>;
 
   homeCurrency$: Observable<string>;
 
   searchText = '';
+
+  orgSettings$: Observable<string>;
+
+  orgSettings: OrgSettings;
 
   onPageExit = new Subject();
 
@@ -80,6 +89,8 @@ export class TeamReportsPage implements OnInit {
 
   isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
 
+  eou$: Observable<ExtendedOrgUser>;
+
   constructor(
     private networkService: NetworkService,
     private loaderService: LoaderService,
@@ -95,7 +106,9 @@ export class TeamReportsPage implements OnInit {
     private tasksService: TasksService,
     private orgSettingsService: OrgSettingsService,
     private reportStatePipe: ReportState,
-    private launchDarklyService: LaunchDarklyService
+    private launchDarklyService: LaunchDarklyService,
+    private approverReportsService: ApproverReportsService,
+    private authService: AuthService
   ) {}
 
   get HeaderState(): typeof HeaderState {
@@ -115,7 +128,7 @@ export class TeamReportsPage implements OnInit {
     this.navigateBack = !!this.activatedRoute.snapshot.params.navigate_back;
 
     this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
-
+    this.eou$ = from(this.authService.getEou());
     this.tasksService.getTeamReportsTaskCount().subscribe((teamReportsTaskCount) => {
       this.teamReportsTaskCount = teamReportsTaskCount;
     });
@@ -125,107 +138,120 @@ export class TeamReportsPage implements OnInit {
       map((orgSettings) => ({ enabled: orgSettings?.simplified_report_closure_settings?.enabled }))
     );
 
-    this.loadData$ = new BehaviorSubject({
-      pageNumber: 1,
-      queryParams: {
-        rp_approval_state: 'in.(APPROVAL_PENDING)',
-        rp_state: 'in.(APPROVER_PENDING)',
-        sequential_approval_turn: 'in.(true)',
-      },
-    });
-
-    // Applying default filter for approvers to view approver pending reports by default
-    if (!this.activatedRoute.snapshot.queryParams.filters) {
-      this.activatedRoute.snapshot.queryParams = {
-        filters: JSON.stringify({ state: ['APPROVER_PENDING'] }),
-      };
-    }
-
-    this.homeCurrency$ = this.currencyService.getHomeCurrency();
-
-    this.simpleSearchInput.nativeElement.value = '';
-    fromEvent<{ srcElement: { value: string } }>(this.simpleSearchInput.nativeElement, 'keyup')
-      .pipe(
-        map((event) => event.srcElement.value),
-        debounceTime(1000),
-        distinctUntilChanged()
-      )
-      .subscribe((searchString) => {
-        const currentParams = this.loadData$.getValue();
-        currentParams.searchString = searchString;
-        this.currentPageNumber = 1;
-        currentParams.pageNumber = this.currentPageNumber;
-        this.loadData$.next(currentParams);
+    this.eou$.subscribe((eou: ExtendedOrgUser) => {
+      this.loadData$ = new BehaviorSubject({
+        pageNumber: 1,
+        queryParams: {
+          state: 'in.(APPROVER_PENDING)',
+          next_approver_user_ids: `cs.[${eou.us.id}]`,
+        },
       });
 
-    const paginatedPipe = this.loadData$.pipe(
-      switchMap((params) => {
-        let queryParams = params.queryParams;
-        const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        this.isLoadingDataInInfiniteScroll = true;
-        return this.reportService.getTeamReports({
-          offset: (params.pageNumber - 1) * 10,
-          limit: 10,
-          queryParams,
-          order: orderByParams,
+      // Applying default filter for approvers to view approver pending reports by default
+      if (!this.activatedRoute.snapshot.queryParams.filters) {
+        this.activatedRoute.snapshot.queryParams = {
+          filters: JSON.stringify({ state: ['APPROVER_PENDING'] }),
+        };
+      }
+
+      this.homeCurrency$ = this.currencyService.getHomeCurrency();
+
+      this.simpleSearchInput.nativeElement.value = '';
+      fromEvent(this.simpleSearchInput.nativeElement, 'keyup')
+        .pipe(
+          map((event: Event) => {
+            const value = (event.target as HTMLInputElement).value;
+            return value;
+          }),
+          distinctUntilChanged(),
+          debounceTime(1000)
+        )
+        .subscribe((searchString) => {
+          const currentParams = this.loadData$.getValue();
+          currentParams.searchString = searchString;
+          this.currentPageNumber = 1;
+          currentParams.pageNumber = this.currentPageNumber;
+          this.loadData$.next(currentParams);
         });
-      }),
-      map((res) => {
-        this.isLoadingDataInInfiniteScroll = false;
-        if (this.currentPageNumber === 1) {
-          this.acc = [];
-        }
-        this.acc = this.acc.concat(res.data);
-        return this.acc;
-      })
-    );
 
-    this.teamReports$ = paginatedPipe.pipe(shareReplay(1));
+      const paginatedPipe = this.loadData$.pipe(
+        switchMap((params) => {
+          const queryParams = params.queryParams;
+          const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
+          if (params.searchString) {
+            queryParams.q = params.searchString + ':*';
+          } else {
+            if (queryParams && queryParams.q) {
+              delete queryParams.q;
+            }
+          }
+          this.isLoadingDataInInfiniteScroll = true;
+          return this.approverReportsService.getReportsByParams({
+            offset: (params.pageNumber - 1) * 10,
+            limit: 10,
+            ...queryParams,
+            order: orderByParams,
+          });
+        }),
+        map((res: PlatformApiResponse<Report[]>) => {
+          this.isLoadingDataInInfiniteScroll = false;
+          if (this.currentPageNumber === 1) {
+            this.acc = [];
+          }
+          this.acc = this.acc.concat(res.data);
+          return this.acc;
+        })
+      );
 
-    this.count$ = this.loadData$.pipe(
-      switchMap((params) => {
-        let queryParams = params.queryParams;
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
-        return this.reportService.getTeamReportsCount(queryParams);
-      }),
-      shareReplay(1)
-    );
+      this.teamReports$ = paginatedPipe.pipe(shareReplay(1));
 
-    const paginatedScroll$ = this.teamReports$.pipe(
-      switchMap((erpts) => this.count$.pipe(map((count) => count > erpts.length)))
-    );
+      this.count$ = this.loadData$.pipe(
+        switchMap((params) => {
+          const queryParams = params.queryParams;
+          if (params.searchString) {
+            queryParams.q = params.searchString + ':*';
+          } else {
+            if (queryParams && queryParams.q) {
+              delete queryParams.q;
+            }
+          }
+          return this.approverReportsService.getReportsCount(queryParams);
+        }),
+        shareReplay(1)
+      );
 
-    this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-      switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
-    );
+      const paginatedScroll$ = this.teamReports$.pipe(
+        switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
+      );
 
-    this.teamReports$.subscribe(noop);
-    this.count$.subscribe(noop);
-    this.isInfiniteScrollRequired$.subscribe(noop);
+      this.isInfiniteScrollRequired$ = this.loadData$.pipe(
+        switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
+      );
 
-    this.loadData$.subscribe(() => {
-      const queryParams: Params = { filters: JSON.stringify(this.filters) };
-      this.router.navigate([], {
-        relativeTo: this.activatedRoute,
-        queryParams,
-        replaceUrl: true,
+      this.teamReports$.subscribe(noop);
+      this.count$.subscribe(noop);
+      this.isInfiniteScrollRequired$.subscribe(noop);
+
+      this.loadData$.subscribe(() => {
+        const queryParams: Params = { filters: JSON.stringify(this.filters) };
+        this.router.navigate([], {
+          relativeTo: this.activatedRoute,
+          queryParams,
+          replaceUrl: true,
+        });
       });
+
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
+      this.filters = Object.assign({}, this.filters, JSON.parse(this.activatedRoute.snapshot.queryParams.filters));
+      this.currentPageNumber = 1;
+      const params = this.addNewFiltersToParams(eou);
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+
+      setTimeout(() => {
+        this.isLoading = false;
+      }, 500);
     });
-
-    let queryParams: Partial<TeamReportsFilters> = {};
-    if (typeof this.activatedRoute.snapshot.queryParams.filters === 'string') {
-      queryParams = JSON.parse(this.activatedRoute.snapshot.queryParams.filters) as Partial<TeamReportsFilters>;
-    }
-    this.filters = Object.assign({}, this.filters, queryParams);
-    this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
-
-    setTimeout(() => {
-      this.isLoading = false;
-    }, 500);
   }
 
   setupNetworkWatcher(): void {
@@ -264,11 +290,11 @@ export class TeamReportsPage implements OnInit {
       const startDate = this.filters.customDateStart?.toISOString();
       const endDate = this.filters.customDateEnd?.toISOString();
       if (this.filters.customDateStart && this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_submitted_at.gte.${startDate},rp_submitted_at.lt.${endDate})`;
+        newQueryParams.and = `(last_submitted_at.gte.${startDate},last_submitted_at.lt.${endDate})`;
       } else if (this.filters.customDateStart) {
-        newQueryParams.and = `(rp_submitted_at.gte.${startDate})`;
+        newQueryParams.and = `(last_submitted_at.gte.${startDate})`;
       } else if (this.filters.customDateEnd) {
-        newQueryParams.and = `(rp_submitted_at.lt.${endDate})`;
+        newQueryParams.and = `(last_submitted_at.lt.${endDate})`;
       }
     }
   }
@@ -279,44 +305,43 @@ export class TeamReportsPage implements OnInit {
       this.filters.customDateEnd = this.filters.customDateEnd && new Date(this.filters.customDateEnd);
       if (this.filters.date === DateFilters.thisMonth) {
         const thisMonth = this.dateService.getThisMonthRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${thisMonth.from.toISOString()},rp_submitted_at.lt.${thisMonth.to.toISOString()})`;
+        newQueryParams.and = `(last_submitted_at.gte.${thisMonth.from.toISOString()},last_submitted_at.lt.${thisMonth.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.thisWeek) {
         const thisWeek = this.dateService.getThisWeekRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${thisWeek.from.toISOString()},rp_submitted_at.lt.${thisWeek.to.toISOString()})`;
+        newQueryParams.and = `(last_submitted_at.gte.${thisWeek.from.toISOString()},last_submitted_at.lt.${thisWeek.to.toISOString()})`;
       }
 
       if (this.filters.date === DateFilters.lastMonth) {
         const lastMonth = this.dateService.getLastMonthRange();
-        newQueryParams.and = `(rp_submitted_at.gte.${lastMonth.from.toISOString()},rp_submitted_at.lt.${lastMonth.to.toISOString()})`;
+        newQueryParams.and = `(last_submitted_at.gte.${lastMonth.from.toISOString()},last_submitted_at.lt.${lastMonth.to.toISOString()})`;
       }
 
       this.generateCustomDateParams(newQueryParams);
     }
   }
 
-  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>): void {
-    const stateOrFilter: string[] = [];
+  generateStateFilters(newQueryParams: Partial<GetTasksQueryParams>, eou: ExtendedOrgUser): void {
+    const stateOrFilter = [];
 
     if (this.filters.state) {
       if (this.filters.state.includes('APPROVER_PENDING')) {
-        stateOrFilter.push('rp_state.in.(APPROVER_PENDING)');
+        stateOrFilter.push('APPROVER_PENDING');
       }
 
       if (this.filters.state.includes('APPROVER_INQUIRY')) {
-        stateOrFilter.push('rp_state.in.(APPROVER_INQUIRY)');
+        stateOrFilter.push('APPROVER_INQUIRY');
       }
 
       if (this.filters.state.includes('APPROVED')) {
-        stateOrFilter.push('rp_state.in.(APPROVED)');
+        stateOrFilter.push('APPROVED');
       }
 
       if (this.filters.state.includes('PAID')) {
-        stateOrFilter.push('rp_state.in.(PAID)');
+        stateOrFilter.push('PAID');
       }
     }
-
     if (stateOrFilter.length > 0) {
       /* By default, displays the reports in `MY` queue
        * Report state - APPROVER_PENDING
@@ -324,11 +349,11 @@ export class TeamReportsPage implements OnInit {
        * If any other state filter is applied, it will be considered as reports under `ALL` queue
        */
       if (this.filters.state.includes('APPROVER_PENDING') && this.filters.state.length === 1) {
-        newQueryParams.sequential_approval_turn = 'in.(true)';
+        newQueryParams.next_approver_user_ids = `cs.[${eou.us.id}]`;
       }
-      let combinedStateOrFilter = stateOrFilter.reduce((param1, param2) => `${param1}, ${param2}`);
-      combinedStateOrFilter = `(${combinedStateOrFilter})`;
-      newQueryParams.or.push(combinedStateOrFilter);
+      let combinedStateOrFilter = stateOrFilter.join();
+      combinedStateOrFilter = `in.(${combinedStateOrFilter})`;
+      newQueryParams.state = combinedStateOrFilter;
     }
   }
 
@@ -337,24 +362,21 @@ export class TeamReportsPage implements OnInit {
       currentParams.sortParam = this.filters.sortParam;
       currentParams.sortDir = this.filters.sortDir;
     } else {
-      currentParams.sortParam = 'rp_submitted_at';
+      currentParams.sortParam = 'last_submitted_at';
       currentParams.sortDir = 'desc';
     }
   }
 
-  addNewFiltersToParams(): Partial<GetTasksQueryParamsWithFilters> {
+  addNewFiltersToParams(eou: ExtendedOrgUser): Partial<GetTasksQueryParamsWithFilters> {
     const currentParams = this.loadData$.getValue();
     currentParams.pageNumber = 1;
-    const newQueryParams: Partial<GetTasksQueryParams> = {
-      or: [],
-    };
+    const newQueryParams: Partial<GetTasksQueryParams> = {};
 
     this.generateDateParams(newQueryParams);
 
-    this.generateStateFilters(newQueryParams);
-
     this.setSortParams(currentParams);
 
+    this.generateStateFilters(newQueryParams, eou);
     currentParams.queryParams = newQueryParams;
 
     return currentParams;
@@ -363,13 +385,15 @@ export class TeamReportsPage implements OnInit {
   clearFilters(): void {
     this.filters = {};
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.eou$.subscribe((eou) => {
+      const params = this.addNewFiltersToParams(eou);
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+    });
   }
 
-  onReportClick(erpt: ExtendedReport): void {
-    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: erpt.rp_id, navigate_back: true }]);
+  onReportClick(report: Report): void {
+    this.router.navigate(['/', 'enterprise', 'view_team_report', { id: report.id, navigate_back: true }]);
   }
 
   onHomeClicked(): void {
@@ -396,8 +420,11 @@ export class TeamReportsPage implements OnInit {
 
   clearText(isFromCancel: string): void {
     this.simpleSearchText = '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
     const searchInput = this.simpleSearchInput.nativeElement;
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     searchInput.value = '';
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-call
     searchInput.dispatchEvent(new Event('keyup'));
     if (isFromCancel === 'onSimpleSearchCancel') {
       this.isSearchBarFocused = !this.isSearchBarFocused;
@@ -437,9 +464,11 @@ export class TeamReportsPage implements OnInit {
       delete this.filters[filterType];
     }
     this.currentPageNumber = 1;
-    const params = this.addNewFiltersToParams();
-    this.loadData$.next(params);
-    this.filterPills = this.generateFilterPills(this.filters);
+    this.eou$.subscribe((eou) => {
+      const params = this.addNewFiltersToParams(eou);
+      this.loadData$.next(params);
+      this.filterPills = this.generateFilterPills(this.filters);
+    });
   }
 
   searchClick(): void {
@@ -454,12 +483,12 @@ export class TeamReportsPage implements OnInit {
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
   ): void {
-    if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateOldToNew',
       });
-    } else if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'dateNewToOld',
@@ -510,12 +539,12 @@ export class TeamReportsPage implements OnInit {
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
   ): void {
-    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'nameAToZ',
       });
-    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'nameZToA',
@@ -529,22 +558,22 @@ export class TeamReportsPage implements OnInit {
   ): void {
     if (sortBy) {
       if (sortBy.value === 'dateNewToOld') {
-        generatedFilters.sortParam = 'rp_submitted_at';
+        generatedFilters.sortParam = 'last_submitted_at';
         generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'dateOldToNew') {
-        generatedFilters.sortParam = 'rp_submitted_at';
+        generatedFilters.sortParam = 'last_submitted_at';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'amountHighToLow') {
-        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortParam = 'amount';
         generatedFilters.sortDir = 'desc';
       } else if (sortBy.value === 'amountLowToHigh') {
-        generatedFilters.sortParam = 'rp_amount';
+        generatedFilters.sortParam = 'amount';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'nameAToZ') {
-        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortParam = 'purpose';
         generatedFilters.sortDir = 'asc';
       } else if (sortBy.value === 'nameZToA') {
-        generatedFilters.sortParam = 'rp_purpose';
+        generatedFilters.sortParam = 'purpose';
         generatedFilters.sortDir = 'desc';
       }
     }
@@ -648,13 +677,13 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateSortRptDatePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'Submitted date - old to new',
       });
-    } else if (filter.sortParam === 'rp_submitted_at' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'last_submitted_at' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -664,13 +693,13 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateSortAmountPills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+    if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'amount - high to low',
       });
-    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+    } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -680,13 +709,13 @@ export class TeamReportsPage implements OnInit {
   }
 
   generateSortNamePills(filter: Partial<TeamReportsFilters>, filterPills: FilterPill[]): void {
-    if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'asc') {
+    if (filter.sortParam === 'purpose' && filter.sortDir === 'asc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
         value: 'Name - a to z',
       });
-    } else if (filter.sortParam === 'rp_purpose' && filter.sortDir === 'desc') {
+    } else if (filter.sortParam === 'purpose' && filter.sortDir === 'desc') {
       filterPills.push({
         label: 'Sort By',
         type: 'sort',
@@ -725,12 +754,12 @@ export class TeamReportsPage implements OnInit {
     filter: Partial<TeamReportsFilters>,
     generatedFilters: SelectedFilters<string | string[]>[]
   ): void {
-    if (filter.sortParam === 'rp_amount' && filter.sortDir === 'desc') {
+    if (filter.sortParam === 'amount' && filter.sortDir === 'desc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountHighToLow',
       });
-    } else if (filter.sortParam === 'rp_amount' && filter.sortDir === 'asc') {
+    } else if (filter.sortParam === 'amount' && filter.sortDir === 'asc') {
       generatedFilters.push({
         name: 'Sort By',
         value: 'amountLowToHigh',
@@ -849,15 +878,17 @@ export class TeamReportsPage implements OnInit {
 
     await filterPopover.present();
 
-    const { data }: { data?: SelectedFilters<string>[] } = await filterPopover.onWillDismiss();
+    const { data } = (await filterPopover.onWillDismiss()) as { data: SelectedFilters<string>[] };
     if (data) {
       this.filters = this.convertFilters(data);
       this.currentPageNumber = 1;
-      const params = this.addNewFiltersToParams();
-      this.loadData$.next(params);
-      this.filterPills = this.generateFilterPills(this.filters);
-      this.trackingService.TeamReportsFilterApplied({
-        ...this.filters,
+      this.eou$.subscribe((eou) => {
+        const params = this.addNewFiltersToParams(eou);
+        this.loadData$.next(params);
+        this.filterPills = this.generateFilterPills(this.filters);
+        this.trackingService.TeamReportsFilterApplied({
+          ...this.filters,
+        });
       });
     }
   }

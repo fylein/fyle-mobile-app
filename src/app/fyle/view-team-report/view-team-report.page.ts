@@ -6,7 +6,7 @@ import { AuthService } from 'src/app/core/services/auth.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { PopoverController, ModalController, IonContent } from '@ionic/angular';
 import { ModalPropertiesService } from 'src/app/core/services/modal-properties.service';
-import { switchMap, finalize, map, shareReplay, tap, startWith, take, takeUntil, filter } from 'rxjs/operators';
+import { switchMap, finalize, map, shareReplay, tap, take, takeUntil, filter } from 'rxjs/operators';
 import { PopupService } from 'src/app/core/services/popup.service';
 import { NetworkService } from '../../core/services/network.service';
 import { TrackingService } from '../../core/services/tracking.service';
@@ -32,8 +32,10 @@ import { ShareReportComponent } from './share-report/share-report.component';
 import { FyViewReportInfoComponent } from 'src/app/shared/components/fy-view-report-info/fy-view-report-info.component';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
 import { Report } from 'src/app/core/models/platform/v1/report.model';
-import { ReportActions } from 'src/app/core/models/report-actions.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
+import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
 import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
@@ -54,7 +56,7 @@ export class ViewTeamReportPage {
 
   refreshApprovals$ = new Subject();
 
-  actions$: Observable<ReportActions>;
+  permissions$: Observable<ReportPermissions>;
 
   hideAllExpenses = true;
 
@@ -84,19 +86,17 @@ export class ViewTeamReportPage {
 
   isExpensesView = true;
 
-  estatuses$: Observable<ExtendedStatus[]>;
+  estatuses: ExtendedComment[];
 
-  refreshEstatuses$: Subject<void> = new Subject();
-
-  systemComments: ExtendedStatus[];
+  systemComments: ExtendedComment[];
 
   type: string;
 
   systemEstatuses: ExtendedStatus[];
 
-  userComments: ExtendedStatus[];
+  userComments: ExtendedComment[];
 
-  totalCommentsCount$: Observable<number>;
+  totalCommentsCount: number;
 
   newComment: string;
 
@@ -202,6 +202,63 @@ export class ViewTeamReportPage {
     return orgSettings?.simplified_report_closure_settings?.enabled;
   }
 
+  convertToEstatus(comments: ExtendedComment[]): ExtendedStatus[] {
+    return comments.map((comment) => {
+      const status: ExtendedStatus = {
+        st_comment: comment.comment,
+        isSelfComment: comment.isSelfComment,
+        isBotComment: comment.isBotComment,
+        isOthersComment: comment.isOthersComment,
+        st_created_at: comment.created_at,
+        st_id: comment.id,
+        st_diff: null,
+      };
+      return status;
+    });
+  }
+
+  setupComments(report: Report): void {
+    this.eou$.subscribe((eou) => {
+      this.estatuses =
+        report?.comments?.map((comment: Comment) => {
+          const extendedComment: ExtendedComment = {
+            ...comment,
+            isBotComment: ['SYSTEM', 'POLICY'].includes(comment.creator_user_id),
+            isSelfComment: eou && eou.us && eou.us.id && comment.creator_user_id === eou.us.id,
+            isOthersComment: eou && eou.us && eou.us.id && comment.creator_user_id !== eou.us.id,
+          };
+          return extendedComment;
+        }) || [];
+
+      this.totalCommentsCount = this.estatuses.filter((estatus) => estatus.creator_user_id !== 'SYSTEM').length;
+
+      this.systemComments = this.estatuses.filter(
+        (status) => ['SYSTEM', 'POLICY'].indexOf(status.creator_user_id) > -1 || !status.creator_user_id
+      );
+
+      this.type =
+        this.objectType.toLowerCase() === 'transactions'
+          ? 'Expense'
+          : this.objectType.substring(0, this.objectType.length - 1);
+
+      this.systemEstatuses = this.statusService.createStatusMap(this.convertToEstatus(this.systemComments), this.type);
+
+      this.userComments = this.estatuses.filter(
+        (status) => !!status.creator_user_id && !['SYSTEM', 'POLICY'].includes(status.creator_user_id)
+      );
+
+      for (let i = 0; i < this.userComments.length; i++) {
+        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].created_at);
+        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].created_at);
+        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
+          this.userComments[i].show_dt = false;
+        } else {
+          this.userComments[i].show_dt = true;
+        }
+      }
+    });
+  }
+
   ionViewWillEnter(): void {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
@@ -218,64 +275,29 @@ export class ViewTeamReportPage {
 
     this.eou$.subscribe((eou) => (this.eou = eou));
 
-    this.estatuses$ = this.refreshEstatuses$.pipe(
-      startWith(0),
-      switchMap(() => this.eou$),
-      switchMap((eou) =>
-        this.statusService.find(this.objectType, this.objectId).pipe(
-          map((estatus) =>
-            estatus.map((status) => {
-              status.isBotComment = status && ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1;
-              status.isSelfComment = status && eou && eou.ou && status.st_org_user_id === eou.ou.id;
-              status.isOthersComment = status && eou && eou.ou && status.st_org_user_id !== eou.ou.id;
-              return status;
-            })
-          ),
-          map((res) => res.sort((a, b) => a.st_created_at.valueOf() - b.st_created_at.valueOf()))
-        )
-      )
-    );
-
     const orgSettings$ = this.orgSettingsService.get();
     this.simplifyReportsSettings$ = orgSettings$.pipe(
       map((orgSettings) => ({ enabled: this.getReportClosureSettings(orgSettings) }))
     );
 
-    this.estatuses$.subscribe((estatuses) => {
-      this.systemComments = estatuses.filter((status) => ['SYSTEM', 'POLICY'].indexOf(status.st_org_user_id) > -1);
-
-      this.type =
-        this.objectType.toLowerCase() === 'transactions'
-          ? 'Expense'
-          : this.objectType.substring(0, this.objectType.length - 1);
-
-      this.systemEstatuses = this.statusService.createStatusMap(this.systemComments, this.type);
-
-      this.userComments = estatuses.filter((status) => status.us_full_name);
-
-      for (let i = 0; i < this.userComments.length; i++) {
-        const prevCommentDt = dayjs(this.userComments[i - 1] && this.userComments[i - 1].st_created_at);
-        const currentCommentDt = dayjs(this.userComments[i] && this.userComments[i].st_created_at);
-        if (dayjs(prevCommentDt).isSame(currentCommentDt, 'day')) {
-          this.userComments[i].show_dt = false;
-        } else {
-          this.userComments[i].show_dt = true;
-        }
-      }
-    });
-
-    this.totalCommentsCount$ = this.estatuses$.pipe(
-      map((res) => res.filter((estatus) => estatus.st_org_user_id !== 'SYSTEM').length)
-    );
-
     this.report$ = this.refreshApprovals$.pipe(
       switchMap(() =>
         from(this.loaderService.showLoader()).pipe(
-          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string))
+          switchMap(() => this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string)),
+          map((report) => {
+            this.approvals = report.approvals.filter((approval) =>
+              [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].includes(approval.state)
+            );
+            return report;
+          })
         )
       ),
-      shareReplay(1),
-      finalize(() => from(this.loaderService.hideLoader()))
+      map((report) => {
+        this.setupComments(report);
+        return report;
+      }),
+      finalize(() => from(this.loaderService.hideLoader())),
+      shareReplay(1)
     );
 
     this.report$.pipe(filter((report) => !!report)).subscribe((report: Report) => {
@@ -309,11 +331,13 @@ export class ViewTeamReportPage {
       map((expenses) => expenses.reduce((acc, curr) => acc + curr.amount, 0))
     );
 
-    this.actions$ = this.reportService.actions(this.activatedRoute.snapshot.params.id as string).pipe(shareReplay(1));
+    this.permissions$ = this.approverReportsService
+      .permissions(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
 
-    this.canEdit$ = this.actions$.pipe(map((actions) => actions.can_edit));
-    this.canDelete$ = this.actions$.pipe(map((actions) => actions.can_delete));
-    this.canResubmitReport$ = this.actions$.pipe(map((actions) => actions.can_resubmit));
+    this.canEdit$ = this.permissions$.pipe(map((permissions) => permissions.can_edit));
+    this.canDelete$ = this.permissions$.pipe(map((permissions) => permissions.can_delete));
+    this.canResubmitReport$ = this.permissions$.pipe(map((permissions) => permissions.can_resubmit));
 
     forkJoin({
       expenses: this.expenses$,
@@ -321,9 +345,6 @@ export class ViewTeamReportPage {
       report: this.report$.pipe(take(1)),
       orgSettings: this.orgSettingsService.get(),
     }).subscribe(({ expenses, eou, report, orgSettings }) => {
-      this.approvals = report.approvals.filter(
-        (approval) => [ApprovalState.APPROVAL_PENDING, ApprovalState.APPROVAL_DONE].indexOf(approval.state) > -1
-      );
       this.reportExpensesIds = expenses.map((expense) => expense.id);
       this.isSequentialApprovalEnabled = this.getApprovalSettings(orgSettings);
       this.canApprove = this.isSequentialApprovalEnabled
@@ -538,17 +559,14 @@ export class ViewTeamReportPage {
 
   addComment(): void {
     if (this.newComment) {
-      const data = {
-        comment: this.newComment,
-      };
+      const comment = this.newComment;
 
       this.newComment = null;
       (this.commentInput.nativeElement as HTMLElement).focus();
       this.isCommentAdded = true;
 
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      this.statusService.post(this.objectType, this.objectId, data).subscribe((res) => {
-        this.refreshEstatuses$.next(null);
+      this.approverReportsService.postComment(this.objectId, comment).subscribe(() => {
+        this.refreshApprovals$.next(null);
         setTimeout(() => {
           this.content.scrollToBottom(500);
         }, 500);

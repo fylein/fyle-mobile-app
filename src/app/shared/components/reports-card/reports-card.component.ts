@@ -1,6 +1,6 @@
 import { getCurrencySymbol } from '@angular/common';
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
-import { ExtendedReport } from 'src/app/core/models/report.model';
+import { Report } from 'src/app/core/models/platform/v1/report.model';
 
 @Component({
   selector: 'app-reports-card',
@@ -8,7 +8,7 @@ import { ExtendedReport } from 'src/app/core/models/report.model';
   styleUrls: ['./reports-card.component.scss'],
 })
 export class ReportsCardComponent implements OnInit {
-  @Input() erpt: ExtendedReport;
+  @Input() report: Report;
 
   @Input() prevDate: Date;
 
@@ -16,11 +16,14 @@ export class ReportsCardComponent implements OnInit {
 
   @Input() isManualFlagFeatureEnabled = false;
 
-  @Output() deleteReport = new EventEmitter<ExtendedReport>();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  @Output() deleteReport: EventEmitter<Report> = new EventEmitter();
 
-  @Output() gotoReport = new EventEmitter<ExtendedReport>();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  @Output() gotoReport: EventEmitter<Report> = new EventEmitter();
 
-  @Output() viewComments = new EventEmitter<ExtendedReport>();
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+  @Output() viewComments: EventEmitter<Report> = new EventEmitter();
 
   creationFullDate: string;
 
@@ -30,23 +33,26 @@ export class ReportsCardComponent implements OnInit {
 
   reportCurrencySymbol = '';
 
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  constructor() {}
+
   ngOnInit(): void {
     this.showDate =
-      (this.erpt && new Date(this.erpt.rp_created_at).toDateString()) !==
+      (this.report && new Date(this.report.created_at as string).toDateString()) !==
       (this.prevDate && new Date(this.prevDate).toDateString());
 
-    this.reportCurrencySymbol = getCurrencySymbol(this.erpt.rp_currency, 'wide');
+    this.reportCurrencySymbol = getCurrencySymbol(this.report.currency, 'wide');
   }
 
   onDeleteReport(): void {
-    this.deleteReport.emit(this.erpt);
+    this.deleteReport.emit(this.report);
   }
 
   onGoToReport(): void {
-    this.gotoReport.emit(this.erpt);
+    this.gotoReport.emit(this.report);
   }
 
   onViewComments(): void {
-    this.viewComments.emit(this.erpt);
+    this.viewComments.emit(this.report);
   }
 }

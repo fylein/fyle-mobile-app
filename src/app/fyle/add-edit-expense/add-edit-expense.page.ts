@@ -136,7 +136,6 @@ import { CorporateCardTransactionRes } from 'src/app/core/models/platform/v1/cor
 import { corporateCardTransaction } from 'src/app/core/models/platform/v1/cc-transaction.model';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
-import { ReceiptInfo } from 'src/app/core/models/receipt-info.model';
 
 type FormValue = {
   currencyObj: {
@@ -3104,10 +3103,12 @@ export class AddEditExpensePage implements OnInit {
           ),
           map((response: PlatformFileGenerateUrlsResponse[]) => {
             const files = response.filter((file) => file.content_type !== 'text/html');
-            const receiptObjs: ReceiptInfo[] = files.map((file) => {
+            const receiptObjs: FileObject[] = files.map((file) => {
               const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
 
-              const receipt: ReceiptInfo = {
+              const receipt: FileObject = {
+                id: file.id,
+                name: file.name,
                 url: file.download_url,
                 type: details.type,
                 thumbnail: details.thumbnail,
@@ -3231,10 +3232,12 @@ export class AddEditExpensePage implements OnInit {
         ),
         map((response: PlatformFileGenerateUrlsResponse[]) => {
           const files = response.filter((file) => file.content_type !== 'text/html');
-          const receiptObjs: ReceiptInfo[] = files.map((file) => {
+          const receiptObjs: FileObject[] = files.map((file) => {
             const details = this.fileService.getReceiptsDetails(file.name, file.download_url);
 
-            const receipt: ReceiptInfo = {
+            const receipt: FileObject = {
+              id: file.id,
+              name: file.name,
               url: file.download_url,
               type: details.type,
               thumbnail: details.thumbnail,
