@@ -1,16 +1,14 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { from, of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
-import SwiperCore, { Pagination } from 'swiper';
 import { TrackingService } from 'src/app/core/services/tracking.service';
 import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { FileObject } from 'src/app/core/models/file-obj.model';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -18,7 +16,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
   styleUrls: ['./fy-view-attachment.component.scss'],
 })
 export class FyViewAttachmentComponent implements OnInit {
-  @Input() attachments: any[];
+  @Input() attachments: FileObject[];
 
   @Input() isMileageExpense: boolean;
 
@@ -26,6 +24,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sliderOptions: any;
 
   activeIndex = 0;
@@ -37,14 +36,12 @@ export class FyViewAttachmentComponent implements OnInit {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private sanitizer: DomSanitizer,
-    private popupService: PopupService,
     private loaderService: LoaderService,
-    private fileService: FileService,
     private trackingService: TrackingService,
     private spenderFileService: SpenderFileService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.zoomScale = 1;
     this.sliderOptions = {
       zoom: {
@@ -59,11 +56,11 @@ export class FyViewAttachmentComponent implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.imageSlides.swiperRef.update();
   }
 
-  zoomIn() {
+  zoomIn(): void {
     this.zoomScale += 0.25;
   }
 
