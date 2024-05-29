@@ -123,7 +123,7 @@ describe('ApproverReportsService', () => {
   it('permissions(): should get report permissions', (done) => {
     approverPlatformApiService.post.and.returnValue(of({ data: apiReportPermissions }));
 
-    const id = apiReportPermissions.id;
+    const id = 'rpxtbiLXQZUm';
 
     approverReportsService.permissions(id).subscribe((res) => {
       expect(res).toEqual(apiReportPermissions);
@@ -136,7 +136,7 @@ describe('ApproverReportsService', () => {
     const expectedCommentData: Comment = platformReportData.comments[0];
     approverPlatformApiService.post.and.returnValue(of({ data: expectedCommentData }));
 
-    const id = apiReportPermissions.id;
+    const id = 'rpxtbiLXQZUm';
 
     approverReportsService.postComment(id, 'comment').subscribe((res) => {
       expect(res).toEqual(expectedCommentData);
