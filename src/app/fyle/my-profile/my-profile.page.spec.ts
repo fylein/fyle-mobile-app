@@ -37,6 +37,7 @@ import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
 import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
+import { modalController } from '@ionic/core';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -648,7 +649,7 @@ describe('MyProfilePage', () => {
       tick(500);
       fixture.detectChanges();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyOptInComponent,
         componentProps: {
           extendedOrgUser: apiEouRes,
@@ -672,7 +673,7 @@ describe('MyProfilePage', () => {
       component.updateMobileNumber(eouWithNoAttempts);
       tick(500);
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyOptInComponent,
         componentProps: {
           extendedOrgUser: eouWithNoAttempts,
@@ -702,7 +703,7 @@ describe('MyProfilePage', () => {
       tick(500);
       fixture.detectChanges();
 
-      expect(popoverController.create).toHaveBeenCalledOnceWith({
+      expect(modalController.create).toHaveBeenCalledOnceWith({
         component: FyOptInComponent,
         componentProps: {
           extendedOrgUser: eouWithoutMobileNumber,
