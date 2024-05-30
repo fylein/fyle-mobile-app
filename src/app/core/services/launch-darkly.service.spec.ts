@@ -153,6 +153,6 @@ describe('LaunchDarklyService', () => {
 
     const value = launchDarklyService.getImmediate('timezone_fix', true);
 
-    expect(value).toEqual(true);
+    expect(value).toBeTrue();
   });
 });
