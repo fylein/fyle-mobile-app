@@ -150,18 +150,23 @@
           <div *ngIf="!isExpensesLoading && report.num_expenses > 0">
             <div class="view-reports--divider"></div>
             <div class="view-reports--expenses-card-block">
-              <div *ngFor="let expense of expenses$|async as list; let i = index;">
-                <app-expense-card-v2
-                  [expense]="expense"
-                  [expenseIndex]="i"
-                  [previousExpenseTxnDate]="list[i-1]?.spent_at"
-                  [previousExpenseCreatedAt]="list[i-1]?.created_at"
-                  (goToTransaction)="goToTransaction($event)"
-                  [isFromReports]="true"
-                  [isFromViewReports]="true"
-                >
-                </app-expense-card-v2>
-              </div>
+              <ng-container
+                *ngIf="(isManualFlagFeatureEnabled$ | async) as isManualFlagFeatureEnabled; else ExpensesLoader"
+              >
+                <div *ngFor="let expense of expenses$|async as list; let i = index;">
+                  <app-expense-card-v2
+                    [expense]="expense"
+                    [expenseIndex]="i"
+                    [previousExpenseTxnDate]="list[i-1]?.spent_at"
+                    [previousExpenseCreatedAt]="list[i-1]?.created_at"
+                    (goToTransaction)="goToTransaction($event)"
+                    [isFromReports]="true"
+                    [isFromViewReports]="true"
+                    [isManualFlagFeatureEnabled]="isManualFlagFeatureEnabled.value"
+                  >
+                  </app-expense-card-v2>
+                </div>
+              </ng-container>
             </div>
             <ng-template #ExpensesLoader>
               <ion-spinner name="crescent"></ion-spinner>
@@ -203,28 +208,28 @@
                 <ion-grid class="view-comment--card view-comment--self-comment text-right">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                      <div class="view-comment--name-container">{{ estatus.creator_user.full_name }}</div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
                       <div
-                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                       <div
-                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>
@@ -243,28 +248,28 @@
                 <ion-grid class="view-comment--card view-comment--others-comment text-left">
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--name-container">{{ estatus.us_full_name }}</div>
+                      <div class="view-comment--name-container">{{ estatus.creator_user.full_name }}</div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
                       <div
-                        *ngIf="!(estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1)"
+                        *ngIf="!(estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1)"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                       <div
-                        *ngIf="estatus.st_comment.indexOf('created') > -1 && estatus.st_comment.indexOf('reversal') > -1"
+                        *ngIf="estatus.comment.indexOf('created') > -1 && estatus.comment.indexOf('reversal') > -1"
                         class="view-comment--comment-detail"
                       >
-                        {{ estatus.st_comment }}
+                        {{ estatus.comment }}
                       </div>
                     </ion-col>
                   </ion-row>
                   <ion-row>
                     <ion-col size="12">
-                      <div class="view-comment--comment-timestamp">{{ estatus.st_created_at | date: 'h:mm a' }}</div>
+                      <div class="view-comment--comment-timestamp">{{ estatus.created_at | date: 'h:mm a' }}</div>
                     </ion-col>
                   </ion-row>
                 </ion-grid>

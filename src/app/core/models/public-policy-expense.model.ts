@@ -54,8 +54,6 @@ export interface PublicPolicyExpense {
   orig_currency: string;
   payment_id: string;
   per_diem_rate_id: number;
-  physical_bill: boolean;
-  physical_bill_at: Date;
   platform_vendor: string;
   platform_vendor_id: string;
   policy_amount: number;

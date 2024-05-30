@@ -16,7 +16,7 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { HeaderState } from 'src/app/shared/components/fy-header/header-state.enum';
 import { getElementRef } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import {
   teamReportsFiltersData,
   teamReportsFiltersData2,
@@ -31,6 +31,7 @@ import {
   selectedFiltersParams,
   selectedFiltersParams2,
 } from 'src/app/core/mock-data/selected-filters.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases3(getTestBed) {
   return describe('test cases set 3', () => {
@@ -68,6 +69,7 @@ export function TestCases3(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      component.eou$ = of(apiEouRes);
     }));
 
     it('onSimpleSearchCancel(): should set the header state to base and call clearText with "onSimpleSearchCancel"', () => {
@@ -86,7 +88,7 @@ export function TestCases3(getTestBed) {
 
       inputElement.dispatchEvent(new Event('focus'));
 
-      expect(component.isSearchBarFocused).toEqual(true);
+      expect(component.isSearchBarFocused).toBeTrue();
     });
 
     it('onFilterPillsClearAll(): should call clearFilters', () => {
@@ -101,6 +103,7 @@ export function TestCases3(getTestBed) {
       beforeEach(() => {
         spyOn(component, 'openFilters');
       });
+
       it('should call openFilters with State if filterType is state', () => {
         component.onFilterClick('state');
 
@@ -170,7 +173,7 @@ export function TestCases3(getTestBed) {
         expect(component.addNewFiltersToParams).toHaveBeenCalledTimes(1);
         expect(component.generateFilterPills).toHaveBeenCalledOnceWith({
           sortDir: 'desc',
-          sortParam: 'rp_created_at',
+          sortParam: 'created_at',
         });
         expect(component.filterPills).toEqual([{ label: 'Date', type: 'date', value: 'this Week' }]);
       });
@@ -190,9 +193,9 @@ export function TestCases3(getTestBed) {
     }));
 
     describe('convertRptDtSortToSelectedFilters(): ', () => {
-      it('should add "dateOldToNew" to generatedFilters when sortParam is rp_submitted_at and sortDir is asc', () => {
+      it('should add "dateOldToNew" to generatedFilters when sortParam is submitted_at and sortDir is asc', () => {
         const filter = {
-          sortParam: 'rp_submitted_at',
+          sortParam: 'last_submitted_at',
           sortDir: 'asc',
         };
         const generatedFilters: SelectedFilters<string | string[]>[] = [];
@@ -204,9 +207,9 @@ export function TestCases3(getTestBed) {
         expect(generatedFilters[0].value).toEqual('dateOldToNew');
       });
 
-      it('should add "dateNewToOld" to generatedFilters when sortParam is rp_submitted_at and sortDir is desc', () => {
+      it('should add "dateNewToOld" to generatedFilters when sortParam is submitted_at and sortDir is desc', () => {
         const filter = {
-          sortParam: 'rp_submitted_at',
+          sortParam: 'last_submitted_at',
           sortDir: 'desc',
         };
         const generatedFilters: SelectedFilters<string | string[]>[] = [];
@@ -218,9 +221,9 @@ export function TestCases3(getTestBed) {
         expect(generatedFilters[0].value).toEqual('dateNewToOld');
       });
 
-      it('should not modify generatedFilters when sortParam is other than rp_submitted_at', () => {
+      it('should not modify generatedFilters when sortParam is other than submitted_at', () => {
         const filter = {
-          sortParam: 'rp_created_at',
+          sortParam: 'created_at',
           sortDir: 'asc',
         };
         const generatedFilters: SelectedFilters<string | string[]>[] = [
@@ -240,7 +243,7 @@ export function TestCases3(getTestBed) {
 
     it('addSortToGeneratedFilters(): should call convertRptDtSortToSelectedFilters, convertAmountSortToSelectedFilters, and convertNameSortToSelectedFilters', () => {
       const filter = {
-        sortParam: 'rp_submitted_at',
+        sortParam: 'last_submitted_at',
         sortDir: 'asc',
       };
       const generatedFilters: SelectedFilters<string | string[]>[] = [];
@@ -272,7 +275,7 @@ export function TestCases3(getTestBed) {
     });
 
     describe('convertNameSortToSelectedFilters(): ', () => {
-      it('should push filter sort by with value equal to nameAToZ if sortParam is rp_purpose and sort direction is asc', () => {
+      it('should push filter sort by with value equal to nameAToZ if sortParam is purpose and sort direction is asc', () => {
         const generatedFilters = [];
         component.convertNameSortToSelectedFilters(teamReportsFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual([
@@ -283,7 +286,7 @@ export function TestCases3(getTestBed) {
         ]);
       });
 
-      it('should push filter sort by with value equal to nameZToA if sortParam is rp_purpose and sort direction is desc', () => {
+      it('should push filter sort by with value equal to nameZToA if sortParam is purpose and sort direction is desc', () => {
         const generatedFilters = [];
         component.convertNameSortToSelectedFilters(teamReportsFiltersParams2, generatedFilters);
         expect(generatedFilters).toEqual([
@@ -296,66 +299,66 @@ export function TestCases3(getTestBed) {
     });
 
     describe('convertSelectedSortFiltersToFilters(): ', () => {
-      it('should set param as rp_submitted_at and direction as desc if sortBy value is dateNewToOld', () => {
+      it('should set param as last_submitted_at and direction as desc if sortBy value is dateNewToOld', () => {
         const generatedFilters = {};
         component.convertSelectedSortFiltersToFilters(selectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_submitted_at',
+          sortParam: 'last_submitted_at',
           sortDir: 'desc',
         });
       });
 
-      it('should set param as rp_submitted_at and direction as asc if sortBy value is dateOldToNew', () => {
+      it('should set param as submitted_at and direction as asc if sortBy value is dateOldToNew', () => {
         const generatedFilters = {};
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
         mockSelectedFiltersParams.value = 'dateOldToNew';
         component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_submitted_at',
+          sortParam: 'last_submitted_at',
           sortDir: 'asc',
         });
       });
 
-      it('should set param as rp_amount and direction as desc if sortBy value is amountHighToLow', () => {
+      it('should set param as amount and direction as desc if sortBy value is amountHighToLow', () => {
         const generatedFilters = {};
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
         mockSelectedFiltersParams.value = 'amountHighToLow';
         component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_amount',
+          sortParam: 'amount',
           sortDir: 'desc',
         });
       });
 
-      it('should set param as rp_amount and direction as asc if sortBy value is amountLowToHigh', () => {
+      it('should set param as amount and direction as asc if sortBy value is amountLowToHigh', () => {
         const generatedFilters = {};
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
         mockSelectedFiltersParams.value = 'amountLowToHigh';
         component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_amount',
+          sortParam: 'amount',
           sortDir: 'asc',
         });
       });
 
-      it('should set param as rp_purpose and direction as asc if sortBy value is nameAToZ', () => {
+      it('should set param as purpose and direction as asc if sortBy value is nameAToZ', () => {
         const generatedFilters = {};
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
         mockSelectedFiltersParams.value = 'nameAToZ';
         component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_purpose',
+          sortParam: 'purpose',
           sortDir: 'asc',
         });
       });
 
-      it('should set param as rp_purpose and direction as desc if sortBy value is nameZToA', () => {
+      it('should set param as purpose and direction as desc if sortBy value is nameZToA', () => {
         const generatedFilters = {};
         const mockSelectedFiltersParams = cloneDeep(selectedFiltersParams);
         mockSelectedFiltersParams.value = 'nameZToA';
         component.convertSelectedSortFiltersToFilters(mockSelectedFiltersParams, generatedFilters);
         expect(generatedFilters).toEqual({
-          sortParam: 'rp_purpose',
+          sortParam: 'purpose',
           sortDir: 'desc',
         });
       });

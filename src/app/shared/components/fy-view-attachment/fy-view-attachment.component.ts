@@ -1,15 +1,15 @@
 import { Component, OnInit, Input, ViewChild } from '@angular/core';
 import { ModalController, PopoverController } from '@ionic/angular';
 import { DomSanitizer } from '@angular/platform-browser';
-import { PopupService } from 'src/app/core/services/popup.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { from, of } from 'rxjs';
 import { switchMap, finalize } from 'rxjs/operators';
 import { PopupAlertComponent } from 'src/app/shared/components/popup-alert/popup-alert.component';
 import { SwiperComponent } from 'swiper/angular';
-import SwiperCore, { Pagination } from 'swiper';
 import { TrackingService } from 'src/app/core/services/tracking.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { FileObject } from 'src/app/core/models/file-obj.model';
+import { OverlayEventDetail } from '@ionic/core';
 
 @Component({
   selector: 'app-fy-view-attachment',
@@ -17,7 +17,7 @@ import { TrackingService } from 'src/app/core/services/tracking.service';
   styleUrls: ['./fy-view-attachment.component.scss'],
 })
 export class FyViewAttachmentComponent implements OnInit {
-  @Input() attachments: any[];
+  @Input() attachments: FileObject[];
 
   @Input() isMileageExpense: boolean;
 
@@ -25,6 +25,7 @@ export class FyViewAttachmentComponent implements OnInit {
 
   @ViewChild('swiper', { static: false }) imageSlides?: SwiperComponent;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   sliderOptions: any;
 
   activeIndex = 0;
@@ -36,13 +37,12 @@ export class FyViewAttachmentComponent implements OnInit {
     private modalController: ModalController,
     private popoverController: PopoverController,
     private sanitizer: DomSanitizer,
-    private popupService: PopupService,
     private loaderService: LoaderService,
-    private fileService: FileService,
-    private trackingService: TrackingService
+    private trackingService: TrackingService,
+    private spenderFileService: SpenderFileService
   ) {}
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.zoomScale = 1;
     this.sliderOptions = {
       zoom: {
@@ -57,39 +57,39 @@ export class FyViewAttachmentComponent implements OnInit {
     });
   }
 
-  ionViewWillEnter() {
+  ionViewWillEnter(): void {
     this.imageSlides.swiperRef.update();
   }
 
-  zoomIn() {
+  zoomIn(): void {
     this.zoomScale += 0.25;
   }
 
-  zoomOut() {
+  zoomOut(): void {
     this.zoomScale -= 0.25;
   }
 
-  resetZoom() {
+  resetZoom(): void {
     this.zoomScale = 1;
   }
 
-  onDoneClick() {
+  onDoneClick(): void {
     this.modalController.dismiss({ attachments: this.attachments });
   }
 
-  goToNextSlide() {
+  goToNextSlide(): void {
     this.imageSlides.swiperRef.slideNext();
   }
 
-  goToPrevSlide() {
+  goToPrevSlide(): void {
     this.imageSlides.swiperRef.slidePrev();
   }
 
-  getActiveIndex() {
+  getActiveIndex(): void {
     this.activeIndex = this.imageSlides.swiperRef.activeIndex;
   }
 
-  async deleteAttachment() {
+  async deleteAttachment(): Promise<void> {
     const activeIndex = await this.imageSlides.swiperRef.activeIndex;
     try {
       this.trackingService.deleteFileClicked({ 'File ID': this.attachments[activeIndex].id });
@@ -113,37 +113,36 @@ export class FyViewAttachmentComponent implements OnInit {
     });
 
     await deletePopover.present();
-    const { data } = await deletePopover.onWillDismiss();
+    const response: OverlayEventDetail<{ action: string }> = await deletePopover.onWillDismiss();
+    const data = response.data;
 
-    if (data && data.action) {
-      if (data.action === 'remove') {
-        from(this.loaderService.showLoader())
-          .pipe(
-            switchMap(() => {
-              if (this.attachments[activeIndex].id) {
-                return this.fileService.delete(this.attachments[activeIndex].id);
-              } else {
-                return of(null);
-              }
-            }),
-            finalize(() => from(this.loaderService.hideLoader()))
-          )
-          .subscribe(() => {
-            try {
-              this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
-            } catch (error) {}
-            this.attachments.splice(activeIndex, 1);
-            if (this.attachments.length === 0) {
-              this.modalController.dismiss({ attachments: this.attachments });
+    if (data?.action === 'remove') {
+      from(this.loaderService.showLoader())
+        .pipe(
+          switchMap(() => {
+            if (this.attachments[activeIndex].id) {
+              return this.spenderFileService.deleteFilesBulk([this.attachments[activeIndex].id]);
             } else {
-              if (activeIndex > 0) {
-                this.goToPrevSlide();
-              } else {
-                this.goToNextSlide();
-              }
+              return of(null);
             }
-          });
-      }
+          }),
+          finalize(() => from(this.loaderService.hideLoader()))
+        )
+        .subscribe(() => {
+          try {
+            this.trackingService.fileDeleted({ 'File ID': this.attachments[activeIndex].id });
+          } catch (error) {}
+          this.attachments.splice(activeIndex, 1);
+          if (this.attachments.length === 0) {
+            this.modalController.dismiss({ attachments: this.attachments });
+          } else {
+            if (activeIndex > 0) {
+              this.goToPrevSlide();
+            } else {
+              this.goToNextSlide();
+            }
+          }
+        });
     }
   }
 }

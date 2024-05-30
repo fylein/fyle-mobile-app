@@ -23,7 +23,7 @@ import { SpenderReportsService } from './platform/v1/spender/reports.service';
 import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats-response.model';
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportState } from '../models/platform/v1/report.model';
-import { Datum } from '../models/v2/stats-response.model';
+import { OrgService } from './org.service';
 
 @Injectable({
   providedIn: 'root',
@@ -51,16 +51,22 @@ export class TasksService {
     private orgSettingsService: OrgSettingsService,
     private employeesService: EmployeesService,
     private spenderReportsService: SpenderReportsService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private orgService: OrgService
   ) {
     this.refreshOnTaskClear();
   }
 
   refreshOnTaskClear(): void {
     this.userEventService.onTaskCacheClear(() => {
-      this.reportService.getReportAutoSubmissionDetails().subscribe((autoSubmissionReportDetails) => {
+      forkJoin([
+        this.reportService.getReportAutoSubmissionDetails(),
+        this.orgService.getCurrentOrg(),
+        this.orgService.getPrimaryOrg(),
+      ]).subscribe(([autoSubmissionReportDetails, currentOrg, primaryOrg]) => {
         const isReportAutoSubmissionScheduled = !!autoSubmissionReportDetails?.data?.next_at;
-        this.getTasks(isReportAutoSubmissionScheduled).subscribe(noop);
+        const showTeamReportTask = currentOrg.id === primaryOrg.id;
+        this.getTasks(isReportAutoSubmissionScheduled, undefined, showTeamReportTask).subscribe(noop);
       });
     });
   }
@@ -295,7 +301,11 @@ export class TasksService {
     return filterPills;
   }
 
-  getTasks(isReportAutoSubmissionScheduled = false, filters?: TaskFilters): Observable<DashboardTask[]> {
+  getTasks(
+    isReportAutoSubmissionScheduled = false,
+    filters?: TaskFilters,
+    showTeamReportTask?: boolean
+  ): Observable<DashboardTask[]> {
     return forkJoin({
       mobileNumberVerification: this.getMobileNumberVerificationTasks(),
       potentialDuplicates: this.getPotentialDuplicatesTasks(),
@@ -303,9 +313,9 @@ export class TasksService {
       unreportedExpenses: this.getUnreportedExpensesTasks(isReportAutoSubmissionScheduled),
       unsubmittedReports: this.getUnsubmittedReportsTasks(isReportAutoSubmissionScheduled),
       draftExpenses: this.getDraftExpensesTasks(),
-      teamReports: this.getTeamReportsTasks(),
       sentBackAdvances: this.getSentBackAdvanceTasks(),
       setCommuteDetails: this.getCommuteDetailsTasks(),
+      teamReports: this.getTeamReportsTasks(showTeamReportTask),
     }).pipe(
       map(
         ({
@@ -475,33 +485,42 @@ export class TasksService {
     );
   }
 
-  getTeamReportsStats(): Observable<Datum[]> {
+  getTeamReportsStats(): Observable<PlatformReportsStatsResponse> {
     return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.reportService.getReportStatsData(
-          {
-            approved_by: 'cs.{' + eou.ou.id + '}',
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-            aggregates: 'count(rp_id),sum(rp_amount)',
-            scalar: true,
-          },
-          false
-        )
-      )
+      switchMap((eou) => {
+        if (eou.ou.roles.includes('APPROVER')) {
+          return this.approverReportsService.getReportsStats({
+            next_approver_user_ids: `cs.[${eou.us.id}]`,
+            state: `eq.${ReportState.APPROVER_PENDING}`,
+          });
+        }
+        const zeroResponse: PlatformReportsStatsResponse = {
+          count: 0,
+          failed_amount: null,
+          failed_count: null,
+          processing_amount: 0,
+          processing_count: 0,
+          reimbursable_amount: 0,
+          total_amount: 0,
+        };
+        return of(zeroResponse);
+      })
     );
   }
 
-  getTeamReportsTasks(): Observable<DashboardTask[]> {
-    return forkJoin({
-      reportsStats: this.getTeamReportsStats(),
-      homeCurrency: this.currencyService.getHomeCurrency(),
-    }).pipe(
-      map(({ reportsStats, homeCurrency }: { reportsStats: Datum[]; homeCurrency: string }) =>
-        this.mapAggregateToTeamReportTask(this.mapScalarReportStatsResponse(reportsStats), homeCurrency)
-      )
-    );
+  getTeamReportsTasks(showTeamReportTask?: boolean): Observable<DashboardTask[]> {
+    if (showTeamReportTask) {
+      return forkJoin({
+        reportsStats: this.getTeamReportsStats(),
+        homeCurrency: this.currencyService.getHomeCurrency(),
+      }).pipe(
+        map(({ reportsStats, homeCurrency }: { reportsStats: PlatformReportsStatsResponse; homeCurrency: string }) =>
+          this.mapAggregateToTeamReportTask(reportsStats, homeCurrency)
+        )
+      );
+    } else {
+      return of([] as DashboardTask[]);
+    }
   }
 
   getPotentialDuplicatesTasks(): Observable<DashboardTask[]> {
@@ -534,23 +553,6 @@ export class TasksService {
       },
     ];
     return task;
-  }
-
-  getStatsFromResponse(
-    statsResponse: Datum[],
-    countName: string,
-    sumName: string
-  ): { totalCount: number; totalAmount: number } {
-    const countAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === countName) || 0;
-    const amountAggregate = statsResponse[0]?.aggregates.find((aggregate) => aggregate.function_name === sumName) || 0;
-    return {
-      totalCount: countAggregate && countAggregate.function_value,
-      totalAmount: amountAggregate && amountAggregate.function_value,
-    };
-  }
-
-  mapScalarReportStatsResponse(statsResponse: Datum[]): { totalCount: number; totalAmount: number } {
-    return this.getStatsFromResponse(statsResponse, 'count(rp_id)', 'sum(rp_amount)');
   }
 
   mapPotentialDuplicatesTasks(duplicateSets: string[][]): DashboardTask[] {
@@ -761,24 +763,21 @@ export class TasksService {
     }
   }
 
-  mapAggregateToTeamReportTask(
-    aggregate: { totalCount: number; totalAmount: number },
-    homeCurrency: string
-  ): DashboardTask[] {
-    if (aggregate.totalCount > 0) {
+  mapAggregateToTeamReportTask(aggregate: PlatformReportsStatsResponse, homeCurrency: string): DashboardTask[] {
+    if (aggregate.count > 0) {
       return [
         {
-          amount: this.humanizeCurrency.transform(aggregate.totalAmount, homeCurrency, true),
-          count: aggregate.totalCount,
-          header: `Report${aggregate.totalCount === 1 ? '' : 's'} to be approved`,
-          subheader: `${aggregate.totalCount} report${aggregate.totalCount === 1 ? '' : 's'}${this.getAmountString(
-            aggregate.totalAmount,
+          amount: this.humanizeCurrency.transform(aggregate.total_amount, homeCurrency, true),
+          count: aggregate.count,
+          header: `Report${aggregate.count === 1 ? '' : 's'} to be approved`,
+          subheader: `${aggregate.count} report${aggregate.count === 1 ? '' : 's'}${this.getAmountString(
+            aggregate.total_amount,
             homeCurrency
-          )} require${aggregate.totalCount === 1 ? 's' : ''} your approval`,
+          )} require${aggregate.count === 1 ? 's' : ''} your approval`,
           icon: TaskIcon.REPORT,
           ctas: [
             {
-              content: `Show Report${aggregate.totalCount === 1 ? '' : 's'}`,
+              content: `Show Report${aggregate.count === 1 ? '' : 's'}`,
               event: TASKEVENT.openTeamReport,
             },
           ],

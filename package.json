@@ -11,12 +11,13 @@
     "test": "ng test --watch=false --browsers=ChromeHeadless",
     "test-basic": "ng test",
     "test:no-parallel": "ng test",
-    "lint": "ng lint",
+    "lint": "eslint -c .eslintrc.json",
     "e2e": "ng e2e",
     "postinstall": "npx jetify",
     "format:check": "prettier --write ./src",
     "prepare": "husky install",
-    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")"
+    "lint:diff": "eslint -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/$GITHUB_BASE_REF | grep  -E \"(.js$|.ts$|.tsx$)\")",
+    "lint:diff:local": "eslint --fix -c .eslintrc.json $(git diff --name-only --diff-filter=ACMRTUXB origin/master | grep  -E '(.js$|.ts$|.tsx$)')"
   },
   "resolutions": {
     "webpack": "^5.0.0"
