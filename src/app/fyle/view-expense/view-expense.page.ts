@@ -114,6 +114,8 @@ export class ViewExpensePage {
 
   cardNumber: string;
 
+  cardNickname: string;
+
   systemCategories: string[];
 
   travelSystemCategories: string[];
@@ -347,6 +349,7 @@ export class ViewExpensePage {
 
         const matchedCCCTransaction = expense.matched_corporate_card_transactions[0];
         this.cardNumber = matchedCCCTransaction.corporate_card_number;
+        this.cardNickname = matchedCCCTransaction.corporate_card_nickname;
       }
       this.foreignCurrencySymbol = getCurrencySymbol(expense.foreign_currency, 'wide');
       this.expenseCurrencySymbol = getCurrencySymbol(expense.currency, 'wide');

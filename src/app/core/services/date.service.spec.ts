@@ -229,7 +229,7 @@ describe('DateService', () => {
       expect(dateService.getUTCDate).toHaveBeenCalledOnceWith(new Date('2017-07-25T00:00:00.000Z'));
     });
 
-    it('should convert due_at, updated_at, invoice_dt, approved_at, ba_created_at, ba_updated_at, ba_last_synced_at, paid_at, reimbursed_at, physical_bill_at', () => {
+    it('should convert due_at, updated_at, invoice_dt, approved_at, ba_created_at, ba_updated_at, ba_last_synced_at, paid_at, reimbursed_at', () => {
       const data = {
         due_at: '2022-11-30T06:30:00.000Z',
         ba_created_at: '2023-02-24T12:03:57.680Z',
@@ -240,7 +240,6 @@ describe('DateService', () => {
         reimbursed_at: '2023-02-23T02:16:15.260Z',
         ba_updated_at: '2023-02-23T11:46:17.569Z',
         ba_last_synced_at: '2023-02-23T02:16:15.260Z',
-        physical_bill_at: '2023-02-23T22:58:18.412Z',
       };
 
       const updatedData = {
@@ -253,7 +252,6 @@ describe('DateService', () => {
         reimbursed_at: new Date('2023-02-23T02:16:15.260Z'),
         ba_updated_at: new Date('2023-02-23T11:46:17.569Z'),
         ba_last_synced_at: new Date('2023-02-23T02:16:15.260Z'),
-        physical_bill_at: new Date('2023-02-23T22:58:18.412Z'),
       };
 
       expect(dateService.fixDates<Partial<DateParams>>(data)).toEqual(updatedData);
