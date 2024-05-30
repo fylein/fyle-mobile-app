@@ -828,8 +828,6 @@ export class TransactionService {
         source_account_id: expense.source_account_id,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
-        physical_bill: expense.is_physical_bill_submitted,
-        physical_bill_at: expense.physical_bill_submitted_at,
       },
       source: {
         account_id: expense.source_account?.id,
@@ -921,8 +919,6 @@ export class TransactionService {
         : null,
       tx_org_category_code: expense.category?.code,
       tx_project_code: expense.project?.code,
-      tx_physical_bill: expense.is_physical_bill_submitted,
-      tx_physical_bill_at: expense.physical_bill_submitted_at,
       source_account_id: expense.source_account_id,
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
