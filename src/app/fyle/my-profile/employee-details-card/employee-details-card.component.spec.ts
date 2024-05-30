@@ -7,22 +7,34 @@ import { getTextContent } from 'src/app/core/dom-helpers';
 import { getElementBySelector } from 'src/app/core/dom-helpers';
 import { click } from 'src/app/core/dom-helpers';
 import { cloneDeep } from 'lodash';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 describe('EmployeeDetailsCardComponent', () => {
   let component: EmployeeDetailsCardComponent;
   let fixture: ComponentFixture<EmployeeDetailsCardComponent>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
 
   beforeEach(waitForAsync(() => {
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
+
     TestBed.configureTestingModule({
       declarations: [EmployeeDetailsCardComponent, InitialsPipe],
       imports: [IonicModule.forRoot()],
-      providers: [],
+      providers: [
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
+      ],
     }).compileComponents();
     fixture = TestBed.createComponent(EmployeeDetailsCardComponent);
     component = fixture.componentInstance;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
+    utilityService.isUserFromINCluster.and.resolveTo(false);
 
     const mockApiEouRes = cloneDeep(apiEouRes);
     component.eou = mockApiEouRes;
+    component.isMobileNumberSectionVisible = true;
     fixture.detectChanges();
   }));
 
@@ -68,5 +80,25 @@ describe('EmployeeDetailsCardComponent', () => {
     fixture.detectChanges();
     expect(component.onVerifyMobileNumber).toHaveBeenCalledOnceWith(apiEouRes);
     expect(component.verifyMobileNumber.emit).toHaveBeenCalledOnceWith(apiEouRes);
+  });
+
+  describe('ngOnInit()', () => {
+    it('should set isMobileNumberSectionVisible to false if user is from IN cluster', async () => {
+      utilityService.isUserFromINCluster.and.resolveTo(true);
+      component.ngOnInit();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.isMobileNumberSectionVisible).toBeFalse();
+    });
+
+    it('should set isMobileNumberSectionVisible to true if user is from IN cluster', async () => {
+      utilityService.isUserFromINCluster.and.resolveTo(false);
+      component.ngOnInit();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(component.isMobileNumberSectionVisible).toBeTrue();
+    });
   });
 });
