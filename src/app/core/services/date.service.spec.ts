@@ -1,7 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { DateService } from './date.service';
 import * as dayjs from 'dayjs';
+import * as timezone from 'dayjs/plugin/timezone';
+import * as utc from 'dayjs/plugin/utc';
 import { DateParams } from '../models/date-parameters.model';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 describe('DateService', () => {
   let dateService: DateService;

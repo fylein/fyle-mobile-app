@@ -10,7 +10,7 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
   providedIn: 'root',
 })
 export class LaunchDarklyService {
-  private ldClient: LDClient.LDClient;
+  ldClient: LDClient.LDClient;
 
   constructor(private userEventService: UserEventService, private storageService: StorageService) {
     this.userEventService.onLogout(() => this.shutDownClient());
