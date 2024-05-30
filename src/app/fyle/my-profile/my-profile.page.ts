@@ -25,7 +25,6 @@ import { ToastMessageComponent } from 'src/app/shared/components/toast-message/t
 import { environment } from 'src/environments/environment';
 import { globalCacheBusterNotifier } from 'ts-cacheable';
 import { TrackingService } from '../../core/services/tracking.service';
-import { UpdateMobileNumberComponent } from './update-mobile-number/update-mobile-number.component';
 import { VerifyNumberPopoverComponent } from './verify-number-popover/verify-number-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { OverlayResponse } from 'src/app/core/models/overlay-response.modal';
@@ -410,14 +409,9 @@ export class MyProfilePage {
     const updateMobileNumberPopover = await this.modalController.create({
       component: FyOptInComponent,
       componentProps: {
-        title: (eou.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
-        ctaText: eou.ou.mobile_verification_attempts_left !== 0 ? 'Next' : 'Save',
-        inputLabel: 'Mobile Number',
         extendedOrgUser: eou,
-        placeholder: 'Enter mobile number e.g. +129586736556',
       },
       mode: 'ios',
-      cssClass: 'fy-opt-in-modal',
     });
 
     await updateMobileNumberPopover.present();
