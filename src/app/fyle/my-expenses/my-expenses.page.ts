@@ -557,17 +557,12 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {};
+        let queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        if (params.searchString) {
-          queryParams.q = params.searchString;
-          queryParams.q = queryParams.q + ':*';
-        } else if (params.searchString === '') {
-          delete queryParams.q;
-        }
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
         const orderByParams =
           params.sortParam && params.sortDir
             ? `${params.sortParam}.${params.sortDir}`
@@ -1503,13 +1498,11 @@ export class MyExpensesPage implements OnInit {
           .pipe(
             take(1),
             map((params) => {
-              const queryParams = params.queryParams || {};
+              let queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
               queryParams.state = 'in.(COMPLETE,DRAFT)';
-              if (params.searchString) {
-                queryParams.q = params?.searchString + ':*';
-              }
+              queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
 
               return queryParams;
             }),
