@@ -49,7 +49,7 @@ const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
 const org_id = 'orNVthTo2Zyo';
 
-fdescribe('SwitchOrgPage', () => {
+describe('SwitchOrgPage', () => {
   let component: SwitchOrgPage;
   let fixture: ComponentFixture<SwitchOrgPage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
