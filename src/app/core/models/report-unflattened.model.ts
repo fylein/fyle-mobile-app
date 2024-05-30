@@ -33,8 +33,6 @@ export interface UnflattenedReport {
     manual_flag: boolean;
     num_transactions: number;
     org_user_id: string;
-    physical_bill: boolean;
-    physical_bill_at: Date;
     last_updated_by?: UserDetails;
     creator_id?: string;
     status_id?: string;
