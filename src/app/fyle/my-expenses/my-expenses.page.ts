@@ -1503,7 +1503,6 @@ export class MyExpensesPage implements OnInit {
               queryParams.report_id = queryParams.report_id || 'is.null';
               queryParams.state = 'in.(COMPLETE,DRAFT)';
               queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
-
               return queryParams;
             }),
             switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
