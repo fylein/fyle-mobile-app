@@ -172,15 +172,25 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           this.isLoadingDataInInfiniteScroll = true;
-          return this.approverReportsService.getReportsByParams({
-            offset: (params.pageNumber - 1) * 10,
-            limit: 10,
-            ...queryParams,
-            order: orderByParams,
-          });
+          return this.approverReportsService.getReportsCount(queryParams).pipe(
+            switchMap((count) => {
+              if (count > (params.pageNumber - 1) * 10) {
+                return this.approverReportsService.getReportsByParams({
+                  ...queryParams,
+                  offset: (params.pageNumber - 1) * 10,
+                  limit: 10,
+                  order: orderByParams,
+                });
+              } else {
+                return of({
+                  data: [],
+                });
+              }
+            })
+          );
         }),
         map((res: PlatformApiResponse<Report[]>) => {
           this.isLoadingDataInInfiniteScroll = false;
@@ -198,6 +208,7 @@ export class TeamReportsPage implements OnInit {
         switchMap((params) => {
           let queryParams = params.queryParams;
           queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsCount(queryParams);
         }),
         shareReplay(1)
@@ -207,9 +218,7 @@ export class TeamReportsPage implements OnInit {
         switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
       );
 
-      this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-        switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
-      );
+      this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
       this.teamReports$.subscribe(noop);
       this.count$.subscribe(noop);
