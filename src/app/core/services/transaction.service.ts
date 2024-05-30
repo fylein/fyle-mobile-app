@@ -3,15 +3,12 @@ import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { NetworkService } from './network.service';
-import { from, Observable, range, forkJoin, Subject, of } from 'rxjs';
+import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
-import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
@@ -41,6 +38,9 @@ import { AccountType } from '../enums/account-type.enum';
 import { Expense as PlatformExpense } from '../models/platform/v1/expense.model';
 import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-card-transaction-res.model';
 import { ExpenseFilters } from '../models/expense-filters.model';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -48,8 +48,6 @@ enum FilterState {
   CANNOT_REPORT = 'CANNOT_REPORT',
   DRAFT = 'DRAFT',
 }
-
-export const expensesCacheBuster$ = new Subject<void>();
 
 type PaymentMode = {
   name: string;
@@ -62,22 +60,21 @@ type PaymentMode = {
 export class TransactionService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private dateService: DateService,
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
-    private fileService: FileService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
-    private accountsService: AccountsService
+    private accountsService: AccountsService,
+    private expensesService: ExpensesService,
+    private ldService: LaunchDarklyService
   ) {
     expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -238,7 +235,12 @@ export class TransactionService {
           transaction.txn_dt.setMinutes(0);
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
-          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+
+          if (this.ldService.getImmediate('timezone_fix', false)) {
+            transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
+          } else {
+            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+          }
         }
 
         if (transaction.from_dt) {
@@ -276,23 +278,16 @@ export class TransactionService {
     txn: Partial<Transaction>,
     fileUploads$: Observable<FileObject[]>
   ): Observable<Partial<Transaction>> {
-    return fileUploads$.pipe(
-      switchMap((fileObjs: FileObject[]) =>
-        this.upsert(txn).pipe(
-          switchMap((transaction) =>
-            from(
-              fileObjs.map((fileObj) => {
-                fileObj.transaction_id = transaction.id;
-                return fileObj;
-              })
-            ).pipe(
-              concatMap((fileObj) => this.fileService.post(fileObj)),
-              reduce((acc: FileObject[], curr: FileObject) => acc.concat([curr]), []),
-              map(() => transaction)
-            )
-          )
-        )
-      )
+    const upsertTxn$ = this.upsert(txn);
+    return forkJoin([fileUploads$, upsertTxn$]).pipe(
+      switchMap(([fileObjs, transaction]) => {
+        const fileIds = fileObjs.map((fileObj) => fileObj.id);
+        if (fileIds.length > 0) {
+          return this.expensesService.attachReceiptsToExpense(transaction.id, fileIds).pipe(map(() => transaction));
+        } else {
+          return of(transaction);
+        }
+      })
     );
   }
 
@@ -843,7 +838,7 @@ export class TransactionService {
         org_id: expense.employee?.org_id,
       },
     };
-    this.dateService.fixDates(updatedExpense.tx);
+
     return updatedExpense;
   }
 
@@ -947,24 +942,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private fixDates(data: Expense): Expense {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {

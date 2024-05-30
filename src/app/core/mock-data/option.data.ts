@@ -7,10 +7,14 @@ export const optionData1: Option[] = deepFreeze([
     label: 'report 1',
     value: {
       amount: 1348.09332,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
@@ -71,10 +75,14 @@ export const optionData1: Option[] = deepFreeze([
     label: 'report 2',
     value: {
       amount: 100,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,

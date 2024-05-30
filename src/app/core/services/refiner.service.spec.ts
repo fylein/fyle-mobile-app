@@ -75,7 +75,7 @@ describe('RefinerService', () => {
     it('should return true for non-demo orgs and when not switched to delegator', (done) => {
       spyOn(refinerService, 'isNonDemoOrg').and.returnValue(true);
       const switchedToDelegator = false;
-      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(switchedToDelegator));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(switchedToDelegator);
       const homeCurrency = 'INR';
       const eou = apiEouRes;
       refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {
@@ -96,7 +96,7 @@ describe('RefinerService', () => {
       };
       spyOn(refinerService, 'isNonDemoOrg').and.returnValue(false);
       const switchedToDelegator = true;
-      orgUserService.isSwitchedToDelegator.and.returnValue(Promise.resolve(switchedToDelegator));
+      orgUserService.isSwitchedToDelegator.and.resolveTo(switchedToDelegator);
       const homeCurrency = 'INR';
       const eou = demoOrgRes;
       refinerService.canStartSurvey(homeCurrency, eou).subscribe((res) => {

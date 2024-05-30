@@ -788,7 +788,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
         this.disableExpenseToKeep = true;
         this.expenseToKeepInfoText = 'You are required to keep the expense that has already been submitted.';
         this.fg.patchValue({
-          target_txn_id: expensesInfo.defaultExpenses[0].tx_split_group_id,
+          target_txn_id: expensesInfo.defaultExpenses[0].tx_id,
         });
       } else if (this.mergeExpensesService.isMoreThanOneAdvancePresent(expensesInfo, isAllAdvanceExpenses)) {
         this.showReceiptSelection = true;
@@ -796,7 +796,7 @@ export class MergeExpensePage implements OnInit, AfterViewChecked {
           'You cannot make changes to an expense paid from ‘advance’. Edit each expense separately if you wish to make any changes.';
       } else if (this.mergeExpensesService.isAdvancePresent(expensesInfo)) {
         this.fg.patchValue({
-          target_txn_id: expensesInfo.defaultExpenses[0].tx_split_group_id,
+          target_txn_id: expensesInfo.defaultExpenses[0].tx_id,
         });
         this.disableExpenseToKeep = true;
         this.expenseToKeepInfoText =

@@ -10,6 +10,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -265,6 +266,29 @@ export const mileageExpense: Expense = deepFreeze({
   category_id: 247012,
   claim_amount: 459,
   code: null,
+  commute_deduction: CommuteDeduction.ONE_WAY,
+  commute_details: {
+    distance: 2.92,
+    distance_unit: 'MILES',
+    home_location: {
+      city: 'Bengaluru',
+      country: 'India',
+      formatted_address: 'Bengaluru, Karnataka, India',
+      latitude: 13.0035068,
+      longitude: 77.5890953,
+      state: 'Karnataka',
+    },
+    id: 96,
+    work_location: {
+      city: 'Bengaluru',
+      country: 'India',
+      formatted_address: 'Sarjapura, Bengaluru, Karnataka 562125, India',
+      latitude: 12.8575579,
+      longitude: 77.7864057,
+      state: 'Karnataka',
+    },
+  },
+  commute_details_id: 96,
   cost_center: {
     code: null,
     id: 2885,
@@ -495,7 +519,7 @@ export const mileageExpense: Expense = deepFreeze({
   expense_rule_data: null,
   expense_rule_id: null,
   extracted_data: null,
-  file_ids: [],
+  file_ids: ['fi1w2IE6JeqS'],
   files: [],
   foreign_amount: null,
   foreign_currency: null,

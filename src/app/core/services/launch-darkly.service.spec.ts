@@ -38,6 +38,13 @@ describe('LaunchDarklyService', () => {
     expect(launchDarklyService).toBeTruthy();
   });
 
+  it('should call shutDownClient on userEventService logout', () => {
+    spyOn(launchDarklyService, 'shutDownClient');
+
+    userEventService.onLogout.calls.mostRecent().args[0]();
+    expect(launchDarklyService.shutDownClient).toHaveBeenCalledTimes(1);
+  });
+
   it('isTheSameUser(): should check if the user is same', () => {
     //@ts-ignore
     expect(launchDarklyService.isTheSameUser(lDUser)).toBeFalse();
@@ -46,7 +53,7 @@ describe('LaunchDarklyService', () => {
   describe('getVariation():', () => {
     it('should get variation', (done) => {
       const key = 'keyboard_plugin_enabled';
-      storageService.get.and.returnValue(Promise.resolve(ldAllFlagsRes));
+      storageService.get.and.resolveTo(ldAllFlagsRes);
 
       launchDarklyService.getVariation(key, true).subscribe((res) => {
         expect(res).toBeTrue();
@@ -56,7 +63,7 @@ describe('LaunchDarklyService', () => {
 
     it('should return default value when flags are not available', (done) => {
       const key = 'keyboard_plugin_enabled';
-      storageService.get.and.returnValue(Promise.resolve(null));
+      storageService.get.and.resolveTo(null);
 
       launchDarklyService.getVariation(key, true).subscribe((res) => {
         expect(res).toBeTrue();
@@ -84,6 +91,48 @@ describe('LaunchDarklyService', () => {
       expect(res).toBeTrue();
       expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
       done();
+    });
+  });
+
+  it('checkIfAndroidNegativeExpensePluginIsEnabled(): should check if android negative expense plugin is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'android-numeric-keypad';
+
+    launchDarklyService.checkIfAndroidNegativeExpensePluginIsEnabled().subscribe((res) => {
+      expect(res).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, false);
+      done();
+    });
+  });
+
+  it('checkIfManualFlaggingFeatureIsEnabled(): should check if manual flagging feature is enabled', (done) => {
+    spyOn(launchDarklyService, 'getVariation').and.returnValue(of(true));
+    const key = 'deprecate_manual_flagging';
+
+    launchDarklyService.checkIfManualFlaggingFeatureIsEnabled().subscribe((res) => {
+      expect(res.value).toBeTrue();
+      expect(launchDarklyService.getVariation).toHaveBeenCalledOnceWith(key, true);
+      done();
+    });
+  });
+
+  describe('shutDownClient():', () => {
+    beforeEach(() => {
+      ldClient = jasmine.createSpyObj('LDClient', ['off', 'close']);
+      (launchDarklyService as any).ldClient = ldClient;
+    });
+
+    it('should shut down LD client if it exists', () => {
+      launchDarklyService.shutDownClient();
+      expect(ldClient.off).toHaveBeenCalledWith('initialized', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.off).toHaveBeenCalledWith('change', jasmine.any(Function), launchDarklyService);
+      expect(ldClient.close).toHaveBeenCalled();
+      expect((launchDarklyService as any).ldClient).toBeNull();
+    });
+
+    it('should not throw error if LD client does not exist', () => {
+      (launchDarklyService as any).ldClient = null;
+      expect(() => launchDarklyService.shutDownClient()).not.toThrow();
     });
   });
 });

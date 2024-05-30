@@ -77,7 +77,7 @@ describe('DeepLinkRedirectionPage', () => {
     activeroutemock = TestBed.inject(ActivatedRoute);
 
     reportService.getERpt.and.returnValue(of(expectedSingleErpt));
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     fixture = TestBed.createComponent(DeepLinkRedirectionPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -122,7 +122,7 @@ describe('DeepLinkRedirectionPage', () => {
         },
       };
 
-      authService.getEou.and.returnValue(Promise.resolve(updatedApiEouRes));
+      authService.getEou.and.resolveTo(updatedApiEouRes);
 
       const updatedErpt = {
         ...expectedSingleErpt,
@@ -159,7 +159,7 @@ describe('DeepLinkRedirectionPage', () => {
 
       spyOn(component, 'switchOrg');
       const error = 'Something went wrong';
-      authService.getEou.and.returnValue(Promise.resolve(updatedApiEouRes));
+      authService.getEou.and.resolveTo(updatedApiEouRes);
       reportService.getERpt.and.returnValue(throwError(() => error));
       component.redirectToReportModule();
       fixture.detectChanges();
@@ -273,7 +273,7 @@ describe('DeepLinkRedirectionPage', () => {
         },
       };
 
-      authService.getEou.and.returnValue(Promise.resolve(updatedApiEouRes));
+      authService.getEou.and.resolveTo(updatedApiEouRes);
 
       activeroutemock.snapshot.params = {
         sub_module: 'advReq',
@@ -299,7 +299,7 @@ describe('DeepLinkRedirectionPage', () => {
     }));
 
     it('should redirect to my_view_advance_request page if non of the conditions match', fakeAsync(() => {
-      authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+      authService.getEou.and.resolveTo(apiEouRes);
 
       activeroutemock.snapshot.params = {
         sub_module: 'advReq',

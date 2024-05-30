@@ -1,9 +1,8 @@
 import { ComponentFixture, TestBed, fakeAsync, tick, waitForAsync } from '@angular/core/testing';
 import { IonicModule, ModalController, PopoverController } from '@ionic/angular';
-
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
 import { FyViewAttachmentComponent } from './fy-view-attachment.component';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FileService } from 'src/app/core/services/file.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { of } from 'rxjs';
@@ -15,7 +14,7 @@ describe('FyViewAttachmentComponent', () => {
   let domSantizer: jasmine.SpyObj<DomSanitizer>;
   let modalController: jasmine.SpyObj<ModalController>;
   let popoverController: jasmine.SpyObj<PopoverController>;
-  let fileService: jasmine.SpyObj<FileService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let trackingService: jasmine.SpyObj<TrackingService>;
 
@@ -23,10 +22,9 @@ describe('FyViewAttachmentComponent', () => {
     const domSantizerSpy = jasmine.createSpyObj('DomSanitizer', ['bypassSecurityTrustUrl']);
     const modalControllerSpy = jasmine.createSpyObj('ModalController', ['dismiss']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const fileServiceSpy = jasmine.createSpyObj('FileService', ['delete']);
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const trackingServiceSpy = jasmine.createSpyObj('TracingService', ['deleteFileClicked', 'fileDeleted']);
-
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['deleteFilesBulk']);
     TestBed.configureTestingModule({
       declarations: [FyViewAttachmentComponent],
       providers: [
@@ -43,8 +41,8 @@ describe('FyViewAttachmentComponent', () => {
           useValue: popoverControllerSpy,
         },
         {
-          provide: FileService,
-          useValue: fileServiceSpy,
+          provide: SpenderFileService,
+          useValue: spenderFileServiceSpy,
         },
         {
           provide: LoaderService,
@@ -64,8 +62,8 @@ describe('FyViewAttachmentComponent', () => {
     domSantizer = TestBed.inject(DomSanitizer) as jasmine.SpyObj<DomSanitizer>;
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     popoverController = TestBed.inject(PopoverController) as jasmine.SpyObj<PopoverController>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
-    fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
     trackingService = TestBed.inject(TrackingService) as jasmine.SpyObj<TrackingService>;
 
     const mockAttachments = [
@@ -85,8 +83,8 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ];
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
-    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.resolveTo();
+    loaderService.showLoader.and.resolveTo();
 
     component.attachments = mockAttachments;
     fixture.detectChanges();
@@ -189,7 +187,7 @@ describe('FyViewAttachmentComponent', () => {
       }) as any
     );
 
-    fileService.delete.and.returnValue(of(null));
+    spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
     component.deleteAttachment();
@@ -208,7 +206,7 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ]);
-    expect(fileService.delete).toHaveBeenCalledOnceWith('2');
+    expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['2']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '2' });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '2' });
   }));
@@ -232,7 +230,7 @@ describe('FyViewAttachmentComponent', () => {
       }) as any
     );
 
-    fileService.delete.and.returnValue(of(null));
+    spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
     component.deleteAttachment();
@@ -251,7 +249,7 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ]);
-    expect(fileService.delete).toHaveBeenCalledOnceWith('1');
+    expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['1']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
@@ -283,7 +281,7 @@ describe('FyViewAttachmentComponent', () => {
       }) as any
     );
 
-    fileService.delete.and.returnValue(of(null));
+    spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
     component.deleteAttachment();
@@ -291,7 +289,7 @@ describe('FyViewAttachmentComponent', () => {
 
     expect(modalController.dismiss).toHaveBeenCalledOnceWith({ attachments: component.attachments });
     expect(component.attachments.length).toBe(0);
-    expect(fileService.delete).toHaveBeenCalledOnceWith('1');
+    expect(spenderFileService.deleteFilesBulk).toHaveBeenCalledOnceWith(['1']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': '1' });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': '1' });
   }));
@@ -333,7 +331,7 @@ describe('FyViewAttachmentComponent', () => {
       }) as any
     );
 
-    fileService.delete.and.returnValue(of(null));
+    spenderFileService.deleteFilesBulk.and.returnValue(of({}));
     spyOn(component, 'goToPrevSlide');
     spyOn(component, 'goToNextSlide');
 
@@ -353,7 +351,7 @@ describe('FyViewAttachmentComponent', () => {
         url: 'http://example.com/attachment3.pdf',
       },
     ]);
-    expect(fileService.delete).not.toHaveBeenCalledOnceWith('2');
+    expect(spenderFileService.deleteFilesBulk).not.toHaveBeenCalledOnceWith(['2']);
     expect(trackingService.deleteFileClicked).toHaveBeenCalledOnceWith({ 'File ID': null });
     expect(trackingService.fileDeleted).toHaveBeenCalledOnceWith({ 'File ID': null });
   }));

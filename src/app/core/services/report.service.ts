@@ -8,7 +8,6 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
-import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportParams } from '../models/report-params.model';
@@ -33,6 +32,7 @@ import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
 import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -55,7 +55,8 @@ export class ReportService {
     private approverPlatformApiService: ApproverPlatformApiService,
     private datePipe: DatePipe,
     private launchDarklyService: LaunchDarklyService,
-    private permissionsService: PermissionsService
+    private permissionsService: PermissionsService,
+    private spenderReportsService: SpenderReportsService
   ) {
     reportsCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -130,18 +131,9 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  createDraft(report: ReportPurpose): Observable<ReportV1> {
-    return this.apiService
-      .post<ReportV1>('/reports', report)
-      .pipe(switchMap((res) => this.clearTransactionCache().pipe(map(() => res))));
-  }
-
-  @CacheBuster({
-    cacheBusterNotifier: reportsCacheBuster$,
-  })
-  create(report: ReportPurpose, expenseIds: string[]): Observable<ReportV1> {
-    return this.createDraft(report).pipe(
-      switchMap((newReport: ReportV1) => {
+  create(report: ReportPurpose, expenseIds: string[]): Observable<Report> {
+    return this.spenderReportsService.createDraft({ data: report }).pipe(
+      switchMap((newReport: Report) => {
         const payload = {
           data: {
             id: newReport.id,
@@ -217,12 +209,12 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+  updateReportPurpose(report: Report): Observable<Report> {
     const params = {
       data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
+        id: report.id,
+        source: report.source,
+        purpose: report.purpose,
       },
     };
     return this.spenderPlatformV1ApiService.post('/reports', params);
@@ -428,10 +420,6 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  actions(rptId: string): Observable<ReportActions> {
-    return this.apiService.get('/reports/' + rptId + '/actions');
-  }
-
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
@@ -586,12 +574,12 @@ export class ReportService {
     );
   }
 
-  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+  approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
+        id: report.id,
+        source: report.source,
+        purpose: report.purpose,
       },
     };
     return this.approverPlatformApiService.post('/reports', params);

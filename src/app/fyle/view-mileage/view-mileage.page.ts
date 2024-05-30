@@ -7,7 +7,6 @@ import { TransactionService } from 'src/app/core/services/transaction.service';
 import { CustomInputsService } from 'src/app/core/services/custom-inputs.service';
 import { PolicyService } from 'src/app/core/services/policy.service';
 import { switchMap, finalize, shareReplay, map, concatMap, takeUntil, take, filter } from 'rxjs/operators';
-import { ReportService } from 'src/app/core/services/report.service';
 import { PopoverController, ModalController } from '@ionic/angular';
 import { NetworkService } from '../../core/services/network.service';
 import { StatusService } from 'src/app/core/services/status.service';
@@ -38,6 +37,10 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { MileageRatesService } from 'src/app/core/services/mileage-rates.service';
 import { PlatformMileageRates } from 'src/app/core/models/platform/platform-mileage-rates.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
+import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 
 @Component({
   selector: 'app-view-mileage',
@@ -117,7 +120,6 @@ export class ViewMileagePage {
     private transactionService: TransactionService,
     private customInputsService: CustomInputsService,
     private policyService: PolicyService,
-    private reportService: ReportService,
     private popoverController: PopoverController,
     private router: Router,
     private networkService: NetworkService,
@@ -132,7 +134,9 @@ export class ViewMileagePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderExpensesService: SpenderExpensesService,
     private mileageRatesService: MileageRatesService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private spenderFileService: SpenderFileService,
+    private approverFileService: ApproverFileService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -310,21 +314,34 @@ export class ViewMileagePage {
 
     this.mapAttachment$ = this.mileageExpense$.pipe(
       take(1),
-      switchMap((expense) => from(expense.files)),
-      concatMap((fileObj) =>
-        this.fileService.downloadUrl(fileObj.id).pipe(
-          map((downloadUrl) => {
-            const details = this.fileService.getReceiptsDetails(fileObj.name, downloadUrl);
-            const fileObjWithDetails: FileObject = {
-              url: downloadUrl,
-              type: details.type,
-              thumbnail: details.thumbnail,
-            };
+      switchMap((expense: PlatformExpense) => {
+        if (expense.file_ids.length > 0) {
+          if (this.view === ExpenseView.individual) {
+            return this.spenderFileService.generateUrls(expense.file_ids[0]);
+          } else {
+            return this.approverFileService.generateUrls(expense.file_ids[0]);
+          }
+        } else {
+          return of(null);
+        }
+      }),
+      map((response: PlatformFileGenerateUrlsResponse) => {
+        if (response !== null) {
+          const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
-            return fileObjWithDetails;
-          })
-        )
-      )
+          const receipt: FileObject = {
+            id: response.id,
+            name: response.name,
+            url: response.download_url,
+            type: details.type,
+            thumbnail: details.thumbnail,
+          };
+
+          return receipt;
+        } else {
+          return null;
+        }
+      })
     );
 
     this.expenseFields$ = this.expenseFieldsService.getAllMap().pipe(shareReplay(1));
@@ -385,8 +402,8 @@ export class ViewMileagePage {
     forkJoin([this.expenseFields$, this.mileageExpense$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, expense]) => {
-          this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
-          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
+          this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.field_name;
+          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings?.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )
@@ -439,10 +456,10 @@ export class ViewMileagePage {
       take(1),
       filter(() => this.view === ExpenseView.team),
       switchMap((expense) =>
-        this.reportService.getTeamReport(expense.report_id).pipe(map((report) => ({ report, expense })))
+        this.approverReportsService.getReportById(expense.report_id).pipe(map((report) => ({ report, expense })))
       ),
       map(({ report, expense }) =>
-        report.rp_num_transactions === 1
+        report.num_expenses === 1
           ? false
           : ![ExpenseState.PAYMENT_PENDING, ExpenseState.PAYMENT_PROCESSING, ExpenseState.PAID].includes(expense.state)
       )

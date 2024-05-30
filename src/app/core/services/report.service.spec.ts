@@ -26,7 +26,6 @@ import {
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsRes } from '../mock-data/org-settings.data';
-import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   expectedErpt,
@@ -70,10 +69,11 @@ import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { dataErtpTransformed, apiErptReporDataParam } from '../mock-data/data-transform.data';
-import { platformReportData } from '../mock-data/platform-report.data';
+import { expectedReportsSinglePage, platformReportData } from '../mock-data/platform-report.data';
 import { ApproverPlatformApiService } from './approver-platform-api.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { cloneDeep } from 'lodash';
+import { SpenderReportsService } from './platform/v1/spender/reports.service';
 
 describe('ReportService', () => {
   let reportService: ReportService;
@@ -89,6 +89,7 @@ describe('ReportService', () => {
   let permissionsService: jasmine.SpyObj<PermissionsService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
   let networkService: jasmine.SpyObj<NetworkService>;
+  let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let launchDarklyService: LaunchDarklyService;
 
   const apiReportStatParams: Partial<StatsResponse> = {
@@ -196,6 +197,7 @@ describe('ReportService', () => {
     ) as jasmine.SpyObj<ApproverPlatformApiService>;
     permissionsService = TestBed.inject(PermissionsService) as jasmine.SpyObj<PermissionsService>;
     launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
+    spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
   });
 
   it('should be created', () => {
@@ -214,23 +216,6 @@ describe('ReportService', () => {
 
     reportService.clearTransactionCache().subscribe(() => {
       expect(transactionService.clearCache).toHaveBeenCalledTimes(1);
-      done();
-    });
-  });
-
-  it('createDraft(): should create a draft report and return the report', (done) => {
-    apiService.post.and.returnValue(of(reportUnflattenedData));
-    spyOn(reportService, 'clearTransactionCache').and.returnValue(of(null));
-
-    const reportParam = {
-      purpose: 'A draft Report',
-      source: 'MOBILE',
-    };
-
-    reportService.createDraft(reportParam).subscribe((res) => {
-      expect(res).toEqual(reportUnflattenedData);
-      expect(apiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
-      expect(reportService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
@@ -498,18 +483,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('actions(): should get report actions', (done) => {
-    apiService.get.and.returnValue(of(apiReportActions));
-
-    const reportID = 'rpxtbiLXQZUm';
-
-    reportService.actions(reportID).subscribe((res) => {
-      expect(res).toEqual(apiReportActions);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/actions`);
-      done();
-    });
-  });
-
   it('getExports(): should get export actions for a report', (done) => {
     apiService.get.and.returnValue(of([]));
 
@@ -522,7 +495,7 @@ describe('ReportService', () => {
   });
 
   it('create(): should create a new report', (done) => {
-    spyOn(reportService, 'createDraft').and.returnValue(of(reportUnflattenedData2));
+    spyOn(spenderReportsService, 'createDraft').and.returnValue(of(expectedReportsSinglePage[0]));
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
     spyOn(reportService, 'submit').and.returnValue(of(null));
 
@@ -531,7 +504,7 @@ describe('ReportService', () => {
       source: 'MOBILE',
     };
     const expenseIds = ['tx6Oe6FaYDZl'];
-    const reportID = 'rp5eUkeNm9wB';
+    const reportID = 'rprAfNrce73O';
     const payload = {
       data: {
         id: reportID,
@@ -540,8 +513,8 @@ describe('ReportService', () => {
     };
 
     reportService.create(reportPurpose, expenseIds).subscribe((res) => {
-      expect(res).toEqual(reportUnflattenedData2);
-      expect(reportService.createDraft).toHaveBeenCalledOnceWith(reportPurpose);
+      expect(res).toEqual(expectedReportsSinglePage[0]);
+      expect(spenderReportsService.createDraft).toHaveBeenCalledOnceWith({ data: reportPurpose });
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/add_expenses', payload);
       expect(reportService.submit).toHaveBeenCalledOnceWith(reportID);
       done();
@@ -669,7 +642,7 @@ describe('ReportService', () => {
 
   it('updateReportPurpose(): should update the report purpose', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
-    reportService.updateReportPurpose(reportData1).subscribe((res) => {
+    reportService.updateReportPurpose(platformReportData).subscribe((res) => {
       expect(res).toEqual(platformReportData);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', {
         data: {
@@ -684,7 +657,7 @@ describe('ReportService', () => {
 
   it('approverUpdateReportPurpose(): should update the report purpose for approver', (done) => {
     approverPlatformApiService.post.and.returnValue(of(platformReportData));
-    reportService.approverUpdateReportPurpose(reportData1).subscribe((res) => {
+    reportService.approverUpdateReportPurpose(platformReportData).subscribe((res) => {
       expect(res).toEqual(platformReportData);
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports', {
         data: {

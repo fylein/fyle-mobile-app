@@ -49,14 +49,22 @@ import { ExpenseState } from 'src/app/core/models/expense-state.enum';
 import { TransactionStatusInfoPopoverComponent } from 'src/app/shared/components/transaction-status-info-popover/transaction-status-info-popover.component';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { CustomInput } from 'src/app/core/models/custom-input.model';
+import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/file.service';
+import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
+import { urlsBulkData } from 'src/app/core/mock-data/platform-file.data';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import {
+  expectedReportsSinglePage,
+  expectedReportsSinglePageSubmitted,
+  paidReportData,
+} from 'src/app/core/mock-data/platform-report.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 describe('ViewExpensePage', () => {
   let component: ViewExpensePage;
   let fixture: ComponentFixture<ViewExpensePage>;
   let loaderService: jasmine.SpyObj<LoaderService>;
   let transactionService: jasmine.SpyObj<TransactionService>;
-  let reportService: jasmine.SpyObj<ReportService>;
   let customInputsService: jasmine.SpyObj<CustomInputsService>;
   let statusService: jasmine.SpyObj<StatusService>;
   let fileService: jasmine.SpyObj<FileService>;
@@ -73,13 +81,15 @@ describe('ViewExpensePage', () => {
   let dependentFieldsService: jasmine.SpyObj<DependentFieldsService>;
   let approverExpensesService: jasmine.SpyObj<ApproverExpensesService>;
   let spenderExpensesService: jasmine.SpyObj<SpenderExpensesService>;
+  let spenderFileService: jasmine.SpyObj<SpenderFileService>;
+  let approverFileService: jasmine.SpyObj<ApproverFileService>;
   let activateRouteMock: ActivatedRoute;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+  let launchDarklyService: jasmine.SpyObj<LaunchDarklyService>;
 
   beforeEach(waitForAsync(() => {
     const loaderServiceSpy = jasmine.createSpyObj('LoaderService', ['hideLoader', 'showLoader']);
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['manualUnflag', 'manualFlag']);
-    const reportServiceSpy = jasmine.createSpyObj('ReportService', ['getTeamReport']);
     const customInputsServiceSpy = jasmine.createSpyObj('CustomInputsService', [
       'getCustomPropertyDisplayValue',
       'fillCustomProperties',
@@ -119,7 +129,16 @@ describe('ViewExpensePage', () => {
     ]);
     const approverExpensesServiceSpy = jasmine.createSpyObj('ApproverExpensesService', ['getExpenseById']);
     const spenderExpensesServiceSpy = jasmine.createSpyObj('SpenderExpensesService', ['getExpenseById']);
-    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['ejectExpenses']);
+    const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', [
+      'ejectExpenses',
+      'getReportById',
+    ]);
+    const launchDarklyServiceSpy = jasmine.createSpyObj('LaunchDarklyService', [
+      'checkIfManualFlaggingFeatureIsEnabled',
+    ]);
+
+    const spenderFileServiceSpy = jasmine.createSpyObj('SpenderFileService', ['generateUrlsBulk']);
+    const approverFileServiceSpy = jasmine.createSpyObj('ApproverFileService', ['generateUrlsBulk']);
 
     TestBed.configureTestingModule({
       declarations: [ViewExpensePage],
@@ -132,10 +151,6 @@ describe('ViewExpensePage', () => {
         {
           useValue: transactionServiceSpy,
           provide: TransactionService,
-        },
-        {
-          useValue: reportServiceSpy,
-          provide: ReportService,
         },
         {
           useValue: customInputsServiceSpy,
@@ -202,6 +217,14 @@ describe('ViewExpensePage', () => {
           provide: SpenderExpensesService,
         },
         {
+          useValue: spenderFileServiceSpy,
+          provide: SpenderFileService,
+        },
+        {
+          useValue: approverFileServiceSpy,
+          provide: ApproverFileService,
+        },
+        {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
         },
@@ -218,6 +241,10 @@ describe('ViewExpensePage', () => {
             },
           },
         },
+        {
+          provide: LaunchDarklyService,
+          useValue: launchDarklyServiceSpy,
+        },
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
@@ -225,7 +252,6 @@ describe('ViewExpensePage', () => {
     fixture = TestBed.createComponent(ViewExpensePage);
     component = fixture.componentInstance;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
-    reportService = TestBed.inject(ReportService) as jasmine.SpyObj<ReportService>;
     customInputsService = TestBed.inject(CustomInputsService) as jasmine.SpyObj<CustomInputsService>;
     statusService = TestBed.inject(StatusService) as jasmine.SpyObj<StatusService>;
     fileService = TestBed.inject(FileService) as jasmine.SpyObj<FileService>;
@@ -243,8 +269,11 @@ describe('ViewExpensePage', () => {
     loaderService = TestBed.inject(LoaderService) as jasmine.SpyObj<LoaderService>;
     approverExpensesService = TestBed.inject(ApproverExpensesService) as jasmine.SpyObj<ApproverExpensesService>;
     spenderExpensesService = TestBed.inject(SpenderExpensesService) as jasmine.SpyObj<SpenderExpensesService>;
+    spenderFileService = TestBed.inject(SpenderFileService) as jasmine.SpyObj<SpenderFileService>;
+    approverFileService = TestBed.inject(ApproverFileService) as jasmine.SpyObj<ApproverFileService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     activateRouteMock = TestBed.inject(ActivatedRoute);
+    launchDarklyService = TestBed.inject(LaunchDarklyService) as jasmine.SpyObj<LaunchDarklyService>;
 
     fixture.detectChanges();
   }));
@@ -489,7 +518,16 @@ describe('ViewExpensePage', () => {
         type: 'image',
         thumbnail: 'mock-thumbnail',
       });
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePage[0]));
+
+      launchDarklyService.checkIfManualFlaggingFeatureIsEnabled.and.returnValue(of({ value: true }));
+    });
+
+    it('should set isManualFlagFeatureEnabled$ from launchDarklyService ', () => {
+      component.ionViewWillEnter();
+      component.isManualFlagFeatureEnabled$.subscribe((res) => {
+        expect(res.value).toBeTrue();
+      });
     });
 
     it('should get all the system categories and get the correct value of report is by subscribing to expenseWithoutCustomProperties$', fakeAsync(() => {
@@ -680,7 +718,7 @@ describe('ViewExpensePage', () => {
         custom_fields: null,
       };
 
-      reportService.getTeamReport.and.returnValue(of(apiTeamRptSingleRes.data[0]));
+      approverReportsService.getReportById.and.returnValue(of(paidReportData));
       approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -699,7 +737,7 @@ describe('ViewExpensePage', () => {
         state: ExpenseState.DRAFT,
         custom_fields: null,
       };
-      reportService.getTeamReport.and.returnValue(of(apiTeamReportPaginated1.data[3]));
+      approverReportsService.getReportById.and.returnValue(of(expectedReportsSinglePageSubmitted[2]));
       approverExpensesService.getExpenseById.and.returnValue(of(mockWithoutCustPropData));
       component.expenseWithoutCustomProperties$ = of(mockWithoutCustPropData);
       activateRouteMock.snapshot.params.view = ExpenseView.team;
@@ -881,26 +919,30 @@ describe('ViewExpensePage', () => {
 
     it('should be able to edit expense attachments', fakeAsync(() => {
       spyOn(component.updateFlag$, 'next');
+      component.view = ExpenseView.team;
 
-      fileService.getReceiptsDetails.and.returnValue({
+      const details = {
+        url: 'mock-url',
         type: 'image',
         thumbnail: 'mock-thumbnail',
-      });
-
-      const mockDownloadUrl = {
-        url: 'mock-url',
       };
-      fileService.downloadUrl.and.returnValue(of(mockDownloadUrl.url));
+
+      fileService.getReceiptsDetails.and.returnValue(details);
+      approverFileService.generateUrlsBulk.and.returnValue(of(urlsBulkData));
+
       component.ionViewWillEnter();
       tick(500);
       component.expense$.subscribe((expense) => {
-        expect(fileService.downloadUrl).toHaveBeenCalledOnceWith(fileObjectData.id);
-        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(fileObjectData.name, fileObjectData.url);
+        expect(approverFileService.generateUrlsBulk).toHaveBeenCalledOnceWith(expense.file_ids);
+        expect(fileService.getReceiptsDetails).toHaveBeenCalledOnceWith(
+          urlsBulkData[0].name,
+          urlsBulkData[0].download_url
+        );
       });
       tick(500);
       expect(component.updateFlag$.next).toHaveBeenCalledOnceWith(null);
       component.attachments$.subscribe((attachments) => {
-        expect(attachments).toEqual([fileObjectData]);
+        expect(attachments).toEqual([details]);
         expect(component.isLoading).toBeFalse();
       });
     }));

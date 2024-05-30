@@ -29,7 +29,6 @@ import {
 import { taskCtaData3, taskCtaData9 } from 'src/app/core/mock-data/task-cta.data';
 import { expenseList } from 'src/app/core/mock-data/expense.data';
 import { cloneDeep } from 'lodash';
-import { apiReportRes } from 'src/app/core/mock-data/api-reports.data';
 import { publicAdvanceRequestRes, singleExtendedAdvReqRes } from 'src/app/core/mock-data/extended-advance-request.data';
 import {
   expensesList,
@@ -42,6 +41,12 @@ import {
   perDiemCategoryTransformedExpenseData,
   transformedExpenseData,
 } from 'src/app/core/mock-data/transformed-expense.data';
+import { SpenderReportsService } from 'src/app/core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-report.data';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
+import { OrgService } from 'src/app/core/services/org.service';
+import { orgData1 } from 'src/app/core/mock-data/org.data';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -62,6 +67,9 @@ export function TestCases2(getTestBed) {
     let router: jasmine.SpyObj<Router>;
     let activatedRoute: jasmine.SpyObj<ActivatedRoute>;
     let networkService: jasmine.SpyObj<NetworkService>;
+    let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
+    let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
+    let orgService: jasmine.SpyObj<OrgService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -82,11 +90,16 @@ export function TestCases2(getTestBed) {
       router = TestBed.inject(Router) as jasmine.SpyObj<Router>;
       activatedRoute = TestBed.inject(ActivatedRoute) as jasmine.SpyObj<ActivatedRoute>;
       networkService = TestBed.inject(NetworkService) as jasmine.SpyObj<NetworkService>;
+      spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
+      approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+      orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
     }));
 
     describe('init():', () => {
       beforeEach(() => {
         reportService.getReportAutoSubmissionDetails.and.returnValue(of(apiReportAutoSubmissionDetails));
+        orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+        orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
         tasksService.getTasks.and.returnValue(of(dashboardTasksData));
         spyOn(component, 'trackTasks');
         tasksService.generateFilterPills.and.returnValue([typeFilterPill]);
@@ -105,9 +118,8 @@ export function TestCases2(getTestBed) {
         component.tasks$.subscribe((res) => {
           // Called 2 times as tasks$ will update again because we are changing loadData$ value
           expect(tasksService.getTasks).toHaveBeenCalledTimes(2);
-          expect(tasksService.getTasks).toHaveBeenCalledWith(true, component.loadData$.getValue());
+          expect(tasksService.getTasks).toHaveBeenCalledWith(true, component.loadData$.getValue(), true);
           expect(component.trackTasks).toHaveBeenCalledTimes(2);
-          expect;
           expect(component.taskCount).toEqual(dashboardTasksData.length);
           expect(res).toEqual(dashboardTasksData);
         });
@@ -275,7 +287,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        reportService.getMyReports.and.returnValue(of(apiReportRes));
+        spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       });
 
       it('should get all reports and navigate to my view report page if task count is 1', fakeAsync(() => {
@@ -284,10 +296,8 @@ export function TestCases2(getTestBed) {
         component.onSentBackReportTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
-        expect(reportService.getMyReports).toHaveBeenCalledOnceWith({
-          queryParams: {
-            rp_state: 'in.(APPROVER_INQUIRY)',
-          },
+        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'eq.APPROVER_INQUIRY',
           offset: 0,
           limit: 1,
         });
@@ -296,7 +306,7 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'my_view_report',
-          { id: apiReportRes.data[0].rp_id },
+          { id: expectedReportsSinglePage[0].id },
         ]);
       }));
 
@@ -304,7 +314,7 @@ export function TestCases2(getTestBed) {
         component.onSentBackReportTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(reportService.getMyReports).not.toHaveBeenCalled();
+        expect(spenderReportsService.getAllReportsByParams).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
           queryParams: { filters: '{"state":["APPROVER_INQUIRY"]}' },
@@ -357,7 +367,8 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        reportService.getTeamReports.and.returnValue(of(apiReportRes));
+        authService.getEou.and.resolveTo(apiEouRes);
+        approverReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       });
 
       it('should get all team reports and navigate to my view report page if task count is 1', fakeAsync(() => {
@@ -366,21 +377,16 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
-        expect(reportService.getTeamReports).toHaveBeenCalledOnceWith({
-          queryParams: {
-            rp_approval_state: ['in.(APPROVAL_PENDING)'],
-            rp_state: ['in.(APPROVER_PENDING)'],
-            sequential_approval_turn: ['in.(true)'],
-          },
-          offset: 0,
-          limit: 1,
+        expect(approverReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'eq.APPROVER_PENDING',
+          next_approver_user_ids: `cs.[${apiEouRes.us.id}]`,
         });
         expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
         expect(router.navigate).toHaveBeenCalledOnceWith([
           '/',
           'enterprise',
           'view_team_report',
-          { id: apiReportRes.data[0].rp_id, navigate_back: true },
+          { id: expectedReportsSinglePage[0].id, navigate_back: true },
         ]);
       }));
 
@@ -388,7 +394,7 @@ export function TestCases2(getTestBed) {
         component.onTeamReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(reportService.getTeamReports).not.toHaveBeenCalled();
+        expect(approverReportsService.getAllReportsByParams).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'team_reports'], {
           queryParams: { filters: JSON.stringify({ state: ['APPROVER_PENDING'] }) },
@@ -400,7 +406,7 @@ export function TestCases2(getTestBed) {
       beforeEach(() => {
         loaderService.showLoader.and.resolveTo();
         loaderService.hideLoader.and.resolveTo();
-        reportService.getMyReports.and.returnValue(of(apiReportRes));
+        spenderReportsService.getAllReportsByParams.and.returnValue(of(expectedReportsSinglePage));
       });
 
       it('should get all reports and navigate to my view report page if task count is 1', fakeAsync(() => {
@@ -409,10 +415,8 @@ export function TestCases2(getTestBed) {
         component.onOpenDraftReportsTaskClick(taskCtaData3, mockDashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Opening your report...');
-        expect(reportService.getMyReports).toHaveBeenCalledOnceWith({
-          queryParams: {
-            rp_state: 'in.(DRAFT)',
-          },
+        expect(spenderReportsService.getAllReportsByParams).toHaveBeenCalledOnceWith({
+          state: 'eq.DRAFT',
           offset: 0,
           limit: 1,
         });
@@ -421,7 +425,7 @@ export function TestCases2(getTestBed) {
           '/',
           'enterprise',
           'my_view_report',
-          { id: apiReportRes.data[0].rp_id },
+          { id: expectedReportsSinglePage[0].id },
         ]);
       }));
 
@@ -429,7 +433,7 @@ export function TestCases2(getTestBed) {
         component.onOpenDraftReportsTaskClick(taskCtaData3, dashboardTasksData[0]);
         tick(100);
         expect(loaderService.showLoader).not.toHaveBeenCalled();
-        expect(reportService.getMyReports).not.toHaveBeenCalled();
+        expect(spenderReportsService.getAllReportsByParams).not.toHaveBeenCalled();
         expect(loaderService.hideLoader).not.toHaveBeenCalled();
         expect(router.navigate).toHaveBeenCalledOnceWith(['/', 'enterprise', 'my_reports'], {
           queryParams: { filters: JSON.stringify({ state: ['DRAFT'] }) },

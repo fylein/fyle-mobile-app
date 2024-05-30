@@ -1,7 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize } from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize, debounceTime } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -165,6 +165,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
+      debounceTime(300),
       switchMap((searchText: string) => this.getProjects(searchText)),
       map((projects) =>
         projects.map((project: { label: string; value: ProjectV2; selected?: boolean }) => {
@@ -183,6 +184,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       map((event) => event.target.value),
       startWith(''),
       distinctUntilChanged(),
+      debounceTime(300),
       switchMap((searchText: string) =>
         this.getRecentlyUsedItems().pipe(
           // filtering of recently used items wrt searchText is taken care in service method

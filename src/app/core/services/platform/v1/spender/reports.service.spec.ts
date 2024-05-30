@@ -11,11 +11,14 @@ import {
   expectedReportsSinglePage,
   mockQueryParams,
   mockQueryParamsForCount,
+  platformReportData,
 } from 'src/app/core/mock-data/platform-report.data';
 import { ReportsQueryParams } from 'src/app/core/models/platform/v1/reports-query-params.model';
 import { expectedReportStats } from 'src/app/core/mock-data/report-stats.data';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
+import { apiReportPermissions } from 'src/app/core/mock-data/report-permissions.data';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 describe('SpenderReportsService', () => {
   let spenderReportsService: SpenderReportsService;
@@ -42,6 +45,7 @@ describe('SpenderReportsService', () => {
     ) as jasmine.SpyObj<SpenderPlatformV1ApiService>;
     userEventService = TestBed.inject(UserEventService) as jasmine.SpyObj<UserEventService>;
     transactionService = TestBed.inject(TransactionService) as jasmine.SpyObj<TransactionService>;
+    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
   });
 
   it('should be created', () => {
@@ -58,11 +62,38 @@ describe('SpenderReportsService', () => {
       offset: 0,
     };
 
-    spenderReportsService.getReportsCount(mockQueryParams).subscribe((res) => {
+    spenderReportsService.getReportsCount(mockQueryParamsForCount).subscribe((res) => {
       // Verify
       expect(res).toEqual(4); // Check if the count is as expected
       expect(spenderReportsService.getReportsByParams).toHaveBeenCalledWith(expectedParams); // Check if the method is called with the expected params
       done(); // Call 'done' to indicate the end of the asynchronous test
+    });
+  });
+
+  it('permissions(): should get report permissions', (done) => {
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: apiReportPermissions }));
+
+    const id = 'rpxtbiLXQZUm';
+
+    spenderReportsService.permissions(id).subscribe((res) => {
+      expect(res).toEqual(apiReportPermissions);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/permissions', { data: { id } });
+      done();
+    });
+  });
+
+  it('postComment(): should add a comment', (done) => {
+    const expectedCommentData: Comment = platformReportData.comments[0];
+    spenderPlatformV1ApiService.post.and.returnValue(of({ data: expectedCommentData }));
+
+    const id = 'rpxtbiLXQZUm';
+
+    spenderReportsService.postComment(id, 'comment').subscribe((res) => {
+      expect(res).toEqual(expectedCommentData);
+      expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports/comments', {
+        data: { id, comment: 'comment' },
+      });
+      done();
     });
   });
 
@@ -140,7 +171,6 @@ describe('SpenderReportsService', () => {
 
   it('addExpenses(): should add an expense to a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
-    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -200,7 +230,6 @@ describe('SpenderReportsService', () => {
 
   it('ejectExpenses(): should remove an expense from a report', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(null));
-    spyOn(spenderReportsService, 'clearTransactionCache').and.returnValue(of(null));
 
     const reportID = 'rpvcIMRMyM3A';
     const txns = ['txTQVBx7W8EO'];
@@ -232,6 +261,7 @@ describe('SpenderReportsService', () => {
     spenderReportsService.createDraft(reportParam).subscribe((res) => {
       expect(res).toEqual(allReportsPaginated1.data[0]);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', reportParam);
+      expect(spenderReportsService.clearTransactionCache).toHaveBeenCalledTimes(1);
       done();
     });
   });
