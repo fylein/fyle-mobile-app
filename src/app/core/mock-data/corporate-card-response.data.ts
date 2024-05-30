@@ -70,6 +70,5 @@ export const corporateCardsResponseData: PlatformCorporateCard[] = deepFreeze([
     updated_at: '2023-03-03T07:16:46.376082+00:00',
     user_id: 'usvKA4X8Ugcr',
     verification_status: 'NOT_VERIFIED',
-    nickname: 'Business Card3',
   },
 ]);

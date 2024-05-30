@@ -31,6 +31,5 @@ export const uniqueCardsData: UniqueCards[] = deepFreeze([
   {
     cardNumber: '869',
     cardName: 'PEX BANK',
-    cardNickname: 'Business Card3',
   },
 ]);

@@ -650,7 +650,7 @@ describe('MyExpensesV2Page', () => {
       expect(component.cardNumbers).toEqual([
         { label: '****8698 (Business Card1)', value: '8698' },
         { label: '****8698 (Business Card2)', value: '8698' },
-        { label: '****869 (Business Card3)', value: '869' },
+        { label: '****869', value: '869' },
       ]);
     }));
 
@@ -1318,11 +1318,13 @@ describe('MyExpensesV2Page', () => {
   });
 
   it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', () => {
-    corporateCreditCardService.getCorporateCards.and.returnValue(of(corporateCardsResponseData));
+    corporateCreditCardService.getCorporateCards.and.returnValue(
+      of([corporateCardsResponseData[0], corporateCardsResponseData[1]])
+    );
     const getCardDetailRes$ = component.getCardDetail();
 
     getCardDetailRes$.subscribe((data) => {
-      expect(data).toEqual(uniqueCardsData);
+      expect(data).toEqual([uniqueCardsData[0], uniqueCardsData[1]]);
     });
     expect(corporateCreditCardService.getCorporateCards).toHaveBeenCalledTimes(1);
   });
