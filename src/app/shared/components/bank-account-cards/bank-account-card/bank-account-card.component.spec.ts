@@ -103,9 +103,9 @@ describe('BankAccountCardComponent', () => {
 
   it('deleteAccount(): should delete account', fakeAsync(() => {
     spyOn(component.deleted, 'emit');
-    loaderService.showLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
     personalCardsService.deleteAccount.and.returnValue(of(deletePersonalCardRes));
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.hideLoader.and.resolveTo();
     matSnackBar.openFromComponent.and.callThrough();
     snackbarProperties.setSnackbarProperties.and.callThrough();
     fixture.detectChanges();
