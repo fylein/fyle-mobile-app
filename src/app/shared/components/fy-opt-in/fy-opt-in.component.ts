@@ -97,14 +97,26 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   ionViewWillEnter(): void {
     const priority = BackButtonActionPriority.MEDIUM;
     this.hardwareBackButtonAction = this.platformHandlerService.registerBackButtonAction(priority, this.goBack);
+
+    this.trackingService.openOptInDialog({
+      isMobileNumberPresent: !!this.extendedOrgUser.ou.mobile,
+      isUserVerified: this.extendedOrgUser.ou.mobile_verified,
+    });
   }
 
   goBack(): void {
     if (this.optInFlowState === OptInFlowState.OTP_VERIFICATION) {
+      this.trackingService.optInFlowRetry({
+        message: 'EDIT_NUMBER',
+      });
       this.optInFlowState = OptInFlowState.MOBILE_INPUT;
     } else if (this.optInFlowState === OptInFlowState.SUCCESS) {
+      this.trackingService.optInFlowSuccess({
+        message: 'SUCCESS',
+      });
       this.modalController.dismiss({ action: 'SUCCESS' });
     } else {
+      this.trackingService.skipOptInFlow();
       this.modalController.dismiss();
     }
   }
@@ -136,6 +148,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           .pipe(switchMap(() => this.authService.refreshEou()))
           .subscribe({
             complete: () => {
+              this.trackingService.updateMobileNumber({
+                popoverTitle: (this.extendedOrgUser.ou.mobile?.length ? 'Edit' : 'Add') + ' Mobile Number',
+              });
               this.resendOtp('INITIAL');
             },
             error: () => {
@@ -178,6 +193,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           const error = err.error as { message: string };
           const errorMessage = error.message?.toLowerCase() || '';
           if (errorMessage.includes('out of attempts') || errorMessage.includes('max send attempts reached')) {
+            this.trackingService.optInFlowError({
+              message: 'OTP_MAX_ATTEMPTS_REACHED',
+            });
             this.toastWithoutCTA(
               'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
               ToastType.FAILURE,
@@ -258,6 +276,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   async openHelpArticle(): Promise<void> {
+    this.trackingService.clickedOnHelpArticle();
     await this.browserHandlerService.openLinkWithToolbarColor(
       '#280a31',
       'https://help.fylehq.com/en/articles/8045065-submit-your-receipts-via-text-message'
@@ -265,6 +284,9 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   }
 
   onGotItClicked(): void {
+    this.trackingService.optInFlowSuccess({
+      message: 'SUCCESS',
+    });
     this.modalController.dismiss({ action: 'SUCCESS' });
   }
 
