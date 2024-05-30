@@ -36,6 +36,7 @@ import { HttpClient } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
 import { AllowedPaymentModes } from 'src/app/core/models/allowed-payment-modes.enum';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 describe('MyProfilePage', () => {
   let component: MyProfilePage;
@@ -648,15 +649,11 @@ describe('MyProfilePage', () => {
       fixture.detectChanges();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Edit Mobile Number',
-          ctaText: 'Next',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: apiEouRes,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -676,15 +673,11 @@ describe('MyProfilePage', () => {
       tick(500);
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Edit Mobile Number',
-          ctaText: 'Save',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: eouWithNoAttempts,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);
@@ -710,15 +703,11 @@ describe('MyProfilePage', () => {
       fixture.detectChanges();
 
       expect(popoverController.create).toHaveBeenCalledOnceWith({
-        component: UpdateMobileNumberComponent,
+        component: FyOptInComponent,
         componentProps: {
-          title: 'Add Mobile Number',
-          ctaText: 'Next',
-          inputLabel: 'Mobile Number',
           extendedOrgUser: eouWithoutMobileNumber,
-          placeholder: 'Enter mobile number e.g. +129586736556',
         },
-        cssClass: 'fy-dialog-popover',
+        mode: 'ios',
       });
       expect(popoverSpy.present).toHaveBeenCalledTimes(1);
       expect(popoverSpy.onWillDismiss).toHaveBeenCalledTimes(1);

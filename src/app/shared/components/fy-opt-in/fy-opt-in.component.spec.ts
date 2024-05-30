@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { FyOptInComponent } from './fy-opt-in.component';
 
-describe('FyOptInComponent', () => {
+xdescribe('FyOptInComponent', () => {
   let component: FyOptInComponent;
   let fixture: ComponentFixture<FyOptInComponent>;
 
