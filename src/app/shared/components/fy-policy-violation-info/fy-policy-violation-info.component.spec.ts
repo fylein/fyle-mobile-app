@@ -10,7 +10,7 @@ import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-he
 import { MatIconModule } from '@angular/material/icon';
 import { MatIconTestingModule } from '@angular/material/icon/testing';
 
-describe('FyPolicyViolationInfoComponent', () => {
+fdescribe('FyPolicyViolationInfoComponent', () => {
   let component: FyPolicyViolationInfoComponent;
   let fixture: ComponentFixture<FyPolicyViolationInfoComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -44,6 +44,13 @@ describe('FyPolicyViolationInfoComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should show policy violation if critical policy violation is present', () => {
+    component.policyViolations = [];
+    component.criticalPolicyViolated = true;
+    component.ngOnInit();
+    expect(component.showPolicyInfo).toBeTrue();
   });
 
   it('should show policy violation for a single violation', () => {
