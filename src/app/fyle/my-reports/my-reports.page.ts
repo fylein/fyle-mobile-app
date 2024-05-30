@@ -212,14 +212,10 @@ export class MyReportsPage {
 
     this.count$ = this.loadData$.pipe(
       switchMap((params) => {
-        const queryParams = params.queryParams || {
+        let queryParams = params.queryParams || {
           state: 'in.(DRAFT,APPROVED,APPROVER_PENDING,APPROVER_INQUIRY,PAYMENT_PENDING,PAYMENT_PROCESSING,PAID)',
         };
-        if (params.searchString) {
-          queryParams.q = params.searchString + ':*';
-        } else {
-          delete queryParams.q;
-        }
+        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString);
         this.isLoadingDataInInfiniteScroll = true;
         return this.spenderReportsService.getReportsCount(queryParams);
       }),

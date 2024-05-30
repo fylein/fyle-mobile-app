@@ -196,14 +196,8 @@ export class TeamReportsPage implements OnInit {
 
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
-          const queryParams = params.queryParams;
-          if (params.searchString) {
-            queryParams.q = params.searchString + ':*';
-          } else {
-            if (queryParams && queryParams.q) {
-              delete queryParams.q;
-            }
-          }
+          let queryParams = params.queryParams;
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
           return this.approverReportsService.getReportsCount(queryParams);
         }),
         shareReplay(1)
