@@ -175,22 +175,12 @@ export class TeamReportsPage implements OnInit {
           queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           this.isLoadingDataInInfiniteScroll = true;
-          return this.approverReportsService.getReportsCount(queryParams).pipe(
-            switchMap((count) => {
-              if (count > (params.pageNumber - 1) * 10) {
-                return this.approverReportsService.getReportsByParams({
-                  ...queryParams,
-                  offset: (params.pageNumber - 1) * 10,
-                  limit: 10,
-                  order: orderByParams,
-                });
-              } else {
-                return of({
-                  data: [],
-                });
-              }
-            })
-          );
+          return this.approverReportsService.getReportsByParams({
+            offset: (params.pageNumber - 1) * 10,
+            limit: 10,
+            ...queryParams,
+            order: orderByParams,
+          });
         }),
         map((res: PlatformApiResponse<Report[]>) => {
           this.isLoadingDataInInfiniteScroll = false;
