@@ -60,7 +60,7 @@ describe('FyPolicyViolationInfoComponent', () => {
   });
 
   it('should open policy violation modal on clicking', () => {
-    spyOn(component, 'openPolicyViolationDetails').and.returnValue(Promise.resolve(null));
+    spyOn(component, 'openPolicyViolationDetails').and.resolveTo(null);
     const viewDetailsButton = getElementBySelector(fixture, '.policy-violation-info--view-more') as HTMLElement;
     expect(getTextContent(viewDetailsButton)).toEqual('View details');
     click(viewDetailsButton);
