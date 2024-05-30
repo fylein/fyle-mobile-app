@@ -3,15 +3,12 @@ import { ApiService } from './api.service';
 import { DateService } from './date.service';
 import { map, switchMap, concatMap, reduce } from 'rxjs/operators';
 import { StorageService } from './storage.service';
-import { NetworkService } from './network.service';
 import { from, Observable, range, forkJoin, of } from 'rxjs';
 import { ApiV2Service } from './api-v2.service';
-import { DataTransformService } from './data-transform.service';
 import { AuthService } from './auth.service';
 import { OrgUserSettingsService } from './org-user-settings.service';
 import { TimezoneService } from 'src/app/core/services/timezone.service';
 import { UtilityService } from 'src/app/core/services/utility.service';
-import { FileService } from 'src/app/core/services/file.service';
 import { Expense } from '../models/expense.model';
 import { Cacheable, CacheBuster } from 'ts-cacheable';
 import { UserEventService } from './user-event.service';
@@ -43,6 +40,7 @@ import { CorporateCardTransactionRes } from '../models/platform/v1/corporate-car
 import { ExpenseFilters } from '../models/expense-filters.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 enum FilterState {
   READY_TO_REPORT = 'READY_TO_REPORT',
@@ -62,23 +60,21 @@ type PaymentMode = {
 export class TransactionService {
   constructor(
     @Inject(PAGINATION_SIZE) private paginationSize: number,
-    private networkService: NetworkService,
     private storageService: StorageService,
     private apiService: ApiService,
     private apiV2Service: ApiV2Service,
-    private dataTransformService: DataTransformService,
     private dateService: DateService,
     private authService: AuthService,
     private orgUserSettingsService: OrgUserSettingsService,
     private timezoneService: TimezoneService,
     private utilityService: UtilityService,
-    private fileService: FileService,
     private spenderPlatformV1ApiService: SpenderPlatformV1ApiService,
     private userEventService: UserEventService,
     private paymentModesService: PaymentModesService,
     private orgSettingsService: OrgSettingsService,
     private accountsService: AccountsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private ldService: LaunchDarklyService
   ) {
     expensesCacheBuster$.subscribe(() => {
       this.userEventService.clearTaskCache();
@@ -239,7 +235,12 @@ export class TransactionService {
           transaction.txn_dt.setMinutes(0);
           transaction.txn_dt.setSeconds(0);
           transaction.txn_dt.setMilliseconds(0);
-          transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+
+          if (this.ldService.getImmediate('timezone_fix', false)) {
+            transaction.txn_dt = this.dateService.getUTCMidAfternoonDate(transaction.txn_dt);
+          } else {
+            transaction.txn_dt = this.timezoneService.convertToUtc(transaction.txn_dt, offset);
+          }
         }
 
         if (transaction.from_dt) {
@@ -827,8 +828,6 @@ export class TransactionService {
         source_account_id: expense.source_account_id,
         org_category_code: expense.category?.code,
         project_code: expense.project?.code,
-        physical_bill: expense.is_physical_bill_submitted,
-        physical_bill_at: expense.physical_bill_submitted_at,
       },
       source: {
         account_id: expense.source_account?.id,
@@ -839,7 +838,7 @@ export class TransactionService {
         org_id: expense.employee?.org_id,
       },
     };
-    this.dateService.fixDates(updatedExpense.tx);
+
     return updatedExpense;
   }
 
@@ -920,8 +919,6 @@ export class TransactionService {
         : null,
       tx_org_category_code: expense.category?.code,
       tx_project_code: expense.project?.code,
-      tx_physical_bill: expense.is_physical_bill_submitted,
-      tx_physical_bill_at: expense.physical_bill_submitted_at,
       source_account_id: expense.source_account_id,
       source_account_type: this.sourceAccountTypePublicMapping(expense.source_account?.type),
     };
@@ -945,24 +942,6 @@ export class TransactionService {
         return accountDetails;
       })
     );
-  }
-
-  private fixDates(data: Expense): Expense {
-    data.tx_created_at = new Date(data.tx_created_at);
-    if (data.tx_txn_dt) {
-      data.tx_txn_dt = new Date(data.tx_txn_dt);
-    }
-
-    if (data.tx_from_dt) {
-      data.tx_from_dt = new Date(data.tx_from_dt);
-    }
-
-    if (data.tx_to_dt) {
-      data.tx_to_dt = new Date(data.tx_to_dt);
-    }
-
-    data.tx_updated_at = new Date(data.tx_updated_at);
-    return data;
   }
 
   private generateStateOrFilter(filters: Partial<ExpenseFilters>, newQueryParamsCopy: FilterQueryParams): string[] {

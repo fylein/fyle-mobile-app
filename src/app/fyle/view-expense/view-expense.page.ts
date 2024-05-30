@@ -38,6 +38,7 @@ import { SpenderFileService } from 'src/app/core/services/platform/v1/spender/fi
 import { ApproverFileService } from 'src/app/core/services/platform/v1/approver/file.service';
 import { PlatformFileGenerateUrlsResponse } from 'src/app/core/models/platform/platform-file-generate-urls-response.model';
 import { ApproverReportsService } from 'src/app/core/services/platform/v1/approver/reports.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-view-expense',
@@ -133,6 +134,8 @@ export class ViewExpensePage {
 
   isRTFEnabled: boolean;
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private loaderService: LoaderService,
     private transactionService: TransactionService,
@@ -155,7 +158,8 @@ export class ViewExpensePage {
     private approverExpensesService: ApproverExpensesService,
     private spenderFileService: SpenderFileService,
     private approverFileService: ApproverFileService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   get ExpenseView(): typeof ExpenseView {
@@ -259,6 +263,8 @@ export class ViewExpensePage {
 
   ionViewWillEnter(): void {
     this.setupNetworkWatcher();
+
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
 
     this.expenseId = this.activatedRoute.snapshot.params.id as string;
     this.view = this.activatedRoute.snapshot.params.view as ExpenseView;

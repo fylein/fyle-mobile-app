@@ -42,6 +42,10 @@ describe('ReportsCardComponent', () => {
     expect(getTextContent(getElementBySelector(fixture, '.reports-card--no-transactions'))).toEqual('0 Expenses');
   });
 
+  it('should have default value of false for isManualFlagFeatureEnabled', () => {
+    expect(component.isManualFlagFeatureEnabled).toBeFalse();
+  });
+
   it('onDeleteReport(): should delete report event', () => {
     const deleteReportSpy = spyOn(component.deleteReport, 'emit');
 

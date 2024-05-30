@@ -60,7 +60,6 @@ export interface Expense {
   is_billable: boolean;
   is_corporate_card_transaction_auto_matched: boolean;
   is_manually_flagged: boolean;
-  is_physical_bill_submitted: boolean;
   is_policy_flagged: boolean;
   is_receipt_mandatory: boolean;
   is_reimbursable: boolean;
@@ -83,7 +82,6 @@ export interface Expense {
   per_diem_num_days: number;
   per_diem_rate: Pick<PlatformPerDiemRates, 'id' | 'code' | 'name'>;
   per_diem_rate_id: number;
-  physical_bill_submitted_at: Date;
   policy_checks: PolicyChecks;
   policy_amount: number;
   project_id: number;
