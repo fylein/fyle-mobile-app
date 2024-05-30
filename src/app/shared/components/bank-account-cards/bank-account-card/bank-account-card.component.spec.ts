@@ -14,7 +14,7 @@ import { PopupAlertComponent } from '../../popup-alert/popup-alert.component';
 import { DeleteButtonComponent } from './delete-button/delete-button-component';
 import { click, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 
-fdescribe('BankAccountCardComponent', () => {
+describe('BankAccountCardComponent', () => {
   let component: BankAccountCardComponent;
   let fixture: ComponentFixture<BankAccountCardComponent>;
   let personalCardsService: jasmine.SpyObj<PersonalCardsService>;
