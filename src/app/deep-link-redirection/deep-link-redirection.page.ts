@@ -8,6 +8,8 @@ import { ReportService } from '../core/services/report.service';
 import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
+import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
+import { ApproverReportsService } from '../core/services/platform/v1/approver/reports.service';
 
 @Component({
   selector: 'app-deep-link-redirection',
@@ -24,7 +26,9 @@ export class DeepLinkRedirectionPage {
     private authService: AuthService,
     private reportService: ReportService,
     private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private approverReportsService: ApproverReportsService,
+    private spenderReportsService: SpenderReportsService
   ) {}
 
   ionViewWillEnter() {
@@ -123,16 +127,23 @@ export class DeepLinkRedirectionPage {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
 
-    this.reportService.getERpt(this.activatedRoute.snapshot.params.id as string).subscribe(
-      (res) => {
-        if (currentEou.ou.id === res.rp.org_user_id) {
+    const rptObservables$ = [
+      this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string),
+    ];
+    if (currentEou.ou.roles.includes('APPROVER')) {
+      rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
+    }
+    forkJoin(rptObservables$).subscribe(
+      ([spenderReport, approverReport]) => {
+        if (spenderReport) {
           this.router.navigate([
             '/',
             'enterprise',
             'my_view_report',
             { id: this.activatedRoute.snapshot.params.id as string },
           ]);
-        } else {
+        }
+        if (approverReport) {
           this.router.navigate([
             '/',
             'enterprise',
