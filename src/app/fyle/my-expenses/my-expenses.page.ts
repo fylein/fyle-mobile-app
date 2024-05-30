@@ -28,16 +28,15 @@ import {
   switchMap,
   take,
   takeUntil,
+  toArray,
 } from 'rxjs/operators';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
-import { CardAggregateStats } from 'src/app/core/models/card-aggregate-stats.model';
 import { Expense } from 'src/app/core/models/expense.model';
 import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExpenseFilters } from 'src/app/core/models/platform/expense-filters.model';
 import { PlatformCategory } from 'src/app/core/models/platform/platform-category.model';
 import { Expense as PlatformExpense } from 'src/app/core/models/platform/v1/expense.model';
 import { GetExpenseQueryParam } from 'src/app/core/models/platform/v1/get-expenses-query.model';
-import { UniqueCardStats } from 'src/app/core/models/unique-cards-stats.model';
 import { UniqueCards } from 'src/app/core/models/unique-cards.model';
 import { Transaction } from 'src/app/core/models/v1/transaction.model';
 import { ApiV2Service } from 'src/app/core/services/api-v2.service';
@@ -407,18 +406,16 @@ export class MyExpensesPage implements OnInit {
     }
   }
 
-  getCardDetail(statsResponses: CardAggregateStats[]): UniqueCardStats[] {
-    const cardNames: { cardNumber: string; cardName: string }[] = [];
-    statsResponses.forEach((response) => {
-      const cardDetail = {
-        cardNumber: response.key[1].column_value,
-        cardName: response.key[0].column_value,
-      };
-      cardNames.push(cardDetail);
-    });
-    const uniqueCards = JSON.parse(JSON.stringify(cardNames)) as UniqueCards[];
-
-    return this.corporateCreditCardService.getExpenseDetailsInCards(uniqueCards, statsResponses);
+  getCardDetail(): Observable<UniqueCards[]> {
+    return this.corporateCreditCardService.getCorporateCards().pipe(
+      switchMap((cards) => from(cards)),
+      map((card) => ({
+        cardNumber: card.card_number,
+        cardName: card.bank_name,
+        cardNickname: card.nickname,
+      })),
+      toArray()
+    );
   }
 
   ionViewWillLeave(): void {
@@ -490,12 +487,16 @@ export class MyExpensesPage implements OnInit {
     })
       .pipe(
         filter(({ isConnected }) => isConnected),
-        switchMap(() => this.corporateCreditCardService.getAssignedCards())
+        switchMap(() => this.getCardDetail())
       )
-      .subscribe((allCards) => {
-        const cards = this.getCardDetail(allCards.cardDetails);
+      .subscribe((cards) => {
         cards.forEach((card) => {
-          this.cardNumbers.push({ label: this.maskNumber.transform(card.cardNumber), value: card.cardNumber });
+          const cardNickname = card.cardNickname ? ` (${card.cardNickname})` : '';
+          const cardDetail = {
+            label: this.maskNumber.transform(card.cardNumber) + cardNickname,
+            value: card.cardNumber,
+          };
+          this.cardNumbers.push(cardDetail);
         });
       });
 
