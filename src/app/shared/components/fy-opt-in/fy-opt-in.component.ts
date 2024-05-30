@@ -28,7 +28,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
-  @Input() optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
+  @Input() optInFlowState: OptInFlowState = OptInFlowState.OTP_VERIFICATION;
 
   @Input() extendedOrgUser: ExtendedOrgUser;
 
@@ -55,10 +55,6 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
   otpConfig: NgOtpInputConfig = {
     allowNumbersOnly: true,
     length: 6,
-    isPasswordInput: false,
-    disableAutoFocus: false,
-    placeholder: '',
-    inputClass: 'opt-in--otp-input',
     inputStyles: {
       width: '48px',
       height: '48px',
