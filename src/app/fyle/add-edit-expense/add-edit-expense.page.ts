@@ -1629,7 +1629,7 @@ export class AddEditExpensePage implements OnInit {
 
   getReceiptCount(): Observable<number> {
     return this.etxn$.pipe(
-      switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+      switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
       map((expense: PlatformExpense) => expense.file_ids?.length || 0)
     );
   }
@@ -2588,7 +2588,10 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getEditExpenseObservable(): Observable<Partial<UnflattenedTransaction>> {
-    return this.expensesService.getExpenseById(this.activatedRoute.snapshot.params.id as string).pipe(
+    this.platformExpense$ = this.expensesService
+      .getExpenseById(this.activatedRoute.snapshot.params.id as string)
+      .pipe(shareReplay(1));
+    return this.platformExpense$.pipe(
       switchMap((expense) => {
         const etxn = this.transactionService.transformExpense(expense);
         this.isIncompleteExpense = etxn.tx.state === 'DRAFT';
@@ -3067,8 +3070,6 @@ export class AddEditExpensePage implements OnInit {
      * Fetching the expense from platform APIs in edit case, this is required because corporate card transaction status (PENDING or POSTED) is not available in public transactions API
      */
     if (this.activatedRoute.snapshot.params.id) {
-      const id = this.activatedRoute.snapshot.params.id as string;
-      this.platformExpense$ = this.expensesService.getExpenseById(id);
       const pendingTxnRestrictionEnabled$ = this.orgSettingsService
         .get()
         .pipe(
@@ -3097,7 +3098,7 @@ export class AddEditExpensePage implements OnInit {
     this.attachments$ = this.loadAttachments$.pipe(
       switchMap(() =>
         this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
           switchMap((expense: PlatformExpense) =>
             expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
           ),
@@ -3217,7 +3218,7 @@ export class AddEditExpensePage implements OnInit {
     this.isIos = this.platform.is('ios');
   }
 
-  getExpenseAttachments(mode: string, txnId?: string): Observable<FileObject[]> {
+  getExpenseAttachments(mode: string): Observable<FileObject[]> {
     if (mode === 'add') {
       return of(
         this.newExpenseDataUrls.map((fileObj: FileObject) => {
@@ -3226,7 +3227,7 @@ export class AddEditExpensePage implements OnInit {
         })
       );
     } else {
-      return this.expensesService.getExpenseById(txnId).pipe(
+      return this.platformExpense$.pipe(
         switchMap((expense: PlatformExpense) =>
           expense.file_ids?.length > 0 ? this.spenderFileService.generateUrlsBulk(expense.file_ids) : of([])
         ),
@@ -3356,11 +3357,7 @@ export class AddEditExpensePage implements OnInit {
     standardisedCustomProperties$: Observable<TxnCustomProperties[]>,
     isPolicyEtxn = false
   ): Observable<Partial<UnflattenedTransaction>> {
-    let txId: string;
-    etxn$.subscribe((etxn) => {
-      txId = etxn.tx.id;
-    });
-    const attachements$ = this.getExpenseAttachments(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode);
     return forkJoin({
       etxn: etxn$,
       customProperties: standardisedCustomProperties$,
@@ -3903,7 +3900,7 @@ export class AddEditExpensePage implements OnInit {
 
             // NOTE: This double call is done as certain fields will not be present in return of upsert call. policy_amount in this case.
             return this.transactionService.upsert(etxn.tx as Transaction).pipe(
-              switchMap((txn) => this.expensesService.getExpenseById(txn.id)),
+              switchMap(() => this.platformExpense$),
               map((expense) => this.transactionService.transformExpense(expense).tx),
               switchMap((tx) => {
                 const selectedReportId = reportControl.report?.id;
@@ -4438,7 +4435,7 @@ export class AddEditExpensePage implements OnInit {
         });
       } else {
         const editExpenseAttachments$ = this.etxn$.pipe(
-          switchMap((etxn) => (etxn.tx.id ? this.expensesService.getExpenseById(etxn.tx.id) : of({}))),
+          switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
           map((expense: PlatformExpense) => expense.file_ids?.length || 0)
         );
 
@@ -4616,12 +4613,7 @@ export class AddEditExpensePage implements OnInit {
   }
 
   viewAttachments(): void {
-    let txId: string;
-    this.etxn$.subscribe((etxn) => {
-      txId = etxn.tx.id;
-    });
-
-    const attachements$ = this.getExpenseAttachments(this.mode, txId);
+    const attachements$ = this.getExpenseAttachments(this.mode);
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -4655,7 +4647,7 @@ export class AddEditExpensePage implements OnInit {
           if ((data && data.attachments.length !== this.attachedReceiptsCount) || !data) {
             this.etxn$
               .pipe(
-                switchMap((etxn) => this.expensesService.getExpenseById(etxn.tx.id)),
+                switchMap((etxn) => (etxn.tx.id ? this.platformExpense$ : of({}))),
                 map((expense: PlatformExpense) => expense.file_ids?.length || 0)
               )
               .subscribe((attachedReceipts) => {
