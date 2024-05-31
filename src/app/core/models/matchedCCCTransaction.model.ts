@@ -21,4 +21,5 @@ export interface MatchedCCCTransaction {
   corporate_credit_card_account_number?: string;
   displayObject?: string;
   status?: TransactionStatus;
+  corporate_card_nickname?: string;
 }

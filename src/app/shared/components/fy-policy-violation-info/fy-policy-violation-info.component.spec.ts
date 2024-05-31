@@ -46,6 +46,13 @@ describe('FyPolicyViolationInfoComponent', () => {
     expect(component).toBeTruthy();
   });
 
+  it('should show policy violation if critical policy violation is present', () => {
+    component.policyViolations = [];
+    component.criticalPolicyViolated = true;
+    component.ngOnInit();
+    expect(component.showPolicyInfo).toBeTrue();
+  });
+
   it('should show policy violation for a single violation', () => {
     expect(getTextContent(getElementBySelector(fixture, '.policy-violation-info--content'))).toEqual(
       'Policy violation found.'
@@ -53,7 +60,7 @@ describe('FyPolicyViolationInfoComponent', () => {
   });
 
   it('should open policy violation modal on clicking', () => {
-    spyOn(component, 'openPolicyViolationDetails').and.returnValue(Promise.resolve(null));
+    spyOn(component, 'openPolicyViolationDetails').and.resolveTo(null);
     const viewDetailsButton = getElementBySelector(fixture, '.policy-violation-info--view-more') as HTMLElement;
     expect(getTextContent(viewDetailsButton)).toEqual('View details');
     click(viewDetailsButton);

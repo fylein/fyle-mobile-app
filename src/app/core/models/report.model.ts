@@ -40,8 +40,6 @@ export interface ExtendedReport {
   rp_manual_flag: boolean;
   rp_num_transactions: number;
   rp_org_user_id: string;
-  rp_physical_bill: boolean;
-  rp_physical_bill_at?: Date;
   rp_policy_flag: boolean;
   rp_purpose: string;
   rp_reimbursed_at?: Date;

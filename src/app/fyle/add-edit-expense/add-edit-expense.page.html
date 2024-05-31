@@ -150,6 +150,9 @@
                 <div class="add-edit-expense--card-container__value">
                   {{ cardNumber ? (cardNumber | maskNumber) : '-' }}
                 </div>
+                <div class="add-edit-expense--card-container__label">
+                  {{ cardNickname ? '(' + cardNickname + ')' : ''}}
+                </div>
               </ion-col>
               <ion-col>
                 <div class="add-edit-expense--card-container__label">Spend Date</div>
