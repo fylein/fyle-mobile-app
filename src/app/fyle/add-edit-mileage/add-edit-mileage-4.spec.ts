@@ -23,6 +23,7 @@ import {
   mileageCategories3,
   orgCategoryData,
   unsortedCategories1,
+  sortedCategory,
 } from 'src/app/core/mock-data/org-category.data';
 import {
   orgSettingsCCDisabled,
@@ -494,21 +495,20 @@ export function TestCases4(getTestBed) {
     describe('getProjects():', () => {
       it('should return project from ID specified in the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
+        component.subCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx.project_id,
-            component.allActiveCategories
-          );
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
           done();
         });
       });
 
       it('should get default project ID and return the project if not provided in the expense', (done) => {
         component.etxn$ = of(newUnflattenedTxn);
+        component.subCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsRes));
         orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
@@ -520,7 +520,7 @@ export function TestCases4(getTestBed) {
           expect(orgUserSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
             orgUserSettingsData.preferences.default_project_id,
-            component.allActiveCategories
+            sortedCategory
           );
           done();
         });

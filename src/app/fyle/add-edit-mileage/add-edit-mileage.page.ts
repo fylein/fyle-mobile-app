@@ -282,8 +282,6 @@ export class AddEditMileagePage implements OnInit {
 
   existingCommuteDeduction: string;
 
-  allActiveCategories: OrgCategory[];
-
   private _isExpandedView = false;
 
   constructor(
@@ -1162,7 +1160,9 @@ export class AddEditMileagePage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId, this.allActiveCategories);
+          return this.subCategories$.pipe(
+            switchMap((subCategories) => this.projectsService.getbyId(projectId, subCategories))
+          );
         } else {
           return of(null);
         }
@@ -1495,6 +1495,7 @@ export class AddEditMileagePage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
     this.initClassObservables();
 
     from(this.tokenService.getClusterDomain()).subscribe((clusterDomain) => {
@@ -1568,15 +1569,16 @@ export class AddEditMileagePage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.subCategories$.subscribe((subCategories) => {
-      this.allActiveCategories = subCategories;
-    });
+
     this.setupFilteredCategories(this.subCategories$);
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap((projectCategoryIds) =>
-        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, this.allActiveCategories)
+        this.subCategories$.pipe(
+          switchMap((subCategories) =>
+            this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, subCategories)
+          )
+        )
       ),
       map((projectCount) => projectCount > 0)
     );

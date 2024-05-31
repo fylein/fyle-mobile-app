@@ -101,7 +101,11 @@ import {
 } from 'src/app/core/test-data/accounts.service.spec.data';
 import { customInputData, filledCustomProperties } from 'src/app/core/test-data/custom-inputs.spec.data';
 import { txnCustomProperties, txnCustomProperties2 } from 'src/app/core/test-data/dependent-fields.service.spec.data';
-import { apiV2ResponseMultiple, expectedProjectsResponse } from 'src/app/core/test-data/projects.spec.data';
+import {
+  apiV2ResponseMultiple,
+  expectedProjectsResponse,
+  testActiveCategoryList,
+} from 'src/app/core/test-data/projects.spec.data';
 import { getEstatusApiResponse } from 'src/app/core/test-data/status.service.spec.data';
 import { AddEditExpensePage } from './add-edit-expense.page';
 import { txnFieldsData2, txnFieldsFlightData } from 'src/app/core/mock-data/expense-fields-map.data';
@@ -409,9 +413,11 @@ export function TestCases5(getTestBed) {
     describe('setupFilteredCategories():', () => {
       it('should get filtered categories for a project', fakeAsync(() => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
+
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
@@ -419,36 +425,35 @@ export function TestCases5(getTestBed) {
         tick(500);
 
         expect(component.fg.controls.billable.value).toBeFalse();
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-          unflattenedTxnData.tx.project_id,
-          component.allActiveCategories
-        );
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
 
       it('should get updated filtered categories for changing an existing project', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.setValue(expectedProjectsResponse[0]);
         component.fg.controls.category.setValue(orgCategoryData);
         projectsService.getbyId.and.returnValue(of(apiV2ResponseMultiple[0]));
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(apiV2ResponseMultiple[1]);
         fixture.detectChanges();
         tick(500);
 
-        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, component.allActiveCategories);
+        expect(projectsService.getbyId).toHaveBeenCalledOnceWith(257528, sortedCategory);
         expect(component.fg.controls.billable.value).toBeFalse();
         expect(projectsService.getAllowedOrgCategoryIds).toHaveBeenCalledWith(apiV2ResponseMultiple[1], sortedCategory);
       }));
 
       it('should return null the expense does not have project id', fakeAsync(() => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         component.fg.controls.project.reset();
         projectsService.getAllowedOrgCategoryIds.and.returnValue(transformedOrgCategories);
-        component.setupFilteredCategories(of(sortedCategory));
+        component.setupFilteredCategories();
         tick(500);
 
         component.fg.controls.project.setValue(null);
@@ -551,21 +556,20 @@ export function TestCases5(getTestBed) {
     describe('getSelectedProjects():', () => {
       it('should return the selected project from the expense', (done) => {
         component.etxn$ = of(unflattenedTxnData);
+        component.activeCategories$ = of(sortedCategory);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
         fixture.detectChanges();
 
         component.getSelectedProjects().subscribe((res) => {
           expect(res).toEqual(expectedProjectsResponse[0]);
-          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
-            unflattenedTxnData.tx.project_id,
-            component.allActiveCategories
-          );
+          expect(projectsService.getbyId).toHaveBeenCalledOnceWith(unflattenedTxnData.tx.project_id, sortedCategory);
           done();
         });
       });
 
       it('should return project from the default ID specified in org', (done) => {
         component.etxn$ = of(unflattenedExpWoProject);
+        component.activeCategories$ = of(sortedCategory);
         orgSettingsService.get.and.returnValue(of(orgSettingsData));
         component.orgUserSettings$ = of(orgUserSettingsData);
         projectsService.getbyId.and.returnValue(of(expectedProjectsResponse[0]));
@@ -576,7 +580,7 @@ export function TestCases5(getTestBed) {
           expect(orgSettingsService.get).toHaveBeenCalledTimes(1);
           expect(projectsService.getbyId).toHaveBeenCalledOnceWith(
             orgUserSettingsData.preferences.default_project_id,
-            component.allActiveCategories
+            sortedCategory
           );
           done();
         });
@@ -693,6 +697,7 @@ export function TestCases5(getTestBed) {
     });
 
     it('getRecentProjects(): should get recent projects', (done) => {
+      component.activeCategories$ = of(sortedCategory);
       component.recentlyUsedValues$ = of(recentlyUsedRes);
       authService.getEou.and.resolveTo(apiEouRes);
       component.fg.controls.category.setValue(orgCategoryData);
@@ -706,7 +711,7 @@ export function TestCases5(getTestBed) {
           recentValues: recentlyUsedRes,
           eou: apiEouRes,
           categoryIds: component.fg.controls.category.value && component.fg.controls.category.value.id,
-          activeCategoryList: component.allActiveCategories,
+          activeCategoryList: sortedCategory,
         });
         done();
       });
@@ -1515,7 +1520,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {
@@ -1800,7 +1805,7 @@ export function TestCases5(getTestBed) {
           expect(res).toBeUndefined();
         });
 
-        expect(component.setupFilteredCategories).toHaveBeenCalledOnceWith(jasmine.any(Observable));
+        expect(component.setupFilteredCategories).toHaveBeenCalledTimes(1);
         expect(component.setupExpenseFields).toHaveBeenCalledTimes(1);
 
         component.taxSettings$.subscribe((res) => {

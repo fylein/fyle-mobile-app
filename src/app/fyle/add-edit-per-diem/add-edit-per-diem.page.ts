@@ -247,8 +247,6 @@ export class AddEditPerDiemPage implements OnInit {
 
   selectedCostCenter$: BehaviorSubject<CostCenter>;
 
-  allActiveCategories: OrgCategory[];
-
   private _isExpandedView = false;
 
   constructor(
@@ -844,6 +842,7 @@ export class AddEditPerDiemPage implements OnInit {
   }
 
   ionViewWillEnter(): void {
+    this.subCategories$ = this.getSubCategories().pipe(shareReplay(1));
     this.isNewReportsFlowEnabled = false;
     this.onPageExit$ = new Subject();
     this.projectDependentFieldsRef?.ngOnInit();
@@ -1005,16 +1004,17 @@ export class AddEditPerDiemPage implements OnInit {
 
     this.txnFields$ = this.getTransactionFields();
     this.homeCurrency$ = this.currencyService.getHomeCurrency();
-    this.subCategories$ = this.getSubCategories();
-    this.subCategories$.subscribe((subCategories) => {
-      this.allActiveCategories = subCategories;
-    });
+
     this.setupFilteredCategories(this.subCategories$);
 
     this.projectCategoryIds$ = this.getProjectCategoryIds();
     this.isProjectVisible$ = this.projectCategoryIds$.pipe(
       switchMap((projectCategoryIds) =>
-        this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, this.allActiveCategories)
+        this.subCategories$.pipe(
+          switchMap((allActiveCategories) =>
+            this.projectsService.getProjectCount({ categoryIds: projectCategoryIds }, allActiveCategories)
+          )
+        )
       ),
       map((projectCount) => projectCount > 0)
     );
@@ -1316,7 +1316,9 @@ export class AddEditPerDiemPage implements OnInit {
       }),
       switchMap((projectId) => {
         if (projectId) {
-          return this.projectsService.getbyId(projectId, this.allActiveCategories);
+          return this.subCategories$.pipe(
+            switchMap((allActiveCategories) => this.projectsService.getbyId(projectId, allActiveCategories))
+          );
         } else {
           return of(null);
         }
