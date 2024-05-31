@@ -8,7 +8,7 @@ import { DateParams } from '../models/date-parameters.model';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-fdescribe('DateService', () => {
+describe('DateService', () => {
   let dateService: DateService;
 
   const today = new Date();

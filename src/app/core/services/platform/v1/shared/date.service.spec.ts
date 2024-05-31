@@ -9,7 +9,7 @@ import * as utc from 'dayjs/plugin/utc';
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
-fdescribe('DateService', () => {
+describe('DateService', () => {
   let dateService: DateService;
 
   beforeEach(() => {
