@@ -343,6 +343,21 @@ export const orgCategoryWithDisplayName: OrgCategory[] = deepFreeze([
   },
 ]);
 
+export const activeCategory: OrgCategory[] = deepFreeze([
+  {
+    code: '20300',
+    created_at: new Date('2021-03-14T06:07:39.652664+00:00'),
+    displayName: 'Accounts Payable - Employees',
+    enabled: true,
+    fyle_category: null,
+    id: 129140,
+    name: 'Accounts Payable - Employees',
+    org_id: 'orNVthTo2Zyo',
+    sub_category: 'Accounts Payable - Employees',
+    updated_at: new Date('2022-05-05T17:45:12.393241+00:00'),
+  },
+]);
+
 export const orgCategoryPaginated1: OrgCategory[] = deepFreeze([
   {
     code: '20300',
