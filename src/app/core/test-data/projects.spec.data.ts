@@ -362,23 +362,27 @@ export const params = deepFreeze({
 
 export const projectsV1Data: ProjectV1[] = deepFreeze([
   {
+    id: 257528,
     created_at: new Date('2021-05-12T10:28:40.834844'),
     updated_at: new Date('2021-07-08T10:28:27.686886'),
-    ...apiResponseActiveOnly[0],
+    name: 'Customer Mapped Project',
+    sub_project: null,
+    code: '1184',
+    org_id: 'orFdTTTNcyye',
+    description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
+    active: true,
+    org_category_ids: [122269, 122270, 122271, null],
   },
   {
+    id: 257529,
     created_at: new Date('2021-05-12T10:28:40.834844'),
     updated_at: new Date('2021-07-08T10:28:27.686886'),
-    ...apiResponseActiveOnly[1],
-  },
-]);
-
-export const projectsV1Data2: ProjectV1[] = deepFreeze([
-  {
-    created_at: new Date('2021-05-12T10:28:40.834844'),
-    updated_at: new Date('2021-07-08T10:28:27.686886'),
-    id: 3943,
-    name: 'Staging Project',
-    ...apiResponseActiveOnly[0],
+    name: 'Fyle Engineering',
+    sub_project: null,
+    code: '1182',
+    org_id: 'orFdTTTNcyye',
+    active: true,
+    description: 'Sage Intacct Project - Fyle Engineering, Id - 1182',
+    org_category_ids: [122269, 122270, 122271],
   },
 ]);

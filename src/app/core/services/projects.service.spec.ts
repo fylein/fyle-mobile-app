@@ -13,6 +13,7 @@ import {
   testProjectV2,
   testCategoryIds,
   testActiveCategoryList,
+  projectsV1Data,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -327,6 +328,40 @@ describe('ProjectsService', () => {
       });
       expect(projectsService.getAllActive).toHaveBeenCalledWith(undefined);
       done();
+    });
+  });
+
+  describe('transformToV1Response():', () => {
+    it('should correctly transform platformProject to ProjectV1 with activeCategoryList provided', () => {
+      const result = projectsService.transformToV1Response(platformAPIResponseMultiple.data, testActiveCategoryList);
+      expect(result).toEqual(projectsV1Data);
+    });
+
+    it('should correctly transform platformProject to ProjectV1 with activeCategoryList is null', () => {
+      const result = projectsService.transformToV1Response(platformAPIResponseMultiple.data, null);
+      expect(result).toEqual(projectsV1Data);
+    });
+
+    it('should correctly transform platformProject to ProjectV1 with activeCategoryList is not provided', () => {
+      const result = projectsService.transformToV1Response(platformAPIResponseMultiple.data);
+      expect(result).toEqual(projectsV1Data);
+    });
+  });
+
+  describe('transformToV2Response():', () => {
+    it('should correctly transform platformProject to ProjectV2 with activeCategoryList provided', () => {
+      const result = projectsService.transformToV2Response(platformAPIResponseMultiple.data, testActiveCategoryList);
+      expect(result).toEqual(expectedProjectsResponse);
+    });
+
+    it('should correctly transform platformProject to ProjectV2 with activeCategoryList is null', () => {
+      const result = projectsService.transformToV2Response(platformAPIResponseMultiple.data, null);
+      expect(result).toEqual(expectedProjectsResponse);
+    });
+
+    it('should correctly transform platformProject to ProjectV2 with activeCategoryList is not provided', () => {
+      const result = projectsService.transformToV2Response(platformAPIResponseMultiple.data);
+      expect(result).toEqual(expectedProjectsResponse);
     });
   });
 });
