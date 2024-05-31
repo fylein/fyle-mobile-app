@@ -33,7 +33,6 @@ import { StorageService } from './storage.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
-import { ApproverReportsService } from './platform/v1/approver/reports.service';
 
 const reportsCacheBuster$ = new Subject<void>();
 
