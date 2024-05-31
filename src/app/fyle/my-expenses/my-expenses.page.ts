@@ -28,7 +28,6 @@ import {
   switchMap,
   take,
   takeUntil,
-  toArray,
 } from 'rxjs/operators';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -408,13 +407,14 @@ export class MyExpensesPage implements OnInit {
 
   getCardDetail(): Observable<UniqueCards[]> {
     return this.corporateCreditCardService.getCorporateCards().pipe(
-      switchMap((cards) => from(cards)),
-      map((card) => ({
-        cardNumber: card.card_number,
-        cardName: card.bank_name,
-        cardNickname: card.nickname,
-      })),
-      toArray()
+      map((cards) => {
+        const simplifiedCards = cards.map((card) => ({
+          cardNumber: card.card_number,
+          cardName: card.bank_name,
+          cardNickname: card.nickname,
+        }));
+        return simplifiedCards;
+      })
     );
   }
 

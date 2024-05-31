@@ -1317,7 +1317,7 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', () => {
+  it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', (done) => {
     corporateCreditCardService.getCorporateCards.and.returnValue(
       of([corporateCardsResponseData[0], corporateCardsResponseData[1]])
     );
@@ -1325,6 +1325,7 @@ describe('MyExpensesV2Page', () => {
 
     getCardDetailRes$.subscribe((data) => {
       expect(data).toEqual([uniqueCardsData[0], uniqueCardsData[1]]);
+      done();
     });
     expect(corporateCreditCardService.getCorporateCards).toHaveBeenCalledTimes(1);
   });
