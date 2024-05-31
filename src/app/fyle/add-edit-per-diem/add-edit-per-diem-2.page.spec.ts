@@ -92,7 +92,6 @@ import {
 } from 'src/app/core/mock-data/per-diem-form-value.data';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
-import { activeCategory } from 'src/app/core/mock-data/org-category.data';
 
 export function TestCases2(getTestBed) {
   return describe('add-edit-per-diem test cases set 2', () => {
