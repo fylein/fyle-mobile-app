@@ -21,7 +21,7 @@ import { SpenderReportsService } from '../core/services/platform/v1/spender/repo
 import { Approver } from '../core/models/approver.model';
 import { platformReportData } from '../core/mock-data/platform-report.data';
 
-fdescribe('DeepLinkRedirectionPage', () => {
+describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
   let fixture: ComponentFixture<DeepLinkRedirectionPage>;
   let router: jasmine.SpyObj<Router>;
