@@ -1,7 +1,16 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
 import { Observable, fromEvent, iif, of, from } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import { map, startWith, distinctUntilChanged, switchMap, concatMap, finalize, debounceTime } from 'rxjs/operators';
+import {
+  map,
+  startWith,
+  distinctUntilChanged,
+  switchMap,
+  concatMap,
+  finalize,
+  debounceTime,
+  shareReplay,
+} from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -12,6 +21,8 @@ import { OrgSettingsService } from 'src/app/core/services/org-settings.service';
 import { OrgUserSettingsService } from 'src/app/core/services/org-user-settings.service';
 import { OrgUserSettings } from 'src/app/core/models/org_user_settings.model';
 import { ProjectOption } from 'src/app/core/models/project-options.model';
+import { OrgCategory } from 'src/app/core/models/v1/org-category.model';
+import { CategoriesService } from 'src/app/core/services/categories.service';
 
 @Component({
   selector: 'app-fy-select-modal',
@@ -43,6 +54,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
 
   isLoading = false;
 
+  activeCategories$: Observable<OrgCategory[]>;
+
   constructor(
     private modalController: ModalController,
     private cdr: ChangeDetectorRef,
@@ -51,7 +64,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     private recentLocalStorageItemsService: RecentLocalStorageItemsService,
     private utilityService: UtilityService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private orgSettingsService: OrgSettingsService
+    private orgSettingsService: OrgSettingsService,
+    private categoriesService: CategoriesService
   ) {}
 
   getProjects(searchNameText: string): Observable<ProjectOption[]> {
@@ -63,7 +77,12 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     const defaultProject$ = this.orgUserSettingsService.get().pipe(
       switchMap((orgUserSettings) => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-          return this.projectsService.getbyId(orgUserSettings.preferences.default_project_id);
+          return this.activeCategories$.pipe(
+            switchMap((allActiveCategories) => {
+              console.log('FY allActiveCategories', allActiveCategories);
+              return this.projectsService.getbyId(orgUserSettings.preferences.default_project_id, allActiveCategories);
+            })
+          );
         } else {
           return of(null);
         }
@@ -83,17 +102,25 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       concatMap((allowedProjectIds) =>
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
-            this.projectsService.getByParamsUnformatted({
-              orgId: eou.ou.org_id,
-              isEnabled: true,
-              sortDirection: 'asc',
-              sortOrder: 'name',
-              orgCategoryIds: this.categoryIds,
-              projectIds: allowedProjectIds,
-              searchNameText,
-              offset: 0,
-              limit: 20,
-            })
+            this.activeCategories$.pipe(
+              switchMap((allActiveCategories) => {
+                console.log('FY allActiveCategories', allActiveCategories);
+                return this.projectsService.getByParamsUnformatted(
+                  {
+                    orgId: eou.ou.org_id,
+                    isEnabled: true,
+                    sortDirection: 'asc',
+                    sortOrder: 'name',
+                    orgCategoryIds: this.categoryIds,
+                    projectIds: allowedProjectIds,
+                    searchNameText,
+                    offset: 0,
+                    limit: 20,
+                  },
+                  allActiveCategories
+                );
+              })
+            )
           )
         )
       ),
@@ -160,7 +187,15 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     }
   }
 
+  getActiveCategories(): Observable<OrgCategory[]> {
+    const allCategories$ = this.categoriesService.getAll();
+
+    return allCategories$.pipe(map((catogories) => this.categoriesService.filterRequired(catogories)));
+  }
+
   ngAfterViewInit(): void {
+    this.activeCategories$ = this.getActiveCategories().pipe(shareReplay(1));
+
     this.filteredOptions$ = fromEvent<{ target: HTMLInputElement }>(this.searchBarRef.nativeElement, 'keyup').pipe(
       map((event) => event.target.value),
       startWith(''),
