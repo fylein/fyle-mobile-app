@@ -689,7 +689,9 @@ export class AddEditPerDiemPage implements OnInit {
       startWith(this.fg.controls.project.value),
       concatMap((project: ProjectV2) =>
         this.subCategories$.pipe(
-          map((subCategories) => this.projectsService.getAllowedOrgCategoryIds(project, subCategories))
+          map((allActiveSubCategories: OrgCategory[]) =>
+            this.projectsService.getAllowedOrgCategoryIds(project, allActiveSubCategories)
+          )
         )
       ),
       map((categories) => categories.map((category) => ({ label: category.sub_category, value: category })))

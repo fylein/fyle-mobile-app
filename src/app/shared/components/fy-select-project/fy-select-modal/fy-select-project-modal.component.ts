@@ -78,10 +78,9 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
       switchMap((orgUserSettings) => {
         if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
           return this.activeCategories$.pipe(
-            switchMap((allActiveCategories) => {
-              console.log('FY allActiveCategories', allActiveCategories);
-              return this.projectsService.getbyId(orgUserSettings.preferences.default_project_id, allActiveCategories);
-            })
+            switchMap((allActiveCategories) =>
+              this.projectsService.getbyId(orgUserSettings.preferences.default_project_id, allActiveCategories)
+            )
           );
         } else {
           return of(null);
@@ -103,9 +102,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
         from(this.authService.getEou()).pipe(
           switchMap((eou) =>
             this.activeCategories$.pipe(
-              switchMap((allActiveCategories) => {
-                console.log('FY allActiveCategories', allActiveCategories);
-                return this.projectsService.getByParamsUnformatted(
+              switchMap((allActiveCategories) =>
+                this.projectsService.getByParamsUnformatted(
                   {
                     orgId: eou.ou.org_id,
                     isEnabled: true,
@@ -118,8 +116,8 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
                     limit: 20,
                   },
                   allActiveCategories
-                );
-              })
+                )
+              )
             )
           )
         )

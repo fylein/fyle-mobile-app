@@ -34,6 +34,8 @@ import {
 } from 'src/app/core/mock-data/extended-projects.data';
 import { click, getAllElementsBySelector, getElementBySelector, getTextContent } from 'src/app/core/dom-helpers';
 import { By } from '@angular/platform-browser';
+import { CategoriesService } from 'src/app/core/services/categories.service';
+import { orgCategoryData, sortedCategory } from 'src/app/core/mock-data/org-category.data';
 
 describe('FyProjectSelectModalComponent', () => {
   let component: FyProjectSelectModalComponent;
@@ -41,6 +43,7 @@ describe('FyProjectSelectModalComponent', () => {
   let modalController: jasmine.SpyObj<ModalController>;
   let cdr: ChangeDetectorRef;
   let projectsService: jasmine.SpyObj<ProjectsService>;
+  let categoriesService: jasmine.SpyObj<CategoriesService>;
   let authService: jasmine.SpyObj<AuthService>;
   let recentLocalStorageItemsService: jasmine.SpyObj<RecentLocalStorageItemsService>;
   let utilityService: jasmine.SpyObj<UtilityService>;
@@ -56,6 +59,7 @@ describe('FyProjectSelectModalComponent', () => {
     const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['searchArrayStream']);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
+    const categoriesServiceSpy = jasmine.createSpyObj('CategoriesService', ['getAll', 'filterRequired']);
 
     TestBed.configureTestingModule({
       declarations: [FyProjectSelectModalComponent, FyHighlightTextComponent, HighlightPipe],
@@ -98,6 +102,10 @@ describe('FyProjectSelectModalComponent', () => {
           provide: OrgUserSettingsService,
           useValue: orgUserSettingsServiceSpy,
         },
+        {
+          provide: CategoriesService,
+          useValue: categoriesServiceSpy,
+        },
       ],
     }).compileComponents();
     fixture = TestBed.createComponent(FyProjectSelectModalComponent);
@@ -106,6 +114,7 @@ describe('FyProjectSelectModalComponent', () => {
     modalController = TestBed.inject(ModalController) as jasmine.SpyObj<ModalController>;
     cdr = TestBed.inject(ChangeDetectorRef);
     projectsService = TestBed.inject(ProjectsService) as jasmine.SpyObj<ProjectsService>;
+    categoriesService = TestBed.inject(CategoriesService) as jasmine.SpyObj<CategoriesService>;
     authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
     recentLocalStorageItemsService = TestBed.inject(
       RecentLocalStorageItemsService
@@ -119,6 +128,8 @@ describe('FyProjectSelectModalComponent', () => {
     orgSettingsService.get.and.returnValue(of(orgSettingsData));
     authService.getEou.and.resolveTo(apiEouRes);
     orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+
+    categoriesService.getAll.and.returnValue(of([orgCategoryData]));
 
     projectsService.getByParamsUnformatted.and.returnValue(of([singleProject2]));
 
@@ -147,18 +158,21 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          isEnabled: true,
-          sortDirection: 'asc',
-          sortOrder: 'name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
     });
@@ -173,23 +187,27 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          isEnabled: true,
-          sortDirection: 'asc',
-          sortOrder: 'name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
     });
 
     it('should get projects when default value is null and no default projects are available', (done) => {
+      component.activeCategories$ = of(sortedCategory);
       orgSettingsService.get.and.returnValue(of(orgSettingsDataWithoutAdvPro));
       projectsService.getbyId.and.returnValue(of(expectedProjects[0].value));
       component.defaultValue = false;
@@ -199,18 +217,21 @@ describe('FyProjectSelectModalComponent', () => {
         expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
         expect(authService.getEou).toHaveBeenCalledTimes(2);
         expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
-        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith({
-          orgId: 'orNVthTo2Zyo',
-          isEnabled: true,
-          sortDirection: 'asc',
-          sortOrder: 'name',
-          orgCategoryIds: undefined,
-          projectIds: null,
-          searchNameText: '',
-          offset: 0,
-          limit: 20,
-        });
-        expect(projectsService.getbyId).toHaveBeenCalledWith(3943);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: 'orNVthTo2Zyo',
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: '',
+            offset: 0,
+            limit: 20,
+          },
+          undefined
+        );
+        expect(projectsService.getbyId).toHaveBeenCalledWith(3943, undefined);
         done();
       });
     });
@@ -339,6 +360,7 @@ describe('FyProjectSelectModalComponent', () => {
   }));
 
   it('should show label on the screen', () => {
+    component.activeCategories$ = of([]);
     component.label = 'Projects';
     fixture.detectChanges();
 

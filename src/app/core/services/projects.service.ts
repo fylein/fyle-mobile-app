@@ -29,7 +29,6 @@ export class ProjectsService {
     projectParams: PlatformProjectArgs,
     activeCategoryList?: OrgCategory[]
   ): Observable<ProjectV2[]> {
-    console.log('getByParamsUnformatted', activeCategoryList);
     // eslint-disable-next-line prefer-const
     let { orgId, isEnabled, orgCategoryIds, searchNameText, limit, offset, sortOrder, sortDirection, projectIds } =
       projectParams;
@@ -67,7 +66,6 @@ export class ProjectsService {
     params: { categoryIds: string[] } = { categoryIds: [] },
     activeCategoryList?: OrgCategory[]
   ): Observable<number> {
-    console.log('getProjectCount', activeCategoryList);
     const categoryIds = params.categoryIds?.map((categoryId) => parseInt(categoryId, 10));
     return this.getAllActive(activeCategoryList).pipe(
       map((projects) => {
@@ -108,7 +106,6 @@ export class ProjectsService {
   }
 
   getAllowedOrgCategoryIds(project: ProjectParams | ProjectV2, activeCategoryList: OrgCategory[]): OrgCategory[] {
-    console.log('getAllowedOrgCategoryIds', activeCategoryList);
     let categoryList: OrgCategory[] = [];
     if (project) {
       categoryList = activeCategoryList.filter((category: OrgCategory) => {
@@ -123,7 +120,6 @@ export class ProjectsService {
   }
 
   getAllActive(activeCategoryList?: OrgCategory[]): Observable<ProjectV1[]> {
-    console.log('getAllActive', activeCategoryList);
     const data = {
       params: {
         is_enabled: `eq.true`,
@@ -136,7 +132,6 @@ export class ProjectsService {
   }
 
   getbyId(projectId: number | string, activeCategoryList?: OrgCategory[]): Observable<ProjectV2> {
-    console.log('getbyId', activeCategoryList);
     return this.spenderPlatformV1ApiService
       .get<PlatformApiResponse<PlatformProject[]>>('/projects', {
         params: {
@@ -161,7 +156,6 @@ export class ProjectsService {
       active: platformProject.is_enabled,
       org_category_ids: platformProject.category_ids === null ? allCategoryIDs : platformProject.category_ids,
     }));
-    console.log('projectV1', projectV1);
     return projectV1;
   }
 
@@ -181,7 +175,6 @@ export class ProjectsService {
       projectv2_name: platformProject.name,
       sub_project_name: platformProject.sub_project,
     }));
-    console.log('projectV2', projectV2);
     return projectV2;
   }
 }
