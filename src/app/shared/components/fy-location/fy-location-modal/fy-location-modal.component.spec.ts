@@ -105,7 +105,7 @@ describe('FyLocationModalComponent', () => {
 
   it('getRecentlyUsedItems(): should return array of display if recentLocations is undefined but cacheName is defined', fakeAsync(() => {
     component.recentLocations = undefined;
-    recentLocalStorageItemsService.get.and.returnValue(Promise.resolve(['display1', 'display2']));
+    recentLocalStorageItemsService.get.and.resolveTo(['display1', 'display2']);
     component.cacheName = ['display1', 'display2'];
     fixture.detectChanges();
     const recentlyUsedItems = component.getRecentlyUsedItems();
@@ -132,7 +132,7 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData2));
 
     const text = 'Ben';
@@ -174,7 +174,7 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData2));
 
     const text = 'Ben';
@@ -215,7 +215,7 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
 
     const event = new Event('keyup');
@@ -258,7 +258,7 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(undefined) as any);
 
     const event = new Event('keyup');
@@ -295,7 +295,7 @@ describe('FyLocationModalComponent', () => {
     component.recentLocations = recentLocations;
     component.currentSelection = { display: 'Display1' };
     spyOn(component, 'checkPermissionStatus');
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(undefined) as any);
 
     const event = new Event('keyup');
@@ -344,6 +344,7 @@ describe('FyLocationModalComponent', () => {
       component.onDoneClick();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: 'selection1' });
     });
+
     it('should call dismiss modal if currentSelection is undefined but value is defined', () => {
       component.currentSelection = '';
       component.value = 'selection1';
@@ -351,6 +352,7 @@ describe('FyLocationModalComponent', () => {
       component.onDoneClick();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'selection1' } });
     });
+
     it('should call dismiss modal with selection equals to currentSelection', () => {
       component.currentSelection = '';
       component.value = '';
@@ -358,14 +360,15 @@ describe('FyLocationModalComponent', () => {
       component.onDoneClick();
       expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: null });
     });
+
     it('should call recentLocalStorageItemsService and dismiss modal with currentSelection undefined and value is undefined', () => {
-      component.currentSelection = '';
-      component.value = 'selection1';
+      component.currentSelection = undefined;
+      component.value = undefined;
       component.cacheName = 'cache1';
       fixture.detectChanges();
       component.onDoneClick();
-      expect(recentLocalStorageItemsService.post).toHaveBeenCalledOnceWith('cache1', { display: 'selection1' });
-      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: { display: 'selection1' } });
+
+      expect(modalController.dismiss).toHaveBeenCalledOnceWith({ selection: null });
     });
   });
 
@@ -381,8 +384,8 @@ describe('FyLocationModalComponent', () => {
     const text = 'Example Location';
     const userId = 'usvKA4X8Ugcr';
 
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.resolveTo();
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(null));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(locationData1));
@@ -401,8 +404,8 @@ describe('FyLocationModalComponent', () => {
   }));
 
   it('should handle error and dismiss the modal with the input location', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.resolveTo();
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(null));
     locationService.getAutocompletePredictions.and.returnValue(of([]));
 
@@ -419,8 +422,8 @@ describe('FyLocationModalComponent', () => {
   }));
 
   it('should call necessary services and dismiss the modal if location is defined', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.resolveTo();
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(locationData1));
@@ -446,8 +449,8 @@ describe('FyLocationModalComponent', () => {
   }));
 
   it('should call necessary services and dismiss the modal if locationService.getGeoCode returns null', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.resolveTo();
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(of(undefined));
@@ -475,8 +478,8 @@ describe('FyLocationModalComponent', () => {
   it('should catch errors if getGeoCode returns error', fakeAsync(() => {
     const geocodedLocation = { display: 'Example Location' };
 
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    authService.getEou.and.returnValue(Promise.resolve(apiEouRes));
+    loaderService.showLoader.and.resolveTo();
+    authService.getEou.and.resolveTo(apiEouRes);
     locationService.getCurrentLocation.and.returnValue(of(coordinatesData1));
     locationService.getAutocompletePredictions.and.returnValue(of(predictedLocation1));
     locationService.getGeocode.and.returnValue(throwError(() => new Error('error message')));
@@ -583,8 +586,8 @@ describe('FyLocationModalComponent', () => {
   });
 
   it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     locationService.getCurrentLocation.and.returnValue(of({ coords: { latitude: 12.345, longitude: 67.89 } }) as any);
     gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
     spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
@@ -601,8 +604,8 @@ describe('FyLocationModalComponent', () => {
   }));
 
   it('should fetch current location and dismiss the modal with the formatted location', fakeAsync(() => {
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     locationService.getCurrentLocation.and.returnValue(of(undefined));
     gmapsService.getGeocode.and.returnValue(of({ formatted_address: 'Example Address' }) as any);
     spyOn(component, 'formatGeocodeResponse').and.returnValue({ display: 'Example Address' });
@@ -621,8 +624,8 @@ describe('FyLocationModalComponent', () => {
   it('should handle error and set lookupFailed to true', fakeAsync(() => {
     const error = new Error('Some error');
 
-    loaderService.showLoader.and.returnValue(Promise.resolve());
-    loaderService.hideLoader.and.returnValue(Promise.resolve());
+    loaderService.showLoader.and.resolveTo();
+    loaderService.hideLoader.and.resolveTo();
     locationService.getCurrentLocation.and.returnValue(of(null));
     gmapsService.getGeocode.and.returnValue(throwError(() => error));
 

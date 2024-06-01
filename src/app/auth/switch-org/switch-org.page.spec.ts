@@ -43,6 +43,7 @@ import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expen
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { platformExpenseData } from 'src/app/core/mock-data/platform/v1/expense.data';
 import { transformedExpenseData } from 'src/app/core/mock-data/transformed-expense.data';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 const roles = ['OWNER', 'USER', 'FYLER'];
 const email = 'ajain@fyle.in';
@@ -100,7 +101,7 @@ describe('SwitchOrgPage', () => {
     ]);
     const deviceServiceSpy = jasmine.createSpyObj('DeviceService', ['getDeviceInfo']);
     const popoverControllerSpy = jasmine.createSpyObj('PopoverController', ['create']);
-    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['markActive']);
+    const orgUserServiceSpy = jasmine.createSpyObj('OrgUserService', ['markActive', 'getCurrent']);
     const appVersionServiceSpy = jasmine.createSpyObj('AppVersionService', ['load', 'getUserAppVersionDetails']);
     const matSnackBarSpy = jasmine.createSpyObj('MatSnackBar', ['openFromComponent']);
     const snackbarPropertiesSpy = jasmine.createSpyObj('SnackbarPropertiesService', ['setSnackbarProperties']);
@@ -108,6 +109,7 @@ describe('SwitchOrgPage', () => {
     const transactionServiceSpy = jasmine.createSpyObj('TransactionService', ['transformExpense']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseById']);
     const deepLinkServiceSpy = jasmine.createSpyObj('DeepLinkService', ['getExpenseRoute']);
+    const ldSpy = jasmine.createSpyObj('LaunchDarklyService', ['initializeUser']);
 
     TestBed.configureTestingModule({
       declarations: [SwitchOrgPage, ActiveOrgCardComponent, OrgCardComponent, FyZeroStateComponent],
@@ -135,6 +137,10 @@ describe('SwitchOrgPage', () => {
               },
             },
           },
+        },
+        {
+          provide: LaunchDarklyService,
+          useValue: ldSpy,
         },
         {
           provide: Platform,
@@ -685,6 +691,8 @@ describe('SwitchOrgPage', () => {
     userService.isPendingDetails.and.returnValue(of(true));
     authService.getEou.and.resolveTo(apiEouRes);
     authService.getRoles.and.returnValue(of(roles));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgUserService.getCurrent.and.returnValue(of(apiEouRes));
     spyOn(component, 'setSentryUser').and.callThrough();
     spyOn(component, 'navigateBasedOnUserStatus').and.returnValue(of(apiEouRes));
     loaderService.hideLoader.and.returnValue(new Promise(() => {}));
@@ -715,7 +723,7 @@ describe('SwitchOrgPage', () => {
       isFromInviteLink: undefined,
     });
     expect(loaderService.hideLoader).toHaveBeenCalledTimes(1);
-    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(1);
+    expect(deviceService.getDeviceInfo).toHaveBeenCalledTimes(2);
     expect(appVersionService.load).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
     expect(appVersionService.getUserAppVersionDetails).toHaveBeenCalledOnceWith(extendedDeviceInfoMockData);
     expect(trackingService.eventTrack).toHaveBeenCalledOnceWith('Auto Logged out', {

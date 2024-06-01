@@ -10,6 +10,7 @@ import { AccountType } from 'src/app/core/models/platform/v1/account.model';
 import { Expense, TransactionStatus } from 'src/app/core/models/platform/v1/expense.model';
 import { FileType } from 'src/app/core/models/platform/v1/file.model';
 import { CustomFieldTypes } from 'src/app/core/enums/platform/v1/custom-fields-type.enum';
+import { CommuteDeduction } from 'src/app/core/enums/commute-deduction.enum';
 
 export const expenseData: Expense = deepFreeze({
   accounting_export_summary: {},
@@ -113,7 +114,6 @@ export const expenseData: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: null,
   is_receipt_mandatory: null,
   is_reimbursable: false,
@@ -162,7 +162,6 @@ export const expenseData: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -267,6 +266,29 @@ export const mileageExpense: Expense = deepFreeze({
   category_id: 247012,
   claim_amount: 459,
   code: null,
+  commute_deduction: CommuteDeduction.ONE_WAY,
+  commute_details: {
+    distance: 2.92,
+    distance_unit: 'MILES',
+    home_location: {
+      city: 'Bengaluru',
+      country: 'India',
+      formatted_address: 'Bengaluru, Karnataka, India',
+      latitude: 13.0035068,
+      longitude: 77.5890953,
+      state: 'Karnataka',
+    },
+    id: 96,
+    work_location: {
+      city: 'Bengaluru',
+      country: 'India',
+      formatted_address: 'Sarjapura, Bengaluru, Karnataka 562125, India',
+      latitude: 12.8575579,
+      longitude: 77.7864057,
+      state: 'Karnataka',
+    },
+  },
+  commute_details_id: 96,
   cost_center: {
     code: null,
     id: 2885,
@@ -507,7 +529,6 @@ export const mileageExpense: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: true,
   is_receipt_mandatory: null,
   is_reimbursable: true,
@@ -540,7 +561,6 @@ export const mileageExpense: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -868,7 +888,6 @@ export const perDiemExpense: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: null,
   is_receipt_mandatory: null,
   is_reimbursable: true,
@@ -901,7 +920,6 @@ export const perDiemExpense: Expense = deepFreeze({
     name: 'aaaaa',
   },
   per_diem_rate_id: 5463,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -1275,7 +1293,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: true,
     is_receipt_mandatory: null,
     is_reimbursable: true,
@@ -1304,7 +1321,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -1632,7 +1648,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: true,
     is_receipt_mandatory: null,
     is_reimbursable: true,
@@ -1661,7 +1676,6 @@ export const apiExpenses1: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -1850,7 +1864,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: null,
     is_receipt_mandatory: null,
     is_reimbursable: false,
@@ -1879,7 +1892,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -1998,7 +2010,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: null,
     is_receipt_mandatory: null,
     is_reimbursable: false,
@@ -2027,7 +2038,6 @@ export const splitExpensesData: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -2151,7 +2161,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: null,
     is_receipt_mandatory: null,
     is_reimbursable: false,
@@ -2180,7 +2189,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -2299,7 +2307,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     is_corporate_card_transaction_auto_matched: false,
     is_exported: null,
     is_manually_flagged: null,
-    is_physical_bill_submitted: null,
     is_policy_flagged: null,
     is_receipt_mandatory: null,
     is_reimbursable: false,
@@ -2328,7 +2335,6 @@ export const apiExpenses3: Expense[] = deepFreeze([
     per_diem_num_days: null,
     per_diem_rate: null,
     per_diem_rate_id: null,
-    physical_bill_submitted_at: null,
     policy_amount: null,
     policy_checks: {
       are_approvers_added: false,
@@ -2462,7 +2468,6 @@ export const platformExpenseData: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: false,
   is_receipt_mandatory: null,
   is_reimbursable: true,
@@ -2496,7 +2501,6 @@ export const platformExpenseData: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -2644,7 +2648,6 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: null,
   is_receipt_mandatory: null,
   is_reimbursable: true,
@@ -2673,7 +2676,6 @@ export const platformExpenseDataWithSubCategory: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -2884,7 +2886,6 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: null,
   is_receipt_mandatory: null,
   is_reimbursable: true,
@@ -2913,7 +2914,6 @@ export const platformExpenseWithExtractedData: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,
@@ -3050,7 +3050,6 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   is_corporate_card_transaction_auto_matched: false,
   is_exported: null,
   is_manually_flagged: null,
-  is_physical_bill_submitted: null,
   is_policy_flagged: null,
   is_receipt_mandatory: null,
   is_reimbursable: false,
@@ -3099,7 +3098,6 @@ export const platformExpenseWithMatchCCC: Expense = deepFreeze({
   per_diem_num_days: null,
   per_diem_rate: null,
   per_diem_rate_id: null,
-  physical_bill_submitted_at: null,
   policy_amount: null,
   policy_checks: {
     are_approvers_added: false,

@@ -8,7 +8,6 @@ import { ApiV2Response } from '../models/api-v2.model';
 import { OrgSettings } from '../models/org-settings.model';
 import { PdfExport } from '../models/pdf-exports.model';
 import { Report } from '../models/platform/v1/report.model';
-import { ReportActions } from '../models/report-actions.model';
 import { ReportQueryParams } from '../models/report-api-params.model';
 import { ReportAutoSubmissionDetails } from '../models/report-auto-submission-details.model';
 import { ReportParams } from '../models/report-params.model';
@@ -210,12 +209,12 @@ export class ReportService {
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
-  updateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+  updateReportPurpose(report: Report): Observable<Report> {
     const params = {
       data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
+        id: report.id,
+        source: report.source,
+        purpose: report.purpose,
       },
     };
     return this.spenderPlatformV1ApiService.post('/reports', params);
@@ -421,10 +420,6 @@ export class ReportService {
     }).pipe(map((res) => res.data[0]));
   }
 
-  actions(rptId: string): Observable<ReportActions> {
-    return this.apiService.get('/reports/' + rptId + '/actions');
-  }
-
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
     return this.apiService.get<{ results: PdfExport[] }>('/reports/' + rptId + '/exports');
   }
@@ -579,12 +574,12 @@ export class ReportService {
     );
   }
 
-  approverUpdateReportPurpose(erpt: ExtendedReport): Observable<Report> {
+  approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
-        id: erpt.rp_id,
-        source: erpt.rp_source,
-        purpose: erpt.rp_purpose,
+        id: report.id,
+        source: report.source,
+        purpose: report.purpose,
       },
     };
     return this.approverPlatformApiService.post('/reports', params);

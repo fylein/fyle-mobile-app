@@ -26,7 +26,6 @@ import {
 import { apiExpenseRes } from '../mock-data/expense.data';
 import { apiEouRes } from '../mock-data/extended-org-user.data';
 import { orgSettingsRes } from '../mock-data/org-settings.data';
-import { apiReportActions } from '../mock-data/report-actions.data';
 import { apiReportAutoSubmissionDetails } from '../mock-data/report-auto-submission-details.data';
 import {
   expectedErpt,
@@ -484,18 +483,6 @@ describe('ReportService', () => {
     });
   });
 
-  it('actions(): should get report actions', (done) => {
-    apiService.get.and.returnValue(of(apiReportActions));
-
-    const reportID = 'rpxtbiLXQZUm';
-
-    reportService.actions(reportID).subscribe((res) => {
-      expect(res).toEqual(apiReportActions);
-      expect(apiService.get).toHaveBeenCalledOnceWith(`/reports/${reportID}/actions`);
-      done();
-    });
-  });
-
   it('getExports(): should get export actions for a report', (done) => {
     apiService.get.and.returnValue(of([]));
 
@@ -655,7 +642,7 @@ describe('ReportService', () => {
 
   it('updateReportPurpose(): should update the report purpose', (done) => {
     spenderPlatformV1ApiService.post.and.returnValue(of(platformReportData));
-    reportService.updateReportPurpose(reportData1).subscribe((res) => {
+    reportService.updateReportPurpose(platformReportData).subscribe((res) => {
       expect(res).toEqual(platformReportData);
       expect(spenderPlatformV1ApiService.post).toHaveBeenCalledOnceWith('/reports', {
         data: {
@@ -670,7 +657,7 @@ describe('ReportService', () => {
 
   it('approverUpdateReportPurpose(): should update the report purpose for approver', (done) => {
     approverPlatformApiService.post.and.returnValue(of(platformReportData));
-    reportService.approverUpdateReportPurpose(reportData1).subscribe((res) => {
+    reportService.approverUpdateReportPurpose(platformReportData).subscribe((res) => {
       expect(res).toEqual(platformReportData);
       expect(approverPlatformApiService.post).toHaveBeenCalledOnceWith('/reports', {
         data: {

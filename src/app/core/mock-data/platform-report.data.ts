@@ -16,6 +16,7 @@ export const mockQueryParamsForCount: ReportsQueryParams = deepFreeze({
 
 export const platformReportData: Report = deepFreeze({
   amount: 0,
+  comments: [],
   approvals: [
     {
       approver_user: {
@@ -36,16 +37,19 @@ export const platformReportData: Report = deepFreeze({
       state: ApprovalState.APPROVAL_DONE,
     },
   ],
-  created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  created_at: new Date('2023-07-11T16:24:01.335Z'),
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: undefined,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
@@ -69,7 +73,6 @@ export const platformReportData: Report = deepFreeze({
   id: 'rpMvN0P10l6F',
   is_exported: false,
   is_manually_flagged: false,
-  is_physical_bill_submitted: false,
   is_policy_flagged: false,
   is_verified: false,
   last_approved_at: null,
@@ -79,7 +82,6 @@ export const platformReportData: Report = deepFreeze({
   next_approver_user_ids: null,
   num_expenses: 0,
   org_id: 'orNVthTo2Zyo',
-  physical_bill_submitted_at: null,
   purpose: '#3:  Jul 2023 - Office expense',
   seq_num: 'C/2023/07/R/17',
   settlement_id: null,
@@ -107,17 +109,72 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 100,
+      comments: [
+        {
+          comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+          created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+          creator_user: null,
+          creator_user_id: 'SYSTEM',
+          id: 'styBS6Mt3srX',
+        },
+        {
+          comment: 'submitted by Suyash (suyash.p@fyle.in)',
+          created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+          creator_user: null,
+          creator_user_id: 'SYSTEM',
+          id: 'stI6NDy8La7b',
+        },
+        {
+          comment: 'aaab',
+          created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+          creator_user: {
+            email: 'aastha.b@fyle.in',
+            full_name: 'Aastha',
+            id: 'usaTtklUXVZn',
+          },
+          creator_user_id: 'usaTtklUXVZn',
+          id: 'stVFdDpz1LAi',
+        },
+        {
+          comment: 'aaac',
+          created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+          creator_user: {
+            email: 'aastha.b@fyle.in',
+            full_name: 'Aastha',
+            id: 'usaTtklUXVZn',
+          },
+          creator_user_id: 'usaTtklUXVZn',
+          id: 'stVFdDpz1LAd',
+        },
+        {
+          comment: 'aaa',
+          created_at: new Date('2024-05-23T07:32:19.199048+00:00'),
+          creator_user: {
+            email: 'aastha.b@fyle.in',
+            full_name: 'Aastha',
+            id: 'usaTtklUXVZn',
+          },
+          creator_user_id: 'usaTtklUXVZn',
+          id: 'stVFdDpz1LAL',
+        },
+      ],
       approvals: [],
+      org_name: 'Staging Loaded',
+      level: null,
+      mobile: '123456098',
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -141,17 +198,15 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       id: 'rprAfNrce73O',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
       last_paid_at: null,
       last_resubmitted_at: null,
-      last_submitted_at: null,
+      last_submitted_at: new Date('2023-02-01T13:02:35.097839+00:00'),
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#8:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -170,16 +225,20 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
     {
       amount: 200,
       approvals: [],
+      comments: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -203,7 +262,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       id: 'rpLMyvYSXgJy',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -213,7 +271,6 @@ export const allReportsPaginated1: PlatformApiResponse<Report[]> = deepFreeze({
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#7:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -238,6 +295,7 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
   data: [
     {
       amount: 100,
+      comments: [],
       approvals: [
         {
           approver_user: {
@@ -261,13 +319,16 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -291,7 +352,6 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       id: 'rprAfNrce73O',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -301,7 +361,6 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#8:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -319,17 +378,21 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
     },
     {
       amount: 200,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -353,7 +416,6 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       id: 'rpLMyvYSXgJy',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -363,7 +425,6 @@ export const allReportsPaginatedWithApproval: PlatformApiResponse<Report[]> = de
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#7:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -388,17 +449,21 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 200,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -422,7 +487,6 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
       id: 'rpLMyvYSXgJy',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -432,7 +496,6 @@ export const filteredReportsData: PlatformApiResponse<Report[]> = deepFreeze({
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#7:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -457,17 +520,21 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
   data: [
     {
       amount: 300,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -491,7 +558,6 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       id: 'rpMvN0P10l6F',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -501,7 +567,6 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#6:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -519,17 +584,21 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
     },
     {
       amount: 400,
+      comments: [],
       approvals: [],
       created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
       currency: 'USD',
       employee: {
+        org_name: 'Staging Loaded',
+        level: null,
+        mobile: '123456098',
         ach_account: {
           added: true,
           verified: null,
         },
         business_unit:
           'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-        code: null,
+        code: '101',
         department: {
           code: null,
           display_name: '0000000 / arun',
@@ -553,7 +622,6 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       id: 'rpMvN0P10l6F',
       is_exported: false,
       is_manually_flagged: false,
-      is_physical_bill_submitted: false,
       is_policy_flagged: false,
       is_verified: false,
       last_approved_at: null,
@@ -563,7 +631,6 @@ export const allReportsPaginated2: PlatformApiResponse<Report[]> = deepFreeze({
       next_approver_user_ids: null,
       num_expenses: 0,
       org_id: 'orNVthTo2Zyo',
-      physical_bill_submitted_at: null,
       purpose: '#4:  Jan 2023',
       seq_num: 'C/2023/07/R/17',
       settlement_id: null,
@@ -587,15 +654,67 @@ export const submittedReportData: Report = deepFreeze({
   amount: 300,
   approvals: [],
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
+  comments: [
+    {
+      comment: 'changed to APPROVER_PENDING by Suyash (suyash.p@fyle.in)',
+      created_at: new Date('2024-05-21T11:07:01.99036+00:00'),
+      creator_user: null,
+      creator_user_id: 'SYSTEM',
+      id: 'styBS6Mt3srX',
+    },
+    {
+      comment: 'submitted by Suyash (suyash.p@fyle.in)',
+      created_at: new Date('2024-05-21T11:07:02.102867+00:00'),
+      creator_user: null,
+      creator_user_id: 'SYSTEM',
+      id: 'stI6NDy8La7b',
+    },
+    {
+      comment: 'aaab',
+      created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+      creator_user: {
+        email: 'aastha.b@fyle.in',
+        full_name: 'Aastha',
+        id: 'usaTtklUXVZn',
+      },
+      creator_user_id: 'usaTtklUXVZn',
+      id: 'stVFdDpz1LAi',
+    },
+    {
+      comment: 'aaac',
+      created_at: new Date('2024-05-22T07:32:19.199048+00:00'),
+      creator_user: {
+        email: 'aastha.b@fyle.in',
+        full_name: 'Aastha',
+        id: 'usaTtklUXVZn',
+      },
+      creator_user_id: 'usaTtklUXVZn',
+      id: 'stVFdDpz1LAd',
+    },
+    {
+      comment: 'aaa',
+      created_at: new Date('2024-05-23T07:32:19.199048+00:00'),
+      creator_user: {
+        email: 'aastha.b@fyle.in',
+        full_name: 'Aastha',
+        id: 'usaTtklUXVZn',
+      },
+      creator_user_id: 'usaTtklUXVZn',
+      id: 'stVFdDpz1LAL',
+    },
+  ],
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: null,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
@@ -619,7 +738,6 @@ export const submittedReportData: Report = deepFreeze({
   id: 'rpMvN0P10l6F',
   is_exported: false,
   is_manually_flagged: false,
-  is_physical_bill_submitted: false,
   is_policy_flagged: false,
   is_verified: false,
   last_approved_at: null,
@@ -629,7 +747,6 @@ export const submittedReportData: Report = deepFreeze({
   next_approver_user_ids: null,
   num_expenses: 0,
   org_id: 'orNVthTo2Zyo',
-  physical_bill_submitted_at: null,
   purpose: '#6:  Jan 2023',
   seq_num: 'C/2023/07/R/17',
   settlement_id: null,
@@ -648,6 +765,7 @@ export const submittedReportData: Report = deepFreeze({
 
 export const submittedReportDataWithApproval: Report = deepFreeze({
   amount: 300,
+  comments: [],
   approvals: [
     {
       approver_user: {
@@ -671,13 +789,16 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
   created_at: new Date('2023-07-11T06:19:28.260142+00:00'),
   currency: 'USD',
   employee: {
+    org_name: 'Staging Loaded',
+    level: null,
+    mobile: '123456098',
     ach_account: {
       added: true,
       verified: null,
     },
     business_unit:
       'A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed A very long Business Unit indeed',
-    code: null,
+    code: '101',
     department: {
       code: null,
       display_name: '0000000 / arun',
@@ -701,7 +822,6 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
   id: 'rpMvN0P10l6F',
   is_exported: false,
   is_manually_flagged: false,
-  is_physical_bill_submitted: false,
   is_policy_flagged: false,
   is_verified: false,
   last_approved_at: null,
@@ -711,7 +831,6 @@ export const submittedReportDataWithApproval: Report = deepFreeze({
   next_approver_user_ids: null,
   num_expenses: 0,
   org_id: 'orNVthTo2Zyo',
-  physical_bill_submitted_at: null,
   purpose: '#6:  Jan 2023',
   seq_num: 'C/2023/07/R/17',
   settlement_id: null,
@@ -737,6 +856,14 @@ export const paidReportData: Report = deepFreeze({
 export const expectedSingleReport: Report[] = deepFreeze([allReportsPaginated1.data[0]]);
 
 export const expectedReportsSinglePage: Report[] = deepFreeze([...allReportsPaginated1.data]);
+
+export const sentBackReportData: Report = deepFreeze({ ...submittedReportData, state: 'APPROVER_INQUIRY' });
+
+export const reportWithExpenses: Report = deepFreeze({
+  ...platformReportData,
+  num_expenses: 3,
+  amount: 100,
+});
 
 export const expectedReportsSinglePageWithApproval: Report[] = deepFreeze([...allReportsPaginatedWithApproval.data]);
 

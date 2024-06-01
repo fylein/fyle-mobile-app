@@ -35,7 +35,6 @@ import { TimezoneService } from './timezone.service';
 import { TransactionService } from './transaction.service';
 import { UserEventService } from './user-event.service';
 import { UtilityService } from './utility.service';
-import { expensesCacheBuster$ } from './transaction.service';
 import * as dayjs from 'dayjs';
 import { eouRes2 } from '../mock-data/extended-org-user.data';
 import { txnStats } from '../mock-data/stats-response.data';
@@ -59,6 +58,10 @@ import {
   unmatchCCCExpenseResponseData,
 } from '../mock-data/corporate-card-transaction-response.data';
 import { cloneDeep } from 'lodash';
+import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
+import { ExpensesService } from './platform/v1/spender/expenses.service';
+import { expenseData } from '../mock-data/platform/v1/expense.data';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -78,6 +81,7 @@ describe('TransactionService', () => {
   let paymentModesService: jasmine.SpyObj<PaymentModesService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let accountsService: jasmine.SpyObj<AccountsService>;
+  let expensesService: jasmine.SpyObj<ExpensesService>;
 
   beforeEach(() => {
     const networkServiceSpy = jasmine.createSpyObj('NetworkService', ['isOnline']);
@@ -106,10 +110,16 @@ describe('TransactionService', () => {
     const paymentModesServiceSpy = jasmine.createSpyObj('PaymentModesService', ['getDefaultAccount']);
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
+    const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
+    const ldServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getImmediate']);
 
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
+        {
+          provide: LaunchDarklyService,
+          useValue: ldServiceSpy,
+        },
         {
           provide: ApiService,
           useValue: apiServiceSpy,
@@ -175,6 +185,10 @@ describe('TransactionService', () => {
           useValue: accountsServiceSpy,
         },
         {
+          provide: ExpensesService,
+          useValue: expensesServiceSpy,
+        },
+        {
           provide: PAGINATION_SIZE,
           useValue: 2,
         },
@@ -200,6 +214,7 @@ describe('TransactionService', () => {
     paymentModesService = TestBed.inject(PaymentModesService) as jasmine.SpyObj<PaymentModesService>;
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     accountsService = TestBed.inject(AccountsService) as jasmine.SpyObj<AccountsService>;
+    expensesService = TestBed.inject(ExpensesService) as jasmine.SpyObj<ExpensesService>;
   });
 
   it('should be created', () => {
@@ -411,12 +426,6 @@ describe('TransactionService', () => {
 
     // @ts-ignore
     expect(transactionService.generateTypeOrFilter(filters)).toEqual(typeOrFilter);
-  });
-
-  it('fixDates(): should fix dates', () => {
-    const mockExpenseData = cloneDeep(expenseDataWithDateString);
-    // @ts-ignore
-    expect(transactionService.fixDates(mockExpenseData)).toEqual(expenseData1);
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {
@@ -1247,13 +1256,15 @@ describe('TransactionService', () => {
 
   it('createTxnWithFiles(): should create transaction with files', (done) => {
     spyOn(transactionService, 'upsert').and.returnValue(of(txnData2));
-    fileService.post.and.returnValue(of(fileObjectData2));
+    expensesService.attachReceiptsToExpense.and.returnValue(of([expenseData]));
 
     const mockFileObject = cloneDeep(fileObjectData1);
     transactionService.createTxnWithFiles(txnData, of(mockFileObject)).subscribe((res) => {
       expect(res).toEqual(txnData2);
       expect(transactionService.upsert).toHaveBeenCalledOnceWith(txnData);
-      expect(fileService.post).toHaveBeenCalledOnceWith(fileObjectData2);
+      expect(expensesService.attachReceiptsToExpense).toHaveBeenCalledOnceWith(mockFileObject[0].transaction_id, [
+        mockFileObject[0].id,
+      ]);
       done();
     });
   });
