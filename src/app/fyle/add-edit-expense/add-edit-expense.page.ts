@@ -995,12 +995,13 @@ export class AddEditExpensePage implements OnInit {
   }
 
   getActionSheetOptions(): Observable<{ text: string; handler: () => void }[]> {
+    const projects$ = this.activeCategories$.pipe(
+      switchMap((activeCategories) => this.projectsService.getAllActive(activeCategories))
+    );
     return forkJoin({
       orgSettings: this.orgSettingsService.get(),
       costCenters: this.costCenters$,
-      projects: this.activeCategories$.pipe(
-        switchMap((activeCategories) => this.projectsService.getAllActive(activeCategories))
-      ),
+      projects: projects$,
       txnFields: this.txnFields$.pipe(take(1)),
       filteredCategories: this.filteredCategories$.pipe(take(1)),
       showProjectMappedCategoriesInSplitExpense: this.launchDarklyService.getVariation(
@@ -2544,11 +2545,11 @@ export class AddEditExpensePage implements OnInit {
       switchMap((etxn) => {
         if (etxn.tx.project_id) {
           return this.activeCategories$.pipe(
-            switchMap((allActiveCategories) => this.projectsService.getbyId(etxn.tx.project_id, allActiveCategories))
+            map((allActiveCategories) => this.projectsService.getbyId(etxn.tx.project_id, allActiveCategories))
           );
         } else if (projectControl?.value?.project_id) {
           return this.activeCategories$.pipe(
-            switchMap((allActiveCategories) =>
+            map((allActiveCategories) =>
               this.projectsService.getbyId(projectControl.value.project_id, allActiveCategories)
             )
           );
