@@ -23,6 +23,7 @@ import { SnackbarPropertiesService } from 'src/app/core/services/snackbar-proper
 import { AuthService } from 'src/app/core/services/auth.service';
 import { CameraService } from 'src/app/core/services/camera.service';
 import { CameraPreviewService } from 'src/app/core/services/camera-preview.service';
+import { ReceiptPreviewData } from 'src/app/core/models/receipt-preview-data.model';
 
 type Image = Partial<{
   source: string;
@@ -79,7 +80,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     @Inject(DEVICE_PLATFORM) private devicePlatform: 'android' | 'ios' | 'web'
   ) {}
 
-  setupNetworkWatcher() {
+  setupNetworkWatcher(): void {
     const networkWatcherEmitter = new EventEmitter<boolean>();
     this.networkService.connectivityWatcher(networkWatcherEmitter);
     this.isOffline$ = concat(this.networkService.isOnline(), networkWatcherEmitter.asObservable()).pipe(
@@ -88,21 +89,23 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.setupNetworkWatcher();
     this.isBulkMode = false;
     this.base64ImagesWithSource = [];
     this.noOfReceipts = 0;
   }
 
+  // eslint-disable-next-line @typescript-eslint/explicit-function-return-type
   addMultipleExpensesToQueue(base64ImagesWithSource: Image[]) {
     return from(base64ImagesWithSource).pipe(
       concatMap((res: Image) => this.addExpenseToQueue(res)),
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       reduce((acc, curr) => acc.concat(curr), [])
     );
   }
 
-  addExpenseToQueue(base64ImagesWithSource: Image) {
+  addExpenseToQueue(base64ImagesWithSource: Image): Observable<void> {
     let source = base64ImagesWithSource.source;
 
     return forkJoin({
@@ -115,7 +118,6 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         }
         const transaction = {
           source,
-          txn_dt: new Date(),
           currency: eou?.org?.currency,
         };
 
@@ -131,7 +133,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     );
   }
 
-  onDismissCameraPreview() {
+  onDismissCameraPreview(): void {
     if (this.isModal) {
       this.modalController.dismiss();
     } else {
@@ -139,13 +141,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  onToggleFlashMode(flashMode: 'on' | 'off') {
+  onToggleFlashMode(flashMode: 'on' | 'off'): void {
     this.trackingService.flashModeSet({
       FlashMode: flashMode,
     });
   }
 
-  showBulkModeToastMessage() {
+  showBulkModeToastMessage(): void {
     const message =
       'If you have multiple receipts to upload, please use <b>BULK MODE</b> to upload all the receipts at once.';
     this.bulkModeToastMessageRef = this.matSnackBar.openFromComponent(ToastMessageComponent, {
@@ -157,7 +159,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.trackingService.showToastMessage({ ToastContent: message });
   }
 
-  onSwitchMode() {
+  onSwitchMode(): void {
     this.isBulkMode = !this.isBulkMode;
 
     if (this.isBulkMode) {
@@ -167,7 +169,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  onSingleCaptureOffline() {
+  onSingleCaptureOffline(): void {
     this.loaderService.showLoader();
     this.addMultipleExpensesToQueue(this.base64ImagesWithSource)
       .pipe(finalize(() => this.loaderService.hideLoader()))
@@ -176,7 +178,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  navigateToExpenseForm() {
+  navigateToExpenseForm(): void {
     const isInstafyleEnabled$ = this.orgUserSettingsService
       .get()
       .pipe(
@@ -199,7 +201,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  saveSingleCapture() {
+  saveSingleCapture(): void {
     this.isOffline$.pipe(take(1)).subscribe((isOffline) => {
       if (isOffline) {
         this.onSingleCaptureOffline();
@@ -210,13 +212,13 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     this.transactionsOutboxService.incrementSingleCaptureCount();
   }
 
-  onSingleCapture() {
+  onSingleCapture(): void {
     const receiptPreviewModal = this.createReceiptPreviewModal('single');
 
     const receiptPreviewDetails$ = from(receiptPreviewModal).pipe(
       shareReplay(1),
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
-      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
+      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
       map((receiptPreviewData) => receiptPreviewData?.data),
       filter((receiptPreviewDetails) => !!receiptPreviewDetails)
     );
@@ -258,7 +260,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     saveReceipt$.pipe(filter((isModal) => !isModal)).subscribe(() => this.saveSingleCapture());
   }
 
-  addPerformanceTrackers() {
+  addPerformanceTrackers(): void {
     this.orgService.getOrgs().subscribe((orgs) => {
       const isMultiOrg = orgs.length > 1;
 
@@ -275,7 +277,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
         const measureLaunchTime = performance.getEntriesByName(PerfTrackers.appLaunchTime);
 
         // eslint-disable-next-line @typescript-eslint/dot-notation
-        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'];
+        const isLoggedIn = performance.getEntriesByName(PerfTrackers.appLaunchStartTime)[0]['detail'] as boolean;
 
         // Converting the duration to seconds and fix it to 3 decimal places
         const launchTimeDuration = (measureLaunchTime[0]?.duration / 1000)?.toFixed(3);
@@ -289,7 +291,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  openReceiptPreviewModal() {
+  openReceiptPreviewModal(): void {
     const receiptPreviewDetails$ = this.showReceiptPreview().pipe(filter((data) => !!data));
 
     receiptPreviewDetails$
@@ -313,7 +315,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       .pipe(
         filter(
           (receiptPreviewDetails) =>
-            !receiptPreviewDetails.continueCaptureReceipt && receiptPreviewDetails.base64ImagesWithSource.length
+            !receiptPreviewDetails.continueCaptureReceipt && !!receiptPreviewDetails.base64ImagesWithSource.length
         ),
         switchMap(() => {
           this.loaderService.showLoader('Please wait...', 10000);
@@ -326,7 +328,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  createReceiptPreviewModal(mode: 'single' | 'bulk') {
+  createReceiptPreviewModal(mode: 'single' | 'bulk'): Promise<HTMLIonModalElement> {
     return this.modalController.create({
       component: ReceiptPreviewComponent,
       componentProps: {
@@ -336,19 +338,19 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  showReceiptPreview() {
+  showReceiptPreview(): Observable<ReceiptPreviewData> {
     return from(this.createReceiptPreviewModal('bulk')).pipe(
       tap((receiptPreviewModal) => receiptPreviewModal.present()),
-      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss()),
+      switchMap((receiptPreviewModal) => receiptPreviewModal.onWillDismiss<ReceiptPreviewData>()),
       map((receiptPreviewDetails) => receiptPreviewDetails?.data)
     );
   }
 
-  onBulkCapture() {
+  onBulkCapture(): void {
     this.noOfReceipts += 1;
   }
 
-  showLimitReachedPopover() {
+  showLimitReachedPopover(): Observable<HTMLIonPopoverElement> {
     const limitReachedPopover = this.popoverController.create({
       component: PopupAlertComponent,
       componentProps: {
@@ -365,7 +367,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     return from(limitReachedPopover).pipe(tap((limitReachedPopover) => limitReachedPopover.present()));
   }
 
-  onCaptureReceipt() {
+  onCaptureReceipt(): void {
     if (this.noOfReceipts >= 20) {
       this.trackingService.receiptLimitReached();
       this.showLimitReachedPopover().subscribe(noop);
@@ -395,7 +397,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+  setupPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): Promise<HTMLIonPopoverElement> {
     const isIos = this.devicePlatform === 'ios';
 
     const galleryPermissionName = isIos ? 'Photos' : 'Storage';
@@ -428,11 +430,11 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY') {
+  showPermissionDeniedPopover(permissionType: 'CAMERA' | 'GALLERY'): void {
     from(this.setupPermissionDeniedPopover(permissionType))
       .pipe(
         tap((permissionDeniedPopover) => permissionDeniedPopover.present()),
-        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss())
+        switchMap((permissionDeniedPopover) => permissionDeniedPopover.onWillDismiss<{ action: string }>())
       )
       .subscribe(({ data }) => {
         if (data?.action === 'OPEN_SETTINGS') {
@@ -445,7 +447,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
   }
 
-  onGalleryUpload() {
+  onGalleryUpload(): void {
     this.trackingService.instafyleGalleryUploadOpened({});
 
     const checkPermission$ = from(this.imagePicker.hasReadPermission()).pipe(shareReplay(1));
@@ -476,7 +478,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
 
     receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => receiptsFromGallery.length > 0))
+      .pipe(filter((receiptsFromGallery: string[]) => receiptsFromGallery.length > 0))
       .subscribe((receiptsFromGallery) => {
         receiptsFromGallery.forEach((receiptBase64) => {
           const receiptBase64Data = 'data:image/jpeg;base64,' + receiptBase64;
@@ -489,24 +491,24 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
       });
 
     receiptsFromGallery$
-      .pipe(filter((receiptsFromGallery) => !receiptsFromGallery.length))
+      .pipe(filter((receiptsFromGallery: string[]) => !receiptsFromGallery.length))
       .subscribe(() => this.setUpAndStartCamera());
   }
 
-  ngAfterViewInit() {
+  ngAfterViewInit(): void {
     if (this.isModal) {
       this.setUpAndStartCamera();
     }
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     if (this.isModal) {
       this.stopCamera();
     }
     this.bulkModeToastMessageRef?.dismiss?.();
   }
 
-  setUpAndStartCamera() {
+  setUpAndStartCamera(): void {
     this.cameraPreview.setUpAndStartCamera();
     if (this.transactionsOutboxService.singleCaptureCount === 3) {
       this.showBulkModeToastMessage();
@@ -514,7 +516,7 @@ export class CaptureReceiptComponent implements OnInit, OnDestroy, AfterViewInit
     }
   }
 
-  stopCamera() {
+  stopCamera(): void {
     this.cameraPreview.stopCamera();
   }
 }
