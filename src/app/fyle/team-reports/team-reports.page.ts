@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, of, noop, concat, Subject, from } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -172,7 +172,9 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          if (params.searchString) {
+            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          }
           const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
