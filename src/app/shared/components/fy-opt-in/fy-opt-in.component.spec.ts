@@ -17,7 +17,7 @@ import { OptInFlowState } from 'src/app/core/enums/opt-in-flow-state.enum';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Subscription } from 'rxjs';
 
-fdescribe('FyOptInComponent', () => {
+describe('FyOptInComponent', () => {
   let component: FyOptInComponent;
   let fixture: ComponentFixture<FyOptInComponent>;
   let modalController: jasmine.SpyObj<ModalController>;
@@ -171,6 +171,28 @@ fdescribe('FyOptInComponent', () => {
       expect(trackingService.optInFlowSuccess).toHaveBeenCalledOnceWith({
         message: 'SUCCESS',
       });
+    });
+  });
+
+  describe('validateInput():', () => {
+    it('should set mobileNumberError if mobile number field is empty', () => {
+      component.mobileNumberInputValue = '';
+      expect(component.validateInput());
+      expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
+    });
+
+    it('should set mobileNumberError if mobile number is invalid', () => {
+      component.mobileNumberInputValue = '1234567890';
+      expect(component.validateInput());
+      expect(component.mobileNumberError).toBe(
+        'Please enter a valid mobile number with country code. e.g. +12025559975'
+      );
+    });
+
+    it('should set mobileNumberError if mobileNumberInputValue is null', () => {
+      component.mobileNumberInputValue = null;
+      expect(component.validateInput());
+      expect(component.mobileNumberError).toBe('Please enter a Mobile Number');
     });
   });
 });
