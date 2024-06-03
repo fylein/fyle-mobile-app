@@ -30,6 +30,7 @@ import { RouterAuthService } from 'src/app/core/services/router-auth.service';
 import { TransactionService } from 'src/app/core/services/transaction.service';
 import { DeepLinkService } from 'src/app/core/services/deep-link.service';
 import { ExpensesService } from 'src/app/core/services/platform/v1/spender/expenses.service';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 
 @Component({
   selector: 'app-switch-org',
@@ -84,7 +85,8 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
     private routerAuthService: RouterAuthService,
     private transactionService: TransactionService,
     private deepLinkService: DeepLinkService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ngOnInit(): void {
@@ -357,6 +359,26 @@ export class SwitchOrgPage implements OnInit, AfterViewChecked {
       .subscribe();
 
     this.checkUserAppVersion();
+    this.setupLD();
+  }
+
+  setupLD(): void {
+    forkJoin({
+      currentOrg: this.orgService.getCurrentOrg(),
+      deviceInfo: this.deviceService.getDeviceInfo(),
+      eou: this.orgUserService.getCurrent(),
+    }).subscribe(({ currentOrg, deviceInfo, eou }) => {
+      this.launchDarklyService.initializeUser({
+        key: eou.ou.user_id,
+        custom: {
+          org_id: eou.ou.org_id,
+          org_user_id: eou.ou.id,
+          org_currency: currentOrg?.currency,
+          org_created_at: currentOrg?.created_at?.toString(),
+          asset: `MOBILE - ${deviceInfo?.platform.toUpperCase()}`,
+        },
+      });
+    });
   }
 
   checkUserAppVersion(): void {

@@ -142,8 +142,7 @@ export class DeepLinkRedirectionPage {
             'my_view_report',
             { id: this.activatedRoute.snapshot.params.id as string },
           ]);
-        }
-        if (approverReport) {
+        } else if (approverReport) {
           this.router.navigate([
             '/',
             'enterprise',
