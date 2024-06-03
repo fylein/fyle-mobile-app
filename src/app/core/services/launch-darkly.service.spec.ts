@@ -6,6 +6,7 @@ import { StorageService } from './storage.service';
 import { lDUser } from '../mock-data/ld-client-user.data';
 import { ldAllFlagsRes } from '../mock-data/ld-all-flags.data';
 import { of } from 'rxjs';
+
 describe('LaunchDarklyService', () => {
   let launchDarklyService: LaunchDarklyService;
   let userEventService: jasmine.SpyObj<UserEventService>;
@@ -119,7 +120,7 @@ describe('LaunchDarklyService', () => {
   describe('shutDownClient():', () => {
     beforeEach(() => {
       ldClient = jasmine.createSpyObj('LDClient', ['off', 'close']);
-      (launchDarklyService as any).ldClient = ldClient;
+      launchDarklyService.ldClient = ldClient;
     });
 
     it('should shut down LD client if it exists', () => {
@@ -127,12 +128,31 @@ describe('LaunchDarklyService', () => {
       expect(ldClient.off).toHaveBeenCalledWith('initialized', jasmine.any(Function), launchDarklyService);
       expect(ldClient.off).toHaveBeenCalledWith('change', jasmine.any(Function), launchDarklyService);
       expect(ldClient.close).toHaveBeenCalled();
-      expect((launchDarklyService as any).ldClient).toBeNull();
+      expect(launchDarklyService.ldClient).toBeNull();
     });
 
     it('should not throw error if LD client does not exist', () => {
-      (launchDarklyService as any).ldClient = null;
+      launchDarklyService.ldClient = null;
       expect(() => launchDarklyService.shutDownClient()).not.toThrow();
     });
+  });
+
+  it('getImmediate: should immediately return a value', () => {
+    launchDarklyService.initializeUser({
+      key: '123',
+    });
+    spyOn(launchDarklyService.ldClient, 'variation').and.returnValue(of(true));
+
+    launchDarklyService.getImmediate('timezone_fix', true);
+
+    expect(launchDarklyService.ldClient.variation).toHaveBeenCalledOnceWith('timezone_fix', true);
+  });
+
+  it('getImmediate: should return default value if ldclient is not present', () => {
+    launchDarklyService.ldClient = null;
+
+    const value = launchDarklyService.getImmediate('timezone_fix', true);
+
+    expect(value).toBeTrue();
   });
 });
