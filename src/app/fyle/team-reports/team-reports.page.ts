@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef, EventEmitter } from '@angular/core';
-import { Observable, BehaviorSubject, fromEvent, iif, of, noop, concat, Subject, from } from 'rxjs';
+import { Observable, BehaviorSubject, fromEvent, noop, concat, Subject, from } from 'rxjs';
 import { NetworkService } from 'src/app/core/services/network.service';
 import { LoaderService } from 'src/app/core/services/loader.service';
 import { ReportService } from 'src/app/core/services/report.service';
@@ -176,15 +176,10 @@ export class TeamReportsPage implements OnInit {
 
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
-          const queryParams = params.queryParams;
-          const orderByParams = params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : null;
-          if (params.searchString) {
-            queryParams.q = params.searchString + ':*';
-          } else {
-            if (queryParams && queryParams.q) {
-              delete queryParams.q;
-            }
-          }
+          let queryParams = params.queryParams;
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          const orderByParams =
+            params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsByParams({
             offset: (params.pageNumber - 1) * 10,
@@ -207,14 +202,9 @@ export class TeamReportsPage implements OnInit {
 
       this.count$ = this.loadData$.pipe(
         switchMap((params) => {
-          const queryParams = params.queryParams;
-          if (params.searchString) {
-            queryParams.q = params.searchString + ':*';
-          } else {
-            if (queryParams && queryParams.q) {
-              delete queryParams.q;
-            }
-          }
+          let queryParams = params.queryParams;
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+          this.isLoadingDataInInfiniteScroll = true;
           return this.approverReportsService.getReportsCount(queryParams);
         }),
         shareReplay(1)
@@ -224,9 +214,7 @@ export class TeamReportsPage implements OnInit {
         switchMap((reports) => this.count$.pipe(map((count) => count > reports.length)))
       );
 
-      this.isInfiniteScrollRequired$ = this.loadData$.pipe(
-        switchMap((params) => iif(() => params.searchString && params.searchString !== '', of(false), paginatedScroll$))
-      );
+      this.isInfiniteScrollRequired$ = this.loadData$.pipe(switchMap(() => paginatedScroll$));
 
       this.teamReports$.subscribe(noop);
       this.count$.subscribe(noop);
