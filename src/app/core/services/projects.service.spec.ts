@@ -184,7 +184,7 @@ describe('ProjectsService', () => {
     });
   });
 
-  describe('geByParamsUnformatted():', () => {
+  describe('getByParamsUnformatted():', () => {
     it('should be able to fetch data when no params provided and activeCategoryList not provided', (done) => {
       spenderPlatformV1ApiService.get.and.returnValue(of(platformAPIResponseMultiple));
       spyOn(projectsService, 'transformToV2Response').and.returnValue(expectedProjectsResponse);
