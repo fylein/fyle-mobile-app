@@ -239,7 +239,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.verifyingOtp = false;
         },
         error: () => {
-          this.toastWithoutCTA('OTP is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
+          this.toastWithoutCTA('Code is invalid', ToastType.FAILURE, 'msb-failure-with-camera-icon');
           this.ngOtpInput.setValue('');
           this.verifyingOtp = false;
         },
