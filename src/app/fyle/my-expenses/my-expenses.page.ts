@@ -1510,7 +1510,6 @@ export class MyExpensesPage implements OnInit {
               if (params.searchString) {
                 queryParams.q = params?.searchString + ':*';
               }
-
               return queryParams;
             }),
             switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))
