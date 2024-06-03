@@ -24,6 +24,7 @@ import { PlatformReportsStatsResponse } from '../models/platform/v1/report-stats
 import { ApproverReportsService } from './platform/v1/approver/reports.service';
 import { ReportState } from '../models/platform/v1/report.model';
 import { OrgService } from './org.service';
+import { UtilityService } from './utility.service';
 
 @Injectable({
   providedIn: 'root',
@@ -52,7 +53,8 @@ export class TasksService {
     private employeesService: EmployeesService,
     private spenderReportsService: SpenderReportsService,
     private approverReportsService: ApproverReportsService,
-    private orgService: OrgService
+    private orgService: OrgService,
+    private utilityService: UtilityService
   ) {
     this.refreshOnTaskClear();
   }
@@ -430,10 +432,16 @@ export class TasksService {
     return forkJoin({
       rtfEnrolledCards: rtfEnrolledCards$,
       eou: from(this.authService.getEou()),
+      isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
     }).pipe(
-      switchMap(({ rtfEnrolledCards, eou }) => {
-        //Show this task only if mobile number is not verified and user is enrolled for RTF
-        if (!eou.ou.mobile_verified && eou.ou.mobile_verification_attempts_left !== 0 && rtfEnrolledCards.length) {
+      switchMap(({ rtfEnrolledCards, eou, isUserFromINCluster }) => {
+        //Show this task only if mobile number is not verified and user is enrolled for RTF and user is not from IN cluster
+        if (
+          !eou.ou.mobile_verified &&
+          eou.ou.mobile_verification_attempts_left !== 0 &&
+          rtfEnrolledCards.length &&
+          !isUserFromINCluster
+        ) {
           return of(this.mapMobileNumberVerificationTask(eou.ou.mobile?.length ? 'Verify' : 'Add'));
         }
         return of<DashboardTask[]>([]);

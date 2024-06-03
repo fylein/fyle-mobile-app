@@ -91,7 +91,7 @@ import { txnList } from 'src/app/core/mock-data/transaction.data';
 import { unflattenedTxnData } from 'src/app/core/mock-data/unflattened-txn.data';
 import { unformattedTxnData } from 'src/app/core/mock-data/unformatted-transaction.data';
 import { expectedUniqueCardStats } from 'src/app/core/mock-data/unique-cards-stats.data';
-import { uniqueCardsParam } from 'src/app/core/mock-data/unique-cards.data';
+import { uniqueCardsData } from 'src/app/core/mock-data/unique-cards.data';
 import { AdvancesStates } from 'src/app/core/models/advances-states.model';
 import { BackButtonActionPriority } from 'src/app/core/models/back-button-action-priority.enum';
 import { Expense } from 'src/app/core/models/expense.model';
@@ -134,6 +134,7 @@ import {
   expectedReportsSinglePageSubmitted,
   expectedReportsSinglePageWithApproval,
 } from 'src/app/core/mock-data/platform-report.data';
+import { corporateCardsResponseData } from 'src/app/core/mock-data/corporate-card-response.data';
 
 describe('MyExpensesV2Page', () => {
   let component: MyExpensesPage;
@@ -244,6 +245,7 @@ describe('MyExpensesV2Page', () => {
     const corporateCreditCardServiceSpy = jasmine.createSpyObj('CorporateCreditCardExpenseService', [
       'getExpenseDetailsInCards',
       'getAssignedCards',
+      'getCorporateCards',
     ]);
     const orgUserSettingsServiceSpy = jasmine.createSpyObj('OrgUserSettingsService', ['get']);
     const platformHandlerServiceSpy = jasmine.createSpyObj('PlatformHandlerService', ['registerBackButtonAction']);
@@ -476,7 +478,7 @@ describe('MyExpensesV2Page', () => {
       orgSettingsService.get.and.returnValue(of(orgSettingsRes));
       categoriesService.getMileageOrPerDiemCategories.and.returnValue(of(mileagePerDiemPlatformCategoryData));
       corporateCreditCardService.getAssignedCards.and.returnValue(of(expectedAssignedCCCStats));
-      spyOn(component, 'getCardDetail').and.returnValue(expectedUniqueCardStats);
+      spyOn(component, 'getCardDetail').and.returnValue(of(uniqueCardsData));
       spyOn(component, 'syncOutboxExpenses');
       spyOn(component, 'setAllExpensesCountAndAmount');
       spyOn(component, 'clearFilters');
@@ -644,10 +646,10 @@ describe('MyExpensesV2Page', () => {
       component.ionViewWillEnter();
       tick(500);
 
-      expect(corporateCreditCardService.getAssignedCards).toHaveBeenCalledTimes(1);
-      expect(component.getCardDetail).toHaveBeenCalledOnceWith(expectedAssignedCCCStats.cardDetails);
+      expect(component.getCardDetail).toHaveBeenCalled();
       expect(component.cardNumbers).toEqual([
-        { label: '****8698', value: '8698' },
+        { label: '****8698 (Business Card1)', value: '8698' },
+        { label: '****8698 (Business Card2)', value: '8698' },
         { label: '****869', value: '869' },
       ]);
     }));
@@ -1325,15 +1327,17 @@ describe('MyExpensesV2Page', () => {
     });
   });
 
-  it('getCardDetail(): should call corporateCreditCardService.getExpenseDetailsInCards method', () => {
-    corporateCreditCardService.getExpenseDetailsInCards.and.returnValue(expectedUniqueCardStats);
-    const getCardDetailRes = component.getCardDetail(cardAggregateStatParam);
-
-    expect(getCardDetailRes).toEqual(expectedUniqueCardStats);
-    expect(corporateCreditCardService.getExpenseDetailsInCards).toHaveBeenCalledOnceWith(
-      uniqueCardsParam,
-      cardAggregateStatParam
+  it('getCardDetail(): should call corporateCreditCardService.getCorporateCards() method', (done) => {
+    corporateCreditCardService.getCorporateCards.and.returnValue(
+      of([corporateCardsResponseData[0], corporateCardsResponseData[1]])
     );
+    const getCardDetailRes$ = component.getCardDetail();
+
+    getCardDetailRes$.subscribe((data) => {
+      expect(data).toEqual([uniqueCardsData[0], uniqueCardsData[1]]);
+      done();
+    });
+    expect(corporateCreditCardService.getCorporateCards).toHaveBeenCalledTimes(1);
   });
 
   it('ionViewWillLeave(): should unsubscribe hardwareBackButton and update onPageExit', () => {

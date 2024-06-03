@@ -68,6 +68,7 @@ import {
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
 import { OrgService } from './org.service';
 import { orgData1 } from '../mock-data/org.data';
+import { UtilityService } from './utility.service';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -84,6 +85,7 @@ describe('TasksService', () => {
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
   let orgService: jasmine.SpyObj<OrgService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -106,6 +108,7 @@ describe('TasksService', () => {
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
     const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -162,6 +165,10 @@ describe('TasksService', () => {
           provide: OrgService,
           useValue: orgServiceSpy,
         },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -181,7 +188,9 @@ describe('TasksService', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
     orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+    utilityService.isUserFromINCluster.and.resolveTo(false);
   });
 
   it('should be created', () => {
@@ -1078,6 +1087,23 @@ describe('TasksService', () => {
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should not return any task if user is from IN cluster', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.resolveTo(eou);
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      utilityService.isUserFromINCluster.and.resolveTo(true);
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();

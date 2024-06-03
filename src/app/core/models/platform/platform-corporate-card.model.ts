@@ -23,4 +23,5 @@ export interface PlatformCorporateCard {
   verification_status: string;
   virtual_card_id?: string;
   virtual_card_state?: string;
+  nickname?: string;
 }
