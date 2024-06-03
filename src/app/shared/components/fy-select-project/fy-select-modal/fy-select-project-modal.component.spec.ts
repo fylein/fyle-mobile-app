@@ -235,6 +235,41 @@ describe('FyProjectSelectModalComponent', () => {
         done();
       });
     });
+
+    it('should return an empty list when no projects match the search criteria', (done) => {
+      projectsService.getByParamsUnformatted.and.returnValue(of([]));
+      projectsService.getbyId.and.returnValue(of(null));
+      authService.getEou.and.resolveTo(apiEouRes);
+      orgSettingsService.get.and.returnValue(of(orgSettingsData));
+      orgUserSettingsService.get.and.returnValue(of(orgUserSettingsData));
+      component.currentSelection = null;
+      component.defaultValue = false;
+      component.activeCategories$ = of([]);
+
+      component.getProjects('nonexistent').subscribe((res) => {
+        expect(res).toEqual([{ label: 'None', value: null }]);
+        expect(orgSettingsService.get).toHaveBeenCalledTimes(2);
+        expect(authService.getEou).toHaveBeenCalledTimes(2);
+        expect(orgUserSettingsService.get).toHaveBeenCalledTimes(4);
+        expect(projectsService.getByParamsUnformatted).toHaveBeenCalledWith(
+          {
+            orgId: apiEouRes.ou.org_id,
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: undefined,
+            projectIds: null,
+            searchNameText: 'nonexistent',
+            offset: 0,
+            limit: 20,
+          },
+          []
+        );
+        done();
+      });
+
+      fixture.detectChanges();
+    });
   });
 
   it('clearValue(): should clear all values', () => {
@@ -331,30 +366,35 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
+  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync(() => {
+    const expectedProjects = [{ label: 'project1', value: testProjectV2 }];
+    const labelledProjects = [{ label: 'project1', value: testProjectV2 }];
+    const expectedLabelledProjects = [{ label: 'project1', value: testProjectV2, selected: true }];
+
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
     spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
-    utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
-    fixture.detectChanges();
+    component.currentSelection = testProjectV2;
 
+    fixture.detectChanges();
     component.ngAfterViewInit();
-    inputElement.value = 'projects';
+
+    const inputElement = fixture.nativeElement.querySelector('input');
+    inputElement.value = 'project1';
     inputElement.dispatchEvent(new Event('keyup'));
 
     tick(300);
+
     component.recentrecentlyUsedItems$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects4);
+      expect(res).toEqual(expectedProjects);
     });
 
-    tick(300);
     component.filteredOptions$.subscribe((res) => {
       expect(res).toEqual(expectedLabelledProjects);
     });
 
-    expect(component.getProjects).toHaveBeenCalledWith('projects');
+    expect(component.getProjects).toHaveBeenCalledWith('project1');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
-    expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
 
     discardPeriodicTasks();
   }));

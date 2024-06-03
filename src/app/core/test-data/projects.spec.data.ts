@@ -347,6 +347,22 @@ export const testProjectV2: ProjectV2 = deepFreeze({
   sub_project_name: null,
 });
 
+export const expectedV2WithAllCategories: ProjectV2[] = deepFreeze([
+  {
+    project_active: true,
+    project_code: '1184',
+    project_created_at: new Date('2021-05-12T10:28:40.834Z'),
+    project_description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
+    project_id: 257528,
+    project_name: 'Customer Mapped Project',
+    project_org_category_ids: testActiveCategoryList.map((category) => category.id),
+    project_org_id: 'orFdTTTNcyye',
+    project_updated_at: new Date('2021-07-08T10:28:27.686Z'),
+    projectv2_name: 'Customer Mapped Project',
+    sub_project_name: null,
+  },
+]);
+
 export const testCategoryIds = deepFreeze(['145429', '140530', '145458', '122269']);
 
 export const params = deepFreeze({

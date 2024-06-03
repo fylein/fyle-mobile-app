@@ -14,6 +14,7 @@ import {
   testCategoryIds,
   testActiveCategoryList,
   projectsV1Data,
+  expectedV2WithAllCategories,
 } from '../test-data/projects.spec.data';
 import { ProjectsService } from './projects.service';
 import { SpenderPlatformV1ApiService } from './spender-platform-v1-api.service';
@@ -21,6 +22,7 @@ import {
   platformAPIResponseMultiple,
   platformProjectSingleRes,
   platformAPIResponseActiveOnly,
+  platformAPIResponseNullCategories,
 } from '../mock-data/platform/v1/platform-project.data';
 import { ProjectPlatformParams } from '../mock-data/platform/v1/platform-projects-params.data';
 
@@ -362,6 +364,14 @@ describe('ProjectsService', () => {
     it('should correctly transform platformProject to ProjectV2 with activeCategoryList is not provided', () => {
       const result = projectsService.transformToV2Response(platformAPIResponseMultiple.data);
       expect(result).toEqual(expectedProjectsResponse);
+    });
+
+    it('should handle platformProject with category_ids as null', () => {
+      const result = projectsService.transformToV2Response(
+        platformAPIResponseNullCategories.data,
+        testActiveCategoryList
+      );
+      expect(result).toEqual(expectedV2WithAllCategories);
     });
   });
 });

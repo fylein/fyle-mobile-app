@@ -100,3 +100,23 @@ export const platformAPIResponseActiveOnly: PlatformApiResponse<PlatformProject[
   ],
   offset: 0,
 });
+
+export const platformAPIResponseNullCategories: PlatformApiResponse<PlatformProject[]> = deepFreeze({
+  count: 4,
+  data: [
+    {
+      id: 257528,
+      created_at: new Date('2021-05-12T10:28:40.834Z'),
+      updated_at: new Date('2021-07-08T10:28:27.686Z'),
+      name: 'Customer Mapped Project',
+      sub_project: null,
+      code: '1184',
+      org_id: 'orFdTTTNcyye',
+      description: 'Sage Intacct Project - Customer Mapped Project, Id - 1184',
+      is_enabled: true,
+      category_ids: null,
+      display_name: 'Customer Mapped Project',
+    },
+  ],
+  offset: 0,
+});
