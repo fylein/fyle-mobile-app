@@ -47,6 +47,7 @@ import { expectedReportsSinglePage } from 'src/app/core/mock-data/platform-repor
 import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 import { OrgService } from 'src/app/core/services/org.service';
 import { orgData1 } from 'src/app/core/mock-data/org.data';
+import { FyOptInComponent } from 'src/app/shared/components/fy-opt-in/fy-opt-in.component';
 
 export function TestCases2(getTestBed) {
   return describe('test case set 2', () => {
@@ -181,27 +182,22 @@ export function TestCases2(getTestBed) {
       });
     });
 
-    describe('onMobileNumberVerificationTaskClick():', () => {
-      it('should navigate to my profile page with verify_mobile_number popover if content is not equal to Add', () => {
-        component.onMobileNumberVerificationTaskClick(taskCtaData9);
-        expect(router.navigate).toHaveBeenCalledOnceWith([
-          '/',
-          'enterprise',
-          'my_profile',
-          { openPopover: 'verify_mobile_number' },
-        ]);
-      });
+    it('onMobileNumberVerificationTaskClick(): should open opt in modal', fakeAsync(() => {
+      authService.getEou.and.resolveTo(apiEouRes);
+      const optInModalSpy = jasmine.createSpyObj('optInModal', ['present']);
+      modalController.create.and.returnValue(optInModalSpy);
 
-      it('should navigate to my profile page with add_mobile_number popover if content is Add', () => {
-        component.onMobileNumberVerificationTaskClick({ ...taskCtaData9, content: 'Add' });
-        expect(router.navigate).toHaveBeenCalledOnceWith([
-          '/',
-          'enterprise',
-          'my_profile',
-          { openPopover: 'add_mobile_number' },
-        ]);
+      component.onMobileNumberVerificationTaskClick();
+      tick(100);
+
+      expect(modalController.create).toHaveBeenCalledOnceWith({
+        component: FyOptInComponent,
+        componentProps: {
+          extendedOrgUser: apiEouRes,
+        },
       });
-    });
+      expect(optInModalSpy.present).toHaveBeenCalledTimes(1);
+    }));
 
     describe('onReviewExpensesTaskClick():', () => {
       beforeEach(() => {
