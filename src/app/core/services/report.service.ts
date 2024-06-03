@@ -76,46 +76,6 @@ export class ReportService {
     return this.transactionService.clearCache();
   }
 
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$,
-  })
-  getPaginatedERptc(
-    offset: number,
-    limit: number,
-    params: { state?: string[]; order?: string }
-  ): Observable<UnflattenedReport[]> {
-    const data = {
-      params: {
-        offset,
-        limit,
-      },
-    };
-
-    Object.keys(params).forEach((param) => {
-      data.params[param] = params[param] as string | string[];
-    });
-
-    return this.apiService
-      .get<UnflattenedReport[]>('/erpts', data)
-      .pipe(map((erptcs) => erptcs.map((erptc) => this.dataTransformService.unflatten(erptc))));
-  }
-
-  @Cacheable({
-    cacheBusterObserver: reportsCacheBuster$,
-  })
-  getERpt(rptId: string): Observable<UnflattenedReport> {
-    return this.apiService.get('/erpts/' + rptId).pipe(
-      map((data) => {
-        const erpt: UnflattenedReport = this.dataTransformService.unflatten(data);
-        this.dateService.fixDates(erpt.rp);
-        if (erpt && erpt.rp && erpt.rp.created_at) {
-          erpt.rp.created_at = this.dateService.getLocalDate(erpt.rp.created_at);
-        }
-        return erpt;
-      })
-    );
-  }
-
   @CacheBuster({
     cacheBusterNotifier: reportsCacheBuster$,
   })
@@ -285,63 +245,6 @@ export class ReportService {
     };
 
     return stateMap[state];
-  }
-
-  getPaginatedERptcCount(params: ReportParams): Observable<{ count: number }> {
-    return this.networkService.isOnline().pipe(
-      switchMap((isOnline: boolean) => {
-        if (isOnline) {
-          return this.apiService.get<{ count: number }>('/erpts/count', { params }).pipe(
-            tap((res) => {
-              this.storageService.set('erpts-count' + JSON.stringify(params), res);
-            })
-          );
-        } else {
-          return from(this.storageService.get<{ count: number }>('erpts-count' + JSON.stringify(params)));
-        }
-      })
-    );
-  }
-
-  getMyReports(
-    config: Partial<{
-      offset: number;
-      limit: number;
-      order: string;
-      queryParams: ReportQueryParams;
-    }> = {
-      offset: 0,
-      limit: 10,
-      queryParams: {},
-    }
-  ): Observable<ApiV2Response<ExtendedReport>> {
-    return from(this.authService.getEou()).pipe(
-      switchMap((eou) =>
-        this.apiv2Service.get('/reports', {
-          params: {
-            offset: config.offset,
-            limit: config.limit,
-            order: `${config.order || 'rp_created_at.desc'},rp_id.desc`,
-            rp_org_user_id: 'eq.' + eou.ou.id,
-            ...config.queryParams,
-          },
-        })
-      ),
-      map(
-        (res) =>
-          res as {
-            count: number;
-            data: ExtendedReport[];
-            limit: number;
-            offset: number;
-            url: string;
-          }
-      ),
-      map((res) => ({
-        ...res,
-        data: res.data.map((datum) => this.dateService.fixDates(datum)),
-      }))
-    );
   }
 
   getExports(rptId: string): Observable<{ results: PdfExport[] }> {
