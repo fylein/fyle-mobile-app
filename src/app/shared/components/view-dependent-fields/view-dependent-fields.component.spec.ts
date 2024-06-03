@@ -3,7 +3,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ViewDependentFieldsComponent } from './view-dependent-fields.component';
 
-xdescribe('ViewDependentFieldsComponent', () => {
+describe('ViewDependentFieldsComponent', () => {
   let component: ViewDependentFieldsComponent;
   let fixture: ComponentFixture<ViewDependentFieldsComponent>;
 
@@ -18,7 +18,13 @@ xdescribe('ViewDependentFieldsComponent', () => {
     fixture.detectChanges();
   }));
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  it('should set parentFieldIcon to building by default', () => {
+    expect(component.parentFieldIcon).toEqual('building');
+  });
+
+  it('should set parentFieldIcon to list if parent field type is project', () => {
+    component.parentFieldType = 'PROJECT';
+    component.ngOnInit();
+    expect(component.parentFieldIcon).toEqual('list');
   });
 });

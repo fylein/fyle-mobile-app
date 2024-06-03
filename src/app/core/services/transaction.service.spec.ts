@@ -61,6 +61,7 @@ import { cloneDeep } from 'lodash';
 import { expensesCacheBuster$ } from '../cache-buster/expense-cache-buster';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { expenseData } from '../mock-data/platform/v1/expense.data';
+import { LaunchDarklyService } from './launch-darkly.service';
 
 describe('TransactionService', () => {
   let transactionService: TransactionService;
@@ -110,10 +111,15 @@ describe('TransactionService', () => {
     const orgSettingsServiceSpy = jasmine.createSpyObj('OrgSettingsService', ['get']);
     const accountsServiceSpy = jasmine.createSpyObj('AccountsService', ['getEMyAccounts']);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['attachReceiptsToExpense']);
+    const ldServiceSpy = jasmine.createSpyObj('LaunchDarklyService', ['getImmediate']);
 
     TestBed.configureTestingModule({
       providers: [
         TransactionService,
+        {
+          provide: LaunchDarklyService,
+          useValue: ldServiceSpy,
+        },
         {
           provide: ApiService,
           useValue: apiServiceSpy,
@@ -420,12 +426,6 @@ describe('TransactionService', () => {
 
     // @ts-ignore
     expect(transactionService.generateTypeOrFilter(filters)).toEqual(typeOrFilter);
-  });
-
-  it('fixDates(): should fix dates', () => {
-    const mockExpenseData = cloneDeep(expenseDataWithDateString);
-    // @ts-ignore
-    expect(transactionService.fixDates(mockExpenseData)).toEqual(expenseData1);
   });
 
   it('getPaymentModeforEtxn(): should return payment mode for etxn', () => {

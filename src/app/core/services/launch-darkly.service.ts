@@ -10,7 +10,7 @@ import * as LDClient from 'launchdarkly-js-client-sdk';
   providedIn: 'root',
 })
 export class LaunchDarklyService {
-  private ldClient: LDClient.LDClient;
+  ldClient: LDClient.LDClient;
 
   constructor(private userEventService: UserEventService, private storageService: StorageService) {
     this.userEventService.onLogout(() => this.shutDownClient());
@@ -72,6 +72,18 @@ export class LaunchDarklyService {
 
   checkIfAndroidNegativeExpensePluginIsEnabled(): Observable<boolean> {
     return this.getVariation('android-numeric-keypad', false);
+  }
+
+  getImmediate(key: string, defaultValue: boolean): boolean {
+    if (this.ldClient) {
+      return this.ldClient.variation(key, defaultValue) as boolean;
+    }
+
+    return defaultValue;
+  }
+
+  checkIfManualFlaggingFeatureIsEnabled(): Observable<{ value: boolean }> {
+    return this.getVariation('deprecate_manual_flagging', true).pipe(map((value) => ({ value })));
   }
 
   // Checks if the passed in user is the same as the user which is initialized to LaunchDarkly (if any)

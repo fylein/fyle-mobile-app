@@ -1,7 +1,7 @@
 import { Component, OnInit, EventEmitter, NgZone, ViewChild } from '@angular/core';
 import { Platform, MenuController, NavController } from '@ionic/angular';
-import { from, concat, Observable, noop } from 'rxjs';
-import { switchMap, shareReplay, filter } from 'rxjs/operators';
+import { from, concat, Observable, noop, forkJoin } from 'rxjs';
+import { switchMap, shareReplay, filter, take } from 'rxjs/operators';
 import { Router, NavigationEnd, NavigationStart } from '@angular/router';
 import { AuthService } from 'src/app/core/services/auth.service';
 import { UserEventService } from 'src/app/core/services/user-event.service';
@@ -104,6 +104,7 @@ export class AppComponent implements OnInit {
       await StatusBar.setStyle({
         style: Style.Default,
       });
+
       setTimeout(async () => await SplashScreen.hide(), 1000);
 
       /*
@@ -147,8 +148,12 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.setupNetworkWatcher();
 
+    // This was done as a security fix for appknox
+    // eslint-disable-next-line
     if ((window as any) && (window as any).localStorage) {
-      const lstorage = (window as any).localStorage;
+      // eslint-disable-next-line
+      const lstorage = (window as any).localStorage as { removeItem: (key: string) => void };
+      // eslint-disable-next-line
       Object.keys(lstorage)
         .filter((key) => key.match(/^fyle/))
         .forEach((key) => lstorage.removeItem(key));
@@ -158,10 +163,13 @@ export class AppComponent implements OnInit {
       this.isOnline = isOnline;
     });
 
-    from(this.routerAuthService.isLoggedIn()).subscribe((loggedInStatus) => {
+    forkJoin({
+      loggedInStatus: this.routerAuthService.isLoggedIn(),
+      isOnline: this.isConnected$.pipe(take(1)),
+    }).subscribe(({ loggedInStatus, isOnline }) => {
       this.isUserLoggedIn = loggedInStatus;
       if (loggedInStatus) {
-        if (this.isOnline) {
+        if (isOnline) {
           this.sidemenuRef.showSideMenuOnline();
         } else {
           this.sidemenuRef.showSideMenuOffline();

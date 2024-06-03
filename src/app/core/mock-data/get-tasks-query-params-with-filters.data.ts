@@ -7,7 +7,8 @@ export const tasksQueryParamsWithFiltersData: Partial<GetTasksQueryParamsWithFil
   sortDir: 'asc',
   searchString: 'example',
   queryParams: {
-    rp_state: 'in.(APPROVER_PENDING)',
+    state: 'in.(APPROVER_PENDING)',
+    q: 'example:*',
   },
 });
 
@@ -21,14 +22,14 @@ export const tasksQueryParamsWithFiltersData3: Partial<GetTasksQueryParamsWithFi
   pageNumber: 1,
   sortDir: 'desc',
   searchString: 'example',
-  sortParam: 'rp_submitted_at',
+  sortParam: 'last_submitted_at',
   queryParams: {
-    or: ['(rp_state.in.(APPROVER_INQUIRY))'],
-    and: '(rp_submitted_at.gte.2023-01-01T00:00:00.000Z,rp_submitted_at.lt.2023-01-04T00:00:00.000Z)',
+    state: 'in.(APPROVER_INQUIRY)',
+    and: '(last_submitted_at.gte.2023-01-01T00:00:00.000Z,last_submitted_at.lt.2023-01-04T00:00:00.000Z)',
   },
 });
 
-export const personalCardQueryParamFiltersData = deepFreeze({
+export const personalCardQueryParamFiltersData: Partial<GetTasksQueryParamsWithFilters> = deepFreeze({
   pageNumber: 1,
   queryParams: {
     or: [],

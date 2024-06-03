@@ -66,7 +66,9 @@ import {
   expectedSentBackResponseSingularReport,
 } from '../mock-data/report-stats.data';
 import { expectedReportsSinglePage } from '../mock-data/platform-report.data';
-import { apiEouRes } from '../mock-data/extended-org-user.data';
+import { OrgService } from './org.service';
+import { orgData1 } from '../mock-data/org.data';
+import { UtilityService } from './utility.service';
 
 describe('TasksService', () => {
   let tasksService: TasksService;
@@ -82,6 +84,8 @@ describe('TasksService', () => {
   let spenderReportsService: jasmine.SpyObj<SpenderReportsService>;
   let approverReportsService: jasmine.SpyObj<ApproverReportsService>;
   let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
+  let orgService: jasmine.SpyObj<OrgService>;
+  let utilityService: jasmine.SpyObj<UtilityService>;
   const mockTaskClearSubject = new Subject();
   const homeCurrency = 'INR';
 
@@ -89,7 +93,6 @@ describe('TasksService', () => {
     const reportServiceSpy = jasmine.createSpyObj('ReportService', [
       'getReportAutoSubmissionDetails',
       'getAllExtendedReports',
-      'getReportStatsData',
     ]);
     const expensesServiceSpy = jasmine.createSpyObj('ExpensesService', ['getExpenseStats', 'getDuplicateSets']);
     const userEventServiceSpy = jasmine.createSpyObj('UserEventService', ['onTaskCacheClear']);
@@ -104,6 +107,8 @@ describe('TasksService', () => {
     const employeesServiceSpy = jasmine.createSpyObj('EmployeesService', ['getCommuteDetails']);
     const spenderReportsServiceSpy = jasmine.createSpyObj('SpenderReportsService', ['getReportsStats']);
     const approverReportsServiceSpy = jasmine.createSpyObj('ApproverReportsService', ['getReportsStats']);
+    const orgServiceSpy = jasmine.createSpyObj('OrgService', ['getCurrentOrg', 'getPrimaryOrg']);
+    const utilityServiceSpy = jasmine.createSpyObj('UtilityService', ['isUserFromINCluster']);
 
     TestBed.configureTestingModule({
       providers: [
@@ -156,6 +161,14 @@ describe('TasksService', () => {
           provide: ApproverReportsService,
           useValue: approverReportsServiceSpy,
         },
+        {
+          provide: OrgService,
+          useValue: orgServiceSpy,
+        },
+        {
+          provide: UtilityService,
+          useValue: utilityServiceSpy,
+        },
       ],
     });
     tasksService = TestBed.inject(TasksService);
@@ -174,7 +187,10 @@ describe('TasksService', () => {
     orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     approverReportsService = TestBed.inject(ApproverReportsService) as jasmine.SpyObj<ApproverReportsService>;
+    orgService = TestBed.inject(OrgService) as jasmine.SpyObj<OrgService>;
+    utilityService = TestBed.inject(UtilityService) as jasmine.SpyObj<UtilityService>;
     orgSettingsService.get.and.returnValue(of(orgSettingsPendingRestrictions));
+    utilityService.isUserFromINCluster.and.resolveTo(false);
   });
 
   it('should be created', () => {
@@ -291,33 +307,43 @@ describe('TasksService', () => {
     });
   });
 
-  it('should be able to fetch team reports tasks', (done) => {
+  it('should be able to fetch team reports tasks is role is APPROVER, and the current org is primary', (done) => {
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
 
     humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency, true)
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
       .and.returnValue('733.48K');
     humanizeCurrencyPipe.transform
-      .withArgs(teamReportResponse[0].aggregates[1].function_value, homeCurrency)
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
       .and.returnValue('₹733.48K');
 
-    reportService.getReportStatsData
-      .withArgs(
-        {
-          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
-          rp_approval_state: ['in.(APPROVAL_PENDING)'],
-          rp_state: ['in.(APPROVER_PENDING)'],
-          sequential_approval_turn: ['in.(true)'],
-          aggregates: 'count(rp_id),sum(rp_amount)',
-          scalar: true,
-        },
-        false
-      )
-      .and.returnValue(of(teamReportResponse));
+    approverReportsService.getReportsStats
+      .withArgs({
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
+        state: 'eq.APPROVER_PENDING',
+      })
+      .and.returnValue(of(expectedReportStats.report));
+
+    tasksService.getTeamReportsTasks(true).subscribe((teamReportsTasks) => {
+      expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      done();
+    });
+  });
+
+  it('should be able to return dummy team reports tasks is role is not APPROVER', (done) => {
+    authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponseSpender)));
+    currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
+
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency, true)
+      .and.returnValue('733.48K');
+    humanizeCurrencyPipe.transform
+      .withArgs(expectedReportStats.report.total_amount, homeCurrency)
+      .and.returnValue('₹733.48K');
 
     tasksService.getTeamReportsTasks().subscribe((teamReportsTasks) => {
-      expect(teamReportsTasks).toEqual([teamReportTaskSample]);
+      expect(teamReportsTasks).toEqual([]);
       done();
     });
   });
@@ -364,14 +390,6 @@ describe('TasksService', () => {
         expect(taskTotal).toEqual(10);
         done();
       });
-  });
-
-  it('should make sure that stats dont fail even if aggregates are not present in response', () => {
-    const mappedStatsReponse = tasksService.getStatsFromResponse([], 'count(rp_id)', 'sum(rp_amount)');
-    expect(mappedStatsReponse).toEqual({
-      totalCount: 0,
-      totalAmount: 0,
-    });
   });
 
   it('should be able to fetch expensesTaskCount', (done) => {
@@ -663,9 +681,9 @@ describe('TasksService', () => {
 
     const tasks2 = tasksService.mapAggregateToTeamReportTask(
       {
-        totalAmount: 0,
-        totalCount: 0,
-      },
+        total_amount: 0,
+        count: 0,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -746,20 +764,15 @@ describe('TasksService', () => {
       })
       .and.returnValue(of(expectedSentBackResponse));
     authService.getEou.and.returnValue(new Promise((resolve) => resolve(extendedOrgUserResponse)));
+    orgService.getCurrentOrg.and.returnValue(of(orgData1[0]));
+    orgService.getPrimaryOrg.and.returnValue(of(orgData1[0]));
     currencyService.getHomeCurrency.and.returnValue(of(homeCurrency));
-    reportService.getReportStatsData
-      .withArgs(
-        {
-          approved_by: 'cs.{' + extendedOrgUserResponse.ou.id + '}',
-          rp_approval_state: ['in.(APPROVAL_PENDING)'],
-          rp_state: ['in.(APPROVER_PENDING)'],
-          sequential_approval_turn: ['in.(true)'],
-          aggregates: 'count(rp_id),sum(rp_amount)',
-          scalar: true,
-        },
-        false
-      )
-      .and.returnValue(of(teamReportResponse));
+    approverReportsService.getReportsStats
+      .withArgs({
+        next_approver_user_ids: `cs.[${extendedOrgUserResponse.us.id}]`,
+        state: 'eq.APPROVER_PENDING',
+      })
+      .and.returnValue(of(expectedReportStats.report));
     expensesService.getDuplicateSets.and.returnValue(of(expenseDuplicateSets));
     expensesService.getExpenseStats
       .withArgs({
@@ -775,7 +788,7 @@ describe('TasksService', () => {
 
   it('should be able to fetch tasks with no filters', (done) => {
     setupData();
-    tasksService.getTasks().subscribe((tasks) => {
+    tasksService.getTasks(false, undefined, true).subscribe((tasks) => {
       expect(tasks.map((task) => task.header)).toEqual([
         '34 Potential Duplicates',
         'Reports sent back!',
@@ -814,7 +827,6 @@ describe('TasksService', () => {
         '34 Potential Duplicates',
         'Reports sent back!',
         'Incomplete expenses',
-        'Reports to be approved',
         'Advances sent back!',
       ]);
       done();
@@ -993,9 +1005,9 @@ describe('TasksService', () => {
 
     const tasks = tasksService.mapAggregateToTeamReportTask(
       {
-        totalAmount: teamReportResponse[0].aggregates[1].function_value,
-        totalCount: 1,
-      },
+        total_amount: teamReportResponse[0].aggregates[1].function_value,
+        count: 1,
+      } as PlatformReportsStatsResponse,
       homeCurrency
     );
 
@@ -1075,6 +1087,23 @@ describe('TasksService', () => {
       tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
         expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
         expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
+    it('should not return any task if user is from IN cluster', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.resolveTo(eou);
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      utilityService.isUserFromINCluster.and.resolveTo(true);
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
         expect(res).toEqual([]);
         expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
         done();

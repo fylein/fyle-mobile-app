@@ -40,6 +40,7 @@ import { ToastType } from 'src/app/core/enums/toast-type.enum';
 import { EmployeesService } from 'src/app/core/services/platform/v1/spender/employees.service';
 import { CommuteDetailsResponse } from 'src/app/core/models/platform/commute-details-response.model';
 import { PaymentModesService } from 'src/app/core/services/payment-modes.service';
+import { UtilityService } from 'src/app/core/services/utility.service';
 
 @Component({
   selector: 'app-my-profile',
@@ -116,7 +117,8 @@ export class MyProfilePage {
     private modalController: ModalController,
     private modalProperties: ModalPropertiesService,
     private employeesService: EmployeesService,
-    private paymentModeService: PaymentModesService
+    private paymentModeService: PaymentModesService,
+    private utilityService: UtilityService
   ) {}
 
   setupNetworkWatcher(): void {
@@ -205,7 +207,12 @@ export class MyProfilePage {
     this.org$ = this.orgService.getCurrentOrg();
     const orgSettings$ = this.orgSettingsService.get();
 
-    this.eou$.subscribe((eou) => this.setInfoCardsData(eou));
+    forkJoin({
+      eou: this.eou$.pipe(take(1)),
+      isUserFromINCluster: from(this.utilityService.isUserFromINCluster()),
+    }).subscribe(({ eou, isUserFromINCluster }) => {
+      this.setInfoCardsData(eou, isUserFromINCluster);
+    });
 
     from(this.loaderService.showLoader())
       .pipe(
@@ -296,7 +303,7 @@ export class MyProfilePage {
     this.preferenceSettings = allPreferenceSettings.filter((setting) => setting.isAllowed);
   }
 
-  setInfoCardsData(eou: ExtendedOrgUser): void {
+  setInfoCardsData(eou: ExtendedOrgUser, isUserFromINCluster: boolean): void {
     const fyleMobileNumber = '(302) 440-2921';
     const fyleEmail = 'receipts@fylehq.com';
 
@@ -306,7 +313,7 @@ export class MyProfilePage {
         content: `Message your receipts to Fyle at ${fyleMobileNumber}.`,
         contentToCopy: fyleMobileNumber,
         toastMessageContent: 'Phone Number Copied Successfully',
-        isShown: eou.org.currency === 'USD' && eou.ou.mobile_verified,
+        isShown: eou.org.currency === 'USD' && eou.ou.mobile_verified && !isUserFromINCluster,
       },
       {
         title: 'Email Receipts',

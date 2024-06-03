@@ -120,8 +120,6 @@ export interface Expense {
   tx_orig_currency?: string;
   tx_payment_id?: string;
   tx_per_diem_rate_id?: string;
-  tx_physical_bill: boolean;
-  tx_physical_bill_at?: Date;
   tx_policy_amount?: number;
   tx_policy_flag: boolean;
   tx_policy_state?: string;

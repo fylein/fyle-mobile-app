@@ -35,6 +35,8 @@ import {
 } from 'src/app/core/mock-data/get-tasks-query-params-with-filters.data';
 import { creditTxnFilterPill } from 'src/app/core/mock-data/filter-pills.data';
 import { teamReportsModalControllerParams } from 'src/app/core/mock-data/modal-controller.data';
+import { AuthService } from 'src/app/core/services/auth.service';
+import { apiEouRes } from 'src/app/core/mock-data/extended-org-user.data';
 
 export function TestCases4(getTestBed) {
   return describe('test cases set 3', () => {
@@ -54,6 +56,7 @@ export function TestCases4(getTestBed) {
     let tasksService: jasmine.SpyObj<TasksService>;
     let orgSettingsService: jasmine.SpyObj<OrgSettingsService>;
     let inputElement: HTMLInputElement;
+    let authService: jasmine.SpyObj<AuthService>;
 
     beforeEach(waitForAsync(() => {
       const TestBed = getTestBed();
@@ -72,6 +75,8 @@ export function TestCases4(getTestBed) {
       apiV2Service = TestBed.inject(ApiV2Service) as jasmine.SpyObj<ApiV2Service>;
       tasksService = TestBed.inject(TasksService) as jasmine.SpyObj<TasksService>;
       orgSettingsService = TestBed.inject(OrgSettingsService) as jasmine.SpyObj<OrgSettingsService>;
+      authService = TestBed.inject(AuthService) as jasmine.SpyObj<AuthService>;
+      component.eou$ = of(apiEouRes);
     }));
 
     it('generateStateFilterPills(): should update filter pills', () => {
