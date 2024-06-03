@@ -1093,6 +1093,23 @@ describe('TasksService', () => {
       });
     });
 
+    it('should not return any task if user is from IN cluster', (done) => {
+      const eou = cloneDeep(extendedOrgUserResponse);
+      eou.ou.mobile_verified = false;
+      authService.getEou.and.resolveTo(eou);
+      corporateCreditCardExpenseService.getCorporateCards.and.returnValue(of([mastercardRTFCard]));
+      utilityService.isUserFromINCluster.and.resolveTo(true);
+      const mapMobileNumberVerificationTaskSpy = spyOn(tasksService, 'mapMobileNumberVerificationTask');
+      tasksService.getMobileNumberVerificationTasks().subscribe((res) => {
+        expect(corporateCreditCardExpenseService.getCorporateCards).toHaveBeenCalledOnceWith();
+        expect(authService.getEou).toHaveBeenCalledOnceWith();
+        expect(utilityService.isUserFromINCluster).toHaveBeenCalledOnceWith();
+        expect(res).toEqual([]);
+        expect(mapMobileNumberVerificationTaskSpy).not.toHaveBeenCalled();
+        done();
+      });
+    });
+
     it('should return add number task if user has not added mobile number', (done) => {
       const eou = cloneDeep(extendedOrgUserResponse);
       eou.ou.mobile_verified = false;
