@@ -340,31 +340,6 @@ export class ReportService {
     });
   }
 
-  getFilteredPendingReports(searchParams: { state: keyof ReportStateMap }): Observable<UnflattenedReport[]> {
-    const params = this.searchParamsGenerator(searchParams);
-
-    return this.getPaginatedERptcCount(params).pipe(
-      switchMap((results: { count: number }) =>
-        // getting all results -> offset = 0, limit = count
-        this.getPaginatedERptc(0, results.count, params)
-      ),
-      switchMap((erpts) => {
-        const rptIds = erpts.map((erpt) => erpt.rp.id);
-
-        return this.getApproversInBulk(rptIds).pipe(
-          map((approvals) =>
-            this.addApprovers(erpts, approvals).filter(
-              (erpt) =>
-                !erpt.rp.approvals ||
-                (erpt.rp.approvals &&
-                  !(erpt.rp.approvals as Approver[]).some((approval) => approval.state === 'APPROVAL_DONE'))
-            )
-          )
-        );
-      })
-    );
-  }
-
   approverUpdateReportPurpose(report: Report): Observable<Report> {
     const params: { data: Pick<Report, 'id' | 'source' | 'purpose'> } = {
       data: {
