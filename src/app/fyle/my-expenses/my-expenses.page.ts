@@ -558,12 +558,17 @@ export class MyExpensesPage implements OnInit {
 
     const paginatedPipe = this.loadExpenses$.pipe(
       switchMap((params) => {
-        let queryParams = params.queryParams || {};
+        const queryParams = params.queryParams || {};
 
         queryParams.report_id = queryParams.report_id || 'is.null';
         queryParams.state = 'in.(COMPLETE,DRAFT)';
 
-        queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+        if (params.searchString) {
+          queryParams.q = params.searchString;
+          queryParams.q = queryParams.q + ':*';
+        } else if (params.searchString === '') {
+          delete queryParams.q;
+        }
         const orderByParams =
           params.sortParam && params.sortDir
             ? `${params.sortParam}.${params.sortDir}`
@@ -1499,11 +1504,13 @@ export class MyExpensesPage implements OnInit {
           .pipe(
             take(1),
             map((params) => {
-              let queryParams = params.queryParams || {};
+              const queryParams = params.queryParams || {};
 
               queryParams.report_id = queryParams.report_id || 'is.null';
               queryParams.state = 'in.(COMPLETE,DRAFT)';
-              queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
+              if (params.searchString) {
+                queryParams.q = params?.searchString + ':*';
+              }
               return queryParams;
             }),
             switchMap((queryParams) => this.expenseService.getAllExpenses({ queryParams }))

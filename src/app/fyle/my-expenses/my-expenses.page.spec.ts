@@ -722,10 +722,6 @@ describe('MyExpensesV2Page', () => {
     }));
 
     it('should call extendQueryParamsForTextSearch and getMyExpensesCount whenever loadData$ value changes', fakeAsync(() => {
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
-      });
       component.ionViewWillEnter();
       expect(inputElement.value).toEqual('');
       inputElement.value = 'example';
@@ -768,12 +764,6 @@ describe('MyExpensesV2Page', () => {
     }));
 
     it('should call getMyExpenseCount with order if sortDir and sortParam are defined', fakeAsync(() => {
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        offset: 0,
-        limit: 10,
-        report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
-      });
       component.ionViewWillEnter();
       component.loadExpenses$.next({
         pageNumber: 1,
@@ -2862,11 +2852,6 @@ describe('MyExpensesV2Page', () => {
     });
 
     it('should update selectedElements, allExpensesCount and call apiV2Service if checked is true', () => {
-      apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
-        report_id: 'is.null',
-        state: 'in.(COMPLETE,DRAFT)',
-        q: 'Bus:*',
-      });
       expensesService.getAllExpenses.and.returnValue(of(cloneDeep(apiExpenses1)));
       component.outboxExpensesToBeDeleted = apiExpenseRes;
       component.pendingTransactions = cloneDeep([]);
