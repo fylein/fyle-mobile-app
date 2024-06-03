@@ -71,6 +71,7 @@ export interface Transaction {
   skip_reimbursement: boolean;
   source: string;
   source_account_id?: string;
+  advance_wallet_id?: string;
   split_group_id?: string;
   split_group_user_amount?: number;
   state?: string;
