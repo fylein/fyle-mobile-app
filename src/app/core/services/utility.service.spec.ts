@@ -13,15 +13,26 @@ import { SortingParam } from '../models/sorting-param.model';
 
 import { UtilityService } from './utility.service';
 import { cloneDeep } from 'lodash';
+import { TokenService } from './token.service';
 
 describe('UtilityService', () => {
   let utilityService: UtilityService;
+  let tokenService: jasmine.SpyObj<TokenService>;
 
   beforeEach(() => {
+    const tokenServiceSpy = jasmine.createSpyObj('TokenService', ['getClusterDomain']);
+
     TestBed.configureTestingModule({
-      providers: [UtilityService],
+      providers: [
+        UtilityService,
+        {
+          provide: TokenService,
+          useValue: tokenServiceSpy,
+        },
+      ],
     });
     utilityService = TestBed.inject(UtilityService);
+    tokenService = TestBed.inject(TokenService) as jasmine.SpyObj<TokenService>;
   });
 
   it('should be created', () => {
@@ -165,5 +176,19 @@ describe('UtilityService', () => {
     utilityService.compareSortingValues(sortingValue1, sortingValue2, sortDir, sortingParam);
     // @ts-ignore
     expect(utilityService.handleDefaultSort).toHaveBeenCalledWith(sortingValue1, sortingValue2, sortingParam);
+  });
+
+  describe('isUserFromINCluster():', () => {
+    it('should return true if user is from IN cluster', async () => {
+      tokenService.getClusterDomain.and.resolveTo('in1.fylehq.com');
+      const result = await utilityService.isUserFromINCluster();
+      expect(result).toBeTrue();
+    });
+
+    it('should return false if user is not from IN cluster', async () => {
+      tokenService.getClusterDomain.and.resolveTo('us1.fylehq.com');
+      const result = await utilityService.isUserFromINCluster();
+      expect(result).toBeFalse();
+    });
   });
 });
