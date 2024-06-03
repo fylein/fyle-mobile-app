@@ -5,7 +5,7 @@ import { AdvanceRequestService } from '../core/services/advance-request.service'
 import { AuthService } from '../core/services/auth.service';
 import { TransactionService } from '../core/services/transaction.service';
 import { ReportService } from '../core/services/report.service';
-import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map, forkJoin } from 'rxjs';
+import { EMPTY, catchError, filter, finalize, from, shareReplay, switchMap, map } from 'rxjs';
 import { DeepLinkService } from '../core/services/deep-link.service';
 import { ExpensesService } from '../core/services/platform/v1/spender/expenses.service';
 import { SpenderReportsService } from '../core/services/platform/v1/spender/reports.service';
