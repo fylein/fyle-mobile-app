@@ -1,5 +1,8 @@
 <div class="employee-details-card">
-  <div class="employee-details-card__top-section">
+  <div
+    class="employee-details-card__top-section"
+    [ngClass]="{ 'employee-details-card__mobile-number-not-visible': !isMobileNumberSectionVisible }"
+  >
     <ion-grid class="employee-details-card__grid">
       <ion-row>
         <ion-col class="employee-details-card__icon-container">
@@ -21,7 +24,7 @@
       </ion-row>
     </ion-grid>
   </div>
-  <div class="employee-details-card__bottom-section">
+  <div *ngIf="isMobileNumberSectionVisible" class="employee-details-card__bottom-section">
     <ng-container *ngIf="eou.ou.mobile?.length; else addMobileNumber">
       <div class="employee-details-card__bottom-section__edit-number">
         <div>

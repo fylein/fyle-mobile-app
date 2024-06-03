@@ -6,16 +6,18 @@ import { SortingDirection } from '../models/sorting-direction.model';
 import * as dayjs from 'dayjs';
 import { CustomField } from '../models/custom_field.model';
 import { Transaction } from '../models/v1/transaction.model';
-import { ExtendedAdvanceRequest } from '../models/extended_advance_request.model';
 import { TxnCustomProperties } from '../models/txn-custom-properties.model';
 import { OperatorFunction } from 'rxjs';
 import { ExtendedAdvanceRequestPublic } from '../models/extended-advance-request-public.model';
+import { TokenService } from './token.service';
 
 @Injectable({
   providedIn: 'root',
 })
 export class UtilityService {
   readonly EPOCH = 19700101;
+
+  constructor(private tokenService: TokenService) {}
 
   discardNullChar(str: string): string {
     return str.replace(/[\u0000][\u0008-\u0009][\u000A-\u000C][\u005C]/g, '');
@@ -152,6 +154,10 @@ export class UtilityService {
       result += characters.charAt(Math.floor(Math.random() * characters.length));
     }
     return result;
+  }
+
+  isUserFromINCluster(): Promise<boolean> {
+    return this.tokenService.getClusterDomain().then((clusterDomain) => clusterDomain.includes('in1.fylehq.com'));
   }
 
   private getSortingValue(advance: ExtendedAdvanceRequestPublic, sortParam: SortingParam): dayjs.Dayjs | string {
