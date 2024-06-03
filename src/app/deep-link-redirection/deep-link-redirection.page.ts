@@ -127,14 +127,14 @@ export class DeepLinkRedirectionPage {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
 
-    const rptObservables$ = [
-      this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string),
-    ];
+    const spenderReport$ = this.spenderReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
+    const approverReport$ = this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string);
+    const rptObservables$ = [];
     if (currentEou.ou.roles.includes('APPROVER')) {
       rptObservables$.push(this.approverReportsService.getReportById(this.activatedRoute.snapshot.params.id as string));
     }
-    forkJoin(rptObservables$).subscribe(
-      ([spenderReport, approverReport]) => {
+    spenderReport$.subscribe(
+      (spenderReport) => {
         if (spenderReport) {
           this.router.navigate([
             '/',
@@ -142,13 +142,17 @@ export class DeepLinkRedirectionPage {
             'my_view_report',
             { id: this.activatedRoute.snapshot.params.id as string },
           ]);
-        } else if (approverReport) {
-          this.router.navigate([
-            '/',
-            'enterprise',
-            'view_team_report',
-            { id: this.activatedRoute.snapshot.params.id as string },
-          ]);
+        } else {
+          approverReport$.subscribe((approverReport) => {
+            if (approverReport) {
+              this.router.navigate([
+                '/',
+                'enterprise',
+                'view_team_report',
+                { id: this.activatedRoute.snapshot.params.id as string },
+              ]);
+            }
+          });
         }
       },
       () => {
