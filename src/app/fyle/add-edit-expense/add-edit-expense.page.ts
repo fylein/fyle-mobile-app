@@ -1558,20 +1558,17 @@ export class AddEditExpensePage implements OnInit {
     return forkJoin({
       recentValues: this.recentlyUsedValues$,
       eou: this.authService.getEou(),
+      activeCategories: this.activeCategories$,
     }).pipe(
-      switchMap(({ recentValues, eou }) => {
+      switchMap(({ recentValues, eou, activeCategories }) => {
         const formControl = this.getFormControl('category') as { value: OrgCategory };
         const categoryId = formControl.value && (formControl.value.id as unknown as string[]);
-        return this.activeCategories$.pipe(
-          switchMap((allActiveCategories) =>
-            this.recentlyUsedItemsService.getRecentlyUsedProjects({
-              recentValues,
-              eou,
-              categoryIds: categoryId,
-              activeCategoryList: allActiveCategories,
-            })
-          )
-        );
+        return this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          recentValues,
+          eou,
+          categoryIds: categoryId,
+          activeCategoryList: activeCategories,
+        });
       })
     );
   }

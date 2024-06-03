@@ -1343,18 +1343,15 @@ export class AddEditPerDiemPage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       perDiemCategoryIds: this.projectCategoryIds$,
       eou: this.authService.getEou(),
+      activeSubCategories: this.subCategories$,
     }).pipe(
-      switchMap(({ recentValues, perDiemCategoryIds, eou }) =>
-        this.subCategories$.pipe(
-          switchMap((allActiveSubCategories) =>
-            this.recentlyUsedItemsService.getRecentlyUsedProjects({
-              recentValues,
-              eou,
-              categoryIds: perDiemCategoryIds,
-              activeCategoryList: allActiveSubCategories,
-            })
-          )
-        )
+      switchMap(({ recentValues, perDiemCategoryIds, eou, activeSubCategories }) =>
+        this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          recentValues,
+          eou,
+          categoryIds: perDiemCategoryIds,
+          activeCategoryList: activeSubCategories,
+        })
       )
     );
 

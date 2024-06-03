@@ -1,16 +1,7 @@
 import { Component, AfterViewInit, ViewChild, ElementRef, Input, ChangeDetectorRef, TemplateRef } from '@angular/core';
-import { Observable, fromEvent, iif, of, from } from 'rxjs';
+import { Observable, fromEvent, iif, of, from, forkJoin } from 'rxjs';
 import { ModalController } from '@ionic/angular';
-import {
-  map,
-  startWith,
-  distinctUntilChanged,
-  switchMap,
-  concatMap,
-  finalize,
-  debounceTime,
-  shareReplay,
-} from 'rxjs/operators';
+import { map, startWith, distinctUntilChanged, switchMap, finalize, debounceTime, shareReplay } from 'rxjs/operators';
 import { isEqual } from 'lodash';
 import { ProjectsService } from 'src/app/core/services/projects.service';
 import { AuthService } from 'src/app/core/services/auth.service';
@@ -74,52 +65,49 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
     // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
     // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
     this.cdr.detectChanges();
-    const defaultProject$ = this.orgUserSettingsService.get().pipe(
-      switchMap((orgUserSettings) => {
-        if (orgUserSettings && orgUserSettings.preferences && orgUserSettings.preferences.default_project_id) {
-          return this.activeCategories$.pipe(
-            switchMap((allActiveCategories) =>
-              this.projectsService.getbyId(orgUserSettings.preferences.default_project_id, allActiveCategories)
-            )
-          );
+    const defaultProject$ = forkJoin({
+      orgUserSettings: this.orgUserSettingsService.get(),
+      activeCategories: this.activeCategories$,
+    }).pipe(
+      switchMap(({ orgUserSettings, activeCategories }) => {
+        const defaultProjectId = orgUserSettings?.preferences?.default_project_id;
+        if (defaultProjectId) {
+          return this.projectsService.getbyId(defaultProjectId, activeCategories);
         } else {
           return of(null);
         }
       })
     );
-
     return this.orgSettingsService.get().pipe(
-      switchMap((orgSettings) =>
-        iif(
+      switchMap((orgSettings) => {
+        const allowedProjectIds$ = iif(
           () => orgSettings.advanced_projects.enable_individual_projects,
           this.orgUserSettingsService
             .get()
             .pipe(map((orgUserSettings: OrgUserSettings) => orgUserSettings.project_ids || [])),
           of(null)
-        )
-      ),
-      concatMap((allowedProjectIds) =>
-        from(this.authService.getEou()).pipe(
-          switchMap((eou) =>
-            this.activeCategories$.pipe(
-              switchMap((allActiveCategories) =>
-                this.projectsService.getByParamsUnformatted(
-                  {
-                    orgId: eou.ou.org_id,
-                    isEnabled: true,
-                    sortDirection: 'asc',
-                    sortOrder: 'name',
-                    orgCategoryIds: this.categoryIds,
-                    projectIds: allowedProjectIds,
-                    searchNameText,
-                    offset: 0,
-                    limit: 20,
-                  },
-                  allActiveCategories
-                )
-              )
-            )
-          )
+        );
+
+        return forkJoin({
+          allowedProjectIds: allowedProjectIds$,
+          eou: from(this.authService.getEou()),
+          allActiveCategories: this.activeCategories$,
+        });
+      }),
+      switchMap(({ allowedProjectIds, eou, allActiveCategories }) =>
+        this.projectsService.getByParamsUnformatted(
+          {
+            orgId: eou.ou.org_id,
+            isEnabled: true,
+            sortDirection: 'asc',
+            sortOrder: 'name',
+            orgCategoryIds: this.categoryIds,
+            projectIds: allowedProjectIds,
+            searchNameText,
+            offset: 0,
+            limit: 20,
+          },
+          allActiveCategories
         )
       ),
       switchMap((projects) => {
@@ -129,7 +117,6 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
               if (defaultProject && !projects.some((project) => project.project_id === defaultProject.project_id)) {
                 projects.push(defaultProject);
               }
-
               return projects;
             })
           );
@@ -154,10 +141,7 @@ export class FyProjectSelectModalComponent implements AfterViewInit {
           .concat(projects.map((project) => ({ label: project.project_name, value: project })));
       }),
       finalize(() => {
-        // set isLoading to false
         this.isLoading = false;
-        // run ChangeDetectionRef.detectChanges to avoid 'expression has changed after it was checked error'.
-        // More details about CDR: https://angular.io/api/core/ChangeDetectorRef
         this.cdr.detectChanges();
       })
     );

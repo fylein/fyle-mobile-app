@@ -1705,18 +1705,15 @@ export class AddEditMileagePage implements OnInit {
       recentValues: this.recentlyUsedValues$,
       mileageCategoryIds: this.projectCategoryIds$,
       eou: eou$,
+      activeSubCategories: this.subCategories$,
     }).pipe(
-      switchMap(({ recentValues, mileageCategoryIds, eou }) =>
-        this.subCategories$.pipe(
-          switchMap((allActiveSubCategories) =>
-            this.recentlyUsedItemsService.getRecentlyUsedProjects({
-              recentValues,
-              eou,
-              categoryIds: mileageCategoryIds,
-              activeCategoryList: allActiveSubCategories,
-            })
-          )
-        )
+      switchMap(({ recentValues, mileageCategoryIds, eou, activeSubCategories }) =>
+        this.recentlyUsedItemsService.getRecentlyUsedProjects({
+          recentValues,
+          eou,
+          categoryIds: mileageCategoryIds,
+          activeCategoryList: activeSubCategories,
+        })
       )
     );
 
