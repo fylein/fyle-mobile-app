@@ -222,6 +222,10 @@ export function TestCases1(getTestBed) {
 
       it('should call approverReporsService.getReportsByParams and update acc', (done) => {
         mockAddNewFiltersToParams.and.returnValue(tasksQueryParamsWithFiltersData2);
+        apiV2Service.extendQueryParamsForTextSearch.and.returnValue({
+          state: 'in.(APPROVER_PENDING)',
+          next_approver_user_ids: 'cs.[usvKA4X8Ugcr]',
+        });
         component.ionViewWillEnter();
         component.eou$.subscribe((eou) => {
           expect(eou).toEqual(apiEouRes);

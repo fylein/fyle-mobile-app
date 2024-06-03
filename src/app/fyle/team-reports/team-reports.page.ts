@@ -177,9 +177,7 @@ export class TeamReportsPage implements OnInit {
       const paginatedPipe = this.loadData$.pipe(
         switchMap((params) => {
           let queryParams = params.queryParams;
-          if (params.searchString) {
-            queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
-          }
+          queryParams = this.apiV2Service.extendQueryParamsForTextSearch(queryParams, params.searchString, true);
           const orderByParams =
             params.sortParam && params.sortDir ? `${params.sortParam}.${params.sortDir}` : 'created_at.desc,id.desc';
           this.isLoadingDataInInfiniteScroll = true;
