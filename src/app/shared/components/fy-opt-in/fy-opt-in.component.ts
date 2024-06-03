@@ -180,7 +180,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
           this.toastWithoutCTA(
             'You have reached the limit for 6 digit code requests. Try again after 24 hours.',
             ToastType.FAILURE,
-            'msb-success-with-camera-icon'
+            'msb-failure-with-camera-icon'
           );
           this.disableResendOtp = true;
         }
