@@ -31,8 +31,8 @@ export class DeepLinkRedirectionPage {
     private spenderReportsService: SpenderReportsService
   ) {}
 
-  ionViewWillEnter() {
-    const subModule = this.activatedRoute.snapshot.params.sub_module;
+  ionViewWillEnter(): void {
+    const subModule = this.activatedRoute.snapshot.params.sub_module as string;
 
     if (subModule === 'report') {
       this.redirectToReportModule();
@@ -43,10 +43,10 @@ export class DeepLinkRedirectionPage {
     }
   }
 
-  async redirectToAdvReqModule() {
+  async redirectToAdvReqModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
-    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id).subscribe(
+    this.advanceRequestService.getEReq(this.activatedRoute.snapshot.params.id as string).subscribe(
       (res) => {
         const id = res.advance.id || res.areq.id;
 
@@ -67,7 +67,7 @@ export class DeepLinkRedirectionPage {
     );
   }
 
-  async redirectToExpenseModule() {
+  async redirectToExpenseModule(): Promise<void> {
     const expenseOrgId = this.activatedRoute.snapshot.params.orgId as string;
     const txnId = this.activatedRoute.snapshot.params.id as string;
 
@@ -123,7 +123,7 @@ export class DeepLinkRedirectionPage {
     }
   }
 
-  async redirectToReportModule() {
+  async redirectToReportModule(): Promise<void> {
     await this.loaderService.showLoader('Loading....');
     const currentEou = await this.authService.getEou();
 
@@ -160,7 +160,7 @@ export class DeepLinkRedirectionPage {
     );
   }
 
-  switchOrg() {
+  switchOrg(): void {
     this.router.navigate(['/', 'auth', 'switch_org']);
   }
 }
