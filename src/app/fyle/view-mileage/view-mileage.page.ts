@@ -330,6 +330,8 @@ export class ViewMileagePage {
           const details = this.fileService.getReceiptsDetails(response.name, response.download_url);
 
           const receipt: FileObject = {
+            id: response.id,
+            name: response.name,
             url: response.download_url,
             type: details.type,
             thumbnail: details.thumbnail,
@@ -400,8 +402,8 @@ export class ViewMileagePage {
     forkJoin([this.expenseFields$, this.mileageExpense$.pipe(take(1))])
       .pipe(
         map(([expenseFieldsMap, expense]) => {
-          this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.field_name;
-          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap?.project_id[0]?.is_mandatory;
+          this.projectFieldName = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.field_name;
+          const isProjectMandatory = expenseFieldsMap?.project_id && expenseFieldsMap.project_id[0]?.is_mandatory;
           this.isProjectShown = this.orgSettings?.projects?.enabled && (!!expense.project?.name || isProjectMandatory);
         })
       )

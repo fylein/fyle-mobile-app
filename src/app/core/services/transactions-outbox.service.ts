@@ -19,6 +19,9 @@ import { FileObject } from '../models/file-obj.model';
 import { OutboxQueue } from '../models/outbox-queue.model';
 import { ExpensesService } from './platform/v1/spender/expenses.service';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { ParsedResponse } from '../models/parsed_response.model';
+import { SpenderFileService } from './platform/v1/spender/file.service';
+import { PlatformFile } from '../models/platform/platform-file.model';
 
 @Injectable({
   providedIn: 'root',
@@ -50,7 +53,8 @@ export class TransactionsOutboxService {
     private trackingService: TrackingService,
     private currencyService: CurrencyService,
     private orgUserSettingsService: OrgUserSettingsService,
-    private expensesService: ExpensesService
+    private expensesService: ExpensesService,
+    private spenderFileService: SpenderFileService
   ) {
     this.ROOT_ENDPOINT = environment.ROOT_URL;
     this.restoreQueue();
@@ -128,6 +132,16 @@ export class TransactionsOutboxService {
     await this.saveDataExtractionQueue();
   }
 
+  getExpenseDate(entry: OutboxQueue, extractedData: ParsedResponse): Date {
+    if (entry.transaction.txn_dt) {
+      return new Date(entry.transaction.txn_dt);
+    } else if (extractedData.date) {
+      return new Date(extractedData.date);
+    } else {
+      return new Date();
+    }
+  }
+
   async processDataExtractionEntry(): Promise<void> {
     const that = this;
     const clonedQueue = cloneDeep(this.dataExtractionQueue);
@@ -156,7 +170,7 @@ export class TransactionsOutboxService {
                 };
 
                 entry.transaction.extracted_data = extractedData;
-                entry.transaction.txn_dt = new Date();
+                entry.transaction.txn_dt = this.getExpenseDate(entry, parsedResponse);
 
                 // TODO: add this to allow amout addtion to extracted expense
                 // let transactionUpsertPromise;
@@ -202,7 +216,7 @@ export class TransactionsOutboxService {
     });
   }
 
-  async fileUpload(dataUrl: string, fileType: string, receiptCoordinates?: string): Promise<FileObject> {
+  async fileUpload(dataUrl: string, fileType: string): Promise<FileObject> {
     return new Promise((resolve, reject) => {
       let fileExtension = fileType;
       let contentType = 'application/pdf';
@@ -212,31 +226,26 @@ export class TransactionsOutboxService {
         contentType = 'image/jpeg';
       }
 
-      this.fileService
-        .post({
+      this.spenderFileService
+        .createFile({
           name: '000.' + fileExtension,
-          receipt_coordinates: receiptCoordinates,
+          type: 'RECEIPT',
         })
         .toPromise()
-        .then((fileObj: FileObject) =>
-          this.fileService
-            .uploadUrl(fileObj.id)
-            .toPromise()
-            .then((url) => {
-              const uploadUrl = url;
-              // check from here
-              fetch(dataUrl)
-                .then((res) => res.blob())
-                .then((blob) => {
-                  this.uploadData(uploadUrl, blob, contentType)
-                    .toPromise()
-                    .then(() => resolve(fileObj))
-                    .catch((err) => {
-                      reject(err);
-                    });
-                });
-            })
-        )
+        .then((fileObj: PlatformFile) => {
+          const uploadUrl = fileObj.upload_url;
+          // check from here
+          return fetch(dataUrl)
+            .then((res) => res.blob())
+            .then((blob) =>
+              this.uploadData(uploadUrl, blob, contentType)
+                .toPromise()
+                .then(() => resolve(fileObj))
+                .catch((err) => {
+                  reject(err);
+                })
+            );
+        })
         .catch((err) => {
           reject(err);
         });
@@ -324,7 +333,7 @@ export class TransactionsOutboxService {
     if (!entry.fileUploadCompleted) {
       if (entry.dataUrls && entry.dataUrls.length > 0) {
         entry.dataUrls.forEach((dataUrl) => {
-          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type, dataUrl.receiptCoordinates);
+          const fileObjPromise = that.fileUpload(dataUrl.url, dataUrl.type);
 
           fileObjPromiseArray.push(fileObjPromise);
         });

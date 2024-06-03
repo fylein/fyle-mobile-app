@@ -13,6 +13,8 @@ import { CacheBuster } from 'ts-cacheable';
 import { UserEventService } from '../../../user-event.service';
 import { TransactionService } from '../../../transaction.service';
 import { PlatformReportsStatsResponse } from 'src/app/core/models/platform/v1/report-stats-response.model';
+import { ReportPermissions } from 'src/app/core/models/report-permissions.model';
+import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 
 const reportsCacheBuster$ = new Subject<void>();
 
@@ -81,6 +83,18 @@ export class SpenderReportsService {
       tap(() => this.clearTransactionCache()),
       map((res: PlatformApiPayload<Report>) => res.data)
     );
+  }
+
+  permissions(id: string): Observable<ReportPermissions> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<ReportPermissions>>('/reports/permissions', { data: { id } })
+      .pipe(map((res) => res.data));
+  }
+
+  postComment(id: string, comment: string): Observable<Comment> {
+    return this.spenderPlatformV1ApiService
+      .post<PlatformApiPayload<Comment>>('/reports/comments', { data: { id, comment } })
+      .pipe(map((res) => res.data));
   }
 
   getAllReportsByParams(queryParams: ReportsQueryParams): Observable<Report[]> {
