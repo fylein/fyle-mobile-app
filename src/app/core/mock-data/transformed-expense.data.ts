@@ -66,8 +66,6 @@ export const transformedExpenseData: Partial<UnflattenedTransaction> = deepFreez
     matched_corporate_card_transactions: [],
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -163,8 +161,6 @@ export const transformedExpenseDataWithSubCategory: Partial<UnflattenedTransacti
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
     project_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -281,8 +277,6 @@ export const transformedExpenseWithExtractedData: Partial<UnflattenedTransaction
     source_account_id: 'accO6abI7gZ6T',
     org_category_code: null,
     project_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'accO6abI7gZ6T',
@@ -383,8 +377,6 @@ export const transformedExpenseWithMatchCCCData: Partial<UnflattenedTransaction>
     ],
     source_account_id: 'acc7F6bwRa52p',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'acc7F6bwRa52p',
@@ -487,8 +479,6 @@ export const transformedExpenseWithMatchCCCData4: Partial<UnflattenedTransaction
     matched_corporate_card_transactions: [],
     source_account_id: 'acc7F6bwRa52p',
     org_category_code: null,
-    physical_bill: null,
-    physical_bill_at: null,
   },
   source: {
     account_id: 'acc7F6bwRa52p',
