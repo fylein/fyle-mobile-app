@@ -222,103 +222,6 @@ describe('ReportService', () => {
     });
   });
 
-  describe('getMyReports()', () => {
-    it('should get reports from API as specified by params', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      apiv2Service.get.and.returnValue(of(apiReportRes));
-      spyOn(dateService, 'fixDates').and.returnValues(
-        apiReportRes.data[0],
-        apiReportRes.data[1],
-        apiReportRes.data[2],
-        apiReportRes.data[3]
-      );
-
-      const params = {
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          or: [],
-        },
-        order: 'rp_created_at.desc',
-      };
-
-      const apiParams = {
-        offset: 0,
-        limit: 10,
-        order: 'rp_created_at.desc,rp_id.desc',
-        rp_org_user_id: 'eq.ouX8dwsbLCLv',
-        or: [],
-      };
-
-      reportService.getMyReports(params).subscribe((res) => {
-        expect(res).toEqual(apiReportRes);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
-        done();
-      });
-    });
-
-    it('should get reports from API when no order is specified', (done) => {
-      authService.getEou.and.resolveTo(apiEouRes);
-      apiv2Service.get.and.returnValue(of(apiReportRes));
-      spyOn(dateService, 'fixDates').and.returnValues(
-        apiReportRes.data[0],
-        apiReportRes.data[1],
-        apiReportRes.data[2],
-        apiReportRes.data[3]
-      );
-
-      const params = {
-        offset: 0,
-        limit: 10,
-        queryParams: {
-          or: [],
-        },
-      };
-
-      const apiParams = {
-        offset: 0,
-        limit: 10,
-        order: 'rp_created_at.desc,rp_id.desc',
-        rp_org_user_id: 'eq.ouX8dwsbLCLv',
-        or: [],
-      };
-
-      reportService.getMyReports(params).subscribe((res) => {
-        expect(res).toEqual(apiReportRes);
-        expect(apiv2Service.get).toHaveBeenCalledOnceWith('/reports', { params: apiParams });
-        done();
-      });
-    });
-  });
-
-  it('getPaginatedERptc(): should get paginated extended-reports', (done) => {
-    apiService.get.and.returnValue(of(apiExtendedReportRes));
-    dataTransformService.unflatten.and.returnValues(
-      unflattenedErptcArrayItem1,
-      unflattenedErptcArrayItem2,
-      unflattenedErptcArrayItem3,
-      unflattenedErptcArrayItem4
-    );
-    const params = {
-      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-    };
-
-    const apiParams = {
-      params: {
-        offset: 0,
-        limit: 4,
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      },
-    };
-
-    reportService.getPaginatedERptc(0, apiExtendedReportRes.length, params).subscribe((res) => {
-      expect(res).toEqual(expectedErpt);
-      expect(apiService.get).toHaveBeenCalledOnceWith('/erpts', apiParams);
-      expect(dataTransformService.unflatten).toHaveBeenCalledTimes(4);
-      done();
-    });
-  });
-
   it('getExports(): should get export actions for a report', (done) => {
     apiService.get.and.returnValue(of([]));
 
@@ -611,37 +514,6 @@ describe('ReportService', () => {
     });
   });
 
-  describe('getPaginatedERptcCount()', () => {
-    it('should get extended reports count', (done) => {
-      networkService.isOnline.and.returnValue(of(true));
-      apiService.get.and.returnValue(of({ count: 4 }));
-      storageService.set.and.resolveTo(null);
-
-      const apiParam = ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'];
-
-      reportService.getPaginatedERptcCount({ state: apiParam }).subscribe((res) => {
-        expect(res).toEqual({ count: 4 });
-        expect(apiService.get).toHaveBeenCalledOnceWith('/erpts/count', { params: { state: apiParam } });
-        expect(storageService.set).toHaveBeenCalledOnceWith('erpts-count' + JSON.stringify({ state: apiParam }), {
-          count: 4,
-        });
-        done();
-      });
-    });
-
-    it('should return count when device is offline and use storage to give count', (done) => {
-      networkService.isOnline.and.returnValue(of(false));
-      storageService.get.and.resolveTo({ count: 4 });
-
-      reportService.getPaginatedERptcCount({}).subscribe((res) => {
-        expect(res).toEqual({ count: 4 });
-        expect(networkService.isOnline).toHaveBeenCalledTimes(1);
-        expect(storageService.get).toHaveBeenCalledTimes(1);
-        done();
-      });
-    });
-  });
-
   describe('addOrderByParams()', () => {
     it('return the params when no order is specified', () => {
       const params = { state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'] };
@@ -775,29 +647,5 @@ describe('ReportService', () => {
     const res = reportService.addApprovers(mockERpts, mockApproverData);
 
     expect(res).toEqual(expectedAddedApproverERpts);
-  });
-
-  it('getFilteredPendingReports(): should get filtered and pending reports', (done) => {
-    spyOn(reportService, 'searchParamsGenerator').and.returnValue({
-      state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-    });
-    spyOn(reportService, 'getPaginatedERptcCount').and.returnValue(of({ count: 2 }));
-    spyOn(reportService, 'getPaginatedERptc').and.returnValue(of(addApproverERpts));
-    spyOn(reportService, 'getApproversInBulk').and.returnValue(of(approversData1));
-    spyOn(reportService, 'addApprovers').and.returnValue(expectedAddedApproverERpts);
-
-    reportService.getFilteredPendingReports({ state: 'edit' }).subscribe((res) => {
-      expect(res).toEqual(expectedAddedApproverERpts);
-      expect(reportService.searchParamsGenerator).toHaveBeenCalledOnceWith({ state: 'edit' });
-      expect(reportService.getPaginatedERptcCount).toHaveBeenCalledOnceWith({
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      });
-      expect(reportService.getPaginatedERptc).toHaveBeenCalledOnceWith(0, 2, {
-        state: ['DRAFT', 'APPROVER_PENDING', 'APPROVER_INQUIRY'],
-      });
-      expect(reportService.getApproversInBulk).toHaveBeenCalledOnceWith(['rp35DK02IvMP', 'rppMWBOkXJeS']);
-      expect(reportService.addApprovers).toHaveBeenCalledOnceWith(addApproverERpts, approversData3);
-      done();
-    });
   });
 });
