@@ -366,35 +366,30 @@ describe('FyProjectSelectModalComponent', () => {
     });
   });
 
-  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync(() => {
-    const expectedProjects = [{ label: 'project1', value: testProjectV2 }];
-    const labelledProjects = [{ label: 'project1', value: testProjectV2 }];
-    const expectedLabelledProjects = [{ label: 'project1', value: testProjectV2, selected: true }];
-
+  it('ngAfterViewInit(): show filtered projects and recently used items', fakeAsync((done) => {
     spyOn(component, 'getRecentlyUsedItems').and.returnValue(of(expectedProjects));
     spyOn(component, 'getProjects').and.returnValue(of(labelledProjects));
 
-    component.currentSelection = testProjectV2;
-
+    utilityService.searchArrayStream.and.returnValue(() => of([{ label: 'project1', value: testProjectV2 }]));
     fixture.detectChanges();
-    component.ngAfterViewInit();
 
-    const inputElement = fixture.nativeElement.querySelector('input');
-    inputElement.value = 'project1';
+    component.ngAfterViewInit();
+    inputElement.value = 'projects';
     inputElement.dispatchEvent(new Event('keyup'));
 
     tick(300);
-
     component.recentrecentlyUsedItems$.subscribe((res) => {
-      expect(res).toEqual(expectedProjects);
+      expect(res).toEqual(expectedProjects4);
     });
 
+    tick(300);
     component.filteredOptions$.subscribe((res) => {
       expect(res).toEqual(expectedLabelledProjects);
     });
 
-    expect(component.getProjects).toHaveBeenCalledWith('project1');
+    expect(component.getProjects).toHaveBeenCalledWith('projects');
     expect(component.getRecentlyUsedItems).toHaveBeenCalled();
+    expect(utilityService.searchArrayStream).toHaveBeenCalledWith('projects');
 
     discardPeriodicTasks();
   }));
