@@ -16,9 +16,10 @@ import { TransactionsOutboxService } from './transactions-outbox.service';
 import { outboxQueueData1 } from '../mock-data/outbox-queue.data';
 import { cloneDeep } from 'lodash';
 import { of } from 'rxjs';
-import { parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
+import { extractedData, parsedReceiptData1, parsedReceiptData2 } from '../mock-data/parsed-receipt.data';
 import { fileData1 } from '../mock-data/file.data';
 import { SpenderReportsService } from './platform/v1/spender/reports.service';
+import { parsedResponseData1 } from '../mock-data/parsed-response.data';
 
 describe('TransactionsOutboxService', () => {
   const rootUrl = 'https://staging.fyle.tech';
@@ -353,4 +354,30 @@ describe('TransactionsOutboxService', () => {
     expect(transactionService.upsert).toHaveBeenCalledTimes(2);
     expect(transactionsOutboxService.removeDataExtractionEntry).toHaveBeenCalledTimes(3);
   }));
+
+  describe('getExpenseDate():', () => {
+    it('should return transaction date if txn_dt is present', () => {
+      const txnDate = new Date('2023-02-15T06:30:00.000Z');
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.txn_dt = txnDate;
+      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
+      expect(res).toEqual(txnDate);
+    });
+
+    it('should return extracted date if txn_dt is not present', () => {
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.txn_dt = null;
+      const res = transactionsOutboxService.getExpenseDate(mockQueue, parsedResponseData1);
+      expect(res).toEqual(parsedResponseData1.date);
+    });
+
+    it('should return today date if txn_dt and extracted date is not present', () => {
+      const mockQueue = cloneDeep(outboxQueueData1[0]);
+      mockQueue.transaction.txn_dt = null;
+      const mockParsedResponse = cloneDeep(parsedResponseData1);
+      mockParsedResponse.date = null;
+      const res = transactionsOutboxService.getExpenseDate(mockQueue, mockParsedResponse);
+      expect(res).toEqual(new Date());
+    });
+  });
 });

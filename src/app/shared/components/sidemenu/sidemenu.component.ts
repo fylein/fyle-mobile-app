@@ -96,10 +96,10 @@ export class SidemenuComponent implements OnInit {
       });
   }
 
-  async showSideMenuOnline(): Promise<void | number> {
+  async showSideMenuOnline(): Promise<void> {
     const isLoggedIn = await this.routerAuthService.isLoggedIn();
     if (!isLoggedIn) {
-      return 0;
+      return;
     }
     const orgs$ = this.orgService.getOrgs();
     const currentOrg$ = this.orgService.getCurrentOrg().pipe(shareReplay(1));
@@ -196,6 +196,7 @@ export class SidemenuComponent implements OnInit {
 
   getTeamOptions(): Partial<SidemenuItem>[] {
     const showTeamReportsPage = this.primaryOrg?.id === (this.activeOrg as Org)?.id;
+
     const { allowedReportsActions, allowedAdvancesActions } = this.allowedActions;
     const teamOptions = [
       {

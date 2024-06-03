@@ -19,15 +19,19 @@
         <ion-icon [src]="'../../../assets/svg/chat.svg'" slot="icon-only"></ion-icon>
       </ion-button>
 
-      <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag$|async">
-        <ng-container *ngIf="expense$|async as expense">
-          <ion-button
-            class="view-expense--header-btn-container__btn"
-            (click)="flagUnflagExpense(expense.is_manually_flagged)"
-            [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
-          >
-            <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
-          </ion-button>
+      <ng-container *ngIf="canFlagOrUnflag$|async as canFlagOrUnflag">
+        <ng-container *ngIf="isManualFlagFeatureEnabled$|async as isManualFlagFeatureEnabled">
+          <ng-container *ngIf="view === ExpenseView.team && canFlagOrUnflag && isManualFlagFeatureEnabled.value">
+            <ng-container *ngIf="expense$|async as expense">
+              <ion-button
+                class="view-expense--header-btn-container__btn"
+                (click)="flagUnflagExpense(expense.is_manually_flagged)"
+                [ngClass]="expense.is_manually_flagged ? 'icon--flagged' : 'icon--unflagged'"
+              >
+                <ion-icon [src]="'../../../assets/svg/flag-fill.svg'" slot="icon-only"></ion-icon>
+              </ion-button>
+            </ng-container>
+          </ng-container>
         </ng-container>
       </ng-container>
 
@@ -71,7 +75,9 @@
             <div *ngIf="isProjectShown" class="view-expense--card-container__project">
               {{ projectFieldName | titlecase }}: {{ expense.project?.name || '-' }}
             </div>
-            <div *ngIf="isCCCTransaction && cardNumber">Card Number: {{ cardNumber | maskNumber }}</div>
+            <div *ngIf="isCCCTransaction && cardNumber">
+              Card Number: {{ cardNumber | maskNumber }} <span *ngIf="cardNickname">{{'(' + cardNickname + ')'}}</span>
+            </div>
           </div>
 
           <div class="ion-text-right view-expense--card-container__block">

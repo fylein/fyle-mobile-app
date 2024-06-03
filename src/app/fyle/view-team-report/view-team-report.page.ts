@@ -37,6 +37,7 @@ import { OrgSettings } from 'src/app/core/models/org-settings.model';
 import { ExtendedComment } from 'src/app/core/models/platform/v1/extended-comment.model';
 import { Comment } from 'src/app/core/models/platform/v1/comment.model';
 import { ApprovalState, ReportApprovals } from 'src/app/core/models/platform/report-approvals.model';
+import { LaunchDarklyService } from 'src/app/core/services/launch-darkly.service';
 @Component({
   selector: 'app-view-team-report',
   templateUrl: './view-team-report.page.html',
@@ -133,6 +134,8 @@ export class ViewTeamReportPage {
 
   approvals: ReportApprovals[];
 
+  isManualFlagFeatureEnabled$: Observable<{ value: boolean }>;
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private reportService: ReportService,
@@ -152,7 +155,8 @@ export class ViewTeamReportPage {
     private statusService: StatusService,
     private humanizeCurrency: HumanizeCurrencyPipe,
     private orgSettingsService: OrgSettingsService,
-    private approverReportsService: ApproverReportsService
+    private approverReportsService: ApproverReportsService,
+    private launchDarklyService: LaunchDarklyService
   ) {}
 
   ionViewWillLeave(): void {
@@ -259,7 +263,12 @@ export class ViewTeamReportPage {
     this.isExpensesLoading = true;
     this.setupNetworkWatcher();
 
-    this.navigateBack = this.activatedRoute.snapshot.params.navigate_back as boolean;
+    this.isManualFlagFeatureEnabled$ = this.launchDarklyService.checkIfManualFlaggingFeatureIsEnabled();
+
+    const navigateBack = this.activatedRoute.snapshot.params?.navigate_back as string | null;
+    if (navigateBack && typeof navigateBack == 'string') {
+      this.navigateBack = JSON.parse(navigateBack) as boolean;
+    }
 
     this.report$ = this.loadReports();
     this.eou$ = from(this.authService.getEou());
