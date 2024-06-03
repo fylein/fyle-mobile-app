@@ -28,7 +28,7 @@ export class FyOptInComponent implements OnInit, AfterViewInit {
 
   @ViewChild(NgOtpInputComponent, { static: false }) ngOtpInput: NgOtpInputComponent;
 
-  @Input() optInFlowState: OptInFlowState = OptInFlowState.OTP_VERIFICATION;
+  @Input() optInFlowState: OptInFlowState = OptInFlowState.MOBILE_INPUT;
 
   @Input() extendedOrgUser: ExtendedOrgUser;
 

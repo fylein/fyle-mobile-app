@@ -732,4 +732,8 @@ export class TrackingService {
   skipOptInFlow(): void {
     this.eventTrack('Skip Opt-in');
   }
+
+  clickedOnTask(properties): void {
+    this.eventTrack('Clicked On Task', properties);
+  }
 }
