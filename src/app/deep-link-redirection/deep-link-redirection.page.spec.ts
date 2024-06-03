@@ -21,7 +21,7 @@ import { SpenderReportsService } from '../core/services/platform/v1/spender/repo
 import { Approver } from '../core/models/approver.model';
 import { platformReportData } from '../core/mock-data/platform-report.data';
 
-fdescribe('DeepLinkRedirectionPage', () => {
+describe('DeepLinkRedirectionPage', () => {
   let component: DeepLinkRedirectionPage;
   let fixture: ComponentFixture<DeepLinkRedirectionPage>;
   let router: jasmine.SpyObj<Router>;
@@ -88,8 +88,6 @@ fdescribe('DeepLinkRedirectionPage', () => {
     spenderReportsService = TestBed.inject(SpenderReportsService) as jasmine.SpyObj<SpenderReportsService>;
     activeroutemock = TestBed.inject(ActivatedRoute);
 
-    spenderReportsService.getReportById.and.returnValue(of(platformReportData));
-    approverReportsService.getReportById.and.returnValue(of(platformReportData));
     authService.getEou.and.resolveTo(apiEouRes);
     fixture = TestBed.createComponent(DeepLinkRedirectionPage);
     component = fixture.componentInstance;
@@ -102,6 +100,8 @@ fdescribe('DeepLinkRedirectionPage', () => {
 
   describe('redirectToReportModule', () => {
     it('should redirect to report module', fakeAsync(() => {
+      spenderReportsService.getReportById.and.returnValue(of(platformReportData));
+      approverReportsService.getReportById.and.returnValue(of(platformReportData));
       activeroutemock.snapshot.params = {
         sub_module: 'report',
         id: 'rprAfNrce73O',
@@ -122,7 +122,9 @@ fdescribe('DeepLinkRedirectionPage', () => {
       ]);
     }));
 
-    it('should redirect to team reports when ids do not match', fakeAsync(() => {
+    it('should redirect to team reports when there is no spender report', fakeAsync(() => {
+      spenderReportsService.getReportById.and.returnValue(of(null));
+      approverReportsService.getReportById.and.returnValue(of(platformReportData));
       activeroutemock.snapshot.params = {
         sub_module: 'report',
         id: 'rprAfNrce75O',
@@ -135,8 +137,6 @@ fdescribe('DeepLinkRedirectionPage', () => {
         },
       };
 
-      authService.getEou.and.resolveTo(updatedApiEouRes);
-
       const updatedErpt = {
         ...expectedSingleErpt,
         rp: {
@@ -144,14 +144,12 @@ fdescribe('DeepLinkRedirectionPage', () => {
           org_user_id: 'rprAfNrce75O',
         },
       };
-      reportService.getERpt.and.returnValue(of(updatedErpt));
       component.redirectToReportModule();
       fixture.detectChanges();
       expect(loaderService.showLoader).toHaveBeenCalledOnceWith('Loading....');
       tick(500);
       expect(authService.getEou).toHaveBeenCalledTimes(1);
       tick(500);
-      expect(reportService.getERpt).toHaveBeenCalledOnceWith(activeroutemock.snapshot.params.id);
       expect(router.navigate).toHaveBeenCalledOnceWith([
         '/',
         'enterprise',
@@ -172,8 +170,8 @@ fdescribe('DeepLinkRedirectionPage', () => {
 
       spyOn(component, 'switchOrg');
       const error = 'Something went wrong';
-      authService.getEou.and.resolveTo(updatedApiEouRes);
-      reportService.getERpt.and.returnValue(throwError(() => error));
+      spenderReportsService.getReportById.and.returnValue(throwError(() => error));
+      approverReportsService.getReportById.and.returnValue(throwError(() => error));
       component.redirectToReportModule();
       fixture.detectChanges();
       tick(500);
